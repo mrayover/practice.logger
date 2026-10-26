@@ -1,43 +1,40 @@
-# Stage 2 development checkpoint — 2026-10-26
-
-Owner reports 0.1.0 works and authorizes Stage 2. Read WORK_LOG.md for this session. Stage 2 sources and tests are implemented but build/lint/tests are not yet verified. App identity com.mrayover.practicelogger.app preserves the old temporary-key catalog alongside the new installation. Permanent private signing key stays local in ignored .signing; dist and .tools are ignored. Exact next task: run Stage 2 CI, fix failures, retain schema 2, sign/package and extract the verified APK into dist, then update closing records and push through Desktop.
-
-Previous verified baseline follows:
-
 # Current state
 
-Updated: 2026-10-26, 10:40 PDT (America/Los_Angeles).
+Updated: 2026-10-26 (America/Los_Angeles). Stage 2 practice loop delivered; owner phone acceptance of 0.2.0 is pending. Owner reports the earlier 0.1.0 catalog works, with no model/OS or individual checklist results supplied.
 
-## Verified delivery
+## Verified source and local build
 
-Stage 0 and Stage 1 are complete in CI. Owner phone acceptance is pending. This is an offline Block catalog test release, not the complete practice-session application.
+- main app source: 91f4129c4f186b4d95b99d1ab8244cc52c34af0c. Final CI https://github.com/mrayover/practice.logger/actions/runs/40378217900 passed build and device jobs. Closing documentation follows this source and does not alter the APK.
+- Version 0.2.0, versionCode 3; stable application ID com.mrayover.practicelogger.app; launcher practice.logger 0.2; Android 8.0+.
+- ZIP: C:\Users\mrove\Projects\practice.logger\dist\practice.logger-0.2.0-b3-91f4129.zip
+- Extracted APK: C:\Users\mrove\Projects\practice.logger\dist\practice.logger-0.2.0-b3-91f4129\practice.logger-0.2.0-b3-91f4129.apk
+- APK SHA-256: 0f23a7b81f76063bb08ae26c070b3d1e0b947d9df35f6839a613d77daa8d0c79
+- Permanent certificate SHA-256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+- BUILD_INFO.json and INSTALL.txt are beside the APK. ZIP extraction checksum matched. Old 0.1.0 ZIP/folder retained as practice.logger-0.1.0-d9b8354; original downloads also preserved.
 
-- Branch: main. Verified app-source commit: d9b83548b2fa0e17afb68aea73a211266b1dd955 (pushed with GitHub Desktop and verified remotely).
-- Final CI: https://github.com/mrayover/practice.logger/actions/runs/40370047278 — build and device jobs both successful.
-- Installable debug APK (0.1.0, versionCode 2, Android 8+): https://github.com/mrayover/practice.logger/actions/runs/40370047278/artifacts/12671548458 . Download ZIP and extract app-debug.apk. Artifact retention: 30 days.
-- Stage 0 evidence: https://github.com/mrayover/practice.logger/actions/runs/40367248107 (main c3c8e8f5b71a34ef3e68cebd6ce16be59f062979), including launch/recreation smoke test and foundation APK artifact 12671091904.
-- The closing documentation-only commit follows the source commit above and changes no app behavior. CI deliberately ignores Markdown-only commits; use the verified source run above for the delivered APK. Verify and report the closing commit SHA after its Desktop push.
+## Working behavior
 
-## Working functionality
+Stages 0/1 catalog remain functional with bundled Lato and transactional Room persistence. Stage 2 adds durable draft sessions, Block selection and shared create editor, ordered placements, removal and placement-only duration overrides; focused countdown, Start/Pause/Resume, early Complete, Skip, explicit zero-time Continue into overtime; auto-pause on background/rotation/leaving Focus and screen-awake only during active practice; automatic completed summaries, optional Block/session notes and reopenable Recent Practice history. Each next Block starts paused. Only an actual unfinished session exposes Continue Session.
 
-Home shows the real active-Block count and opens Manage Blocks or New Block. Block Library lists and searches Active or Archived Blocks. Block Editor requires Name and Action; defaults to five minutes; accepts positive whole duration and optional numeric BPM plus notes/source. Save creates/updates Room records transactionally. Cancel/Android Back confirms discarding changed drafts. Drafts survive Activity recreation/saved-state restoration. Save outcomes remain in the ViewModel across recreation. Storage failure retains a draft and shows an error.
+Room version 2 stores session/placement records and immutable instruction/reference snapshots, retaining stable Block IDs. Explicit 1→2 migration preserves catalog data; schemas 1/2 retained. Editing/archiving a source Block does not rewrite history. Draft selection/order/overrides and active-session recovery survive restart.
 
-Archive/restore is confirmed and reversible. No hard-delete control/API exists: stable IDs and created timestamps are preserved for future history. Archive with unsaved edits explicitly discards those edits after confirmation. Search matches name/action/notes literally, ignoring case. All app-controlled Material text styles and XML theme use bundled Lato Regular/Bold; license retained in APK assets. No Internet permission, accounts or service.
+## Verified checks
 
-## Verified tests
+- Final CI ran testDebugUnitTest lintDebug assembleDebug assembleRelease successfully. Thirteen unit/Robolectric tests cover catalog validation/persistence/fonts, migration, draft order/removal/overrides, snapshots, three-Block outcomes and reopen, timer boundaries/overtime/rounding/overflow and completed-history protection.
+- API 35 emulator: catalog create/edit/search/archive/restore/discard/recreation; catalog process reopen; three-Block selection/reorder/override and unchanged default; early Complete, Skip, pause/background without time inflation, explicit zero/overtime; interrupted-session process recovery and completion; saved summary/note/history snapshots after editing/archiving the original Block; another process restart.
+- Higher versionCode 4 test APK installed over the versionCode 3 test app and reopened unchanged history successfully. This tests Android install-over persistence with a consistent CI key. Delivered local release APK has independently verified permanent signature, pinned certificate, package/version and ZIP round-trip hash.
+- Home/Builder/Focus/zero-choice and paused-screen emulator screenshots were reviewed. The attempted Summary screenshot captured the preceding frame; Summary behavior passed semantic tests, but its visual review remains part of owner phone checks. Real-phone Stage 2 usage, scaling/accessibility and update installation remain pending. Local compilation/emulator execution was not performed; local tools are Java runtime and APK signing/inspection utilities only.
 
-- ./gradlew testDebugUnitTest lintDebug assembleDebug — success in final build job. Six targeted JUnit/Robolectric tests cover every Material typography style, file database close/reopen, transactional create/edit/archive/restore, stable IDs/timestamps, invalid create/edit rejection, numeric boundaries and literal/archive-aware search.
-- API 35 Android emulator: installed/launched app; created a Block through UI, displayed required-field errors, retained draft during recreation, edited duration, searched, archived/restored, kept/discarded edits; recreated after transitions. Full catalog test passed.
-- Same installed app force-stopped, then second instrumentation process launched Home, reopened the saved Block, and verified action and edited duration. Direct instrumentation reported OK (1 test); no reinstall/clear between phases.
-- Initial SDK setup failure and invalid restart harness were corrected; details remain in WORK_LOG.md. Final CI is green. Local Gradle/device testing not performed: local JDK/SDK were not found. Physical phone testing remains pending; no claim of phone acceptance or visual approval.
+## Update delivery and limits
 
-## Known limitations and remaining scope
+The old 0.1.0 key was temporary/lost. It cannot be used for an in-place update. Safe side-by-side transition preserves that installed app and Blocks; there is **no automatic transfer** into the new app. Future dist APKs use the permanent local key and increasing versionCode to update the new installation in place. Do not install temporary-key CI debug APKs over it. New code still requires a build; no network updater/backend was added.
 
-No Session Builder, practice timer, session recovery, history, backup/restore or stable release signing yet. No Goals, Routines, metronome, tuner, recording or advanced features. Practice Now and other future controls are intentionally absent until they work. Provisional restrained light-theme design; phone text scaling, keyboard usability and visual approval need owner checks. CI debug keys can differ between runs, so updates may fail signature matching; do not uninstall an app containing needed data. Avoid irreplaceable data before stable signing/backup. Unsaved drafts are not saved Blocks and can be lost on force-stop. A read failure asks the user to close/reopen the app. Migration baseline version 1 is committed; future schema changes require migrations, never destructive fallback.
+dist/, .tools/ and .signing/ are ignored. Private signing key/password stay in .signing and must be securely backed up outside Git; only the public fingerprint is tracked. Use scripts/Publish-LocalApk.ps1 for future verified unsigned CI releases, preserve prior versions and verify certificate/package/version/hash. Losing this permanent key prevents in-place updates.
 
-## Repository and next task
+Time uses monotonic foreground deltas with 250-ms checkpoints and pause flush. Recovery is always paused and excludes wall/background time. Abrupt kill or disk failure can lose the most recent uncommitted interval plus scheduling/write latency. Optional quick notes are saved on Complete/Skip; session notes require Save note. No backup/restore yet; avoid irreplaceable data. No Goals, Routines, metronome, tuner, recording or deferred advanced functionality. Stage 3 hardening remains; daily-use reliability is not yet claimed.
 
-Actual Windows checkout: C:\Users\mrove\Projects\practice.logger. All Git mutations this session used GitHub Desktop. Original prefixed plan/handoff and commit history remain intact. Canonical operational records were created because they were absent initially. No cloud checkout was used; this folder is already updated and does not need Fetch/Pull to receive this session's work.
+## Next task and continuity
 
-Exact next task: run the Stage 1 checklist in MANUAL_TESTS.md on the owner's Android phone, record model/Android version/results, and resolve any catalog defects before beginning Stage 2 Session Builder. Read all five operational records first in every future session. Append WORK_LOG and refresh this state at every session close, including incomplete sessions.
+Exact next task: perform/record the Stage 2 phone workflow in MANUAL_TESTS.md, resolve practice-loop issues, then begin Stage 3 versioned backup/export and safe restore. Record phone model/OS. Read the five operational records before each session; append WORK_LOG and update this state even for incomplete sessions.
 
+Actual checkout is C:\Users\mrove\Projects\practice.logger; all Git mutations used GitHub Desktop. No cloud checkout or local Fetch/Pull sync step is required. Report and remotely verify the closing documentation commit SHA after push.

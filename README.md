@@ -1,29 +1,43 @@
 # practice.logger
 
-Small offline Android practice tool. The authoritative scope is [BUILD_PLAN.md](BUILD_PLAN.md). Read [AGENTS.md](AGENTS.md), [CURRENT_STATE.md](CURRENT_STATE.md) and [WORK_LOG.md](WORK_LOG.md) before every development session.
+An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
-Stage 0 foundation and Stage 1 Block catalog passed CI build, unit tests, lint, Android emulator catalog workflows and a force-stop/reopen persistence test. Owner phone checks are pending. No Goals, Routines or audio tools are included.
+Stages 0, 1 and 2 passed automated verification. The owner confirmed that the earlier 0.1.0 catalog works on their phone. The new 0.2.0 practice loop still needs owner phone testing. Backup/restore and daily-use hardening are Stage 3. Goals, Routines, audio tools and other deferred features remain excluded.
 
-## Build and APK
+Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md completely before every development session. Every session, including incomplete work or fixes, must update the records and publish intended changes through GitHub Desktop.
 
-GitHub Actions → Android APK → successful run → Artifacts → practice-logger-debug. Download the ZIP, extract app-debug.apk and transfer it to an Android 8.0+ phone. Open it and approve Android's install-from-this-source prompt if you trust this build; disable that source afterward if desired. A debug build is for testing, not Play Store distribution. Artifacts expire after 30 days; rerun the workflow to rebuild.
+## Install the versioned local build
 
-Developers need JDK 17 and Android SDK 36. Run ./gradlew testDebugUnitTest lintDebug assembleDebug (Windows: .\gradlew.bat). Configure a local SDK through ANDROID_HOME or ignored local.properties. No developer installation is needed on the owner's PC to obtain the CI APK.
+The verified, permanently signed 0.2.0 build (versionCode 3) is in:
 
-Debug APK signing uses the CI runner's temporary debug key. Builds from different runs may not install as an update; do not store irreplaceable data in these early test APKs. Stable signing and backup must precede dependable daily use. Do not uninstall an existing app containing needed data to resolve a signing conflict.
+- ZIP: dist/practice.logger-0.2.0-b3-91f4129.zip
+- Extracted APK: dist/practice.logger-0.2.0-b3-91f4129/practice.logger-0.2.0-b3-91f4129.apk
+- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.2.0-b3-91f4129/BUILD_INFO.json
 
-## Design and dependencies
+Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger 0.2. See MANUAL_TESTS.md before storing important practice data.
 
-Kotlin 2.2.21, Compose, Room 2.8.5, AGP 8.13.2, Gradle 8.14.3, minSdk 26 / targetSdk 36. No Internet permission. Lato Regular/Bold are bundled with their SIL Open Font License in app assets and THIRD_PARTY_NOTICES.md. Android system UI and keyboards control their own font.
+The original 0.1.0 APK used a lost temporary CI debug key. To preserve its installed app and Blocks, 0.2.0 uses the stable application ID com.mrayover.practicelogger.app and installs alongside it. **Blocks do not transfer automatically from 0.1.0.** Keep the old catalog if it contains needed data; recreate desired Blocks in the new app. The old APK ZIP and extracted folder are also preserved under a versioned name in dist.
 
-Git operations use GitHub Desktop. This session edits the actual Windows checkout, not a cloud copy.
+Future locally signed builds use the same permanent key and a higher versionCode: install over the new app to retain its database. Do not uninstall it first, and do not substitute a temporary-key CI debug APK. Code changes still require compilation; CI builds them without an Android developer installation on the owner's computer. No account, online update checker or backend has been added. Android's update-signing requirements: https://developer.android.com/studio/publish/app-signing .
 
-## Block catalog (0.1.0)
+## Practice workflow
 
-Home → Manage Blocks → New Block. Name and Action are required; default duration starts at five minutes. Duration and optional BPM accept positive whole numbers representable as 32-bit integers. Search matches name, action and notes literally, ignoring case. Save writes locally; Cancel/Back asks before discarding edits. An editor draft survives Activity recreation and saved-state restoration. An unsaved draft is not a saved Block.
+Home → Practice Now → add active Blocks. Create a Block through the shared editor if needed. Up/Down reorders placements; remove placements or override their duration without changing the reusable Block. A draft survives leaving the screen and restarting. Start Session requires at least one placement.
 
-Archive is reversible and requires confirmation. Switch between Active and Archived, open a Block and Restore it. No hard deletion is exposed: stable IDs and Block records are retained for future history. Archiving with unsaved edits discards those edits after the explicit confirmation.
+Focused Practice starts paused. Start/Resume counts only foreground active time; Pause, leaving the screen or backgrounding stops it. Each next Block waits for Start. Complete can finish early; Skip records the actual time already spent. At 00:00 the timer pauses and waits for Continue (count-up overtime) or Complete; it never auto-advances. Save for later returns Home with Continue Session. Recovery is paused with the correct current Block, order, durations and committed time.
 
-Practice Now, sessions, timers, history and backup belong to later stages and have no dead controls in this build. See MANUAL_TESTS.md for the phone checklist. CI runs only for source/configuration changes; documentation-only commits retain the prior tested APK.
+The final Block automatically saves Session Summary. Recent Practice reopens summaries. Name/action/tempo/reference snapshots remain truthful after the reusable Block is edited or archived. Quick Block notes are saved on Complete/Skip; session notes have an explicit Save note button.
 
-Latest verified catalog APK: [Download 0.1.0 debug artifact](https://github.com/mrayover/practice.logger/actions/runs/40370047278/artifacts/12671548458). [Successful CI run](https://github.com/mrayover/practice.logger/actions/runs/40370047278), source d9b83548b2fa0e17afb68aea73a211266b1dd955. See CURRENT_STATE.md for delivery evidence and limitations.
+Timer values use monotonic elapsed time, never wall-clock differences. Foreground checkpoints are written every 250 ms plus a pause flush. An abrupt process kill/storage failure can lose the most recent uncommitted interval (plus scheduling/write latency); recovery conservatively restores saved time and never counts background time. This is a test release, not yet the Stage 3 daily-use guarantee.
+
+Block Library supports Active/Archived filters, literal case-insensitive search of name/action/notes and confirmed reversible archiving. No permanent delete API. Name/Action are required; durations and optional BPM accept positive whole numbers representable as 32-bit integers. Session duration conversion uses 64-bit milliseconds.
+
+## Build, checks and packaging
+
+Verified source 91f4129c4f186b4d95b99d1ab8244cc52c34af0c; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40378217900 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
+
+Developer command: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease (Windows .\gradlew.bat). Toolchain: JDK 17, Android SDK 36, AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21, Compose and Room 2.8.5. Local signing tools are under ignored .tools; private signing material is under ignored .signing. Back up the entire .signing folder securely outside Git; losing it prevents in-place updates. Only the public certificate fingerprint is committed.
+
+scripts/Publish-LocalApk.ps1 takes a downloaded unsigned release artifact ZIP, Version, VersionCode, Commit and CiRun. It pins the permanent certificate, signs/verifies the APK, validates package/version metadata, writes BUILD_INFO.json and INSTALL.txt, creates a versioned ZIP and extracts it into dist. Preserve prior versions. Clean only generated .staging directories after checksum verification. Never commit dist, tool downloads, keys, APKs or SDKs. All Git changes use GitHub Desktop.
+
+Room schema 1 and schema 2 are committed; 1→2 has an explicit migration that retains Block data. Font license and attribution are in APK assets and THIRD_PARTY_NOTICES.md. No Internet permission is requested.

@@ -1,20 +1,27 @@
-# Manual phone checks
+# Phone testing checklist
 
-Owner phone execution is pending. Android emulator results are recorded separately in CURRENT_STATE.md and WORK_LOG.md.
+The owner reports the 0.1.0 catalog works. Detailed model/Android-version and individual checklist results were not supplied. Stage 2 phone testing is pending. Automated results are in CURRENT_STATE.md; they do not replace phone checks.
 
-## Stage 0
+## Install and identify the new build
 
-1. Download the successful CI APK artifact, extract and install on Android 8.0+.
-2. Launch practice.logger. Confirm readable Lato text, no crash or unfinished controls.
-3. Rotate, close/reopen and launch in airplane mode.
+1. Open the extracted APK in dist/practice.logger-0.2.0-b3-91f4129/ on an Android 8.0+ phone. The launcher label is practice.logger 0.2.
+2. This build installs alongside the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
+3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Backup/restore is not implemented yet.
 
-## Stage 1
+## Catalog
 
-1. Open Manage Blocks and create a Block with Name, Action, 7 minutes, optional BPM and notes. Try saving with blank Name/Action, zero/decimal duration and invalid BPM; each should show a clear error and retain the draft.
-2. Save, reopen and edit the Block. Search using part of its name, action and notes; try a term with no matches.
-3. Change a field, rotate and confirm the draft remains. Cancel → Keep editing should retain it; Cancel → Discard should leave the stored Block unchanged. Test Android Back the same way.
-4. Archive → Cancel should keep the Block active. Confirm Archive; it should move to Archived. Open and Restore it; it should return to Active with its fields intact.
-5. Force-stop the app in Android settings, then reopen it in airplane mode. Confirm saved Blocks and edits remain. An unsaved draft is not promised after force-stop.
-6. Inspect Home, lists, fields, errors and confirmation dialogs for Lato, large text/display scaling, keyboard scrolling and comfortable touch targets. Android keyboard/system prompts use system typography.
+1. Create three Blocks with Name, Action, one-minute duration and optional BPM/notes. Try blank required fields, zero/decimal duration and invalid BPM; drafts should remain with clear errors.
+2. Edit and search; test Cancel/Back, Keep editing and Discard. Rotate while editing and confirm the draft remains.
+3. Archive → Cancel retains an active Block. Confirm Archive, find it in Archived, and Restore it.
 
-Record phone model, Android version and failures. Avoid irreplaceable data until stable signing and backup exist. Do not uninstall to resolve an update signature mismatch if it contains needed data.
+## Stage 2 practice loop
+
+1. Home → Practice Now. Select the three Blocks, move them Up/Down, change one placement to two minutes, remove/re-add another. Confirm the saved Block's default duration remains unchanged. Leave/reopen and confirm the draft is retained. Start is disabled while empty.
+2. Start Session. Start the first Block, practice briefly and Complete early. Skip the second. Start the third, Pause/Resume, rotate, then background the app for ten seconds. It should return paused without adding that background time.
+3. Save for later, force-stop in Android settings, and reopen in airplane mode. Continue Session should reopen the correct third Block with its order, configured duration and saved active time. Resume.
+4. At 00:00 it must wait without advancing. Continue should count overtime upward. Complete the last Block; Summary should appear automatically with two completed and one skipped, truthful active times and any optional notes.
+5. Save an optional session note. Restart and reopen the summary from Recent Practice. Edit/archive the original Block; history should still show its original name/action.
+6. Check Home, Builder, Focus, Summary, errors/dialogs and catalog for Lato, large-text scaling, keyboard scrolling and reachable controls. Android system UI/keyboard use their own typography.
+7. On the next release, install its consistently signed APK over this app and confirm Blocks, history and unfinished sessions remain. Do not uninstall to resolve signature mismatches.
+
+Record model, Android version, exact build and any failures in WORK_LOG.md. Abrupt process termination can lose the latest uncommitted timer checkpoint; committed data recovers paused. Do not treat this release as dependable daily use until Stage 3 backup/recovery work and device feedback are complete.
