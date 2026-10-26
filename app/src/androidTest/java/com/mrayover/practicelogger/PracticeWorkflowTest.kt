@@ -77,7 +77,7 @@ class PracticeRecoveryTest {
         shown("Overtime fixture"); compose.onNodeWithText("Resume").assertExists().performScrollTo().performClick()
         compose.onNodeWithText("Pause").assertExists().performScrollTo().performClick()
         compose.onNodeWithText("Complete").performScrollTo().performClick()
-        shown("Session Summary"); compose.waitForIdle(); capturePractice("05-summary")
+        shown("Session Summary"); compose.waitForIdle(); compose.onNodeWithText("Session Summary").assertIsDisplayed(); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync(); capturePractice("05-summary")
         compose.onNodeWithText("Original warmup action").assertExists()
         compose.onNodeWithText("Session note (optional)").performScrollTo().performTextInput("Restart verified")
         compose.onNodeWithText("Save note").performScrollTo().performClick(); shown("Note saved")

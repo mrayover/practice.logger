@@ -45,7 +45,7 @@ class BackupWorkflowTest {
             compose.activityRule.scenario.recreate()
             shown("Restore this backup?")
             compose.onNodeWithText("Restore backup").performClick()
-            shown("Could not complete")
+            shown("Restore needs an empty app")
             runBlocking {
                 assertEquals(file.inputStream().use { BackupCodec.decode(readBackup(it)) }, BackupRepository(db).snapshot())
             }

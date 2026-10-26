@@ -85,6 +85,8 @@ object BackupCodec {
     }
 }
 
+class NonEmptyRestoreException : IllegalStateException("Restore needs an empty app. Existing data was kept.")
+
 class BackupRepository(private val db: BlockDatabase) {
     suspend fun snapshot(): BackupData = db.withTransaction {
         val bundles = db.sessions().readAll()
@@ -92,7 +94,7 @@ class BackupRepository(private val db: BlockDatabase) {
     }
     suspend fun restore(data: BackupData) = db.withTransaction {
         BackupCodec.validate(data)
-        check(db.blocks().readAll().isEmpty() && db.sessions().readAll().isEmpty()) { "Restore needs an empty app. Existing data was kept." }
+        if (db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty()) throw NonEmptyRestoreException()
         data.blocks.forEach { db.blocks().insert(it) }
         data.sessions.forEach { db.sessions().insert(it) }
         data.placements.forEach { db.sessions().insert(it) }

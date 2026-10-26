@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.*
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -46,6 +47,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, onCreate: () -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     var changeId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -56,7 +58,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     BackHandler { onHome() }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onHome) { Text("Back to Home") }
-        Text("Build a Session", style = MaterialTheme.typography.headlineMedium)
+        Text("Build a Session", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Arrange Blocks for this session. Duration changes here leave your saved Blocks unchanged.")
         if (entries.isEmpty()) Text("Add a Block below to begin.")
         entries.forEachIndexed { index, placement ->
@@ -64,11 +66,11 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 Text((index + 1).toString() + ". " + placement.name, style = MaterialTheme.typography.titleLarge)
                 Text(placement.action)
                 Text("Session duration: " + practiceTime(placement.configuredMs))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp)) { Text("Up") }
-                    OutlinedButton(onClick = { vm.move(placement.id, 1) }, enabled = !vm.busy && index < entries.lastIndex, modifier = Modifier.heightIn(min = 48.dp)) { Text("Down") }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + " up" }) { Text("Up") }
+                    OutlinedButton(onClick = { vm.move(placement.id, 1) }, enabled = !vm.busy && index < entries.lastIndex, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + " down" }) { Text("Down") }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     TextButton(onClick = { changeId = placement.id; minutes = (placement.configuredMs / 60_000L).toString(); validation = false }, enabled = !vm.busy) { Text("Change duration") }
                     TextButton(onClick = { vm.remove(placement.id) }, enabled = !vm.busy) { Text("Remove") }
                 }
@@ -122,7 +124,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         current.tempo?.let { Text(it.toString() + " BPM reference") }
         if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes)
         Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
-            style = MaterialTheme.typography.displayLarge, modifier = Modifier.testTag("practice-timer"))
+            style = MaterialTheme.typography.displayLarge, modifier = Modifier.fillMaxWidth().testTag("practice-timer").semantics { contentDescription = if (current.overtimeAccepted) "Overtime" else "Time remaining" })
         Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" })
         if (awaiting) ActionButton("Continue", { vm.resume(overtime = true) }, !vm.busy)
         else ActionButton(if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume", { if (vm.running) vm.pause() else vm.resume() }, !vm.busy)
@@ -141,7 +143,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
     var note by rememberSaveable(bundle.session.id) { mutableStateOf(bundle.session.note) }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Session Summary", style = MaterialTheme.typography.headlineMedium)
+        Text("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text(sessionDate(bundle.session.startedAt))
         Text(practiceTime(bundle.activeMs) + " active practice", style = MaterialTheme.typography.headlineSmall)
         bundle.ordered.forEach { placement ->

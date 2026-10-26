@@ -53,6 +53,10 @@ jobs:
             app/schemas
           retention-days: 30
   device:
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [26, 35]
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -70,7 +74,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: ${{ matrix.api }}
           arch: x86_64
           disable-animations: true
           script: |
@@ -88,18 +92,35 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=5 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=6 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt
             grep -q "OK (1 test)" app/build/upgrade-reopen.txt
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.BackupWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/backup-workflow.txt
             grep -q "OK (1 test)" app/build/backup-workflow.txt
+            adb shell settings put system font_scale 2.0
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.AccessibilityWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/accessibility-workflow.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/accessibility-screenshots
+            grep -q "OK (1 test)" app/build/accessibility-workflow.txt
+            adb shell settings put system font_scale 1.0
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.SystemPickerExportTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/picker-export.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/picker-screenshots
+            grep -q "OK (1 test)" app/build/picker-export.txt
+            adb shell pm clear com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.SystemPickerRestoreTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/picker-restore.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/restore-screenshots
+            grep -q "OK (1 test)" app/build/picker-restore.txt
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.SystemPickerReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/picker-reopen.txt
+            grep -q "OK (1 test)" app/build/picker-reopen.txt
             adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/device-screenshots
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: device-test-reports
+          name: device-test-reports-api-${{ matrix.api }}
           path: |
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
@@ -110,5 +131,10 @@ jobs:
             app/build/history-reopen.txt
             app/build/upgrade-reopen.txt
             app/build/backup-workflow.txt
+            app/build/accessibility-workflow.txt
+            app/build/picker-*.txt
+            app/build/accessibility-screenshots
+            app/build/picker-screenshots
+            app/build/restore-screenshots
             app/build/device-screenshots
           retention-days: 30

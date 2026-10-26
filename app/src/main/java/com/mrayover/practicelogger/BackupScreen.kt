@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,6 +46,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try { operation() }
             catch (e: CancellationException) { throw e }
+            catch (_: NonEmptyRestoreException) { message = "Restore needs an empty app. Your existing Blocks and practice history were kept. Use this backup on a new phone or spare empty installation." }
             catch (_: Exception) { message = "Could not complete this backup operation. Existing practice data was kept. Check the file, free space and access, then try again. Restore supports version 1 backups up to 8 MiB and needs an empty app." }
             finally { busy = false }
         }
@@ -82,14 +84,14 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     BackHandler { if (!vm.busy) { vm.cancel(); onHome() } }
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = { vm.cancel(); onHome() }, enabled = !vm.busy) { Text("Back to Home") }
-        Text("Backup and restore", style = MaterialTheme.typography.headlineMedium)
+        Text("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Save your Blocks, archived Blocks, practice history and unfinished session as a versioned JSON file. Choose a safe location using Android's file picker.")
         Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")
         Button(onClick = { export.launch("practice.logger-backup-v1-" + System.currentTimeMillis() + ".json") }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
         Text("Restore is for an empty app, such as a new phone. It never replaces or merges existing data. Do not uninstall or clear your current app to try a restore. Supported limit: 8 MiB, 20,000 records per type.")
         OutlinedButton(onClick = { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Choose backup to restore") }
         if (vm.busy) Text("Working…")
-        vm.message?.let { Text(it) }
+        vm.message?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
     }
     vm.pending?.let { data ->
         AlertDialog(onDismissRequest = vm::cancel, title = { Text("Restore this backup?") },
