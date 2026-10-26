@@ -72,8 +72,13 @@ class PracticeWorkflowTest {
             click("Continue Session"); shown("Overtime fixture")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on leaving ♫")
             compose.onNodeWithText("Quick note (optional)").performTextReplacement("Saved on Back ♫")
-            androidx.test.espresso.Espresso.closeSoftKeyboard()
-            androidx.test.espresso.Espresso.pressBack()
+            val device = androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation())
+            // The first Back may dismiss the IME; the next must save and leave Focus.
+            repeat(2) {
+                if (compose.onAllNodesWithText("Continue Session", substring = false).fetchSemanticsNodes().isEmpty()) {
+                    device.pressBack(); device.waitForIdle(); compose.waitForIdle()
+                }
+            }
             shown("Continue Session")
         } finally { db.close() }
     }
