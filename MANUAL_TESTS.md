@@ -1,10 +1,10 @@
 # Phone testing checklist
 
-The owner reports 0.2.0 works. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.1 owner phone acceptance is pending. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
+The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.2 owner phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.3.1-b5-16075ab/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.1 (build 5). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.3.2-b6-3f7730f/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.2 (build 6). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -40,3 +40,11 @@ Record model/OS, build, chosen document provider, pass/fail and any error in WOR
 Record phone model/Android/build and pass/fail for install-over data preservation, pause/background/process recovery, completed history reopening, successful picker export, spare-empty-install restore/restart comparison and readable/reachable controls at your chosen text size. CI screenshots and emulator checks are engineering evidence, not owner phone confirmation. Do not clear the main app for testing.
 
 Once these checks pass, begin EVALUATION.md's ten real sessions. After each, save a short optional session note covering taps/time to start, editing friction, timer usefulness, notes/history and any missing flexibility. Report exact failures before adding features. Current real-session count: zero documented; synthetic test data does not count.
+## 0.3.2 quick note check (normal practice)
+
+1. Continue/start a session, type a Quick note and tap Save Block note. Check Block note saved; the Block stays unfinished and the timer remains usable.
+2. Edit the text, choose Save for later, then Continue Session; confirm the latest text and paused timer. Repeat with Android Back after closing the keyboard.
+3. Save, force-stop and reopen; continue and confirm the same current Block/note, then Complete or Skip. Summary must contain the final note.
+4. Clear the note and save if desired. Confirm another Block's note and older summaries remain unchanged. At large text sizes, scroll to reach the save controls.
+
+Typing alone remains unsaved against abrupt process death; use the save actions. Backup/recovery and the ten-session evaluation are deferred by owner, not prerequisites for testing this incremental APK.

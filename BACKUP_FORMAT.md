@@ -8,7 +8,7 @@ Top-level fields: `format`, `version`, `blocks`, `sessions`, `placements`. All r
 - Sessions: id, startedAt, endedAt (nullable), status, currentIndex, note.
 - Placements: id, sessionId, sourceBlockId, name, action, tempo (nullable), referenceNotes, position, configuredMs, activeMs, outcome, overtimeAccepted, note.
 
-Export reads a consistent Room transaction. It includes archived Blocks, completed history snapshots, notes and the unfinished draft or active session. No monotonic clock anchor/running flag is exported; restored active sessions resume paused. Quick notes not yet saved with Complete/Skip are not part of the backup. Session notes require Save note before export.
+Export reads a consistent Room transaction. It includes archived Blocks, completed history snapshots, notes and the unfinished draft or active session. No monotonic clock anchor/running flag is exported; restored active sessions resume paused. Quick notes must be saved with Save Block note, Save for later, Back, Complete or Skip before export; typing alone is not a durable save. Session notes require Save note before export.
 
 Limits: 8 MiB UTF-8 file, 20,000 records per type, nesting at most 32 levels. Validation rejects missing/wrong field types, out-of-range integers, duplicate/blank IDs, broken links, nonpositive duration/tempo, negative elapsed time, noncontiguous placement order, unsupported statuses/outcomes, inconsistent current position/outcomes, multiple unfinished sessions and overflowing active-time totals. Malformed UTF-8 and trailing content are rejected. This is structural validation, not encryption or cryptographic authentication: keep backups private and restore only trusted files.
 
