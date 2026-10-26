@@ -1,7 +1,7 @@
 # practice.logger — First Usable Android Build Plan
 
 **Authority:** Current first-release build scope and stages  
-**Status:** Planning documents only until code/CI prove otherwise  
+**Status:** Stages 0 and 1 verified in CI on 2026-10-26; owner phone checks pending; Stages 2–4 remain unimplemented  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Owner workflow:** GitHub Desktop  
 **Required application font:** **Lato throughout**  
@@ -179,6 +179,6 @@ Do not add a new screen, feature, dependency or architectural layer simply becau
 
 ## 11. Next action
 
-Start with **Stage 0**, then implement only as much of **Stage 1** as can be tested and documented without destabilizing the repository. The first Work handoff is in `FIRST_WORK_HANDOFF.md`.
+Stages 0 and 1 have passed automated build/tests and emulator workflows. Next: complete the Stage 1 owner phone checklist in `MANUAL_TESTS.md`, record results, and resolve catalog defects before Stage 2 Session Builder. `CURRENT_STATE.md` and `WORK_LOG.md` contain verified run, APK and source-commit evidence. `FIRST_WORK_HANDOFF.md` is the historical kickoff handoff.
 
 **Guiding rule: Build enough to practice. Practice enough to know what to build next.**

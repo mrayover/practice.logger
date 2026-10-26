@@ -1,3 +1,5 @@
+> Historical first-session handoff. Stages 0 and 1 have now passed automated verification; read CURRENT_STATE.md for the exact next task. Original prefixed handoff is preserved.
+
 # Work mode handoff — practice.logger, first development session
 
 **Use this prompt with the starter files in the existing repository.**
