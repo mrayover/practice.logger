@@ -13,9 +13,10 @@ import org.junit.Test
 class AccessibilityWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() } }
-    private fun click(text: String) { compose.onNodeWithText(text).performScrollTo().performClick() }
+    private fun visible(node: SemanticsNodeInteraction): SemanticsNodeInteraction = try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo().assertIsDisplayed() }
+    private fun click(text: String) { visible(compose.onNodeWithText(text)).performClick() }
     private fun readable(text: String) {
-        val node = compose.onAllNodesWithText(text, useUnmergedTree = true)[0].performScrollTo().assertIsDisplayed()
+        val node = visible(compose.onAllNodesWithText(text, useUnmergedTree = true)[0])
         compose.waitForIdle()
         val results = mutableListOf<TextLayoutResult>()
         node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(results) }
