@@ -18,6 +18,10 @@ class AccessibilityWorkflowTest {
         val node = compose.onAllNodesWithText(text, useUnmergedTree = true)[0].performScrollTo().assertIsDisplayed().fetchSemanticsNode()
         val results = mutableListOf<TextLayoutResult>()
         node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(results)
+        if (results.isEmpty() || results.any { it.hasVisualOverflow }) {
+            println("TEXT LAYOUT: " + results.map { "size=${it.size}, paragraph=${it.multiParagraph.width}x${it.multiParagraph.height}, lines=${it.lineCount}, widthOverflow=${it.didOverflowWidth}, heightOverflow=${it.didOverflowHeight}" })
+            captureStage3("text-overflow")
+        }
         assertTrue("Text was clipped: $text", results.isNotEmpty() && results.none { it.hasVisualOverflow })
     }
     @Test fun largeTextCatalogBuilderFocusSummaryAndBackupRemainUsable() {
@@ -26,7 +30,7 @@ class AccessibilityWorkflowTest {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Accessible fixture", "Play slowly with relaxed hands", "1")) }
-            click("Practice Now"); shown("Add Accessible fixture"); click("Add Accessible fixture"); click("Add Accessible fixture")
+            click("Practice Now"); shown("Add Accessible fixture"); click("Add Accessible fixture"); shown("1. Accessible fixture"); compose.waitForIdle(); click("Add Accessible fixture")
             shown("2. Accessible fixture"); readable("Change duration")
             // Repeated controls identify their Block for assistive technology.
             compose.onNodeWithContentDescription("Move Accessible fixture, placement 2, up").assertExists()
