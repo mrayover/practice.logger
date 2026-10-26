@@ -34,6 +34,8 @@ class PracticeViewModel(application: Application) : AndroidViewModel(application
         private set
     var noteSaved by mutableStateOf(false)
         private set
+    var blockNoteSavedFor by mutableStateOf<String?>(null)
+        private set
     private var foreground = false
     private var anchor: Long? = null
     private var timingSessionId: String? = null
@@ -113,6 +115,20 @@ class PracticeViewModel(application: Application) : AndroidViewModel(application
             flush(until); anchor = null
             val id = checkNotNull(catalog.value.active).session.id
             if (repository.finishBlock(id, outcome, note)) { completedId = id; destination = "summary" }
+        }
+    }
+    fun saveBlockNote(sessionId: String, placementId: String, note: String) = operation {
+        repository.saveBlockNote(sessionId, placementId, note)
+        blockNoteSavedFor = placementId
+    }
+    fun saveForLater(sessionId: String, placementId: String, note: String) {
+        if (busy) return
+        val until = SystemClock.elapsedRealtime()
+        running = false
+        operation {
+            flush(until); anchor = null
+            repository.saveBlockNote(sessionId, placementId, note)
+            destination = "home"
         }
     }
     fun saveNote(id: String, note: String) = operation { repository.saveSessionNote(id, note); noteSaved = true }

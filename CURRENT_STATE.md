@@ -1,5 +1,7 @@
 # Current state
 
+Owner instruction 2026-10-26: defer manual backup/recovery acceptance and the ten-real-session evaluation until this build cycle finishes. They remain unverified and do not block this authorized 0.3.2 note-reliability increment. General owner report: 0.3.0 works; no model/OS or individual checklist evidence supplied. Feature work stops by 10% usage remaining; prioritize stable signed APK and closing records. The next action for this cycle is to verify and deliver 0.3.2, then resume owner-directed testing/evaluation later.
+
 Updated 2026-10-26 (America/Los_Angeles). Stage 3 engineering complete and verified; owner phone acceptance is pending. Stage 4 ten-session evaluation prepared, 0/10 real sessions recorded. Owner authorized finishing 3 and continuing to 4 after usage reset; no phone model/OS or new acceptance results supplied. Do not mark manual acceptance or real sessions complete without evidence.
 
 ## Verified release

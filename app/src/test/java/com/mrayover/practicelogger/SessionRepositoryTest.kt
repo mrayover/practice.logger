@@ -75,6 +75,35 @@ class SessionRepositoryTest {
             assertEquals(completed, db.sessions().find(id))
         } finally { db.close(); context.deleteDatabase(name) }
     }
+    @Test fun unfinishedBlockNotesSurviveReopenAndCannotChangeOtherPlacementsOrHistory() = runBlocking {
+        val name = "unfinished-note-test.db"; context.deleteDatabase(name)
+        var db = BlockDatabase.open(context, name)
+        try {
+            val block = BlockRepository(db).save(null, BlockDraft("Notes", "Play"))
+            var repo = SessionRepository(db)
+            repo.addBlock(block); repo.addBlock(block)
+            val id = repo.start()
+            val first = db.sessions().find(id)!!.current!!
+            repo.checkpoint(id, 1234)
+            repo.saveBlockNote(id, first.id, "  Slow phrase ♫  ")
+            db.close(); db = BlockDatabase.open(context, name); repo = SessionRepository(db)
+            val reopened = db.sessions().find(id)!!
+            assertEquals("Slow phrase ♫", reopened.current!!.note)
+            assertEquals(1234L, reopened.current!!.activeMs)
+            assertEquals("PENDING", reopened.current!!.outcome)
+            assertEquals("", reopened.ordered[1].note)
+            try { repo.saveBlockNote(id, reopened.ordered[1].id, "Wrong"); fail("Edited future Block") } catch (_: IllegalStateException) { }
+            repo.saveBlockNote(id, first.id, "")
+            assertEquals("", db.sessions().find(id)!!.current!!.note)
+            repo.finishBlock(id, "COMPLETED", "Final first")
+            try { repo.saveBlockNote(id, first.id, "Wrong"); fail("Edited prior Block") } catch (_: IllegalStateException) { }
+            val last = db.sessions().find(id)!!.current!!
+            repo.finishBlock(id, "SKIPPED", "Final second")
+            val history = db.sessions().find(id)
+            try { repo.saveBlockNote(id, last.id, "Wrong"); fail("Edited history") } catch (_: IllegalStateException) { }
+            assertEquals(history, db.sessions().find(id))
+        } finally { db.close(); context.deleteDatabase(name) }
+    }
     @Test fun emptySessionsAndBadOverridesAreRejected() = runBlocking {
         val db = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
         try {

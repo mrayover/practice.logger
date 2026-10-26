@@ -64,7 +64,17 @@ class PracticeWorkflowTest {
             Thread.sleep(800)
             assertEquals(background, runBlocking { val active = db.sessions().withStatus("IN_PROGRESS")!!; db.sessions().find(active.id)!!.current!!.activeMs })
             compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
-            shown("Resume"); click("Save for later"); shown("Continue Session")
+            shown("Resume")
+            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Saved while unfinished")
+            click("Save Block note"); shown("Block note saved")
+            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextReplacement("Saved on leaving ♫")
+            click("Save for later"); shown("Continue Session")
+            click("Continue Session"); shown("Overtime fixture")
+            compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on leaving ♫")
+            compose.onNodeWithText("Quick note (optional)").performTextReplacement("Saved on Back ♫")
+            androidx.test.espresso.Espresso.closeSoftKeyboard()
+            androidx.test.espresso.Espresso.pressBack()
+            shown("Continue Session")
         } finally { db.close() }
     }
 }
@@ -74,7 +84,9 @@ class PracticeRecoveryTest {
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     @Test fun recoverPausedThenCompleteAndRetainSnapshots() {
         shown("Continue Session"); compose.onNodeWithText("Continue Session").performClick()
-        shown("Overtime fixture"); compose.onNodeWithText("Resume").assertExists().performScrollTo().performClick()
+        shown("Overtime fixture")
+        compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on Back ♫")
+        compose.onNodeWithText("Resume").assertExists().performScrollTo().performClick()
         compose.onNodeWithText("Pause").assertExists().performScrollTo().performClick()
         compose.onNodeWithText("Complete").performScrollTo().performClick()
         shown("Session Summary"); compose.waitForIdle(); compose.onNodeWithText("Session Summary").assertIsDisplayed(); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync(); capturePractice("05-summary")
@@ -90,6 +102,7 @@ class PracticeRecoveryTest {
                 assertTrue(bundle.ordered.first().activeMs in 1000L..15_000L)
                 assertEquals(0L, bundle.ordered[1].activeMs)
                 assertTrue(bundle.ordered.last().overtimeAccepted)
+                assertEquals("Saved on Back ♫", bundle.ordered.last().note)
                 val source = bundle.ordered.first().sourceBlockId
                 BlockRepository(db).save(source, BlockDraft("Renamed after practice", "Changed after practice"))
                 BlockRepository(db).setArchived(source, true)

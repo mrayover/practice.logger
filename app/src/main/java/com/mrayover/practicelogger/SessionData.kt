@@ -144,6 +144,13 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         dao.update(if (finished) bundle.session.copy(status = "COMPLETED", endedAt = now()) else bundle.session.copy(currentIndex = bundle.session.currentIndex + 1))
         finished
     }
+    suspend fun saveBlockNote(id: String, placementId: String, note: String) = db.withTransaction {
+        val bundle = checkNotNull(dao.find(id))
+        check(bundle.session.status == "IN_PROGRESS")
+        val current = checkNotNull(bundle.current)
+        check(current.id == placementId && current.outcome == "PENDING")
+        dao.update(current.copy(note = note.trim()))
+    }
     suspend fun saveSessionNote(id: String, note: String) = db.withTransaction {
         val bundle = checkNotNull(dao.find(id))
         check(bundle.session.status == "COMPLETED")

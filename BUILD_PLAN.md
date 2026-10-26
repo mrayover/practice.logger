@@ -1,5 +1,7 @@
 # practice.logger — First Usable Android Build Plan
 
+Owner instruction 2026-10-26: defer manual backup/recovery acceptance and the ten-real-session evaluation until this build cycle finishes. They remain unverified and do not block this authorized 0.3.2 note-reliability increment. General owner report: 0.3.0 works; no model/OS or individual checklist evidence supplied. Feature work stops by 10% usage remaining; prioritize stable signed APK and closing records. The next action for this cycle is to verify and deliver 0.3.2, then resume owner-directed testing/evaluation later.
+
 **Authority:** Current first-release build scope and stages  
 **Status:** Stages 0–2 verified in CI on 2026-10-26; owner confirms 0.2.0 works; Stage 3 engineering verified on API 26/35, owner phone acceptance pending; Stage 4 evaluation prepared (0/10 real sessions)
 **Repository:** https://github.com/mrayover/practice.logger  

@@ -108,14 +108,15 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit) {
-    fun leave() { vm.pause(); onHome() }
-    BackHandler { leave() }
+
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
         return
     }
     val current = bundle.current!!
-    var note by rememberSaveable(current.id) { mutableStateOf("") }
+    var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
+    fun leave() { vm.saveForLater(bundle.session.id, current.id, note) }
+    BackHandler { leave() }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.titleMedium)
@@ -131,6 +132,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         ActionButton("Complete", { vm.finish("COMPLETED", note) }, !vm.busy)
         OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Skip") }
         OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
+        OutlinedButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Block note") }
+        if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+        Text("Notes save with Save Block note, Save for later, Back, Complete or Skip.")
         TextButton(onClick = ::leave, enabled = !vm.busy) { Text("Save for later") }
     }
 }
