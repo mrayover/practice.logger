@@ -19,6 +19,8 @@ data class Block(
 @Dao interface BlockDao {
     @Query("SELECT * FROM blocks ORDER BY name COLLATE NOCASE, id")
     fun observeAll(): Flow<List<Block>>
+    @Query("SELECT * FROM blocks ORDER BY name COLLATE NOCASE, id")
+    suspend fun readAll(): List<Block>
     @Query("SELECT * FROM blocks WHERE id = :id")
     suspend fun find(id: String): Block?
     @Insert suspend fun insert(block: Block)

@@ -24,7 +24,7 @@ fun practiceTime(ms: Long, roundUp: Boolean = false): String {
 }
 fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(ms))
 
-@Composable fun PracticeHome(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit) {
+@Composable fun PracticeHome(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit) {
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("practice.logger", style = MaterialTheme.typography.headlineLarge)
         Text("A little structure for your practice.", style = MaterialTheme.typography.titleMedium)
@@ -33,6 +33,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Manage Blocks") }
         Text(catalog.blocks.count { !it.archived }.toString() + " active Blocks")
         TextButton(onClick = onNew) { Text("New Block") }
+        TextButton(onClick = onBackup) { Text("Backup and restore") }
         Text("Recent Practice", style = MaterialTheme.typography.titleLarge)
         if (sessions.history.isEmpty()) Text("Completed sessions will appear here.")
         sessions.history.forEach { bundle ->

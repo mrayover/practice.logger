@@ -47,6 +47,8 @@ data class SessionBundle(
 @Dao interface SessionDao {
     @Transaction @Query("SELECT * FROM sessions ORDER BY startedAt DESC, id")
     fun observeAll(): Flow<List<SessionBundle>>
+    @Transaction @Query("SELECT * FROM sessions ORDER BY startedAt DESC, id")
+    suspend fun readAll(): List<SessionBundle>
     @Transaction @Query("SELECT * FROM sessions WHERE id = :id")
     suspend fun find(id: String): SessionBundle?
     @Query("SELECT * FROM sessions WHERE status = :status LIMIT 1")

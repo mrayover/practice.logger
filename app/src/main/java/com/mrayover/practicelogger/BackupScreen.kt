@@ -1,0 +1,100 @@
+package com.mrayover.practicelogger
+
+import android.app.Application
+import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.InputStream
+
+fun readBackup(input: InputStream): ByteArray {
+    val bytes = java.io.ByteArrayOutputStream()
+    val buffer = ByteArray(8192)
+    while (true) {
+        val count = input.read(buffer)
+        if (count < 0) break
+        require(bytes.size() + count <= BACKUP_LIMIT) { "Backup exceeds the 8 MiB limit." }
+        bytes.write(buffer, 0, count)
+    }
+    return bytes.toByteArray()
+}
+
+class BackupViewModel(app: Application) : AndroidViewModel(app) {
+    private val db = BlockDatabase.open(app)
+    private val repository = BackupRepository(db)
+    var busy by mutableStateOf(false); private set
+    var message by mutableStateOf<String?>(null); private set
+    var pending by mutableStateOf<BackupData?>(null); private set
+    private fun work(operation: suspend () -> Unit) {
+        if (busy) return
+        busy = true; message = null
+        viewModelScope.launch {
+            try { operation() }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { message = "Could not complete this backup operation. Existing practice data was kept. Check the file, free space and access, then try again. Restore supports version 1 backups up to 8 MiB and needs an empty app." }
+            finally { busy = false }
+        }
+    }
+    fun export(uri: Uri) = work {
+        withContext(Dispatchers.IO) {
+            val bytes = BackupCodec.encode(repository.snapshot())
+            checkNotNull(getApplication<Application>().contentResolver.openOutputStream(uri, "wt")).use { it.write(bytes); it.flush() }
+        }
+        message = "Backup saved. Keep this JSON file somewhere safe; it contains your Blocks and practice notes in plain text."
+    }
+    fun inspect(uri: Uri) = work {
+        pending = null
+        val data = withContext(Dispatchers.IO) {
+            val bytes = checkNotNull(getApplication<Application>().contentResolver.openInputStream(uri)).use(::readBackup)
+            BackupCodec.decode(bytes)
+        }
+        pending = data
+    }
+    fun cancel() { if (!busy) pending = null }
+    fun restore() {
+        val data = pending ?: return
+        work {
+            pending = null
+            withContext(Dispatchers.IO) { repository.restore(data) }
+            message = "Backup restored. Return Home to see your Blocks and history. Unfinished practice resumes paused."
+        }
+    }
+    override fun onCleared() { db.close() }
+}
+
+@Composable fun BackupScreen(onHome: () -> Unit, vm: BackupViewModel = viewModel()) {
+    val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> uri?.let(vm::export) }
+    val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::inspect) }
+    BackHandler { if (!vm.busy) { vm.cancel(); onHome() } }
+    Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        TextButton(onClick = { vm.cancel(); onHome() }, enabled = !vm.busy) { Text("Back to Home") }
+        Text("Backup and restore", style = MaterialTheme.typography.headlineMedium)
+        Text("Save your Blocks, archived Blocks, practice history and unfinished session as a versioned JSON file. Choose a safe location using Android's file picker.")
+        Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")
+        Button(onClick = { export.launch("practice.logger-backup-v1-" + System.currentTimeMillis() + ".json") }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
+        Text("Restore is for an empty app, such as a new phone. It never replaces or merges existing data. Do not uninstall or clear your current app to try a restore. Supported limit: 8 MiB, 20,000 records per type.")
+        OutlinedButton(onClick = { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Choose backup to restore") }
+        if (vm.busy) Text("Working…")
+        vm.message?.let { Text(it) }
+    }
+    vm.pending?.let { data ->
+        AlertDialog(onDismissRequest = vm::cancel, title = { Text("Restore this backup?") },
+            text = { Text("${data.blocks.size} Blocks, ${data.sessions.size} sessions and ${data.placements.size} placements validated. Restore will proceed only if this app is still empty. Existing data is never erased.") },
+            confirmButton = { TextButton(onClick = vm::restore, enabled = !vm.busy) { Text("Restore backup") } },
+            dismissButton = { TextButton(onClick = vm::cancel, enabled = !vm.busy) { Text("Cancel") } })
+    }
+}
