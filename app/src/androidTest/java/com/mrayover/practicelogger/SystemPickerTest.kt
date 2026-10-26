@@ -13,7 +13,7 @@ import java.util.regex.Pattern
 private const val PICKER_FILE = "practice-logger-picker.json"
 private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 private fun shownPickerApp(compose: androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, MainActivity>, text: String) {
-    compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() }
+    compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
 }
 private fun pickerDownloads() {
     val roots = device.wait(Until.findObject(By.desc("Show roots")), 10000)

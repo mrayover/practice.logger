@@ -19,11 +19,19 @@ class AccessibilityWorkflowTest {
         compose.waitForIdle()
         val results = mutableListOf<TextLayoutResult>()
         node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(results) }
-        if (results.isEmpty() || results.any { it.hasVisualOverflow }) {
-            println("TEXT LAYOUT: " + results.map { "size=${it.size}, paragraph=${it.multiParagraph.width}x${it.multiParagraph.height}, lines=${it.lineCount}, widthOverflow=${it.didOverflowWidth}, heightOverflow=${it.didOverflowHeight}" })
-            captureStage3("text-overflow")
+        // A cached MultiParagraph can retain a wider allocation than the drawn Text node.
+        // Check the actual drawn lines, not hasVisualOverflow's allocation comparison.
+        val fits = results.isNotEmpty() && results.all { result ->
+            (0 until result.lineCount).all { line ->
+                !result.isLineEllipsized(line) && result.getLineLeft(line) >= -1f &&
+                    result.getLineRight(line) <= result.size.width + 1f &&
+                    result.getLineBottom(line) <= result.size.height + 1f
+            }
         }
-        assertTrue("Text layout: $text; " + results.map { "size=${it.size}, paragraph=${it.multiParagraph.width}x${it.multiParagraph.height}, lines=${it.lineCount}, widthOverflow=${it.didOverflowWidth}, heightOverflow=${it.didOverflowHeight}" }, results.isNotEmpty() && results.none { it.hasVisualOverflow })
+        if (!fits) captureStage3("text-overflow")
+        assertTrue("Drawn text exceeded its bounds: $text; " + results.map { r ->
+            "size=${r.size}, lines=" + (0 until r.lineCount).map { "${r.getLineLeft(it)}..${r.getLineRight(it)}, bottom=${r.getLineBottom(it)}" }
+        }, fits)
     }
     @Test fun largeTextCatalogBuilderFocusSummaryAndBackupRemainUsable() {
         assertTrue(compose.activity.resources.configuration.fontScale >= 1.9f)
@@ -39,6 +47,7 @@ class AccessibilityWorkflowTest {
             captureStage3("10-large-builder")
             click("Start Session"); shown("Ready when you are")
             compose.onNodeWithTag("practice-timer").performScrollTo().assertIsDisplayed().assertContentDescriptionEquals("Time remaining 1:00")
+            captureStage3("11-large-timer")
             readable("Complete"); captureStage3("11-large-focus"); click("Complete"); shown("Block 2 of 2"); click("Skip")
             shown("Session Summary"); readable("Session Summary"); captureStage3("12-large-summary")
             readable("Save note"); click("Home"); click("Manage Blocks"); shown("Block Library"); readable("New Block")
