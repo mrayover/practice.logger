@@ -4,22 +4,26 @@ import android.app.Application
 import android.os.SystemClock
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-data class SessionCatalog(val bundles: List<SessionBundle> = emptyList(), val ready: Boolean = false, val error: String? = null) {
+data class SessionCatalog(val bundles: List<SessionBundle> = emptyList(), val ready: Boolean = false, val error: String? = null, val selectedId: String? = null) {
     val draft get() = bundles.find { it.session.status == "DRAFT" }
-    val active get() = bundles.find { it.session.status == "IN_PROGRESS" }
+    val unfinished get() = bundles.filter { it.session.status == "IN_PROGRESS" }
+    val active get() = unfinished.find { it.session.id == selectedId } ?: unfinished.firstOrNull()
     val history get() = bundles.filter { it.session.status == "COMPLETED" }
 }
 
-class PracticeViewModel(application: Application) : AndroidViewModel(application) {
+class PracticeViewModel(application: Application, private val savedState: SavedStateHandle) : AndroidViewModel(application) {
     private val db = BlockDatabase.appInstance(application)
     private val repository = SessionRepository(db)
-    val catalog = repository.sessions.map { SessionCatalog(it, ready = true) }
+    val catalog = combine(repository.sessions, savedState.getStateFlow<String?>("selectedSession", null)) { bundles, selected ->
+        SessionCatalog(bundles, ready = true, selectedId = selected)
+    }
         .catch { emit(SessionCatalog(error = "Could not open practice sessions. Close and reopen the app to retry.")) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SessionCatalog())
     var running by mutableStateOf(false)
@@ -107,7 +111,19 @@ class PracticeViewModel(application: Application) : AndroidViewModel(application
         repository.setDuration(id, value.toLong() * 60_000L)
     }
     fun discardDraft() = operation { repository.discardDraft(); destination = "home" }
-    fun start() = operation { repository.start(); destination = "focus" }
+    private suspend fun selectSession(id: String) {
+        check(db.sessions().find(id)?.session?.status == "IN_PROGRESS")
+        savedState["selectedSession"] = id
+        catalog.first { it.active?.session?.id == id }
+        destination = "focus"
+    }
+    fun openSession(id: String) {
+        if (busy) return
+        val until = SystemClock.elapsedRealtime()
+        running = false
+        operation { flush(until); anchor = null; selectSession(id) }
+    }
+    fun start() = operation { selectSession(repository.start()) }
     fun finish(outcome: String, note: String) {
         val until = SystemClock.elapsedRealtime()
         running = false

@@ -83,7 +83,7 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
     private val dao get() = db.sessions()
     val sessions = dao.observeAll()
     private suspend fun draft(): SessionBundle {
-        check(dao.withStatus("IN_PROGRESS") == null) { "Resume the unfinished session first." }
+
         val record = dao.withStatus("DRAFT") ?: PracticeSession(UUID.randomUUID().toString(), now()).also { dao.insert(it) }
         return checkNotNull(dao.find(record.id))
     }

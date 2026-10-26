@@ -68,7 +68,7 @@ class BackupRepositoryTest {
             SessionRepository(source).addBlock(a)
             val data = BackupRepository(source).snapshot()
             val encoded = BackupCodec.encode(data)
-            for (bad in listOf("not json", "{}", JSONObject(String(encoded)).put("version", 2).toString(), JSONObject(String(encoded)).put("version", 1.5).toString())) {
+            for (bad in listOf("not json", "{}", JSONObject(String(encoded)).put("version", 99).toString(), JSONObject(String(encoded)).put("version", 1.5).toString())) {
                 rejected { BackupCodec.decode(bad.toByteArray()) }
             }
             rejected { BackupCodec.decode((String(encoded) + " trailing").toByteArray()) }

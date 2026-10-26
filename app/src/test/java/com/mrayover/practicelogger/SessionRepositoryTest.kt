@@ -104,6 +104,34 @@ class SessionRepositoryTest {
             assertEquals(history, db.sessions().find(id))
         } finally { db.close(); context.deleteDatabase(name) }
     }
+    @Test fun multipleUnfinishedSessionsAndDraftSurviveBackupAndReopen() = runBlocking {
+        val name = "multiple-sessions.db"; context.deleteDatabase(name)
+        var db = BlockDatabase.open(context, name)
+        val target = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
+        try {
+            val block = BlockRepository(db).save(null, BlockDraft("Practice", "Play"))
+            var repo = SessionRepository(db)
+            repo.addBlock(block); val first = repo.start(); repo.checkpoint(first, 1234)
+            val placement = db.sessions().find(first)!!.current!!
+            repo.saveBlockNote(first, placement.id, "Keep first")
+            repo.addBlock(block); val second = repo.start(); repo.checkpoint(second, 567)
+            repo.addBlock(block)
+            db.close(); db = BlockDatabase.open(context, name); repo = SessionRepository(db)
+            assertEquals(2, db.sessions().readAll().count { it.session.status == "IN_PROGRESS" })
+            val bytes = BackupCodec.encode(BackupRepository(db).snapshot())
+            val snapshot = BackupCodec.decode(bytes)
+            BackupRepository(target).restore(snapshot)
+            assertEquals(db.sessions().readAll().toSet(), target.sessions().readAll().toSet())
+            assertEquals("Keep first", db.sessions().find(first)!!.current!!.note)
+            repo.finishBlock(second, "COMPLETED", "Second done")
+            assertEquals(1234L, db.sessions().find(first)!!.current!!.activeMs)
+            assertEquals("IN_PROGRESS", db.sessions().find(first)!!.session.status)
+            repo.finishBlock(first, "SKIPPED", "First done")
+            assertEquals(2, db.sessions().readAll().count { it.session.status == "COMPLETED" })
+            val legacy = org.json.JSONObject(String(BackupCodec.encode(BackupData(emptyList(), emptyList(), emptyList())))).put("version", 1)
+            assertEquals(BackupData(emptyList(), emptyList(), emptyList()), BackupCodec.decode(legacy.toString().toByteArray()))
+        } finally { db.close(); target.close(); context.deleteDatabase(name) }
+    }
     @Test fun emptySessionsAndBadOverridesAreRejected() = runBlocking {
         val db = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
         try {
@@ -116,7 +144,8 @@ class SessionRepositoryTest {
             try { repo.setDuration(placement.id, 0); fail("Accepted zero") } catch (_: IllegalArgumentException) { }
             try { repo.move(placement.id, -1); fail("Moved out of range") } catch (_: IllegalArgumentException) { }
             val active = repo.start()
-            try { repo.addBlock(block); fail("Edited active session") } catch (_: IllegalStateException) { }
+            repo.addBlock(block)
+            assertNotNull(db.sessions().withStatus("DRAFT"))
             assertEquals(1, db.sessions().find(active)!!.placements.size)
         } finally { db.close() }
     }

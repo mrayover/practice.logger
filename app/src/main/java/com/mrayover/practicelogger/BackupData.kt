@@ -13,7 +13,7 @@ object BackupCodec {
     private fun array(rows: List<JSONObject>) = JSONArray().apply { rows.forEach { put(it) } }
     fun encode(data: BackupData): ByteArray {
         validate(data)
-        val root = obj("format" to "practice.logger.backup", "version" to 1,
+        val root = obj("format" to "practice.logger.backup", "version" to 2,
             "blocks" to array(data.blocks.map { b -> obj("id" to b.id, "name" to b.name, "action" to b.action, "durationMinutes" to b.durationMinutes, "tempo" to b.tempo, "notes" to b.notes, "archived" to b.archived, "createdAt" to b.createdAt, "updatedAt" to b.updatedAt) }),
             "sessions" to array(data.sessions.map { s -> obj("id" to s.id, "startedAt" to s.startedAt, "endedAt" to s.endedAt, "status" to s.status, "currentIndex" to s.currentIndex, "note" to s.note) }),
             "placements" to array(data.placements.map { p -> obj("id" to p.id, "sessionId" to p.sessionId, "sourceBlockId" to p.sourceBlockId, "name" to p.name, "action" to p.action, "tempo" to p.tempo, "referenceNotes" to p.referenceNotes, "position" to p.position, "configuredMs" to p.configuredMs, "activeMs" to p.activeMs, "outcome" to p.outcome, "overtimeAccepted" to p.overtimeAccepted, "note" to p.note) }))
@@ -48,18 +48,21 @@ object BackupCodec {
         val tokener = org.json.JSONTokener(text)
         val root = tokener.nextValue() as? JSONObject ?: error("Invalid backup object.")
         require(tokener.nextClean() == '\u0000') { "Trailing backup content." }
-        require(root.text("format") == "practice.logger.backup" && root.int("version") == 1) { "Unsupported backup format/version." }
+        require(root.text("format") == "practice.logger.backup" && root.int("version") in 1..2) { "Unsupported backup format/version." }
         return BackupData(
             root.rows("blocks").map { b -> Block(b.text("id"), b.text("name"), b.text("action"), b.int("durationMinutes"), b.nullInt("tempo"), b.text("notes"), b.bool("archived"), b.number("createdAt"), b.number("updatedAt")) },
             root.rows("sessions").map { s -> PracticeSession(s.text("id"), s.number("startedAt"), s.nullLong("endedAt"), s.text("status"), s.int("currentIndex"), s.text("note")) },
             root.rows("placements").map { p -> Placement(p.text("id"), p.text("sessionId"), p.text("sourceBlockId"), p.text("name"), p.text("action"), p.nullInt("tempo"), p.text("referenceNotes"), p.int("position"), p.number("configuredMs"), p.number("activeMs"), p.text("outcome"), p.bool("overtimeAccepted"), p.text("note")) }
-        ).also(::validate)
+        ).also {
+            validate(it)
+            if (root.int("version") == 1) require(it.sessions.count { s -> s.status != "COMPLETED" } <= 1) { "Invalid legacy unfinished sessions." }
+        }
     }
     fun validate(data: BackupData) {
         fun ids(values: List<String>) { require(values.size <= 20_000 && values.all { it.isNotBlank() } && values.toSet().size == values.size) { "Missing or duplicate IDs." } }
         ids(data.blocks.map { it.id }); ids(data.sessions.map { it.id }); ids(data.placements.map { it.id })
         val blocks = data.blocks.map { it.id }.toSet(); val sessions = data.sessions.map { it.id }.toSet()
-        require(data.sessions.count { it.status != "COMPLETED" } <= 1) { "Multiple unfinished sessions." }
+        require(data.sessions.count { it.status == "DRAFT" } <= 1) { "Multiple draft sessions." }
         data.blocks.forEach { require(it.name.isNotBlank() && it.action.isNotBlank() && it.durationMinutes > 0 && (it.tempo == null || it.tempo > 0)) }
         data.placements.forEach { p ->
             require(p.sessionId in sessions && p.sourceBlockId in blocks && p.name.isNotBlank() && p.action.isNotBlank()) { "Broken placement reference." }

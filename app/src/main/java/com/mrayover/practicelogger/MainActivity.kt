@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         } else if (!catalog.ready || !sessions.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
-            "home" -> PracticeHome(catalog, sessions, onPractice = { page = "builder" }, onContinue = { page = "focus" },
+            "home" -> PracticeHome(catalog, sessions, onPractice = { page = "builder" }, onContinue = { practice.openSession(it) },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) }, onSummary = { summaryId = it; page = "summary" })
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })

@@ -25,12 +25,24 @@ fun practiceTime(ms: Long, roundUp: Boolean = false): String {
 }
 fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(ms))
 
-@Composable fun PracticeHome(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit) {
+@Composable fun PracticeHome(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: (String) -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit) {
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("practice.logger", style = MaterialTheme.typography.headlineLarge)
         Text("A little structure for your practice.", style = MaterialTheme.typography.titleMedium)
-        if (sessions.active != null) ActionButton("Continue Session", onContinue)
-        else ActionButton("Practice Now", onPractice)
+        ActionButton("Practice Now", onPractice)
+        if (sessions.unfinished.isNotEmpty()) {
+            Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            Text("Start fresh above, or continue saved practice below. All sessions resume paused.")
+            sessions.active?.let { active ->
+                ActionButton("Continue Session", { onContinue(active.session.id) })
+                Text(sessionDate(active.session.startedAt) + " · " + (active.current?.name ?: "Session") + " · Block " + (active.session.currentIndex + 1) + " of " + active.placements.size)
+            }
+            sessions.unfinished.filter { it.session.id != sessions.active?.session?.id }.forEach { bundle ->
+                OutlinedButton(onClick = { onContinue(bundle.session.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
+                    Text("Continue: " + (bundle.ordered.firstOrNull()?.name ?: "Session") + " · " + sessionDate(bundle.session.startedAt))
+                }
+            }
+        }
         OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Manage Blocks") }
         Text(catalog.blocks.count { !it.archived }.toString() + " active Blocks")
         TextButton(onClick = onNew) { Text("New Block") }
