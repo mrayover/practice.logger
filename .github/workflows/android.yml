@@ -88,6 +88,12 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
+            bash ./gradlew assembleDebug -PversionCodeOverride=4 --stacktrace
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt
+            grep -q "OK (1 test)" app/build/upgrade-reopen.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/device-screenshots
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -100,4 +106,6 @@ jobs:
             app/build/practice-workflow.txt
             app/build/practice-recovery.txt
             app/build/history-reopen.txt
+            app/build/upgrade-reopen.txt
+            app/build/device-screenshots
           retention-days: 30

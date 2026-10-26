@@ -22,7 +22,7 @@ class PracticeWorkflowTest {
                 repo.save(null, BlockDraft("Skip fixture", "Skip this exercise", "1"))
                 repo.save(null, BlockDraft("Overtime fixture", "Keep practicing after zero", "1"))
             }
-            shown("Practice Now"); click("Practice Now")
+            shown("Practice Now"); compose.waitForIdle(); capturePractice("01-home"); click("Practice Now")
             shown("Add Warmup fixture"); click("Add Warmup fixture")
             shown("1. Warmup fixture")
             click("Add Skip fixture"); shown("2. Skip fixture")
@@ -41,13 +41,13 @@ class PracticeWorkflowTest {
                 SessionRepository(db).setDuration(bundle.ordered.last().id, 1000L)
                 assertEquals(1, db.blocks().find(bundle.ordered.first().sourceBlockId)!!.durationMinutes)
             }
-            click("Start Session"); shown("Warmup fixture"); click("Start")
+            capturePractice("02-builder"); click("Start Session"); shown("Warmup fixture"); click("Start"); compose.waitForIdle(); capturePractice("03-focus")
             compose.waitUntil(10000) { compose.onAllNodesWithText("1:59").fetchSemanticsNodes().isNotEmpty() }
             click("Complete"); shown("Skip fixture"); click("Skip")
             shown("Overtime fixture"); click("Start"); shown("Continue")
             compose.onNodeWithText("Overtime fixture").assertExists()
             compose.onNodeWithTag("practice-timer").assertTextEquals("0:00")
-            click("Continue")
+            capturePractice("04-zero-choice"); click("Continue")
             compose.waitUntil(10000) { compose.onAllNodesWithText("+0:01").fetchSemanticsNodes().isNotEmpty() }
             click("Pause"); shown("Resume")
             compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
@@ -77,7 +77,7 @@ class PracticeRecoveryTest {
         shown("Overtime fixture"); compose.onNodeWithText("Resume").assertExists().performScrollTo().performClick()
         compose.onNodeWithText("Pause").assertExists().performScrollTo().performClick()
         compose.onNodeWithText("Complete").performScrollTo().performClick()
-        shown("Session Summary")
+        shown("Session Summary"); compose.waitForIdle(); capturePractice("05-summary")
         compose.onNodeWithText("Original warmup action").assertExists()
         compose.onNodeWithText("Session note (optional)").performScrollTo().performTextInput("Restart verified")
         compose.onNodeWithText("Save note").performScrollTo().performClick(); shown("Note saved")
@@ -111,4 +111,12 @@ class HistoryReopenTest {
         compose.onNodeWithText("Session note (optional)").performScrollTo().assertTextContains("Restart verified")
         compose.onNodeWithText("Changed after practice").assertDoesNotExist()
     }
+}
+
+private fun capturePractice(name: String) {
+    val instrumentation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+    val directory = java.io.File(instrumentation.targetContext.getExternalFilesDir(null), "screenshots").apply { mkdirs() }
+    val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+    java.io.File(directory, name + ".png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+    bitmap.recycle()
 }
