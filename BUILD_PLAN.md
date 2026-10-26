@@ -1,5 +1,7 @@
 # practice.logger — First Usable Android Build Plan
 
+Owner-approved scope 2026-10-26: unfinished practice must not block starting new sessions. Implementing always-available Practice Now and individually selectable unfinished sessions on Home; one foreground timer and one builder draft, no new screen/schema/dependency. Version 0.3.3/build 7 verification and delivery pending. Backup format 2 supports multiple unfinished sessions and reads legacy version 1; older apps reject new version 2 backups. Reserve remaining capacity for stable build/logs/push. Manual acceptance/evaluation remain deferred.
+
 Owner instruction 2026-10-26: defer manual backup/recovery acceptance and the ten-real-session evaluation until this build cycle finishes. They remain unverified and do not block this authorized 0.3.2 note-reliability increment. General owner report: 0.3.0 works; no model/OS or individual checklist evidence supplied. Feature work stops by 10% usage remaining; prioritize stable signed APK and closing records. This cycle delivered verified 0.3.2; next test its unfinished-note save/leave/restart flow during normal practice, then resume owner-directed acceptance/evaluation later.
 
 **Authority:** Current first-release build scope and stages  

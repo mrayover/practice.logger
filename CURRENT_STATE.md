@@ -1,5 +1,7 @@
 # Current state
 
+Owner-approved scope 2026-10-26: unfinished practice must not block starting new sessions. Implementing always-available Practice Now and individually selectable unfinished sessions on Home; one foreground timer and one builder draft, no new screen/schema/dependency. Version 0.3.3/build 7 verification and delivery pending. Backup format 2 supports multiple unfinished sessions and reads legacy version 1; older apps reject new version 2 backups. Reserve remaining capacity for stable build/logs/push. Manual acceptance/evaluation remain deferred.
+
 Updated 2026-10-26 (America/Los_Angeles). Stage 3 engineering verified; 0.3.2 adds durable unfinished Block notes. Owner generally confirms 0.3.0 works, without model/OS or individual checklist evidence. Owner explicitly deferred manual backup/recovery acceptance and Stage 4 ten-session evaluation until after this build cycle. They are unverified/deferred, not blockers for this authorized increment. No synthetic sessions count toward Stage 4 (0/10).
 
 ## Verified release

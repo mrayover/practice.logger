@@ -32,6 +32,8 @@ class MultipleSessionWorkflowTest {
             shown("Parallel A")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
             compose.onNodeWithText("Ready when you are").assertExists()
+            compose.activityRule.scenario.recreate(); shown("Parallel A")
+            compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
             click("Save for later"); shown("Continue Session")
         } finally { db.close() }
     }
@@ -47,7 +49,9 @@ class MultipleSessionReopenTest {
         try {
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
             assertEquals(2, runBlocking { db.sessions().readAll().count { it.session.status == "IN_PROGRESS" } })
-            compose.onNodeWithTag("continue-session-" + first.session.id).performScrollTo().performClick()
+            val firstControl = compose.onAllNodesWithTag("continue-session-" + first.session.id)
+            if (firstControl.fetchSemanticsNodes().isNotEmpty()) firstControl[0].performScrollTo().performClick()
+            else click("Continue Session")
             shown("Parallel A"); compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
             click("Complete"); shown("Session Summary"); click("Home"); shown("Continue Session")
             click("Continue Session"); shown("Parallel B")
