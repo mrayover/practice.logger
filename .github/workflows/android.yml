@@ -69,10 +69,11 @@ jobs:
           disable-animations: true
           script: |
             adb shell pm clear com.mrayover.practicelogger || true
-            bash ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest --stacktrace
+            bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest --stacktrace
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports
             adb shell am force-stop com.mrayover.practicelogger
-            bash ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.ProcessReopenTest --stacktrace
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.ProcessReopenTest com.mrayover.practicelogger.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/process-reopen.txt
+            grep -q "OK (1 test)" app/build/process-reopen.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -81,4 +82,5 @@ jobs:
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
             app/build/catalog-workflow-reports
+            app/build/process-reopen.txt
           retention-days: 30

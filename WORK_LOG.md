@@ -25,3 +25,6 @@ Append-only session record. Times/dates use America/Los_Angeles.
 
 ### 2026-10-26 — Stage 1 lifecycle review
 - Published catalog source cd6ef72b84c7f7a4c335b8d6e5d30a8350ac6beb via Desktop; CI run 40368836246 started. Found that save/archive callbacks captured the previous Activity composition during recreation. Moved pending navigation outcome into the retained ViewModel so the current screen consumes successful saves. Extended emulator workflow to recreate immediately after every save/archive/restore/discard transition. Verification pending.
+
+### 2026-10-26 — Emulator restart harness correction
+- Stage 1 run 40368836246: build, all unit tests, lint and catalog emulator workflow passed. Separate process-reopen phase failed to find its record. The harness used a second Gradle connected test task; AGP uninstalls tested APKs by default between tasks, clearing the app database. This was an invalid restart test, not evidence of an in-app delete. Configured leaveApksInstalledAfterRun=true and direct adb instrumentation after force-stop, with an explicit OK (1 test) assertion and saved output. See upstream behavior: https://issuetracker.google.com/issues/295039976 . Final CI still pending.
