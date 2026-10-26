@@ -17,7 +17,7 @@ data class SessionCatalog(val bundles: List<SessionBundle> = emptyList(), val re
 }
 
 class PracticeViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = BlockDatabase.open(application)
+    private val db = BlockDatabase.appInstance(application)
     private val repository = SessionRepository(db)
     val catalog = repository.sessions.map { SessionCatalog(it, ready = true) }
         .catch { emit(SessionCatalog(error = "Could not open practice sessions. Close and reopen the app to retry.")) }
@@ -116,5 +116,5 @@ class PracticeViewModel(application: Application) : AndroidViewModel(application
         }
     }
     fun saveNote(id: String, note: String) = operation { repository.saveSessionNote(id, note); noteSaved = true }
-    override fun onCleared() { db.close() }
+    // The shared database belongs to the application, not an individual screen.
 }

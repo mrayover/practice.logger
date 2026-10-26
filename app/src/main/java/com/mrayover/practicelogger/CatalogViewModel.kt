@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 data class Catalog(val blocks: List<Block> = emptyList(), val ready: Boolean = false, val error: String? = null)
 
 class CatalogViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = BlockDatabase.open(application)
+    private val db = BlockDatabase.appInstance(application)
     private val repository = BlockRepository(db)
     val catalog = repository.blocks.map { Catalog(it, ready = true) }
         .catch { emit(Catalog(error = "Could not open saved Blocks. Close and reopen the app to retry.")) }
@@ -38,5 +38,5 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
     }
     fun save(id: String?, draft: BlockDraft, archived: Boolean) = mutate({ savedBlockId = repository.save(id, draft) }, { destinationArchived = archived })
     fun archive(id: String, archived: Boolean) = mutate({ savedBlockId = null; repository.setArchived(id, archived) }, { destinationArchived = archived })
-    override fun onCleared() { db.close() }
+    // The shared database belongs to the application, not an individual screen.
 }

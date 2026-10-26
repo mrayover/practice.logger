@@ -35,7 +35,7 @@ fun readBackup(input: InputStream): ByteArray {
 }
 
 class BackupViewModel(app: Application, private val db: BlockDatabase) : AndroidViewModel(app) {
-    constructor(app: Application) : this(app, BlockDatabase.open(app))
+    constructor(app: Application) : this(app, BlockDatabase.appInstance(app))
     private val repository = BackupRepository(db)
     var busy by mutableStateOf(false); private set
     var message by mutableStateOf<String?>(null); private set
@@ -75,7 +75,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
             message = "Backup restored. Return Home to see your Blocks and history. Unfinished practice resumes paused."
         }
     }
-    override fun onCleared() { db.close() }
+    // The shared database belongs to the application, not an individual screen.
 }
 
 @Composable fun BackupScreen(onHome: () -> Unit, vm: BackupViewModel = viewModel()) {

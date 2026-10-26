@@ -31,6 +31,11 @@ abstract class BlockDatabase : RoomDatabase() {
     abstract fun blocks(): BlockDao
     abstract fun sessions(): SessionDao
     companion object {
+        @Volatile private var applicationDatabase: BlockDatabase? = null
+        // One application-owned instance keeps catalog, practice and restore observers consistent.
+        fun appInstance(context: Context): BlockDatabase = applicationDatabase ?: synchronized(this) {
+            applicationDatabase ?: open(context.applicationContext).also { applicationDatabase = it }
+        }
         fun open(context: Context, name: String = "practice.logger.db") =
             Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2).enableMultiInstanceInvalidation().build()
     }
