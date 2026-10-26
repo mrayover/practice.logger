@@ -29,11 +29,11 @@ class AccessibilityWorkflowTest {
             click("Practice Now"); shown("Add Accessible fixture"); click("Add Accessible fixture"); click("Add Accessible fixture")
             shown("2. Accessible fixture"); readable("Change duration")
             // Repeated controls identify their Block for assistive technology.
-            compose.onAllNodesWithContentDescription("Move Accessible fixture up").assertCountEquals(2)
+            compose.onNodeWithContentDescription("Move Accessible fixture, placement 2, up").assertExists()
             compose.onNode(hasText("Down") and hasAnyAncestor(hasTestTag("placement-0"))).performScrollTo().assertIsDisplayed().performClick()
             captureStage3("10-large-builder")
             click("Start Session"); shown("Ready when you are")
-            compose.onNodeWithTag("practice-timer").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("practice-timer").performScrollTo().assertIsDisplayed().assertContentDescriptionEquals("Time remaining 1:00")
             readable("Complete"); captureStage3("11-large-focus"); click("Complete"); shown("Block 2 of 2"); click("Skip")
             shown("Session Summary"); readable("Session Summary"); captureStage3("12-large-summary")
             readable("Save note"); click("Home"); click("Manage Blocks"); shown("Block Library"); readable("New Block")

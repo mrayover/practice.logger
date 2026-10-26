@@ -67,8 +67,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 Text(placement.action)
                 Text("Session duration: " + practiceTime(placement.configuredMs))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + " up" }) { Text("Up") }
-                    OutlinedButton(onClick = { vm.move(placement.id, 1) }, enabled = !vm.busy && index < entries.lastIndex, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + " down" }) { Text("Down") }
+                    OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", up" }) { Text("Up") }
+                    OutlinedButton(onClick = { vm.move(placement.id, 1) }, enabled = !vm.busy && index < entries.lastIndex, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", down" }) { Text("Down") }
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     TextButton(onClick = { changeId = placement.id; minutes = (placement.configuredMs / 60_000L).toString(); validation = false }, enabled = !vm.busy) { Text("Change duration") }
@@ -124,7 +124,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         current.tempo?.let { Text(it.toString() + " BPM reference") }
         if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes)
         Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
-            style = MaterialTheme.typography.displayLarge, modifier = Modifier.fillMaxWidth().testTag("practice-timer").semantics { contentDescription = if (current.overtimeAccepted) "Overtime" else "Time remaining" })
+            style = MaterialTheme.typography.displayLarge, modifier = Modifier.fillMaxWidth().testTag("practice-timer").semantics { contentDescription = if (current.overtimeAccepted) "Overtime " + practiceTime(current.activeMs - current.configuredMs) else "Time remaining " + practiceTime(current.configuredMs - current.activeMs, roundUp = true) })
         Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" })
         if (awaiting) ActionButton("Continue", { vm.resume(overtime = true) }, !vm.busy)
         else ActionButton(if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume", { if (vm.running) vm.pause() else vm.resume() }, !vm.busy)

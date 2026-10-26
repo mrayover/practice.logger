@@ -39,9 +39,9 @@ class BackupFailureTest {
         app.deleteDatabase("practice.logger.db")
         val provider = org.robolectric.Robolectric.buildContentProvider(UnavailableBackupProvider::class.java).create().get()
         ShadowContentResolver.registerProviderInternal("test.unavailable", provider)
-        val db = BlockDatabase.open(app)
+        val db = androidx.room.Room.inMemoryDatabaseBuilder(app, BlockDatabase::class.java).build()
         val store = ViewModelStore()
-        val vm = BackupViewModel(app); store.put("backup", vm)
+        val vm = BackupViewModel(app, db); store.put("backup", vm)
         fun waitUntilIdle() {
             val deadline = System.nanoTime() + 10_000_000_000L
             while (vm.busy && System.nanoTime() < deadline) { shadowOf(Looper.getMainLooper()).idle(); Thread.sleep(10) }

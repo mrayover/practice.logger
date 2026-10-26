@@ -34,8 +34,8 @@ fun readBackup(input: InputStream): ByteArray {
     return bytes.toByteArray()
 }
 
-class BackupViewModel(app: Application) : AndroidViewModel(app) {
-    private val db = BlockDatabase.open(app)
+class BackupViewModel(app: Application, private val db: BlockDatabase) : AndroidViewModel(app) {
+    constructor(app: Application) : this(app, BlockDatabase.open(app))
     private val repository = BackupRepository(db)
     var busy by mutableStateOf(false); private set
     var message by mutableStateOf<String?>(null); private set

@@ -77,6 +77,7 @@ class BackupRepositoryTest {
             rejected { BackupCodec.validate(data.copy(blocks = emptyList())) }
             rejected { BackupCodec.validate(data.copy(placements = data.placements.map { it.copy(position = 2) })) }
             rejected { BackupCodec.validate(data.copy(placements = data.placements.map { it.copy(activeMs = -1) })) }
+            rejected { BackupCodec.validate(data.copy(placements = data.placements.map { it.copy(overtimeAccepted = true) })) }
             rejected { BackupCodec.validate(data.copy(sessions = data.sessions.map { it.copy(status = "UNKNOWN") })) }
             rejected { readBackup(java.io.ByteArrayInputStream(ByteArray(BACKUP_LIMIT + 1))) }
             // Validate all records before the first insert; no partial restore.

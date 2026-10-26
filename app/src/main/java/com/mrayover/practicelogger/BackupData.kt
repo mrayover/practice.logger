@@ -65,7 +65,7 @@ object BackupCodec {
             require(p.sessionId in sessions && p.sourceBlockId in blocks && p.name.isNotBlank() && p.action.isNotBlank()) { "Broken placement reference." }
             require(p.configuredMs > 0 && p.activeMs >= 0 && (p.tempo == null || p.tempo > 0))
             require(p.outcome in setOf("PENDING", "COMPLETED", "SKIPPED"))
-            require(p.overtimeAccepted || p.activeMs <= p.configuredMs)
+            require(if (p.overtimeAccepted) p.activeMs >= p.configuredMs else p.activeMs <= p.configuredMs)
         }
         val bySession = data.placements.groupBy { it.sessionId }
         data.sessions.forEach { s ->
