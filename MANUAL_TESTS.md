@@ -1,10 +1,10 @@
 # Phone testing checklist
 
-The owner reports 0.2.0 works. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.0 backup/provider/accessibility acceptance is pending. Automated results are in CURRENT_STATE.md; they do not replace phone checks.
+The owner reports 0.2.0 works. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.1 owner phone acceptance is pending. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.3.0-b4-1a85ecb/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.0 (build 4). Install over 0.2.0 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.3.1-b5-16075ab/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.1 (build 5). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -26,12 +26,17 @@ The owner reports 0.2.0 works. Detailed model/Android-version and individual che
 
 Record model, Android version, exact build and any failures in WORK_LOG.md. Abrupt process termination can lose the latest uncommitted timer checkpoint; committed data recovers paused. Do not treat this release as dependable daily use until Stage 3 backup/recovery work and device feedback are complete.
 
-## Stage 3 backup increment (0.3.0)
+## Stage 3 backup increment (0.3.1)
 
-1. Install the signed 0.3.0 APK over 0.2.0. Verify existing Blocks, draft/unfinished session and saved history. The older dist files must still be present on the computer.
+1. Install the signed 0.3.1 APK over 0.2.0 or 0.3.0. Verify existing Blocks, draft/unfinished session and saved history. The older dist files must still be present on the computer.
 2. Save notes, pause practice and go Home → Backup and restore. Export to a local folder using Android's picker; wait for Backup saved. Confirm the JSON exists. Cancel a second picker and check data remains unchanged. Repeat export; retain both files.
 3. Choose the valid file to restore. Review counts, rotate, then Cancel. Try again and confirm: this nonempty app must reject restore without changing Blocks/history/unfinished time. Try malformed or unsupported-version JSON; it must reject it without a crash. Never clear the current app just to make restore possible.
-4. On a spare device/disposable empty installation of the signed 0.3.0 app, choose the exported file, confirm restore and inspect archived Blocks, notes, historical instruction snapshots and any unfinished session. Restart; verify records remain and unfinished practice is paused with its saved order/time. Export again and compare representative records.
+4. On a spare device/disposable empty installation of the signed 0.3.1 app, choose the exported file, confirm restore and inspect archived Blocks, notes, historical instruction snapshots and any unfinished session. Restart; verify records remain and unfinished practice is paused with its saved order/time. Export again and compare representative records.
 5. Test unavailable/read-only provider or low storage using disposable test files only. An error must leave database data intact; a failed export's partial file is not a completed backup. Check airplane mode with local storage, large text, TalkBack labels, landscape, keyboard and reachable dialogs/buttons.
 
-Record model/OS, build, chosen document provider, pass/fail and any error in WORK_LOG.md. System picker automation and real-phone provider/disk-failure behavior were not claimed by CI. No automatic backup scheduling or in-app updater exists. Exact next development action: fix any issue found by this checklist before expanding scope.
+Record model/OS, build, chosen document provider, pass/fail and any error in WORK_LOG.md. CI now automates the real Android system picker, cancellation, restore into a cleared disposable emulator app and force-stop/reopen on API 26/35. Unavailable-provider/retry behavior is tested; real-phone provider/disk-full/TalkBack behavior still needs owner checks. No automatic backup scheduling or in-app updater exists. Exact next development action: fix any issue found by this checklist before expanding scope.
+## Close Stage 3, then begin Stage 4
+
+Record phone model/Android/build and pass/fail for install-over data preservation, pause/background/process recovery, completed history reopening, successful picker export, spare-empty-install restore/restart comparison and readable/reachable controls at your chosen text size. CI screenshots and emulator checks are engineering evidence, not owner phone confirmation. Do not clear the main app for testing.
+
+Once these checks pass, begin EVALUATION.md's ten real sessions. After each, save a short optional session note covering taps/time to start, editing friction, timer usefulness, notes/history and any missing flexibility. Report exact failures before adding features. Current real-session count: zero documented; synthetic test data does not count.

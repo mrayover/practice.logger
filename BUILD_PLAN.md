@@ -1,7 +1,7 @@
 # practice.logger — First Usable Android Build Plan
 
 **Authority:** Current first-release build scope and stages  
-**Status:** Stages 0–2 verified in CI on 2026-10-26; owner confirms 0.2.0 works; Stage 3 backup increment verified in CI, phone picker/accessibility checks pending; Stage 4 not started
+**Status:** Stages 0–2 verified in CI on 2026-10-26; owner confirms 0.2.0 works; Stage 3 engineering verified on API 26/35, owner phone acceptance pending; Stage 4 evaluation prepared (0/10 real sessions)
 **Repository:** https://github.com/mrayover/practice.logger  
 **Owner workflow:** GitHub Desktop  
 **Required application font:** **Lato throughout**  
@@ -179,6 +179,6 @@ Do not add a new screen, feature, dependency or architectural layer simply becau
 
 ## 11. Next action
 
-Stages 0–2 have passed automated build/tests and emulator workflows; owner reports 0.2.0 works. Stage 3 now provides versioned export and validated transactional restore into an empty app, with automated round-trip/reopen and safety verification. It remains partial: next perform the 0.3.0 phone document-picker/export and spare-device restore checklist, then fix observed accessibility/recovery issues. Do not begin deferred features or Stage 4 yet. Versioned ZIPs and extracted APKs are retained in ignored `dist/`; permanent local signing supports future in-place updates to the new app identity while preserving the original 0.1.0 catalog separately. `CURRENT_STATE.md` and `WORK_LOG.md` contain verified run, APK and source-commit evidence. `FIRST_WORK_HANDOFF.md` is historical.
+Stage 3 engineering is verified: versioned backup, validated transactional empty-app restore, migration/recovery tests, unavailable-provider/retry handling, Android system document-picker round trips and 200% text workflows on API 26/35. The owner phone exit gate is still pending; do not label it dependable daily use without that evidence. Owner authorizes continuing toward Stage 4: EVALUATION.md prepares the ten-real-session log, currently 0/10; start the numbered real-world evaluation after phone acceptance and record actual observations. No deferred feature is approved by preparation alone. Preserve all versioned ZIPs and extracted APKs under ignored dist and keep the permanent signing key. `CURRENT_STATE.md` and `WORK_LOG.md` contain verified run, APK and source-commit evidence. `FIRST_WORK_HANDOFF.md` is historical.
 
 **Guiding rule: Build enough to practice. Practice enough to know what to build next.**
