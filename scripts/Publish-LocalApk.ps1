@@ -58,7 +58,7 @@ practice.logger $Version (build $VersionCode)
 Open the APK on your Android phone to install. This permanent-signing app has ID
 com.mrayover.practicelogger.app and initially installs alongside the temporary-key
 0.1.0 catalog. The old app and its data stay intact; Blocks do not transfer automatically.
-The launcher label includes 0.2 to distinguish it from the old catalog.
+The launcher label is practice.logger; Android app details show this version.
 
 Future locally signed APKs from this permanent key update this installation in place
 and retain its data. Install updates over the existing app; do not uninstall it first.

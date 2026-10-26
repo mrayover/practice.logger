@@ -32,7 +32,22 @@ object BackupCodec {
     }
     fun decode(bytes: ByteArray): BackupData {
         require(bytes.size <= BACKUP_LIMIT) { "Backup exceeds the 8 MiB limit." }
-        val root = JSONObject(Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString())
+        val text = Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString()
+        // Bound nesting before invoking the recursive Android JSON parser.
+        var depth = 0; var quoted = false; var escaped = false
+        text.forEach { ch ->
+            if (quoted) {
+                if (escaped) escaped = false else if (ch == '\\') escaped = true else if (ch == '"') quoted = false
+            } else when (ch) {
+                '"' -> quoted = true
+                '{', '[' -> { depth++; require(depth <= 32) { "Backup nesting is too deep." } }
+                '}', ']' -> { depth--; require(depth >= 0) }
+            }
+        }
+        require(!quoted && depth == 0)
+        val tokener = org.json.JSONTokener(text)
+        val root = tokener.nextValue() as? JSONObject ?: error("Invalid backup object.")
+        require(tokener.nextClean() == '\u0000') { "Trailing backup content." }
         require(root.text("format") == "practice.logger.backup" && root.int("version") == 1) { "Unsupported backup format/version." }
         return BackupData(
             root.rows("blocks").map { b -> Block(b.text("id"), b.text("name"), b.text("action"), b.int("durationMinutes"), b.nullInt("tempo"), b.text("notes"), b.bool("archived"), b.number("createdAt"), b.number("updatedAt")) },

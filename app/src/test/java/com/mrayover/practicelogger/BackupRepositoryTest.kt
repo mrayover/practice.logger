@@ -71,6 +71,8 @@ class BackupRepositoryTest {
             for (bad in listOf("not json", "{}", JSONObject(String(encoded)).put("version", 2).toString(), JSONObject(String(encoded)).put("version", 1.5).toString())) {
                 rejected { BackupCodec.decode(bad.toByteArray()) }
             }
+            rejected { BackupCodec.decode((String(encoded) + " trailing").toByteArray()) }
+            rejected { BackupCodec.decode(("[".repeat(1000) + "0" + "]".repeat(1000)).toByteArray()) }
             rejected { BackupCodec.validate(data.copy(blocks = data.blocks + data.blocks)) }
             rejected { BackupCodec.validate(data.copy(blocks = emptyList())) }
             rejected { BackupCodec.validate(data.copy(placements = data.placements.map { it.copy(position = 2) })) }
@@ -80,6 +82,11 @@ class BackupRepositoryTest {
             // Validate all records before the first insert; no partial restore.
             try { BackupRepository(target).restore(data.copy(placements = data.placements.map { it.copy(sessionId = "missing") })); fail() } catch (_: IllegalArgumentException) { }
             assertTrue(BackupRepository(target).snapshot().blocks.isEmpty())
+            target.openHelper.writableDatabase.execSQL("CREATE TRIGGER reject_placement BEFORE INSERT ON placements BEGIN SELECT RAISE(ABORT, 'test disk/write failure'); END")
+            try { BackupRepository(target).restore(data); fail("Partial restore committed") } catch (_: android.database.sqlite.SQLiteException) { }
+            assertTrue(BackupRepository(target).snapshot().blocks.isEmpty())
+            assertTrue(BackupRepository(target).snapshot().sessions.isEmpty())
+            target.openHelper.writableDatabase.execSQL("DROP TRIGGER reject_placement")
             BlockRepository(target).save(null, BlockDraft("Keep me", "Do not replace"))
             val before = BackupRepository(target).snapshot()
             try { BackupRepository(target).restore(data); fail() } catch (_: IllegalStateException) { }
