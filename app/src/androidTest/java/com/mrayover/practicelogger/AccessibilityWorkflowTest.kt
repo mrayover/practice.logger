@@ -15,14 +15,15 @@ class AccessibilityWorkflowTest {
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() } }
     private fun click(text: String) { compose.onNodeWithText(text).performScrollTo().performClick() }
     private fun readable(text: String) {
-        val node = compose.onAllNodesWithText(text, useUnmergedTree = true)[0].performScrollTo().assertIsDisplayed().fetchSemanticsNode()
+        val node = compose.onAllNodesWithText(text, useUnmergedTree = true)[0].performScrollTo().assertIsDisplayed()
+        compose.waitForIdle()
         val results = mutableListOf<TextLayoutResult>()
-        node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(results)
+        node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(results) }
         if (results.isEmpty() || results.any { it.hasVisualOverflow }) {
             println("TEXT LAYOUT: " + results.map { "size=${it.size}, paragraph=${it.multiParagraph.width}x${it.multiParagraph.height}, lines=${it.lineCount}, widthOverflow=${it.didOverflowWidth}, heightOverflow=${it.didOverflowHeight}" })
             captureStage3("text-overflow")
         }
-        assertTrue("Text was clipped: $text", results.isNotEmpty() && results.none { it.hasVisualOverflow })
+        assertTrue("Text layout: $text; " + results.map { "size=${it.size}, paragraph=${it.multiParagraph.width}x${it.multiParagraph.height}, lines=${it.lineCount}, widthOverflow=${it.didOverflowWidth}, heightOverflow=${it.didOverflowHeight}" }, results.isNotEmpty() && results.none { it.hasVisualOverflow })
     }
     @Test fun largeTextCatalogBuilderFocusSummaryAndBackupRemainUsable() {
         assertTrue(compose.activity.resources.configuration.fontScale >= 1.9f)
