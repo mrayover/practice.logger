@@ -22,6 +22,7 @@ class FoundationTest {
             try { assertEquals(original, db.blocks().find("stable-id")) } finally { db.close() }
         }
         context.deleteDatabase("foundation-test.db")
+        Unit
     }
     @Test fun everyMaterialTextStyleUsesBundledLato() {
         with(LatoTypography) {
