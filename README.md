@@ -2,7 +2,7 @@
 
 Small offline Android practice tool. The authoritative scope is [BUILD_PLAN.md](BUILD_PLAN.md). Read [AGENTS.md](AGENTS.md), [CURRENT_STATE.md](CURRENT_STATE.md) and [WORK_LOG.md](WORK_LOG.md) before every development session.
 
-Stage 0 foundation is under verification. This shell is not yet a functional practice logger. No Goals, Routines or audio tools are included.
+Stage 0 build, unit tests, lint and Android emulator launch/recreation smoke test passed. Stage 1 Block catalog is implemented and awaiting its CI verification. No Goals, Routines or audio tools are included.
 
 ## Build and APK
 
@@ -17,3 +17,11 @@ Debug APK signing uses the CI runner's temporary debug key. Builds from differen
 Kotlin 2.2.21, Compose, Room 2.8.5, AGP 8.13.2, Gradle 8.14.3, minSdk 26 / targetSdk 36. No Internet permission. Lato Regular/Bold are bundled with their SIL Open Font License in app assets and THIRD_PARTY_NOTICES.md. Android system UI and keyboards control their own font.
 
 Git operations use GitHub Desktop. This session edits the actual Windows checkout, not a cloud copy.
+
+## Block catalog (0.1.0)
+
+Home → Manage Blocks → New Block. Name and Action are required; default duration starts at five minutes. Duration and optional BPM accept positive whole numbers representable as 32-bit integers. Search matches name, action and notes literally, ignoring case. Save writes locally; Cancel/Back asks before discarding edits. An editor draft survives Activity recreation and saved-state restoration. An unsaved draft is not a saved Block.
+
+Archive is reversible and requires confirmation. Switch between Active and Archived, open a Block and Restore it. No hard deletion is exposed: stable IDs and Block records are retained for future history. Archiving with unsaved edits discards those edits after the explicit confirmation.
+
+Practice Now, sessions, timers, history and backup belong to later stages and have no dead controls in this build. See MANUAL_TESTS.md for the phone checklist. CI runs only for source/configuration changes; documentation-only commits retain the prior tested APK.
