@@ -1,10 +1,10 @@
 # Phone testing checklist
 
-The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.2 owner phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
+The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.3 owner phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.3.2-b6-3f7730f/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.2 (build 6). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.3.3-b7-19489c7/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.3 (build 7). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -48,3 +48,9 @@ Once these checks pass, begin EVALUATION.md's ten real sessions. After each, sav
 4. Clear the note and save if desired. Confirm another Block's note and older summaries remain unchanged. At large text sizes, scroll to reach the save controls.
 
 Typing alone remains unsaved against abrupt process death; use the save actions. Backup/recovery and the ten-session evaluation are deferred by owner, not prerequisites for testing this incremental APK.
+## 0.3.3 independent sessions
+
+1. Leave session A unfinished with a saved note/time. Home must still offer Practice Now and Continue Session.
+2. Practice Now → build/start B, practice briefly and Save for later. Both unfinished sessions must remain selectable.
+3. Open each, confirm its own Block/time/note and paused state. Restart the app and repeat; the default may be newest, but the other dated control must still work.
+4. Complete B and confirm A remains unfinished with unchanged data. Then finish A; summaries must remain separate. One shared builder draft remains supported.

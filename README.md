@@ -8,13 +8,13 @@ Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md co
 
 ## Install the versioned local build
 
-The verified, permanently signed 0.3.2 build (versionCode 6) is in:
+The verified, permanently signed 0.3.3 build (versionCode 7) is in:
 
-- ZIP: dist/practice.logger-0.3.2-b6-3f7730f.zip
-- Extracted APK: dist/practice.logger-0.3.2-b6-3f7730f/practice.logger-0.3.2-b6-3f7730f.apk
-- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.3.2-b6-3f7730f/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.3.3-b7-19489c7.zip
+- Extracted APK: dist/practice.logger-0.3.3-b7-19489c7/practice.logger-0.3.3-b7-19489c7.apk
+- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.3.3-b7-19489c7/BUILD_INFO.json
 
-Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.3.2. Install over signed 0.2.0, 0.3.0 or 0.3.1 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
+Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.3.3. Install over signed 0.2.0, 0.3.0 or 0.3.1 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
 
 The original 0.1.0 APK used a lost temporary CI debug key. To preserve its installed app and Blocks, 0.2.0 uses the stable application ID com.mrayover.practicelogger.app and installs alongside it. **Blocks do not transfer automatically from 0.1.0.** Keep the old catalog if it contains needed data; recreate desired Blocks in the new app. The old APK ZIP and extracted folder are also preserved under a versioned name in dist.
 
@@ -34,7 +34,7 @@ Block Library supports Active/Archived filters, literal case-insensitive search 
 
 ## Build, checks and packaging
 
-Verified source 16075ab6ad07cb6a35c4c5a9b561134076775a04; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40407963404 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
+Verified source 19489c7fd8f947b0a4d194d1f7a6031ab62f478d; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40417269518 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
 
 Developer command: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease (Windows .\gradlew.bat). Toolchain: JDK 17, Android SDK 36, AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21, Compose and Room 2.8.5. Local signing tools are under ignored .tools; private signing material is under ignored .signing. Back up the entire .signing folder securely outside Git; losing it prevents in-place updates. Only the public certificate fingerprint is committed.
 
@@ -44,11 +44,11 @@ Room schema 1 and schema 2 are committed; 1→2 has an explicit migration that r
 
 ## Stage 3 backup increment
 
-Home → Backup and restore → Export backup opens Android's document picker and saves a version-1 UTF-8 JSON snapshot of Blocks (including archived), sessions, placements, notes and unfinished practice. Wait for Backup saved; a failed export may leave an incomplete file. Keep the plain text file private. Saved data only: commit quick/session notes before export.
+Home → Backup and restore → Export backup opens Android's document picker and saves a version-2 UTF-8 JSON snapshot (legacy version 1 is still readable) of Blocks (including archived), sessions, placements, notes and unfinished practice. Wait for Backup saved; a failed export may leave an incomplete file. Keep the plain text file private. Saved data only: commit quick/session notes before export.
 
 Choose backup to restore validates the complete file and shows counts for confirmation. Restore works only in an empty app (for example, a new phone); it never replaces or merges existing practice data. Validation and the empty-target check/inserts run within one database transaction. Unfinished practice restores paused. Cancelling leaves data unchanged. Do not uninstall/clear the current app to test restore; use a spare device or disposable installation.
 
-Limits: version 1, 8 MiB, 20,000 records per type, nesting 32. Structural, type, reference/order/state and overflow checks plus transactional rollback are tested. See BACKUP_FORMAT.md and MANUAL_TESTS.md. Android system picker export/cancel/restore/process-reopen and 200% text workflows pass on API 26/35; unavailable-provider/retry tests pass. Vendor-specific phone behavior and TalkBack still need owner acceptance. Stage 3 engineering is complete, with the manual exit gate pending; Stage 4 is prepared, not completed. Source and signing/build provenance are in each distribution's BUILD_INFO.json. Android file-picker behavior: https://developer.android.com/training/data-storage/shared/documents-files .
+Limits: writer version 2 / reader versions 1 and 2, 8 MiB, 20,000 records per type, nesting 32. Structural, type, reference/order/state and overflow checks plus transactional rollback are tested. See BACKUP_FORMAT.md and MANUAL_TESTS.md. Android system picker export/cancel/restore/process-reopen and 200% text workflows pass on API 26/35; unavailable-provider/retry tests pass. Vendor-specific phone behavior and TalkBack still need owner acceptance. Stage 3 engineering is complete, with the manual exit gate pending; Stage 4 is prepared, not completed. Source and signing/build provenance are in each distribution's BUILD_INFO.json. Android file-picker behavior: https://developer.android.com/training/data-storage/shared/documents-files .
 ## Stage 3 hardening and Stage 4 evaluation
 
 Version 0.3.1 adds readable session controls at large text sizes, headings and distinct reorder labels (including placement number), a spoken timer label with its value, and a specific safe refusal message for nonempty restore. A shared application-owned Room instance fixes stale Home/catalog/practice observers immediately after restore; screen teardown cannot close another screen's database. Explicit Android backup exclusions retain the manual-export policy, and a local vector launcher icon identifies the app. Room schema/application ID/permanent signing key remain unchanged. Eighteen unit tests and both API 26/35 device jobs pass; screenshots of Summary, large-text screens and restored paused practice were reviewed. No automatic updater or deferred feature was introduced.
@@ -56,4 +56,7 @@ Version 0.3.1 adds readable session controls at large text sizes, headings and d
 Owner instruction 2026-10-26: manual backup/recovery acceptance and the ten-real-session evaluation are deferred until after this build cycle; they remain unverified. Resume MANUAL_TESTS.md and EVALUATION.md when the owner is ready. Existing optional Session notes can hold observations; no new required data entry. Automated sessions never count. Fix observed friction and decide on at most one future feature after evidence. Ten real sessions and a future-feature decision cannot be manufactured by CI.
 ## Unfinished notes — 0.3.2
 
-Use Save Block note while practicing to preserve a quick note without completing the Block. Save for later and Back pause/checkpoint and save it before Home; Continue Session restores the text, including after restart. Complete/Skip save final text. Typing alone is not saved against abrupt process death; use a save action. Session notes still require Save note. No schema, app identity or signing-key change. Nineteen unit tests and full API 26/35 device suites passed; CI https://github.com/mrayover/practice.logger/actions/runs/40411796049 . Backup/recovery owner acceptance and evaluation remain deferred by owner. See CURRENT_STATE.md for exact provenance and limitations.
+Use Save Block note while practicing to preserve a quick note without completing the Block. Save for later and Back pause/checkpoint and save it before Home; Continue Session restores the text, including after restart. Complete/Skip save final text. Typing alone is not saved against abrupt process death; use a save action. Session notes still require Save note. No schema, app identity or signing-key change. Nineteen unit tests and full API 26/35 device suites passed; CI https://github.com/mrayover/practice.logger/actions/runs/40417269518 . Backup/recovery owner acceptance and evaluation remain deferred by owner. See CURRENT_STATE.md for exact provenance and limitations.
+## Independent unfinished sessions — 0.3.3
+
+Practice Now stays available alongside Continue Session. Start fresh while keeping older practice; choose a dated session in Home's Unfinished sessions section. Each keeps its own position/time/notes and resumes paused. Only one foreground timer runs; one builder draft remains. Format-2 backups include all unfinished sessions; legacy format-1 imports still work. Older app builds reject new format-2 backups safely. Twenty unit tests and full API26/35 suites, including multi-session switching/process restart, pass. Latest verification: https://github.com/mrayover/practice.logger/actions/runs/40417269518 .
