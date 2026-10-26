@@ -24,11 +24,12 @@ data class Block(
     @Insert suspend fun insert(block: Block)
     @Update suspend fun update(block: Block): Int
 }
-@Database(entities = [Block::class], version = 1, exportSchema = true)
+@Database(entities = [Block::class, PracticeSession::class, Placement::class], version = 2, exportSchema = true)
 abstract class BlockDatabase : RoomDatabase() {
     abstract fun blocks(): BlockDao
+    abstract fun sessions(): SessionDao
     companion object {
         fun open(context: Context, name: String = "practice.logger.db") =
-            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).build()
+            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2).enableMultiInstanceInvalidation().build()
     }
 }

@@ -20,6 +20,8 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
         private set
     var error by mutableStateOf<String?>(null)
         private set
+    var savedBlockId: String? = null
+        private set
     var destinationArchived by mutableStateOf<Boolean?>(null)
         private set
     fun navigationHandled() { destinationArchived = null }
@@ -34,7 +36,7 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
             finally { busy = false }
         }
     }
-    fun save(id: String?, draft: BlockDraft, archived: Boolean) = mutate({ repository.save(id, draft) }, { destinationArchived = archived })
-    fun archive(id: String, archived: Boolean) = mutate({ repository.setArchived(id, archived) }, { destinationArchived = archived })
+    fun save(id: String?, draft: BlockDraft, archived: Boolean) = mutate({ savedBlockId = repository.save(id, draft) }, { destinationArchived = archived })
+    fun archive(id: String, archived: Boolean) = mutate({ savedBlockId = null; repository.setArchived(id, archived) }, { destinationArchived = archived })
     override fun onCleared() { db.close() }
 }

@@ -20,6 +20,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,33 +32,53 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel()) {
+    val sessions by practice.catalog.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val view = LocalView.current
+    DisposableEffect(lifecycle, practice) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) practice.setForeground(true)
+            if (event == Lifecycle.Event.ON_PAUSE) practice.setForeground(false)
+        }
+        lifecycle.addObserver(observer)
+        practice.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+        onDispose { lifecycle.removeObserver(observer); practice.setForeground(false) }
+    }
+    DisposableEffect(practice.running, view) { view.keepScreenOn = practice.running; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
+    var editorReturn by rememberSaveable { mutableStateOf("library") }
+    var summaryId by rememberSaveable { mutableStateOf<String?>(null) }
     var editorId by rememberSaveable { mutableStateOf<String?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
     var archived by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(vm.destinationArchived) {
         vm.destinationArchived?.let { destination ->
-            archived = destination; query = ""; page = "library"; vm.navigationHandled()
+            archived = destination; query = ""; page = editorReturn
+            if (editorReturn == "builder") vm.savedBlockId?.let { practice.addBlock(it) }
+            vm.navigationHandled()
         }
     }
-    fun openEditor(id: String?) { editorId = id; page = "editor" }
+    LaunchedEffect(practice.destination) {
+        practice.destination?.let { destination ->
+            if (destination == "summary") summaryId = practice.completedId
+            page = destination; practice.navigationHandled()
+        }
+    }
+    fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
     BackHandler(page == "library") { page = "home" }
     Surface(Modifier.fillMaxSize()) {
-        if (catalog.error != null) {
-            Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("practice.logger", style = MaterialTheme.typography.headlineLarge); Text(catalog.error!!) }
-        } else if (!catalog.ready) {
+        if (catalog.error != null || sessions.error != null) {
+            Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("practice.logger", style = MaterialTheme.typography.headlineLarge); Text(catalog.error ?: sessions.error!!) }
+        } else if (!catalog.ready || !sessions.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
-            "home" -> Column(Modifier.safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Text("practice.logger", style = MaterialTheme.typography.headlineLarge)
-                Text("A little structure for your practice.", style = MaterialTheme.typography.titleMedium)
-                Text(catalog.blocks.count { !it.archived }.toString() + " active Blocks")
-                Button(onClick = { page = "library" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Manage Blocks") }
-                OutlinedButton(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") }
-                Text("Build your Block library. Guided practice sessions will arrive in a later build.")
-            }
+            "home" -> PracticeHome(catalog, sessions, onPractice = { page = "builder" }, onContinue = { page = "focus" },
+                onLibrary = { page = "library" }, onNew = { openEditor(null) }, onSummary = { summaryId = it; page = "summary" })
+            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
+            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" })
+            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" })
             "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { page = "home" }) { Text("Back to Home") }
                 Text("Block Library", style = MaterialTheme.typography.headlineMedium)
@@ -85,11 +109,14 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorId) {
-                    BlockEditor(block, vm.busy, onCancel = { page = "library" },
+                    BlockEditor(block, vm.busy, onCancel = { page = editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } })
                 }
             }
+        }
+        practice.error?.let { message ->
+            AlertDialog(onDismissRequest = practice::dismissError, title = { Text("Practice paused") }, text = { Text(message) }, confirmButton = { TextButton(onClick = practice::dismissError) { Text("OK") } })
         }
         vm.error?.let { message ->
             AlertDialog(onDismissRequest = vm::dismissError, title = { Text("Changes not saved") }, text = { Text(message) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("OK") } })

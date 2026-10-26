@@ -1,3 +1,9 @@
+# Stage 2 development checkpoint — 2026-10-26
+
+Owner reports 0.1.0 works and authorizes Stage 2. Read WORK_LOG.md for this session. Stage 2 sources and tests are implemented but build/lint/tests are not yet verified. App identity com.mrayover.practicelogger.app preserves the old temporary-key catalog alongside the new installation. Permanent private signing key stays local in ignored .signing; dist and .tools are ignored. Exact next task: run Stage 2 CI, fix failures, retain schema 2, sign/package and extract the verified APK into dist, then update closing records and push through Desktop.
+
+Previous verified baseline follows:
+
 # Current state
 
 Updated: 2026-10-26, 10:40 PDT (America/Los_Angeles).
@@ -34,3 +40,4 @@ No Session Builder, practice timer, session recovery, history, backup/restore or
 Actual Windows checkout: C:\Users\mrove\Projects\practice.logger. All Git mutations this session used GitHub Desktop. Original prefixed plan/handoff and commit history remain intact. Canonical operational records were created because they were absent initially. No cloud checkout was used; this folder is already updated and does not need Fetch/Pull to receive this session's work.
 
 Exact next task: run the Stage 1 checklist in MANUAL_TESTS.md on the owner's Android phone, record model/Android version/results, and resolve any catalog defects before beginning Stage 2 Session Builder. Read all five operational records first in every future session. Append WORK_LOG and refresh this state at every session close, including incomplete sessions.
+
