@@ -34,6 +34,11 @@ class MainActivity : ComponentActivity() {
     var editorId by rememberSaveable { mutableStateOf<String?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
     var archived by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(vm.destinationArchived) {
+        vm.destinationArchived?.let { destination ->
+            archived = destination; query = ""; page = "library"; vm.navigationHandled()
+        }
+    }
     fun openEditor(id: String?) { editorId = id; page = "editor" }
     BackHandler(page == "library") { page = "home" }
     Surface(Modifier.fillMaxSize()) {
@@ -81,8 +86,8 @@ class MainActivity : ComponentActivity() {
                     }
                 } else key(editorId) {
                     BlockEditor(block, vm.busy, onCancel = { page = "library" },
-                        onSave = { draft -> vm.save(editorId, draft) { page = "library"; query = ""; archived = block?.archived ?: false } },
-                        onArchive = { value -> block?.let { vm.archive(it.id, value) { archived = value; query = ""; page = "library" } } })
+                        onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
+                        onArchive = { value -> block?.let { vm.archive(it.id, value) } })
                 }
             }
         }

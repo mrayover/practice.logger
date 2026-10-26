@@ -22,3 +22,6 @@ Append-only session record. Times/dates use America/Los_Angeles.
 - Added repository/validation tests and emulator workflow for create/edit/search/archive/restore/discard/draft recreation, followed by a separate force-stop/reopen instrumentation run. Stage 1 build/tests are pending; do not claim its exit gate yet. Added MANUAL_TESTS.md and usage notes.
 - Design is restrained/provisional; no prior approved sketches were present. Practice Now/history controls omitted until Stage 2 because they cannot yet perform a real workflow. No deferred functionality added.
 - CI ignores documentation-only changes; source/config changes still build/test/lint and publish APKs. Two emulator phase reports retained separately.
+
+### 2026-10-26 — Stage 1 lifecycle review
+- Published catalog source cd6ef72b84c7f7a4c335b8d6e5d30a8350ac6beb via Desktop; CI run 40368836246 started. Found that save/archive callbacks captured the previous Activity composition during recreation. Moved pending navigation outcome into the retained ViewModel so the current screen consumes successful saves. Extended emulator workflow to recreate immediately after every save/archive/restore/discard transition. Verification pending.

@@ -19,6 +19,7 @@ class LaunchTest {
         compose.activityRule.scenario.recreate()
         compose.onNodeWithTag("Name").assertTextContains("Restart smoke")
         compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.activityRule.scenario.recreate()
         shown("Block Library")
         shown("Restart smoke")
         compose.onNodeWithText("Restart smoke").performClick()
