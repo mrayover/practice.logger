@@ -1,7 +1,7 @@
 # practice.logger — First Usable Android Build Plan
 
 **Authority:** Current first-release build scope and stages  
-**Status:** Stages 0–2 verified in CI on 2026-10-26; owner confirms 0.1.0 works, Stage 2 phone checks pending; Stages 3–4 remain unimplemented  
+**Status:** Stages 0–2 verified in CI on 2026-10-26; owner confirms 0.2.0 works; Stage 3 backup increment verified in CI, phone picker/accessibility checks pending; Stage 4 not started
 **Repository:** https://github.com/mrayover/practice.logger  
 **Owner workflow:** GitHub Desktop  
 **Required application font:** **Lato throughout**  
@@ -179,6 +179,6 @@ Do not add a new screen, feature, dependency or architectural layer simply becau
 
 ## 11. Next action
 
-Stages 0–2 have passed automated build/tests and emulator workflows. Next: complete the Stage 2 phone checklist in `MANUAL_TESTS.md`, record results, resolve practice-loop issues, then begin Stage 3 versioned backup/export and safe restore. Versioned ZIPs and extracted APKs are retained in ignored `dist/`; permanent local signing supports future in-place updates to the new app identity while preserving the original 0.1.0 catalog separately. `CURRENT_STATE.md` and `WORK_LOG.md` contain verified run, APK and source-commit evidence. `FIRST_WORK_HANDOFF.md` is historical.
+Stages 0–2 have passed automated build/tests and emulator workflows; owner reports 0.2.0 works. Stage 3 now provides versioned export and validated transactional restore into an empty app, with automated round-trip/reopen and safety verification. It remains partial: next perform the 0.3.0 phone document-picker/export and spare-device restore checklist, then fix observed accessibility/recovery issues. Do not begin deferred features or Stage 4 yet. Versioned ZIPs and extracted APKs are retained in ignored `dist/`; permanent local signing supports future in-place updates to the new app identity while preserving the original 0.1.0 catalog separately. `CURRENT_STATE.md` and `WORK_LOG.md` contain verified run, APK and source-commit evidence. `FIRST_WORK_HANDOFF.md` is historical.
 
 **Guiding rule: Build enough to practice. Practice enough to know what to build next.**

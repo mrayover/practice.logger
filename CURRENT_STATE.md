@@ -1,40 +1,36 @@
 # Current state
 
-Updated: 2026-10-26 (America/Los_Angeles). Stage 2 practice loop delivered; owner phone acceptance of 0.2.0 is pending. Owner reports the earlier 0.1.0 catalog works, with no model/OS or individual checklist results supplied.
+Updated 2026-10-26 (America/Los_Angeles). Owner confirms 0.2.0 works; model/OS and individual checklist results were not supplied. Stage 3 backup increment delivered; full daily-use/accessibility/provider acceptance is still pending.
 
-## Verified source and local build
+## Verified build and delivery
 
-- main app source: 91f4129c4f186b4d95b99d1ab8244cc52c34af0c. Final CI https://github.com/mrayover/practice.logger/actions/runs/40378217900 passed build and device jobs. Closing documentation follows this source and does not alter the APK.
-- Version 0.2.0, versionCode 3; stable application ID com.mrayover.practicelogger.app; launcher practice.logger 0.2; Android 8.0+.
-- ZIP: C:\Users\mrove\Projects\practice.logger\dist\practice.logger-0.2.0-b3-91f4129.zip
-- Extracted APK: C:\Users\mrove\Projects\practice.logger\dist\practice.logger-0.2.0-b3-91f4129\practice.logger-0.2.0-b3-91f4129.apk
-- APK SHA-256: 0f23a7b81f76063bb08ae26c070b3d1e0b947d9df35f6839a613d77daa8d0c79
-- Permanent certificate SHA-256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
-- BUILD_INFO.json and INSTALL.txt are beside the APK. ZIP extraction checksum matched. Old 0.1.0 ZIP/folder retained as practice.logger-0.1.0-d9b8354; original downloads also preserved.
+- App/config source main: 1a85ecbe1a6d9882f6d3d2b4adf391e06997a473. Successful CI: https://github.com/mrayover/practice.logger/actions/runs/40385332935 . Closing documentation-only commit follows this source; verify/report its remote SHA separately.
+- Version 0.3.0, versionCode 4; Android 8.0+; unchanged application ID com.mrayover.practicelogger.app. Launcher label practice.logger. Install over permanently signed 0.2.0 to retain its database. Old temporary-key 0.1.0 stays separate; no automatic transfer from that app.
+- ZIP: C:\Users\mrove\Projects\practice.logger\dist\practice.logger-0.3.0-b4-1a85ecb.zip
+- APK: C:\Users\mrove\Projects\practice.logger\dist\practice.logger-0.3.0-b4-1a85ecb\practice.logger-0.3.0-b4-1a85ecb.apk
+- APK SHA-256: 8a7d6589d2069c543ed8a4b47118161f392a75553e705bf6029fcc0792701607
+- Permanent certificate: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. BUILD_INFO.json / INSTALL.txt beside APK. Signature, metadata and ZIP extraction checksum verified. Prior ZIPs/folders retained, LATEST.txt updated. dist/.tools/.signing ignored; secure backup of existing .signing remains required. Never recreate/upload that private key or use CI's temporary-key debug APK as an update.
 
-## Working behavior
+## Working functionality
 
-Stages 0/1 catalog remain functional with bundled Lato and transactional Room persistence. Stage 2 adds durable draft sessions, Block selection and shared create editor, ordered placements, removal and placement-only duration overrides; focused countdown, Start/Pause/Resume, early Complete, Skip, explicit zero-time Continue into overtime; auto-pause on background/rotation/leaving Focus and screen-awake only during active practice; automatic completed summaries, optional Block/session notes and reopenable Recent Practice history. Each next Block starts paused. Only an actual unfinished session exposes Continue Session.
+Stages 0–2 retain bundled Lato throughout app text; Room catalog create/edit/search/archive/restore; durable draft selection/order/removal/placement-only duration; focused countdown, Start/Pause/Resume, early Complete, Skip, explicit zero/overtime; auto-pause on background/rotation/leaving Focus; recovery to correct Block/time paused; summaries, optional notes and reopenable snapshot-based history. Screen stays awake only while actively practicing.
 
-Room version 2 stores session/placement records and immutable instruction/reference snapshots, retaining stable Block IDs. Explicit 1→2 migration preserves catalog data; schemas 1/2 retained. Editing/archiving a source Block does not rewrite history. Draft selection/order/overrides and active-session recovery survive restart.
+Stage 3 adds Home → Backup and restore, Android system document pickers, consistent version-1 UTF-8 JSON export of archived/active Blocks and all sessions/placements/notes/unfinished practice; complete validation, preview counts/confirmation and transactional restore only into an empty database. No replacement/merge/reset path. Structural/type/reference/order/status/time/overflow/size/nesting checks precede inserts. Empty-target check and inserts share one transaction. Rotation retains preview and ongoing work; process death discards unconfirmed preview. Restored practice is paused. Room remains version 2; explicit 1→2 migration and schemas retained.
 
 ## Verified checks
 
-- Final CI ran testDebugUnitTest lintDebug assembleDebug assembleRelease successfully. Thirteen unit/Robolectric tests cover catalog validation/persistence/fonts, migration, draft order/removal/overrides, snapshots, three-Block outcomes and reopen, timer boundaries/overtime/rounding/overflow and completed-history protection.
-- API 35 emulator: catalog create/edit/search/archive/restore/discard/recreation; catalog process reopen; three-Block selection/reorder/override and unchanged default; early Complete, Skip, pause/background without time inflation, explicit zero/overtime; interrupted-session process recovery and completion; saved summary/note/history snapshots after editing/archiving the original Block; another process restart.
-- Higher versionCode 4 test APK installed over the versionCode 3 test app and reopened unchanged history successfully. This tests Android install-over persistence with a consistent CI key. Delivered local release APK has independently verified permanent signature, pinned certificate, package/version and ZIP round-trip hash.
-- Home/Builder/Focus/zero-choice and paused-screen emulator screenshots were reviewed. The attempted Summary screenshot captured the preceding frame; Summary behavior passed semantic tests, but its visual review remains part of owner phone checks. Real-phone Stage 2 usage, scaling/accessibility and update installation remain pending. Local compilation/emulator execution was not performed; local tools are Java runtime and APK signing/inspection utilities only.
+- CI testDebugUnitTest lintDebug assembleDebug assembleRelease passed. Lint: 0 errors, 10 warnings (newer target/dependencies/Gradle, Android data-extraction rules and missing custom launcher icon); toolchain remains pinned for this bounded increment. Sixteen unit/Robolectric tests: prior catalog/font/session/migration/clock checks plus JSON file round-trip and database reopen; Unicode/notes/archive/snapshot/draft/override preservation; active overtime/current position recovery; invalid/version/type/depth/trailing/size/reference/order/state rejection; protected nonempty database; injected mid-insert failure rolls back all records.
+- API 35 emulator passed catalog/recreation/process reopen, three-Block reorder/override/complete/skip/pause/background/zero/overtime, interrupted-session process recovery, saved summaries/notes/snapshot history, force-stop reopen and install-over higher versionCode 5 retaining history.
+- Added device backup workflow passed screen navigation/recreation, real file export, empty test database restore/reopen and exact snapshot comparison, retained confirmation on rotation, cancellation, rejected nonempty restore with exact database comparison and malformed-file rejection. Harness supplies file URIs to real ViewModel operations; Android system document-picker clicks/providers were not automated. Local compilation/emulator/physical-phone 0.3.0 tests were not performed; CI provides execution evidence. Prior screenshot review covers Home/Builder/Focus/zero/paused only; Summary and new backup visuals still need phone acceptance.
 
-## Update delivery and limits
+## Limits and unfinished work
 
-The old 0.1.0 key was temporary/lost. It cannot be used for an in-place update. Safe side-by-side transition preserves that installed app and Blocks; there is **no automatic transfer** into the new app. Future dist APKs use the permanent local key and increasing versionCode to update the new installation in place. Do not install temporary-key CI debug APKs over it. New code still requires a build; no network updater/backend was added.
+Stage 3 remains partial. Backup limit 8 MiB / 20,000 records per type / nesting 32, format 1. Plain text (not encrypted/authenticated); keep private and trust its origin. Failed exports may leave partial files; only use a success-confirmed backup. No overwrite/merge restore; use a spare/empty installation to test safely. Never uninstall/clear the current app as a troubleshooting step. Provider cancellation/errors, low storage, real phone update/restore, scaling/TalkBack and recovery acceptance remain pending.
 
-dist/, .tools/ and .signing/ are ignored. Private signing key/password stay in .signing and must be securely backed up outside Git; only the public fingerprint is tracked. Use scripts/Publish-LocalApk.ps1 for future verified unsigned CI releases, preserve prior versions and verify certificate/package/version/hash. Losing this permanent key prevents in-place updates.
+Timer uses monotonic foreground deltas with 250-ms checkpoints plus pause flush. Abrupt termination/disk failure may lose latest uncommitted interval plus scheduling/write latency; committed time restores paused, excluding background/wall time. Quick notes persist on Complete/Skip; session notes require Save note. No Goals, Routines, metronome, tuner, audio, accounts, cloud sync or deferred advanced features. No in-app updater/version controls; owner defers them until stable. Code still requires a new build. Each delivered build gets a new ZIP and extracted folder without replacing prior dist files.
 
-Time uses monotonic foreground deltas with 250-ms checkpoints and pause flush. Recovery is always paused and excludes wall/background time. Abrupt kill or disk failure can lose the most recent uncommitted interval plus scheduling/write latency. Optional quick notes are saved on Complete/Skip; session notes require Save note. No backup/restore yet; avoid irreplaceable data. No Goals, Routines, metronome, tuner, recording or deferred advanced functionality. Stage 3 hardening remains; daily-use reliability is not yet claimed.
+## Exact next task
 
-## Next task and continuity
+Perform and record MANUAL_TESTS.md's 0.3.0 phone document-picker export and spare-device empty-app restore checklist, including Android model/OS/provider and large-text/accessibility checks; fix observed issues before declaring Stage 3 complete or adding features. Owner's 8%-remaining feature-freeze policy applies to future sessions too: monitor usage and reserve time for a stable APK, tests, records, Desktop commit/push and remote verification.
 
-Exact next task: perform/record the Stage 2 phone workflow in MANUAL_TESTS.md, resolve practice-loop issues, then begin Stage 3 versioned backup/export and safe restore. Record phone model/OS. Read the five operational records before each session; append WORK_LOG and update this state even for incomplete sessions.
-
-Actual checkout is C:\Users\mrove\Projects\practice.logger; all Git mutations used GitHub Desktop. No cloud checkout or local Fetch/Pull sync step is required. Report and remotely verify the closing documentation commit SHA after push.
+Actual checkout: C:\Users\mrove\Projects\practice.logger. All Git mutations use GitHub Desktop; no cloud-sync step needed. Read the five operational records completely each session; append WORK_LOG and update this state even if incomplete.
