@@ -34,10 +34,11 @@ class PhraseWorkflowTest {
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }
             sheet("Record phrase"); shown("Record one phrase")
-            compose.onNodeWithText("Phrase BPM (30–300)").performTextReplacement("0")
+            compose.onNodeWithText("Phrase BPM").performTextReplacement("0")
             compose.onNodeWithText("Start 4-click count-in").assertIsNotEnabled()
-            compose.onNodeWithText("Phrase BPM (30–300)").performTextReplacement("120")
+            compose.onNodeWithText("Phrase BPM").performTextReplacement("120")
             compose.onNodeWithText("One phrase: 4.00 seconds").assertExists()
+            compose.onNodeWithText("Phrase BPM").performImeAction()
             captureStage3("30-phrase-setup")
             click("Start 4-click count-in")
             compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }

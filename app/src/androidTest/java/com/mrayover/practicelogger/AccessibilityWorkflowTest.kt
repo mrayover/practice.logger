@@ -58,7 +58,7 @@ class AccessibilityWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record take")); readable("Record take")
             captureStage3("11-large-recordings")
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record phrase")); readable("Record phrase")
-            compose.onNodeWithText("Record phrase").performClick(); readable("Phrase BPM (30–300)"); readable("32 beats")
+            compose.onNodeWithText("Record phrase").performClick(); readable("Phrase BPM"); readable("30–300"); captureStage3("11-large-phrase-input"); readable("32 beats")
             readable("Start 4-click count-in"); captureStage3("11-large-phrase-setup")
             compose.onNodeWithText("Cancel").performClick()
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); compose.onNodeWithText("Close recordings").performClick()

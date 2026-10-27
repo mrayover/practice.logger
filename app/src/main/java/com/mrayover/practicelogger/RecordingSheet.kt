@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -14,9 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionDate(take.createdAt) + " · " + take.id.take(4) }
@@ -24,6 +27,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun BlockRecordings(blockId: String, blockName: String, vm: RecordingViewModel,
     practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit) {
+    val keyboard = LocalSoftwareKeyboardController.current
     val all by vm.takes.collectAsStateWithLifecycle()
     val takes = all.filter { it.blockId == blockId }
     var renameId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -76,7 +80,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     Text(if (vm.phrasing) "Cancel phrase" else if (vm.recording) "Stop and save take" else "Record take")
                 }
                 Text("Free recording · no BPM required. A running click may be captured. Leaving stops and saves usable audio.", style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = { phraseDialog = true }, enabled = vm.ready && !vm.busy && !vm.recording,
+                OutlinedButton(onClick = { keyboard?.hide(); phraseDialog = true }, enabled = vm.ready && !vm.busy && !vm.recording,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Record phrase") }
                 Text("Four clicks, then one fixed phrase. It saves and repeats until stopped. Leaving cancels an incomplete phrase.", style = MaterialTheme.typography.bodySmall)
                 if (takes.any { it.id == vm.playingId && it.mode == "LOOP" }) {
@@ -121,8 +125,10 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         val spec = bpm?.takeIf { it in 30..300 }?.let { PhraseSpec(it, phraseBeats) }
         AlertDialog(onDismissRequest = { phraseDialog = false }, title = { Text("Record one phrase") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM (30–300)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = spec == null, singleLine = true)
+                OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("30–300") },
+                    modifier = Modifier.padding(top = 8.dp), isError = spec == null, singleLine = true)
                 Text("Phrase length in beats")
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(4, 8, 16, 32).forEach { beats ->
@@ -134,7 +140,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             }
         }, confirmButton = { TextButton(onClick = {
             if (spec != null) {
-                phraseDialog = false
+                keyboard?.hide(); phraseDialog = false
                 if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec) }
                 else permission.launch(Manifest.permission.RECORD_AUDIO)
             }
