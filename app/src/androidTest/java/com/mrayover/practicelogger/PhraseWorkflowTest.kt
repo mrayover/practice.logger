@@ -34,6 +34,8 @@ class PhraseWorkflowTest {
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }
             sheet("Record phrase"); shown("Record one phrase")
+            compose.onNodeWithTag("phrase-recording-click").performScrollTo().assertIsOn().performClick().assertIsOff()
+            compose.onNodeWithTag("phrase-recording-click").performClick().assertIsOn()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("0")
             compose.onNodeWithText("Start 4-click count-in").assertIsNotEnabled()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("120")
@@ -45,9 +47,12 @@ class PhraseWorkflowTest {
             compose.runOnIdle { assertFalse(practice.clicking); assertTrue(practice.running) }
             captureStage3("31-phrase-count-in")
             compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
+            compose.waitUntil(5000) { vm.phraseGuideFramesPlayed() > PhraseSpec(120, 4).frames + 4800 }
+            compose.runOnIdle { assertTrue(vm.phraseClickEnabled); assertFalse(practice.clicking) }
             sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
             sheet("Resume timer"); compose.runOnIdle { assertTrue(vm.recording); assertTrue(practice.running) }
             compose.waitUntil(20000) { !vm.recording && vm.playingId != null }
+            compose.runOnIdle { assertFalse(vm.phraseClickEnabled); assertEquals(0L, vm.phraseGuideFramesPlayed()) }
             val first = runBlocking { db.takes().readAll().single { it.blockId == block } }
             val repository = TakeRepository(db, compose.activity.applicationContext)
             assertEquals("LOOP", first.mode); assertEquals(120, first.recordedBpm); assertEquals(8, first.beatCount)
@@ -59,7 +64,14 @@ class PhraseWorkflowTest {
             sheet("Stop loop"); compose.runOnIdle { assertNull(vm.playingId); assertEquals(0L, vm.loopFramesPlayed()) }
             // Exercise count-in/capture at 60 and 180 BPM through the production native path.
             for (bpm in listOf(60, 180)) {
-                compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4)) }
+                val guideEnabled = bpm != 60
+                compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4), guideEnabled) }
+                compose.waitUntil(15000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
+                compose.runOnIdle {
+                    assertEquals(guideEnabled, vm.phraseClickEnabled)
+                    if (guideEnabled) assertTrue(vm.phraseGuideFramesPlayed() > PhraseSpec(bpm, 4).frames)
+                    else assertEquals(0L, vm.phraseGuideFramesPlayed())
+                }
                 compose.waitUntil(25000) { !vm.recording && !vm.busy && vm.playingId != null }
                 val take = runBlocking { db.takes().readAll().single { it.blockId == block && it.recordedBpm == bpm } }
                 assertEquals(PhraseSpec(bpm, 4).frames, PhraseWave.read(repository.audioFile(take)).size)
@@ -70,6 +82,7 @@ class PhraseWorkflowTest {
             compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }
             compose.runOnIdle { vm.finishCapture() }
             compose.waitUntil(10000) { !vm.phrasing && !vm.busy }
+            compose.runOnIdle { assertEquals(0L, vm.phraseGuideFramesPlayed()) }
             assertEquals(3, runBlocking { db.takes().readAll().count { it.blockId == block } })
             compose.runOnIdle { vm.startPhrase(block, PhraseSpec(120, 8)) }
             compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }

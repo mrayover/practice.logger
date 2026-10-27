@@ -30,6 +30,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var phrasing by mutableStateOf(false); private set
     var countInBeat by mutableIntStateOf(0); private set
     var phraseDurationMs by mutableLongStateOf(0L); private set
+    var phraseClickEnabled by mutableStateOf(false); private set
     var elapsedMs by mutableLongStateOf(0L); private set
     var playingId by mutableStateOf<String?>(null); private set
     var preparingId by mutableStateOf<String?>(null); private set
@@ -162,7 +163,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun startPhrase(blockId: String, spec: PhraseSpec) {
+    fun startPhrase(blockId: String, spec: PhraseSpec, clickWhileRecording: Boolean = true) {
         if (!ready || busy || recording || !foreground || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
@@ -172,14 +173,15 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         }
         val generation = ++audioGeneration
         val capture = PhraseCapture(); phraseCapture = capture; captureOwner = this
-        phrasing = true; recording = true; countInBeat = 1; elapsedMs = 0; phraseDurationMs = spec.durationMs; message = null
+        phrasing = true; recording = true; countInBeat = 1; elapsedMs = 0; phraseDurationMs = spec.durationMs
+        phraseClickEnabled = clickWhileRecording; message = null
         phraseJob = viewModelScope.launch {
             var draft: PendingTake? = null
             var saved: BlockTake? = null
             try {
                 saved = withContext(Dispatchers.IO) {
                     val pending = repository.prepare(blockId, spec); draft = pending
-                    capture.capture(spec, pending.file,
+                    capture.capture(spec, pending.file, clickWhileRecording,
                         onCount = { beat -> viewModelScope.launch { if (generation == audioGeneration) countInBeat = beat } },
                         onFrames = { frames -> viewModelScope.launch { if (generation == audioGeneration) elapsedMs = frames * 1000L / PhraseSpec.RATE } },
                         hasSpaceAndPermission = { repository.availableBytes() >= 512 * 1024 && hasMicrophonePermission() })
@@ -196,7 +198,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                 withContext(NonCancellable + Dispatchers.IO) { draft?.let(repository::abandon) }
                 capture.cancel(); phraseCapture = null; phraseJob = null
                 if (captureOwner === this@RecordingViewModel) captureOwner = null
-                phrasing = false; recording = false; busy = false; countInBeat = 0
+                phrasing = false; recording = false; busy = false; countInBeat = 0; phraseClickEnabled = false
                 runCatching { manager.abandonAudioFocusRequest(focus) }
             }
             if (saved != null && generation == audioGeneration && foreground && visibleBlockId == blockId) play(saved)
@@ -255,6 +257,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         runCatching { audio?.release() }; runCatching { manager.abandonAudioFocusRequest(focus) }
     }
     internal fun loopFramesPlayed(): Long = loopTrack?.let { it.playbackHeadPosition.toLong() and 0xffffffffL } ?: 0L
+    internal fun phraseGuideFramesPlayed(): Long = phraseCapture?.outputFramesPlayed() ?: 0L
     fun rename(take: BlockTake, label: String) = work {
         withContext(Dispatchers.IO) { repository.rename(take.id, label) }; message = "Take renamed."
     }

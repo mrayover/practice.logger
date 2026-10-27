@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,6 +38,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     var phraseDialog by rememberSaveable { mutableStateOf(false) }
     var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
     var phraseBeats by rememberSaveable(blockId) { mutableIntStateOf(8) }
+    var phraseClick by rememberSaveable(blockId) { mutableStateOf(true) }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
     val exportResult: (android.net.Uri?) -> Unit = { uri ->
         val selected = all.find { it.id == exportId }
@@ -72,6 +74,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 if (vm.recording) Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4"
                     else "Recording · " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "", style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("recording-elapsed"))
+                if (vm.phrasing && vm.countInBeat == 0) Text(if (vm.phraseClickEnabled) "Recording click on" else "Recording click off",
+                    modifier = Modifier.testTag("phrase-click-status"))
                 Button(onClick = {
                     if (vm.recording) vm.finishCapture()
                     else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
@@ -136,12 +140,19 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     }
                 }
                 Text(spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) } ?: "Enter a whole BPM from 30 to 300.")
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("phrase-recording-click")
+                    .toggleable(value = phraseClick, role = Role.Checkbox, onValueChange = { phraseClick = it }),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Checkbox(checked = phraseClick, onCheckedChange = null)
+                    Text("Click while recording", modifier = Modifier.weight(1f))
+                }
+                Text("The click follows the phrase BPM and may be heard in the microphone recording.", style = MaterialTheme.typography.bodySmall)
                 Text("Listen to four clicks, then play on the next beat. Recording ends automatically and loops at this fixed tempo. A new tempo needs a new take.")
             }
         }, confirmButton = { TextButton(onClick = {
             if (spec != null) {
                 keyboard?.hide(); phraseDialog = false
-                if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec) }
+                if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec, phraseClick) }
                 else permission.launch(Manifest.permission.RECORD_AUDIO)
             }
         }, enabled = spec != null && vm.ready && !vm.busy && !vm.recording) { Text("Start 4-click count-in") } },

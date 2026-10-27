@@ -88,3 +88,9 @@ Record phone, Android version, app build, output route, microphone quality, four
 ### Build 11 phrase setup visual acceptance
 
 At normal and 200% font size, open Record phrase, edit Phrase BPM and verify its short floating label and 30–300 support range stay readable. Tap the keyboard Done key and report whether it hides; also check Android Back and scrolling can reveal all beat choices, Start 4-click count-in and Cancel. CI screenshots establish label readability, but do not establish reliable Done dismissal. Record actual phone/Android/input keyboard and results; do not count the emulator screenshot as a completed phone check.
+
+## 0.6.1/build 12 recording click — pending CI and signed delivery
+
+Use the new signed update only after it is delivered; the existing build 11 does not include this fix. In Record phrase, confirm "Click while recording" is on by default. Choose 120 BPM / 8 beats; hear four count-in clicks followed by a steady click throughout the one-phrase capture. Pause/resume the practice timer during capture; the click and phrase length stay independent. The guide should stop before the saved phrase starts repeating. Speaker bleed in microphone audio is expected; no digital click is added to the file.
+
+Turn the option off and record a second phrase: four count-in clicks, then no guide during capture. Retain/play both takes and a prior free take; export the exact WAV. Cancel during count-in/capture and background/leave while the guide runs; no guide/microphone may continue, saved takes remain, and reopen stays silent. Check the full checkbox row at 200% text/TalkBack. Report actual phone/Android/output route and guide/onset/boundary behavior; emulator counters do not establish audible phone timing.

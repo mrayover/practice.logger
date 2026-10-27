@@ -5,6 +5,23 @@ import org.junit.Test
 import java.io.File
 
 class PhraseAudioTest {
+    @Test fun optionalRecordingClickContinuesAtPhraseTempoWithoutChangingCountInOrLength() {
+        for (bpm in listOf(30, 60, 73, 120, 180, 299, 300)) for (beats in listOf(4, 8, 16, 32)) {
+            val spec = PhraseSpec(bpm, beats)
+            val intro = PhraseWave.countIn(bpm)
+            assertArrayEquals(intro, PhraseWave.recordingGuide(spec, false))
+            val guide = PhraseWave.recordingGuide(spec, true)
+            assertEquals(intro.size + spec.frames, guide.size)
+            assertArrayEquals(intro, guide.copyOfRange(0, intro.size))
+            repeat(beats) { beat ->
+                val start = intro.size + kotlin.math.round(60.0 * PhraseSpec.RATE * beat / bpm).toInt()
+                val end = if (beat + 1 == beats) guide.size else
+                    intro.size + kotlin.math.round(60.0 * PhraseSpec.RATE * (beat + 1) / bpm).toInt()
+                assertTrue("Missing guide beat $beat at $bpm BPM", guide[start + 1] != 0.toShort())
+                assertTrue(guide.copyOfRange(start + 480, end).all { it == 0.toShort() })
+            }
+        }
+    }
     @Test fun phraseFramesAndCountInUseOneRoundedBoundaryAtEveryTempoAndLength() {
         for (bpm in 30..300) for (beats in listOf(4, 8, 16, 32)) {
             val spec = PhraseSpec(bpm, beats)

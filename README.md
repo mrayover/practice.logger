@@ -1,6 +1,6 @@
 # practice.logger
 
-Current delivery: **0.6.0/build 11 phrase looping**, signed locally; phone acceptance and Desktop documentation publication pending. Details and current limitations are in CURRENT_STATE.md.
+Latest installable release: **0.6.0/build 11**, generally accepted by the owner. The requested click-during-loop-recording fix is prepared for **0.6.1/build 12**, awaiting CI and signed packaging. See CURRENT_STATE.md.
 
 An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
@@ -90,3 +90,9 @@ The owner generally accepts free recording. Recordings → Record phrase now off
 Source faca5e5 / CI https://github.com/mrayover/practice.logger/actions/runs/40566516233 passed all 32 unit/Robolectric tests, lint (0 errors/10 existing warnings) and full Android 8/15 device suites. Downloaded artifact checksums match GitHub. Normal and 200% screenshots confirm the shortened Phrase BPM label is readable. Keyboard Done dismissal is not established by the captured screenshots and remains a phone check, along with large-text lower-control access. Input/output latency and audible loop boundaries also require physical phone testing; no seamless/latency-free claim. See CURRENT_STATE.md for exact evidence and limitations.
 
 Signed build 11 uses the existing permanent certificate and is available above. Build 10 and all prior releases are preserved. Documentation is saved locally but awaits a GitHub Desktop commit/push because desktop automation is unavailable. Stage 3 phone backup acceptance and Stage 4 (0/10) remain pending. Save/storage changes await the owner discussion after phone looping checks.
+
+## Click during loop recording — 0.6.1/build 12 prepared, not yet built
+
+Owner reports phrase looping works and requests an audible guide through capture. Record phrase now has "Click while recording", enabled by default. Four count-in clicks always play; with the option on, the same output audio clock continues clicking at the phrase BPM while the microphone records. With it off, the count-in is followed by quiet capture. The guide ends before saved-loop playback and stops on cancellation/leave/background. Speaker bleed can be captured by the microphone; the app does not mix clicks digitally into the WAV. The practice timer and exact saved phrase stay independent. Save/storage changes await the owner discussion.
+
+Three isolated PCM/WAV unit tests pass locally; Android compilation, full CI/native/large-text checks and signed packaging are pending. The existing build 11 APK above does not contain this fix. Source/tests/config and release records will use the owner-authorized Git-command exception to publish this update for CI.

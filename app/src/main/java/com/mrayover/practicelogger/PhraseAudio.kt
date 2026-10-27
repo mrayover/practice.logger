@@ -50,6 +50,19 @@ object PhraseWave {
             }
         }
     }
+    /** Continue the same output clock past the count-in; the microphone is never mixed digitally. */
+    fun recordingGuide(spec: PhraseSpec, enabled: Boolean): ShortArray {
+        val intro = countIn(spec.bpm)
+        if (!enabled) return intro
+        val guide = intro.copyOf(intro.size + spec.frames)
+        repeat(spec.beats) { beat ->
+            val start = intro.size + (60.0 * PhraseSpec.RATE * beat / spec.bpm).roundToInt()
+            repeat(480) { i ->
+                guide[start + i] = (sin(2 * PI * 1400 * i / PhraseSpec.RATE) * 11000 * (1.0 - i / 480.0)).toInt().toShort()
+            }
+        }
+        return guide
+    }
 }
 
 fun phraseTrack(samples: ShortArray, repeat: Boolean): AudioTrack {
@@ -74,12 +87,15 @@ class PhraseCapture {
     @Volatile private var cancelled = false
     private var input: AudioRecord? = null
     private var output: AudioTrack? = null
+    internal fun outputFramesPlayed(): Long = synchronized(lock) {
+        output?.let { it.playbackHeadPosition.toLong() and 0xffffffffL } ?: 0L
+    }
     fun cancel() = synchronized(lock) {
         cancelled = true
         runCatching { input?.stop() }; runCatching { output?.pause(); output?.flush() }
     }
     @SuppressLint("MissingPermission") // ViewModel checks permission at the explicit record action.
-    fun capture(spec: PhraseSpec, file: File, onCount: (Int) -> Unit, onFrames: (Int) -> Unit,
+    fun capture(spec: PhraseSpec, file: File, clickWhileRecording: Boolean, onCount: (Int) -> Unit, onFrames: (Int) -> Unit,
         hasSpaceAndPermission: () -> Boolean) {
         val minimum = AudioRecord.getMinBufferSize(PhraseSpec.RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
         check(minimum > 0)
@@ -88,14 +104,15 @@ class PhraseCapture {
                 .setChannelMask(AudioFormat.CHANNEL_IN_MONO).build()).setBufferSizeInBytes(max(minimum * 2, 9600)).build()
         try {
             check(mic.state == AudioRecord.STATE_INITIALIZED)
-            val clicks = PhraseWave.countIn(spec.bpm)
+            val countInFrames = PhraseSpec(spec.bpm, 4).frames
+            val clicks = PhraseWave.recordingGuide(spec, clickWhileRecording)
             synchronized(lock) { check(!cancelled); input = mic; output = phraseTrack(clicks, false); output!!.play() }
             val deadline = SystemClock.elapsedRealtime() + spec.copy(beats = 4).durationMs + 5000
             var last = 0
             while (true) {
                 check(!cancelled && hasSpaceAndPermission()) { "Phrase interrupted." }
                 val frames = synchronized(lock) { output!!.playbackHeadPosition.toLong() and 0xffffffffL }
-                if (frames >= clicks.size) break
+                if (frames >= countInFrames) break
                 check(SystemClock.elapsedRealtime() < deadline) { "Count-in output stalled." }
                 val beat = (frames * spec.bpm / (60L * PhraseSpec.RATE)).toInt().coerceIn(0, 3) + 1
                 if (beat != last) { last = beat; onCount(beat) }
@@ -103,7 +120,8 @@ class PhraseCapture {
             }
             // Four output-clock beats end before capture starts. Device I/O latency is not calibrated.
             synchronized(lock) {
-                check(!cancelled); output?.release(); output = null
+                check(!cancelled)
+                if (!clickWhileRecording) { output?.release(); output = null }
                 mic.startRecording(); check(mic.recordingState == AudioRecord.RECORDSTATE_RECORDING)
             }
             onCount(0)
@@ -116,7 +134,10 @@ class PhraseCapture {
                 check(read > 0) { "Microphone read failed." }
                 position += read; onFrames(position)
             }
-            synchronized(lock) { check(!cancelled); mic.stop() }
+            synchronized(lock) {
+                check(!cancelled); mic.stop()
+                output?.pause(); output?.flush(); output?.release(); output = null
+            }
             check(!cancelled); PhraseWave.write(file, samples)
         } finally {
             synchronized(lock) {
