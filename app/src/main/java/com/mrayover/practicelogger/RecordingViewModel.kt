@@ -192,7 +192,10 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         val cleaned = withContext(Dispatchers.IO) { repository.delete(take.id) }
         message = if (cleaned) "Take deleted." else "Take deleted. File cleanup will retry after restart."
     }
-    fun export(take: BlockTake, uri: Uri) = work {
+    fun expiredExport() { message = "Export selection is no longer available. The source was kept; choose the take and export again." }
+    fun export(take: BlockTake, uri: Uri) {
+      if (!ready || busy || recording) { message = "Export could not start while recordings are busy or loading. The source was kept; try Export audio again."; return }
+      work {
         stopPlayback()
         try {
             withContext(Dispatchers.IO) {
@@ -201,6 +204,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             message = "Audio exported. The saved take is still in this Block."
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (_: Exception) { message = "Export failed. The original take was kept; the destination may be incomplete. Choose a new file and retry." }
+      }
     }
     override fun onCleared() {
         runCatching { recorder?.release() }; recorder = null // Pending capture is recovered on next cold start.

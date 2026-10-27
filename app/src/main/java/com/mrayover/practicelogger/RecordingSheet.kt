@@ -29,7 +29,9 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mp4")) { uri ->
         val selected = all.find { it.id == exportId }
-        if (uri != null && selected != null) vm.export(selected, uri)
+        if (uri != null) {
+            if (selected != null) vm.export(selected, uri) else vm.expiredExport()
+        }
         exportId = null
     }
     DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }

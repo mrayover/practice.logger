@@ -41,8 +41,17 @@ class RecordingWorkflowTest {
             compose.waitUntil(10000) { vm.ready }
             assertEquals(PackageManager.PERMISSION_DENIED, compose.activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO))
             sheet("Record take")
-            val deny = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/permission_deny_button"))), 10000)
+            var deny = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/permission_deny_button"))), 10000)
                 ?: device.findObject(By.text(Pattern.compile("(?i).*don.t allow.*|.*deny.*")))
+            // Some API26 emulator images crash System UI during a permission transition.
+            // Recover that system process once, retaining logs and every permission/data assertion.
+            if (deny == null && device.hasObject(By.text("System UI has stopped"))) {
+                val crash = device.executeShellCommand("logcat -b crash -d")
+                println("SYSTEM UI CRASH: $crash")
+                checkNotNull(device.findObject(By.res("android:id/aerr_close"))).click()
+                deny = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/permission_deny_button"))), 10000)
+                    ?: device.findObject(By.text(Pattern.compile("(?i).*don.t allow.*|.*deny.*")))
+            }
             if (deny != null) deny.click() // Android may also refuse a repeated request without displaying a dialog.
             shown("Microphone permission was not allowed.")
             compose.runOnIdle { assertFalse(vm.recording) }
