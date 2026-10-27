@@ -19,7 +19,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun BlockRecordings(blockId: String, blockName: String, vm: RecordingViewModel,
-    onBeforePlayback: () -> Unit, onDismiss: () -> Unit) {
+    practice: PracticeViewModel, timer: SessionBundle?, onBeforePlayback: () -> Unit, onDismiss: () -> Unit) {
     val all by vm.takes.collectAsStateWithLifecycle()
     val takes = all.filter { it.blockId == blockId }
     var renameId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -44,6 +44,16 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 Text("Block recordings", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
                 Text(blockName, style = MaterialTheme.typography.titleMedium)
                 TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) { Text("Close recordings") }
+                timer?.current?.let { placement ->
+                    val awaiting = placement.activeMs >= placement.configuredMs && !placement.overtimeAccepted
+                    val value = if (placement.overtimeAccepted) "+" + practiceTime(placement.activeMs - placement.configuredMs)
+                        else practiceTime(placement.configuredMs - placement.activeMs, roundUp = true)
+                    Text("Practice timer · $value · " + if (practice.running) "Running" else "Paused", style = MaterialTheme.typography.bodyMedium)
+                    OutlinedButton(onClick = { if (practice.running) practice.pause() else practice.resume(overtime = awaiting) }, enabled = !practice.busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                        Text(if (practice.running) "Pause timer" else if (awaiting) "Continue timer" else if (placement.activeMs == 0L) "Start timer" else "Resume timer")
+                    }
+                }
             }
             item {
                 if (vm.recording) Text("Recording · " + practiceTime(vm.elapsedMs), style = MaterialTheme.typography.titleLarge,

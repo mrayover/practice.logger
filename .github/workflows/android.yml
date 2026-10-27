@@ -76,8 +76,11 @@ jobs:
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
+          profile: pixel_2
           disable-animations: true
           script: |
+            adb shell locksettings set-disabled true
+            adb shell wm dismiss-keyguard
             adb shell pm clear com.mrayover.practicelogger.app || true
             bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest --stacktrace
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports

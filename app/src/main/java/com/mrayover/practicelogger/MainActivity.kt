@@ -128,7 +128,8 @@ class MainActivity : ComponentActivity() {
         }
         recordingsBlockId?.let { id ->
             catalog.blocks.find { it.id == id }?.let { block ->
-                BlockRecordings(id, block.name, recordings, onBeforePlayback = practice::stopClick, onDismiss = { recordingsBlockId = null })
+                BlockRecordings(id, block.name, recordings, practice, if (page == "focus") sessions.active else null,
+                    onBeforePlayback = practice::stopClick, onDismiss = { recordingsBlockId = null })
             }
         }
         practice.error?.let { message ->

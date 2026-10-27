@@ -63,6 +63,11 @@ class RecordingWorkflowTest {
             repeat(3) { index ->
                 sheet("Record take"); shown("Stop and save take")
                 compose.waitUntil(10000) { vm.elapsedMs >= 1500L }
+                if (index == 0) {
+                    sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
+                    sheet("Resume timer"); compose.waitUntil(10000) { practice.running }
+                    compose.runOnIdle { assertTrue(vm.recording); assertTrue(practice.running) }
+                }
                 if (index == 2) {
                     compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
                     compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
