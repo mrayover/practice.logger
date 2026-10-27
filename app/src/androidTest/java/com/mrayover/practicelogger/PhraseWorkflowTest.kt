@@ -17,11 +17,15 @@ class PhraseWorkflowTest {
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() } }
     private fun click(text: String) {
+        // Room/Flow can publish after Compose is idle; wait for the actual enabled control.
+        compose.waitUntil(15000) {
+            compose.onAllNodes(hasText(text) and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1
+        }
         val node = compose.onNodeWithText(text)
         try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
         node.performClick()
     }
-    private fun sheet(text: String) { compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onNodeWithText(text).performClick() }
+    private fun sheet(text: String) { compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); click(text) }
     @Test fun nativePhraseCountInExactLengthRepeatCancellationExportAndFreeTakeCoexistence() {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
@@ -134,6 +138,10 @@ class PhraseWorkflowTest {
 class PhraseReopenTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun click(text: String) {
+        // Room/Flow can publish after Compose is idle; wait for the actual enabled control.
+        compose.waitUntil(15000) {
+            compose.onAllNodes(hasText(text) and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1
+        }
         val node = compose.onNodeWithText(text)
         try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
         node.performClick()
