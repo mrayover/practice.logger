@@ -183,11 +183,10 @@ Do not add a new screen, feature, dependency or architectural layer simply becau
 
 ## 11. Next action
 
-Stage 3 engineering is verified: versioned backup, validated transactional empty-app restore, migration/recovery tests, unavailable-provider/retry handling, Android system document-picker round trips and 200% text workflows on API 26/35. The owner phone exit gate is still pending; do not label it dependable daily use without that evidence. Owner has deferred manual backup/recovery acceptance and real evaluation until after the current build cycle. The authorized 0.3.2 increment saves unfinished Block notes within the existing practice loop, reusing placement.note without a new schema/screen/dependency. Build/test/delivery records are in CURRENT_STATE.md. Stage 4 preparation remains available: EVALUATION.md prepares the ten-real-session log, currently 0/10; start the numbered real-world evaluation after phone acceptance and record actual observations. No deferred feature is approved by preparation alone. Preserve all versioned ZIPs and extracted APKs under ignored dist and keep the permanent signing key. `CURRENT_STATE.md` and `WORK_LOG.md` contain verified run, APK and source-commit evidence. `FIRST_WORK_HANDOFF.md` is historical.
-
+Implement and verify owner-approved Stage 5 integrated metronome per sections 12–16. Stage 5 engineering is verified in 0.4.0/build 8: build, 24 unit tests, lint and full API26/35 suites passed, with permanent-key ZIP/APK delivered. Owner audible/timing and in-place phone acceptance remain pending; perform MANUAL_TESTS.md Stage 5 before declaring its complete exit gate. Stage 6A/6B are authorized later increments and must not begin in this increment. Preserve prior signed releases, permanent app/signing identity, old database data and legacy backup readers. Stage 3 phone acceptance remains pending and Stage 4 remains 0/10; the owner approved this explicit scope exception without claiming those gates completed. See CURRENT_STATE.md for exact current source/run/delivery and one next task.
 **Guiding rule: Build enough to practice. Practice enough to know what to build next.**
 
-Approved 2026-10-26: observed unfinished-session lockout → always-available Practice Now plus individual unfinished-session selection on Home → one retained selection, same Room schema, format-2 backup semantics and focused tests → implemented in 0.3.3. No reusable Routines/new screen. Next task: test two independently resumable sessions on the owner's phone; manual backup/evaluation remain deferred.
+Approved 2026-10-26: observed unfinished-session lockout → always-available Practice Now plus individual unfinished-session selection on Home → one retained selection, same Room schema, format-2 backup semantics and focused tests → implemented in 0.3.3. No reusable Routines/new screen. That increment is delivered; current development task: Stage 5 metronome verification and signed delivery; manual backup/evaluation remain deferred.
 
 
 ## 12. Owner-approved scope change — direct practice tools
@@ -209,6 +208,8 @@ Approved 2026-10-26: observed unfinished-session lockout → always-available Pr
 No overdubs, synchronized layers, multi-track timeline, mixer, effects, waveforms, punch-in, trimming UI, tempo maps, time-signature setup, subdivisions, accent patterns, tap tempo, audio transcription, auto tempo detection, cloud storage, remote recording, desktop app, standalone DAW, background recording or background looping. No unrelated feature development while implementing these stages.
 
 ## 13. Stage 5 — Integrated metronome (FIRST IMPLEMENTATION TASK)
+
+**Current status (2026-10-26):** Stage 5 engineering verified in 0.4.0/build 8, source 4e08da13555696965094d74d5730ba73094329b6, CI https://github.com/mrayover/practice.logger/actions/runs/40439799999 . Signed dist delivery recorded in CURRENT_STATE. Phone acceptance pending; Stage 6 remains later work.
 
 ### User-visible behavior
 

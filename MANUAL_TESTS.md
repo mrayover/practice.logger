@@ -1,10 +1,10 @@
 # Phone testing checklist
 
-The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. Version 0.3.3 owner phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
+The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. Version 0.4.0 owner phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.3.3-b7-19489c7/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.3.3 (build 7). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.4.0-b8-4e08da1/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.4.0 (build 8). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -54,3 +54,12 @@ Typing alone remains unsaved against abrupt process death; use the save actions.
 2. Practice Now → build/start B, practice briefly and Save for later. Both unfinished sessions must remain selectable.
 3. Open each, confirm its own Block/time/note and paused state. Restart the app and repeat; the default may be newest, but the other dated control must still work.
 4. Complete B and confirm A remains unfinished with unchanged data. Then finish A; summaries must remain separate. One shared builder draft remains supported.
+## Stage 5 metronome — 0.4.0/build 8 (owner checks pending)
+
+1. Install the permanently signed build over 0.3.3; keep Blocks, unfinished sessions, notes and history. Do not uninstall. Export JSON before/after as desired; new format 3 needs 0.4.0 or later to restore.
+2. Open a Block with saved BPM (or no BPM: default 120). Start click while timer is paused; listen at normal media volume. Change by −1/+1 and Set BPM, including 30/120/300. Invalid/decimal/out-of-range input must not apply. Judge audible steadiness on the phone.
+3. Run the timer and click together; adjust live. Pause the timer and confirm click continues; stop/restart click and confirm timer state/time remains independent.
+4. Background, rotate, leave/reopen, switch Block/session and force-stop/reopen. Audio must stop and remain silent until Start click. Repeat start/stop rapidly; try an audio interruption/headphone route safely. Never infer audible success from a displayed Stop click label.
+5. Use 126 BPM, leave/reopen and confirm working BPM persists without changing the Block's reference. Complete/Skip and reopen Summary: Last used click is 126 BPM. An unused click leaves no used BPM. Old history stays intact. Check large text/TalkBack.
+
+Record exact phone/Android/build and audible timing/lifecycle findings in WORK_LOG.md. Automated emulators do not prove physical click audibility/timing. Recording remains a later increment.

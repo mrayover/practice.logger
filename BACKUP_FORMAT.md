@@ -1,12 +1,12 @@
 # Backup format and safety
 
-Format identifier: `practice.logger.backup`. Writer format version: integer `2`; reader accepts legacy `1` and current `2`. UTF-8 JSON. Independent of Room schema version (currently 2). The app uses Android's CreateDocument/OpenDocument picker; it requests no broad storage permission. Android owns the picker typography.
+Format identifier: `practice.logger.backup`. Writer format version: integer `3`; reader accepts legacy `1`/`2` and current `3`. UTF-8 JSON. Independent of Room schema version (currently 3). The app uses Android's CreateDocument/OpenDocument picker; it requests no broad storage permission. Android owns the picker typography.
 
-Top-level fields: `format`, `version`, `blocks`, `sessions`, `placements`. All record fields are required, including explicit JSON null for nullable values. Unknown extra fields are ignored; unknown format versions are rejected. IDs are preserved.
+Top-level fields: `format`, `version`, `blocks`, `sessions`, `placements`. All record fields for the declared format are required, including explicit JSON null for nullable values. Format 3 adds nullable placement lastUsedBpm; formats 1/2 omit it and import as null. Unknown extra fields are ignored; unknown format versions are rejected. IDs are preserved.
 
 - Blocks: id, name, action, durationMinutes, tempo (nullable), notes, archived, createdAt, updatedAt.
 - Sessions: id, startedAt, endedAt (nullable), status, currentIndex, note.
-- Placements: id, sessionId, sourceBlockId, name, action, tempo (nullable), referenceNotes, position, configuredMs, activeMs, outcome, overtimeAccepted, note.
+- Placements: id, sessionId, sourceBlockId, name, action, tempo (nullable), referenceNotes, position, configuredMs, activeMs, outcome, overtimeAccepted, note, lastUsedBpm (nullable, 30–300 when present).
 
 Export reads a consistent Room transaction. It includes archived Blocks, completed history snapshots, notes and at most one builder draft and every unfinished active session. No monotonic clock anchor/running flag is exported; restored active sessions resume paused. Quick notes must be saved with Save Block note, Save for later, Back, Complete or Skip before export; typing alone is not a durable save. Session notes require Save note before export.
 
@@ -20,4 +20,6 @@ Tests cover a real JSON file round trip into an empty database and reopening, ar
 
 Stage 3 engineering checks are complete on the supported minimum API 26 and API 35; 200% text workflows and screenshots are verified. Dependable daily-use acceptance still requires owner phone document-provider export, spare-device restore, interrupted export and TalkBack/accessibility confirmation. Merge/replace restore, cloud sync and in-app update controls are outside this increment.
 
-Format 2 extends the allowed session set to multiple IN_PROGRESS sessions plus at most one DRAFT. All per-session validation is retained. Legacy format 1 still requires at most one unfinished session; older app versions reject format 2 safely. Room schema remains 2; no data migration. Multi-session backup/restore/reopen is covered by a targeted unit test.
+Format 2 extends the allowed session set to multiple IN_PROGRESS sessions plus at most one DRAFT. All per-session validation is retained. Legacy format 1 still requires at most one unfinished session; older app versions reject format 2 safely. The 0.3.3 increment kept Room schema 2; Stage 5 now explicitly migrates it to 3. Multi-session backup/restore/reopen is covered by a targeted unit test.
+
+Stage 5: Room 2→3 adds nullable lastUsedBpm without rewriting existing records. JSON format 3 exports this history value separately from the original tempo snapshot/default. Formats 1 and 2 restore with null lastUsedBpm; older app builds reject format 3 safely. Audio playback state is never backed up or resumed. No recording/audio files exist in Stage 5; JSON remains database-only.
