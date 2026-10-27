@@ -4,7 +4,7 @@ The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation c
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.6.0-b11-faca5e5/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.6.0 (build 11). Install over the permanent-key app through 0.5.0 or 0.6.0/build 10 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.6.1-b12-f4f827b/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.6.1 (build 12). Install over the permanent-key app through 0.5.0 or 0.6.0/build 10 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -76,7 +76,7 @@ Record exact phone/Android/build and audible timing/lifecycle findings in WORK_L
 Record exact phone/Android/build, microphone/output quality, permission/interruption behavior and any failures in WORK_LOG.md. CI encoder/container/UI tests do not establish physical microphone quality. Phrase looping/count-in remain Stage 6B, not this increment.
 
 ## Stage 6B phrase loops — physical phone checks pending
-1. Install signed 0.6.0/build 11 (faca5e5) over 0.5.0 or build 10 without uninstalling. Verify saved free takes, labels, Blocks, notes/history and sessions still work. Open an existing Block's Recordings and keep at least one free take alongside new loops.
+1. Install signed 0.6.1/build 12 (f4f827b) over the existing permanently signed app without uninstalling. Verify saved free takes, labels, Blocks, notes/history and sessions still work. Open an existing Block's Recordings and keep at least one free take alongside new loops.
 2. Record phrase: confirm 120 BPM and 8 beats (4.00 seconds). Tap Start 4-click count-in, hear four even clicks, and start playing on the next beat. Recording must stop automatically after one phrase, save a new loop and repeat only that phrase until Stop loop. Listen across at least ten repeats for a gap/click or drift. No measured/latency-free/seamless phone result is inferred from CI.
 3. Create a second loop at another tempo/length; use 4/8/16/32 beats and try 60/120/180 BPM. BPM input outside30–300 or non-whole values must not start. Compare intended phrase length with a known click/reference. Input/output latency may shift the capture onset; report route and audible boundary behavior.
 4. Stop/restart each saved loop; labels show its recorded BPM/beats/date. Regular working BPM changes must not speed/pitch-shift existing audio. To record another tempo create another take. Pause/resume the practice timer during capture; it stays independent. No overdubs/layers/trimming.
@@ -89,8 +89,8 @@ Record phone, Android version, app build, output route, microphone quality, four
 
 At normal and 200% font size, open Record phrase, edit Phrase BPM and verify its short floating label and 30–300 support range stay readable. Tap the keyboard Done key and report whether it hides; also check Android Back and scrolling can reveal all beat choices, Start 4-click count-in and Cancel. CI screenshots establish label readability, but do not establish reliable Done dismissal. Record actual phone/Android/input keyboard and results; do not count the emulator screenshot as a completed phone check.
 
-## 0.6.1/build 12 recording click — pending CI and signed delivery
+## 0.6.1/build 12 recording click — signed delivery, phone checks pending
 
-Use the new signed update only after it is delivered; the existing build 11 does not include this fix. In Record phrase, confirm "Click while recording" is on by default. Choose 120 BPM / 8 beats; hear four count-in clicks followed by a steady click throughout the one-phrase capture. Pause/resume the practice timer during capture; the click and phrase length stay independent. The guide should stop before the saved phrase starts repeating. Speaker bleed in microphone audio is expected; no digital click is added to the file.
+Install the signed 0.6.1/build 12 update from dist/practice.logger-0.6.1-b12-f4f827b/ over the existing app without uninstalling. Earlier build 11 does not include this fix. In Record phrase, confirm "Click while recording" is on by default. Choose 120 BPM / 8 beats; hear four count-in clicks followed by a steady click throughout the one-phrase capture. Pause/resume the practice timer during capture; the click and phrase length stay independent. The guide should stop before the saved phrase starts repeating. Speaker bleed in microphone audio is expected; no digital click is added to the file.
 
 Turn the option off and record a second phrase: four count-in clicks, then no guide during capture. Retain/play both takes and a prior free take; export the exact WAV. Cancel during count-in/capture and background/leave while the guide runs; no guide/microphone may continue, saved takes remain, and reopen stays silent. Check the full checkbox row at 200% text/TalkBack. Report actual phone/Android/output route and guide/onset/boundary behavior; emulator counters do not establish audible phone timing.

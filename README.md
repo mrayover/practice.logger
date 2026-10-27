@@ -1,6 +1,6 @@
 # practice.logger
 
-Latest installable release: **0.6.0/build 11**, generally accepted by the owner. The requested click-during-loop-recording fix is prepared for **0.6.1/build 12**, awaiting CI and signed packaging. See CURRENT_STATE.md.
+Latest installable release: **0.6.1/build 12**, with default-enabled optional click throughout loop recording. Build 11 was generally accepted by the owner; detailed phone checks for this fix remain pending. See CURRENT_STATE.md.
 
 An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
@@ -10,13 +10,13 @@ Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md co
 
 ## Install the versioned local build
 
-The verified, permanently signed 0.6.0 phrase-loop build (versionCode 11) is in:
+The verified, permanently signed 0.6.1 recording-click build (versionCode 12) is in:
 
-- ZIP: dist/practice.logger-0.6.0-b11-faca5e5.zip
-- Extracted APK: dist/practice.logger-0.6.0-b11-faca5e5/practice.logger-0.6.0-b11-faca5e5.apk
-- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.6.0-b11-faca5e5/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.6.1-b12-f4f827b.zip
+- Extracted APK: dist/practice.logger-0.6.1-b12-f4f827b/practice.logger-0.6.1-b12-f4f827b.apk
+- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.6.1-b12-f4f827b/BUILD_INFO.json
 
-Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.6.0. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3/0.4.0/0.5.0 or 0.6.0/build 10 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
+Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.6.1. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3/0.4.0/0.5.0 or 0.6.0/build 10/11 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
 
 The original 0.1.0 APK used a lost temporary CI debug key. To preserve its installed app and Blocks, 0.2.0 uses the stable application ID com.mrayover.practicelogger.app and installs alongside it. **Blocks do not transfer automatically from 0.1.0.** Keep the old catalog if it contains needed data; recreate desired Blocks in the new app. The old APK ZIP and extracted folder are also preserved under a versioned name in dist.
 
@@ -36,7 +36,7 @@ Block Library supports Active/Archived filters, literal case-insensitive search 
 
 ## Build, checks and packaging
 
-Verified source faca5e5c01e0dfed9136dd58cf4a771b1362b6c8; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40566516233 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
+Verified source f4f827bde0921b805b4f3126555344507bb0e3fd; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40603962994 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
 
 Developer command: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease (Windows .\gradlew.bat). Toolchain: JDK 17, Android SDK 36, AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21, Compose and Room 2.8.5. Local signing tools are under ignored .tools; private signing material is under ignored .signing. Back up the entire .signing folder securely outside Git; losing it prevents in-place updates. Only the public certificate fingerprint is committed.
 
@@ -83,16 +83,16 @@ Timer and capture are independent; the Focused Practice recordings sheet include
 
 Room 4 adds a separate take table via explicit 3→4 migration; practice data and JSON format 3/legacy readers remain intact. Private UUID pending files are validated/synced/renamed before metadata commit, with startup interrupted-file recovery. Source dfdf83b194c95fb0847ae5a1705b35708be0ead4 / https://github.com/mrayover/practice.logger/actions/runs/40447257853 passed 28 unit/Robolectric tests, lint (0 errors/10 existing warnings), and full Android 8/15 device suites including real encoder, document-picker export, reopen, upgrade and 200% text. The earlier 0.5.0 distribution remains preserved under dist/practice.logger-0.5.0-b9-dfdf83b; its BUILD_INFO.json retains exact provenance. Detailed microphone/output quality remains a phone acceptance item. Stage 6B adds phrase looping in the current release below.
 
-## Current release — Stage 6B phrase loops, 0.6.0/build 11
+## Earlier Stage 6B phrase-loop release — 0.6.0/build 11
 
 The owner generally accepts free recording. Recordings → Record phrase now offers 30–300 BPM and 4/8/16/32 beats, four count-in clicks, one exact-frame WAV capture, and automatic repeat. Saved loops retain their recorded BPM/beats and remain independent of other free/loop takes. The timer stays independent; per-take playback, labels, confirmed deletion and WAV/M4A export remain available. Room 4→5 preserves existing data. JSON backups still exclude all recordings, take metadata and labels; export wanted audio separately.
 
 Source faca5e5 / CI https://github.com/mrayover/practice.logger/actions/runs/40566516233 passed all 32 unit/Robolectric tests, lint (0 errors/10 existing warnings) and full Android 8/15 device suites. Downloaded artifact checksums match GitHub. Normal and 200% screenshots confirm the shortened Phrase BPM label is readable. Keyboard Done dismissal is not established by the captured screenshots and remains a phone check, along with large-text lower-control access. Input/output latency and audible loop boundaries also require physical phone testing; no seamless/latency-free claim. See CURRENT_STATE.md for exact evidence and limitations.
 
-Signed build 11 uses the existing permanent certificate and is available above. Build 10 and all prior releases are preserved. Documentation is saved locally but awaits a GitHub Desktop commit/push because desktop automation is unavailable. Stage 3 phone backup acceptance and Stage 4 (0/10) remain pending. Save/storage changes await the owner discussion after phone looping checks.
+Signed build 11 and build 10 remain preserved in dist. Build 11 release records were published as f6e38e0; the owner generally accepts that release. The current recording-click update is below. Stage 3 phone backup acceptance and Stage 4 (0/10) remain pending. Save/storage changes await the owner discussion after phone looping checks.
 
-## Click during loop recording — 0.6.1/build 12 prepared, not yet built
+## Click during loop recording — 0.6.1/build 12 delivered
 
-Owner reports phrase looping works and requests an audible guide through capture. Record phrase now has "Click while recording", enabled by default. Four count-in clicks always play; with the option on, the same output audio clock continues clicking at the phrase BPM while the microphone records. With it off, the count-in is followed by quiet capture. The guide ends before saved-loop playback and stops on cancellation/leave/background. Speaker bleed can be captured by the microphone; the app does not mix clicks digitally into the WAV. The practice timer and exact saved phrase stay independent. Save/storage changes await the owner discussion.
+In Record phrase, **Click while recording** defaults to on. Four count-in clicks continue into a phrase-tempo click while the microphone captures the selected 4/8/16/32 beats. Turn it off for a count-in followed by quiet capture. The same audio clock drives both phases; the guide stops before saved-loop playback and on cancellation/background/exit. The timer stays independent. Speaker bleed can be captured; no click is mixed digitally into the WAV. Existing saved takes, migrations, JSON exclusions, signing identity and prior releases remain intact.
 
-Three isolated PCM/WAV unit tests pass locally; Android compilation, full CI/native/large-text checks and signed packaging are pending. The existing build 11 APK above does not contain this fix. Source/tests/config and release records will use the owner-authorized Git-command exception to publish this update for CI.
+Source f4f827bde0921b805b4f3126555344507bb0e3fd, CI https://github.com/mrayover/practice.logger/actions/runs/40603962994 passed build, all 33 unit/Robolectric tests, lint (0 errors/10 existing warnings) and full API26/35 native/large-text suites, including actual output-counter checks during on/off capture. Normal and 200% screenshots reviewed. Existing permanent publisher verified the signed versioned ZIP/APK above and preserved all 28 earlier distribution files. Phone audibility/timing and the checklist in MANUAL_TESTS.md remain owner checks. Save/storage changes await discussion after this fix.
