@@ -87,6 +87,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
         Text("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Save your Blocks, archived Blocks, practice history and unfinished session as a versioned JSON file. Choose a safe location using Android's file picker.")
         Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")
+        Text("Recordings and take labels are not included in JSON backups. Export each take from its Block's Recordings sheet to keep a separate audio copy. Audio cannot be restored from this JSON file.")
         Button(onClick = { export.launch("practice.logger-backup-v1-" + System.currentTimeMillis() + ".json") }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
         Text("Restore is for an empty app, such as a new phone. It never replaces or merges existing data. Do not uninstall or clear your current app to try a restore. Supported limit: 8 MiB, 20,000 records per type.")
         OutlinedButton(onClick = { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Choose backup to restore") }

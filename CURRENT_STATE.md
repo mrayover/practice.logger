@@ -26,3 +26,6 @@ Offline bundled Lato, catalog/editor/search/archive, draft/session builder, inde
 ## Exact next task
 
 Owner test the signed 0.4.0/build 8 APK using MANUAL_TESTS.md Stage 5: listen/adjust click during timer running and paused, background/leave/reopen for silence, verify used BPM in Summary and unchanged Block reference/data. Record exact phone/Android/build and pass/fail, and fix reported reliability issues. Stage 5 phone exit gate remains pending. Do not begin Stage 6 in this increment; retain its approved free-take and loop specification for a later bounded increment.
+
+## New active increment — Stage 6A
+Owner generally accepted 0.4.0 metronome on 2026-10-26 and requested recording. Stage 6A implementation/tests/delivery pending; exact next development action is implement and verify free per-Block takes. Stage 6B remains later. JSON will exclude recordings; per-take export is required. No new functionality verified yet.

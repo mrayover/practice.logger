@@ -209,7 +209,7 @@ No overdubs, synchronized layers, multi-track timeline, mixer, effects, waveform
 
 ## 13. Stage 5 — Integrated metronome (FIRST IMPLEMENTATION TASK)
 
-**Current status (2026-10-26):** Stage 5 engineering verified in 0.4.0/build 8, source 4e08da13555696965094d74d5730ba73094329b6, CI https://github.com/mrayover/practice.logger/actions/runs/40439799999 . Signed dist delivery recorded in CURRENT_STATE. Phone acceptance pending; Stage 6 remains later work.
+**Current status (2026-10-26):** Stage 5 engineering verified in 0.4.0/build 8, source 4e08da13555696965094d74d5730ba73094329b6, CI https://github.com/mrayover/practice.logger/actions/runs/40439799999 . Signed dist delivery recorded in CURRENT_STATE. Owner reports "it all works" and authorizes recording on 2026-10-26; Stage 5 accepted generally, without inventing phone model/OS or individual checklist results. Stage 6A begins now; 6B remains later.
 
 ### User-visible behavior
 
@@ -279,3 +279,7 @@ The existing version-2 JSON backup protects **database data, not audio files**. 
 **Begin Stage 5, not Stage 6.** First integrate the approved change into the authoritative plan and agent rules; inspect current audio, BPM, lifecycle, backup and persistence code; implement a minimal metronome inside Focused Practice without interfering with the timer. Produce tests and the next reproducible APK. Only after this is verified, proceed to free Block recording, then the one-phrase looper. Do not expand into a tuner, overdubbing, Goals or Routines.
 
 **Guiding criterion:** practice.logger should provide the click and the take where the Block is being practiced, not force the musician out into another app.
+
+
+## 17. Stage 6A active increment — 2026-10-26
+Owner reports the metronome works and requests recording. Implement free microphone takes, retained per stable Block ID, with playback, rename, confirmed delete and per-take export in Focused Practice and saved Block editor (including archived Blocks). Keep timer independent; preserve click during capture. Stop/finalize on background/leave. Private M4A audio and Room metadata; explicit schema migration, recover incomplete writes. JSON backups continue protecting practice data only and exclude takes/audio; make this limitation prominent and do not claim bulk audio restore. Stage 6B is a later bounded increment. Build/test/lint/API26/35 and permanent-key signed versioned delivery required. Stage 3 acceptance/evaluation unchanged.

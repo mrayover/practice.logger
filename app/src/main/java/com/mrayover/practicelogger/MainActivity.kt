@@ -32,10 +32,20 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel()) {
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val view = LocalView.current
+    var recordingsBlockId by rememberSaveable { mutableStateOf<String?>(null) }
+    DisposableEffect(lifecycle, recordings) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) recordings.setForeground(true)
+            if (event == Lifecycle.Event.ON_PAUSE) recordings.setForeground(false)
+        }
+        lifecycle.addObserver(observer)
+        recordings.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+        onDispose { lifecycle.removeObserver(observer); recordings.setForeground(false) }
+    }
     DisposableEffect(lifecycle, practice) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) practice.setForeground(true)
@@ -45,7 +55,7 @@ class MainActivity : ComponentActivity() {
         practice.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
         onDispose { lifecycle.removeObserver(observer); practice.setForeground(false) }
     }
-    DisposableEffect(practice.running, view) { view.keepScreenOn = practice.running; onDispose { view.keepScreenOn = false } }
+    DisposableEffect(practice.running, recordings.recording, view) { view.keepScreenOn = practice.running || recordings.recording; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
@@ -78,7 +88,7 @@ class MainActivity : ComponentActivity() {
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) }, onSummary = { summaryId = it; page = "summary" })
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
-            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" })
+            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it })
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" })
             "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { page = "home" }) { Text("Back to Home") }
@@ -112,8 +122,13 @@ class MainActivity : ComponentActivity() {
                 } else key(editorId) {
                     BlockEditor(block, vm.busy, onCancel = { page = editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
-                        onArchive = { value -> block?.let { vm.archive(it.id, value) } })
+                        onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } })
                 }
+            }
+        }
+        recordingsBlockId?.let { id ->
+            catalog.blocks.find { it.id == id }?.let { block ->
+                BlockRecordings(id, block.name, recordings, onBeforePlayback = practice::stopClick, onDismiss = { recordingsBlockId = null })
             }
         }
         practice.error?.let { message ->
@@ -125,7 +140,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -142,6 +157,7 @@ class MainActivity : ComponentActivity() {
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.headlineMedium)
         if (block?.archived == true) Text("Archived — restore to return this Block to your active library.")
+        if (block != null) OutlinedButton(onClick = onRecordings, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
         EditorField("Name", name, { name = it }, errors["name"], busy, singleLine = true)
         EditorField("Action", action, { action = it }, errors["action"], busy)
         EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true)

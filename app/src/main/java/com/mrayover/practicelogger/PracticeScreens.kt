@@ -119,7 +119,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 
-@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit) {
+@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit) {
 
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
@@ -148,6 +148,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         ActionButton("Complete", { vm.finish("COMPLETED", note) }, !vm.busy)
         OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Skip") }
         PracticeMetronome(vm)
+        OutlinedButton(onClick = { onRecordings(current.sourceBlockId) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
         OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Block note") }
