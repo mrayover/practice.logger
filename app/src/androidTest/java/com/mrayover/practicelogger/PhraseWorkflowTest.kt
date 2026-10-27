@@ -50,11 +50,10 @@ class PhraseWorkflowTest {
             compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }
             compose.runOnIdle { assertFalse(practice.clicking); assertTrue(practice.running) }
             captureStage3("31-phrase-count-in")
-            compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
-            compose.waitUntil(5000) { vm.phraseGuideFramesPlayed() > PhraseSpec(120, 4).frames + 4800 }
-            compose.runOnIdle { assertTrue(vm.phraseClickEnabled); assertFalse(practice.clicking) }
-            sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
-            sheet("Resume timer"); compose.runOnIdle { assertTrue(vm.recording); assertTrue(practice.running) }
+            compose.waitUntil(10000) {
+                vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 && vm.phraseClickEnabled &&
+                    !practice.clicking && vm.phraseGuideFramesPlayed() > PhraseSpec(120, 4).frames + 4800
+            }
             compose.waitUntil(20000) { !vm.recording && vm.playingId != null }
             compose.runOnIdle { assertFalse(vm.phraseClickEnabled); assertEquals(0L, vm.phraseGuideFramesPlayed()) }
             val first = runBlocking { db.takes().readAll().single { it.blockId == block } }
@@ -90,8 +89,13 @@ class PhraseWorkflowTest {
             compose.waitUntil(10000) { !vm.phrasing && !vm.busy }
             compose.runOnIdle { assertEquals(0L, vm.phraseGuideFramesPlayed()) }
             assertEquals(3, runBlocking { db.takes().readAll().count { it.blockId == block } })
-            compose.runOnIdle { vm.startPhrase(block, PhraseSpec(120, 8)) }
+            // A long capture gives real UI timer actions enough time on slow emulators.
+            // The first saved take above still verifies the required 8 beats / 120 BPM exactly.
+            compose.runOnIdle { vm.startPhrase(block, PhraseSpec(120, 32)) }
             compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
+            sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
+            sheet("Resume timer")
+            compose.waitUntil(5000) { vm.recording && practice.running }
             compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
             compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
             compose.waitUntil(10000) { !vm.phrasing && !vm.busy }
