@@ -24,7 +24,9 @@ data class BlockTake(
     val mode: String = "FREE",
     val durationMs: Long,
     val fileName: String,
-    val label: String = ""
+    val label: String = "",
+    val recordedBpm: Int? = null,
+    val beatCount: Int? = null
 )
 
 @Dao interface TakeDao {
@@ -44,7 +46,14 @@ val RECORDING_MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
-data class PendingTake(val id: String, val blockId: String, val createdAt: Long, val file: File)
+val PHRASE_MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE takes ADD COLUMN recordedBpm INTEGER")
+        db.execSQL("ALTER TABLE takes ADD COLUMN beatCount INTEGER")
+    }
+}
+
+data class PendingTake(val id: String, val blockId: String, val createdAt: Long, val file: File, val phrase: PhraseSpec? = null)
 
 /** Only generated UUID names are ever resolved inside this private directory. No user paths. */
 class TakeRepository(private val db: BlockDatabase, private val directory: File,
@@ -56,7 +65,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
         private val activeFiles = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     }
     val takes = db.takes().observeAll()
-    private val ownedName = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\\.pending)?\\.m4a")
+    private val ownedName = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\\.pending)?\\.(m4a|wav)")
     private fun resolve(name: String): File {
         require(ownedName.matches(name)) { "Invalid recording file name." }
         return File(directory, name).also { check(it.canonicalFile.parentFile == directory.canonicalFile) }
@@ -64,24 +73,27 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     // Capture needs space immediately, without relying on the system reclaiming cache mid-write.
     @android.annotation.SuppressLint("UsableSpace")
     fun availableBytes(): Long = directory.usableSpace
-    fun prepare(blockId: String): PendingTake {
+    fun prepare(blockId: String, phrase: PhraseSpec? = null): PendingTake {
         check(directory.isDirectory || directory.mkdirs()) { "Recording storage is unavailable." }
-        check(availableBytes() >= 2 * 1024 * 1024) { "Free some storage before recording." }
+        check(availableBytes() >= 2 * 1024 * 1024 + (phrase?.frames?.toLong() ?: 0L) * 2) { "Free some storage before recording." }
         val id = UUID.randomUUID().toString()
-        val file = resolve("$id.pending.m4a")
+        val file = resolve("$id.pending." + if (phrase == null) "m4a" else "wav")
         activeFiles.add(file.absolutePath)
         try { check(file.createNewFile()) } catch (failure: Exception) { activeFiles.remove(file.absolutePath); throw failure }
-        return PendingTake(id, blockId, System.currentTimeMillis(), file)
+        return PendingTake(id, blockId, System.currentTimeMillis(), file, phrase)
     }
     fun abandon(pending: PendingTake) { pending.file.delete(); activeFiles.remove(pending.file.absolutePath) }
     suspend fun save(pending: PendingTake): BlockTake = filesMutex.withLock {
         try {
-        val duration = inspectDuration(pending.file)
+        val duration = pending.phrase?.let { spec ->
+            require(PhraseWave.read(pending.file).size == spec.frames) { "Incomplete phrase." }; spec.durationMs
+        } ?: inspectDuration(pending.file)
         require(duration > 0 && pending.file.length() > 0) { "No usable audio was recorded." }
         java.io.FileOutputStream(pending.file, true).use { it.fd.sync() }
-        val target = resolve("${pending.id}.m4a")
+        val target = resolve(pending.id + "." + pending.file.extension)
         check(!target.exists() && pending.file.renameTo(target)) { "Could not finish the recording file." }
-        val take = BlockTake(pending.id, pending.blockId, pending.createdAt, durationMs = duration, fileName = target.name)
+        val take = BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.phrase == null) "FREE" else "LOOP",
+            durationMs = duration, fileName = target.name, recordedBpm = pending.phrase?.bpm, beatCount = pending.phrase?.beats)
         try {
             db.withTransaction { checkNotNull(db.blocks().find(take.blockId)); dao.insert(take) }
         } catch (failure: Exception) {

@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity() {
         recordingsBlockId?.let { id ->
             catalog.blocks.find { it.id == id }?.let { block ->
                 BlockRecordings(id, block.name, recordings, practice, if (page == "focus") sessions.active else null,
+                    initialBpm = if (page == "focus") practice.workingBpm else block.tempo?.takeIf { it in 30..300 } ?: 120,
                     onBeforePlayback = practice::stopClick, onDismiss = { recordingsBlockId = null })
             }
         }

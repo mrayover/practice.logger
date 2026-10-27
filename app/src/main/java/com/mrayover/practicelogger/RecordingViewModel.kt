@@ -27,6 +27,9 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var ready by mutableStateOf(false); private set
     var busy by mutableStateOf(false); private set
     var recording by mutableStateOf(false); private set
+    var phrasing by mutableStateOf(false); private set
+    var countInBeat by mutableIntStateOf(0); private set
+    var phraseDurationMs by mutableLongStateOf(0L); private set
     var elapsedMs by mutableLongStateOf(0L); private set
     var playingId by mutableStateOf<String?>(null); private set
     var preparingId by mutableStateOf<String?>(null); private set
@@ -37,12 +40,19 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     private var pending: PendingTake? = null
     private var captureStart = 0L
     private var player: MediaPlayer? = null
+    private var loopTrack: AudioTrack? = null
+    private var phraseCapture: PhraseCapture? = null
+    private var phraseJob: Job? = null
+    private var audioGeneration = 0
     private val manager = app.getSystemService(AudioManager::class.java)
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN).setAudioAttributes(attributes)
         .setWillPauseWhenDucked(true).setOnAudioFocusChangeListener({ change ->
-            if (change != AudioManager.AUDIOFOCUS_GAIN) stopPlayback()
+            if (change != AudioManager.AUDIOFOCUS_GAIN) {
+                stopPlayback()
+                if (phrasing) finishCapture("Audio interrupted. Incomplete phrase discarded.", discard = true)
+            }
         }, Handler(Looper.getMainLooper())).build()
     private val noisy = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -63,7 +73,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             while (isActive) {
                 delay(250)
-                if (recording) {
+                if (recording && !phrasing) {
                     elapsedMs = SystemClock.elapsedRealtime() - captureStart
                     try {
                         when {
@@ -88,7 +98,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     fun hasMicrophonePermission() = app.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     fun permissionResult(granted: Boolean) {
-        message = if (granted) "Microphone allowed. Tap Record take to begin." else
+        message = if (granted) "Microphone allowed. Tap Record take or Record phrase to begin." else
             "Microphone permission was not allowed. Tap Record take to retry; if Android no longer asks, allow Microphone in this app's Android settings."
     }
     @Suppress("DEPRECATION")
@@ -122,6 +132,12 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     /** Microphone stop/release is synchronous; only validation/commit continues after leaving. */
     fun finishCapture(reason: String? = null, discard: Boolean = false) {
+        audioGeneration++
+        if (phrasing) {
+            phraseCapture?.cancel(); recording = false; busy = true
+            message = reason ?: "Incomplete phrase cancelled. Earlier takes were kept."
+            return
+        }
         val audio = recorder ?: return
         val draft = pending ?: return
         recorder = null; pending = null; recording = false
@@ -146,6 +162,46 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun startPhrase(blockId: String, spec: PhraseSpec) {
+        if (!ready || busy || recording || !foreground || visibleBlockId != blockId) return
+        if (!hasMicrophonePermission()) { permissionResult(false); return }
+        if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
+        stopPlayback()
+        if (manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            message = "Audio output is in use. Try the phrase again."; return
+        }
+        val generation = ++audioGeneration
+        val capture = PhraseCapture(); phraseCapture = capture; captureOwner = this
+        phrasing = true; recording = true; countInBeat = 1; elapsedMs = 0; phraseDurationMs = spec.durationMs; message = null
+        phraseJob = viewModelScope.launch {
+            var draft: PendingTake? = null
+            var saved: BlockTake? = null
+            try {
+                saved = withContext(Dispatchers.IO) {
+                    val pending = repository.prepare(blockId, spec); draft = pending
+                    capture.capture(spec, pending.file,
+                        onCount = { beat -> viewModelScope.launch { if (generation == audioGeneration) countInBeat = beat } },
+                        onFrames = { frames -> viewModelScope.launch { if (generation == audioGeneration) elapsedMs = frames * 1000L / PhraseSpec.RATE } },
+                        hasSpaceAndPermission = { repository.availableBytes() >= 512 * 1024 && hasMicrophonePermission() })
+                    currentCoroutineContext().ensureActive()
+                    // Cancelling while validation commits may retain a complete take, but never autoplays it.
+                    repository.save(pending)
+                }
+                message = if (generation == audioGeneration) "Phrase saved. Looping at ${spec.bpm} BPM." else "Complete phrase saved. Playback stopped."
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                if (generation == audioGeneration) message = "Phrase not saved. Check microphone, audio output and storage, then retry. Earlier takes were kept."
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) { draft?.let(repository::abandon) }
+                capture.cancel(); phraseCapture = null; phraseJob = null
+                if (captureOwner === this@RecordingViewModel) captureOwner = null
+                phrasing = false; recording = false; busy = false; countInBeat = 0
+                runCatching { manager.abandonAudioFocusRequest(focus) }
+            }
+            if (saved != null && generation == audioGeneration && foreground && visibleBlockId == blockId) play(saved)
+        }
+    }
+
     private fun work(action: suspend () -> Unit) {
         if (!ready || busy || recording) return
         busy = true
@@ -158,12 +214,22 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     fun play(take: BlockTake) = work {
         stopPlayback()
+        val generation = audioGeneration
         val file = withContext(Dispatchers.IO) { repository.audioFile(take) }
-        if (!foreground || visibleBlockId != take.blockId) return@work
+        val samples = if (take.mode == "LOOP") withContext(Dispatchers.IO) {
+            val spec = PhraseSpec(checkNotNull(take.recordedBpm), checkNotNull(take.beatCount))
+            PhraseWave.read(file).also { check(it.size == spec.frames) }
+        } else null
+        if (!foreground || visibleBlockId != take.blockId || generation != audioGeneration) return@work
         if (manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             message = "Audio output is in use. Try playback again."; return@work
         }
         try {
+            if (samples != null) {
+                loopTrack = phraseTrack(samples, true)
+                loopTrack!!.play(); playingId = take.id; message = "Looping · ${take.recordedBpm} BPM · ${take.beatCount} beats."
+                return@work
+            }
             val audio = MediaPlayer()
             player = audio; preparingId = take.id; message = null
             audio.setAudioAttributes(attributes); audio.setDataSource(file.absolutePath)
@@ -181,9 +247,13 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         } catch (failure: Exception) { stopPlayback(); throw failure }
     }
     fun stopPlayback() {
+        audioGeneration++
+        val loop = loopTrack; loopTrack = null
+        runCatching { loop?.pause(); loop?.flush(); loop?.release() }
         val audio = player; player = null; playingId = null; preparingId = null
         runCatching { audio?.release() }; runCatching { manager.abandonAudioFocusRequest(focus) }
     }
+    internal fun loopFramesPlayed(): Long = loopTrack?.let { it.playbackHeadPosition.toLong() and 0xffffffffL } ?: 0L
     fun rename(take: BlockTake, label: String) = work {
         withContext(Dispatchers.IO) { repository.rename(take.id, label) }; message = "Take renamed."
     }
@@ -207,6 +277,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
       }
     }
     override fun onCleared() {
+        audioGeneration++; phraseCapture?.cancel(); phraseJob?.cancel()
         runCatching { recorder?.release() }; recorder = null // Pending capture is recovered on next cold start.
         pending?.let(repository::abandon); pending = null
         if (captureOwner === this) captureOwner = null

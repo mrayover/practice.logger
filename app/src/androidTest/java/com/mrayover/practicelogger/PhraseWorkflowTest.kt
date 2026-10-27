@@ -1,0 +1,146 @@
+package com.mrayover.practicelogger
+
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.*
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.*
+import org.junit.Rule
+import org.junit.Test
+import java.util.regex.Pattern
+
+class PhraseWorkflowTest {
+    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() } }
+    private fun click(text: String) {
+        val node = compose.onNodeWithText(text)
+        try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
+        node.performClick()
+    }
+    private fun sheet(text: String) { compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onNodeWithText(text).performClick() }
+    @Test fun nativePhraseCountInExactLengthRepeatCancellationExportAndFreeTakeCoexistence() {
+        val db = BlockDatabase.open(compose.activity.applicationContext)
+        try {
+            val previous = runBlocking { db.takes().readAll() }
+            assertTrue(previous.count { it.mode == "FREE" } >= 2)
+            val block = runBlocking { BlockRepository(db).save(null, BlockDraft("Loop fixture", "Play along", "5", "120")) }
+            shown("Practice Now"); click("Practice Now"); click("Add Loop fixture"); click("Start Session"); shown("Ready when you are")
+            click("Start"); click("Start click"); click("Recordings"); shown("Block recordings")
+            val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
+            val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+            compose.waitUntil(10000) { vm.ready }
+            sheet("Record phrase"); shown("Record one phrase")
+            compose.onNodeWithText("Phrase BPM (30–300)").performTextReplacement("0")
+            compose.onNodeWithText("Start 4-click count-in").assertIsNotEnabled()
+            compose.onNodeWithText("Phrase BPM (30–300)").performTextReplacement("120")
+            compose.onNodeWithText("One phrase: 4.00 seconds").assertExists()
+            captureStage3("30-phrase-setup")
+            click("Start 4-click count-in")
+            compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }
+            compose.runOnIdle { assertFalse(practice.clicking); assertTrue(practice.running) }
+            captureStage3("31-phrase-count-in")
+            compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
+            sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
+            sheet("Resume timer"); compose.runOnIdle { assertTrue(vm.recording); assertTrue(practice.running) }
+            compose.waitUntil(20000) { !vm.recording && vm.playingId != null }
+            val first = runBlocking { db.takes().readAll().single { it.blockId == block } }
+            val repository = TakeRepository(db, compose.activity.applicationContext)
+            assertEquals("LOOP", first.mode); assertEquals(120, first.recordedBpm); assertEquals(8, first.beatCount)
+            assertEquals(192000, PhraseWave.read(repository.audioFile(first)).size)
+            // Verify the actual native playback counter crosses two full phrase boundaries.
+            compose.waitUntil(20000) { vm.loopFramesPlayed() > 2L * PhraseSpec(120, 8).frames }
+            compose.runOnIdle { assertEquals(first.id, vm.playingId); practice.changeWorkingBpm(180) }
+            assertEquals(120, runBlocking { db.takes().find(first.id) }!!.recordedBpm)
+            sheet("Stop loop"); compose.runOnIdle { assertNull(vm.playingId); assertEquals(0L, vm.loopFramesPlayed()) }
+            // Exercise count-in/capture at 60 and 180 BPM through the production native path.
+            for (bpm in listOf(60, 180)) {
+                compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4)) }
+                compose.waitUntil(25000) { !vm.recording && !vm.busy && vm.playingId != null }
+                val take = runBlocking { db.takes().readAll().single { it.blockId == block && it.recordedBpm == bpm } }
+                assertEquals(PhraseSpec(bpm, 4).frames, PhraseWave.read(repository.audioFile(take)).size)
+                compose.waitUntil(15000) { vm.loopFramesPlayed() > 2L * PhraseSpec(bpm, 4).frames }
+                compose.runOnIdle { vm.stopPlayback() }
+            }
+            compose.runOnIdle { vm.startPhrase(block, PhraseSpec(120, 8)) }
+            compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }
+            compose.runOnIdle { vm.finishCapture() }
+            compose.waitUntil(10000) { !vm.phrasing && !vm.busy }
+            assertEquals(3, runBlocking { db.takes().readAll().count { it.blockId == block } })
+            compose.runOnIdle { vm.startPhrase(block, PhraseSpec(120, 8)) }
+            compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
+            compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+            compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+            compose.waitUntil(10000) { !vm.phrasing && !vm.busy }
+            compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }
+            assertEquals(3, runBlocking { db.takes().readAll().count { it.blockId == block } })
+            compose.runOnIdle { vm.play(first) }; compose.waitUntil(10000) { vm.playingId == first.id }
+            compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+            compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+            compose.runOnIdle { assertNull(vm.playingId) }
+            // Actual WAV picker export; full bytes match, not merely an exported filename.
+            compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("export-" + first.id))
+            compose.onNodeWithTag("export-" + first.id).performClick()
+            checkNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)).click()
+            checkNotNull(device.wait(Until.findObject(By.text("Downloads")), 10000))
+            device.findObjects(By.text("Downloads")).last().click()
+            checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), 10000)).text = "practice-logger-phrase.wav"
+            checkNotNull(device.wait(Until.findObject(By.text(Pattern.compile("(?i)save"))), 10000)).click()
+            shown("Audio exported.")
+            val exported = device.executeShellCommand("sha256sum /sdcard/Download/practice-logger-phrase.wav").trim().split(" ")[0]
+            val source = java.security.MessageDigest.getInstance("SHA-256").digest(repository.audioFile(first).readBytes()).joinToString("") { "%02x".format(it) }
+            assertEquals(source, exported)
+            compose.runOnIdle { vm.export(first, android.net.Uri.parse("content://not.a.provider/loop")) }; shown("Export failed.")
+            assertTrue(repository.audioFile(first).exists())
+            val tag = "rename-" + first.id
+            compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag(tag)); compose.onNodeWithTag(tag).performClick()
+            compose.onNodeWithText("Take label (optional)").performTextReplacement("Eight beats at 120")
+            click("Save take label"); shown("Take renamed.")
+            captureStage3("32-saved-loops")
+            // Delete one loop with confirmation; others and previous free takes stay byte-identical.
+            val disposable = runBlocking { db.takes().readAll().single { it.blockId == block && it.recordedBpm == 60 } }
+            compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("delete-" + disposable.id))
+            compose.onNodeWithTag("delete-" + disposable.id).performClick(); click("Keep take")
+            compose.onNodeWithTag("delete-" + disposable.id).performClick(); click("Delete take permanently")
+            compose.waitUntil(10000) { !vm.busy && vm.takes.value.none { it.id == disposable.id } }
+            assertFalse(java.io.File(compose.activity.filesDir, "recordings/" + disposable.fileName).exists())
+            assertTrue(runBlocking { db.takes().readAll() }.containsAll(previous))
+            sheet("Close recordings"); click("Save for later"); shown("Practice Now")
+            runBlocking { BlockRepository(db).setArchived(block, true) }
+        } catch (failure: Throwable) { captureStage3("phrase-failure"); throw failure }
+        finally { db.close() }
+    }
+}
+
+class PhraseReopenTest {
+    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    private fun click(text: String) {
+        val node = compose.onNodeWithText(text)
+        try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
+        node.performClick()
+    }
+    @Test fun nativeLoopsReopenArchivedBlockPlayAndRecreationStops() {
+        val db = BlockDatabase.open(compose.activity.applicationContext)
+        try {
+            compose.waitUntil(15000) { compose.onAllNodesWithText("Practice Now").fetchSemanticsNodes().isNotEmpty() }
+            val block = runBlocking { db.blocks().readAll().single { it.name == "Loop fixture" } }
+            val takes = runBlocking { db.takes().readAll().filter { it.blockId == block.id } }
+            assertTrue(block.archived); assertEquals(2, takes.size); assertTrue(takes.all { it.mode == "LOOP" })
+            val first = takes.single { it.recordedBpm == 120 }; assertEquals("Eight beats at 120", first.label)
+            click("Manage Blocks"); click("Archived"); click("Loop fixture"); click("Recordings")
+            val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
+            compose.waitUntil(10000) { vm.ready && vm.takes.value.any { it.id == first.id } }
+            compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }
+            compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("play-" + first.id))
+            compose.onNodeWithTag("play-" + first.id).performClick()
+            compose.waitUntil(10000) { vm.playingId == first.id && vm.loopFramesPlayed() > 1000 }
+            compose.activityRule.scenario.recreate()
+            compose.runOnIdle { assertNull(vm.playingId); assertFalse(vm.recording) }
+            compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); click("Close recordings")
+            click("Cancel"); click("Back to Home")
+        } finally { db.close() }
+    }
+}
