@@ -66,11 +66,13 @@ class PhraseWorkflowTest {
             for (bpm in listOf(60, 180)) {
                 val guideEnabled = bpm != 60
                 compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4), guideEnabled) }
-                compose.waitUntil(15000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
-                compose.runOnIdle {
-                    assertEquals(guideEnabled, vm.phraseClickEnabled)
-                    if (guideEnabled) assertTrue(vm.phraseGuideFramesPlayed() > PhraseSpec(bpm, 4).frames)
-                    else assertEquals(0L, vm.phraseGuideFramesPlayed())
+                // Check the live capture and native counter in the same poll. Waiting for UI idle
+                // afterward can outlast a 1.33-second phrase and observe the cleared final state.
+                compose.waitUntil(15000) {
+                    vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 &&
+                        vm.phraseClickEnabled == guideEnabled &&
+                        if (guideEnabled) vm.phraseGuideFramesPlayed() > PhraseSpec(bpm, 4).frames
+                        else vm.phraseGuideFramesPlayed() == 0L
                 }
                 compose.waitUntil(25000) { !vm.recording && !vm.busy && vm.playingId != null }
                 val take = runBlocking { db.takes().readAll().single { it.blockId == block && it.recordedBpm == bpm } }
