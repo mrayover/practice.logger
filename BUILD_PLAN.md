@@ -36,7 +36,7 @@ The earlier full V1 document is **a future destination**, not the checklist for 
 
 ### Explicitly excluded for this release
 
-Goals; saved reusable Routines; multi-face cubes; metronome; tuner; recording and audio overdubs; backing tracks; PDF/YouTube embedding; randomization; notifications; algorithmic spaced repetition; deep analytics; accounts; cloud sync; backend; subscriptions; sharing; desktop app; integrations with other `.logger` apps; advanced animations.
+Goals; saved reusable Routines; multi-face cubes; tuner; audio overdubs; backing tracks; PDF/YouTube embedding; randomization; notifications; algorithmic spaced repetition; deep analytics; accounts; cloud sync; backend; subscriptions; sharing; desktop app; integrations with other `.logger` apps; advanced animations.
 
 **No menu item, card, or button may lead to unfinished future functionality.** The first release does not have to visually advertise the entire future roadmap.
 
@@ -63,7 +63,7 @@ There are **six UI surfaces**; a Recent Practice list can live on Home.
 ### 3.3 Block Editor
 
 - **Name** and **Action** are mandatory.
-- Default duration; optional numeric tempo (reference, not an actual metronome) and note/source description.
+- Default duration; optional numeric tempo (saved reference/default for the Stage 5 metronome) and note/source description.
 - Clear Save / Cancel / Back behavior, obvious validation errors, reasonable defaults.
 - Do not add elaborate categories, tags, attachments or nested editors now.
 
@@ -188,3 +188,93 @@ Stage 3 engineering is verified: versioned backup, validated transactional empty
 **Guiding rule: Build enough to practice. Practice enough to know what to build next.**
 
 Approved 2026-10-26: observed unfinished-session lockout → always-available Practice Now plus individual unfinished-session selection on Home → one retained selection, same Room schema, format-2 backup semantics and focused tests → implemented in 0.3.3. No reusable Routines/new screen. Next task: test two independently resumable sessions on the owner's phone; manual backup/evaluation remain deferred.
+
+
+## 12. Owner-approved scope change — direct practice tools
+
+**Observed problem:** A numeric BPM reference in a Block forces the musician to leave the app to get an audible click; without recording and repeatable backing, the existing workflow is little more than a paper practice list plus timer. The application must help perform the musical work inside Focused Practice, not only log that work.
+
+**Approved smallest solution:**
+
+1. An adjustable, audible quarter-note metronome built directly into Focused Practice, functioning alongside—but independently from—the Block timer.
+2. A simple microphone recorder **attached to each reusable Block**: free recording or one fixed-length phrase that starts after a four-click count-in and loops continuously for play-along.
+3. Multiple individually retained takes per Block, with playback, safe delete and file export. No overdubbing.
+
+**Cost/tradeoff:** Metronome timing must be audio-driven rather than UI-timer-driven. Phrase looping requires precise boundaries, microphone permissions, storage integrity and phone testing; it is materially harder than free recording. Phased delivery is mandatory. The owner is not concerned about audible metronome bleed, so do **not** add noise cancellation, automatic bleed removal, headphones detection or sound processing solely for that purpose.
+
+**Product rule:** The current Block remains the practice workspace. The musician must not have to leave it to turn on a click, adjust BPM, capture a take, audition an earlier take or play an existing loop.
+
+### Out of scope for these stages
+
+No overdubs, synchronized layers, multi-track timeline, mixer, effects, waveforms, punch-in, trimming UI, tempo maps, time-signature setup, subdivisions, accent patterns, tap tempo, audio transcription, auto tempo detection, cloud storage, remote recording, desktop app, standalone DAW, background recording or background looping. No unrelated feature development while implementing these stages.
+
+## 13. Stage 5 — Integrated metronome (FIRST IMPLEMENTATION TASK)
+
+### User-visible behavior
+
+- In the existing Focused Practice screen, add a compact metronome area with **BPM readout**, **Start/Stop click**, easy `-1/+1` and/or `-5/+5` controls, and an accessible way to enter a precise BPM. Keep the Block instruction and practice timer visually dominant. Do not launch a separate app or navigate away.
+- A simple unaccented click on each beat. **No meter selection.** Suggested validated tempo range: **30–300 BPM**, with clear bounds; document exact chosen limits if hardware implementation requires a narrower reliable range.
+- Initial click tempo uses the current Block's saved optional BPM when valid; otherwise use a sensible documented default (e.g. 120). Changing working BPM must not silently overwrite the Block's default/goal BPM. Label and maintain this distinction.
+- Start/stop and tempo changes work **while the Block timer is running or paused**; manipulating the metronome never silently starts/stops or resets that practice timer.
+- Changing BPM while clicking takes effect promptly without requiring a screen change. The click has a reliable audible output, no drifting UI coroutine as the sole scheduling mechanism, and does not depend on network access.
+- Auto-stop audible click when Focused Practice leaves the foreground, the user leaves/changes Blocks or sessions, or the Activity is being torn down. Resume silently/paused; **never unexpectedly play audio on cold launch/recovery**. Avoid leaking audio resources or running a background service.
+- Persist the **last BPM actually used for the current practice placement** for historical reference (a single last-used value suffices; no tempo-change timeline). Prefer a snapshot in the placement/session outcome while keeping the reusable Block's goal/default untouched; implement a safe explicit Room migration and update the versioned JSON backup reader/writer if the persistent schema changes. Preserve existing 0.3.3 data and legacy format readers. An in-memory-only initial iteration must not be presented as fulfilling BPM-history persistence.
+- Make all app-owned text Lato. Keep controls usable with large text and while holding an instrument; labels and controls accessible by screen readers. Avoid fake controls.
+
+### Engineering and regression criteria
+
+- Review the current Kotlin/Compose/Room app, `PracticeScreens.kt`, `PracticeViewModel.kt`, `SessionData.kt`, `BackupData.kt`, navigation and audio APIs before coding. Prefer Android platform APIs / minimal dependencies; avoid introducing a general-purpose audio engine abstraction for one click.
+- Audio click timing should be driven by a stable audio clock/buffer where possible. Visual BPM displays can update independently. Handle rapid tempo changes and repeated Start/Stop without overlapping streams, hanging sound or crash.
+- If a schema change is needed, preserve all Blocks, active sessions, drafts, history and notes via explicit migration and backward-compatible restore/version handling. Do not alter the permanently signed application ID or key.
+- Automated checks: BPM validation/clamping, start-stop/tempo-change state, background/leave/recovery stop behavior, independent practice timer timing, migration/backup compatibility, and Compose UI access/navigation. Add device-level checks on existing CI API 26/35 where meaningful. Real click timing/audibility on the owner's phone remains a manual acceptance item and must be identified honestly.
+- Deliver the next **higher versionCode**, passing builds/tests/lint/CI, and a consistently signed, versioned local ZIP plus extracted APK under ignored `dist/`; retain all old distributions. Use the existing `scripts/Publish-LocalApk.ps1` and permanent signing certificate. No automatic updater.
+
+**Stage 5 exit gate:** On the phone, open an existing Block's Focused Practice screen, start the practice timer, start the click at the saved BPM, adjust BPM during playback, stop/restart click, continue practicing without navigating away, leave/reopen and verify silence until explicitly started; existing practice/history/data and upgrades remain intact. Automated checks must be green. Explicitly record owner phone checks as pending until actually performed.
+
+## 14. Stage 6 — Minimal Block recorder (AFTER Stage 5 verification)
+
+Split this stage into **6A free takes** and **6B single-phrase looping**, each ending with a tested runnable APK; never deliver unfinished on-screen actions.
+
+### 6A — Free recording, playback and saved takes
+
+- Recording is discoverable within the current Focused Practice Block, and the **same reusable Block's** saved takes remain accessible when editing/revisiting that Block (including archived Blocks where applicable). Use its stable Block ID, not mutable name or one particular session placement ID, as the owning association. Keep the UI compact; use a short inline area or simple Block recordings view/sheet only if needed, not a full studio.
+- Request Android microphone permission only when the user tries to record. Handle denial, revocation, microphone in use, failure and low storage gracefully; show a real error instead of generating an empty/fake take.
+- **Free Record:** tap Record, capture from the phone mic until Stop. A four-click count-in can be optional for free takes; recording itself must not require BPM. Provide an unmistakable recording state and elapsed time. The user is unconcerned about click bleed, so a running metronome may be heard and captured; do not attempt to remove it.
+- Saving creates a new independently identifiable take with immutable stable ID, Block ID, created timestamp, mode (`FREE`), duration, locally referenced audio file and optional user-edited label. Never overwrite a prior take. Allow one-at-a-time playback, stop, rename, **confirmed deletion**, and export/share to a normal audio file via Android's file picker. Export failure does not destroy the source take.
+- Use private app storage with safe file naming, atomic or carefully recovered writes and metadata consistent with actual files. Do not put audio bytes in Room rows or JSON text backups. Avoid orphaned half-written recordings or references to missing files; account for interrupted capture/process death.
+- Keep the existing Block timer usable independently. Stop or safely finalize recording when leaving/backgrounding; **no background recording** or simultaneous independent capture streams. Audio focus/lifecycle rules should be documented, tested and kept simple.
+- A Block may contain multiple free takes without a small artificial cap. Archive/restoration of a Block must not delete its audio. Existing historical Block snapshots and session recovery must still work.
+- At a minimum, document that the existing **JSON backup does not include audio**, and implement clear per-take export. Do not claim full media restore yet. Avoid degrading JSON restore for existing metadata; if recording metadata is exported while audio isn't, never silently create playable-looking missing media.
+
+**Stage 6A exit gate:** Record and save 2+ takes against one Block, restart app, play each and export one; existing Blocks/history survive upgrade; denial/interruption/restart paths handled. Android 8/15 CI runs and a signed local distribution delivered. Owner phone microphone/playback tests pending until actually reported.
+
+### 6B — One fixed-length phrase, then loop playback
+
+- **Loop Record** is a second option within the Block recorder. Set/confirm BPM and choose **4, 8, 16 or 32 beats** (simple beat counts, not a meter editor); show resulting expected recording duration. Defaults can be 8 beats and the Block/working BPM. Clamp/validate selection.
+- Tap Record → audible **4 evenly spaced clicks** as count-in → start microphone capture on the next beat → capture **exactly one configured phrase** → automatically end capture and begin looping **only that captured phrase**. No manual endpoint trimming UI and no automatic recording of successive loops.
+- Playback repeats the one phrase continuously until explicitly stopped or the user leaves/backgrounds. Provide Play/Stop for any saved loop; show its fixed BPM, beat count and recorded date. Preserve as a normal separate take attached to the Block, with mode (`LOOP`), recorded BPM/beat count and duration; multiple loops and free takes can coexist.
+- Aim for seamless/gapless repeat. Treat input/output latency, device audio clocks and any residual boundary gaps/clicks as engineering constraints to measure on the owner's actual phone. Avoid MP3-style encoder-padding loops if they introduce gaps; choose a suitable playback format/buffer approach after inspecting platform support. A metronome can sound during recording/playback and may bleed; this is acceptable to the owner. Click/loop timing should be coherent. **Do not promise latency-free, quantized or perfectly seamless playback without real device validation.**
+- Freeze the loop's BPM during capture/playback: changing the regular metronome must **not** silently change a recorded loop's speed or pitch. If the user wants another tempo, create another loop. No time stretching or overdub.
+- Stop capture/playback safely on background, Block change, audio interruptions, microphone failures and route changes where needed. Leave previously saved takes untouched when a new recording fails.
+- Add device/manual tests for count-in boundary, exact sample/beat duration, loop repeat continuity at e.g. 60/120/180 BPM, playback start/stop, app lifecycle, storage and prior free-take playback. Automated tests can verify frame-count/timing logic and navigation; they cannot prove perceived loop quality on the user's phone.
+
+**Stage 6B exit gate:** On the phone, create an 8-beat loop at 120 BPM after four clicks, hear it repeat while playing along, stop/restart playback, leave/reopen the Block and play it again; a free take and second loop remain independent. No overdub layer or extra timeline. CI green, next higher versionCode and signed ZIP/APK saved under `dist/`.
+
+### Audio portability and safe backup rule
+
+The existing version-2 JSON backup protects **database data, not audio files**. Do not silently redefine it as a media backup, and do not expose a misleading restore action. Each take must be exportable as a real file before Stage 6A is called complete. Before describing recording data as fully portable/protected, implement and verify a separate **audio-inclusive bulk export/restore path** (e.g. a versioned ZIP containing JSON manifest + audio) compatible with empty-target, transactional restore policy, or obtain an explicit owner decision to defer bulk restoration with prominently documented risk. That packaging is separate from the core metronome/loop playback feature and must not consume the initial implementation cycle merely because it is feasible. Confirm old backups and old app installations are never broken by format changes.
+
+## 15. Mandatory documentation and delivery protocol for these stages
+
+- **Do not reset or rewrite history.** Stages 0–3 remain as achieved; Stage 3 owner phone acceptance remains pending; Stage 4 real-session evaluation remains **0/10** until the owner performs actual sessions. The owner has now explicitly authorized Stages 5 and 6 before that evaluation is complete. Record this as a scope exception, not fabricated completion.
+- Edit `BUILD_PLAN.md` **and** the conflicting scope sentences in `AGENTS.md` (approved metronome + basic Block recording only). Update `README.md` and `CURRENT_STATE.md` to reflect *planned* status first, then actual verified implementation as it occurs; append only to `WORK_LOG.md`. Do not delete historical entries, remove old source files or overwrite older ZIP/APK distributions.
+- On every Work session, first read all five root operational records completely, inspect GitHub Desktop branch/uncommitted files/origin, review recent CI and code, then make the narrowest correct change. Git operations—including commit/push/fetch/pull—go through **GitHub Desktop**, not raw CLI or GitHub write API. Verify the actual remote `main` SHA, not merely local changes. If a cloud checkout/PR is used, clearly explain how the owner pulls/merges it rather than claiming it is in their Windows repo.
+- Test with the existing unit, Robolectric, instrumentation, Android 8/15 CI, lint, backup/recovery and upgrade regression suites. Identify precisely what is untested on the owner's physical phone. Keep offline-first/no backend, the stable app ID, permanent signing key, schema migrations and Lato everywhere.
+- Each deliverable gets a tested **installable signed APK** and versioned ZIP + extracted folder in ignored local `dist/` using versionName/versionCode/source SHA and existing signing workflow; keep prior releases, user data and key. If Work cannot access the owner's local machine/signing key, report what is blocked; deliver actual CI unsigned/debug artifacts without pretending they are replace-in-place signed releases.
+- For every session—including planning-only or incomplete sessions—append `WORK_LOG.md`, refresh `CURRENT_STATE.md` with a verified current status and **one exact next task**, record errors/test outputs/CI links/source SHA/build identity, commit and push intended changes through GitHub Desktop if possible, and give a small phone checklist. Never treat an approved specification as an already implemented feature.
+
+## 16. Immediate action
+
+**Begin Stage 5, not Stage 6.** First integrate the approved change into the authoritative plan and agent rules; inspect current audio, BPM, lifecycle, backup and persistence code; implement a minimal metronome inside Focused Practice without interfering with the timer. Produce tests and the next reproducible APK. Only after this is verified, proceed to free Block recording, then the one-phrase looper. Do not expand into a tuner, overdubbing, Goals or Routines.
+
+**Guiding criterion:** practice.logger should provide the click and the take where the Block is being practiced, not force the musician out into another app.

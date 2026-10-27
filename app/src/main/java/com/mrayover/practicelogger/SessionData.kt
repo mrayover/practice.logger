@@ -32,7 +32,8 @@ data class Placement(
     val activeMs: Long = 0,
     val outcome: String = "PENDING",
     val overtimeAccepted: Boolean = false,
-    val note: String = ""
+    val note: String = "",
+    val lastUsedBpm: Int? = null
 )
 
 data class SessionBundle(
@@ -76,6 +77,12 @@ val SESSION_MIGRATION_1_2 = object : Migration(1, 2) {
         db.execSQL("CREATE TABLE IF NOT EXISTS sessions (id TEXT NOT NULL, startedAt INTEGER NOT NULL, endedAt INTEGER, status TEXT NOT NULL, currentIndex INTEGER NOT NULL, note TEXT NOT NULL, PRIMARY KEY(id))")
         db.execSQL("CREATE TABLE IF NOT EXISTS placements (id TEXT NOT NULL, sessionId TEXT NOT NULL, sourceBlockId TEXT NOT NULL, name TEXT NOT NULL, action TEXT NOT NULL, tempo INTEGER, referenceNotes TEXT NOT NULL, position INTEGER NOT NULL, configuredMs INTEGER NOT NULL, activeMs INTEGER NOT NULL, outcome TEXT NOT NULL, overtimeAccepted INTEGER NOT NULL, note TEXT NOT NULL, PRIMARY KEY(id), FOREIGN KEY(sessionId) REFERENCES sessions(id) ON UPDATE NO ACTION ON DELETE CASCADE)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_placements_sessionId ON placements(sessionId)")
+    }
+}
+
+val METRONOME_MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE placements ADD COLUMN lastUsedBpm INTEGER")
     }
 }
 
@@ -150,6 +157,12 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         val current = checkNotNull(bundle.current)
         check(current.id == placementId && current.outcome == "PENDING")
         dao.update(current.copy(note = note.trim()))
+    }
+    suspend fun saveUsedBpm(id: String, placementId: String, bpm: Int) = db.withTransaction {
+        require(bpm in 30..300)
+        val current = checkNotNull(active(id).current)
+        check(current.id == placementId && current.outcome == "PENDING")
+        dao.update(current.copy(lastUsedBpm = bpm))
     }
     suspend fun saveSessionNote(id: String, note: String) = db.withTransaction {
         val bundle = checkNotNull(dao.find(id))

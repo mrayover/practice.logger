@@ -126,6 +126,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         return
     }
     val current = bundle.current!!
+    DisposableEffect(current.id, vm) {
+        vm.enterFocusedPlacement(current)
+        onDispose { vm.leaveFocusedPlacement() }
+    }
     var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
     fun leave() { vm.saveForLater(bundle.session.id, current.id, note) }
     BackHandler { leave() }
@@ -143,6 +147,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         else ActionButton(if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume", { if (vm.running) vm.pause() else vm.resume() }, !vm.busy)
         ActionButton("Complete", { vm.finish("COMPLETED", note) }, !vm.busy)
         OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Skip") }
+        PracticeMetronome(vm)
         OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Block note") }
@@ -167,6 +172,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             Text(placement.name, style = MaterialTheme.typography.titleLarge)
             Text(placement.action)
             Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
+            placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
             if (placement.note.isNotBlank()) Text(placement.note)
             HorizontalDivider()
         }
@@ -175,6 +181,35 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         if (vm.noteSaved && note.trim() == bundle.session.note) Text("Note saved")
         ActionButton("Home", onHome)
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable private fun PracticeMetronome(vm: PracticeViewModel) {
+    var editing by rememberSaveable { mutableStateOf(false) }
+    var entered by rememberSaveable { mutableStateOf("") }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.testTag("metronome-bpm").semantics { heading() })
+        Text("Working tempo · saved Block reference stays unchanged. Media volume controls the click.", style = MaterialTheme.typography.bodySmall)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            OutlinedButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) },
+                enabled = vm.workingBpm > 30 && !vm.busy, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
+            OutlinedButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) },
+                enabled = vm.workingBpm < 300 && !vm.busy, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
+            TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true }, enabled = !vm.busy,
+                modifier = Modifier.heightIn(min = 48.dp)) { Text("Set BPM") }
+        }
+        OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (vm.clicking) "Stop click" else "Start click") }
+        vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+    }
+    if (editing) AlertDialog(onDismissRequest = { editing = false }, title = { Text("Working BPM") }, text = {
+        OutlinedTextField(entered, { entered = it }, label = { Text("BPM (30–300)") }, singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = parseWorkingBpm(entered) == null,
+            supportingText = { Text("Enter a whole number from 30 to 300.") })
+    }, confirmButton = { TextButton(onClick = { parseWorkingBpm(entered)?.let { vm.changeWorkingBpm(it); editing = false } },
+        enabled = parseWorkingBpm(entered) != null && !vm.busy) { Text("Apply BPM") } },
+        dismissButton = { TextButton(onClick = { editing = false }) { Text("Cancel") } })
 }
 
 @Composable private fun ActionButton(label: String, click: () -> Unit, enabled: Boolean = true) {

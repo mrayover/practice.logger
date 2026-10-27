@@ -41,6 +41,44 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     var blockNoteSavedFor by mutableStateOf<String?>(null)
         private set
     private var foreground = false
+    private var focusedPlacementId: String? = null
+    var clicking by mutableStateOf(false)
+        private set
+    var workingBpm by mutableIntStateOf(120)
+        private set
+    var clickError by mutableStateOf<String?>(null)
+        private set
+    private val metronome = MetronomeAudio(application) { message -> clicking = false; clickError = message }
+
+    fun enterFocusedPlacement(placement: Placement) {
+        if (focusedPlacementId != placement.id) {
+            stopClick(); focusedPlacementId = placement.id; workingBpm = initialWorkingBpm(placement)
+        }
+    }
+    fun leaveFocusedPlacement() { stopClick(); focusedPlacementId = null }
+    fun stopClick() { metronome.stop(); clicking = false }
+    fun changeWorkingBpm(bpm: Int) {
+        require(bpm in 30..300)
+        workingBpm = bpm
+        metronome.changeTempo(bpm)
+        if (clicking) persistUsedBpm(bpm)
+    }
+    private fun persistUsedBpm(bpm: Int) {
+        val bundle = catalog.value.active ?: return
+        val placementId = focusedPlacementId ?: return
+        viewModelScope.launch {
+            mutex.withLock {
+                try { repository.saveUsedBpm(bundle.session.id, placementId, bpm) }
+                catch (cancelled: CancellationException) { throw cancelled }
+                catch (_: Exception) { stopClick(); clickError = "Click stopped because its BPM could not be saved. Check storage and retry." }
+            }
+        }
+    }
+    fun startClick() {
+        if (!foreground || busy || focusedPlacementId == null || focusedPlacementId != catalog.value.active?.current?.id) return
+        clickError = null
+        if (metronome.start(workingBpm)) { clicking = true; persistUsedBpm(workingBpm) }
+    }
     private var anchor: Long? = null
     private var timingSessionId: String? = null
     private val mutex = Mutex()
@@ -79,7 +117,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     }
     fun setForeground(value: Boolean) {
         foreground = value
-        if (!value) pause()
+        if (!value) { stopClick(); pause() }
     }
     fun pause() {
         val until = SystemClock.elapsedRealtime()
@@ -119,12 +157,15 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     }
     fun openSession(id: String) {
         if (busy) return
+        leaveFocusedPlacement()
         val until = SystemClock.elapsedRealtime()
         running = false
         operation { flush(until); anchor = null; selectSession(id) }
     }
     fun start() = operation { selectSession(repository.start()) }
     fun finish(outcome: String, note: String) {
+        if (busy) return
+        stopClick()
         val until = SystemClock.elapsedRealtime()
         running = false
         operation {
@@ -139,6 +180,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     }
     fun saveForLater(sessionId: String, placementId: String, note: String) {
         if (busy) return
+        stopClick()
         val until = SystemClock.elapsedRealtime()
         running = false
         operation {
@@ -148,5 +190,6 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         }
     }
     fun saveNote(id: String, note: String) = operation { repository.saveSessionNote(id, note); noteSaved = true }
+    override fun onCleared() { metronome.stop(); super.onCleared() }
     // The shared database belongs to the application, not an individual screen.
 }
