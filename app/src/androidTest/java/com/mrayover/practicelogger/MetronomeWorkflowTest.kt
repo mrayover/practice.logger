@@ -19,6 +19,13 @@ class MetronomeWorkflowTest {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Metronome test", "Play with click", "5", "90")) }
             shown("Practice Now"); click("Practice Now"); shown("Add Metronome test"); click("Add Metronome test")
             click("Start Session"); shown("Metronome · 90 BPM")
+            compose.onNodeWithContentDescription("Increase click BPM by 1").performScrollTo().performClick()
+            shown("Metronome · 91 BPM")
+            val unused = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
+            assertNull(unused.current!!.lastUsedBpm)
+            compose.onNodeWithContentDescription("Decrease click BPM by 1").performScrollTo().performClick()
+            shown("Metronome · 90 BPM")
+            repeat(3) { click("Start click"); shown("Stop click"); click("Stop click"); shown("Start click") }
             click("Start click"); shown("Stop click")
             compose.onNodeWithText("Ready when you are").assertExists()
             click("Set BPM"); compose.onNodeWithText("BPM (30–300)").performTextReplacement("301")

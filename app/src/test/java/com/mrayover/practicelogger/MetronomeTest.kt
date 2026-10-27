@@ -85,12 +85,16 @@ class MetronomePersistenceTest {
         repeat(entities.length()) { i ->
             val entity = entities.getJSONObject(i); val table = entity.getString("tableName")
             sql.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
-            val indices = entity.getJSONArray("indices")
+            val indices = entity.optJSONArray("indices") ?: org.json.JSONArray()
             repeat(indices.length()) { sql.execSQL(indices.getJSONObject(it).getString("createSql").replace("\${TABLE_NAME}", table)) }
         }
         sql.execSQL("INSERT INTO blocks VALUES ('b','Legacy','Play',5,90,'Reference',0,1,2)")
         sql.execSQL("INSERT INTO sessions VALUES ('s',1,NULL,'IN_PROGRESS',0,'Session note')")
         sql.execSQL("INSERT INTO placements VALUES ('p','s','b','Legacy','Play',90,'Reference',0,300000,1234,'PENDING',0,'Quick note')")
+        sql.execSQL("INSERT INTO sessions VALUES ('draft',3,NULL,'DRAFT',0,'')")
+        sql.execSQL("INSERT INTO placements VALUES ('draft-p','draft','b','Draft snapshot','Play',90,'',0,60000,0,'PENDING',0,'')")
+        sql.execSQL("INSERT INTO sessions VALUES ('history',1,2,'COMPLETED',0,'History note')")
+        sql.execSQL("INSERT INTO placements VALUES ('history-p','history','b','Original snapshot','Original action',80,'Old reference',0,60000,500,'COMPLETED',0,'Saved note')")
         val setup = schema.getJSONArray("setupQueries")
         repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
         sql.version = 2; sql.close()
@@ -99,6 +103,11 @@ class MetronomePersistenceTest {
             val before = db.sessions().find("s")!!
             assertEquals(1234L, before.current!!.activeMs); assertEquals("Quick note", before.current!!.note)
             assertEquals("Session note", before.session.note); assertNull(before.current!!.lastUsedBpm)
+            assertEquals(3, db.sessions().readAll().size)
+            assertEquals("Draft snapshot", db.sessions().find("draft")!!.current!!.name)
+            val history = db.sessions().find("history")!!
+            assertEquals("Original action", history.current!!.action); assertEquals("Saved note", history.current!!.note)
+            assertEquals(500L, history.activeMs); assertEquals("History note", history.session.note)
             SessionRepository(db).saveUsedBpm("s", "p", 121)
             assertEquals(before.current!!.copy(lastUsedBpm = 121), db.sessions().find("s")!!.current)
             assertEquals(90, db.blocks().find("b")!!.tempo)

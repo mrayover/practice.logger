@@ -148,3 +148,5 @@ Append-only session record. Times/dates use America/Los_Angeles.
 - Stage 5 source checkpoint: sample-clock PCM AudioTrack metronome, independent BPM controls and foreground/Block stop, placement lastUsedBpm, explicit Room 2→3 migration, JSON writer 3/readers 1–3, unit/migration/device checks and version 0.4.0/build 8. Build/test/lint/CI and signed packaging are pending; phone audibility remains pending.
 
 - First run 40438831387 failed during concurrent debug/release Room schema generation: release read the newly generated schema before its write completed (EOF JSON). No tests/device success claimed. Serialize kspReleaseKotlin after kspDebugKotlin; retain generated schema after successful verification. Next run must validate build and regressions.
+
+- Run 40439300509 compiled production/debug and ran 24 tests; 23 passed, new migration fixture failed while reading absent optional indices from historical schema JSON (before applying migration). Corrected fixture reader, expanded preservation checks to draft/history, and added repeated click/idle-tempo UI checks. Updated backup-error text for formats 1/2/3. Verification still pending.
