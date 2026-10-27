@@ -20,7 +20,11 @@ class RecordingWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() } }
-    private fun click(text: String) { compose.onNodeWithText(text, substring = false).performScrollTo().performClick() }
+    private fun click(text: String) {
+        val node = compose.onNodeWithText(text, substring = false)
+        try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
+        node.performClick()
+    }
     private fun sheet(text: String) { compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onNodeWithText(text, substring = false).performClick() }
     private fun takeAction(prefix: String, take: BlockTake) {
         val tag = prefix + "-" + take.id
@@ -34,9 +38,12 @@ class RecordingWorkflowTest {
             click("Start Session"); shown("Ready when you are"); click("Recordings"); shown("Block recordings")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+            compose.waitUntil(10000) { vm.ready }
             assertEquals(PackageManager.PERMISSION_DENIED, compose.activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO))
             sheet("Record take")
-            checkNotNull(device.wait(Until.findObject(By.text(Pattern.compile("(?i)don.t allow|deny"))), 10000)).click()
+            val deny = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/permission_deny_button"))), 10000)
+                ?: device.findObject(By.text(Pattern.compile("(?i).*don.t allow.*|.*deny.*")))
+            if (deny != null) deny.click() // Android may also refuse a repeated request without displaying a dialog.
             shown("Microphone permission was not allowed.")
             compose.runOnIdle { assertFalse(vm.recording) }
             assertTrue(runBlocking { db.takes().readAll() }.isEmpty())
@@ -102,14 +109,18 @@ class RecordingWorkflowTest {
             sheet("Close recordings"); click("Cancel"); click("Back to Home"); shown("Practice Now")
         } catch (failure: Throwable) {
             val tree = java.io.ByteArrayOutputStream(); device.dumpWindowHierarchy(tree); println(tree.toString("UTF-8"))
-            captureStage3("recording-failure"); throw failure
+            captureStage3("recording-failure"); throw AssertionError("Recorder workflow failed. UI: " + tree.toString("UTF-8"), failure)
         } finally { db.close() }
     }
 }
 
 class RecordingReopenTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    private fun click(text: String) { compose.onNodeWithText(text, substring = false).performScrollTo().performClick() }
+    private fun click(text: String) {
+        val node = compose.onNodeWithText(text, substring = false)
+        try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
+        node.performClick()
+    }
     @Test fun savedTakesSurviveProcessRestartAndArchiveWithNoAutomaticAudio() {
         compose.waitUntil(15000) { compose.onAllNodesWithText("Practice Now").fetchSemanticsNodes().isNotEmpty() }
         val db = BlockDatabase.open(compose.activity.applicationContext)

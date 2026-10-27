@@ -117,6 +117,7 @@ jobs:
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.MetronomeWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/metronome-workflow.txt
             grep -q "OK (1 test)" app/build/metronome-workflow.txt
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.RecordingWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/recording-workflow.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/recording-screenshots
             grep -q "OK (1 test)" app/build/recording-workflow.txt
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.RecordingReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/recording-reopen.txt
@@ -140,6 +141,7 @@ jobs:
             app/build/multi-*.txt
             app/build/metronome-workflow.txt
             app/build/recording-*.txt
+            app/build/recording-screenshots
             app/build/process-reopen.txt
             app/build/practice-workflow.txt
             app/build/practice-recovery.txt

@@ -61,14 +61,16 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
         require(ownedName.matches(name)) { "Invalid recording file name." }
         return File(directory, name).also { check(it.canonicalFile.parentFile == directory.canonicalFile) }
     }
+    // Capture needs space immediately, without relying on the system reclaiming cache mid-write.
+    @android.annotation.SuppressLint("UsableSpace")
     fun availableBytes(): Long = directory.usableSpace
     fun prepare(blockId: String): PendingTake {
         check(directory.isDirectory || directory.mkdirs()) { "Recording storage is unavailable." }
         check(availableBytes() >= 2 * 1024 * 1024) { "Free some storage before recording." }
         val id = UUID.randomUUID().toString()
         val file = resolve("$id.pending.m4a")
-        check(file.createNewFile())
         activeFiles.add(file.absolutePath)
+        try { check(file.createNewFile()) } catch (failure: Exception) { activeFiles.remove(file.absolutePath); throw failure }
         return PendingTake(id, blockId, System.currentTimeMillis(), file)
     }
     fun abandon(pending: PendingTake) { pending.file.delete(); activeFiles.remove(pending.file.absolutePath) }

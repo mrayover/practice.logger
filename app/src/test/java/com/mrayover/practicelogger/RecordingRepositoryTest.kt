@@ -55,7 +55,9 @@ class RecordingRepositoryTest {
             val interrupted = File(directory, UUID.randomUUID().toString() + ".pending.m4a").also { it.writeText("partial") }
             val orphan = File(directory, UUID.randomUUID().toString() + ".m4a").also { it.writeText("uncommitted") }
             val unrelated = File(directory, "unrelated.txt").also { it.writeText("keep") }
+            val active = repository.prepare(block).also { it.file.writeText("currently capturing") }
             assertEquals(2, repository.recover()); assertFalse(interrupted.exists()); assertFalse(orphan.exists()); assertTrue(unrelated.exists())
+            assertTrue(active.file.exists()); repository.abandon(active)
             val empty = repository.prepare(block)
             try { repository.save(empty); fail("Empty take saved") } catch (_: IllegalArgumentException) { repository.abandon(empty) }
             val wrongBlock = repository.prepare("missing").also { it.file.writeText("audio") }
