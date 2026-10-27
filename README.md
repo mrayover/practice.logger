@@ -2,19 +2,19 @@
 
 An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
-Stages 0, 1 and 2 passed automated verification. The owner generally confirms that 0.3.0 works on their phone (model/OS and individual checklist results not supplied). Stage 3 now has versioned backup/export and protected empty-app restore; Stage 3 engineering hardening is verified on Android 8 and 15, including real system document pickers and 200% text; owner phone acceptance is pending. Stage 4 ten-session evaluation is prepared in EVALUATION.md (0/10 real sessions recorded). Owner approved Stage 5 metronome followed by Stage 6A/6B Block recording on 2026-10-26; Stage 5 engineering is verified in 0.4.0/build 8; owner audible phone acceptance is pending. Goals, Routines, tuner, overdubbing and other deferred features remain excluded.
+Stages 0, 1 and 2 passed automated verification. The owner generally confirms that 0.3.0 works on their phone (model/OS and individual checklist results not supplied). Stage 3 now has versioned backup/export and protected empty-app restore; Stage 3 engineering hardening is verified on Android 8 and 15, including real system document pickers and 200% text; owner phone acceptance is pending. Stage 4 ten-session evaluation is prepared in EVALUATION.md (0/10 real sessions recorded). Owner approved Stage 5 metronome followed by Stage 6A/6B Block recording on 2026-10-26; Stage 5 engineering is verified in 0.4.0/build 8; owner generally accepts the metronome; detailed phone timing results were not supplied. Goals, Routines, tuner, overdubbing and other deferred features remain excluded.
 
 Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md completely before every development session. Every session, including incomplete work or fixes, must update the records and publish intended changes through GitHub Desktop.
 
 ## Install the versioned local build
 
-The verified, permanently signed 0.4.0 build (versionCode 8) is in:
+The verified, permanently signed 0.5.0 recording build (versionCode 9) is in:
 
-- ZIP: dist/practice.logger-0.4.0-b8-4e08da1.zip
-- Extracted APK: dist/practice.logger-0.4.0-b8-4e08da1/practice.logger-0.4.0-b8-4e08da1.apk
-- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.4.0-b8-4e08da1/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.5.0-b9-dfdf83b.zip
+- Extracted APK: dist/practice.logger-0.5.0-b9-dfdf83b/practice.logger-0.5.0-b9-dfdf83b.apk
+- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.5.0-b9-dfdf83b/BUILD_INFO.json
 
-Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.4.0. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
+Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.5.0. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3/0.4.0 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
 
 The original 0.1.0 APK used a lost temporary CI debug key. To preserve its installed app and Blocks, 0.2.0 uses the stable application ID com.mrayover.practicelogger.app and installs alongside it. **Blocks do not transfer automatically from 0.1.0.** Keep the old catalog if it contains needed data; recreate desired Blocks in the new app. The old APK ZIP and extracted folder are also preserved under a versioned name in dist.
 
@@ -34,13 +34,13 @@ Block Library supports Active/Archived filters, literal case-insensitive search 
 
 ## Build, checks and packaging
 
-Verified source 4e08da13555696965094d74d5730ba73094329b6; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40439799999 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
+Verified source dfdf83b194c95fb0847ae5a1705b35708be0ead4; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40447257853 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
 
 Developer command: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease (Windows .\gradlew.bat). Toolchain: JDK 17, Android SDK 36, AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21, Compose and Room 2.8.5. Local signing tools are under ignored .tools; private signing material is under ignored .signing. Back up the entire .signing folder securely outside Git; losing it prevents in-place updates. Only the public certificate fingerprint is committed.
 
 scripts/Publish-LocalApk.ps1 takes a downloaded unsigned release artifact ZIP, Version, VersionCode, Commit and CiRun. It pins the permanent certificate, signs/verifies the APK, validates package/version metadata, writes BUILD_INFO.json and INSTALL.txt, creates a versioned ZIP and extracts it into dist. Preserve prior versions. Clean only generated .staging directories after checksum verification. Never commit dist, tool downloads, keys, APKs or SDKs. All Git changes use GitHub Desktop.
 
-Room schemas 1/2/3 are committed; explicit 1→2 and 2→3 migrations retain existing data. Font license and attribution are in APK assets and THIRD_PARTY_NOTICES.md. No Internet permission is requested.
+Room schemas 1/2/3/4 are committed; explicit 1→2, 2→3 and 3→4 migrations retain existing data. Font license and attribution are in APK assets and THIRD_PARTY_NOTICES.md. No Internet permission is requested.
 
 ## Stage 3 backup increment
 
@@ -67,6 +67,16 @@ Practice Now stays available alongside Continue Session. Start fresh while keepi
 
 Placement history retains the last BPM used by the click, shown in Summary; editing an idle working tempo alone doesn't record usage or change the reusable Block. Room migration 2→3 adds one nullable field. JSON writer 3 reads formats 1/2/3, restoring missing old BPM history as null; older app versions reject new backups. No recording bytes or playback state are included.
 
-Source 4e08da13555696965094d74d5730ba73094329b6; successful CI https://github.com/mrayover/practice.logger/actions/runs/40439799999 . Build, all 24 unit tests, lint (0 errors/10 existing warnings), full API26/35 suites including metronome and 200% text checks passed. Screenshots reviewed; permanent certificate, package/version and ZIP extraction verified. Stage 6A free takes and 6B single-phrase loops remain separate later increments in BUILD_PLAN sections 12–16. Owner audible/timing/upgrade acceptance remains pending, Stage 4 is still 0/10.
+Source 4e08da13555696965094d74d5730ba73094329b6; successful CI https://github.com/mrayover/practice.logger/actions/runs/40439799999 . Build, all 24 unit tests, lint (0 errors/10 existing warnings), full API26/35 suites including metronome and 200% text checks passed. Screenshots reviewed; permanent certificate, package/version and ZIP extraction verified. Stage 6A free takes and 6B single-phrase loops remain separate later increments in BUILD_PLAN sections 12–16. Owner now generally reports the metronome works; individual timing/upgrade results were not supplied. Stage 4 is still 0/10.
 
-Stage 6A free Block recording is now authorized and in implementation (2026-10-26), following owner acceptance of the metronome. No recorder release is verified yet. Stage 6B remains later; JSON backups will not contain audio, so per-take export is required.
+Stage 6A free Block recording is verified and delivered in 0.5.0/build 9 (2026-10-26), following owner acceptance of the metronome. Physical phone acceptance remains pending. Stage 6B remains later; JSON backups do not contain audio, so per-take export is required.
+
+## Stage 6A — free Block recordings — 0.5.0 verified engineering release
+
+Focused Practice → Recordings or an existing Block editor → Recordings opens the same Block's saved takes, including archived Blocks. Tap Record take to request microphone permission if needed; after allowing it, tap Record take to start. Stop and save creates a new independent take with duration/date. Play/Stop, Rename, confirmed Delete and Export audio all operate on individual takes. Export is normal AAC/M4A through Android's file picker. Recordings follow the Block ID through renaming/archiving and different sessions. No take-count cap, overdubbing or loop controls.
+
+Timer and capture are independent; the Focused Practice recordings sheet includes the existing timer Start/Pause/Resume/Continue control, usable during capture. Capture can include the running metronome. Starting playback stops the click; background/leave stops microphone/playback, finalizing usable capture. Very short/failed/interrupted unsaved capture may be discarded with an error; previous saved takes remain. Restart/recreation never starts audio automatically. The screen stays awake during recording. Permission is requested only by Record take.
+
+**JSON backups exclude recordings and take labels.** Export each take you want to keep outside this app. Clearing/uninstalling/device loss destroys unexported audio. JSON restores practice data with no takes; there is no audio-inclusive bulk restore or automatic audio import. Full media backup is not claimed.
+
+Room 4 adds a separate take table via explicit 3→4 migration; practice data and JSON format 3/legacy readers remain intact. Private UUID pending files are validated/synced/renamed before metadata commit, with startup interrupted-file recovery. Source dfdf83b194c95fb0847ae5a1705b35708be0ead4 / https://github.com/mrayover/practice.logger/actions/runs/40447257853 passed 28 unit/Robolectric tests, lint (0 errors/10 existing warnings), and full Android 8/15 device suites including real encoder, document-picker export, reopen, upgrade and 200% text. Permanently signed ZIP/APK are above; exact hashes and certificate are in BUILD_INFO.json and CURRENT_STATE.md. Owner microphone/output quality remains a phone acceptance item. Stage 6B phrase looping will be a separate increment.

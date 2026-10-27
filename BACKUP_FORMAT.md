@@ -1,6 +1,6 @@
 # Backup format and safety
 
-Format identifier: `practice.logger.backup`. Writer format version: integer `3`; reader accepts legacy `1`/`2` and current `3`. UTF-8 JSON. Independent of Room schema version (currently 3). The app uses Android's CreateDocument/OpenDocument picker; it requests no broad storage permission. Android owns the picker typography.
+Format identifier: `practice.logger.backup`. Writer format version: integer `3`; reader accepts legacy `1`/`2` and current `3`. UTF-8 JSON. Independent of Room schema version (currently 4). The app uses Android's CreateDocument/OpenDocument picker; it requests no broad storage permission. Android owns the picker typography.
 
 Top-level fields: `format`, `version`, `blocks`, `sessions`, `placements`. All record fields for the declared format are required, including explicit JSON null for nullable values. Format 3 adds nullable placement lastUsedBpm; formats 1/2 omit it and import as null. Unknown extra fields are ignored; unknown format versions are rejected. IDs are preserved.
 
@@ -23,3 +23,13 @@ Stage 3 engineering checks are complete on the supported minimum API 26 and API 
 Format 2 extends the allowed session set to multiple IN_PROGRESS sessions plus at most one DRAFT. All per-session validation is retained. Legacy format 1 still requires at most one unfinished session; older app versions reject format 2 safely. The 0.3.3 increment kept Room schema 2; Stage 5 now explicitly migrates it to 3. Multi-session backup/restore/reopen is covered by a targeted unit test.
 
 Stage 5: Room 2→3 adds nullable lastUsedBpm without rewriting existing records. JSON format 3 exports this history value separately from the original tempo snapshot/default. Formats 1 and 2 restore with null lastUsedBpm; older app builds reject format 3 safely. Audio playback state is never backed up or resumed. No recording/audio files exist in Stage 5; JSON remains database-only.
+
+## Stage 6A recording limitation
+
+Room 3→4 creates a separate takes table (stable ID, Block ID, creation time, FREE mode, duration, private file name, optional label) with Block reference and unique file-name indexes. Existing practice tables and JSON format 3 remain unchanged; all old migrations/readers remain available.
+
+JSON export excludes both take metadata/labels and audio. Restoring JSON restores practice data with no takes, so it never creates playable-looking references to missing media. Archive/restoration of an existing Block retains its takes on the same device. Audio is held privately under files/recordings; platform backup/device transfer remain explicitly excluded.
+
+Use Export audio for each take to create a normal AAC/M4A file through Android's document picker. Export failure preserves the source but may leave a partial destination; retry to a new file. Exported audio has no automatic app import or bulk restoration path. Clearing/uninstalling the app or losing the phone loses unexported recordings and labels. Full audio-inclusive backup/restore is not implemented or claimed; later bulk portability must be designed and verified separately.
+
+Storage writes use generated UUID pending files, validated playable duration, file sync and rename before metadata commit. Startup removes interrupted/unreferenced generated files after successfully reading all metadata, while retaining saved takes and any current in-process capture. A killed unsaved capture may be discarded; previous saved takes remain. Missing/corrupt saved files report an error when accessed rather than fabricating playback. Delete removes one metadata row and its file; interrupted file cleanup is retried at startup.

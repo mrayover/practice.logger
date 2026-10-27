@@ -1,10 +1,10 @@
 # Phone testing checklist
 
-The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. Version 0.4.0 owner phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
+The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation checks are deferred by owner until after this build cycle; no detailed results are inferred. Detailed model/Android-version and individual checklist results were not supplied. The owner generally accepts 0.4.0; detailed audible checks were not supplied. Version 0.5.0 recording phone acceptance is pending and the deferred checks can wait until the owner is ready. Automated Android 8/15 picker and 200% text workflows pass; EVALUATION.md prepares Stage 4 (0/10 real sessions). Automated results are in CURRENT_STATE.md; they do not replace phone checks.
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.4.0-b8-4e08da1/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.4.0 (build 8). Install over 0.2.0 or 0.3.0 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.5.0-b9-dfdf83b/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.5.0 (build 9). Install over the permanent-key app through 0.4.0 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -62,4 +62,15 @@ Typing alone remains unsaved against abrupt process death; use the save actions.
 4. Background, rotate, leave/reopen, switch Block/session and force-stop/reopen. Audio must stop and remain silent until Start click. Repeat start/stop rapidly; try an audio interruption/headphone route safely. Never infer audible success from a displayed Stop click label.
 5. Use 126 BPM, leave/reopen and confirm working BPM persists without changing the Block's reference. Complete/Skip and reopen Summary: Last used click is 126 BPM. An unused click leaves no used BPM. Old history stays intact. Check large text/TalkBack.
 
-Record exact phone/Android/build and audible timing/lifecycle findings in WORK_LOG.md. Automated emulators do not prove physical click audibility/timing. Recording remains a later increment.
+Record exact phone/Android/build and audible timing/lifecycle findings in WORK_LOG.md. Automated emulators do not prove physical click audibility/timing. Free recording is now delivered in 0.5.0; phrase looping remains later.
+
+## Stage 6A free recordings — phone checks pending
+
+1. Install the permanently signed 0.5.0 update over 0.4.0 without uninstalling. Check old Blocks, sessions, notes, history and metronome. In Focused Practice tap Recordings. Deny microphone permission once: no take or crash. Allow it on a later request (or in app settings if Android stops asking), then tap Record take to begin.
+2. Capture at least two takes while speaking/playing; stop and save each. Check recording state/elapsed time and listen to actual content. BPM is optional. Start click before recording if desired; bleed is accepted. Use Pause timer/Resume timer inside the sheet during capture; capture must continue. Starting/stopping capture must not change the timer.
+3. Play each take, switch playback, stop, rename one, cancel deletion, then confirm deletion of an unwanted take. Export one through the file picker and play the exported M4A outside the app. Failed/cancelled export must retain the source. No arbitrary take-count cap.
+4. Start a take, background/leave/rotate: microphone must stop, with usable capture saved after validation; playback must stop and never restart automatically. If a very short capture is invalid, show an error and preserve older takes. Force-stop during an unsaved capture only with disposable material; it may be discarded. Restart and verify previously saved takes still play.
+5. Edit/rename/archive the Block, open Recordings from its editor, and verify the same takes remain. Revisit the Block in another session; recordings follow the reusable Block, not a placement. Try large text/TalkBack and normal output routes; playback stops the click, capture can include it.
+6. Verify the prominent JSON exclusion notice. Export each take you want to keep elsewhere: JSON backups do not contain audio or take labels, and audio cannot be restored from JSON. Do not uninstall/clear the real app for testing. Use a spare/disposable installation for JSON restore checks.
+
+Record exact phone/Android/build, microphone/output quality, permission/interruption behavior and any failures in WORK_LOG.md. CI encoder/container/UI tests do not establish physical microphone quality. Phrase looping/count-in remain Stage 6B, not this increment.
