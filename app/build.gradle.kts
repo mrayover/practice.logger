@@ -23,6 +23,8 @@ android {
     sourceSets.getByName("test").resources.srcDir("schemas")
 }
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
+// Both variants export the same Room schema. Serialize first generation to avoid a partial JSON read.
+tasks.matching { it.name == "kspReleaseKotlin" }.configureEach { mustRunAfter("kspDebugKotlin") }
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2025.12.01"))
     implementation("androidx.activity:activity-compose:1.12.2")

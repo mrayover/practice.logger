@@ -146,3 +146,5 @@ Append-only session record. Times/dates use America/Los_Angeles.
 - Implementation and new verification pending; no new APK or audible-phone success claimed.
 
 - Stage 5 source checkpoint: sample-clock PCM AudioTrack metronome, independent BPM controls and foreground/Block stop, placement lastUsedBpm, explicit Room 2→3 migration, JSON writer 3/readers 1–3, unit/migration/device checks and version 0.4.0/build 8. Build/test/lint/CI and signed packaging are pending; phone audibility remains pending.
+
+- First run 40438831387 failed during concurrent debug/release Room schema generation: release read the newly generated schema before its write completed (EOF JSON). No tests/device success claimed. Serialize kspReleaseKotlin after kspDebugKotlin; retain generated schema after successful verification. Next run must validate build and regressions.
