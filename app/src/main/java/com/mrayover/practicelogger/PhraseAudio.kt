@@ -59,8 +59,10 @@ fun phraseTrack(samples: ShortArray, repeat: Boolean): AudioTrack {
             .setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
         .setTransferMode(AudioTrack.MODE_STATIC).setBufferSizeInBytes(samples.size * 2).build()
     try {
-        check(audio.state == AudioTrack.STATE_INITIALIZED)
+        // MODE_STATIC is valid but has no data until the first write completes.
+        check(audio.state != AudioTrack.STATE_UNINITIALIZED)
         check(audio.write(samples, 0, samples.size) == samples.size)
+        check(audio.state == AudioTrack.STATE_INITIALIZED)
         if (repeat) check(audio.setLoopPoints(0, samples.size, -1) == AudioTrack.SUCCESS)
         return audio
     } catch (failure: Exception) { audio.release(); throw failure }

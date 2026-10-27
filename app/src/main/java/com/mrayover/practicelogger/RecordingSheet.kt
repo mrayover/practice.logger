@@ -4,6 +4,8 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -118,7 +120,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         val bpm = phraseBpm.toIntOrNull()
         val spec = bpm?.takeIf { it in 30..300 }?.let { PhraseSpec(it, phraseBeats) }
         AlertDialog(onDismissRequest = { phraseDialog = false }, title = { Text("Record one phrase") }, text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM (30–300)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = spec == null, singleLine = true)
                 Text("Phrase length in beats")

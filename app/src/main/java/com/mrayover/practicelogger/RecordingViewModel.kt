@@ -189,7 +189,8 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                 }
                 message = if (generation == audioGeneration) "Phrase saved. Looping at ${spec.bpm} BPM." else "Complete phrase saved. Playback stopped."
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) {
+            catch (failure: Exception) {
+                android.util.Log.e("PhraseCapture", "Phrase capture or commit failed", failure)
                 if (generation == audioGeneration) message = "Phrase not saved. Check microphone, audio output and storage, then retry. Earlier takes were kept."
             } finally {
                 withContext(NonCancellable + Dispatchers.IO) { draft?.let(repository::abandon) }

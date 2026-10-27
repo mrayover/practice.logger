@@ -64,7 +64,7 @@ Typing alone remains unsaved against abrupt process death; use the save actions.
 
 Record exact phone/Android/build and audible timing/lifecycle findings in WORK_LOG.md. Automated emulators do not prove physical click audibility/timing. Free recording is now delivered in 0.5.0; phrase looping remains later.
 
-## Stage 6A free recordings — phone checks pending
+## Stage 6A free recordings — generally accepted by owner 2026-10-27; individual results not supplied
 
 1. Install the permanently signed 0.5.0 update over 0.4.0 without uninstalling. Check old Blocks, sessions, notes, history and metronome. In Focused Practice tap Recordings. Deny microphone permission once: no take or crash. Allow it on a later request (or in app settings if Android stops asking), then tap Record take to begin.
 2. Capture at least two takes while speaking/playing; stop and save each. Check recording state/elapsed time and listen to actual content. BPM is optional. Start click before recording if desired; bleed is accepted. Use Pause timer/Resume timer inside the sheet during capture; capture must continue. Starting/stopping capture must not change the timer.
@@ -74,3 +74,13 @@ Record exact phone/Android/build and audible timing/lifecycle findings in WORK_L
 6. Verify the prominent JSON exclusion notice. Export each take you want to keep elsewhere: JSON backups do not contain audio or take labels, and audio cannot be restored from JSON. Do not uninstall/clear the real app for testing. Use a spare/disposable installation for JSON restore checks.
 
 Record exact phone/Android/build, microphone/output quality, permission/interruption behavior and any failures in WORK_LOG.md. CI encoder/container/UI tests do not establish physical microphone quality. Phrase looping/count-in remain Stage 6B, not this increment.
+
+## Stage 6B phrase loops — physical phone checks pending
+1. Install the signed 0.6.0 update over 0.5.0 without uninstalling. Verify saved free takes, labels, Blocks, notes/history and sessions still work. Open an existing Block's Recordings and keep at least one free take alongside new loops.
+2. Record phrase: confirm 120 BPM and 8 beats (4.00 seconds). Tap Start 4-click count-in, hear four even clicks, and start playing on the next beat. Recording must stop automatically after one phrase, save a new loop and repeat only that phrase until Stop loop. Listen across at least ten repeats for a gap/click or drift. No measured/latency-free/seamless phone result is inferred from CI.
+3. Create a second loop at another tempo/length; use 4/8/16/32 beats and try 60/120/180 BPM. BPM input outside30–300 or non-whole values must not start. Compare intended phrase length with a known click/reference. Input/output latency may shift the capture onset; report route and audible boundary behavior.
+4. Stop/restart each saved loop; labels show its recorded BPM/beats/date. Regular working BPM changes must not speed/pitch-shift existing audio. To record another tempo create another take. Pause/resume the practice timer during capture; it stays independent. No overdubs/layers/trimming.
+5. Cancel during count-in and during capture; no partial saved loop or overwrite. Background/leave/rotate during capture: incomplete phrase discarded, saved takes kept. Background/leave/rotate during repeat: stop, remain silent until explicit Play loop. Try interruption/route change safely. No background mic or automatic restart.
+6. Rename a loop, cancel/confirm deletion of an unwanted take, export a loop through the file picker and play the WAV outside the app. Export is a single phrase, not an infinitely repeated file. Failed/cancelled export keeps original. Reopen/restart the app and play both retained loops and the free take; rename/archive the Block and verify its takes remain accessible in the editor. Try 200% text and TalkBack.
+7. JSON backups still exclude free/loop audio and take metadata/labels. Export desired takes separately. Do not uninstall/clear your real app. Full save/storage/bulk restoration decisions are deferred to the owner's discussion after looping.
+Record phone, Android version, app build, output route, microphone quality, four-click onset alignment and repeat-boundary findings in WORK_LOG.md. Existing Stage3 manual backup acceptance and Stage4 0/10 are unchanged.
