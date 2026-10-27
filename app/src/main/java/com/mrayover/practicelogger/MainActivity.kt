@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) }, onSummary = { summaryId = it; page = "summary" })
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
-            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it })
+            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message)
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" })
             "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { page = "home" }) { Text("Back to Home") }
@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
                 } else key(editorId) {
                     BlockEditor(block, vm.busy, onCancel = { page = editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
-                        onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } })
+                        onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }
             }
         }
@@ -140,7 +140,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -158,6 +158,7 @@ class MainActivity : ComponentActivity() {
         Text(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.headlineMedium)
         if (block?.archived == true) Text("Archived — restore to return this Block to your active library.")
         if (block != null) OutlinedButton(onClick = onRecordings, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
+        if (block != null) recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         EditorField("Name", name, { name = it }, errors["name"], busy, singleLine = true)
         EditorField("Action", action, { action = it }, errors["action"], busy)
         EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true)
