@@ -26,11 +26,12 @@ class GoalWorkflowTest {
             compose.onNodeWithText("Goal notes (optional)").performScrollTo().performTextInput("Listen and assess")
             compose.activityRule.scenario.recreate(); shown("Goal title")
             compose.onNodeWithText("Goal title").assertTextContains("Goal workflow")
+            captureStage3("goal-00-editor")
             click("Save Goal"); shown("37% complete · set by you")
             val id = runBlocking { db.goals().readAll().single { it.goal.title == "Goal workflow" }.goal.id }
             click("Manage Blocks"); click("Add Goal active fixture")
             shown("Remove Goal active fixture"); click("Add Goal archived fixture")
-            shown("Remove Goal archived fixture"); click("Back to Goal")
+            shown("Remove Goal archived fixture"); captureStage3("goal-00-blocks"); click("Back to Goal")
             runBlocking { BlockRepository(db).setArchived(archived, true) }
             shown("Archived: Goal archived fixture · 1 min")
             captureStage3("goal-01-detail")

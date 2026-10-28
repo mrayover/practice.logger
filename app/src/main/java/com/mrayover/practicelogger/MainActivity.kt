@@ -46,7 +46,6 @@ class MainActivity : ComponentActivity() {
 @Suppress("DEPRECATION")
 @Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel()) {
     val goalRows by goals.goals.collectAsStateWithLifecycle()
-    val goalTimes by goals.times.collectAsStateWithLifecycle()
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
     var goalEditorId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -129,9 +128,12 @@ class MainActivity : ComponentActivity() {
                 onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
-            "goal-detail" -> GoalDetail(goalRows.find { it.goal.id == goalId }, catalog.blocks, goalTimes.find { it.goalId == goalId }?.activeMs ?: 0L,
+            "goal-detail" -> {
+                val goalTimes by goals.times.collectAsStateWithLifecycle()
+                GoalDetail(goalRows.find { it.goal.id == goalId }, catalog.blocks, goalTimes.find { it.goalId == goalId }?.activeMs ?: 0L,
                 goals, practice, onGoals = { page = "goals" }, onEdit = { goalEditorId = goalId; page = "goal-editor" },
                 onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") })
+            }
             "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
                 onCancel = { page = if (goalEditorId == null) "goals" else "goal-detail" }) }
             "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,

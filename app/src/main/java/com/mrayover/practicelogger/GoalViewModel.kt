@@ -15,7 +15,7 @@ class GoalViewModel(application: Application) : AndroidViewModel(application) {
     val goals = repository.goals.onEach { ready = true }.catch { error = "Goals could not be loaded. Close and reopen to retry." }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val times = db.goals().observeTime().catch { error = "Goal practice time could not be loaded." }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), emptyList())
     val links = db.goals().observeSessions().catch { error = "Goal session links could not be loaded." }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     var busy by mutableStateOf(false); private set
