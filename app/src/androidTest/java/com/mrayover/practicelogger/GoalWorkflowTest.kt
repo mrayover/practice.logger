@@ -82,6 +82,7 @@ class GoalReopenTest {
         try {
             val g = runBlocking { db.goals().readAll().single { it.goal.title == "Goal workflow edited" } }
             val rows = runBlocking { db.goals().readSessions().filter { it.goalId == g.goal.id }.map { db.sessions().find(it.sessionId)!! } }
+            assertNotNull(runBlocking { db.sessions().withStatus("DRAFT") })
             assertEquals(37, g.goal.progress); assertEquals(2, rows.size)
             assertEquals(1, rows.count { it.session.status == "COMPLETED" }); assertEquals(1, rows.count { it.session.status == "IN_PROGRESS" })
             assertTrue(rows.sumOf { it.activeMs } > 0)

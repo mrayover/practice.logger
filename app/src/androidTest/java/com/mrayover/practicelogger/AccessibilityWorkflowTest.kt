@@ -63,7 +63,8 @@ class AccessibilityWorkflowTest {
         click("Close recordings"); click("Back to Home")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
-            runBlocking { BlockRepository(db).save(null, BlockDraft("Accessible fixture", "Play slowly with relaxed hands", "1")) }
+            // Goal recovery already verified the preserved draft. Reset only this disposable test fixture.
+            runBlocking { SessionRepository(db).discardDraft(); BlockRepository(db).save(null, BlockDraft("Accessible fixture", "Play slowly with relaxed hands", "1")) }
             openHomeRoutines(compose); readable("New Routine"); click("New Routine")
             shown("Routine name"); readable("Routine name")
             compose.onNodeWithText("Routine name").performTextInput("Large text routine")
