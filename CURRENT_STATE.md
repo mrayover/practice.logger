@@ -1,3 +1,9 @@
+# Visual polish0.11.1/build21 — build pending
+
+Cream#F1E6D3, thin Home saved-percentage Goal bars, outlined/bold Back to Home. No functional/data/schema changes. Existing signed build20 retained. Exact next task: run established CI, sign build21 immediately, inspect normal/200% screenshots, update records and push. Usage23%remaining; development cutoff8%.
+
+## Previous release record
+
 # Current state — Goals0.11.0/build20 finalized
 
 ## Goals 0.11.0/build20 — finalized at owner request, 2026-10-28 America/Los_Angeles

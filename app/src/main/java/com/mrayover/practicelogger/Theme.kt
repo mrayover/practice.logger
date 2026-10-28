@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.*
 
 val Lato = FontFamily(Font(R.font.lato_regular, FontWeight.Normal), Font(R.font.lato_bold, FontWeight.Bold))
-val PracticeCream = Color(0xFFFFF8EB)
+val PracticeCream = Color(0xFFF1E6D3)
 val PracticeGreen = Color(0xFF315C47)
 private val base = Typography()
 val LatoTypography = Typography(

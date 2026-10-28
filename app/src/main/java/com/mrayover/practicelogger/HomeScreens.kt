@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,10 +57,16 @@ import kotlin.math.sin
                         repeat(2) { index ->
                             if (index > 0) HorizontalDivider(color = PracticeGreen.copy(alpha = 0.35f))
                             val goal = homeGoals(goals).getOrNull(index)?.goal
-                            Box(Modifier.fillMaxWidth().clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
+                            Column(Modifier.fillMaxWidth().clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
                                 if (goal == null) onGoals() else onGoal(goal.id)
-                            }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}%", color = PracticeGreen, fontSize = 16.sp)
+                                if (goal != null) LinearProgressIndicator(
+                                    progress = { goal.progress / 100f }, color = PracticeGreen,
+                                    trackColor = PracticeGreen.copy(alpha = 0.18f),
+                                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Butt, gapSize = 0.dp,
+                                    drawStopIndicator = {},
+                                    modifier = Modifier.fillMaxWidth().height(3.dp).testTag("home-goal-progress-${goal.id}"))
                             }
                         }
                     }
@@ -85,6 +92,14 @@ import kotlin.math.sin
     }
 }
 
+@Composable fun BackToHomeButton(onClick: () -> Unit, enabled: Boolean = true) {
+    OutlinedButton(onClick = onClick, enabled = enabled,
+        modifier = Modifier.heightIn(min = 48.dp), border = BorderStroke(1.5.dp, PracticeGreen),
+        shape = RoundedCornerShape(8.dp)) {
+        Text("Back to Home", fontWeight = FontWeight.Bold)
+    }
+}
+
 @Composable fun HomeButton(label: String, action: () -> Unit) {
     Button(onClick = action, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
         shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White)) {
@@ -96,7 +111,7 @@ import kotlin.math.sin
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = onHome) { Text("Back to Home") }
+        BackToHomeButton(onClick = onHome)
         Text("Tools", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Metronome") { onTool("metronome") }
         HomeButton("Tuner") { onTool("tuner") }
@@ -109,7 +124,7 @@ import kotlin.math.sin
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = onHome) { Text("Back to Home") }
+        BackToHomeButton(onClick = onHome)
         Text("Recording", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Free recording") { onFree(true) }
         TextButton(onClick = { onFree(false) }) { Text("Saved free recordings") }

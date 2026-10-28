@@ -160,7 +160,7 @@ class MainActivity : ComponentActivity() {
                 val matches = matchingBlocks(catalog.blocks, query, archived)
                 LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
-                    item { TextButton(onClick = { page = "home" }) { Text("Back to Home") } }
+                    item { BackToHomeButton(onClick = { page = "home" }) }
                     item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
                     item { Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") } }
                     item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,

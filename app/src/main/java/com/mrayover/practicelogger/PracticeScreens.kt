@@ -28,7 +28,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 @Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit, routines: RoutineViewModel, practice: PracticeViewModel, onNewRoutine: () -> Unit, onEditRoutine: (String) -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = onHome) { Text("Back to Home") }
+        BackToHomeButton(onClick = onHome)
         Text("Routines", style = MaterialTheme.typography.headlineLarge)
         SavedRoutines(catalog, routines, practice, onNewRoutine, onEditRoutine)
         ActionButton("Practice Now", onPractice)
@@ -58,7 +58,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val entries = draft?.ordered ?: emptyList()
     BackHandler { onHome() }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = onHome) { Text("Back to Home") }
+        BackToHomeButton(onClick = onHome)
         if (sessions.unfinished.isNotEmpty()) {
             Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             Text("Continue saved practice below, or build a new session. All sessions resume paused.")
