@@ -82,7 +82,7 @@ jobs:
             adb shell locksettings set-disabled true
             adb shell wm dismiss-keyguard
             adb shell pm clear com.mrayover.practicelogger.app || true
-            bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest --stacktrace
+            bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ProcessReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/process-reopen.txt

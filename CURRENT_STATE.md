@@ -39,3 +39,5 @@ Routines first build milestone: source f2b6d02, CI40717132554 build success;51 u
 Device checkpoint: CI40718045337 API35 initial+22phases pass. API26 LaunchTest fails to find editor after unscrolled tap; test scroll/wait fix prepared and now publishing. All51 unit/lint/debug/release pass; full rerun, screenshot review, signing and closing records still next.
 
 CI40720805649: source2e47c58 build51unit/lint0errors10warnings passes; API35 initial+21phases passes then200% click races catalog fixture readiness. Exact-target wait correction prepared and now publishing. API26 long-running job will be superseded by this rerun; inspect cancelled log, do not count as pass. No signed0.10.0 release yet; final gates/signing/closing records still next.
+
+API26 cancelled log shows initial LaunchTest stall, not routine progress; explicit keyboard dismissal/list scroll/displayed/editor waits plus120sec initial-test bound now prepared. Accessibility exact-target wait retained. Need combined fresh CI then screenshots/signing/closing logs.

@@ -8,6 +8,24 @@ import org.junit.Test
 class LaunchTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(10000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
+    private fun openSmoke() {
+        // A recreated text editor can leave IME covering the library's small viewport on API26.
+        compose.activityRule.scenario.onActivity { activity ->
+            val input = activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            input.hideSoftInputFromWindow(activity.window.decorView.windowToken, 0)
+        }
+        compose.waitUntil(10000) {
+            var hidden = false
+            compose.activityRule.scenario.onActivity { activity ->
+                hidden = androidx.core.view.ViewCompat.getRootWindowInsets(activity.window.decorView)
+                    ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
+            }
+            hidden
+        }
+        compose.onNodeWithTag("block-library").performScrollToNode(hasText("Restart smoke"))
+        compose.onNodeWithText("Restart smoke").assertIsDisplayed().performClick()
+        shown("Edit Block")
+    }
     @Test fun catalogWorkflowAndDraftRecovery() {
         shown("Practice Now")
         compose.onNodeWithText("Goals").assertExists()
@@ -38,7 +56,7 @@ class LaunchTest {
         compose.activityRule.scenario.recreate()
         shown("Block Library")
         shown("Restart smoke")
-        compose.onNodeWithText("Restart smoke").performScrollTo().performClick()
+        openSmoke()
         shown("Default duration (minutes)")
         compose.onNodeWithTag("Default duration (minutes)").performScrollTo().performTextReplacement("8")
         compose.onNodeWithText("Save").performScrollTo().performClick()
@@ -47,7 +65,7 @@ class LaunchTest {
         compose.onNodeWithText("Search Blocks").performTextInput("nonexistent")
         compose.onNodeWithText("No matching Blocks.").assertIsDisplayed()
         compose.onNodeWithText("Search Blocks").performTextReplacement("bridge")
-        compose.onNodeWithText("Restart smoke").assertExists().performClick()
+        openSmoke()
         compose.onNodeWithText("Archive Block").performScrollTo().performClick()
         compose.onNodeWithText("Archive").performClick()
         shown("Block Library")
@@ -55,12 +73,12 @@ class LaunchTest {
         compose.onNodeWithText("Active", useUnmergedTree = true).performClick()
         compose.onNodeWithText("No Blocks yet. Create your first Block.").assertExists()
         compose.onNodeWithText("Archived", useUnmergedTree = true).performClick()
-        compose.onNodeWithText("Restart smoke").performScrollTo().performClick()
+        openSmoke()
         compose.onNodeWithText("Restore Block").performScrollTo().performClick()
         compose.onNodeWithText("Restore", substring = false).performClick()
         shown("Block Library")
         shown("Restart smoke")
-        compose.onNodeWithText("Restart smoke").performScrollTo().performClick()
+        openSmoke()
         compose.onNodeWithTag("Name").performTextReplacement("Discard me")
         compose.onNodeWithText("Cancel").performScrollTo().performClick()
         compose.onNodeWithText("Keep editing").performClick()

@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
                 }
                 val matches = matchingBlocks(catalog.blocks, query, archived)
                 if (matches.isEmpty()) Text(if (query.isNotBlank()) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.")
-                LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp)) {
+                LazyColumn(Modifier.weight(1f).testTag("block-library"), contentPadding = PaddingValues(bottom = 24.dp)) {
                     items(matches, key = { it.id }) { block ->
                         Column(Modifier.fillMaxWidth().clickable(onClickLabel = "Edit " + block.name) { openEditor(block.id) }.heightIn(min = 64.dp).padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(block.name, style = MaterialTheme.typography.titleLarge)
