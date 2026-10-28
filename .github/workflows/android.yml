@@ -21,7 +21,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: android-${{ github.ref }}
+  group: android-${{ github.ref }}-${{ inputs.test_class || 'release' }}-${{ inputs.api || 'all' }}
   cancel-in-progress: true
 jobs:
   build:
