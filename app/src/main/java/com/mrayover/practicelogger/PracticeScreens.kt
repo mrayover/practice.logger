@@ -122,7 +122,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 
-@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?) {
+@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null) {
 
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
@@ -139,6 +139,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.titleMedium)
+        goalName?.let { Text("Goal: " + it) }
         Text(current.name, style = MaterialTheme.typography.headlineLarge)
         Text(current.action, style = MaterialTheme.typography.titleLarge)
         current.tempo?.let { Text(it.toString() + " BPM reference") }
@@ -162,7 +163,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
 }
 
-@Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit) {
+@Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null) {
     BackHandler { onHome() }
     if (bundle == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available."); ActionButton("Home", onHome) }
@@ -171,6 +172,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     var note by rememberSaveable(bundle.session.id) { mutableStateOf(bundle.session.note) }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        goalName?.let { Text("Goal: " + it) }
         Text(sessionDate(bundle.session.startedAt))
         Text(practiceTime(bundle.activeMs) + " active practice", style = MaterialTheme.typography.headlineSmall)
         bundle.ordered.forEach { placement ->

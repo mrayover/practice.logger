@@ -1,6 +1,7 @@
 package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +26,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit) {
+    onTools: () -> Unit, onRecording: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(PracticeCream)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -36,7 +37,7 @@ import kotlin.math.sin
                     Box(Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
                         Text("Goals", modifier = Modifier.align(Alignment.Center).semantics { heading() },
                             fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = PracticeGreen)
-                        IconButton(onClick = {}, enabled = false, modifier = Modifier.align(Alignment.CenterEnd)
+                        IconButton(onClick = onGoals, modifier = Modifier.align(Alignment.CenterEnd)
                             .semantics { contentDescription = "Goal settings" }) {
                             Canvas(Modifier.size(24.dp)) {
                                 val radius = size.minDimension / 2f
@@ -51,17 +52,19 @@ import kotlin.math.sin
                             }
                         }
                     }
-                    Column(Modifier.fillMaxWidth().border(1.dp, PracticeGreen, RoundedCornerShape(6.dp)).testTag("goals-placeholder")) {
+                    Column(Modifier.fillMaxWidth().border(1.dp, PracticeGreen, RoundedCornerShape(6.dp)).testTag("home-goals")) {
                         repeat(2) { index ->
                             if (index > 0) HorizontalDivider(color = PracticeGreen.copy(alpha = 0.35f))
-                            Box(Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(horizontal = 16.dp, vertical = 8.dp)
-                                .semantics { contentDescription = "Goal ${index + 1}, empty" }) {
-                                Text("${index + 1}.", color = PracticeGreen.copy(alpha = 0.65f), fontSize = 16.sp)
+                            val goal = homeGoals(goals).getOrNull(index)?.goal
+                            Box(Modifier.fillMaxWidth().clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
+                                if (goal == null) onGoals() else onGoal(goal.id)
+                            }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
+                                Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}%", color = PracticeGreen, fontSize = 16.sp)
                             }
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = {}, enabled = false,
+                        TextButton(onClick = onGoals,
                             colors = ButtonDefaults.textButtonColors(disabledContentColor = PracticeGreen)) {
                             Text("Edit", fontWeight = FontWeight.Bold)
                         }

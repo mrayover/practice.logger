@@ -39,8 +39,8 @@ class LaunchTest {
     @Test fun catalogWorkflowAndDraftRecovery() {
         shown("Practice Now")
         compose.onNodeWithText("Goals").assertExists()
-        compose.onNodeWithTag("goals-placeholder").assertExists()
-        compose.onNodeWithText("Edit").assertIsNotEnabled()
+        compose.onNodeWithTag("home-goals").assertExists()
+        compose.onNodeWithText("Edit").assertIsEnabled()
         captureStage3("00-home")
         compose.onNodeWithText("Recording").performScrollTo().performClick()
         shown("Choose a Block")

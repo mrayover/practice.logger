@@ -147,6 +147,21 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         }
         session.id
     }
+    /** Explicit attribution only; ignores archived links with a visible explanation in Goal detail. */
+    suspend fun startGoal(goalId: String): String = db.withTransaction {
+        val goal = checkNotNull(db.goals().find(goalId)) { "This Goal is unavailable." }
+        require(!goal.goal.completed) { "Reopen this Goal before practicing." }
+        val blocks = goal.ordered.mapNotNull { db.blocks().find(it.blockId)?.takeUnless { b -> b.archived } }
+        require(blocks.isNotEmpty()) { "Add an active Block to this Goal before practicing." }
+        val session = PracticeSession(UUID.randomUUID().toString(), now(), status = "IN_PROGRESS")
+        dao.insert(session)
+        db.goals().insert(GoalSession(session.id, goalId))
+        blocks.forEachIndexed { i, block ->
+            dao.insert(Placement(UUID.randomUUID().toString(), session.id, block.id, block.name, block.action,
+                block.tempo, block.notes, i, block.durationMinutes.toLong() * 60_000L))
+        }
+        session.id
+    }
     private suspend fun active(id: String): SessionBundle = checkNotNull(dao.find(id)).also { check(it.session.status == "IN_PROGRESS") }
     suspend fun checkpoint(id: String, deltaMs: Long): Placement = db.withTransaction {
         val placement = checkNotNull(active(id).current)

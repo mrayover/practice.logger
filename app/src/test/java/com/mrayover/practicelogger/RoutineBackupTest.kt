@@ -28,7 +28,7 @@ class RoutineBackupTest {
         var target = BlockDatabase.open(context, name)
         try {
             val original = fixture(source); val bytes = BackupCodec.encode(original)
-            assertEquals(4, JSONObject(String(bytes)).getInt("version"))
+            assertEquals(5, JSONObject(String(bytes)).getInt("version"))
             assertEquals(original, BackupCodec.decode(bytes))
             BackupRepository(target).restore(BackupCodec.decode(bytes))
             target.close(); target = BlockDatabase.open(context, name)
@@ -79,7 +79,7 @@ class RoutineBackupTest {
                 val root = JSONObject(String(BackupCodec.encode(data))); root.remove(key)
                 try { BackupCodec.decode(root.toString().toByteArray()); fail("Missing Routine array accepted") } catch (_: org.json.JSONException) { }
             }
-            val unsupported = JSONObject(String(BackupCodec.encode(data))).put("version", 5)
+            val unsupported = JSONObject(String(BackupCodec.encode(data))).put("version", 6)
             try { BackupCodec.decode(unsupported.toString().toByteArray()); fail("Future format accepted") } catch (_: IllegalArgumentException) { }
         } finally { db.close() }
     }

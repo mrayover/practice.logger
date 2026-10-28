@@ -42,7 +42,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel()) {
+    val goalRows by goals.goals.collectAsStateWithLifecycle()
+    val goalTimes by goals.times.collectAsStateWithLifecycle()
+    val goalLinks by goals.links.collectAsStateWithLifecycle()
+    var goalId by rememberSaveable { mutableStateOf<String?>(null) }
+    var goalEditorId by rememberSaveable { mutableStateOf<String?>(null) }
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val view = LocalView.current
@@ -99,6 +104,12 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(routines.editorSaved) {
         if (routines.editorSaved) { focus.clearFocus(force = true); keyboard?.hide(); page = "routines"; routines.navigationHandled() }
     }
+    LaunchedEffect(goals.savedId) {
+        goals.savedId?.let { id ->
+            focus.clearFocus(force = true); keyboard?.hide(); goalId = id; page = "goal-detail"; goals.navigationHandled()
+        }
+    }
+    fun goalName(sessionId: String?): String? = goalLinks.find { it.sessionId == sessionId }?.let { link -> goalRows.find { it.goal.id == link.goalId }?.goal?.title }
     fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
     fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
     BackHandler(page == "library") { page = "home" }
@@ -112,7 +123,17 @@ class MainActivity : ComponentActivity() {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
             "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
-                onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" })
+                onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
+                onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+            "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
+                onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
+            "goal-detail" -> GoalDetail(goalRows.find { it.goal.id == goalId }, catalog.blocks, goalTimes.find { it.goalId == goalId }?.activeMs ?: 0L,
+                goals, practice, onGoals = { page = "goals" }, onEdit = { goalEditorId = goalId; page = "goal-editor" },
+                onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") })
+            "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
+                onCancel = { page = if (goalEditorId == null) "goals" else "goal-detail" }) }
+            "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,
+                onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
             "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
@@ -124,8 +145,8 @@ class MainActivity : ComponentActivity() {
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
-            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message)
-            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" })
+            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id))
+            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" }, goalName = goalName(summaryId))
             "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { page = "home" }) { Text("Back to Home") }
                 Text("Block Library", style = MaterialTheme.typography.headlineMedium)
@@ -173,6 +194,10 @@ class MainActivity : ComponentActivity() {
         }
         practice.error?.let { message ->
             AlertDialog(onDismissRequest = practice::dismissError, title = { Text("Practice paused") }, text = { Text(message) }, confirmButton = { TextButton(onClick = practice::dismissError) { Text("OK") } })
+        }
+        goals.error?.let { message ->
+            AlertDialog(onDismissRequest = goals::dismissError, title = { Text("Goal could not be updated") }, text = { Text(message) },
+                confirmButton = { TextButton(onClick = goals::dismissError) { Text("OK") } })
         }
         routines.error?.let { message ->
             AlertDialog(onDismissRequest = routines::dismissError, title = { Text("Routine could not be updated") }, text = { Text(message) },

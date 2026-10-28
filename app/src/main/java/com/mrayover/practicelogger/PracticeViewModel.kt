@@ -171,6 +171,12 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         running = false
         operation { flush(until); anchor = null; selectSession(repository.startRoutine(id)) }
     }
+    fun startGoal(id: String) {
+        if (busy) return
+        // Goal detail is outside Focused Practice; never interrupt a running session.
+        if (running || clicking) { error = "Save your current practice for later before starting a Goal session."; return }
+        operation { selectSession(repository.startGoal(id)) }
+    }
     fun finish(outcome: String, note: String) {
         if (busy) return
         stopClick()

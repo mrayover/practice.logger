@@ -1,15 +1,21 @@
-# Current state — Saved Routines 0.10.0/build16
+# Current work — Goals 0.11.0/build17 (verification pending)
+
+Goals scope approved and implementation prepared: five active/manual progress/order/Home/detail/shared Blocks/independent attributed sessions. Room8 additive migration and JSON5 with legacy1–4 readers. Focused tests and full API26/35 verification pending; no new signed build yet. Last verified release remains0.10.0/build16 below. Owner authorizes all pushes for this increment; mandatory efficiency procedure reviewed. Stage3 phone acceptance pending; Stage4 stays0/10.
+
+Exact next task: run focused Goal checks, then full regression/device/screenshots; retain generated8.json, sign early candidate using permanent publisher and complete verified delivery/docs/push.
+
+# Current state â€” Saved Routines 0.10.0/build16
 
 
-## 0.10.0/build16 — Saved Routines verified delivery, 2026-10-28 America/Los_Angeles
+## 0.10.0/build16 â€” Saved Routines verified delivery, 2026-10-28 America/Los_Angeles
 
-Implemented reusable named ordered Routine templates with stable Block references and independent placement durations. Builder Save as Routine leaves draft/Blocks unchanged and starts no practice. Home → Routines provides create/edit/rename/add/remove/reorder/whole-minute duration/confirmed delete/Practice Routine above retained Recent Practice/history. Editor state survives recreation; Back confirms unsaved discard. Duplicate Block placements work. Missing/archived references are explicit and prevent the whole start; edit/remove/replace or restore the Block, never silently skip.
+Implemented reusable named ordered Routine templates with stable Block references and independent placement durations. Builder Save as Routine leaves draft/Blocks unchanged and starts no practice. Home â†’ Routines provides create/edit/rename/add/remove/reorder/whole-minute duration/confirmed delete/Practice Routine above retained Recent Practice/history. Editor state survives recreation; Back confirms unsaved discard. Duplicate Block placements work. Missing/archived references are explicit and prevent the whole start; edit/remove/replace or restore the Block, never silently skip.
 
 Changed components: new RoutineData.kt, RoutineViewModel.kt, RoutineScreens.kt, RoutineRepositoryTest.kt, RoutineBackupTest.kt and RoutineWorkflowTest.kt; integrated BlockDatabase.kt, SessionData.kt, PracticeViewModel.kt, PracticeScreens.kt, MainActivity.kt, BackupData.kt and BackupScreen.kt. Extended SystemPickerTest.kt and AccessibilityWorkflowTest.kt; synchronized existing LaunchTest.kt; updated app/build.gradle.kts, android.yml, generated7.json and all seven project documents. Publisher, signing material, audio implementation and original prefixed plans untouched.
 
 Practice Routine creates a fresh paused IN_PROGRESS session using current Block name/action/tempo/reference notes and saved Routine durations through existing SessionRepository/PracticeViewModel. Each start gets independent session/placement IDs, time, notes, BPM/outcomes. Builder draft and other unfinished sessions remain; later Block/template changes and deleting a template cannot rewrite earlier sessions/history. Existing timers/overtime/Complete/Skip/click/Block free/loop recordings/notes/summary/recovery reused.
 
-Room7 explicit6→7 adds routines/routine_placements and FK/indexes only; compiler-generated7.json identity752227f5c28e47ea770144988e8d8cab committed. Compared schema6→7: all four original entity definitions unchanged. Existing migrations retained, no destructive fallback. JSON4 includes routine/entry arrays and IDs; validates names/timestamps/order/references/durations and restores everything atomically into an empty target. Legacy1–3 readers retained; future versions rejected. Nonempty guard covers Blocks/sessions/routines/takes, including standalone-only metadata. All take audio/labels/metadata still excluded; export audio individually. Cream#FFF8EB, green#315C47, bundled Lato/persistent banner, appID/minSDK26/target36/permanent key unchanged; no new dependency/recording/Goals/cloud/storage redesign.
+Room7 explicit6â†’7 adds routines/routine_placements and FK/indexes only; compiler-generated7.json identity752227f5c28e47ea770144988e8d8cab committed. Compared schema6â†’7: all four original entity definitions unchanged. Existing migrations retained, no destructive fallback. JSON4 includes routine/entry arrays and IDs; validates names/timestamps/order/references/durations and restores everything atomically into an empty target. Legacy1â€“3 readers retained; future versions rejected. Nonempty guard covers Blocks/sessions/routines/takes, including standalone-only metadata. All take audio/labels/metadata still excluded; export audio individually. Cream#FFF8EB, green#315C47, bundled Lato/persistent banner, appID/minSDK26/target36/permanent key unchanged; no new dependency/recording/Goals/cloud/storage redesign.
 
 Verified source: aa78783e9b264dccec64018362b1a88cf0f5e255
 Successful CI: https://github.com/mrayover/practice.logger/actions/runs/40733036079
@@ -34,6 +40,6 @@ All seven project documents updated (AGENTS,README,BUILD_PLAN,CURRENT_STATE,WORK
 Exact next task: owner installs signed0.10.0/build16 over current app and executes Saved Routines phone checklist in MANUAL_TESTS.md: builder save/no mutation; CRUD/reorder/durations/restart; two independent starts and existing draft; current Block changes/archive handling; save-for-later/cold recovery; confirm old notes/history/free/loop/standalone audio; JSON4 export/spare-empty restore/legacy import;200%/TalkBack. Report phone/Android/results. Address any feedback before choosing further feature scope.
 
 
-## 2026-10-28 — Efficiency procedure adopted
+## 2026-10-28 â€” Efficiency procedure adopted
 
 Owner requested and authorized a documentation-only update after the Routines postmortem. Every future instance must review and follow [the mandatory efficiency procedure](WORK_LOG.md#2026-10-28--mandatory-efficiency-procedure-for-all-future-work) before implementation, as required upfront in AGENTS.md. It covers reuse, early candidate builds, isolated evidence-driven debugging, targeted checks before full CI, usage/context discipline and concise truthful handoff. Existing app0.10.0/build16, verified sourceaa78783, successful CI40733036079 and signed packages remain unchanged. Markdown-only change; no new app build/test run required. This documentation update is published with the owner's explicit Git-command authorization; future Desktop preference is retained. Exact next product task: execute the existing Saved Routines phone checklist in MANUAL_TESTS.md and report results before further feature scope.
