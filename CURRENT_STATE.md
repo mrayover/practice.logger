@@ -35,3 +35,5 @@ Owner authorized Git commands for this update/schema/closeout because Desktop co
 
 Exact next task: owner installs signed0.9.0/build15, checks cream screens/dialogs, taps Free recording and saves two takes, listens/renames/exports, browses Saved free recordings without mic, restarts/rotates/backgrounds and confirms old Blocks/session notes/free/loop takes untouched. Report phone/Android/mic route/results; discuss broader save/storage afterward. JSON still excludes audio.
 Routines first build milestone: source f2b6d02, CI40717132554 build success;51 unit tests pass/lint0errors10warnings. Compiler-generated7.json retained locally and now publishing. Final device checks/screenshots/signing pending.
+
+Device checkpoint: CI40718045337 API35 initial+22phases pass. API26 LaunchTest fails to find editor after unscrolled tap; test scroll/wait fix prepared and now publishing. All51 unit/lint/debug/release pass; full rerun, screenshot review, signing and closing records still next.

@@ -368,3 +368,10 @@ Next: publish prepared change using owner-authorized workflow, commit compiler-g
 ## 2026-10-28 — First Routines build verified; schema7 retained
 
 Owner explicitly authorized Git commands for this update/schema/fixes/closeout. Implementation f2b6d02757036c91bdfec168a4c3444800f0e3cc published to main. CI40717132554 build122917763682 succeeds: all51 unit/Robolectric tests pass (0 failures/errors/skips); lint0 errors/10 existing warnings; debug/release built. Downloaded verification artifact12827854991 and copied compiler-generated Room7 schema without editing its identity. Device checks pending; schema commit triggers final full API26/35 verification. No signed0.10.0 APK yet; phone acceptance pending.
+
+
+## 2026-10-28 — Device verification follow-up
+
+Schema-source8781678 CI40718045337 build122921664744 passes51 unit tests/lint0errors10warnings/debug+release; downloaded final compiler schema matches committed7.json exactly. API26 device122924184337 fails in pre-existing LaunchTest line42: after tapping the reusable Block name, the duration editor field is absent. Kept every catalog assertion and added explicit scroll-to-Block plus editor-ready synchronization before interacting; no production behavior changed for this test fix. API35 still running at this checkpoint. No0.10.0 package signed/distributed yet. Next: publish synchronization correction after reviewing the other device result, rerun full gates and complete screenshot/signing/closing records.
+
+API35 device122924184277 completed successfully on schema-source8781678: initial workflow plus22 direct phases pass, including native Routine workflow/cold recovery, JSON4 picker and200% controls. API26 failed only pre-existing LaunchTest editor lookup before later phases; explicit scroll/editor-ready correction now publishing with all assertions retained. Full rerun required; no final-device success claimed yet.
