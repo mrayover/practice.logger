@@ -1,18 +1,18 @@
 # practice.logger
 
-Latest installable release: **0.10.0/build16**, with reusable Saved Routines, independent Routine practice and JSON4 routine backup. Cream backgrounds and standalone recordings retained. Fully CI-verified and permanently signed; phone acceptance pending. See CURRENT_STATE.md.
+Latest installable release: **0.11.0/build20**, with Goals and attributed practice. Permanently signed;57unit tests/build/lint pass. Owner reports the app works and explicitly stopped final device testing. See CURRENT_STATE.md for exact verification limits.
 
 An offline Android practice tool: create reusable Blocks and saved ordered Routines, arrange sessions, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
-Stages 0, 1 and 2 passed automated verification. The owner generally confirms that 0.3.0 works on their phone (model/OS and individual checklist results not supplied). Stage 3 now has versioned backup/export and protected empty-app restore; Stage 3 engineering hardening is verified on Android 8 and 15, including real system document pickers and 200% text; owner phone acceptance is pending. Stage 4 ten-session evaluation is prepared in EVALUATION.md (0/10 real sessions recorded). Owner approved Stage 5 metronome followed by Stage 6A/6B Block recording on 2026-10-26; Stage 5 engineering is verified in 0.4.0/build 8; owner generally accepts the metronome; detailed phone timing results were not supplied. Goals, overdubbing and other deferred features remain excluded; reusable Routines are now owner-approved and implemented as described below. The owner-approved standalone tuner/Tools increment is described below.
+Stages 0, 1 and 2 passed automated verification. The owner generally confirms that 0.3.0 works on their phone (model/OS and individual checklist results not supplied). Stage 3 now has versioned backup/export and protected empty-app restore; Stage 3 engineering hardening is verified on Android 8 and 15, including real system document pickers and 200% text; owner phone acceptance is pending. Stage 4 ten-session evaluation is prepared in EVALUATION.md (0/10 real sessions recorded). Owner approved Stage 5 metronome followed by Stage 6A/6B Block recording on 2026-10-26; Stage 5 engineering is verified in 0.4.0/build 8; owner generally accepts the metronome; detailed phone timing results were not supplied. Overdubbing and other deferred features remain excluded; Goals are now implemented below; reusable Routines are now owner-approved and implemented as described below. The owner-approved standalone tuner/Tools increment is described below.
 
 Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md completely before every development session. Every session, including incomplete work or fixes, must update the records and publish intended changes through GitHub Desktop.
 
 ## Install the versioned local build
 
-- ZIP: dist/practice.logger-0.10.0-b16-aa78783.zip
-- APK: dist/practice.logger-0.10.0-b16-aa78783/practice.logger-0.10.0-b16-aa78783.apk
-- Provenance/signature/hash: dist/practice.logger-0.10.0-b16-aa78783/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.11.0-b20-c0b1dfe.zip
+- APK: dist/practice.logger-0.11.0-b20-c0b1dfe/practice.logger-0.11.0-b20-c0b1dfe.apk
+- Provenance/signature/hash: dist/practice.logger-0.11.0-b20-c0b1dfe/BUILD_INFO.json
 
 Android8+; install over current permanent-key app without uninstalling to retain practice data/audio. All earlier releases remain under dist. JSON backup excludes recordings; export wanted takes separately. Original0.1.0 remains separate.
 
@@ -177,5 +177,5 @@ All seven project documents updated (AGENTS,README,BUILD_PLAN,CURRENT_STATE,WORK
 
 Exact next task: owner installs signed0.10.0/build16 over current app and executes Saved Routines phone checklist in MANUAL_TESTS.md: builder save/no mutation; CRUD/reorder/durations/restart; two independent starts and existing draft; current Block changes/archive handling; save-for-later/cold recovery; confirm old notes/history/free/loop/standalone audio; JSON4 export/spare-empty restore/legacy import;200%/TalkBack. Report phone/Android/results. Address any feedback before choosing further feature scope.
 
-## Goals — 0.11.0/build17 in development
-Home Goals settings/Edit opens management of up to five active Goals. Set outcome, notes and manual percentage, reorder priorities, complete/reopen and browse completed Goals. Top two active Goals appear on Home. Details manage shared existing Blocks and start an independent paused Goal session with current Block content/default durations; drafts and prior sessions remain. Archived/unavailable links are visible and excluded from Goal practice; add active Blocks if none are usable. Actual time sums committed placements from explicitly attributed sessions only, including unfinished/skipped practice; time never changes progress. History shows Goal attribution. Room8/JSON5 retain older migrations and backup1–4 readers. Audio remains excluded from JSON. Verification/signing pending; latest installable release above remains0.10.0.
+## Goals — 0.11.0/build20 finalized
+Home Goals settings/Edit opens management of up to five active Goals. Set outcome, notes and manual percentage, reorder priorities, complete/reopen and browse completed Goals. Top two active Goals appear on Home. Details manage shared existing Blocks and start an independent paused Goal session with current Block content/default durations; drafts and prior sessions remain. Archived/unavailable links are visible and excluded from Goal practice; add active Blocks if none are usable. Actual time sums committed placements from explicitly attributed sessions only, including unfinished/skipped practice; time never changes progress. History shows Goal attribution. Room8/JSON5 retain older migrations and backup1–4 readers. Audio remains excluded from JSON. Build20 is permanently signed;57unit tests/build/lint pass. Focused Goal/restart/200%checks pass both APIs. Final device matrix stopped at the owner's request after their general report that the app works; full final verification is not claimed. See CURRENT_STATE.md and distribution VERIFICATION_STATUS.txt.

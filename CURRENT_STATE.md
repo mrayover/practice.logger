@@ -1,15 +1,28 @@
-# Goals 0.11.0/build19 — signed, final full device verification pending
+# Current state — Goals0.11.0/build20 finalized
 
-Owner steering: prioritize correctness, signed build and closing records; no further feature expansion. Usage checked51%used/49%remaining. Source8ae6b61414e80b71b752653bed149bf50111ca7a; CI40767066876 build123093951777 passes57unit tests (0failures/errors/skips), lint0errors/10existingwarnings, debug/release and exact committed schema8. Permanent-key APK/ZIP are already packaged under dist/practice.logger-0.11.0-b19-8ae6b61. APK SHA256e2338e8904cde0c8717afbdbdff22778718043cdef1b0831b8fc5667577af166. All56earlier APK/ZIP hashes plus candidates17/18 unchanged. Final API26/35 jobs running. Focused Goal/restart/200%checks pass both APIs; corrected catalog workflow passes targeted API26. No complete final matrix or phone acceptance claimed yet; LATEST remains previous verified release until gates finish. Stage3 phone pending, Stage4 stays0/10.
+## Goals 0.11.0/build20 — finalized at owner request, 2026-10-28 America/Los_Angeles
 
-Exact next task: review final device results/screenshots, address only observed failures with targeted checks, then finalize LATEST/docs and push all closing records. Install over the existing permanently signed app without uninstalling. JSON excludes audio; export recordings separately.
+Goals implemented: up to five active Goals, manual0–100%progress, title/outcome/notes, stable IDs/timestamps, priority order/top-two Home, completion/reopen and completed list. Details associate shared existing Blocks, identify archived/unavailable links and show actual explicitly attributed practice time. Practice Goal creates independent paused sessions using active Block defaults; drafts/unfinished sessions and all existing timer/audio/notes/summary/history behavior remain. Goal time is observed only while detail is open, avoiding a new all-history aggregate every250ms. Existing cream/green/Lato/banner/Home design retained. Catalog keyboard/inset and search viewport corrections preserve original workflow assertions.
 
-## Earlier checkpoints and release history
-# Current work — Goals 0.11.0/build18 (verification pending)
+Room8 additive7→8 migration creates only goals/goal_blocks/session_goals; all six previous entities exactly unchanged. Compiler identity14213defd37c40eaad2f7265f9110363. JSON5 preserves Goals/order/links/progress/notes/one-Goal session attribution, validates relationships/limits/order/totals and restores atomically into an empty target. Readers1–4 retained; audio/take metadata/labels still excluded. Stable appID/permanent signing key/data/audio/previous distributions retained.
 
-Goals implemented: five active/manual progress/order/Home/detail/shared Blocks/independent attributed sessions. Room8 additive7→8 migration (all six existing entity definitions unchanged); compiler identity14213defd37c40eaad2f7265f9110363. JSON5 with legacy1–4 readers and protected transactional empty restore. Source2980d8e CI40758808547 build123064826015 passed all56unit tests, lint and debug/release. Permanent-key candidate0.11.0/build17 is in dist/practice.logger-0.11.0-b17-2980d8e with APK/ZIP/BUILD_INFO; SHA2565a6645cddc26d3381503d888dd4bf3d036d313cc207c10ca1ddb33543c9b2bd3. Candidate device checks pending; no final verified Goals release yet. Final build18 adds restart readiness, actual picker fixture and late-restore rollback test (57 expected, not yet claimed passed). Owner authorizes all pushes for this increment; efficiency procedure reviewed. Stage3 phone acceptance pending; Stage4 stays0/10. Prior verified release0.10.0/build16 below.
+Source: c0b1dfe5c8d9f3f0f8ef8084a741963e18eb3bb4
+CI: https://github.com/mrayover/practice.logger/actions/runs/40769976160
+Verified build123104223349:57unit/Robolectric tests,0failures/errors/skips; lint0errors/10existingwarnings; debug/release successful; generated8.json exactly matches committed schema. Focused native Goal/restart/200%checks pass API26/35. Earlier build19 full suites each pass initial catalog plus24direct phases, then the final old accessibility test fails its empty-draft fixture assumption after Goal correctly preserved a draft. Test-only setup isolation and explicit cold draft assertion added; targeted full200%AccessibilityWorkflowTest/API26 passes40769225695. Final build20 device matrix cancellation requested by owner on2026-10-28; full final matrix completion is NOT claimed.
 
-Exact next task: publish compiler schema8/refinements, pass focused/full regression/API26/35/screenshots; sign final build18 preserving candidate and prior releases; update records/push and verify clean local/remote SHA.
+Owner says: "The app works. Stop testing and finalize this output." General owner acceptance recorded; exact installed build, phone/Android and individual checklist results not supplied. No further tests run after this instruction. This explicit owner instruction supersedes waiting for all final device gates. Stage3 detailed phone backup acceptance pending; Stage4 stays0/10.
+
+ZIP: dist/practice.logger-0.11.0-b20-c0b1dfe.zip
+APK: dist/practice.logger-0.11.0-b20-c0b1dfe/practice.logger-0.11.0-b20-c0b1dfe.apk
+APK SHA256: c6285627aa5b5082d193e0464d77c53b7599cffcaa49666435d4e1b59f8029ca
+Permanent certificate: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+Existing publisher verified signature, pinned certificate, package/version and extracted APK hash. All56pre-session APK/ZIP files rehashed unchanged; signed17/18/19candidates also preserved. BUILD_INFO.json, INSTALL.txt and VERIFICATION_STATUS.txt accompany the final distribution; LATEST points to20. No private signing material uploaded.
+
+All intended source/schema/tests and closing records pushed to main using the owner's explicit Git-command authorization; existing Windows checkout used and synced sources untouched. No new feature work remains authorized in this session. Known verification limitation: final combined device matrix stopped by owner; no unresolved product defect is claimed without evidence. Phone/provider/TalkBack/audio details remain checklist items.
+
+Exact next action: use signed build20 over the existing permanent-key app without uninstalling, and report any observed issue. Detailed optional phone checklist remains in MANUAL_TESTS.md; resume deferred acceptance/evaluation only when the owner requests it.
+
+## Previous release history
 
 # Current state — Saved Routines 0.10.0/build16
 

@@ -1,8 +1,8 @@
 # Backup format and safety
 
-Format identifier: `practice.logger.backup`. Writer format version: integer `4`; reader accepts legacy `1`/`2`/`3` and current `4`. UTF-8 JSON. Independent of Room schema version (currently 7). The app uses Android's CreateDocument/OpenDocument picker; it requests no broad storage permission. Android owns the picker typography.
+Format identifier: `practice.logger.backup`. Writer format version: integer `5`; reader accepts legacy `1`/`2`/`3`/`4` and current `5`. UTF-8 JSON. Independent of Room schema version (currently 8). The app uses Android's CreateDocument/OpenDocument picker; it requests no broad storage permission. Android owns the picker typography.
 
-Top-level fields: `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`. Format 4 requires the two routine arrays; formats 1–3 import with empty routines/entries. All record fields for the declared format are required, including explicit JSON null for nullable values. Format 3 adds nullable placement lastUsedBpm; formats 1/2 omit it and import as null. Unknown extra fields are ignored; unknown format versions are rejected. IDs are preserved.
+Top-level fields: `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`. Format5 requires the three Goal arrays; legacy1–4 create no Goals/attribution. Format 4 requires the two routine arrays; formats 1–3 import with empty routines/entries. All record fields for the declared format are required, including explicit JSON null for nullable values. Format 3 adds nullable placement lastUsedBpm; formats 1/2 omit it and import as null. Unknown extra fields are ignored; unknown format versions are rejected. IDs are preserved.
 
 - Blocks: id, name, action, durationMinutes, tempo (nullable), notes, archived, createdAt, updatedAt.
 - Routines: id, name (trimmed, 1–120 characters), createdAt, updatedAt.
