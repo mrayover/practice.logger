@@ -68,7 +68,7 @@ import kotlin.math.sin
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = {}, enabled = false,
-                            colors = TextButtonDefaults.textButtonColors(disabledContentColor = PracticeGreen)) {
+                            colors = ButtonDefaults.textButtonColors(disabledContentColor = PracticeGreen)) {
                             Text("Edit", fontWeight = FontWeight.Bold)
                         }
                     }

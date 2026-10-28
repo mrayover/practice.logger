@@ -256,3 +256,5 @@ Downloaded unsigned release and both native/verification reports verified before
 - Six operational documents updated, earlier WORK_LOG retained. Changes are prepared locally/uncommitted/unpushed; no new signed APK exists. Exact next action: resolve Desktop versus owner-authorized Git-command publication for the concrete diff, push source, verify full CI/screenshots, correct any found issues, then permanent-key0.7.0/build13 ZIP/APK with all old versions preserved. Stage3 manual backup acceptance and Stage4 0/10 unchanged.
 
 - Publication choice: after the concrete home/navigation/test diff was prepared, owner selected option1 permitting Git commands for this redesign and its release records. Continuing to source commit/push, full CI, actual screenshot review and signed delivery. No physical phone result inferred.
+
+- Initial redesign source0af24dfe3471fe53dc44add86558d43fdb297ae8/CI40619032902 failed Kotlin compilation on an invalid TextButtonDefaults reference in inactive Goals Edit styling. Corrected to existing Material3 ButtonDefaults.textButtonColors; no completed tests/native success or APK claimed for the failed run. Full verification will rerun.
