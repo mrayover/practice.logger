@@ -68,18 +68,18 @@ class PracticeWorkflowTest {
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Saved while unfinished")
             click("Save Block note"); shown("Block note saved")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextReplacement("Saved on leaving ♫")
-            click("Save for later"); openHomeRoutines(compose); shown("Continue Session")
+            click("Save for later"); openHomePractice(compose); shown("Continue Session")
             click("Continue Session"); shown("Overtime fixture")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on leaving ♫")
             compose.onNodeWithText("Quick note (optional)").performTextReplacement("Saved on Back ♫")
             val device = androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation())
             // The first Back may dismiss the IME; the next must save and leave Focus.
             repeat(2) {
-                if (compose.onAllNodesWithTag("home-brand").fetchSemanticsNodes().isEmpty()) {
+                if (compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes().isEmpty()) {
                     device.pressBack(); device.waitForIdle(); compose.waitForIdle()
                 }
             }
-            openHomeRoutines(compose); shown("Continue Session")
+            openHomePractice(compose); shown("Continue Session")
         } finally { db.close() }
     }
 }
@@ -88,7 +88,7 @@ class PracticeRecoveryTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     @Test fun recoverPausedThenCompleteAndRetainSnapshots() {
-        openHomeRoutines(compose); shown("Continue Session"); compose.onNodeWithText("Continue Session").performClick()
+        openHomePractice(compose); shown("Continue Session"); compose.onNodeWithText("Continue Session").performClick()
         shown("Overtime fixture")
         compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on Back ♫")
         compose.onNodeWithText("Resume").assertExists().performScrollTo().performClick()

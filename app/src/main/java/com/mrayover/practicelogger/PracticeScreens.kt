@@ -25,25 +25,12 @@ fun practiceTime(ms: Long, roundUp: Boolean = false): String {
 }
 fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(ms))
 
-@Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: (String) -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit) {
+@Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onHome) { Text("Back to Home") }
         Text("Routines", style = MaterialTheme.typography.headlineLarge)
         ActionButton("Practice Now", onPractice)
-        if (sessions.unfinished.isNotEmpty()) {
-            Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            Text("Start fresh above, or continue saved practice below. All sessions resume paused.")
-            sessions.active?.let { active ->
-                ActionButton("Continue Session", { onContinue(active.session.id) })
-                Text(sessionDate(active.session.startedAt) + " · " + (active.current?.name ?: "Session") + " · Block " + (active.session.currentIndex + 1) + " of " + active.placements.size)
-            }
-            sessions.unfinished.filter { it.session.id != sessions.active?.session?.id }.forEach { bundle ->
-                OutlinedButton(onClick = { onContinue(bundle.session.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
-                    Text("Continue: " + (bundle.ordered.firstOrNull()?.name ?: "Session") + " · " + sessionDate(bundle.session.startedAt))
-                }
-            }
-        }
         OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Blocks") }
         Text(catalog.blocks.count { !it.archived }.toString() + " active Blocks")
         TextButton(onClick = onNew) { Text("New Block") }
@@ -61,7 +48,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, onCreate: () -> Unit) {
+@Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, sessions: SessionCatalog, vm: PracticeViewModel, onHome: () -> Unit, onCreate: () -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     var changeId by rememberSaveable { mutableStateOf<String?>(null) }
     var minutes by rememberSaveable { mutableStateOf("") }
@@ -71,6 +58,19 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     BackHandler { onHome() }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onHome) { Text("Back to Home") }
+        if (sessions.unfinished.isNotEmpty()) {
+            Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            Text("Continue saved practice below, or build a new session. All sessions resume paused.")
+            sessions.active?.let { active ->
+                ActionButton("Continue Session", { vm.openSession(active.session.id) })
+                Text(sessionDate(active.session.startedAt) + " · " + (active.current?.name ?: "Session") + " · Block " + (active.session.currentIndex + 1) + " of " + active.placements.size)
+            }
+            sessions.unfinished.filter { it.session.id != sessions.active?.session?.id }.forEach { bundle ->
+                OutlinedButton(onClick = { vm.openSession(bundle.session.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
+                    Text("Continue: " + (bundle.ordered.firstOrNull()?.name ?: "Session") + " · " + sessionDate(bundle.session.startedAt))
+                }
+            }
+        }
         Text("Build a Session", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Arrange Blocks for this session. Duration changes here leave your saved Blocks unchanged.")
         if (entries.isEmpty()) Text("Add a Block below to begin.")

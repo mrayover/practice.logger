@@ -26,14 +26,8 @@ import kotlin.math.sin
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
     onTools: () -> Unit, onRecording: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(Color.White)
+    Column(Modifier.fillMaxSize().testTag("home-menu").background(Color.White)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
-        Box(Modifier.fillMaxWidth().background(PracticeGreen).statusBarsPadding().padding(horizontal = 20.dp, vertical = 24.dp)) {
-            Text("practice.logger", modifier = Modifier.fillMaxWidth().testTag("home-brand").semantics { heading() },
-                fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 34.sp,
-                textAlign = TextAlign.Center, color = Color.White)
-        }
-        HorizontalDivider(thickness = 2.dp, color = Color(0xFF244A37))
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
             val viewportHeight = maxHeight
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).heightIn(min = viewportHeight)
@@ -88,19 +82,22 @@ import kotlin.math.sin
     }
 }
 
-@Composable private fun HomeButton(label: String, action: () -> Unit) {
+@Composable fun HomeButton(label: String, action: () -> Unit) {
     Button(onClick = action, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
         shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White)) {
         Text(label, modifier = Modifier.fillMaxWidth(), fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 28.sp, textAlign = TextAlign.Center)
     }
 }
 
-@Composable fun ToolsHome(onHome: () -> Unit, onBackup: () -> Unit) {
+@Composable fun ToolsHome(onHome: () -> Unit, onBackup: () -> Unit, onTool: (String) -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onHome) { Text("Back to Home") }
         Text("Tools", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        HomeButton("Metronome") { onTool("metronome") }
+        HomeButton("Tuner") { onTool("tuner") }
+        HomeButton("Timer") { onTool("timer") }
         HomeButton("Backup and restore", onBackup)
     }
 }
@@ -121,5 +118,16 @@ import kotlin.math.sin
                 }
             }
         }
+    }
+}
+
+@Composable fun PracticeBanner() {
+    Column {
+        Box(Modifier.fillMaxWidth().background(PracticeGreen).statusBarsPadding().padding(horizontal = 20.dp, vertical = 24.dp)) {
+            Text("practice.logger", modifier = Modifier.fillMaxWidth().testTag("home-brand").semantics { heading() },
+                fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 34.sp,
+                textAlign = TextAlign.Center, color = Color.White)
+        }
+        HorizontalDivider(thickness = 2.dp, color = Color(0xFF244A37))
     }
 }

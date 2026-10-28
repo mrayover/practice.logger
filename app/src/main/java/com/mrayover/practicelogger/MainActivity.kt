@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel()) {
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val view = LocalView.current
@@ -61,13 +61,13 @@ class MainActivity : ComponentActivity() {
         practice.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
         onDispose { lifecycle.removeObserver(observer); practice.setForeground(false) }
     }
-    DisposableEffect(practice.running, recordings.recording, view) { view.keepScreenOn = practice.running || recordings.recording; onDispose { view.keepScreenOn = false } }
+    DisposableEffect(practice.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
     SideEffect {
         (view.context as? Activity)?.window?.let { window ->
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = page != "home"
-            if (Build.VERSION.SDK_INT < 35) window.statusBarColor = if (page == "home") PracticeGreen.toArgb() else Color.White.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            if (Build.VERSION.SDK_INT < 35) window.statusBarColor = PracticeGreen.toArgb()
         }
     }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
@@ -91,20 +91,24 @@ class MainActivity : ComponentActivity() {
     fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
     BackHandler(page == "library") { page = "home" }
     Surface(Modifier.fillMaxSize()) {
+      Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
+        PracticeBanner()
+        Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
-            Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("practice.logger", style = MaterialTheme.typography.headlineLarge); Text(catalog.error ?: sessions.error!!) }
+            Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
         } else if (!catalog.ready || !sessions.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
             "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" })
-            "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" }, onContinue = { practice.openSession(it) },
+            "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" })
-            "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" })
+            "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { page = it })
+            "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it })
             "backup" -> BackupScreen(onHome = { page = "home" })
-            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
+            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message)
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" })
             "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -143,6 +147,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        }
+      }
         recordingsBlockId?.let { id ->
             catalog.blocks.find { it.id == id }?.let { block ->
                 BlockRecordings(id, block.name, recordings, practice, if (page == "focus") sessions.active else null,

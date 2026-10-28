@@ -41,7 +41,7 @@ class MetronomeWorkflowTest {
             shown("Start click"); compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.running) }
             click("Start click"); shown("Stop click")
             compose.activityRule.scenario.recreate(); shown("Start click")
-            click("Save for later"); openHomeRoutines(compose); shown("Continue Session"); click("Continue Session"); shown("Metronome · 126 BPM"); shown("Start click")
+            click("Save for later"); openHomePractice(compose); shown("Continue Session"); click("Continue Session"); shown("Metronome · 126 BPM"); shown("Start click")
             val session = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
             assertEquals(126, session.current!!.lastUsedBpm)
             assertEquals(90, runBlocking { db.blocks().find(session.current!!.sourceBlockId) }!!.tempo)

@@ -41,6 +41,16 @@ class AccessibilityWorkflowTest {
         readable("practice.logger"); readable("Goals"); readable("Practice Now"); readable("Blocks")
         readable("Routines"); readable("Tools"); readable("Recording"); readable("Data usage")
         captureStage3("00-large-home-actions")
+        openHomeTools(compose); readable("practice.logger")
+        readable("Metronome"); readable("Tuner"); readable("Timer")
+        click("Metronome"); readable("practice.logger"); readable("120"); readable("Start click")
+        captureStage3("01-large-tool-metronome")
+        click("Back to Tools"); click("Tuner"); readable("Start tuner")
+        captureStage3("02-large-tool-tuner")
+        click("Back to Tools"); click("Timer"); readable("Start stopwatch"); readable("Reset stopwatch")
+        readable("Minute timer"); readable("Start timer"); readable("Reset timer")
+        captureStage3("03-large-tool-timer")
+        click("Back to Tools"); click("Back to Home")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Accessible fixture", "Play slowly with relaxed hands", "1")) }

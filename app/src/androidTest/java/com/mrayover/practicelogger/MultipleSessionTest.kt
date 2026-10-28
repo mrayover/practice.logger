@@ -21,11 +21,11 @@ class MultipleSessionWorkflowTest {
             shown("Practice Now"); click("Practice Now"); shown("Add Parallel A"); click("Add Parallel A")
             click("Start Session"); shown("Parallel A")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Keep A")
-            click("Save for later"); openHomeRoutines(compose); shown("Continue Session")
-            click("Practice Now"); shown("Add Parallel B"); click("Add Parallel B")
+            click("Save for later"); openHomePractice(compose); shown("Continue Session")
+            shown("Add Parallel B"); click("Add Parallel B")
             click("Start Session"); shown("Parallel B")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Keep B")
-            click("Save for later"); openHomeRoutines(compose); shown("Continue Session")
+            click("Save for later"); openHomePractice(compose); shown("Continue Session")
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
             assertEquals(2, runBlocking { db.sessions().readAll().count { it.session.status == "IN_PROGRESS" } })
             compose.onNodeWithTag("continue-session-" + first.session.id).performScrollTo().performClick()
@@ -34,7 +34,7 @@ class MultipleSessionWorkflowTest {
             compose.onNodeWithText("Ready when you are").assertExists()
             compose.activityRule.scenario.recreate(); shown("Parallel A")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
-            click("Save for later"); openHomeRoutines(compose); shown("Continue Session")
+            click("Save for later"); openHomePractice(compose); shown("Continue Session")
         } finally { db.close() }
     }
 }
@@ -44,7 +44,7 @@ class MultipleSessionReopenTest {
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = false).fetchSemanticsNodes().isNotEmpty() } }
     private fun click(text: String) { compose.onNodeWithText(text, substring = false).performScrollTo().performClick() }
     @Test fun bothUnfinishedSessionsSurviveProcessRestartAndFinishIndependently() {
-        openHomeRoutines(compose); shown("Continue Session")
+        openHomePractice(compose); shown("Continue Session")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
@@ -53,7 +53,7 @@ class MultipleSessionReopenTest {
             if (firstControl.fetchSemanticsNodes().isNotEmpty()) firstControl[0].performScrollTo().performClick()
             else click("Continue Session")
             shown("Parallel A"); compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
-            click("Complete"); shown("Session Summary"); click("Home"); openHomeRoutines(compose); shown("Continue Session")
+            click("Complete"); shown("Session Summary"); click("Home"); openHomePractice(compose); shown("Continue Session")
             click("Continue Session"); shown("Parallel B")
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep B")
             compose.onNodeWithText("Ready when you are").assertExists()

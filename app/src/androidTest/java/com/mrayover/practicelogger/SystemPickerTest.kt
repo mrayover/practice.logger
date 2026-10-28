@@ -108,7 +108,7 @@ class SystemPickerRestoreTest {
             shownPickerApp(compose, "Backup restored.")
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
             compose.onNodeWithText("Back to Home").performScrollTo().performClick()
-            openHomeRoutines(compose)
+            openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
             compose.onNodeWithText("Continue Session").performScrollTo().performClick()
             shownPickerApp(compose, "Picker recovery")
@@ -133,7 +133,7 @@ class SystemPickerReopenTest {
         try {
             val expected = BackupCodec.decode(device.executeShellCommand("cat /sdcard/Download/$PICKER_FILE").toByteArray(Charsets.UTF_8))
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
-            openHomeRoutines(compose)
+            openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
             compose.onNodeWithText("Continue Session").performScrollTo().performClick()
             shownPickerApp(compose, "Picker recovery")
