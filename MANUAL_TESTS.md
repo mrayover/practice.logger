@@ -4,7 +4,7 @@ The owner generally reports 0.3.0 works. Manual backup/recovery and evaluation c
 
 ## Install and identify the new build
 
-1. Open the extracted APK in dist/practice.logger-0.6.1-b12-f4f827b/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.6.1 (build 12). Install over the permanent-key app through 0.5.0 or 0.6.0/build 10 and confirm its Blocks/history remain. Do not uninstall first.
+1. Open the extracted APK in dist/practice.logger-0.7.0-b13-61b76d5/ on an Android 8.0+ phone. The launcher label is practice.logger; app details show 0.7.0 (build 13). Install over the permanent-key app through 0.5.0 or 0.6.0/build 10 and confirm its Blocks/history remain. Do not uninstall first.
 2. The permanent-key app remains separate from the old temporary-key 0.1.0 catalog; the old app/data are retained, but Blocks do not transfer automatically. Recreate desired Blocks in the new app.
 3. Keep future updates installed over this new app rather than uninstalling it. Use locally signed dist APKs, not CI debug APKs. Versioned JSON backup/empty-app restore is available from Home.
 
@@ -29,7 +29,7 @@ Record model, Android version, exact build and any failures in WORK_LOG.md. Abru
 ## Stage 3 backup increment (0.3.1)
 
 1. Install the signed 0.3.1 APK over 0.2.0 or 0.3.0. Verify existing Blocks, draft/unfinished session and saved history. The older dist files must still be present on the computer.
-2. Save notes, pause practice and go Home → Backup and restore. Export to a local folder using Android's picker; wait for Backup saved. Confirm the JSON exists. Cancel a second picker and check data remains unchanged. Repeat export; retain both files.
+2. Save notes, pause practice and go Home → Tools → Backup and restore. Export to a local folder using Android's picker; wait for Backup saved. Confirm the JSON exists. Cancel a second picker and check data remains unchanged. Repeat export; retain both files.
 3. Choose the valid file to restore. Review counts, rotate, then Cancel. Try again and confirm: this nonempty app must reject restore without changing Blocks/history/unfinished time. Try malformed or unsupported-version JSON; it must reject it without a crash. Never clear the current app just to make restore possible.
 4. On a spare device/disposable empty installation of the signed 0.3.1 app, choose the exported file, confirm restore and inspect archived Blocks, notes, historical instruction snapshots and any unfinished session. Restart; verify records remain and unfinished practice is paused with its saved order/time. Export again and compare representative records.
 5. Test unavailable/read-only provider or low storage using disposable test files only. An error must leave database data intact; a failed export's partial file is not a completed backup. Check airplane mode with local storage, large text, TalkBack labels, landscape, keyboard and reachable dialogs/buttons.
@@ -50,7 +50,7 @@ Once these checks pass, begin EVALUATION.md's ten real sessions. After each, sav
 Typing alone remains unsaved against abrupt process death; use the save actions. Backup/recovery and the ten-session evaluation are deferred by owner, not prerequisites for testing this incremental APK.
 ## 0.3.3 independent sessions
 
-1. Leave session A unfinished with a saved note/time. Home must still offer Practice Now and Continue Session.
+1. Leave session A unfinished with a saved note/time. Home still offers Practice Now; open Routines for Continue Session.
 2. Practice Now → build/start B, practice briefly and Save for later. Both unfinished sessions must remain selectable.
 3. Open each, confirm its own Block/time/note and paused state. Restart the app and repeat; the default may be newest, but the other dated control must still work.
 4. Complete B and confirm A remains unfinished with unchanged data. Then finish A; summaries must remain separate. One shared builder draft remains supported.
@@ -91,12 +91,12 @@ At normal and 200% font size, open Record phrase, edit Phrase BPM and verify its
 
 ## 0.6.1/build 12 recording click — signed delivery, phone checks pending
 
-Install the signed 0.6.1/build 12 update from dist/practice.logger-0.6.1-b12-f4f827b/ over the existing app without uninstalling. Earlier build 11 does not include this fix. In Record phrase, confirm "Click while recording" is on by default. Choose 120 BPM / 8 beats; hear four count-in clicks followed by a steady click throughout the one-phrase capture. Pause/resume the practice timer during capture; the click and phrase length stay independent. The guide should stop before the saved phrase starts repeating. Speaker bleed in microphone audio is expected; no digital click is added to the file.
+Install the signed 0.6.1/build 12 update from dist/practice.logger-0.7.0-b13-61b76d5/ over the existing app without uninstalling. Earlier build 11 does not include this fix. In Record phrase, confirm "Click while recording" is on by default. Choose 120 BPM / 8 beats; hear four count-in clicks followed by a steady click throughout the one-phrase capture. Pause/resume the practice timer during capture; the click and phrase length stay independent. The guide should stop before the saved phrase starts repeating. Speaker bleed in microphone audio is expected; no digital click is added to the file.
 
 Turn the option off and record a second phrase: four count-in clicks, then no guide during capture. Retain/play both takes and a prior free take; export the exact WAV. Cancel during count-in/capture and background/leave while the guide runs; no guide/microphone may continue, saved takes remain, and reopen stays silent. Check the full checkbox row at 200% text/TalkBack. Report actual phone/Android/output route and guide/onset/boundary behavior; emulator counters do not establish audible phone timing.
 
-## Home sketch redesign — pending 0.7.0/build 13 delivery
+## Home sketch redesign — signed0.7.0/build13, phone visual checks pending
 
-After the new signed APK is delivered, check the home screen against the supplied drawing: centered bold Lato title in the separated green header; white body; blank Goals rows with inactive settings/Edit; five green buttons in order Practice Now, Blocks, Routines, Tools, Recording; Data usage footer. Scroll at large text/small height and check status-bar icon contrast. Goals and the footer deliberately have no data/edit behavior yet.
+Install the signed update over the existing app without uninstalling, then check the home screen against the supplied drawing: centered bold Lato title in the separated green header; white body; blank Goals rows with inactive settings/Edit; five green buttons in order Practice Now, Blocks, Routines, Tools, Recording; Data usage footer. Scroll at large text/small height and check status-bar icon contrast. Goals and the footer deliberately have no data/edit behavior yet.
 
 Practice Now opens the session builder; Blocks opens Block Library. Open Routines to continue each unfinished session and reopen recent history; saved practice/timer/notes must remain intact. Tools → Backup and restore retains existing safe export/empty-only restore. Recording lists active/archived Blocks and opens the same per-Block saved takes; test closing/Back and a previous free/loop take. The default-enabled click-during-loop-recording behavior remains. Do not uninstall the existing app or clear real data. No functional Goals/reusable routines/storage measurement is claimed.

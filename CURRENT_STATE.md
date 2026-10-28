@@ -1,65 +1,52 @@
 # Current state
 
-## Current task — sketched home redesign, 0.7.0/build 13 prepared
+Updated 2026-10-27 America/Los_Angeles. **0.7.0/build 13** implements the owner's supplied home sketch. Engineering checks and signed local packaging are complete; owner phone/visual acceptance remains pending. The owner's explicit visual scope allows inactive Goals settings/Edit and a Data usage label. Functional Goals/reusable routines, future tools and broader save/storage remain deferred. Stage 3 phone backup acceptance remains pending; Stage 4 stays0/10.
 
-2026-10-27 America/Los_Angeles. Owner supplies a hand-drawn home sketch and explicitly requests a visual rearrangement even where functionality is not yet implemented. New home: centered white Lato Bold practice.logger in a separated green header, white background, blank two-row Goals panel with inactive settings/Edit, five stacked green buttons (Practice Now, Blocks, Routines, Tools, Recording), and plain Data usage footer. Green is the existing #315C47; body surfaces are white. Layout scrolls at small heights/large text; status-bar icons adapt to the green header.
+## Home layout and destinations
 
-Navigation: Practice Now → existing session-selection/builder; Blocks → existing Block Library; Routines → existing practice overview with independent unfinished sessions/Continue and recent history; Tools → a simple tools page retaining Backup and restore; Recording → select an active or archived Block and open the existing recording sheet. Goals and its settings/Edit controls are deliberately inactive visual placeholders as expressly approved by owner. No reusable routine engine, standalone metronome/tuner, new recording system or storage statistics has been implemented. Data usage is a label, not a fabricated value. Save/storage redesign remains deferred.
+- Separated green header (#315C47) with centered white practice.logger in bundled Lato Bold; status icons contrast with the header.
+- White body and app background/surfaces; blank two-row Goals panel with inactive settings/Edit controls.
+- Five green rectangular rounded buttons in exact order: Practice Now, Blocks, Routines, Tools, Recording.
+- Plain Data usage footer; no fabricated measurements. Home scrolls when screen height/text scaling needs it.
+- Practice Now → existing session builder/selection. Blocks → existing Block Library/editor.
+- Routines → existing practice overview, Continue Session, individually selectable unfinished sessions and recent history. It is not a reusable-routine engine.
+- Tools → tools landing with existing Backup and restore access; no standalone tuner/metronome was invented.
+- Recording → select an active/archived Block and use the existing per-Block recording sheet. Back/Close retains navigation and stops recording/audio through existing lifecycle rules.
 
-Source is prepared in the existing clean-baseline Windows repository (main/local and remote 5e0b24e2f8b192e24d56f73020ee5aec5f9e59bc). No schema, data, audio engine, signing identity or backup-format change. Old installable builds remain intact; dist/LATEST still points to verified 0.6.1/build 12 until the redesigned APK passes CI and signing. New target 0.7.0/code13; CI install-over code14. All 33 existing unit tests and full Android 8/15 build/lint/native workflows must run; no new build or phone success is claimed yet.
-
-Existing navigation tests explicitly follow the new Routines/Tools paths; catalog tests now use Blocks. Launch workflow checks all five home routes, blank/inactive Goals, empty and populated Recording selector, and existing catalog persistence. Normal and 200% home screenshots are collected for visual review. Existing timer, backup, recording/loop, restart, migration and export assertions remain. Source diff whitespace checks pass; Android/Compose compilation, full CI and screenshot review are pending.
-
-Publication method resolved: owner selected option1 authorizing Git commands for this home redesign and release closeout; Desktop controls remain unavailable. The previous Git-command exception was explicitly limited to the 0.6.1 recording-click update. Prepared changes are local/uncommitted/unpushed; no new Git mutation has been made for this redesign. Exact next task: commit/push under the owner-authorized exception, verify full CI/screenshots, repair layout issues if found, and permanently sign/package 0.7.0/build13 while preserving prior releases. Stage3 manual backup acceptance and Stage4 0/10 remain unchanged.
-
-## Last delivered release — retained provenance and limitations
-Updated 2026-10-27 (America/Los_Angeles). Delivered engineering update **0.6.1/build 12**: optional click throughout phrase recording. Owner generally accepted 0.6.0/build 11 ("it's working great!") and requested this fix before discussing save/storage. Detailed phone results for build 12 remain pending. Stage 3 manual backup acceptance remains pending; Stage 4 stays 0/10.
-
-## Current behavior
-
-Recordings → Record phrase → **Click while recording**, enabled by default. Four count-in clicks always play. With the option on, the same native output track continues a click at the selected phrase BPM throughout one microphone capture; with it off, capture follows a count-in without further guide clicks. This works from Focused Practice and the saved/archived Block editor. The ordinary metronome stops before phrase startup so a second tempo/focus owner cannot compete. The guide stops before saved-loop playback and on cancellation, background, exit, interruption or failure. The practice timer stays independent.
-
-Phrase BPM remains 30–300; supported lengths are 4/8/16/32 beats. Saved loops retain exact PCM16 mono 48 kHz WAV frames and immutable recorded BPM/beats. Changing working BPM never changes saved audio. Multiple independent FREE M4A and LOOP WAV takes retain play/stop, rename, confirmed delete, per-take file-picker export and archived Block/restart access. No click is mixed digitally into the WAV, but speaker output can be picked up by the microphone. Input/output latency, audible onset and boundary quality still need the owner's phone; no latency-free/seamless claim.
-
-Room schema 5 and migrations 1→2→3→4→5 are unchanged. Existing Blocks, sessions, notes, history, free/loop takes, labels and audio are retained. No identity/key/backup-format change. Existing foreground timer/zero/overtime, independent unfinished sessions, saved notes, catalog/search/archive, bundled Lato and empty-only validated practice JSON restore remain. Incomplete phrases are discarded with feedback; prior complete takes remain. No audio auto-resume after leaving/restart. Keyboard Done dismissal was not established by earlier captures; retain Done/Back and lower-control access in phone acceptance.
+Existing catalog/search/archive, draft builder, foreground monotonic timer/zero/overtime, independent unfinished sessions, saved notes/history, versioned empty-target JSON restore, click and multiple free/loop recordings are preserved. Default-enabled Click while recording from0.6.1 remains; four count-in clicks continue through one chosen phrase at its BPM when enabled, off retains count-in only. No audio engine, database/schema5/migration, backup-format3, app identity or key change. All app text retains Lato. Goals/settings/Edit are intentionally disabled visual placeholders as requested, not missing implemented features.
 
 ## Verification
 
-App source main: f4f827bde0921b805b4f3126555344507bb0e3fd
-Successful CI: https://github.com/mrayover/practice.logger/actions/runs/40603962994
-build 122538731105 SUCCESS; device (26) 122539950561 SUCCESS; device (35) 122539950595 SUCCESS.
-All 33 unit/Robolectric tests pass with zero failures/errors/skips; lint has 0 errors/10 existing warnings. Both Android 8/API26 and Android 15/API35 pass initial catalog plus 17 direct phases, including native microphone/guide/capture/repeat, option-on/off, timer independence, cancellation/background cleanup, export/full-file hash, saved takes/archived Block/process reopen, migration/upgrade and 200% text. Downloaded reports confirm empty phrase/free-recording crash buffers. Normal phrase setup and both200% screenshots reviewed. API35 shows a readable selected checkbox. API26 captures retain the keyboard over the lower dialog, so screenshot evidence does not confirm checkbox visibility after keyboard dismissal there; retain that phone check. Automated checkbox selection/accessibility assertions passed on both APIs.
+Tested app source main: 61b76d50e1ce0dc995cf4775d6d1840a5d10f007
+Successful CI: https://github.com/mrayover/practice.logger/actions/runs/40620587011
+build 122593365745 SUCCESS; device (35) 122594517794 SUCCESS; device (26) 122594517934 SUCCESS.
+All 33 unit/Robolectric tests pass,0 failures/errors/skips. Lint:0 errors/10 warnings. Android 8/API 26 and Android 15/API 35 pass initial expanded catalog/home workflow plus17 direct native phases. Home tests exercise all five menu routes, blank/inactive Goals and empty/populated Recording selection. Existing recovery/history/backup/system-picker/install-over/metronome/free-recording/phrase/timer/export checks follow explicit new Routines/Tools paths and retain native/data assertions. Upgrade test uses code 14.
 
-New PCM guide tests verify unchanged four-beat count-in, exact extended output size and beat/silence positions at 30/60/73/120/180/299/300 BPM across all lengths. Native tests verify the actual guide playback head advances during enabled capture, is absent during disabled capture, and is released on cancellation/completion. Prior exact WAV/repeat/export assertions remain. Three isolated pure PCM/WAV JUnit tests also passed locally using cached Kotlin/JRE; full Android compilation/native execution took place in CI. No local Android SDK/emulator or physical phone acceptance claimed.
+Downloaded normal and200% home screenshots were visually reviewed against the sketch. Normal API 26/35 screenshots show centered bold Lato wordmark, white body, two blank numbered Goal rows, five green buttons in the sketch's order and fully visible Data usage footer. At200% text the header remains centered and the body scrolls to expose all labels/footer without clipping. Automatic text-layout checks cover header, Goals, all five buttons and footer at200%; no physical phone visual or audio test is claimed. Device phrase/free-recording crash buffers remain empty. Downloaded reports and unsigned APK match official SHA256 metadata. No local Android SDK/compiler/emulator was installed or used.
 
-Earlier CI40599974541/source5e86e31 passed build/33 tests/lint/API26 but API35's new short-phrase assertion waited for UI idle after capture could finish. The live state/counter check now occurs in one poll. CI40601576976/source9de76d5 passed build/tests/lint but API35 selected Add Loop fixture before asynchronous Room/Flow publication. Both phrase click helpers now wait up to 15 seconds for the exact enabled control. Run40602791872/source74ed0ff passed full API35 but API26 timer UI interactions outlasted the four-second8beat recording; the screenshot showed saved looping audio and running timer. Timer pause/resume now runs during a32beat capture before background cancellation, while the original8beat exact-frame/repeat/export checks remain. No production audio changes followed5e86e31. Final source f4f827bde0921b805b4f3126555344507bb0e3fd passed full CI; no failed-run APK was distributed. WORK_LOG preserves evidence.
+Initial source0af24df/CI40619032902 failed Kotlin compilation on the Edit styling reference TextButtonDefaults. Corrected to Material3 ButtonDefaults.textButtonColors before the successful source; no failed-run APK distributed. The next sourced2b8126/CI40619311941 passed build/tests/lint and native workflows, but the new200% Home label-bounds check exposed intrinsic Text width versus centered paragraph allocation. Button text now fills its content width. Normal screenshot review also prompted tighter blank Goal rows and spacing to keep the Data usage footer visible. WORK_LOG retains both corrections and earlier verification history.
 
 ## Signed distribution
 
-ZIP: dist/practice.logger-0.6.1-b12-f4f827b.zip
-APK: dist/practice.logger-0.6.1-b12-f4f827b/practice.logger-0.6.1-b12-f4f827b.apk
-BUILD_INFO.json and INSTALL.txt accompany the APK; dist/LATEST.txt now points here.
-APK SHA-256: 31d38af9325d6fda5252fa2fd69b927cfc4b352111b769548bd9ccf4984a6445
-Permanent certificate SHA-256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+ZIP: dist/practice.logger-0.7.0-b13-61b76d5.zip
+APK: dist/practice.logger-0.7.0-b13-61b76d5/practice.logger-0.7.0-b13-61b76d5.apk
+BUILD_INFO.json and INSTALL.txt accompany the APK; dist/LATEST.txt points here.
+APK SHA256: 2e66741ae596ed76c0cf15c9755847f28d8c6f327392c8716b5e36c640cbd144
+Permanent certificate SHA256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
 
-Existing Publish-LocalApk.ps1 verified signature, pinned certificate, stable package com.mrayover.practicelogger.app, version 0.6.1/code 12, and ZIP-extracted APK checksum. Android 8+; install over the existing permanently signed app without uninstalling. All 28 earlier APK/ZIP baseline files remain byte-identical, including builds 10/11. Old temporary-key 0.1.0 stays separate. Private signing material was unchanged and never uploaded.
+Existing Publish-LocalApk.ps1 verified signature, pinned permanent certificate, stable package com.mrayover.practicelogger.app, version 0.7.0/code 13 and ZIP-extracted APK checksum. Android 8+; install over the existing permanent-key app without uninstalling. All 30 earlier release APK/ZIP files remain byte-identical. Old temporary-key0.1.0 stays separate. Private key unchanged/not uploaded. Temporary-key CI debug APK is unsuitable for updating this installation.
 
 CI artifacts (30-day retention), under the successful run's /artifacts/ path:
-- device-test-reports-api-26: 12780741242; sha256:557d12754ced38ca862f38014c2a8a1a16c540f79e552e25c7d3c4039132c402
-- verification-reports: 12780151700; sha256:82dadd933b700353853f0d7bd75b39eeda82025447d50c8d5887672a77c2f785
-- practice-logger-unsigned-release: 12780021797; sha256:fec96723caa33cf23aad9ff8a166a903e8949b3fdca5bd5de13a09a7023139db
-- practice-logger-debug: 12779991679; sha256:b0c73137aa63bd5405415183130132a6cc42cf0133deefbcb4c97e65126cc359
-- device-test-reports-api-35: 12779393932; sha256:6d7691ed9a3c0addf9287694828ca14429fa8ac567ef55d24ef2f8e46ff70c21
-Downloaded unsigned release, verification and both device reports match their official SHA-256 metadata. Temporary-key debug builds are unsuitable as updates to the permanent-key installation.
+- device-test-reports-api-35: 12787766147; sha256:07e86e01141f357c7cb8ddd7a8d608309678c4cfea6fe3372ccb6b805917295d
+- device-test-reports-api-26: 12787278000; sha256:3749f9f08f0929a80b5dc363a7647ad72e7f83a5364c5f10d03b02406ed42ef5
+- practice-logger-debug: 12786859071; sha256:4e13db529aa58092f22002fd644b3d8405140bc257f50e2b7cdc2a8c742f96a6
+- verification-reports: 12786709425; sha256:e79b0262a749e68196665802d833092bd7e1380872aae797fcffe52c07b2b271
+- practice-logger-unsigned-release: 12786669607; sha256:4d560a34b554a71d270eac8cdd136bd7db0f9bc5de137ab331d70dde1dcefad8
 
 ## Limits and exact next task
 
-JSON format 3/readers 1–3 protects practice data only, excluding take metadata/labels/M4A/WAV. Export wanted takes separately. No audio import/bulk media restore; uninstall/clear/device loss destroys unexported audio. Failed export retains the source but may leave a partial destination. Typing notes alone is not durable; use a save/leave/complete action. Abrupt process death can lose the last uncommitted timer/BPM interval (250 ms plus write latency) or an unsaved capture. Plain-text bounded JSON and empty-target transactional restore limits remain.
+Data usage is only the requested footer label. Goals/routine editing and future tools are not implemented; enabled home buttons open the meaningful existing destinations above. JSON3/legacy readers protect practice database data only, excluding all take metadata/labels/M4A/WAV; export wanted takes separately. No audio import/bulk restore; uninstall/clear/device loss destroys unexported audio. Failed export may leave a partial destination while keeping the original. Saved notes require a save/leave/complete action. Abrupt process death can lose the latest uncommitted timer/BPM interval (250 ms plus write latency) or an unsaved capture. Physical audio onset/boundaries and keyboard Done/Back/lower-control access remain phone checks from the preceding release.
 
-Owner explicitly approved Git commands for this update and release closeout because Desktop controls were unavailable. Actual existing Windows checkout was used; source is committed/pushed on main. Closing release documents follow as a separate commit/push, with final local/remote SHA and clean status verified in the handoff. Default Desktop preference remains for future work. No cloud checkout/PR or alternate repository.
+Owner selected option1 explicitly authorizing Git commands for this redesign and release closeout because Desktop controls were unavailable. Existing Windows checkout used; app source is committed/pushed. Closing release records follow as a separate commit/push and final local/remote SHA/clean status is verified in the handoff. Default Desktop preference remains for future work. No cloud checkout/PR/alternate repository.
 
-Previous release next task (superseded by the current home redesign): install signed 0.6.1/build 12 over the current app, leave Click while recording on, record 8 beats at 120 BPM and confirm four count-in clicks continue through capture. Try the option off, timer pause/resume, cancellation/background silence, retained free/loop takes and export/reopen. Report phone/Android/output route and any audible issues. Then discuss desired save/storage behavior before implementation. Broader storage redesign remains deferred to that discussion.
-
-Home build follow-up: initial0af24df/CI40619032902 failed a styling-reference compilation error. Corrected Edit colors to ButtonDefaults.textButtonColors; new CI pending, no redesign APK delivered yet. Owner has authorized Git commands for this redesign and release closeout.
-
-Home verification follow-up: d2b8126/CI40619311941 passed compilation/33tests/lint and both native workflow chains, but200% Home label bounds failed. Labels now fill button content width for consistent centering. Actual normal screenshot review also prompted tighter blank-goal spacing to keep Data usage fully visible. New fullCI/screenshots pending; no0.7.0APK delivered yet.
+Exact next task: owner installs signed0.7.0/build 13 over the current app, compares Home to the sketch at normal/large text, checks all five routes and Back, continues an existing session under Routines, reopens history/recordings and confirms data remains. Goals/Edit/settings and Data usage are intentionally nonfunctional. Collect actual phone/Android and any visual adjustments; then discuss save/storage if desired before implementing it.

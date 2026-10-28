@@ -1,6 +1,6 @@
 # practice.logger
 
-Latest installable release remains **0.6.1/build 12**. The owner-approved sketched home redesign is prepared for **0.7.0/build 13**, awaiting CI/screenshot review and signed packaging. Build 12 includes default-enabled optional click throughout loop recording. Build 11 was generally accepted by the owner; detailed phone checks for this fix remain pending. See CURRENT_STATE.md.
+Latest installable release: **0.7.0/build 13**, matching the owner-approved green/white home sketch. Default-enabled optional click throughout loop recording remains available. Phone visual acceptance of the redesigned Home remains pending. See CURRENT_STATE.md.
 
 An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
@@ -10,13 +10,13 @@ Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md co
 
 ## Install the versioned local build
 
-The verified, permanently signed 0.6.1 recording-click build (versionCode 12) is in:
+The verified, permanently signed 0.7.0 home-redesign build (versionCode 13) is in:
 
-- ZIP: dist/practice.logger-0.6.1-b12-f4f827b.zip
-- Extracted APK: dist/practice.logger-0.6.1-b12-f4f827b/practice.logger-0.6.1-b12-f4f827b.apk
-- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.6.1-b12-f4f827b/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.7.0-b13-61b76d5.zip
+- Extracted APK: dist/practice.logger-0.7.0-b13-61b76d5/practice.logger-0.7.0-b13-61b76d5.apk
+- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.7.0-b13-61b76d5/BUILD_INFO.json
 
-Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.6.1. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3/0.4.0/0.5.0 or 0.6.0/build 10/11 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
+Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.7.0. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3/0.4.0/0.5.0 or0.6.0/build10/11 or0.6.1/build12 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
 
 The original 0.1.0 APK used a lost temporary CI debug key. To preserve its installed app and Blocks, 0.2.0 uses the stable application ID com.mrayover.practicelogger.app and installs alongside it. **Blocks do not transfer automatically from 0.1.0.** Keep the old catalog if it contains needed data; recreate desired Blocks in the new app. The old APK ZIP and extracted folder are also preserved under a versioned name in dist.
 
@@ -26,7 +26,7 @@ Future locally signed builds use the same permanent key and a higher versionCode
 
 Home → Practice Now → add active Blocks. Create a Block through the shared editor if needed. Up/Down reorders placements; remove placements or override their duration without changing the reusable Block. A draft survives leaving the screen and restarting. Start Session requires at least one placement.
 
-Focused Practice starts paused. Start/Resume counts only foreground active time; Pause, leaving the screen or backgrounding stops it. Each next Block waits for Start. Complete can finish early; Skip records the actual time already spent. At 00:00 the timer pauses and waits for Continue (count-up overtime) or Complete; it never auto-advances. In the prepared redesign, Save for later returns Home; open Routines for Continue Session. Recovery is paused with the correct current Block, order, durations and committed time.
+Focused Practice starts paused. Start/Resume counts only foreground active time; Pause, leaving the screen or backgrounding stops it. Each next Block waits for Start. Complete can finish early; Skip records the actual time already spent. At 00:00 the timer pauses and waits for Continue (count-up overtime) or Complete; it never auto-advances. Save for later returns Home; open Routines for Continue Session. Recovery is paused with the correct current Block, order, durations and committed time.
 
 The final Block automatically saves Session Summary. Recent Practice reopens summaries. Name/action/tempo/reference snapshots remain truthful after the reusable Block is edited or archived. Quick Block notes save with Save Block note, Save for later, Back, Complete or Skip; session notes have an explicit Save note button.
 
@@ -36,7 +36,7 @@ Block Library supports Active/Archived filters, literal case-insensitive search 
 
 ## Build, checks and packaging
 
-Verified source f4f827bde0921b805b4f3126555344507bb0e3fd; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40603962994 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
+Verified source 61b76d50e1ce0dc995cf4775d6d1840a5d10f007; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40620587011 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
 
 Developer command: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease (Windows .\gradlew.bat). Toolchain: JDK 17, Android SDK 36, AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21, Compose and Room 2.8.5. Local signing tools are under ignored .tools; private signing material is under ignored .signing. Back up the entire .signing folder securely outside Git; losing it prevents in-place updates. Only the public certificate fingerprint is committed.
 
@@ -46,7 +46,7 @@ Room schemas 1/2/3/4/5 are committed; explicit 1→2, 2→3, 3→4 and 4→5 mig
 
 ## Stage 3 backup increment
 
-Home → Tools → Backup and restore → Export backup (prepared redesign) opens Android's document picker and saves a version-3 UTF-8 JSON snapshot (legacy versions 1/2 are still readable) of Blocks (including archived), sessions, placements, notes and unfinished practice. Wait for Backup saved; a failed export may leave an incomplete file. Keep the plain text file private. Saved data only: commit quick/session notes before export.
+Home → Tools → Backup and restore → Export backup  opens Android's document picker and saves a version-3 UTF-8 JSON snapshot (legacy versions 1/2 are still readable) of Blocks (including archived), sessions, placements, notes and unfinished practice. Wait for Backup saved; a failed export may leave an incomplete file. Keep the plain text file private. Saved data only: commit quick/session notes before export.
 
 Choose backup to restore validates the complete file and shows counts for confirmation. Restore works only in an empty app (for example, a new phone); it never replaces or merges existing practice data. Validation and the empty-target check/inserts run within one database transaction. Unfinished practice restores paused. Cancelling leaves data unchanged. Do not uninstall/clear the current app to test restore; use a spare device or disposable installation.
 
@@ -61,7 +61,7 @@ Owner instruction 2026-10-26: manual backup/recovery acceptance and the ten-real
 Use Save Block note while practicing to preserve a quick note without completing the Block. Save for later and Back pause/checkpoint and save it before Home; Continue Session restores the text, including after restart. Complete/Skip save final text. Typing alone is not saved against abrupt process death; use a save action. Session notes still require Save note. No schema, app identity or signing-key change. Nineteen unit tests and full API 26/35 device suites passed; CI https://github.com/mrayover/practice.logger/actions/runs/40417269518 . Backup/recovery owner acceptance and evaluation remain deferred by owner. See CURRENT_STATE.md for exact provenance and limitations.
 ## Independent unfinished sessions — 0.3.3
 
-Practice Now stays available alongside Continue Session. Start fresh while keeping older practice; choose a dated session in the Routines overview in the prepared redesign. Each keeps its own position/time/notes and resumes paused. Only one foreground timer runs; one builder draft remains. Format-2 backups include all unfinished sessions; legacy format-1 imports still work. Older app builds reject new format-2 backups safely. Twenty unit tests and full API26/35 suites, including multi-session switching/process restart, pass. Latest verification: https://github.com/mrayover/practice.logger/actions/runs/40417269518 .
+Practice Now stays available alongside Continue Session. Start fresh while keeping older practice; choose a dated session in the Routines overview. Each keeps its own position/time/notes and resumes paused. Only one foreground timer runs; one builder draft remains. Format-2 backups include all unfinished sessions; legacy format-1 imports still work. Older app builds reject new format-2 backups safely. Twenty unit tests and full API26/35 suites, including multi-session switching/process restart, pass. Latest verification: https://github.com/mrayover/practice.logger/actions/runs/40417269518 .
 
 ## Stage 5 metronome — 0.4.0 verified engineering release
 
@@ -97,8 +97,8 @@ In Record phrase, **Click while recording** defaults to on. Four count-in clicks
 
 Source f4f827bde0921b805b4f3126555344507bb0e3fd, CI https://github.com/mrayover/practice.logger/actions/runs/40603962994 passed build, all 33 unit/Robolectric tests, lint (0 errors/10 existing warnings) and full API26/35 native/large-text suites, including actual output-counter checks during on/off capture. Normal and 200% screenshots reviewed. Existing permanent publisher verified the signed versioned ZIP/APK above and preserved all 28 earlier distribution files. Phone audibility/timing and the checklist in MANUAL_TESTS.md remain owner checks. Save/storage changes await discussion after this fix.
 
-## Home sketch redesign — 0.7.0/build 13 prepared, not delivered
+## Home sketch redesign — 0.7.0/build13 delivered
 
-The owner explicitly approves visual placeholders: a green separated header with centered white Lato Bold practice.logger; white background; blank Goals rows and inactive settings/Edit; stacked green Practice Now, Blocks, Routines, Tools and Recording buttons; Data usage text at the bottom. Practice Now uses the existing session builder, Blocks opens Block Library, Routines holds unfinished sessions/history, Tools retains backup/restore, and Recording chooses a Block for its existing recordings. No saved routine/Goal model or storage statistics was added. Prior data and recordings remain unchanged.
+Centered white Lato Bold practice.logger in a separated green header, white background, blank Goals rows with inactive settings/Edit, five stacked green buttons and plain Data usage footer match the owner's requested layout. Practice Now opens session selection; Blocks opens Block Library; Routines holds unfinished sessions/history; Tools retains backup/restore; Recording chooses a Block for its existing saved takes. Goals/reusable routine editing and storage statistics were not implemented. The owner explicitly approved visual placeholders for this increment.
 
-Implementation and adapted navigation/normal/200% screenshot checks are local. Full compilation/unit/lint/API26/35 verification, screenshot review and signed distribution remain pending. The currently linked build12 does not contain the redesign. See CURRENT_STATE.md for the exact next action.
+Source 61b76d50e1ce0dc995cf4775d6d1840a5d10f007 / https://github.com/mrayover/practice.logger/actions/runs/40620587011 passed compilation, all33 unit tests, lint0errors/10warnings and full API26/35 native/navigation/200% checks. Actual normal/large-text home screenshots reviewed. Existing data, recordings, signing and prior releases are retained; detailed phone visual/audio acceptance remains pending. The new signed ZIP/APK are linked above; see CURRENT_STATE.md for provenance and limitations.
