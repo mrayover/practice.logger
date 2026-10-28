@@ -31,9 +31,15 @@ class LaunchTest {
     }
     private fun shown(text: String) { compose.waitUntil(10000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     private fun displayed(text: String) {
-        compose.waitUntil(15000) {
-            try { compose.onNodeWithText(text).assertIsDisplayed(); true }
-            catch (_: AssertionError) { false }
+        try {
+            compose.waitUntil(15000) {
+                try { compose.onNodeWithText(text).assertIsDisplayed(); true }
+                catch (_: AssertionError) { false }
+            }
+        } catch (error: androidx.compose.ui.test.ComposeTimeoutException) {
+            println("CATALOG VISIBILITY FAILURE: " + text + "\n" + compose.onRoot(useUnmergedTree = true).printToString())
+            captureStage3("catalog-visibility-failure")
+            throw error
         }
     }
     @Test fun catalogWorkflowAndDraftRecovery() {
