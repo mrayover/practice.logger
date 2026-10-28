@@ -30,6 +30,12 @@ class LaunchTest {
         override fun finished(description: org.junit.runner.Description) { watcher?.interrupt() }
     }
     private fun shown(text: String) { compose.waitUntil(10000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
+    private fun displayed(text: String) {
+        compose.waitUntil(15000) {
+            try { compose.onNodeWithText(text).assertIsDisplayed(); true }
+            catch (_: AssertionError) { false }
+        }
+    }
     @Test fun catalogWorkflowAndDraftRecovery() {
         shown("Practice Now")
         compose.onNodeWithText("Goals").assertExists()
@@ -59,11 +65,12 @@ class LaunchTest {
         compose.onNodeWithText("Save").performScrollTo().performClick()
         // Commit and settle navigation before verifying saved data across recreation.
         shown("Block Library"); shown("Restart smoke")
-        compose.onNodeWithText("Restart smoke").assertIsDisplayed()
+        displayed("Restart smoke")
         compose.waitForIdle()
         compose.activityRule.scenario.recreate()
         shown("Block Library")
         shown("Restart smoke")
+        displayed("Restart smoke")
         compose.onNodeWithText("Restart smoke").assertIsDisplayed().performClick()
         shown("Edit Block"); shown("Default duration (minutes)")
         compose.onNodeWithTag("Default duration (minutes)").performScrollTo().performTextReplacement("8")

@@ -46,6 +46,8 @@ class MainActivity : ComponentActivity() {
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val view = LocalView.current
+    val focus = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     var freeRecordingStart by rememberSaveable { mutableStateOf(false) }
     var recordingsBlockId by rememberSaveable { mutableStateOf<String?>(null) }
     DisposableEffect(lifecycle, recordings) {
@@ -82,6 +84,7 @@ class MainActivity : ComponentActivity() {
     var archived by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(vm.destinationArchived) {
         vm.destinationArchived?.let { destination ->
+            focus.clearFocus(force = true); keyboard?.hide()
             archived = destination; query = ""; page = editorReturn
             if (editorReturn == "builder") vm.savedBlockId?.let { practice.addBlock(it) }
             vm.navigationHandled()
@@ -94,7 +97,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     LaunchedEffect(routines.editorSaved) {
-        if (routines.editorSaved) { page = "routines"; routines.navigationHandled() }
+        if (routines.editorSaved) { focus.clearFocus(force = true); keyboard?.hide(); page = "routines"; routines.navigationHandled() }
     }
     fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
     fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
