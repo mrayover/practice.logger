@@ -82,7 +82,7 @@ jobs:
             adb shell locksettings set-disabled true
             adb shell wm dismiss-keyguard
             adb shell pm clear com.mrayover.practicelogger.app || true
-            bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace
+            bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace || { adb logcat -d > app/build/catalog-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/catalog-failure-screenshots; exit 1; }
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ProcessReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/process-reopen.txt
@@ -165,6 +165,8 @@ jobs:
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
             app/build/catalog-workflow-reports
+            app/build/catalog-failure-log.txt
+            app/build/catalog-failure-screenshots
             app/build/routine-*.txt
             app/build/routine-screenshots
             app/build/multi-*.txt

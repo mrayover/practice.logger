@@ -7,6 +7,28 @@ import org.junit.Test
 
 class LaunchTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule val diagnostic = object : org.junit.rules.TestWatcher() {
+        private var watcher: Thread? = null
+        override fun starting(description: org.junit.runner.Description) {
+            watcher = Thread({
+                try {
+                    Thread.sleep(45000)
+                    Thread.getAllStackTraces().forEach { (thread, frames) ->
+                        android.util.Log.e("CatalogDiagnostic", "THREAD ${thread.name}: ${thread.state}\n" + frames.take(24).joinToString("\n"))
+                    }
+                    val instrumentation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                    val context = instrumentation.targetContext
+                    val folder = java.io.File(context.getExternalFilesDir(null), "screenshots").apply { mkdirs() }
+                    instrumentation.uiAutomation.takeScreenshot()?.let { bitmap ->
+                        java.io.FileOutputStream(java.io.File(folder, "catalog-stall.png")).use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                        bitmap.recycle()
+                    }
+                } catch (_: InterruptedException) { }
+                catch (error: Exception) { android.util.Log.e("CatalogDiagnostic", "Diagnostic failed", error) }
+            }, "CatalogDiagnostic").apply { isDaemon = true; start() }
+        }
+        override fun finished(description: org.junit.runner.Description) { watcher?.interrupt() }
+    }
     private fun shown(text: String) { compose.waitUntil(10000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     private fun openSmoke() {
         // A recreated text editor can leave IME covering the library's small viewport on API26.
