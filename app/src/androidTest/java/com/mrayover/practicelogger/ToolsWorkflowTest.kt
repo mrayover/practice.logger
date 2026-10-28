@@ -53,7 +53,11 @@ class ToolsWorkflowTest {
         click("Back to Tools"); compose.runOnIdle {
             assertFalse(vm.countdownRunning); assertFalse(vm.stopwatchRunning); assertEquals(elapsed, vm.stopwatchMs)
         }
-        click("Timer"); click("Reset stopwatch"); assertEquals(0, vm.stopwatchMs)
+        val pausedRemaining = vm.remainingMs
+        click("Timer"); compose.runOnIdle { assertEquals(pausedRemaining, vm.remainingMs) }
+        compose.activityRule.scenario.recreate()
+        compose.runOnIdle { assertEquals(pausedRemaining, vm.remainingMs); assertFalse(vm.countdownRunning) }
+        click("Reset stopwatch"); assertEquals(0, vm.stopwatchMs)
         click("Reset timer"); assertEquals(60000, vm.remainingMs)
         click("Back to Tools"); click("Back to Home"); banner()
         openHomeRoutines(compose)

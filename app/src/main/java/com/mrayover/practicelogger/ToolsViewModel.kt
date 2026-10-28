@@ -53,7 +53,7 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun resetStopwatch() { stopwatch.reset(); updateClocks() }
     fun selectMinutes(value: Int) {
-        if (!countdown.running) { minutes = value.coerceIn(1, 180); countdown.reset(); updateClocks() }
+        if (!countdown.running && value.coerceIn(1, 180) != minutes) { minutes = value.coerceIn(1, 180); countdown.reset(); updateClocks() }
     }
     fun toggleCountdown() {
         if (countdown.running) countdown.pause()
