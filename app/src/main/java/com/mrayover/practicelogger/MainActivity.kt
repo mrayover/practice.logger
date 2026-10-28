@@ -3,6 +3,8 @@ package com.mrayover.practicelogger
 import android.os.Bundle
 import android.os.Build
 import android.app.Activity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
@@ -33,6 +35,8 @@ import androidx.compose.ui.platform.LocalView
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(PracticeGreen.toArgb()),
+            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.WHITE, android.graphics.Color.BLACK))
         setContent { PracticeTheme { CatalogApp() } }
     }
 }
