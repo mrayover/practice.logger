@@ -60,7 +60,7 @@ import kotlin.math.sin
                     Column(Modifier.fillMaxWidth().border(1.dp, PracticeGreen, RoundedCornerShape(6.dp)).testTag("goals-placeholder")) {
                         repeat(2) { index ->
                             if (index > 0) HorizontalDivider(color = PracticeGreen.copy(alpha = 0.35f))
-                            Box(Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(horizontal = 16.dp, vertical = 10.dp)
+                            Box(Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(horizontal = 16.dp, vertical = 8.dp)
                                 .semantics { contentDescription = "Goal ${index + 1}, empty" }) {
                                 Text("${index + 1}.", color = PracticeGreen.copy(alpha = 0.65f), fontSize = 16.sp)
                             }
@@ -72,7 +72,7 @@ import kotlin.math.sin
                             Text("Edit", fontWeight = FontWeight.Bold)
                         }
                     }
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(8.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         HomeButton("Practice Now", onPractice)
                         HomeButton("Blocks", onBlocks)
@@ -91,7 +91,7 @@ import kotlin.math.sin
 @Composable private fun HomeButton(label: String, action: () -> Unit) {
     Button(onClick = action, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
         shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White)) {
-        Text(label, fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 28.sp, textAlign = TextAlign.Center)
+        Text(label, modifier = Modifier.fillMaxWidth(), fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 28.sp, textAlign = TextAlign.Center)
     }
 }
 
