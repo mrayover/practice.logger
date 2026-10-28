@@ -1,26 +1,22 @@
 # practice.logger
 
-Latest installable release: **0.7.0/build 13**, matching the owner-approved green/white home sketch. Default-enabled optional click throughout loop recording remains available. Phone visual acceptance of the redesigned Home remains pending. See CURRENT_STATE.md.
+Latest installable release: **0.8.0/build14**, with persistent green Lato banner, unfinished sessions in Practice Now and standalone Metronome/Tuner/Timer. CI-verified and permanently signed; physical phone/audio acceptance pending. See CURRENT_STATE.md.
 
 An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
-Stages 0, 1 and 2 passed automated verification. The owner generally confirms that 0.3.0 works on their phone (model/OS and individual checklist results not supplied). Stage 3 now has versioned backup/export and protected empty-app restore; Stage 3 engineering hardening is verified on Android 8 and 15, including real system document pickers and 200% text; owner phone acceptance is pending. Stage 4 ten-session evaluation is prepared in EVALUATION.md (0/10 real sessions recorded). Owner approved Stage 5 metronome followed by Stage 6A/6B Block recording on 2026-10-26; Stage 5 engineering is verified in 0.4.0/build 8; owner generally accepts the metronome; detailed phone timing results were not supplied. Goals, Routines, tuner, overdubbing and other deferred features remain excluded.
+Stages 0, 1 and 2 passed automated verification. The owner generally confirms that 0.3.0 works on their phone (model/OS and individual checklist results not supplied). Stage 3 now has versioned backup/export and protected empty-app restore; Stage 3 engineering hardening is verified on Android 8 and 15, including real system document pickers and 200% text; owner phone acceptance is pending. Stage 4 ten-session evaluation is prepared in EVALUATION.md (0/10 real sessions recorded). Owner approved Stage 5 metronome followed by Stage 6A/6B Block recording on 2026-10-26; Stage 5 engineering is verified in 0.4.0/build 8; owner generally accepts the metronome; detailed phone timing results were not supplied. Goals, reusable Routines, overdubbing and other deferred features remain excluded. The owner-approved standalone tuner/Tools increment is described below.
 
 Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md completely before every development session. Every session, including incomplete work or fixes, must update the records and publish intended changes through GitHub Desktop.
 
 ## Install the versioned local build
 
-The verified, permanently signed 0.7.0 home-redesign build (versionCode 13) is in:
+Verified, permanently signed0.8.0/build14:
 
-- ZIP: dist/practice.logger-0.7.0-b13-61b76d5.zip
-- Extracted APK: dist/practice.logger-0.7.0-b13-61b76d5/practice.logger-0.7.0-b13-61b76d5.apk
-- Exact commit, CI link, APK SHA-256 and certificate: dist/practice.logger-0.7.0-b13-61b76d5/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.8.0-b14-c96b903.zip
+- APK: dist/practice.logger-0.8.0-b14-c96b903/practice.logger-0.8.0-b14-c96b903.apk
+- Exact source, CI, APK hash and pinned certificate: dist/practice.logger-0.8.0-b14-c96b903/BUILD_INFO.json
 
-Transfer the APK to an Android 8.0+ phone, open it, and approve Android's installation prompt for the source you trust. The launcher label is practice.logger; Android app details show version 0.7.0. Install over signed 0.2.0, 0.3.0, 0.3.1 or 0.3.3/0.4.0/0.5.0 or0.6.0/build10/11 or0.6.1/build12 to retain existing data. Every previous ZIP and extracted folder remains in dist; no in-app updater/version control has been added. See MANUAL_TESTS.md before storing important practice data.
-
-The original 0.1.0 APK used a lost temporary CI debug key. To preserve its installed app and Blocks, 0.2.0 uses the stable application ID com.mrayover.practicelogger.app and installs alongside it. **Blocks do not transfer automatically from 0.1.0.** Keep the old catalog if it contains needed data; recreate desired Blocks in the new app. The old APK ZIP and extracted folder are also preserved under a versioned name in dist.
-
-Future locally signed builds use the same permanent key and a higher versionCode: install over the new app to retain its database. Do not uninstall it first, and do not substitute a temporary-key CI debug APK. Code changes still require compilation; CI builds them without an Android developer installation on the owner's computer. No account, online update checker or backend has been added. Android's update-signing requirements: https://developer.android.com/studio/publish/app-signing .
+Transfer APK to Android8+ and install over the existing permanently signed app without uninstalling; existing practice/takes retained. Every earlier ZIP/folder remains in dist. Temporary-key CI debug APKs cannot update this installation. The original0.1.0 stays separate; its data does not transfer automatically. Back up wanted practice JSON and export wanted recordings separately; JSON excludes audio. See MANUAL_TESTS.md and CURRENT_STATE.md.
 
 ## Practice workflow
 
@@ -36,7 +32,7 @@ Block Library supports Active/Archived filters, literal case-insensitive search 
 
 ## Build, checks and packaging
 
-Verified source 61b76d50e1ce0dc995cf4775d6d1840a5d10f007; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40620587011 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
+Verified source c96b903c6617f0351baf99202e262cadc0a0696c; successful CI: https://github.com/mrayover/practice.logger/actions/runs/40629201227 . CI builds debug and unsigned release APKs, runs unit tests/lint, then Android emulator catalog/session/restart/history and install-over-upgrade checks. Artifacts expire after 30 days. The CI debug artifact is installable for isolated testing, but its temporary key is unsuitable for updating the permanently signed local distribution. The unsigned release artifact must be signed before installation.
 
 Developer command: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease (Windows .\gradlew.bat). Toolchain: JDK 17, Android SDK 36, AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21, Compose and Room 2.8.5. Local signing tools are under ignored .tools; private signing material is under ignored .signing. Back up the entire .signing folder securely outside Git; losing it prevents in-place updates. Only the public certificate fingerprint is committed.
 
@@ -103,6 +99,8 @@ Centered white Lato Bold practice.logger in a separated green header, white back
 
 Source 61b76d50e1ce0dc995cf4775d6d1840a5d10f007 / https://github.com/mrayover/practice.logger/actions/runs/40620587011 passed compilation, all33 unit tests, lint0errors/10warnings and full API26/35 native/navigation/200% checks. Actual normal/large-text home screenshots reviewed. Existing data, recordings, signing and prior releases are retained; detailed phone visual/audio acceptance remains pending. The new signed ZIP/APK are linked above; see CURRENT_STATE.md for provenance and limitations.
 
-## Current work — persistent banner and standalone Tools0.8.0
+## Persistent banner and standalone Tools0.8.0 — delivered
 
-Owner generally accepts0.7.0 and requests a persistent green banner, unfinished sessions in Practice Now, and Metronome/Tuner/Timer under Tools. Implementation is prepared; full CI/signing pending. Metronome has center BPM with ±1/±5 and click; tuner uses microphone single-note pitch, A4=440Hz; timer has stopwatch and rolled whole minutes1–180. Tool audio stops and timers pause when leaving/backgrounding; no background alarms or saved tuner audio. Routines retains recent history. See CURRENT_STATE/BUILD_PLAN section21 for exact status. Older release sections above record historical behavior; unfinished-session navigation now belongs to Practice Now. No storage redesign.
+Home's centered green Lato banner now stays above all app routes. Practice Now contains unfinished-session selection and new-session builder; Routines retains recent history. Tools has green Metronome/Tuner/Timer plus backup. Metronome center BPM/±1/±5 uses existing click30–300BPM; tuner analyzes microphone single notes50–1600Hz atA4=440Hz with note/cents/direction; Timer offers stopwatch and rolled1–180 whole minutes. Audio stops and clocks pause on exit/background/recreation; no background alarm or persistent tool log. Existing practice/audio data and permanent key retained.
+
+Source c96b903c6617f0351baf99202e262cadc0a0696c, CI https://github.com/mrayover/practice.logger/actions/runs/40629201227:38unit tests, lint0errors/10warnings, full API26/35 initial+18direct phases and200% tools/navigation checks pass. Normal API26/35 and 200% tool screenshots were visually reviewed: persistent centered banner, green menu/tempo buttons, microphone Listening state, rolled minute selector and zero/Time’s up. Large text scrolls to its controls; API35 status backing stays green after background/resume (sampled #315C47). Signed ZIP/APK above; phone microphone accuracy/audibility/countdown completion acceptance pending. Historical release sections retain earlier navigation descriptions; current continuation route is Practice Now. Goals/reusable routines/storage redesign deferred.
