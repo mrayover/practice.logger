@@ -1,63 +1,28 @@
-# Current work
-
-0.9.0/build15 cream/standalone recording is prepared, not CI-verified or delivered. Last verified distribution remains0.8.0/build14 below. Changes local/uncommitted/unpushed pending publication workflow. Exact next task: publish prepared change, obtain compiler-exported Room6 schema, verify final-source fullCI/screenshots, sign/package with permanent key, update final logs.
-
-## 2026-10-27 — Cream background and standalone recording increment
-
-Owner explicitly requests light cream throughout app backgrounds and a Free recording block in Recording that starts a free take immediately and keeps all standalone takes together using existing Block recorder infrastructure. Implemented cream#FFF8EB across Material surfaces/dialogs/fields, Home, navigation and launch background; green banner/buttons/Lato retained. Recording has Free recording(one tap starts capture or requests mic then starts after grant) and Saved free recordings(browse without capture). Shared recorder retains Stop/save, playback, rename, confirmed delete/export and lifecycle cleanup. Phrase loop controls remain in Blocks only. No synthetic Block is created.
-
-Room6 explicit5→6 rebuild makes take.blockId nullable, preserves every old take field/Block foreign key/index and all session data. Null owner denotes freestanding takes; active-screen guard distinguishes standalone recording from a closed screen. JSON3 still excludes all recordings/labels/metadata; per-take export retained. No bulk storage/backup redesign or new dependency/key/appID. Goals/routines remain deferred; Stage3 phone pending, Stage4 0/10. Target0.9.0/build15, upgrade16.
-
-Prepared two meaningful Robolectric tests for frozen schema5 upgrade (free/loop takes, notes, FK enforcement) and standalone file save/reopen/rename/export/delete isolation. Two native phases test one-tap actual M4A, two independent takes, recreation save/no restart, playback/rename/browse and cold reopen without creating/changing Blocks or linked takes. 200% free-list controls/screenshots added; all prior suites retained. Full compilation/lint/unit/API26/35 pending CI; compiler-generated schema6 export must be committed before final verification. No new APK yet.
-## Previous verified release
-
 # Current state
 
-Updated 2026-10-27 America/Los_Angeles. **0.8.0/build14** implements the owner's persistent banner, Practice Now recovery and standalone Tools request. Full engineering verification and permanent-key signed packaging complete. Owner generally accepts0.7.0; detailed0.8.0 phone/audio acceptance remains pending. Stage3 phone backup acceptance pending; Stage4 stays0/10.
+## 0.9.0/build 15 — verified signed delivery, 2026-10-28 America/Los_Angeles
 
-## Screens and tools
+Light cream #FFF8EB covers app backgrounds, Material surfaces/dialogs/fields, launch and navigation; green banner/buttons and Lato retained. Recording → Free recording starts native M4A capture immediately when permission/storage/foreground are ready, or after microphone permission is allowed. Saved free recordings opens the same collection without capture. Shared Block recorder provides Stop/save, playback, rename, confirmed delete and per-take export. Rotation/background/exit stops and saves usable capture without starting another; free takes remain together, separate from Block takes. No synthetic Block is created; phrase controls remain in Blocks.
 
-- Shared green header with centered white practice.logger in bundled Lato Bold above every app route, including loading/error states; explicit Activity edge-to-edge keeps green behind white status icons after background/resume on Android15. Android dialogs/system pickers remain overlays. White body/home design retained; blank Goals/settings/Edit and Data usage remain explicitly approved placeholders.
-- Practice Now contains Continue Session and individually selectable unfinished sessions plus the existing new-session builder. Old practice resumes paused; independent sessions/draft/notes retained. Routines retains recent history; no reusable routine editor implemented.
-- Tools: matching green Metronome, Tuner, Timer and existing Backup and restore buttons.
-- Metronome: one centered 30–300 BPM number, −1/+1 row then−5/+5 row, Start/Stop; existing sample-clock PCM engine, media volume. Independent of logged practice tempo/history.
-- Tuner: actual in-memory mono microphone input; YIN normalized-difference/refined pitch with RMS/confidence gate; single-note 50–1600 Hz, A4=440Hz, note/octave/frequency/cents and flat/sharp/in-tune. No fake note or saved recording. Mic permission on Start, then explicit second Start; denial message supports Android settings. Quiet/no confident pitch shows Listening/play one note.
-- Timer: independent stopwatch Start/Stop/Reset, snap wheel 1–180 whole minutes plus countdown Start/Stop/Reset and visible Time’s up at zero. Monotonic intervals. All tool audio stops and tool clocks pause on exit/background/recreation; never auto restart. Paused values survive ordinary recreation/navigation in the same process. Process death resets temporary tool state; no tool logs or background alarm/service.
+Room schema6 explicit5→6 migration preserves old take IDs/files/labels/tempo/beats, foreign keys/indexes and all practice data; nullable blockId denotes standalone ownership. Compiler-generated6.json committed. JSON3/legacy readers unchanged and still exclude ALL takes/labels/audio, including standalone: export wanted audio separately. No new dependency, appID or permanent-key change; broader storage/backup, Goals/reusable routines remain deferred. Stage3 phone acceptance pending; Stage4 stays0/10.
 
-No appID/com.mrayover.practicelogger.app, permanent key, schema5/migration, JSON3/legacy readers or dependency change. Existing catalog/practice/notes/recovery/history/metronome/free takes/phrase loops/default recording click/export retained. JSON backups exclude all take metadata/labels/audio; export wanted takes separately. Goals/reusable routines and broader save/storage remain deferred.
+Verified app/test source: e1c884c91faa26576de8765296e6f203399df8c5
+Successful CI: https://github.com/mrayover/practice.logger/actions/runs/40634982208
+40 unit/Robolectric tests pass, no failures/errors/skips; lint0 errors/10 warnings. Both Android8/API26 and Android15/API35 pass initial workflow plus20 direct phases, including new standalone native capture/recreation/rename/playback/cold reopen/isolation checks, frozen schema5 upgrade/file safety, all prior practice/backup/recording/phrase/tools/upgrade and200% checks. Upgrade code16. Normal Android8/15 free-take lists and cream Home plus 200% free-recording controls visually reviewed; cream surfaces, retained green branding, two saved takes and shared playback/rename/export/delete controls are visible. The first menu-named screenshot captured the preceding Home frame; automated button navigation/capture assertions and actual saved-list screenshots verify the recording destination. Physical phone/audio quality acceptance remains pending. No local Android SDK/emulator installed.
 
-## Verification
+ZIP: dist/practice.logger-0.9.0-b15-e1c884c.zip
+APK: dist/practice.logger-0.9.0-b15-e1c884c/practice.logger-0.9.0-b15-e1c884c.apk
+APK SHA256: 1a6a9ffcda4cc80938d4b43491040f88b72dc28758eb5445dd2fd47e1810f42f
+Permanent certificate: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+Existing publisher verified signature/pinned certificate/stable com.mrayover.practicelogger.app/version0.9.0/code15/ZIP extraction. All33 prior baseline APK/ZIP files unchanged; LATEST updated after packaging. Private key unchanged/not uploaded. Install over current permanent-key app without uninstalling.
 
-App/test source main: c96b903c6617f0351baf99202e262cadc0a0696c
-Successful CI: https://github.com/mrayover/practice.logger/actions/runs/40629201227
-build 122621402598 SUCCESS; device (26) 122622391077 SUCCESS; device (35) 122622391133 SUCCESS.
-All 38 unit/Robolectric tests pass, 0 failures/errors/skips; lint 0 errors/10 warnings. Android8/API26 and Android15/API35 pass expanded initial home/catalog workflow plus 18 direct phases, including the new Tools workflow and existing session recovery/history/backup/system pickers/install-over upgrade/native recording/phrase/export/200% checks. Upgrade test uses code15.
+CI artifacts (30-day retention):
+- practice-logger-debug: 12793865029; sha256:27a782946535999d6d8376d31fe58db74b4e4e3fae317b74d490710e1630acd5
+- practice-logger-unsigned-release: 12793620700; sha256:2dfa49348b3802926c38920c3803fbf984360b8b8a8987f8d51357e9e588e7d8
+- device-test-reports-api-35: 12793436676; sha256:f4e1bb520720baefb91b8ed31b2f79bb12af2a1151bf85d2ef1903eca600b358
+- verification-reports: 12793062805; sha256:be6b4322679508c7ebf28fa5fd9b6c2c076160e91a316c02a5b6fc92e4efbe60
+- device-test-reports-api-26: 12792904844; sha256:95863457a8735344b510036bcfc466dbe7b86ac8d0244af08648910fbb0cd517
 
-Five added pure tool tests cover44.1/48kHz pitch55–1318Hz, dominant harmonics, concert note/octave/cents/detuning, silence/DC/noise/quiet/invalid input and started/paused/resumed/reset elapsed intervals. Native Tools test checks ±1/±5/live click and recreation cleanup, actual microphone frames, background stop, rolled minute selection/accessible adjustment, running/stopped stopwatch/countdown, a full one-minute completion at zero/Time’s up and restart, paused reentry/recreation and reset. Existing recovery tests now use Practice Now; Routines has no unfinished-session list. Strict200% tool label checks and native screenshots retained. Normal API26/35 and 200% tool screenshots were visually reviewed: persistent centered banner, green menu/tempo buttons, microphone Listening state, rolled minute selector and zero/Time’s up. Large text scrolls to its controls; API35 status backing stays green after background/resume (sampled #315C47). Physical acoustic accuracy/audibility and owner phone acceptance remain pending. No local Android SDK/emulator installed; isolated local cached-Kotlin tool tests also pass.
+Owner authorized Git commands for this update/schema/closeout because Desktop controls unavailable; default Desktop preference retained. Existing Windows checkout, synced sources untouched; app source/schema pushed, closing records publish separately with local/remote clean status verified in handoff.
 
-Initial95ff51a/CI40625179105 superseded before final verification: review caught wheel initialization resetting paused countdown. Final source ignores unchanged selection; native check requires remaining time preserved on reentry/recreation. Sourceb1bc9fe/CI40625266383 passed all suites; source3ed1e8b/CI40626839878 additionally verified rendered Stop click state and actual one-minute completion/restart on both APIs. Screenshot review then caught white status-bar backing after API35 background/resume; explicit Activity edge-to-edge/status style corrects it. ac5d090/CI40628222978 passed build/38tests/lint, but API35 recorder denial test left the native permission dialog open after its first tap. Final test waits for dismissal and reacquires/retries once if still present, retaining all denial/no-capture/data assertions. Initial local4:1-decimated pitch analysis failed strict high-note accuracy; corrected to2:1 and all5 focused tests pass. No failed/superseded-source APK distributed. Downloaded verification, release and native reports match official GitHub SHA256 metadata. See WORK_LOG for chronology.
-
-## Signed distribution
-
-ZIP: dist/practice.logger-0.8.0-b14-c96b903.zip
-APK: dist/practice.logger-0.8.0-b14-c96b903/practice.logger-0.8.0-b14-c96b903.apk
-BUILD_INFO.json and INSTALL.txt accompany APK; dist/LATEST.txt points here.
-APK SHA256: 106e653f3a18c3bb4b3b90f34fe823ce5f9cbea127e0b6d019474575d1240ba9
-Permanent certificate SHA256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
-
-Existing Publish-LocalApk.ps1 verified signature/pinned certificate/stable package/version0.8.0/code14 and ZIP-extracted APK checksum. All 31 preexisting baseline APK/ZIP files remain byte-identical. Private key unchanged/not uploaded. Android8+; install over permanent-key app without uninstalling. Old0.1.0 remains separate; no automatic transfer. Temporary CI debug key is unsuitable for updating the owner's installation.
-
-CI artifacts retained30days under successful run:
-- device-test-reports-api-26: 12791316896; sha256:594ddbc9c540057ba97b13b4a567467849aa65b8410907e84720e53708f797fe
-- verification-reports: 12790792375; sha256:9aea2fc1f761a5fd8c425b5c9a050f903757bdbb155e42342c2a29924162dc8b
-- practice-logger-unsigned-release: 12790687944; sha256:0327528d4c89505280ee9bf5b538c54c7b16e0dc7abc7b50c4f1174c48b9fc5d
-- practice-logger-debug: 12790578562; sha256:01fcb837b7041ee748968fd89bcbbf6478092341152b68b29eb96f1a3b6bd4e3
-- device-test-reports-api-35: 12790519413; sha256:17f7773f27b6725e9ef2a71c66415ff90728a170ae50f93acb54770be2bea257
-
-## Limits and exact next task
-
-Tuner is a foreground single-note utility; room noise/overtones/microphone route can affect readings. Synthetic/emulator tests do not establish acoustic phone accuracy. Tool timers pause away from the screen and provide no background alarm; temporary state resets after process death. Physical timing/output quality and TalkBack/vendor-specific permission behavior remain owner checks. Existing data/audio-backup exclusions, explicit note saves, possible last250ms+write-latency checkpoint loss, and partial failed export destinations remain documented in MANUAL_TESTS/BACKUP_FORMAT. No storage redesign or fabricated usage statistics.
-
-Owner selected option1 authorizing Git commands for this update/release records because Desktop controls unavailable. App source committed/pushed in existing Windows checkout; closing records follow as separate commit. Default Desktop preference retained for future work. No synced source modification, cloud checkout, alternate repo or PR.
-
-Exact next task: install signed0.8.0/build14 over the current app; check banner/routes and unfinished sessions under Practice Now, hear ±1/±5 click, compare tuner with trusted440Hz single notes/flat/sharp, roll1minute and check countdown completion plus stopwatch/Stop/Reset/background pause, then reopen old practice/takes. Report actual phone/Android/audio route and findings; discuss save/storage afterward before implementation.
+Exact next task: owner installs signed0.9.0/build15, checks cream screens/dialogs, taps Free recording and saves two takes, listens/renames/exports, browses Saved free recordings without mic, restarts/rotates/backgrounds and confirms old Blocks/session notes/free/loop takes untouched. Report phone/Android/mic route/results; discuss broader save/storage afterward. JSON still excludes audio.
