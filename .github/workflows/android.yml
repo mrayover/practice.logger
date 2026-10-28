@@ -18,6 +18,12 @@ on:
         default: '26'
         type: choice
         options: ['26', '35']
+      font_scale:
+        description: 'Diagnostic text scale'
+        required: false
+        default: '1.0'
+        type: choice
+        options: ['1.0', '2.0']
 permissions:
   contents: read
 concurrency:
@@ -172,6 +178,9 @@ jobs:
             grep -q "OK (1 test)" app/build/goal-reopen.txt
             adb shell settings put system font_scale 2.0
             adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.GoalAccessibilityTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/goal-accessibility.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/goal-large-screenshots
+            grep -q "OK (1 test)" app/build/goal-accessibility.txt
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.AccessibilityWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/accessibility-workflow.txt
             adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/accessibility-screenshots
             grep -q "OK (1 test)" app/build/accessibility-workflow.txt
@@ -190,6 +199,7 @@ jobs:
             app/build/catalog-failure-screenshots
             app/build/goal-*.txt
             app/build/goal-screenshots
+            app/build/goal-large-screenshots
             app/build/routine-*.txt
             app/build/routine-screenshots
             app/build/multi-*.txt
@@ -241,6 +251,7 @@ jobs:
           script: bash scripts/Check-AndroidClass.sh
         env:
           TARGET_TEST_CLASS: ${{ inputs.test_class }}
+          TARGET_FONT_SCALE: ${{ inputs.font_scale }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
