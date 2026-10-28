@@ -91,6 +91,7 @@ class LaunchTest {
         shown("Block Library")
         shown("8 min")
         compose.onNodeWithText("Search Blocks").performTextInput("nonexistent")
+        displayed("No matching Blocks.")
         compose.onNodeWithText("No matching Blocks.").assertIsDisplayed()
         compose.onNodeWithText("Search Blocks").performTextReplacement("bridge")
         compose.onNodeWithText("Restart smoke").assertExists().performClick()
