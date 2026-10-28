@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
         Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
-        } else if (!catalog.ready || !sessions.ready) {
+        } else if (!catalog.ready || !sessions.ready || !goals.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
             "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },

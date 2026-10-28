@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 class GoalViewModel(application: Application) : AndroidViewModel(application) {
     private val db = BlockDatabase.appInstance(application)
     private val repository = GoalRepository(db)
-    val goals = repository.goals.catch { error = "Goals could not be loaded. Close and reopen to retry." }
+    var ready by mutableStateOf(false); private set
+    val goals = repository.goals.onEach { ready = true }.catch { error = "Goals could not be loaded. Close and reopen to retry." }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val times = db.goals().observeTime().catch { error = "Goal practice time could not be loaded." }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

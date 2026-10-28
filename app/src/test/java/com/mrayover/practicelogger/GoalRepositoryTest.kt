@@ -123,6 +123,18 @@ class GoalRepositoryTest {
         } finally { db.close(); target.close() }
     }
 
+    @Test fun lateGoalLinkFailureRollsBackAllTables(): Unit = runBlocking {
+        val source = memory(); val target = memory()
+        try {
+            val b = block(source); val g = goal(source); GoalRepository(source).setBlocks(g, listOf(b))
+            SessionRepository(source).startGoal(g)
+            val data = BackupRepository(source).snapshot()
+            target.openHelper.writableDatabase.execSQL("CREATE TRIGGER reject_goal_link BEFORE INSERT ON session_goals BEGIN SELECT RAISE(ABORT, 'test failure'); END")
+            try { BackupRepository(target).restore(data); fail("Partial Goal restore") } catch (_: android.database.sqlite.SQLiteException) { }
+            assertEquals(BackupData(emptyList(), emptyList(), emptyList()), BackupRepository(target).snapshot())
+        } finally { source.close(); target.close() }
+    }
+
     @Test fun migrationSevenPreservesEveryExistingTableAndPermitsGoals(): Unit = runBlocking {
         val name = "goals-migration.db"; context.deleteDatabase(name)
         val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/7.json")!!.bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }

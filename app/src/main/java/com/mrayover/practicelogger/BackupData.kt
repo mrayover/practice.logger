@@ -132,7 +132,8 @@ class BackupRepository(private val db: BlockDatabase) {
     suspend fun snapshot(): BackupData = db.withTransaction {
         val bundles = db.sessions().readAll()
         val routines = db.routines().readAll()
-        BackupData(db.blocks().readAll(), bundles.map { it.session }, bundles.flatMap { it.ordered }, routines.map { it.routine }, routines.flatMap { it.ordered }, db.goals().readAll().map { it.goal }, db.goals().readAll().flatMap { it.ordered }, db.goals().readSessions())
+        val goals = db.goals().readAll()
+        BackupData(db.blocks().readAll(), bundles.map { it.session }, bundles.flatMap { it.ordered }, routines.map { it.routine }, routines.flatMap { it.ordered }, goals.map { it.goal }, goals.flatMap { it.ordered }, db.goals().readSessions())
     }
     suspend fun restore(data: BackupData) = db.withTransaction {
         BackupCodec.validate(data)

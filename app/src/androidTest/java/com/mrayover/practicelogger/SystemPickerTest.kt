@@ -54,6 +54,11 @@ class SystemPickerExportTest {
                 repo.addBlock(id); repo.addBlock(id)
                 val session = repo.start(); repo.checkpoint(session, 1234); repo.finishBlock(session, "SKIPPED", "first note")
                 repo.checkpoint(session, 500)
+                val goalRepo = GoalRepository(db)
+                val goalId = goalRepo.save(null, "Picker Goal", "Memorize", 42, "Goal note")
+                goalRepo.setBlocks(goalId, listOf(id))
+                db.goals().insert(GoalSession(session, goalId))
+                goalRepo.setCompleted(goalId, true)
                 RoutineRepository(db).save(null, "Picker saved routine", listOf(RoutineSelection(id, 180_000), RoutineSelection(id, 60_000)))
                 BlockRepository(db).setArchived(id, true)
             }
@@ -69,6 +74,11 @@ class SystemPickerExportTest {
             val exported = BackupCodec.decode(device.executeShellCommand("cat /sdcard/Download/$PICKER_FILE").toByteArray(Charsets.UTF_8))
             runBlocking { assertEquals(BackupRepository(db).snapshot(), exported) }
             assertEquals(1, exported.sessions.count { it.status == "IN_PROGRESS" })
+            assertEquals("Picker Goal", exported.goals.single().title)
+            assertEquals(42, exported.goals.single().progress)
+            assertTrue(exported.goals.single().completed)
+            assertEquals(exported.goals.single().id, exported.sessionGoals.single().goalId)
+            assertEquals(1, exported.goalBlocks.size)
             assertEquals("Picker saved routine", exported.routines.single().name)
             assertEquals(listOf(180_000L, 60_000L), exported.routinePlacements.map { it.configuredMs })
             compose.onNodeWithText("Choose backup to restore").performScrollTo().performClick()
