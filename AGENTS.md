@@ -1,5 +1,7 @@
 # Permanent development instructions
 
+Mandatory efficiency review: before implementation in every future instance, read and follow [Mandatory efficiency procedure for all future work](WORK_LOG.md#2026-10-28--mandatory-efficiency-procedure-for-all-future-work). Confirm review in the initial work plan. Reuse existing components, produce a clearly labelled candidate build early, isolate failing tests, collect evidence before further speculative fixes, and run full release verification after targeted checks pass. Preserve all required release/data/signing gates; distinguish candidates, automated verification and phone acceptance. Keep analysis, tool output and records concise; record justified exceptions. This rule remains active beyond the0.10.0 session.
+
 Read README.md, AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and BUILD_PLAN.md completely before implementation in every session. Inspect local changes, branch, remote and CI first. BUILD_PLAN.md governs the first usable release; preserve the original prefixed planning documents as provenance.
 
 Work in the existing repository, preferably C:\Users\mrove\Projects\practice.logger. Preserve user changes and commit history. The owner uses GitHub Desktop exclusively: use Desktop for Git mutations, including commit/push/fetch/pull. Read-only repository inspection is allowed. Do not create another repository.
