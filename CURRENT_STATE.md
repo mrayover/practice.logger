@@ -37,3 +37,5 @@ Exact next task: owner installs signed0.9.0/build15, checks cream screens/dialog
 Routines first build milestone: source f2b6d02, CI40717132554 build success;51 unit tests pass/lint0errors10warnings. Compiler-generated7.json retained locally and now publishing. Final device checks/screenshots/signing pending.
 
 Device checkpoint: CI40718045337 API35 initial+22phases pass. API26 LaunchTest fails to find editor after unscrolled tap; test scroll/wait fix prepared and now publishing. All51 unit/lint/debug/release pass; full rerun, screenshot review, signing and closing records still next.
+
+CI40720805649: source2e47c58 build51unit/lint0errors10warnings passes; API35 initial+21phases passes then200% click races catalog fixture readiness. Exact-target wait correction prepared and now publishing. API26 long-running job will be superseded by this rerun; inspect cancelled log, do not count as pass. No signed0.10.0 release yet; final gates/signing/closing records still next.
