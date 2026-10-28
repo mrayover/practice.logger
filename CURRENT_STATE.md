@@ -34,3 +34,4 @@ CI artifacts (30-day retention):
 Owner authorized Git commands for this update/schema/closeout because Desktop controls unavailable; default Desktop preference retained. Existing Windows checkout, synced sources untouched; app source/schema pushed, closing records publish separately with local/remote clean status verified in handoff.
 
 Exact next task: owner installs signed0.9.0/build15, checks cream screens/dialogs, taps Free recording and saves two takes, listens/renames/exports, browses Saved free recordings without mic, restarts/rotates/backgrounds and confirms old Blocks/session notes/free/loop takes untouched. Report phone/Android/mic route/results; discuss broader save/storage afterward. JSON still excludes audio.
+Routines first build milestone: source f2b6d02, CI40717132554 build success;51 unit tests pass/lint0errors10warnings. Compiler-generated7.json retained locally and now publishing. Final device checks/screenshots/signing pending.
