@@ -30,7 +30,7 @@ jobs:
       - name: Build, test and lint
         run: bash ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Record schema for migration baseline
-        run: cat app/schemas/com.mrayover.practicelogger.BlockDatabase/5.json
+        run: cat app/schemas/com.mrayover.practicelogger.BlockDatabase/6.json
       - uses: actions/upload-artifact@v4
         with:
           name: practice-logger-debug
@@ -95,7 +95,7 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=15 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=16 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt
@@ -137,6 +137,12 @@ jobs:
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ToolsWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/tools-workflow.txt
             adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/tools-screenshots
             grep -q "OK (1 test)" app/build/tools-workflow.txt
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.FreeRecordingWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/free-recording-workflow.txt
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.FreeRecordingReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/free-recording-reopen.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/free-recording-screenshots
+            grep -q "OK (1 test)" app/build/free-recording-workflow.txt
+            grep -q "OK (1 test)" app/build/free-recording-reopen.txt
             adb shell settings put system font_scale 2.0
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.AccessibilityWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/accessibility-workflow.txt
@@ -155,6 +161,8 @@ jobs:
             app/build/catalog-workflow-reports
             app/build/multi-*.txt
             app/build/metronome-workflow.txt
+            app/build/free-recording-*.txt
+            app/build/free-recording-screenshots
             app/build/tools-workflow.txt
             app/build/tools-screenshots
             app/build/recording-*.txt

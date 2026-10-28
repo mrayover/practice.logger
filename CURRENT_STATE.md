@@ -1,3 +1,16 @@
+# Current work
+
+0.9.0/build15 cream/standalone recording is prepared, not CI-verified or delivered. Last verified distribution remains0.8.0/build14 below. Changes local/uncommitted/unpushed pending publication workflow. Exact next task: publish prepared change, obtain compiler-exported Room6 schema, verify final-source fullCI/screenshots, sign/package with permanent key, update final logs.
+
+## 2026-10-27 — Cream background and standalone recording increment
+
+Owner explicitly requests light cream throughout app backgrounds and a Free recording block in Recording that starts a free take immediately and keeps all standalone takes together using existing Block recorder infrastructure. Implemented cream#FFF8EB across Material surfaces/dialogs/fields, Home, navigation and launch background; green banner/buttons/Lato retained. Recording has Free recording(one tap starts capture or requests mic then starts after grant) and Saved free recordings(browse without capture). Shared recorder retains Stop/save, playback, rename, confirmed delete/export and lifecycle cleanup. Phrase loop controls remain in Blocks only. No synthetic Block is created.
+
+Room6 explicit5→6 rebuild makes take.blockId nullable, preserves every old take field/Block foreign key/index and all session data. Null owner denotes freestanding takes; active-screen guard distinguishes standalone recording from a closed screen. JSON3 still excludes all recordings/labels/metadata; per-take export retained. No bulk storage/backup redesign or new dependency/key/appID. Goals/routines remain deferred; Stage3 phone pending, Stage4 0/10. Target0.9.0/build15, upgrade16.
+
+Prepared two meaningful Robolectric tests for frozen schema5 upgrade (free/loop takes, notes, FK enforcement) and standalone file save/reopen/rename/export/delete isolation. Two native phases test one-tap actual M4A, two independent takes, recreation save/no restart, playback/rename/browse and cold reopen without creating/changing Blocks or linked takes. 200% free-list controls/screenshots added; all prior suites retained. Full compilation/lint/unit/API26/35 pending CI; compiler-generated schema6 export must be committed before final verification. No new APK yet.
+## Previous verified release
+
 # Current state
 
 Updated 2026-10-27 America/Los_Angeles. **0.8.0/build14** implements the owner's persistent banner, Practice Now recovery and standalone Tools request. Full engineering verification and permanent-key signed packaging complete. Owner generally accepts0.7.0; detailed0.8.0 phone/audio acceptance remains pending. Stage3 phone backup acceptance pending; Stage4 stays0/10.

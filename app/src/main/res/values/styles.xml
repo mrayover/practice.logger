@@ -1,5 +1,6 @@
 <resources>
     <style name="Theme.PracticeLogger" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#FFF8EB</item>
         <item name="android:fontFamily">@font/lato</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:colorAccent">#315C47</item>

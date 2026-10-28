@@ -51,6 +51,13 @@ class AccessibilityWorkflowTest {
         readable("Minute timer"); readable("Start timer"); readable("Reset timer")
         captureStage3("03-large-tool-timer")
         click("Back to Tools"); click("Back to Home")
+        click("Recording"); readable("Free recording"); readable("Saved free recordings")
+        click("Saved free recordings")
+        compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record take")); readable("Record take")
+        compose.onNodeWithText("Record phrase").assertDoesNotExist()
+        captureStage3("04-large-free-recordings")
+        compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings"))
+        click("Close recordings"); click("Back to Home")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Accessible fixture", "Play slowly with relaxed hands", "1")) }

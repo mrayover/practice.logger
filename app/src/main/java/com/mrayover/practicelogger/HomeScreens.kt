@@ -26,7 +26,7 @@ import kotlin.math.sin
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
     onTools: () -> Unit, onRecording: () -> Unit) {
-    Column(Modifier.fillMaxSize().testTag("home-menu").background(Color.White)
+    Column(Modifier.fillMaxSize().testTag("home-menu").background(PracticeCream)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
             val viewportHeight = maxHeight
@@ -102,12 +102,14 @@ import kotlin.math.sin
     }
 }
 
-@Composable fun RecordingHome(blocks: List<Block>, onHome: () -> Unit, onBlock: (String) -> Unit) {
+@Composable fun RecordingHome(blocks: List<Block>, onHome: () -> Unit, onBlock: (String) -> Unit, onFree: (Boolean) -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onHome) { Text("Back to Home") }
         Text("Recording", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        HomeButton("Free recording") { onFree(true) }
+        TextButton(onClick = { onFree(false) }) { Text("Saved free recordings") }
         Text("Choose a Block")
         if (blocks.isEmpty()) Text("Your Blocks will appear here.")
         blocks.forEach { block ->

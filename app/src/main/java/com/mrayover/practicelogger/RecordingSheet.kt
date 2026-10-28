@@ -22,12 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
 
 fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionDate(take.createdAt) + " · " + take.id.take(4) }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Composable fun BlockRecordings(blockId: String, blockName: String, vm: RecordingViewModel,
-    practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit) {
+@Composable fun BlockRecordings(blockId: String?, blockName: String, vm: RecordingViewModel,
+    practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit, startOnOpen: Boolean = false) {
     val keyboard = LocalSoftwareKeyboardController.current
     val all by vm.takes.collectAsStateWithLifecycle()
     val takes = all.filter { it.blockId == blockId }
@@ -39,7 +41,12 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
     var phraseBeats by rememberSaveable(blockId) { mutableIntStateOf(8) }
     var phraseClick by rememberSaveable(blockId) { mutableStateOf(true) }
-    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
+    var pendingStart by rememberSaveable { mutableStateOf(startOnOpen) }
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        vm.permissionResult(granted)
+        if (granted && blockId == null) pendingStart = true
+    }
     val exportResult: (android.net.Uri?) -> Unit = { uri ->
         val selected = all.find { it.id == exportId }
         if (uri != null) {
@@ -50,13 +57,20 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mp4"), exportResult)
     val exportWave = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/wav"), exportResult)
     DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
+    LaunchedEffect(pendingStart, vm.ready, lifecycleState) {
+        if (pendingStart && vm.ready && lifecycleState == Lifecycle.State.RESUMED) {
+            pendingStart = false // Recreation/background must never restart capture automatically.
+            if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
+            else permission.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
       Column(Modifier.fillMaxWidth().fillMaxHeight(0.9f).imePadding().padding(horizontal = 24.dp)) {
         vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(bottom = 8.dp)) }
         LazyColumn(Modifier.fillMaxWidth().weight(1f).testTag("take-list"),
             contentPadding = PaddingValues(bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
-                Text("Block recordings", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+                Text(if (blockId == null) "Free recordings" else "Block recordings", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
                 Text(blockName, style = MaterialTheme.typography.titleMedium)
                 TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) { Text("Close recordings") }
                 timer?.current?.let { placement ->
@@ -84,9 +98,11 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     Text(if (vm.phrasing) "Cancel phrase" else if (vm.recording) "Stop and save take" else "Record take")
                 }
                 Text("Free recording · no BPM required. A running click may be captured. Leaving stops and saves usable audio.", style = MaterialTheme.typography.bodySmall)
+                if (blockId != null) {
                 OutlinedButton(onClick = { keyboard?.hide(); phraseDialog = true }, enabled = vm.ready && !vm.busy && !vm.recording,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Record phrase") }
                 Text("Four clicks, then one fixed phrase. It saves and repeats until stopped. Leaving cancels an incomplete phrase.", style = MaterialTheme.typography.bodySmall)
+                }
                 if (takes.any { it.id == vm.playingId && it.mode == "LOOP" }) {
                     Button(onClick = vm::stopPlayback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Stop loop") }
                 }
@@ -95,7 +111,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             item {
                 Text("JSON backups exclude recordings. Export each take to keep a copy outside this app. Uninstalling or clearing the app loses unexported audio.", style = MaterialTheme.typography.bodySmall)
                 Text("Saved takes (${takes.size})", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-                if (takes.isEmpty()) Text("No saved takes for this Block yet.")
+                if (takes.isEmpty()) Text(if (blockId == null) "No saved free recordings yet." else "No saved takes for this Block yet.")
             }
             items(takes, key = { it.id }) { take ->
                 Column(Modifier.fillMaxWidth().testTag("take-" + take.id), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -152,7 +168,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         }, confirmButton = { TextButton(onClick = {
             if (spec != null) {
                 keyboard?.hide(); phraseDialog = false
-                if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec, phraseClick) }
+                if (vm.hasMicrophonePermission()) { onBeforePlayback(); blockId?.let { vm.startPhrase(it, spec, phraseClick) } }
                 else permission.launch(Manifest.permission.RECORD_AUDIO)
             }
         }, enabled = spec != null && vm.ready && !vm.busy && !vm.recording) { Text("Start 4-click count-in") } },

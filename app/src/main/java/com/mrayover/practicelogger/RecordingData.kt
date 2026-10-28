@@ -19,7 +19,7 @@ import java.util.UUID
     indices = [Index("blockId"), Index(value = ["fileName"], unique = true)])
 data class BlockTake(
     @PrimaryKey val id: String,
-    val blockId: String,
+    val blockId: String?,
     val createdAt: Long,
     val mode: String = "FREE",
     val durationMs: Long,
@@ -53,7 +53,19 @@ val PHRASE_MIGRATION_4_5 = object : Migration(4, 5) {
     }
 }
 
-data class PendingTake(val id: String, val blockId: String, val createdAt: Long, val file: File, val phrase: PhraseSpec? = null)
+/** Nullable ownership is the standalone collection; existing Block foreign keys remain enforced. */
+val FREE_RECORDING_MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE takes_new (id TEXT NOT NULL, blockId TEXT, createdAt INTEGER NOT NULL, mode TEXT NOT NULL, durationMs INTEGER NOT NULL, fileName TEXT NOT NULL, label TEXT NOT NULL, recordedBpm INTEGER, beatCount INTEGER, PRIMARY KEY(id), FOREIGN KEY(blockId) REFERENCES blocks(id) ON UPDATE NO ACTION ON DELETE RESTRICT)")
+        db.execSQL("INSERT INTO takes_new (id,blockId,createdAt,mode,durationMs,fileName,label,recordedBpm,beatCount) SELECT id,blockId,createdAt,mode,durationMs,fileName,label,recordedBpm,beatCount FROM takes")
+        db.execSQL("DROP TABLE takes")
+        db.execSQL("ALTER TABLE takes_new RENAME TO takes")
+        db.execSQL("CREATE INDEX index_takes_blockId ON takes(blockId)")
+        db.execSQL("CREATE UNIQUE INDEX index_takes_fileName ON takes(fileName)")
+    }
+}
+
+data class PendingTake(val id: String, val blockId: String?, val createdAt: Long, val file: File, val phrase: PhraseSpec? = null)
 
 /** Only generated UUID names are ever resolved inside this private directory. No user paths. */
 class TakeRepository(private val db: BlockDatabase, private val directory: File,
@@ -73,7 +85,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     // Capture needs space immediately, without relying on the system reclaiming cache mid-write.
     @android.annotation.SuppressLint("UsableSpace")
     fun availableBytes(): Long = directory.usableSpace
-    fun prepare(blockId: String, phrase: PhraseSpec? = null): PendingTake {
+    fun prepare(blockId: String?, phrase: PhraseSpec? = null): PendingTake {
         check(directory.isDirectory || directory.mkdirs()) { "Recording storage is unavailable." }
         check(availableBytes() >= 2 * 1024 * 1024 + (phrase?.frames?.toLong() ?: 0L) * 2) { "Free some storage before recording." }
         val id = UUID.randomUUID().toString()
@@ -95,7 +107,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
         val take = BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.phrase == null) "FREE" else "LOOP",
             durationMs = duration, fileName = target.name, recordedBpm = pending.phrase?.bpm, beatCount = pending.phrase?.beats)
         try {
-            db.withTransaction { checkNotNull(db.blocks().find(take.blockId)); dao.insert(take) }
+            db.withTransaction { take.blockId?.let { checkNotNull(db.blocks().find(it)) }; dao.insert(take) }
         } catch (failure: Exception) {
             // Cancellation can arrive just after a commit; never delete audio referenced by a saved row.
             withContext(NonCancellable) { runCatching { if (dao.find(take.id) == null) target.delete() } }

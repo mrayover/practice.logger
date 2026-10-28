@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.*
 
 val Lato = FontFamily(Font(R.font.lato_regular, FontWeight.Normal), Font(R.font.lato_bold, FontWeight.Bold))
+val PracticeCream = Color(0xFFFFF8EB)
 val PracticeGreen = Color(0xFF315C47)
 private val base = Typography()
 val LatoTypography = Typography(
@@ -17,5 +18,11 @@ val LatoTypography = Typography(
 )
 @Composable fun PracticeTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = lightColorScheme(primary = PracticeGreen, onPrimary = Color.White,
-        background = Color.White, surface = Color.White), typography = LatoTypography, content = content)
+        background = PracticeCream, surface = PracticeCream,
+        surfaceDim = PracticeCream, surfaceBright = PracticeCream, surfaceVariant = PracticeCream,
+        surfaceContainerLowest = PracticeCream, surfaceContainerLow = PracticeCream,
+        surfaceContainer = PracticeCream, surfaceContainerHigh = PracticeCream, surfaceContainerHighest = PracticeCream,
+        primaryContainer = PracticeCream, onPrimaryContainer = PracticeGreen,
+        secondaryContainer = PracticeCream, onSecondaryContainer = PracticeGreen,
+        tertiaryContainer = PracticeCream, onTertiaryContainer = PracticeGreen), typography = LatoTypography, content = content)
 }

@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(PracticeGreen.toArgb()),
-            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.WHITE, android.graphics.Color.BLACK))
+            navigationBarStyle = SystemBarStyle.light(PracticeCream.toArgb(), android.graphics.Color.BLACK))
         setContent { PracticeTheme { CatalogApp() } }
     }
 }
@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val view = LocalView.current
+    var freeRecordingStart by rememberSaveable { mutableStateOf(false) }
     var recordingsBlockId by rememberSaveable { mutableStateOf<String?>(null) }
     DisposableEffect(lifecycle, recordings) {
         val observer = LifecycleEventObserver { _, event ->
@@ -110,7 +111,9 @@ class MainActivity : ComponentActivity() {
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { page = it })
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
-            "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it })
+            "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
+            "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,
+                onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message)

@@ -36,6 +36,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var preparingId by mutableStateOf<String?>(null); private set
     var message by mutableStateOf<String?>(null); private set
     private var visibleBlockId: String? = null
+    private var recordingScreenOpen = false
     private var foreground = false
     private var recorder: MediaRecorder? = null
     private var pending: PendingTake? = null
@@ -89,10 +90,10 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun enterBlock(id: String) {
-        if (visibleBlockId != id) { stopPlayback(); finishCapture(); visibleBlockId = id }
+    fun enterBlock(id: String?) {
+        if (!recordingScreenOpen || visibleBlockId != id) { stopPlayback(); finishCapture(); visibleBlockId = id }; recordingScreenOpen = true
     }
-    fun leaveBlock() { visibleBlockId = null; stopPlayback(); finishCapture() }
+    fun leaveBlock() { recordingScreenOpen = false; visibleBlockId = null; stopPlayback(); finishCapture() }
     fun setForeground(value: Boolean) {
         foreground = value
         if (!value) { stopPlayback(); finishCapture("Recording stopped when the app left the foreground.") }
@@ -103,8 +104,8 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             "Microphone permission was not allowed. Tap Record take to retry; if Android no longer asks, allow Microphone in this app's Android settings."
     }
     @Suppress("DEPRECATION")
-    fun startCapture(blockId: String) {
-        if (!ready || busy || recording || !foreground || visibleBlockId != blockId) return
+    fun startCapture(blockId: String?) {
+        if (!ready || busy || recording || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
         captureOwner = this
@@ -164,7 +165,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun startPhrase(blockId: String, spec: PhraseSpec, clickWhileRecording: Boolean = true) {
-        if (!ready || busy || recording || !foreground || visibleBlockId != blockId) return
+        if (!ready || busy || recording || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
         stopPlayback()
@@ -201,7 +202,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                 phrasing = false; recording = false; busy = false; countInBeat = 0; phraseClickEnabled = false
                 runCatching { manager.abandonAudioFocusRequest(focus) }
             }
-            if (saved != null && generation == audioGeneration && foreground && visibleBlockId == blockId) play(saved)
+            if (saved != null && generation == audioGeneration && foreground && recordingScreenOpen && visibleBlockId == blockId) play(saved)
         }
     }
 
@@ -223,7 +224,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             val spec = PhraseSpec(checkNotNull(take.recordedBpm), checkNotNull(take.beatCount))
             PhraseWave.read(file).also { check(it.size == spec.frames) }
         } else null
-        if (!foreground || visibleBlockId != take.blockId || generation != audioGeneration) return@work
+        if (!foreground || !recordingScreenOpen || visibleBlockId != take.blockId || generation != audioGeneration) return@work
         if (manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             message = "Audio output is in use. Try playback again."; return@work
         }
@@ -237,7 +238,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             player = audio; preparingId = take.id; message = null
             audio.setAudioAttributes(attributes); audio.setDataSource(file.absolutePath)
             audio.setOnPreparedListener {
-                if (player === it && foreground && visibleBlockId == take.blockId) {
+                if (player === it && foreground && recordingScreenOpen && visibleBlockId == take.blockId) {
                     try { it.start(); preparingId = null; playingId = take.id }
                     catch (_: Exception) { stopPlayback(); message = "Playback could not start. Try again." }
                 }
@@ -275,7 +276,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             withContext(Dispatchers.IO) {
                 checkNotNull(app.contentResolver.openOutputStream(uri, "wt")).use { repository.export(take, it) }
             }
-            message = "Audio exported. The saved take is still in this Block."
+            message = "Audio exported. The saved take is still in your recordings."
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (_: Exception) { message = "Export failed. The original take was kept; the destination may be incomplete. Choose a new file and retry." }
       }

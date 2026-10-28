@@ -26,7 +26,7 @@ data class Block(
     @Insert suspend fun insert(block: Block)
     @Update suspend fun update(block: Block): Int
 }
-@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class], version = 5, exportSchema = true)
+@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class], version = 6, exportSchema = true)
 abstract class BlockDatabase : RoomDatabase() {
     abstract fun blocks(): BlockDao
     abstract fun sessions(): SessionDao
@@ -38,6 +38,6 @@ abstract class BlockDatabase : RoomDatabase() {
             applicationDatabase ?: open(context.applicationContext).also { applicationDatabase = it }
         }
         fun open(context: Context, name: String = "practice.logger.db") =
-            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5).enableMultiInstanceInvalidation().build()
+            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6).enableMultiInstanceInvalidation().build()
     }
 }
