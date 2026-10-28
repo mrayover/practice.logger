@@ -36,6 +36,8 @@ class LaunchTest {
                 try { compose.onNodeWithText(text).assertIsDisplayed(); true }
                 catch (_: AssertionError) { false }
             }
+            println("CATALOG VISIBLE: " + text + "\n" + compose.onRoot(useUnmergedTree = true).printToString())
+            captureStage3("catalog-visible-list")
         } catch (error: androidx.compose.ui.test.ComposeTimeoutException) {
             compose.runOnIdle {
                 val decor = compose.activity.window.decorView
