@@ -12,6 +12,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -147,18 +149,25 @@ class MainActivity : ComponentActivity() {
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id))
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" }, goalName = goalName(summaryId))
-            "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                TextButton(onClick = { page = "home" }) { Text("Back to Home") }
-                Text("Block Library", style = MaterialTheme.typography.headlineMedium)
-                Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") }
-                OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    FilterChip(selected = !archived, onClick = { archived = false }, label = { Text("Active") })
-                    FilterChip(selected = archived, onClick = { archived = true }, label = { Text("Archived") })
+            "library" -> {
+                val libraryScroll = rememberLazyListState()
+                var searchFocused by remember { mutableStateOf(false) }
+                LaunchedEffect(query, archived, searchFocused) {
+                    libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 3 else 0)
                 }
                 val matches = matchingBlocks(catalog.blocks, query, archived)
-                if (matches.isEmpty()) Text(if (query.isNotBlank()) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.")
-                LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp)) {
+                LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp), state = libraryScroll,
+                    verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
+                    item { TextButton(onClick = { page = "home" }) { Text("Back to Home") } }
+                    item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
+                    item { Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") } }
+                    item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth().onFocusChanged { searchFocused = it.isFocused }) }
+                    item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FilterChip(selected = !archived, onClick = { archived = false }, label = { Text("Active") })
+                        FilterChip(selected = archived, onClick = { archived = true }, label = { Text("Archived") })
+                    } }
+                    if (matches.isEmpty()) item { Text(if (query.isNotBlank()) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
                     items(matches, key = { it.id }) { block ->
                         Column(Modifier.fillMaxWidth().clickable(onClickLabel = "Edit " + block.name) { openEditor(block.id) }.heightIn(min = 64.dp).padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(block.name, style = MaterialTheme.typography.titleLarge)
