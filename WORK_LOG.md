@@ -533,3 +533,22 @@ Exact next action: use signed build20 over the existing permanent-key app withou
 ## 2026-10-28 — Visual polish0.11.1/build21
 
 Reviewed mandatory efficiency procedure and project records; clean local main0ddccf1, previous signed0.11.0/build20, final CI40769976160 cancelled at owner's request. Owner now authorizes a visual-only release and verification; prior broad current-chat authorization to perform commits/pushes remains active. Existing checkout retained; synced sources untouched. Scope: shared cream#F1E6D3 (including launch), unchanged green#315C47/Lato, thin3dpHome top-two Goal bars from existing saved percentage, and shared outlined/bold48dpBack to Home treatment retaining every callback/label. No navigation/engine/audio/storage/schema/backup changes. Target0.11.1/build21, upgrade22. Contrast on new cream: green6.22:1 approximately; exact calculated ratios recorded in tool output and closing record. Preserve earlier builds/key; run existing focused-before-full CI once and sign immediately after build. Starting usage23%remaining; stop development at8% and reserve finalization capacity. New build/CI/screenshots pending. Stage3 detailed phone acceptance pending; Stage4 remains0/10.
+
+
+## Visual polish0.11.1/build21 — 2026-10-28 America/Los_Angeles
+
+Shared cream darkened to#F1E6D3 across theme surfaces/dialogs/fields, launch background, Home and recording; green#315C47/Lato retained. Thin3dpgreen bars below the two Home Goal labels use existing saved percentages; empty slots retain Add a Goal. Shared outlined1.5dp/bold/min48dpBack to Home buttons improve visibility without changing labels or callbacks. No navigation/recording/timer/storage/Room8/JSON5/backup logic changed. Existing user data/audio/key and previous distributions retained.
+
+Source: c49dbc80a43bd49cdce53d9eae799aa4a562ee02
+CI: https://github.com/mrayover/practice.logger/actions/runs/40776610259
+Build/unit/lint: passed; unit tests57, failures/errors/skips0; lint0errors/10existingwarnings. API26: full suite passed; API35: catalog and24direct phases passed; final legacy200%Routine fixture lookup failed; isolated AccessibilityWorkflowTest run40778677739 also failed. No full API35 pass claimed. Investigation deferred at owner8%cutoff; signed package retained.. Screenshot review: normal Home/Goal bars/Goals, Routines, dialog and recording screens plus200%screens reviewed; cream/green/Lato and prominent return controls readable. Main text contrast on new cream: green6.18:1, dark body13.82:1, secondary7.56:1. Compilation/automated workflows and physical-phone acceptance are separate; new polish phone acceptance pending. Stage3 detailed phone backup acceptance pending; Stage4 stays0/10.
+
+ZIP: dist/practice.logger-0.11.1-b21-c49dbc8.zip
+APK: dist/practice.logger-0.11.1-b21-c49dbc8/practice.logger-0.11.1-b21-c49dbc8.apk
+APK SHA256: 44bcb791439ddc23306b287c2494417b0f7ee9a9b9a53da3b3b2a630a738dd7f
+Certificate SHA256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+Existing permanent publisher verified signature/pinned certificate/stable appID/version/ZIP extraction. Earlier releases preserved; LATEST points to21. Exact verification limits in VERIFICATION_STATUS.txt. No signing material uploaded. Existing checkout and prior current-chat authorization for Git commands/pushes used; synced sources untouched. Source and closing records pushed to main, clean remote/local state verified at handoff.
+
+Exact next action: install signed0.11.1/build21 over the current permanent-key app without uninstalling; inspect cream surfaces, thin Goal bars and Back to Home visibility, then report any visual issue. No further features in this increment.
+
+Efficiency: reused theme/progress/button components; one coherent source push and established CI, signed as soon as release artifact became available. Correct exact green contrast6.18:1 (earlier preparation rounded estimate6.22 was superseded by calculation). Development cutoff8% respected; no unrelated fixes/features.

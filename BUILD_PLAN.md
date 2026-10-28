@@ -1,6 +1,6 @@
 # practice.logger — First Usable Android Build Plan
 
-Current status (2026-10-28): Goals0.11.0/build20 finalized at owner request. Signed APK/ZIP available;57unit tests/build/lint pass. Owner reports app works and stops final testing; final matrix not claimed passed. See CURRENT_STATE.md. Stage3 detailed phone pending; Stage4 stays0/10.
+Current status (2026-10-28): Visual polish0.11.1/build21 signed and delivered. CURRENT_STATE.md records actual checks and the next phone visual check. Stage3 detailed acceptance pending; Stage4 stays0/10.
 
 Owner-approved scope 2026-10-26: unfinished practice must not block starting new sessions. Implementing always-available Practice Now and individually selectable unfinished sessions on Home; one foreground timer and one builder draft, no new screen/schema/dependency. Version 0.3.3/build 7 verification and signed delivery complete. Backup format 2 supports multiple unfinished sessions and reads legacy version 1; older apps reject new version 2 backups. Reserve remaining capacity for stable build/logs/push. Manual acceptance/evaluation remain deferred.
 
@@ -426,3 +426,5 @@ Goals candidate0.11.0/build17/2980d8e was permanently signed early after56unit t
 2026-10-28 final owner instruction: "The app works. Stop testing and finalize this output." Goals0.11.0/build20 sourcec0b1dfe5c8d9f3f0f8ef8084a741963e18eb3bb4 finalized with permanent signing,57unit tests/build/lint and focused native Goal/200%checks passing; final full device matrix stopped at owner request, not claimed passed. All prior data/audio/key/releases retained. See CURRENT_STATE.md. No further development/testing requested; use the delivered build and respond only to observed feedback. Stage3 detailed phone acceptance pending; Stage4 stays0/10. Current-session Git commands/pushes explicitly authorized; future Desktop default retained.
 
 Owner-approved visual-only increment2026-10-28: cream#F1E6D3, thin saved-percentage Home Goal bars, more prominent Back to Home. Target0.11.1/build21; no functional/data/schema/backup changes. Preserve prior scope/history and signing identity; usage cutoff8%. Current-chat Git-command/push authorization retained.
+
+Visual polish0.11.1/build21 delivered: cream#F1E6D3, saved-percentage Home Goal bars, prominent Back to Home, no functional/schema/backup changes. Sourcec49dbc80a43bd49cdce53d9eae799aa4a562ee02; CI40776610259. Exact gates/provenance/next phone visual check in CURRENT_STATE.md. Prior app-works report applies to earlier release; new visual phone acceptance pending. Stage3 pending/Stage4 0/10 unchanged.

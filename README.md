@@ -1,6 +1,6 @@
 # practice.logger
 
-Latest installable release: **0.11.0/build20**, with Goals and attributed practice. Permanently signed;57unit tests/build/lint pass. Owner reports the app works and explicitly stopped final device testing. See CURRENT_STATE.md for exact verification limits.
+Latest installable release: **0.11.1/build21**, visual-only darker cream, thin Home Goal progress bars and clearer Back to Home buttons. Permanently signed; see CURRENT_STATE.md for verification and provenance.
 
 An offline Android practice tool: create reusable Blocks and saved ordered Routines, arrange sessions, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
@@ -10,9 +10,9 @@ Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md co
 
 ## Install the versioned local build
 
-- ZIP: dist/practice.logger-0.11.0-b20-c0b1dfe.zip
-- APK: dist/practice.logger-0.11.0-b20-c0b1dfe/practice.logger-0.11.0-b20-c0b1dfe.apk
-- Provenance/signature/hash: dist/practice.logger-0.11.0-b20-c0b1dfe/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.11.1-b21-c49dbc8.zip
+- APK: dist/practice.logger-0.11.1-b21-c49dbc8/practice.logger-0.11.1-b21-c49dbc8.apk
+- Provenance/signature/hash: dist/practice.logger-0.11.1-b21-c49dbc8/BUILD_INFO.json
 
 Android8+; install over current permanent-key app without uninstalling to retain practice data/audio. All earlier releases remain under dist. JSON backup excludes recordings; export wanted takes separately. Original0.1.0 remains separate.
 
@@ -179,3 +179,6 @@ Exact next task: owner installs signed0.10.0/build16 over current app and execut
 
 ## Goals — 0.11.0/build20 finalized
 Home Goals settings/Edit opens management of up to five active Goals. Set outcome, notes and manual percentage, reorder priorities, complete/reopen and browse completed Goals. Top two active Goals appear on Home. Details manage shared existing Blocks and start an independent paused Goal session with current Block content/default durations; drafts and prior sessions remain. Archived/unavailable links are visible and excluded from Goal practice; add active Blocks if none are usable. Actual time sums committed placements from explicitly attributed sessions only, including unfinished/skipped practice; time never changes progress. History shows Goal attribution. Room8/JSON5 retain older migrations and backup1–4 readers. Audio remains excluded from JSON. Build20 is permanently signed;57unit tests/build/lint pass. Focused Goal/restart/200%checks pass both APIs. Final device matrix stopped at the owner's request after their general report that the app works; full final verification is not claimed. See CURRENT_STATE.md and distribution VERIFICATION_STATUS.txt.
+
+## Visual polish0.11.1
+Cream#F1E6D3 replaces#FFF8EB through the shared theme and launch background. Green/Lato/design retained; Home Goal bars reflect saved progress and Back to Home is outlined/bold. All practice/data/audio/schema/backup behavior unchanged. Provenance and actual test results: CURRENT_STATE.md.
