@@ -1,6 +1,6 @@
 # practice.logger
 
-Latest installable release: **0.6.1/build 12**, with default-enabled optional click throughout loop recording. Build 11 was generally accepted by the owner; detailed phone checks for this fix remain pending. See CURRENT_STATE.md.
+Latest installable release remains **0.6.1/build 12**. The owner-approved sketched home redesign is prepared for **0.7.0/build 13**, awaiting CI/screenshot review and signed packaging. Build 12 includes default-enabled optional click throughout loop recording. Build 11 was generally accepted by the owner; detailed phone checks for this fix remain pending. See CURRENT_STATE.md.
 
 An offline Android practice tool: create reusable Blocks, arrange a one-off session, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
@@ -26,7 +26,7 @@ Future locally signed builds use the same permanent key and a higher versionCode
 
 Home → Practice Now → add active Blocks. Create a Block through the shared editor if needed. Up/Down reorders placements; remove placements or override their duration without changing the reusable Block. A draft survives leaving the screen and restarting. Start Session requires at least one placement.
 
-Focused Practice starts paused. Start/Resume counts only foreground active time; Pause, leaving the screen or backgrounding stops it. Each next Block waits for Start. Complete can finish early; Skip records the actual time already spent. At 00:00 the timer pauses and waits for Continue (count-up overtime) or Complete; it never auto-advances. Save for later returns Home with Continue Session. Recovery is paused with the correct current Block, order, durations and committed time.
+Focused Practice starts paused. Start/Resume counts only foreground active time; Pause, leaving the screen or backgrounding stops it. Each next Block waits for Start. Complete can finish early; Skip records the actual time already spent. At 00:00 the timer pauses and waits for Continue (count-up overtime) or Complete; it never auto-advances. In the prepared redesign, Save for later returns Home; open Routines for Continue Session. Recovery is paused with the correct current Block, order, durations and committed time.
 
 The final Block automatically saves Session Summary. Recent Practice reopens summaries. Name/action/tempo/reference snapshots remain truthful after the reusable Block is edited or archived. Quick Block notes save with Save Block note, Save for later, Back, Complete or Skip; session notes have an explicit Save note button.
 
@@ -46,7 +46,7 @@ Room schemas 1/2/3/4/5 are committed; explicit 1→2, 2→3, 3→4 and 4→5 mig
 
 ## Stage 3 backup increment
 
-Home → Backup and restore → Export backup opens Android's document picker and saves a version-3 UTF-8 JSON snapshot (legacy versions 1/2 are still readable) of Blocks (including archived), sessions, placements, notes and unfinished practice. Wait for Backup saved; a failed export may leave an incomplete file. Keep the plain text file private. Saved data only: commit quick/session notes before export.
+Home → Tools → Backup and restore → Export backup (prepared redesign) opens Android's document picker and saves a version-3 UTF-8 JSON snapshot (legacy versions 1/2 are still readable) of Blocks (including archived), sessions, placements, notes and unfinished practice. Wait for Backup saved; a failed export may leave an incomplete file. Keep the plain text file private. Saved data only: commit quick/session notes before export.
 
 Choose backup to restore validates the complete file and shows counts for confirmation. Restore works only in an empty app (for example, a new phone); it never replaces or merges existing practice data. Validation and the empty-target check/inserts run within one database transaction. Unfinished practice restores paused. Cancelling leaves data unchanged. Do not uninstall/clear the current app to test restore; use a spare device or disposable installation.
 
@@ -61,7 +61,7 @@ Owner instruction 2026-10-26: manual backup/recovery acceptance and the ten-real
 Use Save Block note while practicing to preserve a quick note without completing the Block. Save for later and Back pause/checkpoint and save it before Home; Continue Session restores the text, including after restart. Complete/Skip save final text. Typing alone is not saved against abrupt process death; use a save action. Session notes still require Save note. No schema, app identity or signing-key change. Nineteen unit tests and full API 26/35 device suites passed; CI https://github.com/mrayover/practice.logger/actions/runs/40417269518 . Backup/recovery owner acceptance and evaluation remain deferred by owner. See CURRENT_STATE.md for exact provenance and limitations.
 ## Independent unfinished sessions — 0.3.3
 
-Practice Now stays available alongside Continue Session. Start fresh while keeping older practice; choose a dated session in Home's Unfinished sessions section. Each keeps its own position/time/notes and resumes paused. Only one foreground timer runs; one builder draft remains. Format-2 backups include all unfinished sessions; legacy format-1 imports still work. Older app builds reject new format-2 backups safely. Twenty unit tests and full API26/35 suites, including multi-session switching/process restart, pass. Latest verification: https://github.com/mrayover/practice.logger/actions/runs/40417269518 .
+Practice Now stays available alongside Continue Session. Start fresh while keeping older practice; choose a dated session in the Routines overview in the prepared redesign. Each keeps its own position/time/notes and resumes paused. Only one foreground timer runs; one builder draft remains. Format-2 backups include all unfinished sessions; legacy format-1 imports still work. Older app builds reject new format-2 backups safely. Twenty unit tests and full API26/35 suites, including multi-session switching/process restart, pass. Latest verification: https://github.com/mrayover/practice.logger/actions/runs/40417269518 .
 
 ## Stage 5 metronome — 0.4.0 verified engineering release
 
@@ -96,3 +96,9 @@ Signed build 11 and build 10 remain preserved in dist. Build 11 release records 
 In Record phrase, **Click while recording** defaults to on. Four count-in clicks continue into a phrase-tempo click while the microphone captures the selected 4/8/16/32 beats. Turn it off for a count-in followed by quiet capture. The same audio clock drives both phases; the guide stops before saved-loop playback and on cancellation/background/exit. The timer stays independent. Speaker bleed can be captured; no click is mixed digitally into the WAV. Existing saved takes, migrations, JSON exclusions, signing identity and prior releases remain intact.
 
 Source f4f827bde0921b805b4f3126555344507bb0e3fd, CI https://github.com/mrayover/practice.logger/actions/runs/40603962994 passed build, all 33 unit/Robolectric tests, lint (0 errors/10 existing warnings) and full API26/35 native/large-text suites, including actual output-counter checks during on/off capture. Normal and 200% screenshots reviewed. Existing permanent publisher verified the signed versioned ZIP/APK above and preserved all 28 earlier distribution files. Phone audibility/timing and the checklist in MANUAL_TESTS.md remain owner checks. Save/storage changes await discussion after this fix.
+
+## Home sketch redesign — 0.7.0/build 13 prepared, not delivered
+
+The owner explicitly approves visual placeholders: a green separated header with centered white Lato Bold practice.logger; white background; blank Goals rows and inactive settings/Edit; stacked green Practice Now, Blocks, Routines, Tools and Recording buttons; Data usage text at the bottom. Practice Now uses the existing session builder, Blocks opens Block Library, Routines holds unfinished sessions/history, Tools retains backup/restore, and Recording chooses a Block for its existing recordings. No saved routine/Goal model or storage statistics was added. Prior data and recordings remain unchanged.
+
+Implementation and adapted navigation/normal/200% screenshot checks are local. Full compilation/unit/lint/API26/35 verification, screenshot review and signed distribution remain pending. The currently linked build12 does not contain the redesign. See CURRENT_STATE.md for the exact next action.

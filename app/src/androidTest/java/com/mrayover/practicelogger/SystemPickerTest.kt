@@ -56,6 +56,7 @@ class SystemPickerExportTest {
                 repo.checkpoint(session, 500)
                 BlockRepository(db).setArchived(id, true)
             }
+            openHomeTools(compose)
             shownPickerApp(compose, "Backup and restore")
             compose.onNodeWithText("Backup and restore").performScrollTo().performClick()
             compose.onNodeWithText("Export backup").performScrollTo().performClick()
@@ -90,6 +91,7 @@ class SystemPickerRestoreTest {
         try {
             val expected = BackupCodec.decode(device.executeShellCommand("cat /sdcard/Download/$PICKER_FILE").toByteArray(Charsets.UTF_8))
             runBlocking { assertTrue(BackupRepository(db).snapshot().blocks.isEmpty()) }
+            openHomeTools(compose)
             shownPickerApp(compose, "Backup and restore")
             compose.onNodeWithText("Backup and restore").performScrollTo().performClick()
             compose.onNodeWithText("Choose backup to restore").performScrollTo().performClick()
@@ -106,6 +108,7 @@ class SystemPickerRestoreTest {
             shownPickerApp(compose, "Backup restored.")
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
             compose.onNodeWithText("Back to Home").performScrollTo().performClick()
+            openHomeRoutines(compose)
             shownPickerApp(compose, "Continue Session")
             compose.onNodeWithText("Continue Session").performScrollTo().performClick()
             shownPickerApp(compose, "Picker recovery")
@@ -130,6 +133,7 @@ class SystemPickerReopenTest {
         try {
             val expected = BackupCodec.decode(device.executeShellCommand("cat /sdcard/Download/$PICKER_FILE").toByteArray(Charsets.UTF_8))
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
+            openHomeRoutines(compose)
             shownPickerApp(compose, "Continue Session")
             compose.onNodeWithText("Continue Session").performScrollTo().performClick()
             shownPickerApp(compose, "Picker recovery")

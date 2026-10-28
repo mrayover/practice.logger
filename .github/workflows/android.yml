@@ -95,7 +95,7 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=13 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=14 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt

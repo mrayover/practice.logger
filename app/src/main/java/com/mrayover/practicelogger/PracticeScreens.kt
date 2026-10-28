@@ -25,10 +25,11 @@ fun practiceTime(ms: Long, roundUp: Boolean = false): String {
 }
 fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(ms))
 
-@Composable fun PracticeHome(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: (String) -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit) {
+@Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onContinue: (String) -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit) {
+    BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("practice.logger", style = MaterialTheme.typography.headlineLarge)
-        Text("A little structure for your practice.", style = MaterialTheme.typography.titleMedium)
+        TextButton(onClick = onHome) { Text("Back to Home") }
+        Text("Routines", style = MaterialTheme.typography.headlineLarge)
         ActionButton("Practice Now", onPractice)
         if (sessions.unfinished.isNotEmpty()) {
             Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
@@ -43,7 +44,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 }
             }
         }
-        OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Manage Blocks") }
+        OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Blocks") }
         Text(catalog.blocks.count { !it.archived }.toString() + " active Blocks")
         TextButton(onClick = onNew) { Text("New Block") }
         TextButton(onClick = onBackup) { Text("Backup and restore") }

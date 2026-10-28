@@ -1,6 +1,8 @@
 package com.mrayover.practicelogger
 
 import android.os.Bundle
+import android.os.Build
+import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
@@ -15,6 +17,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -32,6 +37,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel()) {
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -58,6 +64,12 @@ class MainActivity : ComponentActivity() {
     DisposableEffect(practice.running, recordings.recording, view) { view.keepScreenOn = practice.running || recordings.recording; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
+    SideEffect {
+        (view.context as? Activity)?.window?.let { window ->
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = page != "home"
+            if (Build.VERSION.SDK_INT < 35) window.statusBarColor = if (page == "home") PracticeGreen.toArgb() else Color.White.toArgb()
+        }
+    }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
     var summaryId by rememberSaveable { mutableStateOf<String?>(null) }
     var editorId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -84,8 +96,13 @@ class MainActivity : ComponentActivity() {
         } else if (!catalog.ready || !sessions.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
-            "home" -> PracticeHome(catalog, sessions, onPractice = { page = "builder" }, onContinue = { practice.openSession(it) },
-                onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) }, onSummary = { summaryId = it; page = "summary" })
+            "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
+                onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" })
+            "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" }, onContinue = { practice.openSession(it) },
+                onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
+                onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" })
+            "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" })
+            "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it })
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message)

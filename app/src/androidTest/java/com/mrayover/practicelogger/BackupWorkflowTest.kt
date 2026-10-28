@@ -13,6 +13,7 @@ class BackupWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() } }
     @Test fun backupScreenExportPreviewCancelAndProtectedRestore() {
+        openHomeTools(compose)
         shown("Backup and restore")
         compose.onNodeWithText("Backup and restore").performScrollTo().performClick()
         shown("Export backup")
@@ -54,7 +55,7 @@ class BackupWorkflowTest {
             shown("Could not complete")
             compose.onNodeWithText("Restore this backup?").assertDoesNotExist()
             compose.onNodeWithText("Back to Home").performScrollTo().performClick()
-            shown("Recent Practice")
+            openHomeRoutines(compose); shown("Recent Practice")
         } finally { db.close(); restored.close(); context.deleteDatabase(restoredName); file.delete() }
     }
 }

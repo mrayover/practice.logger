@@ -37,6 +37,10 @@ class AccessibilityWorkflowTest {
     @Test fun largeTextCatalogBuilderFocusSummaryAndBackupRemainUsable() {
         assertTrue(compose.activity.resources.configuration.fontScale >= 1.9f)
         shown("Practice Now")
+        captureStage3("00-large-home-top")
+        readable("practice.logger"); readable("Goals"); readable("Practice Now"); readable("Blocks")
+        readable("Routines"); readable("Tools"); readable("Recording"); readable("Data usage")
+        captureStage3("00-large-home-actions")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Accessible fixture", "Play slowly with relaxed hands", "1")) }
@@ -67,9 +71,9 @@ class AccessibilityWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); compose.onNodeWithText("Close recordings").performClick()
             readable("Complete"); captureStage3("11-large-focus"); click("Complete"); shown("Block 2 of 2"); click("Skip")
             shown("Session Summary"); readable("Session Summary"); captureStage3("12-large-summary")
-            readable("Save note"); click("Home"); click("Manage Blocks"); shown("Block Library"); readable("New Block")
+            readable("Save note"); click("Home"); click("Blocks"); shown("Block Library"); readable("New Block")
             click("New Block"); shown("Default duration (minutes)"); readable("Cancel"); click("Cancel"); click("Back to Home")
-            click("Backup and restore"); shown("Export backup"); readable("Export backup"); readable("Choose backup to restore")
+            openHomeTools(compose); click("Backup and restore"); shown("Export backup"); readable("Export backup"); readable("Choose backup to restore")
             captureStage3("13-large-backup")
         } finally { db.close() }
     }

@@ -158,7 +158,7 @@ class PhraseReopenTest {
             val takes = runBlocking { db.takes().readAll().filter { it.blockId == block.id } }
             assertTrue(block.archived); assertEquals(2, takes.size); assertTrue(takes.all { it.mode == "LOOP" })
             val first = takes.single { it.recordedBpm == 120 }; assertEquals("Eight beats at 120", first.label)
-            click("Manage Blocks"); click("Archived"); click("Loop fixture"); click("Recordings")
+            click("Blocks"); click("Archived"); click("Loop fixture"); click("Recordings")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             compose.waitUntil(10000) { vm.ready && vm.takes.value.any { it.id == first.id } }
             compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }
