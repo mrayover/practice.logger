@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
     Surface(Modifier.fillMaxSize()) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         PracticeBanner()
-        Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
+        Box(Modifier.weight(1f).fillMaxWidth().testTag("content-ime${WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current)}-safe${WindowInsets.safeDrawing.getBottom(androidx.compose.ui.platform.LocalDensity.current)}").consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
         } else if (!catalog.ready || !sessions.ready || !goals.ready) {
@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id))
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" }, goalName = goalName(summaryId))
-            "library" -> Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            "library" -> Column(Modifier.testTag("catalog-container").safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { page = "home" }) { Text("Back to Home") }
                 Text("Block Library", style = MaterialTheme.typography.headlineMedium)
                 Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") }

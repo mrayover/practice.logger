@@ -37,6 +37,11 @@ class LaunchTest {
                 catch (_: AssertionError) { false }
             }
         } catch (error: androidx.compose.ui.test.ComposeTimeoutException) {
+            compose.runOnIdle {
+                val decor = compose.activity.window.decorView
+                val insets = androidx.core.view.ViewCompat.getRootWindowInsets(decor)
+                println("PLATFORM INSETS: ime=" + insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()) + "; system=" + insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars()) + "; decor=" + decor.width + "x" + decor.height)
+            }
             println("CATALOG VISIBILITY FAILURE: " + text + "\n" + compose.onRoot(useUnmergedTree = true).printToString())
             captureStage3("catalog-visibility-failure")
             throw error
