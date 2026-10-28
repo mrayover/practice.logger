@@ -129,6 +129,24 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         dao.update(bundle.session.copy(status = "IN_PROGRESS", startedAt = now()))
         bundle.session.id
     }
+    /** Fresh independent session; the builder draft and template remain untouched. */
+    suspend fun startRoutine(routineId: String): String = db.withTransaction {
+        val routine = db.routines().find(routineId) ?: throw RoutineUnavailableException("This Routine no longer exists. Return to Routines.")
+        val rows = routine.ordered
+        if (rows.isEmpty() || rows.map { it.position } != rows.indices.toList() || rows.any { it.configuredMs <= 0 })
+            throw RoutineUnavailableException("This Routine has invalid placements. Edit and save it before practicing.")
+        val blocks = rows.map { db.blocks().find(it.sourceBlockId) }
+        val unavailable = routineUnavailable(rows.map { RoutineSelection(it.sourceBlockId, it.configuredMs) }, blocks.filterNotNull().associateBy { it.id })
+        if (unavailable.isNotEmpty()) throw RoutineUnavailableException("Routine cannot start. ${unavailable.joinToString("; ")}. Restore or replace these Blocks first.")
+        val session = PracticeSession(UUID.randomUUID().toString(), now(), status = "IN_PROGRESS")
+        dao.insert(session)
+        rows.forEachIndexed { index, row ->
+            val block = checkNotNull(blocks[index])
+            dao.insert(Placement(UUID.randomUUID().toString(), session.id, block.id, block.name, block.action,
+                block.tempo, block.notes, index, row.configuredMs))
+        }
+        session.id
+    }
     private suspend fun active(id: String): SessionBundle = checkNotNull(dao.find(id)).also { check(it.session.status == "IN_PROGRESS") }
     suspend fun checkpoint(id: String, deltaMs: Long): Placement = db.withTransaction {
         val placement = checkNotNull(active(id).current)

@@ -1,3 +1,11 @@
+# Saved Routines checkpoint — 2026-10-28
+
+Implementation and11 focused tests/two native phases prepared; Room7/JSON4 migration and backward readers implemented. No new build/test/signing claims yet. Exact next task: authorize publication workflow, run CI/export schema7, fix failures, verify API26/35 and sign0.10.0/build16. Prior verified0.9.0 release remains below. Stage3 phone pending; Stage4 0/10.
+
+# Current work — saved Routines, 2026-10-28
+
+Target0.10.0/build16 is approved and in implementation; no new tests/build/APK claimed. Last verified signed release remains0.9.0/build15 below. Exact next task: implement and verify the Routines-only scope in latest BUILD_PLAN/WORK_LOG; publish via Desktop or a new explicit owner exception, then full CI/schema7/permanent-key delivery.
+
 # Current state
 
 ## 0.9.0/build 15 — verified signed delivery, 2026-10-28 America/Los_Angeles

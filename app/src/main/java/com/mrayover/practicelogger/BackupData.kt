@@ -5,7 +5,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 const val BACKUP_LIMIT = 8 * 1024 * 1024
-data class BackupData(val blocks: List<Block>, val sessions: List<PracticeSession>, val placements: List<Placement>)
+data class BackupData(val blocks: List<Block>, val sessions: List<PracticeSession>, val placements: List<Placement>, val routines: List<SavedRoutine> = emptyList(), val routinePlacements: List<RoutinePlacement> = emptyList())
 
 /** Format version is independent of Room's internal schema version. No running timer anchor is exported. */
 object BackupCodec {
@@ -13,10 +13,12 @@ object BackupCodec {
     private fun array(rows: List<JSONObject>) = JSONArray().apply { rows.forEach { put(it) } }
     fun encode(data: BackupData): ByteArray {
         validate(data)
-        val root = obj("format" to "practice.logger.backup", "version" to 3,
+        val root = obj("format" to "practice.logger.backup", "version" to 4,
             "blocks" to array(data.blocks.map { b -> obj("id" to b.id, "name" to b.name, "action" to b.action, "durationMinutes" to b.durationMinutes, "tempo" to b.tempo, "notes" to b.notes, "archived" to b.archived, "createdAt" to b.createdAt, "updatedAt" to b.updatedAt) }),
             "sessions" to array(data.sessions.map { s -> obj("id" to s.id, "startedAt" to s.startedAt, "endedAt" to s.endedAt, "status" to s.status, "currentIndex" to s.currentIndex, "note" to s.note) }),
-            "placements" to array(data.placements.map { p -> obj("id" to p.id, "sessionId" to p.sessionId, "sourceBlockId" to p.sourceBlockId, "name" to p.name, "action" to p.action, "tempo" to p.tempo, "referenceNotes" to p.referenceNotes, "position" to p.position, "configuredMs" to p.configuredMs, "activeMs" to p.activeMs, "outcome" to p.outcome, "overtimeAccepted" to p.overtimeAccepted, "note" to p.note, "lastUsedBpm" to p.lastUsedBpm) }))
+            "placements" to array(data.placements.map { p -> obj("id" to p.id, "sessionId" to p.sessionId, "sourceBlockId" to p.sourceBlockId, "name" to p.name, "action" to p.action, "tempo" to p.tempo, "referenceNotes" to p.referenceNotes, "position" to p.position, "configuredMs" to p.configuredMs, "activeMs" to p.activeMs, "outcome" to p.outcome, "overtimeAccepted" to p.overtimeAccepted, "note" to p.note, "lastUsedBpm" to p.lastUsedBpm) }),
+            "routines" to array(data.routines.map { r -> obj("id" to r.id, "name" to r.name, "createdAt" to r.createdAt, "updatedAt" to r.updatedAt) }),
+            "routinePlacements" to array(data.routinePlacements.map { p -> obj("id" to p.id, "routineId" to p.routineId, "sourceBlockId" to p.sourceBlockId, "position" to p.position, "configuredMs" to p.configuredMs) }))
         return root.toString(2).toByteArray(Charsets.UTF_8).also { require(it.size <= BACKUP_LIMIT) { "Backup exceeds the 8 MiB limit." } }
     }
     private fun JSONObject.text(key: String): String = (get(key) as? String) ?: error("Invalid text: $key")
@@ -48,11 +50,13 @@ object BackupCodec {
         val tokener = org.json.JSONTokener(text)
         val root = tokener.nextValue() as? JSONObject ?: error("Invalid backup object.")
         require(tokener.nextClean() == '\u0000') { "Trailing backup content." }
-        require(root.text("format") == "practice.logger.backup" && root.int("version") in 1..3) { "Unsupported backup format/version." }
+        require(root.text("format") == "practice.logger.backup" && root.int("version") in 1..4) { "Unsupported backup format/version." }
         return BackupData(
             root.rows("blocks").map { b -> Block(b.text("id"), b.text("name"), b.text("action"), b.int("durationMinutes"), b.nullInt("tempo"), b.text("notes"), b.bool("archived"), b.number("createdAt"), b.number("updatedAt")) },
             root.rows("sessions").map { s -> PracticeSession(s.text("id"), s.number("startedAt"), s.nullLong("endedAt"), s.text("status"), s.int("currentIndex"), s.text("note")) },
-            root.rows("placements").map { p -> Placement(p.text("id"), p.text("sessionId"), p.text("sourceBlockId"), p.text("name"), p.text("action"), p.nullInt("tempo"), p.text("referenceNotes"), p.int("position"), p.number("configuredMs"), p.number("activeMs"), p.text("outcome"), p.bool("overtimeAccepted"), p.text("note"), if (root.int("version") >= 3) p.nullInt("lastUsedBpm") else null) }
+            root.rows("placements").map { p -> Placement(p.text("id"), p.text("sessionId"), p.text("sourceBlockId"), p.text("name"), p.text("action"), p.nullInt("tempo"), p.text("referenceNotes"), p.int("position"), p.number("configuredMs"), p.number("activeMs"), p.text("outcome"), p.bool("overtimeAccepted"), p.text("note"), if (root.int("version") >= 3) p.nullInt("lastUsedBpm") else null) },
+            if (root.int("version") >= 4) root.rows("routines").map { r -> SavedRoutine(r.text("id"), r.text("name"), r.number("createdAt"), r.number("updatedAt")) } else emptyList(),
+            if (root.int("version") >= 4) root.rows("routinePlacements").map { p -> RoutinePlacement(p.text("id"), p.text("routineId"), p.text("sourceBlockId"), p.int("position"), p.number("configuredMs")) } else emptyList()
         ).also {
             validate(it)
             if (root.int("version") == 1) require(it.sessions.count { s -> s.status != "COMPLETED" } <= 1) { "Invalid legacy unfinished sessions." }
@@ -61,6 +65,16 @@ object BackupCodec {
     fun validate(data: BackupData) {
         fun ids(values: List<String>) { require(values.size <= 20_000 && values.all { it.isNotBlank() } && values.toSet().size == values.size) { "Missing or duplicate IDs." } }
         ids(data.blocks.map { it.id }); ids(data.sessions.map { it.id }); ids(data.placements.map { it.id })
+        ids(data.routines.map { it.id }); ids(data.routinePlacements.map { it.id })
+        val routineIds = data.routines.map { it.id }.toSet()
+        val blockIds = data.blocks.map { it.id }.toSet()
+        val routineRows = data.routinePlacements.groupBy { it.routineId }
+        data.routinePlacements.forEach { require(it.routineId in routineIds && it.sourceBlockId in blockIds && it.configuredMs > 0) { "Broken Routine placement reference or duration." } }
+        data.routines.forEach { routine ->
+            require(routineNameValid(routine.name) && routine.createdAt >= 0 && routine.updatedAt >= routine.createdAt) { "Invalid Routine." }
+            val rows = routineRows[routine.id].orEmpty().sortedBy { it.position }
+            require(rows.isNotEmpty() && rows.map { it.position } == rows.indices.toList()) { "Invalid Routine placement order." }
+        }
         val blocks = data.blocks.map { it.id }.toSet(); val sessions = data.sessions.map { it.id }.toSet()
         require(data.sessions.count { it.status == "DRAFT" } <= 1) { "Multiple draft sessions." }
         data.blocks.forEach { require(it.name.isNotBlank() && it.action.isNotBlank() && it.durationMinutes > 0 && (it.tempo == null || it.tempo > 0)) }
@@ -94,13 +108,16 @@ class NonEmptyRestoreException : IllegalStateException("Restore needs an empty a
 class BackupRepository(private val db: BlockDatabase) {
     suspend fun snapshot(): BackupData = db.withTransaction {
         val bundles = db.sessions().readAll()
-        BackupData(db.blocks().readAll(), bundles.map { it.session }, bundles.flatMap { it.ordered })
+        val routines = db.routines().readAll()
+        BackupData(db.blocks().readAll(), bundles.map { it.session }, bundles.flatMap { it.ordered }, routines.map { it.routine }, routines.flatMap { it.ordered })
     }
     suspend fun restore(data: BackupData) = db.withTransaction {
         BackupCodec.validate(data)
-        if (db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty()) throw NonEmptyRestoreException()
+        if (db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty() || db.routines().readAll().isNotEmpty() || db.takes().readAll().isNotEmpty()) throw NonEmptyRestoreException()
         data.blocks.forEach { db.blocks().insert(it) }
         data.sessions.forEach { db.sessions().insert(it) }
         data.placements.forEach { db.sessions().insert(it) }
+        data.routines.forEach { db.routines().insert(it) }
+        data.routinePlacements.forEach { db.routines().insert(it) }
     }
 }

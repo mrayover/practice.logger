@@ -25,11 +25,12 @@ fun practiceTime(ms: Long, roundUp: Boolean = false): String {
 }
 fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(ms))
 
-@Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit) {
+@Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit, routines: RoutineViewModel, practice: PracticeViewModel, onNewRoutine: () -> Unit, onEditRoutine: (String) -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onHome) { Text("Back to Home") }
         Text("Routines", style = MaterialTheme.typography.headlineLarge)
+        SavedRoutines(catalog, routines, practice, onNewRoutine, onEditRoutine)
         ActionButton("Practice Now", onPractice)
         OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Blocks") }
         Text(catalog.blocks.count { !it.archived }.toString() + " active Blocks")
@@ -48,7 +49,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, sessions: SessionCatalog, vm: PracticeViewModel, onHome: () -> Unit, onCreate: () -> Unit) {
+@Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, sessions: SessionCatalog, vm: PracticeViewModel, routines: RoutineViewModel, onHome: () -> Unit, onCreate: () -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     var changeId by rememberSaveable { mutableStateOf<String?>(null) }
     var minutes by rememberSaveable { mutableStateOf("") }
@@ -80,25 +81,26 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 Text(placement.action)
                 Text("Session duration: " + practiceTime(placement.configuredMs))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", up" }) { Text("Up") }
-                    OutlinedButton(onClick = { vm.move(placement.id, 1) }, enabled = !vm.busy && index < entries.lastIndex, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", down" }) { Text("Down") }
+                    OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && !routines.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", up" }) { Text("Up") }
+                    OutlinedButton(onClick = { vm.move(placement.id, 1) }, enabled = !vm.busy && !routines.busy && index < entries.lastIndex, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", down" }) { Text("Down") }
                 }
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(onClick = { changeId = placement.id; minutes = (placement.configuredMs / 60_000L).toString(); validation = false }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Change duration") }
-                    TextButton(onClick = { vm.remove(placement.id) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Remove") }
+                    TextButton(onClick = { changeId = placement.id; minutes = (placement.configuredMs / 60_000L).toString(); validation = false }, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Change duration") }
+                    TextButton(onClick = { vm.remove(placement.id) }, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Remove") }
                 }
                 HorizontalDivider()
             }
         }
-        ActionButton("Start Session", vm::start, enabled = !vm.busy && entries.isNotEmpty())
-        if (entries.isNotEmpty()) TextButton(onClick = { discard = true }, enabled = !vm.busy) { Text("Discard draft session") }
+        ActionButton("Start Session", vm::start, enabled = !vm.busy && !routines.busy && entries.isNotEmpty())
+        SaveAsRoutine(draft, vm.busy, routines)
+        if (entries.isNotEmpty()) TextButton(onClick = { discard = true }, enabled = !vm.busy && !routines.busy) { Text("Discard draft session") }
         Text("Add Blocks", style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(query, { query = it }, label = { Text("Find a Block") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        OutlinedButton(onClick = onCreate, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Create a new Block") }
+        OutlinedButton(onClick = onCreate, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Create a new Block") }
         val available = matchingBlocks(blocks, query, false)
         if (available.isEmpty()) Text("No matching active Blocks. Create a Block to add it here.")
         available.forEach { block ->
-            OutlinedButton(onClick = { vm.addBlock(block.id) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            OutlinedButton(onClick = { vm.addBlock(block.id) }, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                 Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Text("Add " + block.name)
                     Text(block.durationMinutes.toString() + " min · " + block.action, style = MaterialTheme.typography.bodyMedium)
@@ -114,9 +116,9 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         }
     }, confirmButton = { TextButton(onClick = {
         if (minutes.trim().toIntOrNull()?.let { it > 0 } == true) { vm.duration(changeId!!, minutes); changeId = null } else validation = true
-    }, enabled = !vm.busy) { Text("Apply duration") } }, dismissButton = { TextButton(onClick = { changeId = null }) { Text("Cancel") } })
+    }, enabled = !vm.busy && !routines.busy) { Text("Apply duration") } }, dismissButton = { TextButton(onClick = { changeId = null }) { Text("Cancel") } })
     if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard this draft session?") }, text = { Text("Saved Blocks and practice history are retained.") },
-        confirmButton = { TextButton(onClick = { discard = false; vm.discardDraft() }, enabled = !vm.busy) { Text("Discard draft") } },
+        confirmButton = { TextButton(onClick = { discard = false; vm.discardDraft() }, enabled = !vm.busy && !routines.busy) { Text("Discard draft") } },
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 

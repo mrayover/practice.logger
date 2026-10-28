@@ -111,6 +111,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         viewModelScope.launch {
             try { mutex.withLock { action() } }
             catch (cancelled: CancellationException) { throw cancelled }
+            catch (e: RoutineUnavailableException) { running = false; anchor = null; error = e.message }
             catch (_: Exception) { running = false; anchor = null; error = "Changes could not be saved. Your stored session is retained. Close and reopen if the problem continues." }
             finally { busy = false }
         }
@@ -163,6 +164,13 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         operation { flush(until); anchor = null; selectSession(id) }
     }
     fun start() = operation { selectSession(repository.start()) }
+    fun startRoutine(id: String) {
+        if (busy) return
+        leaveFocusedPlacement()
+        val until = SystemClock.elapsedRealtime()
+        running = false
+        operation { flush(until); anchor = null; selectSession(repository.startRoutine(id)) }
+    }
     fun finish(outcome: String, note: String) {
         if (busy) return
         stopClick()

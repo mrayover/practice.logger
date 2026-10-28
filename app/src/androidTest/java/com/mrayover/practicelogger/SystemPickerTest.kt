@@ -54,6 +54,7 @@ class SystemPickerExportTest {
                 repo.addBlock(id); repo.addBlock(id)
                 val session = repo.start(); repo.checkpoint(session, 1234); repo.finishBlock(session, "SKIPPED", "first note")
                 repo.checkpoint(session, 500)
+                RoutineRepository(db).save(null, "Picker saved routine", listOf(RoutineSelection(id, 180_000), RoutineSelection(id, 60_000)))
                 BlockRepository(db).setArchived(id, true)
             }
             openHomeTools(compose)
@@ -68,6 +69,8 @@ class SystemPickerExportTest {
             val exported = BackupCodec.decode(device.executeShellCommand("cat /sdcard/Download/$PICKER_FILE").toByteArray(Charsets.UTF_8))
             runBlocking { assertEquals(BackupRepository(db).snapshot(), exported) }
             assertEquals(1, exported.sessions.count { it.status == "IN_PROGRESS" })
+            assertEquals("Picker saved routine", exported.routines.single().name)
+            assertEquals(listOf(180_000L, 60_000L), exported.routinePlacements.map { it.configuredMs })
             compose.onNodeWithText("Choose backup to restore").performScrollTo().performClick()
             pickerDownloads()
             cancelPicker()

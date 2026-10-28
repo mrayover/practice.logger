@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel()) {
     val sessions by practice.catalog.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val view = LocalView.current
@@ -93,6 +93,10 @@ class MainActivity : ComponentActivity() {
             page = destination; practice.navigationHandled()
         }
     }
+    LaunchedEffect(routines.editorSaved) {
+        if (routines.editorSaved) { page = "routines"; routines.navigationHandled() }
+    }
+    fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
     fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
     BackHandler(page == "library") { page = "home" }
     Surface(Modifier.fillMaxSize()) {
@@ -108,14 +112,15 @@ class MainActivity : ComponentActivity() {
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" })
             "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
-                onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" })
+                onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
+            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = "routines" })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { page = it })
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
-            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
+            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message)
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" })
             "library" -> Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -165,6 +170,10 @@ class MainActivity : ComponentActivity() {
         }
         practice.error?.let { message ->
             AlertDialog(onDismissRequest = practice::dismissError, title = { Text("Practice paused") }, text = { Text(message) }, confirmButton = { TextButton(onClick = practice::dismissError) { Text("OK") } })
+        }
+        routines.error?.let { message ->
+            AlertDialog(onDismissRequest = routines::dismissError, title = { Text("Routine could not be updated") }, text = { Text(message) },
+                confirmButton = { TextButton(onClick = routines::dismissError) { Text("OK") } })
         }
         vm.error?.let { message ->
             AlertDialog(onDismissRequest = vm::dismissError, title = { Text("Changes not saved") }, text = { Text(message) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("OK") } })
