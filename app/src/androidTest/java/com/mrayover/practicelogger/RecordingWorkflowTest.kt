@@ -52,7 +52,16 @@ class RecordingWorkflowTest {
                 deny = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/permission_deny_button"))), 10000)
                     ?: device.findObject(By.text(Pattern.compile("(?i).*don.t allow.*|.*deny.*")))
             }
-            if (deny != null) deny.click() // Android may also refuse a repeated request without displaying a dialog.
+            if (deny != null) {
+                val denySelector = By.res(Pattern.compile(".*:id/permission_deny_button"))
+                deny.click()
+                // Android can expose the button before its dialog accepts touch input.
+                // Reacquire after the transition, and require dismissal before checking the app.
+                if (!device.wait(Until.gone(denySelector), 2000)) {
+                    checkNotNull(device.findObject(denySelector)).click()
+                    assertTrue("Microphone denial dialog did not dismiss", device.wait(Until.gone(denySelector), 10000))
+                }
+            } // Repeated denied requests may also be refused without displaying a dialog.
             shown("Microphone permission was not allowed.")
             compose.runOnIdle { assertFalse(vm.recording) }
             assertTrue(runBlocking { db.takes().readAll() }.isEmpty())
