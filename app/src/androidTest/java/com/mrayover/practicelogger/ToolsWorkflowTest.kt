@@ -27,6 +27,8 @@ class ToolsWorkflowTest {
         compose.onNodeWithContentDescription("Decrease BPM by 5").performClick()
         compose.onNodeWithTag("tool-bpm").assertTextEquals("120")
         click("Start click"); compose.waitUntil(5000) { vm.clicking }
+        compose.onNodeWithText("Stop click").assertExists()
+        compose.runOnIdle { assertTrue(vm.clicking) }
         captureStage3("21-tool-metronome")
         compose.activityRule.scenario.recreate()
         compose.waitUntil(5000) { !vm.clicking }; banner()
@@ -50,6 +52,10 @@ class ToolsWorkflowTest {
         click("Start timer"); compose.waitUntil(5000) { vm.remainingMs < 59500 }
         assertTrue(vm.countdownRunning)
         captureStage3("23-tool-timer")
+        compose.waitUntil(65000) { vm.remainingMs == 0L && !vm.countdownRunning }
+        compose.onNodeWithText("Time’s up").performScrollTo().assertIsDisplayed()
+        captureStage3("24-tool-timer-complete")
+        click("Start timer"); compose.waitUntil(5000) { vm.remainingMs < 59500 }
         click("Back to Tools"); compose.runOnIdle {
             assertFalse(vm.countdownRunning); assertFalse(vm.stopwatchRunning); assertEquals(elapsed, vm.stopwatchMs)
         }
