@@ -57,8 +57,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mp4"), exportResult)
     val exportWave = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/wav"), exportResult)
     DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
-    LaunchedEffect(pendingStart, vm.ready, lifecycleState) {
-        if (pendingStart && vm.ready && lifecycleState == Lifecycle.State.RESUMED) {
+    LaunchedEffect(pendingStart, vm.ready, vm.busy, lifecycleState) {
+        if (pendingStart && vm.ready && !vm.busy && lifecycleState == Lifecycle.State.RESUMED) {
             pendingStart = false // Recreation/background must never restart capture automatically.
             if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
             else permission.launch(Manifest.permission.RECORD_AUDIO)
