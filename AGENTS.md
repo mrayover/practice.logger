@@ -30,7 +30,7 @@ One reference image per saved Block: stable Block-keyed RESTRICT table, generate
 
 ## Verification and delivery
 
-Use targeted tests/diagnostics before full release checks; keep assertions and investigate concrete evidence. Distinguish a signed candidate, compilation/unit/lint success, native automated workflow results and owner phone acceptance. A failing legacy test does not establish a pre-existing defect or a regression without evidence. Record failures and cancellations honestly. Current exact API 35 limitations are in CURRENT_STATE.md.
+Use targeted tests/diagnostics before full release checks; keep assertions and investigate concrete evidence. Distinguish a signed candidate, compilation/unit/lint success, native automated workflow results and owner phone acceptance. A failing legacy test does not establish a pre-existing defect or a regression without evidence. Record failures and cancellations honestly. Current exact verification results and limits are in CURRENT_STATE.md.
 
 For an app increment, deliver an installable versioned APK and ZIP with provenance and a short phone checklist. Increment versionCode for a changed distributed update. Use scripts/Publish-LocalApk.ps1 and the existing permanent key; verify package/version, pinned public certificate, signature and ZIP/APK integrity. Stable app ID: com.mrayover.practicelogger.app. Preserve all existing dist packages. Install updates over the permanent-key app without uninstalling. Original temporary-key 0.1.0 remains separate, with no automatic Block transfer.
 

@@ -1,6 +1,6 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is implemented, with verified delivery status in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
+Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
 
 ## Product and implemented scope
 
@@ -33,13 +33,13 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Milestone | Current status |
 |---|---|
 | Stages 0–2: foundation/catalog/practice | Implemented and automated engineering checks completed in earlier releases; general owner acceptance recorded. |
-| Stage 3: backup/recovery/hardening | Implemented; prior automated engineering verification retained. Detailed owner phone/provider/TalkBack acceptance remains pending. Current release verification has the explicit API 26 recording-dialog limit in CURRENT_STATE.md. |
+| Stage 3: backup/recovery/hardening | Implemented; prior automated engineering verification retained. Detailed owner phone/provider/TalkBack acceptance remains pending. Current release verification and any limits are in CURRENT_STATE.md. |
 | Stage 4: real-world evaluation | Prepared and deferred; **0/10 documented real sessions**. Only real owner sessions count. |
 | Stage 5: integrated metronome | Implemented; owner generally accepted. Detailed acoustic results not supplied. |
 | Stage 6A/6B: free takes/phrase loops | Implemented; owner generally accepted. Detailed physical timing/quality/lifecycle checks remain unverified individually. |
 | Tools, standalone recording, saved Routines, Goals, visual polish | Owner-approved extensions, implemented. Earlier stage deferrals do not prohibit these shipped features. |
 | Safe permanent deletion | Delivered in 0.12.0/build 23 and retained. Historical evidence is in WORK_LOG.md; current verification is in CURRENT_STATE.md. Phone acceptance pending. |
-| Increment 2: collapsible Block image reference | Implemented; mark complete only after verified delivery in CURRENT_STATE.md. PDF and recording-view integration deferred. |
+| Increment 2: collapsible Block image reference | Complete: signed 0.14.0/build 26 delivered; exact native results and remaining phone acceptance in CURRENT_STATE.md. PDF and recording-view integration deferred. |
 | Daily Log and Weekly View (Increment 1, complete) | Delivered in 0.13.0/build25; exact tests/package status in CURRENT_STATE.md. |
 
 The owner explicitly approved later features while Stage 3 phone acceptance and Stage 4 evaluation remained deferred. Do not mark those gates completed or turn their deferral into a blanket prohibition on an explicit new owner request.
@@ -55,4 +55,4 @@ Stage 4 may eventually support choosing at most one further feature from real ob
 
 ## Next action
 
-Complete Increment 2 release verification and deliver the permanent-key signed update; then use its image and install-over checks in MANUAL_TESTS.md. See CURRENT_STATE.md for what remains. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Install signed 0.14.0/build 26 in place and perform the image and update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.

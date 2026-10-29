@@ -29,7 +29,7 @@ Updated 2026-10-28 (America/Los_Angeles), at the owner's explicit request to cle
 - Owner generally accepted earlier app/metronome/recording/loop releases. Phone model/Android and individual checklist results were not supplied; do not infer detailed acceptance. Stage 3 detailed phone acceptance is pending and Stage 4 remains 0/10 documented real sessions. Later owner-approved increments did not complete those gates.
 - Stable app ID and permanent certificate preserve in-place updates; keep all prior packages and signing material. The old temporary-key app is separate. All 76 pre-deletion APK/ZIP files were rehashed unchanged at release closeout; the documentation cleanup additionally checks all current package files.
 - Historical snapshots remain truthful, timers count saved foreground time only and recover paused, notes need save actions. No destructive migrations or automatic associated-data removal.
-- JSON evolved 1→5 with legacy readers retained; current Room is 8. All take metadata/labels/audio remain excluded. Per-take export exists; bulk media restore/import/cloud/storage redesign remain deferred.
+- JSON writer 6 reads versions 1–6; current Room is 10. All images/image metadata and take metadata/labels/audio remain excluded; retain original images separately. Per-take export exists; bulk media restore/import/cloud/storage redesign remain deferred.
 - Initial safe-deletion CI 40799694201 passed all 65 unit tests (including the eight focused deletion tests), compilation and lint. Native evidence prompted test-only explicit empty-search scrolling and fixture isolation: inserting deletion's protected-history fixture before old practice tests interfered with their unordered completed-session lookup. Final source advances to build 23; no speculative product fix.
 - Final [release CI 40801285208](https://github.com/mrayover/practice.logger/actions/runs/40801285208): build job 123209739216 passed, API 26 job 123211043224 passed, API 35 job 123211043268 failed at PracticeWorkflowTest.kt:26 waiting for Add Warmup fixture. Its cause remains unestablished and differs from the earlier 200% Routine failure. [Isolated final-source sequence 40802423099](https://github.com/mrayover/practice.logger/actions/runs/40802423099) passes all five unchanged catalog/process/practice/recovery/history classes. No full final API 35 pass is claimed; later phases were not reached. Focused both-API deletion/restart/200% proofs and exact APK source are recorded in CURRENT_STATE.md.
 - Existing publisher verified final signature/certificate/package/version/APK hash/ZIP integrity; candidate and final APKs are distinct, older distributions retained. No private signing material was uploaded. Physical phone/provider/TalkBack/audio checks remain pending.
@@ -103,3 +103,34 @@ Increment2 first CI40904738845/source3106e7e: all79unit tests passed, debug/rele
 
 
 Isolated CI40906218662/API35/sourceb43fce4 still stopped selecting the picker item (line50); copied file size check passed. Retrieved actual screenshot and hierarchy: the green JPEG is visible in DocumentsUI grid, whose item exposes `content-desc="reference-fixture.jpg, ..."` with empty text. Changed the selector to the observed filename accessibility description, retaining text fallback for list mode. The earlier nested-shell/absent-file diagnosis was not independently established; this is a test selector failure, and the product import has not yet been reached. Product and candidate APK unchanged. Continue isolated class checks before broader rerun.
+
+
+## 2026-10-29 — Increment 2 signed delivery and closeout
+
+Delivered the smallest single-image Block reference feature as 0.14.0/build 26 from 3106e7e1ce95f4ef25e9ee0c11a182ae1d1a8c46. Final test/workflow source is cb75a69d3cc298029e4f9aa6ea915fd9dbc53db8; the app/Gradle product sources are byte-equivalent to the APK source. Room 10 only adds restrictive Block-keyed image metadata through an explicit 9→10 migration; JSON 6/readers 1–6 excludes all image/media references and retains Logs/structured records. Stored private original bytes, generated filenames, bounded IO validation/decode, file-first transactional replacement, conservative orphan recovery, confirmed removal and deletion dependency protection reuse existing architecture. Inline placement-keyed show/hide/zoom/pan leaves timing/click/recording infrastructure and immutable practice snapshots unchanged. No PDF or recording-sheet reference integration. Required documentation, native/unit tests and compiler schema are in Git; synced sources untouched.
+
+practice.logger 0.14.0 / build 26 — Increment 2: collapsible Block reference image
+APK source: 3106e7e1ce95f4ef25e9ee0c11a182ae1d1a8c46
+Final native test/workflow source: cb75a69d3cc298029e4f9aa6ea915fd9dbc53db8; later closeout changes are documentation only.
+Build/package CI: https://github.com/mrayover/practice.logger/actions/runs/40904738845
+Final release checks: https://github.com/mrayover/practice.logger/actions/runs/40907898581
+79 unit/Robolectric tests passed with 0 failures/errors/skips; debug/release compilation passed; lint 0 errors / 12 warnings (10 existing and 2 conservative free-space recommendations).
+Android 8 / API26: Complete final suite passed in job 123569735286: catalog plus all 34 direct phases, including image picker/zoom/timer/click, cold reopen and install-over retention; Log, practice/history, backup/pickers, recording/loops, Tools, Routines, Goals, deletion and enlarged-text workflows.
+Android 15 / API35: Complete final suite passed in job 123569735205: catalog plus all 34 direct phases, including image picker/zoom/timer/click, cold reopen and install-over retention; Log, practice/history, backup/pickers, recording/loops, Tools, Routines, Goals, deletion and enlarged-text workflows.
+200% text API26: Image workflow and cold-process reopen passed at 200% text (job 123567637479), including real picker import/cancel, zoom/pan, running timer/click/BPM/notes preservation, replacement/removal and archived ownership. (https://github.com/mrayover/practice.logger/actions/runs/40907908344)
+200% text API35: Image workflow and cold-process reopen passed at 200% text (job 123567643837), including real picker import/cancel, zoom/pan, running timer/click/BPM/notes preservation, replacement/removal and archived ownership. (https://github.com/mrayover/practice.logger/actions/runs/40907912062)
+Normal API35 isolated image workflow/cold reopen passed in CI40907101426.
+Final screenshots reviewed: Normal API35 and 200% API26/API35 editor and inline zoom-view screenshots reviewed. Image controls and backup disclosure remain readable and scrollable; the viewer stays bounded and its controls remain reachable.
+Permanent signature, pinned certificate, stable package/version, APK hash and ZIP integrity verified.
+APK SHA256: 7b465a51f89211b720bfd981b7a6b7857dfdf3633589be037d20872cf048a03f
+ZIP SHA256: ec9ad9343f78e793dc123356a9f5910b3c4cc153613a78c17adb83f8d7f9cad6
+All 92 pre-session APK/ZIP files retained byte-identical.
+Room10 explicit9→10 data preservation and schemas1–9 retained; JSON6/readers1–6 unchanged.
+JSON excludes images and recordings. Keep original images separately; restore does not recreate media references.
+Install OVER the permanent-key app WITHOUT uninstalling or clearing data.
+Phone install-over/provider/landscape/TalkBack/acoustic acceptance remains pending.
+No PDF, multiple images, camera, annotation, media-inclusive backup or recording-sheet image integration.
+Remaining limits: Physical-phone permanent-key install-over and provider/landscape/TalkBack/acoustic acceptance remain pending. No simultaneous image viewing inside the recording sheet, PDF, multi-image or media-inclusive backup is implemented.
+
+
+The first native failures and corrected accessibility selector are documented above. Normal and enlarged-text evidence was gathered before final release acceptance. No physical phone/provider/TalkBack/audio result is invented. All required records are updated; final local/remote main SHA and clean state are verified at handoff. Signing/distribution remain local and ignored. The next task is the six image/in-place-update phone checks; no future increment is selected.

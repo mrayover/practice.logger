@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Increment 2 adds collapsible Block reference images in **0.14.0/build 26**. See CURRENT_STATE.md for the actual candidate/delivery and verification status; Daily Log/Weekly View was delivered in 0.13.0/build 25.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.14.0/build 26**, with collapsible Block reference images. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
 
 ## Install and verify
 
@@ -31,7 +31,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-The preceding Log release passed **72 unit/Robolectric tests**, debug/release compilation and lint (0 errors / 10 existing warnings). Increment 2 results are recorded as they are verified in CURRENT_STATE.md. Native results, including Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
+All **79 unit/Robolectric tests**, debug/release compilation and lint pass (0 errors / 12 warnings, including two conservative free-space recommendations). Native results, including image and Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
 
 Next: install the signed update without uninstalling and follow the reference-image and in-place-upgrade checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone acceptance remains pending; [EVALUATION.md](EVALUATION.md) stays deferred at0/10 documented real sessions.
 

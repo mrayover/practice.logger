@@ -4,7 +4,7 @@ Updated 2026-10-28 against the current app. Evaluation is prepared and owner-def
 
 ## Before session 1
 
-Record the phone model, Android version and exact build here. Confirm the phone checklist in MANUAL_TESTS.md: install-over retains data; interrupted practice reopens paused without counting time away; completed history survives restart; JSON export completes through the phone's document picker; exported data restores correctly into a spare empty installation. Never clear the main installation to test restore. Keep a verified backup outside the app.
+Record the phone model, Android version and exact build here. Confirm the phone checklist in MANUAL_TESTS.md: install-over retains data; interrupted practice reopens paused without counting time away; completed history survives restart; JSON export completes through the phone's document picker; exported data restores correctly into a spare empty installation. Never clear the main installation to test restore. Keep a verified structured backup outside the app, original reference images separately and exported copies of wanted recordings; JSON excludes all media.
 
 Phone / Android / build: **not yet supplied**.
 
