@@ -1,6 +1,6 @@
 # practice.logger — Current work handoff
 
-Updated 2026-10-29 (America/Los_Angeles). The app is already implemented and delivered as **0.13.0/build 24 source (see CURRENT_STATE.md for actual release status)**. This is an existing Kotlin/Compose/Room application, not an empty repository or a Stage 0 task.
+Updated 2026-10-29 (America/Los_Angeles). The app is already implemented and delivered as **0.13.0/build 25 source (see CURRENT_STATE.md for actual release status)**. This is an existing Kotlin/Compose/Room application, not an empty repository or a Stage 0 task.
 
 1. Read AGENTS.md, CURRENT_STATE.md, BUILD_PLAN.md and WORK_LOG.md, including the mandatory efficiency procedure.
 2. Inspect actual local/remote Git, uncommitted work, app version, latest CI and signed manifest. Use the existing checkout described in CURRENT_STATE.md. Distinguish the APK source SHA from subsequent documentation commits.

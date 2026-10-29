@@ -33,7 +33,7 @@ class LogWorkflowTest {
             compose.onNodeWithTag("log-editor").performTextReplacement("Today Log edited fixture")
             compose.activityRule.scenario.recreate(); shown("Choose date")
             compose.onNodeWithTag("log-editor").assertTextContains("Today Log edited fixture")
-            click("Choose date"); shown("Cancel"); click("Cancel")
+            click("Choose date"); shown("Cancel"); click("Cancel"); compose.waitForIdle()
             captureStage3("log-daily")
             saved(db, today, "Today Log edited fixture"); saved(db, yesterday, "Yesterday Log fixture")
             val vm = ViewModelProvider(compose.activity)[LogViewModel::class.java]

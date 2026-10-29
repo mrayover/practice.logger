@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Daily Log increment: **0.13.0/build 24**. See CURRENT_STATE.md for actual signing and verification status.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Daily Log increment: **0.13.0/build 25**. See CURRENT_STATE.md for actual signing and verification status.
 
 ## Install and verify
 

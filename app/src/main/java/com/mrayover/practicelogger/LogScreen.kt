@@ -44,9 +44,10 @@ import java.time.format.FormatStyle
         onDispose { lifecycle.removeObserver(observer) }
     }
     val format = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL) }
-    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Column(Modifier.fillMaxWidth().heightIn(max = 260.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp)) {
+        val editorHeight = (maxHeight - 240.dp).coerceAtLeast(240.dp)
+        val header: @Composable () -> Unit = {
+          Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             BackToHomeButton(onClick = ::home, enabled = !vm.busy)
             Text(if (vm.weekly) "Weekly View" else "Log", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
@@ -54,19 +55,21 @@ import java.time.format.FormatStyle
             if (!vm.weekly) {
                 Text(vm.date.format(format), style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("log-date"))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = { hideKeyboard(); picker = true }, enabled = !vm.busy) { Text("Choose date") }
-                    OutlinedButton(onClick = { hideKeyboard(); vm.showWeek() }, enabled = !vm.busy && vm.ready) { Text("Weekly View") }
+                    OutlinedButton(onClick = { hideKeyboard(); picker = true }, enabled = !vm.busy, modifier = Modifier.weight(1f)) { Text("Choose date") }
+                    OutlinedButton(onClick = { hideKeyboard(); vm.showWeek() }, enabled = !vm.busy && vm.ready, modifier = Modifier.weight(1f)) { Text("Weekly View") }
                 }
             } else {
                 Text("${vm.week} – ${vm.week.plusDays(6)}", style = MaterialTheme.typography.titleLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = { vm.showWeek(vm.week.minusWeeks(1)) }, enabled = !vm.busy) { Text("Previous week") }
-                    OutlinedButton(onClick = { vm.showWeek(vm.week.plusWeeks(1)) }, enabled = !vm.busy) { Text("Next week") }
+                    OutlinedButton(onClick = { vm.showWeek(vm.week.minusWeeks(1)) }, enabled = !vm.busy, modifier = Modifier.weight(1f)) { Text("Previous week") }
+                    OutlinedButton(onClick = { vm.showWeek(vm.week.plusWeeks(1)) }, enabled = !vm.busy, modifier = Modifier.weight(1f)) { Text("Next week") }
                 }
             }
+          }
         }
         if (vm.weekly) {
-            LazyColumn(Modifier.weight(1f).testTag("log-week"), contentPadding = PaddingValues(bottom = 24.dp)) {
+            LazyColumn(Modifier.fillMaxSize().testTag("log-week"), contentPadding = PaddingValues(bottom = 24.dp)) {
+                item { header() }
                 items((0L..6L).map { vm.week.plusDays(it) }, key = { it.toString() }) { day ->
                     val entry = vm.rows.find { it.date == day.toString() }
                     Column(Modifier.fillMaxWidth().clickable(enabled = !vm.busy, onClickLabel = "Edit $day") { vm.select(day) }
@@ -78,12 +81,15 @@ import java.time.format.FormatStyle
                 }
             }
         } else {
+          Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            header()
             if (!vm.ready) Text("Loading Log…")
             OutlinedTextField(vm.text, vm::edit, enabled = vm.ready && !vm.busy,
-                modifier = Modifier.fillMaxWidth().weight(1f).testTag("log-editor"),
+                modifier = Modifier.fillMaxWidth().height(editorHeight).testTag("log-editor"),
                 textStyle = MaterialTheme.typography.bodyLarge)
             Text(if (vm.busy) "Loading…" else status, style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 12.dp).semantics { liveRegion = LiveRegionMode.Polite })
+          }
         }
     }
     if (picker) {

@@ -1,6 +1,6 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **0.13.0/build 24 Daily Log increment is implemented; release checks are in progress.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
+Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **0.13.0/build 25 Daily Log increment is implemented; release checks are in progress.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
 
 ## Product and implemented scope
 
@@ -41,7 +41,7 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 
 The owner explicitly approved later features while Stage 3 phone acceptance and Stage 4 evaluation remained deferred. Do not mark those gates completed or turn their deferral into a blanket prohibition on an explicit new owner request.
 
-| Daily Log and Weekly View | Implemented in 0.13.0/build24 source; exact tests/package status in CURRENT_STATE.md. |
+| Daily Log and Weekly View | Implemented in 0.13.0/build25 source; exact tests/package status in CURRENT_STATE.md. |
 
 ## Retained future boundaries
 

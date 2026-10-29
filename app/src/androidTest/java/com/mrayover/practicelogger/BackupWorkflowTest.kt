@@ -52,7 +52,7 @@ class BackupWorkflowTest {
             }
             file.writeText("{\"format\":\"broken\"}")
             compose.runOnIdle { vm.inspect(Uri.fromFile(file)) }
-            shown("Could not complete")
+            shown("Unsupported backup format/version.")
             compose.onNodeWithText("Restore this backup?").assertDoesNotExist()
             compose.onNodeWithText("Back to Home").performScrollTo().performClick()
             openHomeRoutines(compose); shown("Recent Practice")

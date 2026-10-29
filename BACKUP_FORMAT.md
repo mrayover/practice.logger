@@ -1,6 +1,6 @@
 # Backup format and safety — current implementation
 
-Updated for the 0.13.0/build 24 Daily Log increment on 2026-10-29. Actual release verification is recorded in CURRENT_STATE.md.
+Updated for the 0.13.0/build 25 Daily Log increment on 2026-10-29. Actual release verification is recorded in CURRENT_STATE.md.
 
 ## Format and records
 
