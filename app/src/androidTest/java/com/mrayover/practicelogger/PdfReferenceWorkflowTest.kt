@@ -60,6 +60,8 @@ class PdfReferenceWorkflowTest {
             val landscape = viewer().getUnclippedBoundsInRoot(); assertTrue(landscape.right-landscape.left > landscape.bottom-landscape.top)
             click("Previous page"); shown("Page 1 of 2"); rendered(); captureStage3("pdf-editor-portrait")
             click("Hide reference"); click("Replace reference PDF")
+            checkNotNull(device.wait(Until.findObject(By.desc("Show roots")),10000))
+            device.waitForIdle()
             repeat(3) { if (device.currentPackageName.contains("documentsui")) device.pressBack() }
             shown("Replace reference PDF"); assertEquals(pdf,runBlocking { db.images().find(id) })
             click("Remove reference PDF"); shown("Remove reference PDF?")

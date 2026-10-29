@@ -187,3 +187,17 @@ First focused results (source6726aac): product and test Kotlin compilation passe
 
 
 Follow-up candidate40941665858/sourcec1934cb: same9 image/schema tests passed;3 PDF tests failed at page-count validation because Robolectric’s API34 PdfRenderer is a non-rendering stub (valid1/2-page fixture yields zero pages); XML retained. API35 had no native PdfProcessor support. Moved these three unchanged substantive storage/render/failure tests to real Android instrumentation, preserving assertions/fixtures instead of faking PdfRenderer. JVM regression gate retains all existing80 tests plus the new schema10 preservation case; actual renderer coverage runs on API26/API35. Added owner-encrypted/no-opening-password PDF rejection fixture and baseline artifact actions:read for true install-over. App source remains unchanged from6726aac while focused native check proceeds.
+
+
+Candidate milestone: 0.15.0/build28 signed candidate — Increment3 PDF references and recording-sheet viewing.
+Source:4a33b7fded54d349378935ff958993ee97b53fbc
+Build CI40942064682:81 unit/Robolectric tests passed,debug/release compile and lint0errors/13warnings.
+All schemas1–10 unchanged. Room10/JSON6 readers1–6.
+Real API26 PDF storage/render/failure/replacement/cleanup tests passed:CI40942068595.
+Permanent signature, pinned certificate, package/version, APK hash and ZIP round trip verified by publisher.
+Full native PDF recording-continuity/upgrade/regression and200% checks pending; phone acceptance pending.
+APK SHA256:0a3393974fd42997dff6550fc3ac27534989feb61661a299142b4405bc574119
+ZIP SHA256:2abce2bb414db162e9cdc8353934d119ccf77a0ca73341a36bb1c4415606a49f
+Install over the permanent-key app without uninstalling/clearing data. Keep original images/PDFs separately; JSON excludes media.
+
+All100 prior distributions and compiler schemas1–10 verified byte-identical. Native40941670196 validated real API35 rejection and PDF picker/render/page/zoom, then failed its test-only picker-cancellation wait at line64; screenshot retained. Final native and phone acceptance remain pending.

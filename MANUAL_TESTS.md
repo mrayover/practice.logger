@@ -1,10 +1,10 @@
-# Current phone checklist — image refinement, 0.14.1/build 27
+# Current phone checklist — Increment3 PDF/recording references,0.15.0/build28
 
 Updated 2026-10-29 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
 
 ## Install and preserve data
 
-Install over the existing permanent-key app **without uninstalling or clearing it**. Confirm existing Blocks, Goals, Routines, notes, unfinished practice, history and recordings remain. The old temporary-key 0.1.0 app is separate; no automatic transfer is provided. Test restore only in a spare empty installation. JSON excludes reference images and all audio; keep original images separately and export wanted takes individually.
+Install over the existing permanent-key app **without uninstalling or clearing it**. Confirm existing Blocks, Goals, Routines, notes, unfinished practice, history and recordings remain. The old temporary-key 0.1.0 app is separate; no automatic transfer is provided. Test restore only in a spare empty installation. JSON excludes reference images/PDFs and all audio; keep original images/PDFs separately and export wanted takes individually.
 
 ## Daily Log and Weekly View (Increment 1 retained acceptance)
 
