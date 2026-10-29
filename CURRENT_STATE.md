@@ -1,6 +1,6 @@
 # Current state — practice.logger 0.12.0, build 23
 
-Reviewed 2026-10-28 (America/Los_Angeles) against local and remote `main` at `84565ea6898e60852538ebcb4997e7c6b647547f`, app configuration, source, signed release manifest, APK checksum and GitHub Actions results. This file is the authoritative current delivery and verification record. Historical release facts are in [WORK_LOG.md](WORK_LOG.md).
+Reviewed 2026-10-28 (America/Los_Angeles) against local and remote `main` snapshot `94eed943a3ed97beca0e68f10ba70fa60c2accba` (documentation; APK source remains `8b469dc3246bbe34841b0945089e553303308132`), app configuration, source, signed release manifest, APK checksum and GitHub Actions results. This file is the authoritative current delivery and verification record. Historical release facts are in [WORK_LOG.md](WORK_LOG.md).
 
 ## Delivery
 
