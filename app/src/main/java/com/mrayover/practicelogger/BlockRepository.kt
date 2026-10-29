@@ -21,10 +21,41 @@ fun matchingBlocks(blocks: List<Block>, query: String, archived: Boolean): List<
         it.name.contains(term, ignoreCase = true) || it.action.contains(term, ignoreCase = true) || it.notes.contains(term, ignoreCase = true)) }
 }
 
-// Archive-only policy: stable IDs remain available for future historical references.
-// There is deliberately no permanent-delete API or destructive migration fallback.
+data class BlockDependencies(val goals: Int, val routines: Int, val recordings: Int,
+    val sessionEntries: Int, val completedEntries: Int) {
+    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0
+    fun explanation(): String = buildList {
+        add("It is associated with:")
+        if (goals > 0) add("• $goals Goal associations")
+        if (routines > 0) add("• $routines saved Routines")
+        if (recordings > 0) add("• $recordings recordings")
+        if (sessionEntries > 0) add("• $sessionEntries practice session entries (drafts, unfinished and completed)")
+        if (completedEntries > 0) add("$completedEntries entries belong to completed practice history, which remains protected.")
+        if (recordings > 0) add("Export any recordings you want to keep before deleting individual takes in Recordings.")
+        add("Remove applicable associations or use Archive instead. No associated data will be removed automatically.")
+    }.joinToString("\n\n")
+}
+data class BlockDeletionReview(val block: Block, val dependencies: BlockDependencies)
+sealed interface BlockDeletionResult {
+    data object Deleted : BlockDeletionResult
+    data class Blocked(val review: BlockDeletionReview) : BlockDeletionResult
+}
+
+// Permanent deletion is limited to unreferenced Blocks; original FK restrictions remain.
 class BlockRepository(private val db: BlockDatabase, private val now: () -> Long = System::currentTimeMillis) {
     val blocks = db.blocks().observeAll()
+    suspend fun reviewDeletion(id: String): BlockDeletionReview = db.withTransaction {
+        BlockDeletionReview(checkNotNull(db.blocks().find(id)) { "This Block is no longer available." }, db.blocks().dependencies(id))
+    }
+    suspend fun deletePermanently(id: String): BlockDeletionResult = db.withTransaction {
+        // Recheck at confirmation: associations may have changed since the dialog opened.
+        val review = reviewDeletion(id)
+        if (!review.dependencies.canDelete) BlockDeletionResult.Blocked(review)
+        else {
+            check(db.blocks().delete(id) == 1) { "The Block could not be deleted." }
+            BlockDeletionResult.Deleted
+        }
+    }
     suspend fun save(id: String?, draft: BlockDraft): String = db.withTransaction {
         require(draft.errors().isEmpty()) { "Check the highlighted fields." }
         val previous = id?.let { checkNotNull(db.blocks().find(it)) { "This Block is no longer available." } }

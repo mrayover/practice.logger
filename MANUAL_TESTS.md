@@ -160,3 +160,13 @@ Install permanent-key APK over existing app without uninstalling. Create/edit5Go
 
 ## Visual polish0.11.1/build21 — phone check pending
 Install over the existing app without uninstalling. Inspect darker cream on Home/Goals/Routines/Blocks/dialogs/recording; green/Lato unchanged. Verify each Home bar matches its saved percentage and empty slots stay functional. Check outlined/bold Back to Home at normal and200%text; navigation unchanged. Confirm existing practice/takes still available. Report phone/Android and visual findings; no extra feature evaluation required.
+
+## Safe permanent Block deletion — 0.12.0/build22 phone check
+
+Install over the permanent-key app without uninstalling. Physical-phone checks pending:
+1. Create an unused Block, reopen its editor, scroll below Archive to Delete Permanently. Cancel: saved Block and unsaved draft remain unchanged. Confirm: return to Library, row disappears; restart and verify absence.
+2. Repeat for an unused archived Block through Archived filter. New unsaved Blocks have no deletion action.
+3. Try Blocks with Goal links (including completed Goals), duplicate placements in a saved Routine, and saved free/loop recordings. Verify actual Goal/distinct-Routine/take counts; refusal changes nothing. Export wanted takes before manually deleting recordings.
+4. Try a Block in the builder draft, an unfinished session and completed history. All are protected; completed history is explicitly explained. Removing Goal/Routine links cannot bypass historical protection. Use Archive for these Blocks.
+5. Export JSON after eligible deletion; restore on a spare empty installation and confirm remaining Blocks/Goals/Routines/history/notes. JSON still excludes all audio. Confirm existing recordings play on the original installation.
+6. At normal and200%text check deletion action, confirmation/cancel/refusal dialogs and Back. No long-press behavior is included. Report phone/Android and results.

@@ -1,3 +1,9 @@
+# Current state — Safe Block deletion0.12.0/build22 in progress
+
+2026-10-28 America/Los_Angeles. Owner approved safe permanent deletion and Git-command/main publication/signing. Prepared transactional persistent dependency counts and confirmation recheck/delete, shared Block Editor action/dialogs/navigation, eight focused data tests and native cancellation/active+archived/dependency-race/recreation/cold-reopen/200% coverage. Room8/FKs/JSON5/legacy readers/key/app identity/audio unchanged. No new build/test pass or delivery claimed yet. Prior0.11.1/build21 remains latest signed delivery; known prior API35 large-text Routine fixture failure is separate. Mandatory efficiency procedure reviewed; early signed candidate planned after CI build. Exact next task: verify targeted/full build, sign early candidate, inspect native release results and finish truthful records/publication. Stage3 phone pending; Stage4 0/10.
+
+## Previous state (preserved)
+
 # Current state — Visual polish0.11.1/build21
 
 ## Visual polish0.11.1/build21 — 2026-10-28 America/Los_Angeles

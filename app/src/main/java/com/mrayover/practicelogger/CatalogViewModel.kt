@@ -24,15 +24,35 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
         private set
     var destinationArchived by mutableStateOf<Boolean?>(null)
         private set
-    fun navigationHandled() { destinationArchived = null }
+    var deletionReview by mutableStateOf<BlockDeletionReview?>(null)
+        private set
+    var deleted by mutableStateOf(false)
+        private set
+    fun navigationHandled() { destinationArchived = null; deleted = false }
+    fun dismissDeletion() { if (!busy) deletionReview = null }
+    fun reviewDeletion(id: String) = mutate({ deletionReview = repository.reviewDeletion(id) }, {},
+        "Could not check this Block's dependencies. Nothing was deleted. Try again.")
+    fun confirmDeletion() {
+        val review = deletionReview ?: return
+        if (!review.dependencies.canDelete) return
+        mutate({
+            when (val result = repository.deletePermanently(review.block.id)) {
+                BlockDeletionResult.Deleted -> {
+                    deletionReview = null; savedBlockId = null; deleted = true
+                    destinationArchived = review.block.archived
+                }
+                is BlockDeletionResult.Blocked -> deletionReview = result.review
+            }
+        }, {}, "Could not delete this Block. Nothing was deleted. Check available storage and try again.")
+    }
     fun dismissError() { error = null }
-    private fun mutate(action: suspend () -> Unit, done: () -> Unit) {
+    private fun mutate(action: suspend () -> Unit, done: () -> Unit, failureMessage: String = "Could not save changes. Your draft is still here. Check available storage and try again.") {
         if (busy) return
         busy = true
         viewModelScope.launch {
             try { action(); done() }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { error = "Could not save changes. Your draft is still here. Check available storage and try again." }
+            catch (_: Exception) { error = failureMessage }
             finally { busy = false }
         }
     }

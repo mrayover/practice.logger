@@ -23,6 +23,16 @@ data class Block(
     suspend fun readAll(): List<Block>
     @Query("SELECT * FROM blocks WHERE id = :id")
     suspend fun find(id: String): Block?
+    // Scalar counts avoid loading history/audio and include every saved session state.
+    @Query("""SELECT
+        (SELECT COUNT(*) FROM goal_blocks WHERE blockId = :id) AS goals,
+        (SELECT COUNT(DISTINCT routineId) FROM routine_placements WHERE sourceBlockId = :id) AS routines,
+        (SELECT COUNT(*) FROM takes WHERE blockId = :id) AS recordings,
+        (SELECT COUNT(*) FROM placements WHERE sourceBlockId = :id) AS sessionEntries,
+        (SELECT COUNT(*) FROM placements p JOIN sessions s ON s.id = p.sessionId
+            WHERE p.sourceBlockId = :id AND s.status = 'COMPLETED') AS completedEntries""")
+    suspend fun dependencies(id: String): BlockDependencies
+    @Query("DELETE FROM blocks WHERE id = :id") suspend fun delete(id: String): Int
     @Insert suspend fun insert(block: Block)
     @Update suspend fun update(block: Block): Int
 }

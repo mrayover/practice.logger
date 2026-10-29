@@ -26,7 +26,7 @@ The final Block automatically saves Session Summary. Recent Practice reopens sum
 
 Timer values use monotonic elapsed time, never wall-clock differences. Foreground checkpoints are written every 250 ms plus a pause flush. An abrupt process kill/storage failure can lose the most recent uncommitted interval (plus scheduling/write latency); recovery conservatively restores saved time and never counts background time. This release has completed Stage 3 automated engineering checks; its owner phone acceptance gate is pending, so dependable daily-use acceptance is not yet claimed.
 
-Block Library supports Active/Archived filters, literal case-insensitive search of name/action/notes and confirmed reversible archiving. No permanent delete API. Name/Action are required; durations and optional BPM accept positive whole numbers representable as 32-bit integers. Session duration conversion uses 64-bit milliseconds.
+Block Library supports Active/Archived filters, literal case-insensitive search of name/action/notes and confirmed reversible archiving. Delete Permanently in the saved Block Editor checks Goal associations, saved Routines, recordings and every draft/unfinished/completed session entry. Unused active or archived Blocks can be deleted after confirmation; referenced Blocks show exact counts and remain intact. Completed history remains protected. Export wanted audio before manually deleting individual takes; Archive remains available. Name/Action are required; durations and optional BPM accept positive whole numbers representable as 32-bit integers. Session duration conversion uses 64-bit milliseconds.
 
 ## Build, checks and packaging
 

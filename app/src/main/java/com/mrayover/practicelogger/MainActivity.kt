@@ -91,8 +91,8 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(vm.destinationArchived) {
         vm.destinationArchived?.let { destination ->
             focus.clearFocus(force = true); keyboard?.hide()
-            archived = destination; query = ""; page = editorReturn
-            if (editorReturn == "builder") vm.savedBlockId?.let { practice.addBlock(it) }
+            archived = destination; query = ""; page = if (vm.deleted) "library" else editorReturn
+            if (!vm.deleted && editorReturn == "builder") vm.savedBlockId?.let { practice.addBlock(it) }
             vm.navigationHandled()
         }
     }
@@ -158,7 +158,7 @@ class MainActivity : ComponentActivity() {
                     libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 3 else 0)
                 }
                 val matches = matchingBlocks(catalog.blocks, query, archived)
-                LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp), state = libraryScroll,
+                LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
                     item { BackToHomeButton(onClick = { page = "home" }) }
                     item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
@@ -188,7 +188,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorId) {
-                    BlockEditor(block, vm.busy, onCancel = { page = editorReturn },
+                    BlockEditor(block, vm.busy, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }
@@ -214,13 +214,25 @@ class MainActivity : ComponentActivity() {
             AlertDialog(onDismissRequest = routines::dismissError, title = { Text("Routine could not be updated") }, text = { Text(message) },
                 confirmButton = { TextButton(onClick = routines::dismissError) { Text("OK") } })
         }
+        vm.deletionReview?.let { review ->
+            val eligible = review.dependencies.canDelete
+            AlertDialog(onDismissRequest = vm::dismissDeletion,
+                title = { Text(if (eligible) "Delete \"${review.block.name}\" permanently?" else "This Block cannot be deleted yet.") },
+                text = { Text(if (eligible) "This removes the saved Block from your library and cannot be undone. Unsaved edits will be discarded."
+                    else review.dependencies.explanation(), modifier = Modifier.verticalScroll(rememberScrollState())) },
+                confirmButton = {
+                    TextButton(onClick = if (eligible) vm::confirmDeletion else vm::dismissDeletion, enabled = !vm.busy,
+                        modifier = Modifier.testTag("block-delete-confirm")) { Text(if (eligible) "Delete Permanently" else "OK") }
+                },
+                dismissButton = { if (eligible) TextButton(onClick = vm::dismissDeletion, enabled = !vm.busy) { Text("Cancel") } })
+        }
         vm.error?.let { message ->
             AlertDialog(onDismissRequest = vm::dismissError, title = { Text("Changes not saved") }, text = { Text(message) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("OK") } })
         }
     }
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, onDelete: () -> Unit, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -247,6 +259,8 @@ class MainActivity : ComponentActivity() {
         Button(onClick = { submitted = true; if (draft.errors().isEmpty()) onSave(draft) }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Saving…" else "Save") }
         OutlinedButton(onClick = ::leave, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Cancel") }
         if (block != null) OutlinedButton(onClick = { archiveConfirm = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (block.archived) "Restore Block" else "Archive Block") }
+        if (block != null) OutlinedButton(onClick = onDelete, enabled = !busy,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("block-delete-action")) { Text("Delete Permanently") }
     }
     if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard unsaved changes?") }, text = { Text("Your saved Block will stay unchanged.") },
         confirmButton = { TextButton(onClick = { discard = false; onCancel() }) { Text("Discard") } },
