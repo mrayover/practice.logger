@@ -115,13 +115,7 @@ jobs:
             adb shell wm dismiss-keyguard
             adb shell pm clear com.mrayover.practicelogger.app || true
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
-            APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
-            DEBUG_STORE=$(find "$HOME" -name debug.keystore -type f -print -quit)
-            if [ -z "$DEBUG_STORE" ]; then bash ./gradlew validateSigningDebug --rerun-tasks; DEBUG_STORE=$(find "$HOME" -name debug.keystore -type f -print -quit); fi
-            test -n "$DEBUG_STORE"
-            "$APKSIGNER" sign --ks "$DEBUG_STORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --out baseline-apk/upgrade-baseline.apk baseline-apk/app-debug.apk
-            "$APKSIGNER" sign --ks "$DEBUG_STORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android app/build/outputs/apk/debug/app-debug.apk
-            "$APKSIGNER" sign --ks "$DEBUG_STORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            bash scripts/Prepare-ReferenceUpgrade.sh
             adb install -r baseline-apk/upgrade-baseline.apk
             adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.LegacyReferenceSeedTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-legacy-seed.txt
