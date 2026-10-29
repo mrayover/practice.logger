@@ -11,8 +11,8 @@ android {
         applicationId = "com.mrayover.practicelogger.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 26
-        versionName = "0.14.0"
+        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 27
+        versionName = "0.14.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes { release { isMinifyEnabled = false } }
@@ -32,6 +32,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     implementation("androidx.room:room-runtime:2.8.5")
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
     ksp("androidx.room:room-compiler:2.8.5")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.16.1")

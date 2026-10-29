@@ -49,12 +49,13 @@ import kotlinx.coroutines.CancellationException
         dismissButton = { TextButton(onClick = { confirmRemoval = false }) { Text("Cancel") } })
 }
 
-@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel) {
+@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false) {
     val all by vm.images.collectAsStateWithLifecycle()
-    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository) } }
+    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge) } }
 }
 
-@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository) {
+@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false) {
+    val inset = if (edgeToEdge) 16.dp else 0.dp
     // Local UI state never calls practice/recording lifecycle or changes immutable session snapshots.
     var expanded by remember(image.fileName) { mutableStateOf(false) }
     var loaded by remember(image.fileName) { mutableStateOf(false) }
@@ -70,7 +71,7 @@ import kotlinx.coroutines.CancellationException
         }
     }
     OutlinedButton(onClick = { expanded = !expanded; if (expanded) loaded = true },
-        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("reference-toggle")) { Text(if (expanded) "Hide reference" else "Show reference") }
+        modifier = Modifier.fillMaxWidth().padding(horizontal = inset).heightIn(min = 48.dp).testTag("reference-toggle")) { Text(if (expanded) "Hide reference" else "Show reference") }
     if (expanded) {
         when {
             failure -> {
@@ -78,12 +79,12 @@ import kotlinx.coroutines.CancellationException
                 TextButton(onClick = { retry++ }) { Text("Retry image") }
             }
             bitmap == null -> Text("Loading reference…")
-            else -> ZoomableReference(bitmap!!)
+            else -> ZoomableReference(bitmap!!, inset)
         }
     }
 }
 
-@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap) {
+@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp) {
     var scale by remember(bitmap) { mutableFloatStateOf(1f) }
     var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -99,8 +100,10 @@ import kotlinx.coroutines.CancellationException
         scale = next
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Pinch to zoom; drag while enlarged.", style = MaterialTheme.typography.bodySmall)
-        Box(Modifier.fillMaxWidth().height(240.dp).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
+        Text("Pinch to zoom; drag while enlarged.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = inset))
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(180.dp, 640.dp)
+        Box(Modifier.fillMaxWidth().height(viewerHeight).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
             .onSizeChanged { size = it }.testTag("reference-viewer")
             .semantics { contentDescription = "Reference image viewer, zoom ${"%.1f".format(scale)}" }
             .transformable(state = transform, canPan = { scale > 1f })) {
@@ -109,6 +112,7 @@ import kotlinx.coroutines.CancellationException
                     scaleX = scale; scaleY = scale; translationX = offset.x; translationY = offset.y
                 })
         }
-        if (scale > 1f) TextButton(onClick = { scale = 1f; offset = Offset.Zero }) { Text("Reset image zoom") }
+        }
+        if (scale > 1f) TextButton(modifier = Modifier.padding(horizontal = inset), onClick = { scale = 1f; offset = Offset.Zero }) { Text("Reset image zoom") }
     }
 }

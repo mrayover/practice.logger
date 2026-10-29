@@ -37,10 +37,19 @@ class ImageReferenceWorkflowTest {
             compose.onNodeWithTag("Action").performScrollTo().performTextInput("Study and memorize")
             click("Save"); shown("Block Library"); editor("Image reference fixture")
             val id = runBlocking { db.blocks().readAll().single { it.name == "Image reference fixture" }.id }
-            val bitmap = Bitmap.createBitmap(1200, 800, Bitmap.Config.ARGB_8888).apply { eraseColor(android.graphics.Color.GREEN) }
-            val jpeg = ByteArrayOutputStream().use { out -> bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out); out.toByteArray() }; bitmap.recycle()
+            val upright = Bitmap.createBitmap(800, 1200, Bitmap.Config.ARGB_8888).apply { eraseColor(android.graphics.Color.WHITE) }
+            val canvas = android.graphics.Canvas(upright); val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            paint.color = android.graphics.Color.rgb(49,92,71); canvas.drawRect(0f,0f,800f,140f,paint)
+            paint.color = android.graphics.Color.WHITE; paint.textSize = 52f; canvas.drawText("UPRIGHT REFERENCE",40f,90f,paint)
+            paint.color = android.graphics.Color.BLACK; paint.strokeWidth = 3f
+            for (group in 0..4) for (line in 0..4) { val y = 230f + group * 180f + line * 18f; canvas.drawLine(40f,y,760f,y,paint) }
+            val stored = Bitmap.createBitmap(upright,0,0,800,1200,android.graphics.Matrix().apply { setRotate(-90f) },false)
             val fixture = File(compose.activity.getExternalFilesDir(null), "reference-fixture.jpg")
-            fixture.writeBytes(jpeg)
+            fixture.outputStream().use { stored.compress(Bitmap.CompressFormat.JPEG, 95, it) }; stored.recycle(); upright.recycle()
+            androidx.exifinterface.media.ExifInterface(fixture).apply {
+                setAttribute(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, "6"); saveAttributes()
+            }
+            val jpeg = fixture.readBytes()
             device.executeShellCommand("mkdir -p /sdcard/Download")
             device.executeShellCommand("cp ${fixture.absolutePath} /sdcard/Download/reference-fixture.jpg")
             val listing = device.executeShellCommand("ls -l /sdcard/Download/reference-fixture.jpg")
@@ -51,6 +60,8 @@ class ImageReferenceWorkflowTest {
                 ?: device.wait(Until.findObject(By.text("reference-fixture.jpg")), 3000)).click()
             shown("Replace reference image")
             val first = runBlocking { db.images().find(id)!! }
+            val orientationProbe = runBlocking { ImageReferenceRepository(db, File(compose.activity.filesDir,"block-images")).decode(first) }
+            assertEquals(800,orientationProbe.width); assertEquals(1200,orientationProbe.height); orientationProbe.recycle()
             click("Show reference"); compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             captureStage3("image-editor")
             click("Hide reference"); click("Replace reference image"); downloads()
@@ -69,6 +80,9 @@ class ImageReferenceWorkflowTest {
             compose.onNodeWithText("Hide reference").assertDoesNotExist()
             val images = ViewModelProvider(compose.activity)[ImageReferenceViewModel::class.java]
             compose.waitUntil(15000) { images.images.value.any { it.blockId == id } }
+            val titleBounds = compose.onNodeWithText("Image reference fixture").getUnclippedBoundsInRoot()
+            val actionBounds = compose.onNodeWithText("Study and memorize").getUnclippedBoundsInRoot()
+            assertTrue("Heading gap should be compact", (actionBounds.top - titleBounds.bottom).value <= 5f)
             click("Start"); compose.waitUntil(15000) { practice.running && !practice.busy }
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }
@@ -76,6 +90,11 @@ class ImageReferenceWorkflowTest {
             repeat(3) {
                 click("Show reference")
                 compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
+                val viewer = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
+                val page = compose.onRoot().getUnclippedBoundsInRoot()
+                assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)
+                assertTrue("Portrait viewer should be taller than wide", viewer.height > viewer.width)
+                if (it == 0) { compose.onNodeWithTag("reference-viewer").performScrollTo(); captureStage3("image-focus-portrait-fit") }
                 compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
                     pinch(Offset(width * .4f, height * .4f), Offset(width * .6f, height * .6f),
                         Offset(width * .15f, height * .15f), Offset(width * .85f, height * .85f))

@@ -116,4 +116,49 @@ class ImageReferenceTest {
             assertEquals(2, repo.recover()); assertTrue(File(directory, image.fileName).exists()); assertTrue(File(directory, "unrelated.txt").exists())
         } finally { db.close(); directory.deleteRecursively() }
     }
+    @Test fun cameraOrientationsApplyToExistingPrivateBytesWithoutChangingOriginals(): Unit = runBlocking {
+        val db = memory(); val directory = dir()
+        try {
+            val id = BlockRepository(db).save(null, BlockDraft("Portrait", "Read upright"))
+            val repo = ImageReferenceRepository(db, directory)
+            val source = File(context.cacheDir, "orientation-${UUID.randomUUID()}.jpg")
+            val colors = listOf(android.graphics.Color.RED, android.graphics.Color.GREEN, android.graphics.Color.BLUE, android.graphics.Color.YELLOW)
+            val original = Bitmap.createBitmap(600, 400, Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(original); val paint = android.graphics.Paint()
+            colors.forEachIndexed { index, color ->
+                paint.color = color; val x = (index % 2) * 300f; val y = (index / 2) * 200f
+                canvas.drawRect(x, y, x + 300f, y + 200f, paint)
+            }
+            val untagged = ByteArrayOutputStream().use { original.compress(Bitmap.CompressFormat.JPEG, 100, it); it.toByteArray() }
+            original.recycle()
+            val expected = listOf(listOf(0,1,2,3), listOf(1,0,3,2), listOf(3,2,1,0), listOf(2,3,0,1),
+                listOf(0,2,1,3), listOf(2,0,3,1), listOf(3,1,2,0), listOf(1,3,0,2))
+            for (tag in 1..8) {
+                source.writeBytes(untagged)
+                androidx.exifinterface.media.ExifInterface(source).apply {
+                    setAttribute(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, tag.toString()); saveAttributes()
+                }
+                val input = source.readBytes(); val image = attach(repo, id, input)
+                // Decoder reads the original file at display time, also fixing attachments saved by build26.
+                val decoded = repo.decode(image)
+                try {
+                    assertEquals(if (tag >= 5) 400 else 600, decoded.width)
+                    assertEquals(if (tag >= 5) 600 else 400, decoded.height)
+                    val corners = listOf(20 to 20, decoded.width - 21 to 20, 20 to decoded.height - 21, decoded.width - 21 to decoded.height - 21)
+                    val actual = corners.map { (x,y) ->
+                        val pixel = decoded.getPixel(x,y)
+                        colors.indices.minBy { c ->
+                            kotlin.math.abs(android.graphics.Color.red(pixel) - android.graphics.Color.red(colors[c])) +
+                            kotlin.math.abs(android.graphics.Color.green(pixel) - android.graphics.Color.green(colors[c])) +
+                            kotlin.math.abs(android.graphics.Color.blue(pixel) - android.graphics.Color.blue(colors[c]))
+                        }
+                    }
+                    assertEquals("EXIF orientation $tag", expected[tag - 1], actual)
+                    assertArrayEquals(input, source.readBytes()); assertArrayEquals(input, File(directory, image.fileName).readBytes())
+                } finally { decoded.recycle() }
+            }
+            source.delete()
+        } finally { db.close(); directory.deleteRecursively() }
+    }
+
 }

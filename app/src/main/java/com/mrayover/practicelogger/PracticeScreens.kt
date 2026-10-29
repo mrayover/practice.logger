@@ -137,14 +137,17 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     fun leave() { vm.saveForLater(bundle.session.id, current.id, note) }
     BackHandler { leave() }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
-    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+      Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.titleMedium)
         goalName?.let { Text("Goal: " + it) }
         Text(current.name, style = MaterialTheme.typography.headlineLarge)
         Text(current.action, style = MaterialTheme.typography.titleLarge)
         current.tempo?.let { Text(it.toString() + " BPM reference") }
         if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes)
-        PracticeImageReference(current.sourceBlockId, current.id, images)
+      }
+        PracticeImageReference(current.sourceBlockId, current.id, images, edgeToEdge = true)
+      Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
             style = MaterialTheme.typography.displayLarge, modifier = Modifier.fillMaxWidth().testTag("practice-timer").semantics { contentDescription = if (current.overtimeAccepted) "Overtime " + practiceTime(current.activeMs - current.configuredMs) else "Time remaining " + practiceTime(current.configuredMs - current.activeMs, roundUp = true) })
         Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" })
@@ -161,6 +164,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         Text("Notes save with Save Block note, Save for later, Back, Complete or Skip.")
         TextButton(onClick = ::leave, enabled = !vm.busy) { Text("Save for later") }
+      }
     }
 }
 

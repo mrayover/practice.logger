@@ -2,6 +2,8 @@ package com.mrayover.practicelogger
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -61,9 +63,27 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
         val bounds = inspect(file)
         var sample = 1
         while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2048) sample *= 2
-        return checkNotNull(BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply {
+        val decoded = checkNotNull(BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply {
             inSampleSize = sample; inPreferredConfig = Bitmap.Config.ARGB_8888
         })) { "Reference image could not be decoded. Replace it in the Block editor." }
+        // BitmapFactory returns stored pixels; camera portrait/flip tags must be applied explicitly.
+        // Read the existing private original so already-attached photos also display correctly.
+        val orientation = runCatching { ExifInterface(file).getAttributeInt(
+            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
+        val matrix = Matrix().apply {
+            when (orientation) {
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> setScale(-1f, 1f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> setRotate(180f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> setScale(1f, -1f)
+                ExifInterface.ORIENTATION_TRANSPOSE -> { setRotate(90f); postScale(-1f, 1f) }
+                ExifInterface.ORIENTATION_ROTATE_90 -> setRotate(90f)
+                ExifInterface.ORIENTATION_TRANSVERSE -> { setRotate(-90f); postScale(-1f, 1f) }
+                ExifInterface.ORIENTATION_ROTATE_270 -> setRotate(-90f)
+            }
+        }
+        if (matrix.isIdentity) return decoded
+        return try { Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, matrix, true) }
+            finally { decoded.recycle() }
     }
     suspend fun decode(image: BlockImage): Bitmap = withContext(Dispatchers.IO) {
         filesMutex.withLock { decodeFile(resolve(image.fileName)) }

@@ -1,3 +1,7 @@
+# Refinement in progress — 0.14.1 / build 27
+
+2026-10-29: owner requests compact Block top matter, upright portrait reference and full-width phone display. Implementation and targeted orientation/layout tests are added; verification and permanent-key package pending. Room10 and JSON6 are unchanged. Exact next task: run focused EXIF/image tests, build and sign candidate27, verify native normal/enlarged behavior, then update release evidence and publish. Previous delivered build26 follows as historical baseline until this update is verified.
+
 # Current state — practice.logger 0.14.0, build 26
 
 Updated 2026-10-29 (America/Los_Angeles). This is the authoritative delivery and verification record. Increment 1 (Daily Log / Weekly View) is complete and retained. Increment 2 delivers one collapsible Block reference image. Historical evidence and the mandatory efficiency procedure remain in [WORK_LOG.md](WORK_LOG.md).
