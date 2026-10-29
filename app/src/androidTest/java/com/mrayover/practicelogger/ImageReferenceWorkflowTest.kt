@@ -47,7 +47,8 @@ class ImageReferenceWorkflowTest {
             assertTrue("Picker fixture was not copied: $listing", listing.contains(jpeg.size.toString()))
             device.executeShellCommand("am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/reference-fixture.jpg")
             click("Add reference image"); downloads()
-            checkNotNull(device.wait(Until.findObject(By.text("reference-fixture.jpg")), 10000)).click()
+            checkNotNull(device.wait(Until.findObject(By.descStartsWith("reference-fixture.jpg")), 10000)
+                ?: device.wait(Until.findObject(By.text("reference-fixture.jpg")), 3000)).click()
             shown("Replace reference image")
             val first = runBlocking { db.images().find(id)!! }
             click("Show reference"); compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
