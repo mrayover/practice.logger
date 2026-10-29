@@ -220,3 +220,6 @@ ZIP SHA256:3d33be2fb432349952374d775167305c4a01f12a2d5b7670658da056b61fff5a
 JSON excludes images/PDFs and recordings; keep originals separately and export wanted takes individually.
 
 Normal API35 active-reference/phrase screenshots reviewed:readable page controls and pinned Stop/Save;real native assertions verify timer,BPM and take continuity. Required full release/200% gates started only after focused checks passed. Exact signed artifacts/checksums are now in CURRENT_STATE.md;no phone acceptance invented.
+
+
+Final200% checks40945043010(API26)/40945047534(API35) both reached saved free take then timed out at PdfReferenceWorkflowTest:97 waiting for playback. Screenshot/hierarchy show “Take saved.”,Resume timer and the top of the sheet;no MediaPlayer preparation appears in the captured log. Hypothesis:generic child performScrollTo targeted the wrong visible control after the large lazy layout shifted. Change only that playback navigation to the established take-list.performScrollToNode(hasTestTag(play-id)),then assert displayed and click. Keep playback,timer and capture assertions. App source/APK29 unchanged;full release40945038634 continues on4f97f3d while isolated enlarged-text checks rerun. Do not claim this hypothesis established until the focused result.

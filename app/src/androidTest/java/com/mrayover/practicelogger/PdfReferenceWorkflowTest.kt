@@ -93,7 +93,8 @@ class PdfReferenceWorkflowTest {
             click("Stop and save take"); compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId == id } }
             val free = recordings.takes.value.single { it.blockId == id }
             assertTrue(free.durationMs >= before); assertTrue(runBlocking { db.sessions().find(session)!!.current!!.activeMs } > 0)
-            compose.onNodeWithTag("play-${free.id}").performScrollTo().performClick()
+            compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("play-${free.id}"))
+            compose.onNodeWithTag("play-${free.id}").assertIsDisplayed().performClick()
             compose.waitUntil(15000) { recordings.playingId == free.id }; compose.runOnIdle { recordings.stopPlayback() }
             click("Close recordings"); shown("Recordings"); assertTrue(practice.running)
             click("Recordings"); shown("Block recordings")
