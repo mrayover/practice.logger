@@ -79,7 +79,7 @@ class RoutineBackupTest {
                 val root = JSONObject(String(BackupCodec.encode(data))); root.remove(key)
                 try { BackupCodec.decode(root.toString().toByteArray()); fail("Missing Routine array accepted") } catch (_: org.json.JSONException) { }
             }
-            val unsupported = JSONObject(String(BackupCodec.encode(data))).put("version", 6)
+            val unsupported = JSONObject(String(BackupCodec.encode(data))).put("version", 7)
             try { BackupCodec.decode(unsupported.toString().toByteArray()); fail("Future format accepted") } catch (_: IllegalArgumentException) { }
         } finally { db.close() }
     }

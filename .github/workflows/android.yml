@@ -46,7 +46,7 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Targeted Log persistence and backup checks
-        run: bash ./gradlew testDebugUnitTest --tests '*.LogRepositoryTest' --stacktrace
+        run: bash ./gradlew testDebugUnitTest --tests '*.LogRepositoryTest' --tests '*.RoutineBackupTest' --stacktrace
       - name: Build, test and lint
         run: bash ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Record schema for migration baseline

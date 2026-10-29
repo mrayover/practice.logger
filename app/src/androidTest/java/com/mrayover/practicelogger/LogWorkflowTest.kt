@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 class LogWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
+    private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }; compose.waitUntil(15000) { !ViewModelProvider(compose.activity)[LogViewModel::class.java].busy } }
     private fun click(text: String) { shown(text); val node = compose.onNodeWithText(text); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
     private fun saved(db: BlockDatabase, day: LocalDate, text: String) { compose.waitUntil(15000) { runBlocking { db.logs().find(day.toString())?.text == text } } }
     @Test fun dailyWeeklyRapidNavigationRecreationAndNewDay() {

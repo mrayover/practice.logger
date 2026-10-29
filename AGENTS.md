@@ -16,13 +16,15 @@ At the end of every session, including incomplete work: record factual work/resu
 
 ## Current app and data rules
 
-The delivered app is 0.12.0/build 23. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an actual owner request or approved scope in BUILD_PLAN.md.
+The Daily Log increment is 0.13.0/build 24; consult CURRENT_STATE.md for actual delivery/verification status. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an actual owner request or approved scope in BUILD_PLAN.md.
 
 Keep Kotlin, Jetpack Compose, Room, Lifecycle and bundled Lato Regular/Bold throughout app-controlled text. Preserve the current cream/green theme, navigation and functioning controls. No destructive database fallback; retain schema exports and explicit data-preserving migrations.
 
 Block deletion is allowed only when there are zero Goal links, saved Routine references, attached takes and session placements of every status. Count persistent data and recheck/delete in one transaction after confirmation. Preserve foreign-key restrictions and explicitly inspect session sourceBlockId references. Never detach associations, remove recordings or rewrite completed history automatically. No long-press or historical-reference redesign is authorized by this feature.
 
-Room schema is 8. JSON writer is 5, readers 1–5, with atomic restore into a completely empty target. Keep relationship validation, including historical source Block references. JSON excludes all take metadata/labels/audio. Retain per-take export; do not claim full audio portability. Preserve existing practice data, audio, IDs and migrations.
+Room schema is 9. JSON writer is 6, readers 1–6, with atomic restore into a completely empty target. Keep relationship validation, including historical source Block references. JSON excludes all take metadata/labels/audio. Retain per-take export; do not claim full audio portability. Preserve existing practice data, audio, IDs and migrations.
+
+Daily Logs are independent date-keyed plain text; keep date captured with every queued edit, flush before date/navigation/background transitions, and retain failed drafts for retry. Use local calendar boundaries. Weekly views derive from daily_logs; no separate weekly persistence or practice relationships. Backup validates canonical dates and protects Log-only targets.
 
 ## Verification and delivery
 

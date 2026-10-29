@@ -1,6 +1,6 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-28 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **0.12.0/build 23 is delivered.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
+Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **0.13.0/build 24 Daily Log increment is implemented; release checks are in progress.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
 
 ## Product and implemented scope
 
@@ -15,13 +15,14 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Tools | Standalone metronome, actual chromatic tuner (single notes, A4=440), stopwatch and rolled whole-minute countdown; no background alarm or persistent tool log. |
 | Saved Routines | Stable ordered Block references, independent duration overrides, management/confirmed deletion, builder save and fresh independent practice. Archived/unavailable links prevent the entire start; no silent skipping. |
 | Goals | Five active Goals maximum, manual 0–100% progress/outcome/notes, ordering/top-two Home bars, completed/reopen, shared existing Blocks, fresh Goal practice and explicit session attribution of actual committed time. |
-| Backup | JSON writer 5/readers 1–5, protected empty-target transactional restore, complete relationship/order/state/overflow validation. All audio/take metadata/labels excluded; per-take export remains available. |
+| Daily Log / Weekly View | Independent editable local-date plain text, autosave, date picker, Monday–Sunday weekly aggregation/navigation; no practice links or separate weekly records. |
+| Backup | JSON writer 6/readers 1–6, protected empty-target transactional restore, complete relationship/order/state/overflow validation. All audio/take metadata/labels excluded; per-take export remains available. |
 
 ## Data and release acceptance rules
 
-- Preserve app ID, permanent certificate, existing data/audio/IDs, all prior migrations and distribution packages. Current Room schema is 8. Never use destructive fallback.
+- Preserve app ID, permanent certificate, existing data/audio/IDs, all prior migrations and distribution packages. Current Room schema is 9; explicit 8→9 adds only daily_logs. Never use destructive fallback.
 - Session placements deliberately lack a Block foreign key; safe deletion must check their saved sourceBlockId explicitly. Completed history remains protected even after Goal/Routine links are removed. Keep original FK restrictions and strict JSON references.
-- Never report a failed database operation as success. Cancellation changes no persistent data. Restore never clears, merges or overwrites a nonempty installation, including an app containing only Goals or standalone takes.
+- Never report a failed database operation as success. Cancellation changes no persistent data. Restore never clears, merges or overwrites a nonempty installation, including an app containing only Logs, Goals or standalone takes.
 - Keep the practice timer independent of audio; count only committed foreground active time. Saved snapshots/notes/history must survive Block edits/archive and app updates. Do not promise lossless abrupt-kill recovery or seamless/latency-free acoustic loops without evidence.
 - For an authorized app increment: focused tests/compilation first, early clearly labeled signed candidate, evidence-driven isolated diagnostics, then required full release checks. Package with the existing publisher, validate signature/identity/version/integrity and preserve older files. Include actual limitations and a phone checklist. See the mandatory efficiency procedure in WORK_LOG.md.
 - The safe-deletion increment required no schema migration or backup semantic change. Focused acceptance covers unused active/archived removal, all four blocker categories, exact counts, cancellation/recreation/recheck, database errors, restart persistence, remaining-data integrity and JSON export/restore.
@@ -40,9 +41,11 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 
 The owner explicitly approved later features while Stage 3 phone acceptance and Stage 4 evaluation remained deferred. Do not mark those gates completed or turn their deferral into a blanket prohibition on an explicit new owner request.
 
+| Daily Log and Weekly View | Implemented in 0.13.0/build24 source; exact tests/package status in CURRENT_STATE.md. |
+
 ## Retained future boundaries
 
-No additional implementation is selected. Broader save/storage and audio-inclusive bulk export/restore require an owner discussion. A future media portability design must include audio bytes, a versioned manifest, integrity/reference validation and a safe restore policy; JSON must not be presented as media backup.
+Daily Log and Weekly View are the current authorized increment. Collapsible Block image/PDF attachments remain a separate possible future increment, with no implementation authorized here. No tagging, AI analysis, rich text, search or practice correlations are included. Broader save/storage and audio-inclusive bulk export/restore require an owner discussion. A future media portability design must include audio bytes, a versioned manifest, integrity/reference validation and a safe restore policy; JSON must not be presented as media backup.
 
 Long-press interactions, historical-reference redesign, overdubs/layers/multitrack/mixer/effects/waveforms/trimming, tempo maps/time signatures/subdivisions/accent/tap tempo, transcription/auto tempo, backing tracks, PDF/YouTube embedding, multi-face cubes, randomization, notifications, algorithmic spaced repetition, deep analytics, accounts/cloud/backend/subscriptions/sharing, automatic updates, desktop apps, integrations, remote/background recording/looping and advanced animations remain outside current approved scope. These are retained boundaries/ideas, not implementation tasks or claims of infeasibility. No unresolved future decision is inferred as approved.
 
@@ -50,4 +53,4 @@ Stage 4 may eventually support choosing at most one further feature from real ob
 
 ## Next action
 
-Use the current signed release and report the deletion phone checks in MANUAL_TESTS.md. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Complete Log release verification and use the signed package for the Log phone checks in MANUAL_TESTS.md. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.

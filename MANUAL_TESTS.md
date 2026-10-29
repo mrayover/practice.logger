@@ -1,12 +1,21 @@
-# Current phone checklist — 0.12.0/build 23
+# Current phone checklist — 0.13.0/build 24
 
-Updated 2026-10-28 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
+Updated 2026-10-29 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
 
 ## Install and preserve data
 
 Install over the existing permanent-key app **without uninstalling or clearing it**. Confirm existing Blocks, Goals, Routines, notes, unfinished practice, history and recordings remain. The old temporary-key 0.1.0 app is separate; no automatic transfer is provided. Test restore only in a spare empty installation. JSON excludes all audio; export wanted takes individually.
 
-## Next check: safe permanent Block deletion
+## Next check: Daily Log and Weekly View
+
+1. Install over the existing permanent-key app; confirm old Blocks, Goals, Routines, history and recordings remain. Home → Log must open today's local date with a large plain-text editor. Write several paragraphs, punctuation and blank lines; wait for Saved, close/reopen and edit again.
+2. Choose date → yesterday, write different text and immediately return Home. Reopen Log: today must retain its own text. Revisit yesterday and edit it. Alternate dates rapidly while typing; dismiss the keyboard and background immediately. Check both texts after a cold reopen; no text may cross dates.
+3. Leave Log overnight or advance the device date in a controlled test. Reenter/resume Log: the new local day's editor is blank if unused; earlier days remain intact and editable. Also check a late evening before UTC midnight and a year/week boundary.
+4. Weekly View shows seven chronological Monday–Sunday dates, full saved text and No entry for empty days. Navigate Previous/Next week; select an empty or populated day and edit. Its next weekly display must reflect that edit. No separate weekly record exists.
+5. Export format6 JSON and restore on a spare empty installation; compare dates, whitespace and complete Log text as well as existing practice records. Try a legacy version1–5 file on another empty target. A target containing only a Log must refuse restore. Never clear/uninstall the main app to test this.
+6. At normal/200% text, check date picker, Back to Home, weekly controls, scrolling long entries and keyboard access in portrait/landscape. After a later in-place update, confirm both Logs and existing recordings/data remain. Report phone, Android/build, timezone and any failures. These phone checks remain pending.
+
+## Safe permanent Block deletion
 
 1. Create an unused active Block, reopen its editor and scroll below Archive to Delete Permanently. Cancel: saved Block and unsaved draft stay intact. Confirm: return to Library, row disappears, and it remains absent after restart.
 2. Repeat with an unused archived Block using the Archived filter. A new unsaved Block has no deletion action. Check that a canceled confirmation leaves the editor usable.
@@ -43,7 +52,7 @@ Install over the existing permanent-key app **without uninstalling or clearing i
 ## JSON backup, accessibility and evaluation
 
 1. Tools → Backup and restore → Export backup through the actual phone document picker; wait for Backup saved. Commit notes first. Cancel picker/import preview and verify unchanged data. Keep the plain-text backup private; failed exports may leave incomplete files.
-2. On a spare empty installation, restore the complete format5 export, compare Blocks/archive, Routines/order/durations, Goals/progress/links/attribution, notes/history/draft/unfinished practice and restart paused. Reject nonempty restore/malformed data without mutation. Legacy1–4 remain readable. Do not clear the owner's main app for testing.
+2. On a spare empty installation, restore the complete format6 export, compare Blocks/archive, Routines/order/durations, Goals/progress/links/attribution, notes/history/draft/unfinished practice and restart paused. Reject nonempty restore/malformed data without mutation. Legacy1–5 remain readable; compare original local dates and Log text as well. Do not clear the owner's main app for testing.
 3. Record actual document provider, unavailable/read-only-provider errors/retry and disposable low-storage behavior. Confirm original recordings remain and exported M4A/WAV plays externally; JSON contains no audio/take metadata/labels.
 4. At normal/200% text, landscape and TalkBack check shared Lato/cream/green/banner, Home Goal bars, Back to Home, keyboard/scrolling and reachable controls/dialogs. Specifically report Phrase BPM label/range, keyboard Done/Back dismissal and access to lower phrase controls; old screenshots did not establish reliable Done dismissal.
 5. Detailed Stage 3 phone backup/recovery acceptance remains pending. Resume [EVALUATION.md](EVALUATION.md) when the owner is ready; it currently records0/10 real sessions. Save observations in existing optional notes and report concrete friction. Synthetic CI sessions never count.
