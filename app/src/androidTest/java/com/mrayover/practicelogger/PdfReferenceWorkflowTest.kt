@@ -17,7 +17,12 @@ class PdfReferenceWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() } }
-    private fun click(text: String) { shown(text); val node = compose.onAllNodesWithText(text).onLast(); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
+    private fun click(text: String) {
+        if (compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isNotEmpty() &&
+            (compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty() || !compose.onAllNodesWithText(text).onLast().isDisplayed())) {
+            compose.onNodeWithTag("take-list").performScrollToNode(hasText(text))
+        }
+        shown(text); val node = compose.onAllNodesWithText(text).onLast(); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
     private fun viewer() = compose.onAllNodesWithTag("reference-viewer").onLast()
     private fun rendered() { compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() } }
     private fun zoom() {
@@ -43,7 +48,9 @@ class PdfReferenceWorkflowTest {
             device.executeShellCommand("cp ${source.absolutePath} /sdcard/Download/score-fixture.pdf")
             click("Add image or PDF")
             checkNotNull(device.wait(Until.findObject(By.desc("Show roots")),10000)).click()
-            checkNotNull(device.wait(Until.findObject(By.text("Downloads")),10000)).click(); device.waitForIdle()
+            assertTrue(device.wait(Until.hasObject(By.text("Downloads")),10000))
+            device.waitForIdle()
+            device.findObjects(By.text("Downloads")).last().click(); device.waitForIdle()
             checkNotNull(device.wait(Until.findObject(By.descStartsWith("score-fixture.pdf")),10000) ?: device.wait(Until.findObject(By.text("score-fixture.pdf")),3000)).click()
             shown("Replace reference PDF")
             val pdf = runBlocking { db.images().find(id)!! }; assertEquals("application/pdf",pdf.mimeType)

@@ -14,7 +14,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.*
 import java.util.UUID
 
-@RunWith(RobolectricTestRunner::class) @Config(sdk = [35])
+@RunWith(RobolectricTestRunner::class) @Config(sdk = [34])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class PdfReferenceTest {
     private val context get() = ApplicationProvider.getApplicationContext<Context>()

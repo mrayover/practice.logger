@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Preserve PDF fixture bytes and cross-reference offsets on every checkout.
+*.pdf binary

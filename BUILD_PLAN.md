@@ -9,15 +9,15 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Area | Approved, implemented behavior |
 |---|---|
 | Blocks | Required Name/Action, validated positive duration/optional BPM, notes, literal search, Active/Archived, confirmed reversible Archive/Restore. |
-| Permanent deletion | Saved editor action below Archive/Restore, both active/archived; inspect persistent Goal links, distinct saved Routines, takes and every session sourceBlockId placement. Explicit confirmation; atomic fresh recheck/delete; real blocker counts; protected completed history; navigation only on actual success. An image attachment also blocks deletion until confirmed removal. No automatic detachment, media removal or history rewriting. |
+| Permanent deletion | Saved editor action below Archive/Restore, both active/archived; inspect persistent Goal links, distinct saved Routines, takes and every session sourceBlockId placement. Explicit confirmation; atomic fresh recheck/delete; real blocker counts; protected completed history; navigation only on actual success. An image or PDF attachment also blocks deletion until confirmed removal. No automatic detachment, media removal or history rewriting. |
 | Practice | One builder draft plus multiple independent unfinished sessions under Practice Now; order/duration overrides; Start/Pause/Resume, Complete/Skip, explicit overtime, saved notes and paused recovery; completed summaries/Recent Practice under Routines. |
 | Click and audio | Independent integrated metronome, per-Block free takes and fixed phrase loops, four-click count-in and default-on optional capture guide, playback/rename/delete/export. Standalone free recordings reuse recording infrastructure without synthetic Blocks. Foreground lifecycle cleanup and no automatic audio restart. |
 | Tools | Standalone metronome, actual chromatic tuner (single notes, A4=440), stopwatch and rolled whole-minute countdown; no background alarm or persistent tool log. |
 | Saved Routines | Stable ordered Block references, independent duration overrides, management/confirmed deletion, builder save and fresh independent practice. Archived/unavailable links prevent the entire start; no silent skipping. |
 | Goals | Five active Goals maximum, manual 0–100% progress/outcome/notes, ordering/top-two Home bars, completed/reopen, shared existing Blocks, fresh Goal practice and explicit session attribution of actual committed time. |
 | Daily Log / Weekly View | Independent editable local-date plain text, autosave, date picker, Monday–Sunday weekly aggregation/navigation; no practice links or separate weekly records. |
-| Reference images | One private JPEG/PNG/WebP per saved Block, system picker, validated bounded import, safe replace/confirmed remove; inline fitted Show/Hide with pinch zoom/pan in Focused Practice. Archived ownership retained through sourceBlockId; no snapshot duplication or recording-sheet integration. |
-| Backup | JSON writer 6/readers 1–6, protected empty-target transactional restore, complete relationship/order/state/overflow validation. All images/image metadata and audio/take metadata/labels excluded; per-take export remains available. |
+| Reference image/PDF | One private JPEG/PNG/WebP or PDF per saved Block, system picker, bounded validation, safe replace/confirmed remove; inline Show/Hide/zoom/pan, PDF page controls in Focused Practice and the existing recording sheet during capture. Retain archived sourceBlockId ownership, image orientation/layout and audio lifecycle. Increment3 verification status is in CURRENT_STATE.md. |
+| Backup | JSON writer 6/readers 1–6, protected empty-target transactional restore, complete relationship/order/state/overflow validation. All image/PDF bytes and attachment metadata and audio/take metadata/labels excluded; per-take export remains available. |
 
 ## Data and release acceptance rules
 
@@ -39,7 +39,7 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Stage 6A/6B: free takes/phrase loops | Implemented; owner generally accepted. Detailed physical timing/quality/lifecycle checks remain unverified individually. |
 | Tools, standalone recording, saved Routines, Goals, visual polish | Owner-approved extensions, implemented. Earlier stage deferrals do not prohibit these shipped features. |
 | Safe permanent deletion | Delivered in 0.12.0/build 23 and retained. Historical evidence is in WORK_LOG.md; current verification is in CURRENT_STATE.md. Phone acceptance pending. |
-| Increment 2: collapsible Block image reference | Complete: signed 0.14.0/build 26 delivered; exact native results and remaining phone acceptance in CURRENT_STATE.md. PDF and recording-view integration deferred. |
+| Increment 2: collapsible Block image reference | Complete: signed 0.14.0/build 26 delivered; exact native results and remaining phone acceptance in CURRENT_STATE.md. Build27 delivered the portrait/layout refinement; Increment3 now authorizes PDF and recording integration, with current verification in CURRENT_STATE.md. |
 | Daily Log and Weekly View (Increment 1, complete) | Delivered in 0.13.0/build25; exact tests/package status in CURRENT_STATE.md. |
 
 The owner explicitly approved later features while Stage 3 phone acceptance and Stage 4 evaluation remained deferred. Do not mark those gates completed or turn their deferral into a blanket prohibition on an explicit new owner request.
@@ -47,9 +47,9 @@ The owner explicitly approved later features while Stage 3 phone acceptance and 
 
 ## Retained future boundaries
 
-Increment 1 (Daily Log/Weekly View) is complete. Increment 2 explicitly authorizes the smallest reliable single-image Block attachment and collapsible inline practice viewer. PDF support and reference viewing inside the recording sheet remain later increments. No tagging, AI analysis, rich text, search or practice correlations are included. Broader save/storage and audio-inclusive bulk export/restore require an owner discussion. A future media portability design must include audio bytes, a versioned manifest, integrity/reference validation and a safe restore policy; JSON must not be presented as media backup.
+Increment 1 (Daily Log/Weekly View) is complete. Increment 2 explicitly authorizes the smallest reliable single-image Block attachment and collapsible inline practice viewer. PDF support and reference viewing inside the recording sheet are authorized by Increment3; implementation and delivery evidence are maintained in CURRENT_STATE.md. No tagging, AI analysis, rich text, search or practice correlations are included. Broader save/storage and audio-inclusive bulk export/restore require an owner discussion. A future media portability design must include audio bytes, a versioned manifest, integrity/reference validation and a safe restore policy; JSON must not be presented as media backup.
 
-Long-press interactions, historical-reference redesign, overdubs/layers/multitrack/mixer/effects/waveforms/trimming, tempo maps/time signatures/subdivisions/accent/tap tempo, transcription/auto tempo, backing tracks, PDF/YouTube embedding, multi-face cubes, randomization, notifications, algorithmic spaced repetition, deep analytics, accounts/cloud/backend/subscriptions/sharing, automatic updates, desktop apps, integrations, remote/background recording/looping and advanced animations remain outside current approved scope. These are retained boundaries/ideas, not implementation tasks or claims of infeasibility. No unresolved future decision is inferred as approved.
+Long-press interactions, historical-reference redesign, overdubs/layers/multitrack/mixer/effects/waveforms/trimming, tempo maps/time signatures/subdivisions/accent/tap tempo, transcription/auto tempo, backing tracks, YouTube embedding, multi-face cubes, randomization, notifications, algorithmic spaced repetition, deep analytics, accounts/cloud/backend/subscriptions/sharing, automatic updates, desktop apps, integrations, remote/background recording/looping and advanced animations remain outside current approved scope. These are retained boundaries/ideas, not implementation tasks or claims of infeasibility. No unresolved future decision is inferred as approved.
 
 Stage 4 may eventually support choosing at most one further feature from real observations, or none. Use observed problem → simplest change → cost/tradeoff → owner decision. Reliability feedback takes priority over speculative expansion.
 
@@ -59,7 +59,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Install signed 0.14.1/build 27 in place and perform the image and update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Finish Increment3 verification and permanent-key packaging, then install the new signed update in place and perform the PDF/recording/update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
 
 ## Increment 3 — authorized 2026-10-29, implementation in progress
 

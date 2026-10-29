@@ -25,7 +25,7 @@ class RecordingWorkflowTest {
         try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
         node.performClick()
     }
-    private fun sheet(text: String) { compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onNodeWithText(text, substring = false).performClick() }
+    private fun sheet(text: String) { if (!compose.onNodeWithText(text).isDisplayed()) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onNodeWithText(text, substring = false).performClick() }
     private fun takeAction(prefix: String, take: BlockTake) {
         val tag = prefix + "-" + take.id
         compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag(tag)); compose.onNodeWithTag(tag).performClick()
