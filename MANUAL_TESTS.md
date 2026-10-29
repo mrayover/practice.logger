@@ -1,4 +1,4 @@
-# Current phone checklist — Increment3 PDF/recording references,0.15.0/build29
+# Current phone checklist — Increment3 PDF/recording references,0.15.0/build30
 
 Updated 2026-10-29 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
 

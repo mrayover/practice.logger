@@ -80,7 +80,7 @@ import kotlin.coroutines.coroutineContext
         }
         when {
             failure -> {
-                Text("Reference is missing or unreadable. Replace or remove it in the Block editor.", modifier = Modifier.padding(horizontal = inset))
+                Text("Reference is missing or unreadable. Retry or reopen the app, then replace or remove it in the Block editor if needed.", modifier = Modifier.padding(horizontal = inset))
                 TextButton(onClick = { retry++ }) { Text("Retry reference") }
             }
             result == null -> Text("Loading reference…", modifier = Modifier.padding(horizontal = inset))

@@ -16,6 +16,7 @@ import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.io.RandomAccessFile
 import java.util.UUID
 
 @Entity(tableName = "block_images", foreignKeys = [ForeignKey(entity = Block::class,
@@ -95,6 +96,24 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
         val header = ByteArray(5)
         input.read(header) == 5 && header.contentEquals("%PDF-".toByteArray(Charsets.US_ASCII))
     }
+    private fun validatePdfStructure(file: File) {
+        // Avoid a known API26 PdfRenderer failure state after opening a truncated/non-PDF
+        // document: require a complete standard cross-reference trailer before native parsing.
+        RandomAccessFile(file, "r").use { input ->
+            val tailSize = minOf(file.length(), 4096L).toInt()
+            val tail = ByteArray(tailSize)
+            input.seek(file.length() - tailSize); input.readFully(tail)
+            val trailer = Regex("""startxref\s+(\d+)\s+%%EOF""").findAll(String(tail, Charsets.ISO_8859_1)).lastOrNull()
+            val offset = trailer?.groupValues?.get(1)?.toLongOrNull()
+            require(offset != null && offset in 1 until file.length()) { "Choose a complete PDF with a supported cross-reference trailer." }
+            input.seek(offset)
+            val prefix = ByteArray(minOf(64L, file.length() - offset).toInt()); input.readFully(prefix)
+            val start = String(prefix, Charsets.ISO_8859_1)
+            require(start.startsWith("xref") || Regex("""^\d+\s+\d+\s+obj\b""").containsMatchIn(start)) {
+                "This PDF cross-reference structure is unsupported. Choose an intact original."
+            }
+        }
+    }
     private fun rejectEncryptedPdf(file: File) {
         // API35 can open owner-encrypted PDFs with an empty user password. This increment
         // excludes encryption on every API. A conservative bounded name scan also recognizes
@@ -112,6 +131,7 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
     }
     private fun <T> withPdf(file: File, action: (PdfRenderer) -> T): T {
         require(file.isFile && file.length() in 1..MAX_BYTES.toLong()) { "PDF is missing or larger than 20 MiB." }
+        validatePdfStructure(file)
         rejectEncryptedPdf(file)
         // Both resources are closed even if construction, page opening or rendering fails.
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->

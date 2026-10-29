@@ -50,3 +50,8 @@ Physical-phone permanent-key install-over,owner’s original photographed page,v
 ## One next task
 
 Complete the running release/200% gates and reconcile this candidate’s final verification record;then the owner phone checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md) is the next acceptance task.
+
+
+## Corrected build30 in progress
+
+Full40946722042 did not pass:API26 exposed retained-PDF renderer failure after malformed replacement (bytes unchanged);API35 test left the notes keyboard open. Test keyboard focus is corrected;source now preflights standard PDF trailer/xref before native parsing and adds reopen/retry recovery. Build30 supersedes early candidates28/29 for final delivery;compilation/signing/focused/full checks are pending. Full failure and isolated evidence40948852656 are recorded in WORK_LOG.

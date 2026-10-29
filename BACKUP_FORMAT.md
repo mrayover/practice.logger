@@ -1,6 +1,6 @@
 # Backup format and safety — current implementation
 
-Updated for Increment 3 (0.15.0/build 29; delivery status in CURRENT_STATE.md) on 2026-10-29. Actual release verification is recorded in CURRENT_STATE.md.
+Updated for Increment 3 (0.15.0/build 30; delivery status in CURRENT_STATE.md) on 2026-10-29. Actual release verification is recorded in CURRENT_STATE.md.
 
 ## Format and records
 
@@ -63,3 +63,6 @@ All explicit Room migrations1→10 and compiler schemas are retained: sessions(2
 Safe permanent Block deletion originally shipped with Room 8/JSON 5 and preserves those protections with Room 10/JSON 6 and includes image/PDF references as one attachment blocker. It refuses attached images/PDFs, Goal links, saved Routine references, takes and **all** session placements in a transaction, preserving strict backup integrity. A successfully deleted eligible Block is absent from subsequent snapshots; remaining data restore normally. Completed-history references are not detached or weakened.
 
 Automated unit coverage includes round trips/reopen, legacy compatibility, validation limits/references/states/overflow, nonempty guards and injected write-failure rollback. Native tests exercise actual document pickers, export/cancel/restore/reopen. See CURRENT_STATE.md for the exact current-release unit/native outcomes and limits; earlier release results are historical evidence in WORK_LOG.md. Phone acceptance remains pending in MANUAL_TESTS.md.
+
+
+PDF support requires a complete standard startxref/EOF trailer and a cross-reference table or stream at its declared offset; truncated or repair-dependent documents are unsupported. This bounded preflight prevents the observed API26 renderer state failure for incomplete files. Deep native parsing errors may require reopening the app before retrying; retained original bytes/metadata are preserved.
