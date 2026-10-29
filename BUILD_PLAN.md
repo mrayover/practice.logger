@@ -1,6 +1,6 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **0.13.0/build 25 Daily Log increment is implemented; release checks are in progress.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
+Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **0.13.0/build 25 Daily Log increment is delivered; actual checks/limits are in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
 
 ## Product and implemented scope
 
@@ -32,16 +32,16 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Milestone | Current status |
 |---|---|
 | Stages 0–2: foundation/catalog/practice | Implemented and automated engineering checks completed in earlier releases; general owner acceptance recorded. |
-| Stage 3: backup/recovery/hardening | Implemented; prior automated engineering verification retained. Detailed owner phone/provider/TalkBack acceptance remains pending. Current release verification has the explicit API 35 limit in CURRENT_STATE.md. |
+| Stage 3: backup/recovery/hardening | Implemented; prior automated engineering verification retained. Detailed owner phone/provider/TalkBack acceptance remains pending. Current release verification has the explicit API 26 recording-dialog limit in CURRENT_STATE.md. |
 | Stage 4: real-world evaluation | Prepared and deferred; **0/10 documented real sessions**. Only real owner sessions count. |
 | Stage 5: integrated metronome | Implemented; owner generally accepted. Detailed acoustic results not supplied. |
 | Stage 6A/6B: free takes/phrase loops | Implemented; owner generally accepted. Detailed physical timing/quality/lifecycle checks remain unverified individually. |
 | Tools, standalone recording, saved Routines, Goals, visual polish | Owner-approved extensions, implemented. Earlier stage deferrals do not prohibit these shipped features. |
-| Safe permanent deletion | Delivered in 0.12.0/build 23. Complete final API 26 and focused both-API proofs pass; final API 35 full-run limitation remains explicit. Phone acceptance pending. |
+| Safe permanent deletion | Delivered in 0.12.0/build 23 and retained. Historical evidence is in WORK_LOG.md; current verification is in CURRENT_STATE.md. Phone acceptance pending. |
+| Daily Log and Weekly View | Delivered in 0.13.0/build25; exact tests/package status in CURRENT_STATE.md. |
 
 The owner explicitly approved later features while Stage 3 phone acceptance and Stage 4 evaluation remained deferred. Do not mark those gates completed or turn their deferral into a blanket prohibition on an explicit new owner request.
 
-| Daily Log and Weekly View | Implemented in 0.13.0/build25 source; exact tests/package status in CURRENT_STATE.md. |
 
 ## Retained future boundaries
 
@@ -53,4 +53,4 @@ Stage 4 may eventually support choosing at most one further feature from real ob
 
 ## Next action
 
-Complete Log release verification and use the signed package for the Log phone checks in MANUAL_TESTS.md. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Use the signed package for the Log phone checks in MANUAL_TESTS.md. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.

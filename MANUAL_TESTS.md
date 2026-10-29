@@ -57,4 +57,4 @@ Install over the existing permanent-key app **without uninstalling or clearing i
 4. At normal/200% text, landscape and TalkBack check shared Lato/cream/green/banner, Home Goal bars, Back to Home, keyboard/scrolling and reachable controls/dialogs. Specifically report Phrase BPM label/range, keyboard Done/Back dismissal and access to lower phrase controls; old screenshots did not establish reliable Done dismissal.
 5. Detailed Stage 3 phone backup/recovery acceptance remains pending. Resume [EVALUATION.md](EVALUATION.md) when the owner is ready; it currently records0/10 real sessions. Save observations in existing optional notes and report concrete friction. Synthetic CI sessions never count.
 
-Actual automated release results and the unresolved final full Android15 practice-fixture timeout are in CURRENT_STATE.md. Passing emulator checks do not complete this phone checklist.
+Actual automated release results and the current Android8 recording-dialog verification limit are in CURRENT_STATE.md. Passing emulator checks do not complete this phone checklist.

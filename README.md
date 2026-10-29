@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Daily Log increment: **0.13.0/build 25**. See CURRENT_STATE.md for actual signing and verification status.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.13.0/build 25**, with Daily Log and Weekly View.
 
 ## Install and verify
 
@@ -30,9 +30,9 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-The final source passes **65 unit/Robolectric tests**, debug/release compilation and lint (zero errors, 10 existing warnings). The complete Android 8 suite passes. The final Android 15 full run fails at a practice-fixture lookup; its unchanged five-class catalog/practice/recovery/history sequence passes isolated. Focused deletion/restart/200% checks pass both Android versions, with source-specific detail in CURRENT_STATE.md. A full final Android 15 pass and physical-phone acceptance are **not** claimed.
+All **72 unit/Robolectric tests**, debug/release compilation and lint pass (0 errors / 10 existing warnings). Native results, including Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
 
-The next owner action is the current deletion checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone backup/recovery acceptance remains pending; [EVALUATION.md](EVALUATION.md) remains deferred at 0/10 documented real sessions.
+Next: install the signed update without uninstalling and follow the six Log checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone acceptance remains pending; [EVALUATION.md](EVALUATION.md) stays deferred at0/10 documented real sessions.
 
 ## Development
 
