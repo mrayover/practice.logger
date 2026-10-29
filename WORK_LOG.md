@@ -232,3 +232,20 @@ Full rerun40946722042 passed build/81units/lint and both actual legacy upgrade c
 
 
 Isolated API26 diagnostic40948852656/sourceb50851f reproduced the native failure specifically after corrupt.pdf;locked/owner-encrypted rejection reopened normally. Before decode,the saved private PDF bytes were asserted identical to the original,so this is native rendering state after malformed input rather than media loss. Added bounded4KiB tail/64-byte xref preflight requiring a complete standard startxref/EOF and declared table/stream before native parsing. Unsupported/truncated originals are rejected before PdfRenderer;all page validation remains. Viewer error now includes reopen/retry recovery for deeper platform parse failures. Corrected installable source advances to0.15.0/build30;candidate28 and29 APK/ZIP files remain preserved. Room10/JSON6 and recording engines unchanged. Focused malformed-import/retained-render tests and build/signing precede another full matrix;no final release pass claimed yet.
+
+
+Build30 signed-candidate milestone:
+practice.logger 0.15.0 / build30 — signed candidate; final release gates pending.
+Source: dce8b3241d8dfa59270fbb3fdee4054d29d56082
+Build CI40949598879:81 unit/Robolectric tests passed; debug/release compilation; lint0errors/13warnings.
+Focused API26 CI40949603306:encrypted/corrupt replacement retains intact renderable original; PDF picker/practice/free/phrase/close/reopen workflow passed.
+API35 keyboard-focus test correction passed in40948857925; app30 full validation below remains pending.
+Room10/JSON6/readers1–6 unchanged; schemas1–10 retained. No recording/practice engine changes.
+Permanent signature,pinned certificate,identity/version,APK hash and ZIP integrity verified by publisher.
+Full API26/API35 release CI40950300706 and200% API26/35 CI40950305578/40950309794 in progress.
+APK SHA256: e9747a15e929505b98df76c235061b9ca1596218818df270265f376e01ccc559
+ZIP SHA256: 56b5de2f31ffba71f8247335ce16854cd662a026ac09a8081f826002fea2a4f3
+Install over the permanent-key app without uninstalling/clearing data. Physical-phone acceptance pending.
+JSON excludes images/PDFs and recordings;keep original source files separately.
+
+The bounded preflight resolves the reproduced API26 corrupt-fixture renderer problem:focused tests now assert unchanged original bytes and successfully render immediately after every rejection. Corrected full and200% gates started only after this focused pass. Earlier candidates retain their original APK/ZIP bytes. Final phone acceptance remains pending.

@@ -1,57 +1,38 @@
-# Current state — practice.logger0.15.0,build29
+# Current state — practice.logger 0.15.0, build30 candidate
 
-Updated2026-10-29(America/Los_Angeles). Authoritative delivery and verification record. Increment3 implements PDF references and inline image/PDF viewing while recording. Build29 is signed/installable and focused native verification passes; final release/200% gates are in progress. Early build28 is retained and superseded after its API35 owner-encryption edge case was corrected.
+Updated October29,2026 (America/Los_Angeles). Increment3 PDF and recording-sheet references are implemented. Build30 is signed/installable and focused checks pass; full release and200% gates are in progress. Earlier candidates28/29 are retained and superseded.
 
 ## Delivery and provenance
 
-| Item | Verified value |
-|---|---|
-| Version | **0.15.0/versionCode29** |
-| Signed APK source | `4f97f3ddbfc9024d385e6e95984c974cfc116a0f` |
-| Final test/workflow source in progress | `5d673a5aba27117d9826dbd58a48c3c3e546d3b9`; app/Gradle sources identical to signed APK |
-| Package | `com.mrayover.practicelogger.app`;Android8+/minAPI26,target/compile36 |
-| Data | Room**10**,all schemas/migrations1–10 retained;JSON writer**6**,readers**1–6** |
-| APK SHA256 | `bddcb96335768d4dc84308fa090f762260f57f5d88a84d1b5cc5424752edaf70` |
-| ZIP SHA256 | `3d33be2fb432349952374d775167305c4a01f12a2d5b7670658da056b61fff5a` |
-| Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
+- Signed APK source:`dce8b3241d8dfa59270fbb3fdee4054d29d56082`; version0.15.0/code30; `com.mrayover.practicelogger.app`,minAPI26/target36.
+- [Signed APK](dist/practice.logger-0.15.0-b30-dce8b32/practice.logger-0.15.0-b30-dce8b32.apk),[ZIP](dist/practice.logger-0.15.0-b30-dce8b32.zip),[build info](dist/practice.logger-0.15.0-b30-dce8b32/BUILD_INFO.json),[verification status](dist/practice.logger-0.15.0-b30-dce8b32/VERIFICATION_STATUS.txt),[phone checklist](dist/practice.logger-0.15.0-b30-dce8b32/PHONE_CHECKLIST.txt),[latest pointer](dist/LATEST.txt).
+- APK SHA256:`e9747a15e929505b98df76c235061b9ca1596218818df270265f376e01ccc559`;ZIP SHA256:`56b5de2f31ffba71f8247335ce16854cd662a026ac09a8081f826002fea2a4f3`.
+- Permanent certificate:`f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- Publisher verified signature,certificate,package/version,checksum and ZIP integrity. All100 pre-session packages and candidates28/29 are preserved; source/tests/records remain in the original Windows checkout and GitHub. Dist/signing are local and ignored;synced sources untouched.
 
-- [Signed APK](dist/practice.logger-0.15.0-b29-4f97f3d/practice.logger-0.15.0-b29-4f97f3d.apk)
-- [ZIP](dist/practice.logger-0.15.0-b29-4f97f3d.zip)
-- [Build provenance](dist/practice.logger-0.15.0-b29-4f97f3d/BUILD_INFO.json),[verification status](dist/practice.logger-0.15.0-b29-4f97f3d/VERIFICATION_STATUS.txt),[phone checklist](dist/practice.logger-0.15.0-b29-4f97f3d/PHONE_CHECKLIST.txt),[latest pointer](dist/LATEST.txt).
+Install **over the permanent-key app without uninstalling or clearing data**. No physical-phone upgrade is claimed.
 
-The existing permanent publisher verified signature,pinned certificate,app identity/version,checksum and ZIP integrity. All100 pre-session APK/ZIP files and early build28 remain byte-identical. Install **over the permanent-key app without uninstalling or clearing data**. The original Windows checkout is updated;signing/distributions remain local and Git-ignored;synced project sources are untouched. No permanent-key phone install is claimed.
+## Implemented behavior and data
 
-## Implemented reference and recording behavior
+One image OR PDF per saved Block; existing MIME/dimension columns in block_images preserve Room10 and old rows/files without migration. Stable archived ownership,safe validated private copy/replacement,confirmed removal,RESTRICT deletion protection and conservative cleanup are retained. Original picker sources are never modified; no persistent URI dependency.
 
-One image(JPEG/PNG/WebP) OR PDF per saved Block. The existing block_images row already has MIME/dimensions;using those fields preserves schema10,old rows and original files without any migration. Archive retains stable Block ownership. System picker sources are read-only and copied to generated private files;no persistent external URI grant. Replacement validates before transactionally committing ownership,then cleans the prior file. Failure/cancellation retains the current attachment. Confirmed removal and conservative startup cleanup include PDFs and leave recordings/unknown files alone. Either attachment type blocks permanent Block deletion,with existing counts,FK restrictions and transactional recheck retained.
+PDFs:20MiB,1–100pages,1–14400-point page dimensions. Bounded standard startxref/EOF and table/stream preflight avoids the observed API26 renderer failure after truncated input. Encryption markers(including owner-encrypted PDFs accepted by API35)are rejected conservatively. Native PdfRenderer validates every page with one256px temporary bitmap and renders only the requested page at2048px on IO;all page/document/descriptor resources close. Show/Hide,page count,Previous/Next,aspect ratio,pinch/pan/reset are supported. Existing EXIF orientation,full safe-width Focused Practice,180–640dp bounds and image zoom/panning remain.
 
-PDFs:20MiB,1–100pages,1–14400point page dimensions. A bounded encryption-name scan rejects encrypted files consistently across APIs,including owner-encrypted PDFs that API35 opens without a password. PDFs containing reserved encryption markers are conservatively unsupported. PdfRenderer validates every page with one256px temporary bitmap and renders the requested page at2048px on IO. Every page,renderer and descriptor closes;no whole-document bitmap cache. Show/Hide,Previous/Next,page count,pinch/pan/reset and aspect ratio are supported;page changes reset zoom and stale results are discarded. Existing EXIF orientation,full safe-width Focused Practice view,180–640dp region and image zoom/panning are retained.
+The existing recording sheet contains the same viewer during free/phrase capture/count-in/loop playback,with active status and Stop/Cancel above scrolling content. Viewer state never calls sheet leave/enter or recording/practice/metronome engines. Genuine backgrounding and deliberate dismissal retain existing foreground-only safety. Standalone Free recording has no Block reference.
 
-The existing recording sheet now contains the reusable viewer during free capture,phrase count-in/capture and loop playback. Active recording status and Stop and save take/Cancel phrase stay above scrolling content. Showing,hiding,zooming and page changes do not call sheet enter/leave,change selected Block or touch recording/practice/metronome engines. Deliberate sheet close and actual backgrounding retain existing foreground-only safety. Standalone Free recording has no Block reference.
+Room10,migrations/schemas1–10 and JSON writer6/readers1–6 are retained. JSON excludes every image/PDF byte,attachment metadata/path/URI and take/audio metadata. Keep originals separately and export wanted takes individually;restore creates no broken media rows. Atomic empty-target restore and all other structured data remain intact. No new runtime dependency or permission;no multi-attachment,annotation/OCR,media-inclusive backup or background recording.
 
-JSON6/readers1–6 and empty-target atomic restore remain unchanged. **Image/PDF bytes,reference metadata/paths/URIs and take metadata/audio are excluded. Keep originals separately;export wanted takes individually.** Restore creates no broken reference/take rows. No multiple attachments,annotation/OCR,camera capture,media-inclusive backup or background recording.
+## Actual verification and current gate status
 
-## Actual verification
+- [Build40949598879](https://github.com/mrayover/practice.logger/actions/runs/40949598879):81unit/Robolectric tests,0failures/errors/skips;debug/release compilation;lint0errors/13warnings;all compiler schemas1–10 byte-identical.
+- [API26 focused40949603306](https://github.com/mrayover/practice.logger/actions/runs/40949603306),job123713913507:actual encrypted/corrupt import rejection with intact-original byte checks and immediate rendering;picker,page/zoom,practice/timer/BPM/notes,free/phrase recording continuity,playback,dismissal,archive and cold reopen pass.
+- API35 test keyboard correction passed in[40948857925](https://github.com/mrayover/practice.logger/actions/runs/40948857925). Previous build29 enlarged PDF/image workflows passed both APIs;build30’s actual reruns are pending below.
+- Full release:[40950300706](https://github.com/mrayover/practice.logger/actions/runs/40950300706),in progress.
+-200% PDF/image recording/reopen:[API26 40950305578](https://github.com/mrayover/practice.logger/actions/runs/40950305578),[API35 40950309794](https://github.com/mrayover/practice.logger/actions/runs/40950309794),in progress.
+- Prior full40946722042 passed actual build27 upgrade retention and3 real PDF storage tests on both APIs,but did not complete:API26 renderer state failed after corrupt replacement(bytes unchanged),API35 test restored the notes keyboard. Build30 preflight and explicit test focus handling address those observed failures. Earlier test/framework/setup failures and exact evidence remain in WORK_LOG;no full matrix pass claimed yet.
 
-| Check | Actual evidence |
-|---|---|
-| Build/units/lint | [CI40944290626](https://github.com/mrayover/practice.logger/actions/runs/40944290626):81unit/Robolectric tests,0failures/errors/skips;debug/release compilation passed;lint0errors/13warnings(12baseline plus one createBitmap KTX suggestion).Compiler schemas1–10 byte-identical. |
-| Real PDF storage | [API26 CI40942068595](https://github.com/mrayover/practice.logger/actions/runs/40942068595):all3 substantive PDF storage/render/persistence/portrait-landscape/size-cancel-low-space-failed-commit/replacement/deletion/backup/recovery tests passed.Real updated full-API storage reruns are pending below. |
-| Normal API35 PDF/recording | [CI40944294502](https://github.com/mrayover/practice.logger/actions/runs/40944294502),job123695454032:validation/picker/page-navigation/zoom/cancel/removal-protection,practice timer/click/BPM/notes,continuous free capture while showing/hiding/changing pages,save/playback,phrase count-in/capture/loop,deliberate dismissal,archive and cold reopen passed. |
-| True previous-release upgrade | [API26 CI40944299002](https://github.com/mrayover/practice.logger/actions/runs/40944299002),job123695469410:seed retained actual build27,install build29 over it,every table row and private image/audio byte unchanged;legacy image still decodes and FK check passes.CI uses a shared temporary debug identity,not the permanent phone key. |
-| Full API26/API35 suites | In progress:[CI40946722042](https://github.com/mrayover/practice.logger/actions/runs/40946722042).No final matrix pass claimed yet. |
-| 200% text | In progress:[API26 CI40946392437](https://github.com/mrayover/practice.logger/actions/runs/40946392437),[API35 CI40946397134](https://github.com/mrayover/practice.logger/actions/runs/40946397134);both exercise PDF recording/reopen and existing EXIF image workflow/reopen. |
-| Visual/package review | Normal API35 portrait PDF and active recording/page controls reviewed;Stop and save remains visible above the reference.Permanent publisher identity/signature/certificate/hash/ZIP verified.All prior packages preserved. |
-
-Failed checks and fixes are retained in WORK_LOG:API35 Robolectric lacks the required FileDescriptor method;API34 uses a non-rendering stub,so all3 substantive PDF tests moved to real Android without weakened assertions.Picker drawer/cancellation waits were corrected from screenshots/hierarchy.API35 owner-encryption acceptance was a product bug fixed in29;build28 stays an early candidate.The first upgrade diagnostic failed before installation on a debug-store path assumption;store discovery/consistent test signing corrected it. Full run40945038634 then stopped before installation because separate YAML shell lines lost that variable;shared single-shell preparation corrected it. Initial200% runs40945043010/40945047534 saved takes but failed at the new test’s playback scroll;it now uses the established lazy-list helper,with substantive assertions retained. No failed/canceled run is counted as passing.
-
-Physical-phone permanent-key install-over,owner’s original photographed page,vendor pickers,landscape,TalkBack and acoustic/loop quality acceptance remain pending.Stage3 detailed phone acceptance is pending;Stage4 remains0/10documented real sessions.
+Normal and200% reference screenshots were reviewed;final build30 visual evidence will be reconciled after its gates. Deep unsupported PDF parse failures may require reopening the app before retrying;bytes/metadata are preserved. Physical-phone permanent-key update,owner’s original photo,vendor pickers,device landscape,TalkBack and acoustic/loop checks remain pending. Stage3 detailed acceptance pending;Stage4 remains0/10documented sessions.
 
 ## One next task
 
-Complete the running release/200% gates and reconcile this candidate’s final verification record;then the owner phone checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md) is the next acceptance task.
-
-
-## Corrected build30 in progress
-
-Full40946722042 did not pass:API26 exposed retained-PDF renderer failure after malformed replacement (bytes unchanged);API35 test left the notes keyboard open. Test keyboard focus is corrected;source now preflights standard PDF trailer/xref before native parsing and adds reopen/retry recovery. Build30 supersedes early candidates28/29 for final delivery;compilation/signing/focused/full checks are pending. Full failure and isolated evidence40948852656 are recorded in WORK_LOG.
+Complete the running build30 release/200% gates and reconcile the release record,then perform the Increment3 owner phone checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md). Do not uninstall or clear data.
