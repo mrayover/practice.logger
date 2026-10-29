@@ -1,12 +1,12 @@
-# Current phone checklist — 0.13.0/build 25
+# Current phone checklist — Increment 2, 0.14.0/build 26
 
 Updated 2026-10-29 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
 
 ## Install and preserve data
 
-Install over the existing permanent-key app **without uninstalling or clearing it**. Confirm existing Blocks, Goals, Routines, notes, unfinished practice, history and recordings remain. The old temporary-key 0.1.0 app is separate; no automatic transfer is provided. Test restore only in a spare empty installation. JSON excludes all audio; export wanted takes individually.
+Install over the existing permanent-key app **without uninstalling or clearing it**. Confirm existing Blocks, Goals, Routines, notes, unfinished practice, history and recordings remain. The old temporary-key 0.1.0 app is separate; no automatic transfer is provided. Test restore only in a spare empty installation. JSON excludes reference images and all audio; keep original images separately and export wanted takes individually.
 
-## Next check: Daily Log and Weekly View
+## Daily Log and Weekly View (Increment 1 retained acceptance)
 
 1. Install over the existing permanent-key app; confirm old Blocks, Goals, Routines, history and recordings remain. Home → Log must open today's local date with a large plain-text editor. Write several paragraphs, punctuation and blank lines; wait for Saved, close/reopen and edit again.
 2. Choose date → yesterday, write different text and immediately return Home. Reopen Log: today must retain its own text. Revisit yesterday and edit it. Alternate dates rapidly while typing; dismiss the keyboard and background immediately. Check both texts after a cold reopen; no text may cross dates.
@@ -58,3 +58,17 @@ Install over the existing permanent-key app **without uninstalling or clearing i
 5. Detailed Stage 3 phone backup/recovery acceptance remains pending. Resume [EVALUATION.md](EVALUATION.md) when the owner is ready; it currently records0/10 real sessions. Save observations in existing optional notes and report concrete friction. Synthetic CI sessions never count.
 
 Actual automated release results and the current Android8 recording-dialog verification limit are in CURRENT_STATE.md. Passing emulator checks do not complete this phone checklist.
+
+
+## Increment 2 — Reference image and in-place update phone acceptance
+
+Use the actual signed version in CURRENT_STATE.md. Install over the permanent-key app without uninstalling/clearing it. Record phone/Android/build/text size and actual pass/fail; these are pending owner checks, not automated results.
+
+1. Before updating, note saved Logs, Goals, Routines, Blocks, unfinished/history notes/BPM and a playable recording. Install the signed update in place and confirm all remain accessible and audio plays.
+2. Create/save a Block; reopen it, Add reference image and select a local JPEG. Reopen/process-restart and confirm Show reference persists. Also try PNG/WebP, portrait photos and normal/200% text, landscape and TalkBack.
+3. Start practice with that Block: initially collapsed, Show/Hide repeatedly, pinch zoom/pan and Reset image zoom. Confirm fitted aspect ratio, bounded height, recovered layout/normal scrolling, timer continues, click stays active at its BPM and saved notes/time stay correct. Move to an image-free Block; no prior image appears. Recording remains its existing modal sheet with no image integration.
+4. Replace the image and restart; new image persists. Cancel the picker and cancel removal; attachment stays. Confirm Remove image; removal persists and app-owned file cleanup succeeds. Try permanent deletion on an otherwise unused image-bearing Block: refusal explains Remove image first; after confirmed removal, deletion is allowed if all other dependencies are absent. Archive a Block and confirm its existing practice reference still works.
+5. Try canceled picker, corrupt/missing/unsupported/oversize image and low storage (use a disposable test installation for injected corruption). Existing image/data must survive failed replacements; inline viewer errors allow Retry or editor replacement/removal. Original source image stays untouched.
+6. Export JSON6, verify Logs/structured records persist, restore into a spare empty installation and confirm no missing-media attachment is recreated; reattach the separately retained original. Existing nonempty-target refusal remains. Check ordinary Goal/Routine/Log/recording workflows and do not infer simultaneous image viewing while recording.
+
+No media-inclusive backup, PDF, multi-image gallery, annotation, camera capture or recording-view integration is included.

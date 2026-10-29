@@ -39,16 +39,21 @@ class ImageReferenceWorkflowTest {
             val id = runBlocking { db.blocks().readAll().single { it.name == "Image reference fixture" }.id }
             val bitmap = Bitmap.createBitmap(1200, 800, Bitmap.Config.ARGB_8888).apply { eraseColor(android.graphics.Color.GREEN) }
             val jpeg = ByteArrayOutputStream().use { out -> bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out); out.toByteArray() }; bitmap.recycle()
-            val encoded = Base64.encodeToString(jpeg, Base64.NO_WRAP)
+            val fixture = File(compose.activity.getExternalFilesDir(null), "reference-fixture.jpg")
+            fixture.writeBytes(jpeg)
             device.executeShellCommand("mkdir -p /sdcard/Download")
-            device.executeShellCommand("sh -c 'echo $encoded | base64 -d > /sdcard/Download/reference-fixture.jpg'")
+            device.executeShellCommand("cp ${fixture.absolutePath} /sdcard/Download/reference-fixture.jpg")
+            val listing = device.executeShellCommand("ls -l /sdcard/Download/reference-fixture.jpg")
+            assertTrue("Picker fixture was not copied: $listing", listing.contains(jpeg.size.toString()))
+            device.executeShellCommand("am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/reference-fixture.jpg")
             click("Add reference image"); downloads()
             checkNotNull(device.wait(Until.findObject(By.text("reference-fixture.jpg")), 10000)).click()
             shown("Replace reference image")
             val first = runBlocking { db.images().find(id)!! }
             click("Show reference"); compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             captureStage3("image-editor")
-            click("Hide reference"); click("Replace reference image"); downloads(); device.pressBack()
+            click("Hide reference"); click("Replace reference image"); downloads()
+            repeat(3) { if (device.currentPackageName.contains("documentsui")) device.pressBack() }
             shown("Replace reference image"); assertEquals(first, runBlocking { db.images().find(id) })
             compose.onNodeWithTag("block-delete-action").performScrollTo().performClick(); shown("This Block cannot be deleted yet.")
             compose.onNodeWithText("Remove the image first", substring = true).assertExists(); click("OK")
@@ -105,7 +110,7 @@ class ImageReferenceWorkflowTest {
             assertTrue(runBlocking { db.blocks().find(id)!!.archived }); assertNotNull(runBlocking { db.images().find(id) })
             captureStage3("image-archived")
         } catch (failure: Throwable) {
-            val out = ByteArrayOutputStream(); device.dumpWindowHierarchy(out); println(out.toString("UTF-8"))
+            val out = ByteArrayOutputStream(); device.dumpWindowHierarchy(out); android.util.Log.e("ImageReferenceTest", out.toString("UTF-8"))
             captureStage3("image-failure"); throw failure
         } finally { db.close() }
     }

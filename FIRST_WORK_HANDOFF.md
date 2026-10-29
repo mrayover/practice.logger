@@ -1,12 +1,12 @@
 # practice.logger — Current work handoff
 
-Updated 2026-10-29 (America/Los_Angeles). The app is already implemented and delivered as **0.13.0/build 25**. This is an existing Kotlin/Compose/Room application, not an empty repository or a Stage 0 task.
+Updated 2026-10-29 (America/Los_Angeles). This is the existing Kotlin/Compose/Room app in `C:\Users\mrove\Projects\practice.logger`. Do not recreate it or change synced project sources.
 
-1. Read AGENTS.md, CURRENT_STATE.md, BUILD_PLAN.md and WORK_LOG.md, including the mandatory efficiency procedure.
-2. Inspect actual local/remote Git, uncommitted work, app version, latest CI and signed manifest. Use the existing checkout described in CURRENT_STATE.md. Distinguish the APK source SHA from subsequent documentation commits.
-3. Follow the current owner request. Current increment is Daily Log/Weekly View; see recorded release results and complete its pending phone acceptance. Block image/PDF attachments remain a separate future increment. Goals, saved Routines, metronome, tuner, recording and loops are already implemented. Do not apply old first-release deferrals to them.
-4. Preserve app identity/permanent key, all stored data/audio/migrations, strict backup references and existing distributions. Room 9/JSON 6 reads1–6 and excludes recordings. Completed history blocks permanent Block deletion.
-5. Use targeted checks before broad verification and an early signed candidate for an app increment. Record actual failures/limits; the current full API 35 suite passes, while the full API 26 run has a recording-dialog timeout; see CURRENT_STATE.md for the isolated diagnostic and exact limits. Do not invent phone acceptance.
-6. Update records, commit/push through the authorized workflow, verify the actual remote and provide a concise handoff. A documentation-only request needs documentation checks, not a new app build.
+1. Read AGENTS.md, CURRENT_STATE.md, BUILD_PLAN.md, WORK_LOG.md (mandatory efficiency procedure), README.md and BACKUP_FORMAT.md.
+2. Verify actual local/remote main, changes, current version, CI and signed manifest. CURRENT_STATE.md is the authority for exact package/source/testing evidence and the next task; package source may precede documentation commits.
+3. Increment 1 (Daily Log/Weekly View, 0.13.0/build25) is delivered. Increment 2 (collapsible single Block image, 0.14.0/build26) is implemented; consult CURRENT_STATE.md for verified delivery and remaining checks. PDF support and viewing inside the recording sheet remain deferred. Do not claim simultaneous reference viewing and recording.
+4. Preserve stable package/permanent key, existing data/audio, explicit migrations1→10, schema exports and strict historical Block dependencies. Room10 adds only block_images. JSON6/readers1–6 excludes images and recordings. Originals must be retained separately and images reattached after restore.
+5. Keep focused checks first and an early signed candidate; distinguish compilation, unit/native checks, permanent-key package verification and owner phone acceptance. Previous Log release’s full API26 recording timeout and isolated pass remain historical evidence, not proof of a new failure’s cause. Keep failures and pending physical checks truthful.
+6. Finish the authorized owner request, refresh records/tests, commit/push and verify actual remote SHA. All source lives in Git; ignored dist/signing files remain local. Do not replace the signing identity or uninstall/clear the owner’s app.
 
-Use CURRENT_STATE.md for current APK/ZIP paths, source/CI links, package hashes, limitations and the exact next task. README.md describes current user workflows; MANUAL_TESTS.md and EVALUATION.md retain pending owner checks. Full pre-cleanup records are recoverable from Git at `84565ea`; prefixed planning files are historical reference only.
+The current user workflow is documented in README.md and image/install-over phone checks in MANUAL_TESTS.md. Stage3 detailed phone acceptance and Stage4 evaluation (0/10) remain pending. Historical planning files are not the current task.

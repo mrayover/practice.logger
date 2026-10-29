@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.13.0/build 25**, with Daily Log and Weekly View.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Increment 2 adds collapsible Block reference images in **0.14.0/build 26**. See CURRENT_STATE.md for the actual candidate/delivery and verification status; Daily Log/Weekly View was delivered in 0.13.0/build 25.
 
 ## Install and verify
 
@@ -11,7 +11,8 @@ Android 8.0+; install over the existing permanent-key app **without uninstalling
 ## Using the app
 
 - **Blocks:** create/edit with required Name/Action, default duration and optional tempo/notes. Search name/action/notes literally, switch Active/Archived, Archive/Restore, or select Delete Permanently in a saved Block's editor.
-- **Safe deletion:** unused active or archived Blocks can be deleted after confirmation. Goal links, saved Routines, recordings and all draft/unfinished/completed session entries protect the Block. Refusal shows persistent counts and explains completed history. Associations/audio/history are never removed automatically; use Archive when dependencies remain.
+- **Reference image:** save a Block, reopen its editor and choose Add reference image from Android’s picker. One JPEG, PNG or WebP up to 20 MiB, 40 megapixels and 16384 pixels per side is copied into private app storage. Show reference/Hide reference opens a fitted inline viewer; pinch to zoom up to 6×, drag while enlarged and use Reset image zoom. In the editor use Replace reference image, or Remove reference image and confirm. Cancellation or failed import retains the existing image. Saved and archived Blocks retain ownership across restarts. In Focused Practice the viewer starts collapsed for each placement; show/hide/zoom does not change timer, BPM, notes or session progress. Images are not shown inside the recording sheet.
+- **Safe deletion:** unused active or archived Blocks can be deleted after confirmation. An attached reference image, Goal links, saved Routines, recordings and all draft/unfinished/completed session entries protect the Block. Remove the image deliberately in the editor before permanent deletion. Refusal shows persistent counts and explains completed history. Associations/audio/history are never removed automatically; use Archive when dependencies remain.
 - **Practice Now:** build a session, reorder placements and override their durations, or select an unfinished session. Starting fresh retains older unfinished practice and the shared builder draft. Focus starts paused; Start/Resume, Pause, Complete and Skip record foreground active time. At zero, choose Continue for overtime or Complete. Save for later/Back saves and pauses; restart resumes saved practice paused.
 - **Notes and history:** Quick Block notes save via Save Block note, Save for later, Back, Complete or Skip. Session notes require Save note. Routines retains Recent Practice and reopenable summaries with historical instruction snapshots.
 - **Saved Routines:** reusable ordered Block references with independent durations, create/edit/reorder/delete, builder Save as Routine, and independent fresh starts. Archived or unavailable references prevent starting until repaired/restored.
@@ -24,20 +25,20 @@ Android 8.0+; install over the existing permanent-key app **without uninstalling
 
 Tools → Backup and restore exports **format-6 UTF-8 JSON**, reading versions **1–6**. It protects independent dated Logs, Blocks, Routines, Goals, sessions, placements, notes and saved recovery state. A Log-only installation is nonempty and protected from restore. Restore validates references/state and inserts atomically into a completely empty app; it never merges or replaces existing data. Use a spare empty installation for restore testing.
 
-**JSON excludes every recording, take label and take metadata row. Export wanted takes individually.** There is no full audio-inclusive restore/import. Wait for Backup saved; failed exports may leave incomplete documents. Save notes before exporting. See [BACKUP_FORMAT.md](BACKUP_FORMAT.md).
+**JSON excludes all reference images/image metadata and every recording, take label and take metadata row. Keep original images separately and reattach after restore. Export wanted takes individually.** Clearing/uninstalling the app or losing the device destroys its private images; platform backup/device transfer excludes this app’s media. No image export or media-inclusive bulk restore is provided. There is no full audio-inclusive restore/import. Wait for Backup saved; failed exports may leave incomplete documents. Save notes before exporting. See [BACKUP_FORMAT.md](BACKUP_FORMAT.md).
 
 Only committed foreground practice time is recovered. Abrupt death/storage failure can lose the latest uncommitted timer interval or unsaved text. Acoustic timing, tuner accuracy, loop onset/boundaries, vendor document providers and TalkBack need physical-phone checks.
 
 ## Current verification
 
-All **72 unit/Robolectric tests**, debug/release compilation and lint pass (0 errors / 10 existing warnings). Native results, including Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
+The preceding Log release passed **72 unit/Robolectric tests**, debug/release compilation and lint (0 errors / 10 existing warnings). Increment 2 results are recorded as they are verified in CURRENT_STATE.md. Native results, including Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
 
-Next: install the signed update without uninstalling and follow the six Log checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone acceptance remains pending; [EVALUATION.md](EVALUATION.md) stays deferred at0/10 documented real sessions.
+Next: install the signed update without uninstalling and follow the reference-image and in-place-upgrade checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone acceptance remains pending; [EVALUATION.md](EVALUATION.md) stays deferred at0/10 documented real sessions.
 
 ## Development
 
 Read [AGENTS.md](AGENTS.md), [CURRENT_STATE.md](CURRENT_STATE.md), [BUILD_PLAN.md](BUILD_PLAN.md) and [WORK_LOG.md](WORK_LOG.md), including the mandatory efficiency procedure. Use [FIRST_WORK_HANDOFF.md](FIRST_WORK_HANDOFF.md) to start a new work session.
 
-Build/check command: `./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease` (Windows: `.\gradlew.bat` with the same tasks). The repository uses JDK 17, SDK 36, Gradle wrapper, Kotlin/Compose and Room 2.8.5; exact dependency versions are in Gradle files. Room schemas 1–9 and explicit migrations are retained. GitHub Actions supports full release checks and isolated class/API/text-scale diagnostics; documentation-only changes skip CI.
+Build/check command: `./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease` (Windows: `.\gradlew.bat` with the same tasks). The repository uses JDK 17, SDK 36, Gradle wrapper, Kotlin/Compose and Room 2.8.5; exact dependency versions are in Gradle files. Room schemas 1–10 and explicit migrations are retained. GitHub Actions supports full release checks and isolated class/API/text-scale diagnostics; documentation-only changes skip CI.
 
 Use `scripts/Publish-LocalApk.ps1` for the permanent-key distribution. Keep private `.signing`, tools, build outputs and APKs out of Git; retain earlier releases and verify signatures, metadata and hashes. License attribution: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

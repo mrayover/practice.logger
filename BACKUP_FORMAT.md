@@ -1,10 +1,10 @@
 # Backup format and safety — current implementation
 
-Updated for the 0.13.0/build 25 Daily Log increment on 2026-10-29. Actual release verification is recorded in CURRENT_STATE.md.
+Updated for Increment 2 (0.14.0/build 26 reference images) on 2026-10-29. Actual release verification is recorded in CURRENT_STATE.md.
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **6**, readers **1–6**. UTF-8 JSON; independent of current Room schema **9**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **6**, readers **1–6**. UTF-8 JSON; independent of current Room schema **10**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -40,6 +40,14 @@ The UI parses/validates the entire file and shows counts before confirmation. Th
 
 Canceling picker/confirmation changes nothing. Rotation retains an in-memory preview/operation; process death loses an unconfirmed preview, requiring reselection. Export does not mutate database contents. Android owns the system picker and chooses a distinct document name rather than replacing a same-name document. Failed exports may leave partial documents; retry to a new file and wait for success. Plain text provides no encryption/authentication: keep it private and use trusted files. Provider/full-disk/TalkBack behavior still needs phone checks.
 
+## Image exclusion and private storage
+
+**JSON versions 1–6 include no image bytes, Block image metadata, private filenames or picker URIs.** Restoring JSON retains all structured data and Logs but creates no image attachment rows or broken image references. Keep every original image separately, then attach it again to its restored Block. There is no image-inclusive ZIP backup or per-image export in this increment. Clearing/uninstalling/device loss destroys app-owned copies; Android cloud/device-transfer backup remains excluded.
+
+One `block_images` row per stable Block ID points to a generated UUID `.img` file under `files/block-images`. The system picker’s source is read only and never deleted. Import copies at most 20 MiB to a generated pending file, checks decoded JPEG/PNG/WebP content, at most 40 million pixels/16384 per side, and verifies sampled decoding capped at 2048 pixels per side. File copy/decode run on IO. The original bytes are retained. The file is synced/renamed before the transactional metadata upsert; old attachment/file remain until that commit succeeds. Failed/canceled imports preserve the old image. Confirmed removal deletes metadata, then the private file. A shared media mutex serializes replacement/removal/recovery; known unreferenced generated files (including interrupted pending files) are retried at startup only after successfully reading metadata. Unknown files and other media directories are untouched.
+
+Missing/corrupt images report an inline error with Retry; metadata remains until deliberate replacement/removal. Archive preserves images. Practice resolves live ownership by sourceBlockId without copying images into historical text snapshots. Permanent deletion rechecks image dependencies with all earlier protections in the same transaction; the restrictive foreign key additionally prevents silent loss.
+
 ## Audio exclusion and storage
 
 **No JSON version includes recordings, take metadata or labels.** JSON restore creates no missing-media take references. Export desired takes individually: FREE as AAC/M4A; LOOP as one normal WAV phrase. Failed/canceled export preserves the source but can leave a partial destination. No audio-inclusive bulk restore/import is implemented. Clearing/uninstalling/device loss destroys unexported audio/labels; platform backup/device transfer is explicitly excluded.
@@ -48,8 +56,8 @@ Private audio uses generated UUID names under `files/recordings`, with validated
 
 ## Database compatibility and safe Block deletion
 
-All explicit Room migrations1→9 and compiler schemas are retained: sessions(2), used BPM(3), takes(4), phrase metadata(5), nullable standalone take ownership(6), Routines(7), Goals(8), independent daily_logs(9). The 8→9 migration only adds the date-keyed table; all prior tables and recordings remain intact. Existing data/audio are preserved; no destructive fallback.
+All explicit Room migrations1→10 and compiler schemas are retained: sessions(2), used BPM(3), takes(4), phrase metadata(5), nullable standalone take ownership(6), Routines(7), Goals(8), independent daily_logs(9), Block images(10). The 9→10 migration only adds the restrictive image table. The 8→9 migration only adds the date-keyed table; all prior tables and recordings remain intact. Existing data/audio are preserved; no destructive fallback.
 
-Safe permanent Block deletion originally shipped with Room 8/JSON 5 and retains the same behavior with Room 9/JSON 6. It refuses Goal links, saved Routine references, takes and **all** session placements in a transaction, preserving strict backup integrity. A successfully deleted eligible Block is absent from subsequent snapshots; remaining data restore normally. Completed-history references are not detached or weakened.
+Safe permanent Block deletion originally shipped with Room 8/JSON 5 and preserves those protections with Room 10/JSON 6 and adds reference images as a blocker. It refuses attached images, Goal links, saved Routine references, takes and **all** session placements in a transaction, preserving strict backup integrity. A successfully deleted eligible Block is absent from subsequent snapshots; remaining data restore normally. Completed-history references are not detached or weakened.
 
 Automated unit coverage includes round trips/reopen, legacy compatibility, validation limits/references/states/overflow, nonempty guards and injected write-failure rollback. Native tests exercise actual document pickers, export/cancel/restore/reopen. See CURRENT_STATE.md for the exact current-release results: full API 35 passes; full API 26 stops at a recording-dialog timeout after Log and backup checks pass. Phone acceptance remains pending in MANUAL_TESTS.md.

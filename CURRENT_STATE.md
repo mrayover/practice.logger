@@ -1,61 +1,32 @@
-# Increment 2 in progress — Block reference images
+# Current state — Increment 2 candidate, 0.14.0/build 26
 
-2026-10-29: authorized implementation from clean main c916963. Candidate 0.14.0/build26, Room10 with explicit 9→10 migration; JSON6/readers1–6 unchanged and excludes images. Single private image per saved Block, confirmed removal/deletion protection and collapsible inline practice zoom/pan implemented. Focused tests, native verification, compiler schema, signed package and publication pending. No new verified delivery claimed. Exact next task: run focused image/migration checks, package an early candidate, finish release verification and refresh these records. Previous delivered build25 record follows as historical baseline.
+Updated 2026-10-29 (America/Los_Angeles). Increment1 Daily Log/Weekly View was delivered in0.13.0/build25. Increment2 image implementation is present but native release acceptance remains in progress. This file is the authoritative verification/delivery record; historical release evidence remains in WORK_LOG.md.
 
-# Current state — practice.logger 0.13.0, build 25
+## Candidate delivery
 
-Updated 2026-10-29 (America/Los_Angeles). This is the authoritative delivery and verification record. Release history and the mandatory efficiency procedure remain in [WORK_LOG.md](WORK_LOG.md).
+- Signed candidate0.14.0/versionCode26; package com.mrayover.practicelogger.app, Android8+/API26 minimum, compile/target36.
+- APK source: `3106e7e1ce95f4ef25e9ee0c11a182ae1d1a8c46`; subsequent schema/test/documentation changes do not change product source.
+- [APK](dist/practice.logger-0.14.0-b26-3106e7e/practice.logger-0.14.0-b26-3106e7e.apk), [ZIP](dist/practice.logger-0.14.0-b26-3106e7e.zip), [provenance](dist/practice.logger-0.14.0-b26-3106e7e/BUILD_INFO.json), [verification status](dist/practice.logger-0.14.0-b26-3106e7e/VERIFICATION_STATUS.txt).
+- APK SHA256: `7b465a51f89211b720bfd981b7a6b7857dfdf3633589be037d20872cf048a03f`.
+- Permanent certificate SHA256: `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- Publisher verified signature/pinned certificate/package/version/hash/ZIP round trip. All92pre-session APK/ZIP packages preserved byte-identical. Install over the permanent-key app without uninstalling/clearing data; physical-phone installation is pending. The old temporary-key0.1.0 app is separate.
 
-## Delivery
+## Implemented capabilities and data
 
-| Item | Verified value |
-|---|---|
-| Release | **0.13.0 / versionCode 25** (build 24 retained as an earlier candidate) |
-| APK source | `d29e4bf7c7287467a724b8405ea24a68a462ed8d`; later closeout commits update records only |
-| Package ID | `com.mrayover.practicelogger.app` |
-| Android | 8.0+; minimum API26, target/compile API36 |
-| Database | Room **9**, explicit migrations 1→9 and compiler schemas retained |
-| JSON | Writer **6**, readers **1–6**; independent Logs included, all recordings/take metadata/labels excluded |
-| APK SHA-256 | `aad00c5f137f2c6ed9b27435cdfc8dfba8f67cdd523805b24fd7f5b5b3d3796d` |
-| Permanent certificate SHA-256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
+Saved Block editor: one private JPEG/PNG/WebP image, system file/photo selection, Show/Hide, safe replacement and confirmed removal. New Blocks require Save/reopen first. Generated files under files/block-images; bounded20MiB/40MP/16384px validation, actual sampled decoding up to2048px, file sync and atomic metadata replacement on IO. Canceled/failed imports retain old attachments. Serialized file cleanup retries known orphans at startup. Archive retains images. Missing/corrupt image reports inline Retry and editor repair/removal.
 
-- [APK](dist/practice.logger-0.13.0-b25-d29e4bf/practice.logger-0.13.0-b25-d29e4bf.apk)
-- [ZIP](dist/practice.logger-0.13.0-b25-d29e4bf.zip)
-- [Build provenance](dist/practice.logger-0.13.0-b25-d29e4bf/BUILD_INFO.json)
-- [Verification status](dist/practice.logger-0.13.0-b25-d29e4bf/VERIFICATION_STATUS.txt)
-- [Latest pointer](dist/LATEST.txt)
+Focused Practice: sourceBlockId resolves the live Block image without modifying textual historical snapshots. Viewer starts collapsed per placement, fitted aspect ratio, bounded240dp height, pinch1–6×, pan while enlarged, Reset image zoom. Display state does not call timer/click/recording lifecycle. PracticeViewModel, session model, recording engine and modal sheet unchanged; no simultaneous image viewing inside recording is claimed.
 
-Existing Windows checkout: `C:\Users\mrove\Projects\practice.logger`. GitHub main contains source, tests, schemas and documentation; local distribution files/signing material are intentionally ignored. No synced ChatGPT sources were changed. Earlier APK/ZIP files are retained and checked byte-identical. Publisher verifies signature, pinned certificate, package/version, checksum and ZIP extraction. Install over the permanent-key app **without uninstalling**. The old temporary-key0.1.0 installation remains separate.
-
-## Implemented app and increment
-
-Home → **Log** opens today's local calendar date. A large multiline plain-text editor automatically saves one independent entry per date, preserving whitespace. **Choose date** revisits editable past entries. Returning on a new day opens that day without changing earlier entries. **Weekly View** groups Monday–Sunday, shows full text or No entry, navigates weeks and opens any dated entry for editing. No weekly records, practice relationships, tags, prompts, AI, rich text or attachments.
-
-Every queued edit carries its original date. An IO writer coalesces only edits for the same date and flushes before date changes, navigation and Activity pause. Failed drafts remain in the current editor for Retry; leaving fails safely if persistence fails. Weekly entries read the daily table. The new migration only adds `daily_logs`; existing data/audio are preserved. JSON 6 exports all saved Logs and validates canonical real YYYY-MM-DD dates, uniqueness and text types. Restore remains atomic, refuses a Log-only/nonempty target and reads older formats1–5 with no Logs. Oversize exports explicitly fail at the existing8 MiB limit.
-
-Existing Blocks/safe dependency-protected permanent deletion, independent sessions/history, integrated click, Block/free recordings/phrase loops, Tools, saved Routines and Goals remain implemented. Lato, cream#F1E6D3/green#315C47, banner/navigation retained. Image/PDF attachments remain a separate future increment.
+Room10: explicit9→10 only adds block_images with restrictive Block ownership; schemas/migrations1–9 retained. Image dependency joins all original Goal/Routine/take/every-session deletion blockers in the confirmation-time transaction. JSON writer6/readers1–6 unchanged; all Logs/structured records remain included. Image bytes/metadata/paths/URIs and recordings are excluded. Retain originals separately and reattach after JSON restore. No missing-media metadata is recreated; existing empty-target protections remain.
 
 ## Actual verification
 
-| Check | Result |
-|---|---|
-| Final build | [Release CI](https://github.com/mrayover/practice.logger/actions/runs/40897188240): **72 unit/Robolectric tests**, 0 failures/errors/skips; debug/release compilation; lint 0 errors / 10 existing warnings. Includes 7 new focused Log tests plus all 65 existing tests. |
-| Persistence/migration/backup | Rapid date-bound edits, in-flight flush, retained failed draft/retry, file reopen, week/year/leap/local-date boundaries, schema 8→9 preservation of every old table/take row, JSON 6 round trip/legacy1–5, invalid/duplicate dates/types/size, Log-only restore refusal and late-write rollback pass. Compiler schema 9 agrees with committed export; schemas 1–8 unchanged. |
-| API26 final release workflow | Log daily/weekly workflow, cold reopen and install-over retention passed. Catalog, practice/recovery/history, history upgrade, backup/picker restore/reopen, multiple sessions and metronome passed. Full job 123532311920 stopped at RecordingWorkflowTest.kt:101 waiting for Delete this take? after rename; subsequent phases were not reached. The unchanged recording class passed alone in [diagnostic CI 40899553803](https://github.com/mrayover/practice.logger/actions/runs/40899553803) (job 123537782782). Cause remains unestablished; no full API26 pass is claimed. |
-| API35 final release workflow | Complete final suite passed in job 123532313006: original catalog plus all 31 direct phases, including Log daily/weekly, cold reopen, install-over retention, backup/pickers, practice/history, audio/loops, Tools/Routines/Goals/deletion and enlarged-text checks. |
-| Enlarged text | Final LogWorkflowTest and LogReopenTest passed at 200% on API26 (CI 40897266669/job 123529683140) and API35 (CI 40897260725/job 123529666316). Tests cover today/yesterday edits, immediate navigation, week selection/navigation, recreation, simulated local-day change and process reopen. |
-| Visual review | Final daily and weekly views reviewed at normal text on API35 and enlarged text on API26/35. The clipped build 24 weekly header was replaced by scrolling content; build 25 controls remain readable and the editor scrolls into view. Physical-phone landscape/TalkBack/provider acceptance remains pending. |
-| Package | Signature/certificate/identity/version/APK hash/ZIP integrity verified; earlier packages preserved. |
+[CI40904738845](https://github.com/mrayover/practice.logger/actions/runs/40904738845), source3106e7e:79unit/Robolectric tests,0failures/errors/skips; debug/release compilation passed; lint0errors/12warnings (10existing and2UsableSpace recommendations). Seven new tests cover formats, failure/size/low-space/rollback preservation, replacement/reopen/archive/removal, dependency recheck/restrictive FK, backup exclusion/restore and conservative orphan cleanup; schema9fixture preserves every prior table including Logs/takes. Compiler schema10 retained,1–9 unchanged.
 
-Native Log checks cover today/yesterday editing, immediate Home/date navigation, weekly selection/navigation, Activity recreation, simulated new day, cold process reopen and backup encoding. Install-over probes use increasing CI versionCodes 26/27 (test probes, not delivered releases). Exact observed outcomes above take precedence over earlier candidate results. Build24 full CI was superseded/canceled for the screenshot-driven layout adjustment; its separate enlarged-text Log tests passed both APIs. Initial CI 40895602401 passed 7 Log tests but failed 1/72 broad tests because an old future-format fixture used version 6; the fixture now uses 7 with its rejection assertion retained.
+Both initial Android jobs stopped at ImageReferenceWorkflowTest:46: new fixture JPEG was absent from picker Downloads before import. Setup corrected to external-file/direct-copy/size-check/media-scan; isolated rerun pending. No full native pass claimed. Native workflow, enlarged-text visual review and final release verification remain pending. Prior build25 fullAPI35 passed; fullAPI26 stopped at a recording-dialog timeout while the unchanged recording class passed alone; no cause for that historical timeout was established.
 
-## Limits and pending acceptance
+## Remaining limits and exact next task
 
-- Physical-phone installation over the owner's permanent-key app has **not** been performed here. Matching permanent certificate/package and migration tests establish update compatibility; native install-over proofs use CI debug signing. Confirm real-phone data/audio preservation with [MANUAL_TESTS.md](MANUAL_TESTS.md), without uninstalling.
-- Detailed provider/TalkBack/landscape/phone keyboard and recording/acoustic checks remain pending. Automated emulator success does not establish physical-phone acceptance. Stage 3 detailed phone backup/recovery acceptance remains pending; Stage 4 stays **0/10 documented real sessions**.
-- Log writes are queued promptly and normal pause/navigation drains them. Abrupt kill/power loss before a database commit or storage failure cannot be guaranteed lossless; wait for Saved. Other practice-note/timer save rules remain unchanged. Storage failure keeps the current Log draft in memory for retry, not as an independently durable backup.
-- JSON excludes audio/take labels/metadata; use per-take export. No media-inclusive bulk restore, cloud sync or image/PDF increment is implemented.
+Run isolated corrected image workflow/reopen checks on API26/35, then200% text and required full regression checks; finalize signed delivery only after actual evidence. Physical phone install-over/data/audio/provider/landscape/TalkBack/acoustic acceptance remains pending; use MANUAL_TESTS.md. Stage3detailed phone pending; Stage4stays0/10. No PDFs, multi-image gallery, camera, annotation, image export, media-inclusive backup or recording-sheet image integration.
 
-## Exact next task
-
-Install signed **0.13.0/build 25** over the existing permanent-key app and run the six Daily Log/Weekly View phone checks in [MANUAL_TESTS.md](MANUAL_TESTS.md); report phone, Android, timezone/build and pass/fail observations. No additional feature is selected.
+Existing Windows checkout C:\Users\mrove\Projects\practice.logger is authoritative Git. Source/tests/docs/schema are committed/pushed through the explicitly authorized workflow; exact final remote SHA is verified at handoff. Dist/signing are local and intentionally ignored; synced sources are untouched.
