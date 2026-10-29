@@ -85,7 +85,7 @@ class GoalRepositoryTest {
             sessions.checkpoint(id, 4321); sessions.finishBlock(id, "COMPLETED", "Historical note")
             sessions.startGoal(g)
             val data = BackupRepository(db).snapshot(); val bytes = BackupCodec.encode(data)
-            assertEquals(5, JSONObject(String(bytes)).getInt("version"))
+            assertEquals(6, JSONObject(String(bytes)).getInt("version"))
             var target = BlockDatabase.open(context, name)
             BackupRepository(target).restore(BackupCodec.decode(bytes)); target.close()
             target = BlockDatabase.open(context, name)

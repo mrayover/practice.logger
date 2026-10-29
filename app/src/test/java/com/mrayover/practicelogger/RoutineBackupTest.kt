@@ -28,7 +28,7 @@ class RoutineBackupTest {
         var target = BlockDatabase.open(context, name)
         try {
             val original = fixture(source); val bytes = BackupCodec.encode(original)
-            assertEquals(5, JSONObject(String(bytes)).getInt("version"))
+            assertEquals(6, JSONObject(String(bytes)).getInt("version"))
             assertEquals(original, BackupCodec.decode(bytes))
             BackupRepository(target).restore(BackupCodec.decode(bytes))
             target.close(); target = BlockDatabase.open(context, name)

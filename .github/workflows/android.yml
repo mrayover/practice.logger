@@ -45,12 +45,12 @@ jobs:
           packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
-      - name: Targeted safe Block deletion checks
-        run: bash ./gradlew testDebugUnitTest --tests '*.BlockDeletionTest' --stacktrace
+      - name: Targeted Log persistence and backup checks
+        run: bash ./gradlew testDebugUnitTest --tests '*.LogRepositoryTest' --stacktrace
       - name: Build, test and lint
         run: bash ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Record schema for migration baseline
-        run: cat app/schemas/com.mrayover.practicelogger.BlockDatabase/8.json
+        run: cat app/schemas/com.mrayover.practicelogger.BlockDatabase/9.json
       - uses: actions/upload-artifact@v4
         with:
           name: practice-logger-debug
@@ -102,6 +102,22 @@ jobs:
             adb shell locksettings set-disabled true
             adb shell wm dismiss-keyguard
             adb shell pm clear com.mrayover.practicelogger.app || true
+            bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.LogWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/log-workflow.txt
+            grep -q "OK (1 test)" app/build/log-workflow.txt
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.LogReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/log-reopen.txt
+            grep -q "OK (1 test)" app/build/log-reopen.txt
+            bash ./gradlew assembleDebug -PversionCodeOverride=25 --stacktrace
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.LogReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/log-upgrade.txt
+            grep -q "OK (1 test)" app/build/log-upgrade.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/log-screenshots
+            adb shell pm clear com.mrayover.practicelogger.app
+
             bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace || { adb logcat -d > app/build/catalog-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/catalog-failure-screenshots; exit 1; }
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports
             adb shell am force-stop com.mrayover.practicelogger.app
@@ -115,7 +131,7 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=24 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=25 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt
@@ -208,6 +224,7 @@ jobs:
           path: |
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
+            app/build/log-*
             app/build/deletion-*
             app/build/catalog-workflow-reports
             app/build/catalog-failure-log.txt

@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel()) {
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -125,7 +125,8 @@ class MainActivity : ComponentActivity() {
         } else when (page) {
             "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
-                onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+                onLog = { log.open(); page = "log" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+            "log" -> LogScreen(log, onHome = { page = "home" })
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
             "goal-detail" -> {

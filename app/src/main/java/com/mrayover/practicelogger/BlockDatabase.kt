@@ -36,8 +36,9 @@ data class Block(
     @Insert suspend fun insert(block: Block)
     @Update suspend fun update(block: Block): Int
 }
-@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class, SavedRoutine::class, RoutinePlacement::class, Goal::class, GoalBlock::class, GoalSession::class], version = 8, exportSchema = true)
+@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class, SavedRoutine::class, RoutinePlacement::class, Goal::class, GoalBlock::class, GoalSession::class, DailyLog::class], version = 9, exportSchema = true)
 abstract class BlockDatabase : RoomDatabase() {
+    abstract fun logs(): LogDao
     abstract fun blocks(): BlockDao
     abstract fun sessions(): SessionDao
     abstract fun goals(): GoalDao
@@ -50,6 +51,6 @@ abstract class BlockDatabase : RoomDatabase() {
             applicationDatabase ?: open(context.applicationContext).also { applicationDatabase = it }
         }
         fun open(context: Context, name: String = "practice.logger.db") =
-            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6, ROUTINE_MIGRATION_6_7, GOAL_MIGRATION_7_8).enableMultiInstanceInvalidation().build()
+            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6, ROUTINE_MIGRATION_6_7, GOAL_MIGRATION_7_8, LOG_MIGRATION_8_9).enableMultiInstanceInvalidation().build()
     }
 }

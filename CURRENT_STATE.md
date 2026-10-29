@@ -1,3 +1,7 @@
+# Increment in progress — Daily Log and Weekly View
+
+2026-10-29: authorized 0.13.0/build24 source implementation in progress from clean9c87acb. Room9 migration and JSON6 readers1–6 added; compilation, generated schema, native checks and permanent-key package pending. No new verified release claimed yet. Previous delivered build23 and evidence follow. Next task: compile focused Log tests, produce signed candidate, then complete release checks and update this record.
+
 # Current state — practice.logger 0.12.0, build 23
 
 Reviewed 2026-10-28 (America/Los_Angeles) against local and remote `main` snapshot `94eed943a3ed97beca0e68f10ba70fa60c2accba` (documentation; APK source remains `8b469dc3246bbe34841b0945089e553303308132`), app configuration, source, signed release manifest, APK checksum and GitHub Actions results. This file is the authoritative current delivery and verification record. Historical release facts are in [WORK_LOG.md](WORK_LOG.md).

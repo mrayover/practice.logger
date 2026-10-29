@@ -27,7 +27,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(PracticeCream)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -83,6 +83,7 @@ import kotlin.math.sin
                         HomeButton("Routines", onRoutines)
                         HomeButton("Tools", onTools)
                         HomeButton("Recording", onRecording)
+                        HomeButton("Log", onLog)
                     }
                 }
                 Text("Data usage", modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
