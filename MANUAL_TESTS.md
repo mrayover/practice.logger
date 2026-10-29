@@ -1,4 +1,4 @@
-# Current phone checklist — Increment 2, 0.14.0/build 26
+# Current phone checklist — image refinement, 0.14.1/build 27
 
 Updated 2026-10-29 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
 
@@ -72,3 +72,8 @@ Use the actual signed version in CURRENT_STATE.md. Install over the permanent-ke
 6. Export JSON6, verify Logs/structured records persist, restore into a spare empty installation and confirm no missing-media attachment is recreated; reattach the separately retained original. Existing nonempty-target refusal remains. Check ordinary Goal/Routine/Log/recording workflows and do not infer simultaneous image viewing while recording.
 
 No media-inclusive backup, PDF, multi-image gallery, annotation, camera capture or recording-view integration is included.
+
+
+## 0.14.1 / build 27 — Portrait photo and compact practice refinement
+
+Install in place without uninstalling/clearing data. Reopen an already-attached portrait camera photo: it should display upright without reattachment; original image bytes stay intact. Verify the Block count/name/action/BPM use compact spacing and the reference itself reaches both safe phone edges. A normal portrait page should use the phone width, with a taller aspect-preserving region; very tall images remain bounded and can be zoomed/panned. Show/Hide must return space to the practice controls. Repeat with timer and click running, normal and 200% text, then check saved notes/BPM/time and a landscape image. Test the owner’s photographed music page specifically: automated tagged fixtures do not establish acceptance of that original file. No in-app image editing or change to JSON/media backup is included.

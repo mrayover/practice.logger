@@ -16,7 +16,7 @@ At the end of every session, including incomplete work: record factual work/resu
 
 ## Current app and data rules
 
-Daily Log/Weekly View shipped in 0.13.0/build25; the authorized image increment is 0.14.0/build26; consult CURRENT_STATE.md for actual delivery/verification status. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an actual owner request or approved scope in BUILD_PLAN.md.
+Daily Log/Weekly View shipped in 0.13.0/build25; the current image refinement is 0.14.1/build27; consult CURRENT_STATE.md for actual delivery/verification status. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an actual owner request or approved scope in BUILD_PLAN.md.
 
 Keep Kotlin, Jetpack Compose, Room, Lifecycle and bundled Lato Regular/Bold throughout app-controlled text. Preserve the current cream/green theme, navigation and functioning controls. No destructive database fallback; retain schema exports and explicit data-preserving migrations.
 
@@ -26,7 +26,7 @@ Room schema is 10; explicit 9→10 only adds block_images. Retain schemas/migrat
 
 Daily Logs are independent date-keyed plain text; keep date captured with every queued edit, flush before date/navigation/background transitions, and retain failed drafts for retry. Use local calendar boundaries. Weekly views derive from daily_logs; no separate weekly persistence or practice relationships. Backup validates canonical dates and protects Log-only targets.
 
-One reference image per saved Block: stable Block-keyed RESTRICT table, generated private filenames, bounded validated copy/decoding on IO, old file retained until replacement metadata commits, shared file mutex and conservative orphan recovery. Archive preserves attachments; Focused Practice resolves sourceBlockId without changing textual snapshots. Viewer UI state must not call practice timing/metronome or recording lifecycle. Recording-sheet integration, PDFs, multiple media and media-inclusive backups remain outside Increment 2.
+One reference image per saved Block: stable Block-keyed RESTRICT table, generated private filenames, bounded validated copy/decoding on IO, old file retained until replacement metadata commits, shared file mutex and conservative orphan recovery. Archive preserves attachments; Focused Practice resolves sourceBlockId without changing textual snapshots. Display must honor saved photo orientation without rewriting original bytes. Keep the compact practice heading and full safe-width image region; controls retain readable insets. Viewer UI state must not call practice timing/metronome or recording lifecycle. Recording-sheet integration, PDFs, multiple media and media-inclusive backups remain outside Increment 2.
 
 ## Verification and delivery
 

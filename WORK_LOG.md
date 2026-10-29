@@ -142,3 +142,34 @@ Reviewed mandatory efficiency procedure and required current records; clean loca
 
 
 Refinement focused unit gate passed in CI40913878853. Initial native diagnostic40913944791 failed compilation of the newly added layout assertion: this Compose DpRect exposes edges rather than width/height properties. Corrected the assertion to compare bottom−top and right−left; product code unchanged. Isolated native rerun precedes the final full matrix. No native runtime pass claimed from the compile-failed diagnostic.
+
+
+## 2026-10-29 — Portrait/layout refinement signed delivery
+
+Delivered0.14.1/build27 from ff50707374108c16c4b4ab2653a5fdfd6110853c, final test/workflow source 04c1f41c504c65e97ffd052b1ee828e0a5be655a; subsequent changes are records only. Owner-requested compact4dp Block top matter, full safe-width portrait region180–640dp and EXIF rotation/flip decoding are implemented. Existing private originals and Room10/JSON6 are unchanged; no reattachment, data migration, timer/click engine or recording lifecycle change. Required guidance/manual checks/license attribution updated. Original owner photo acceptance remains pending because the supplied screenshot is not its original JPEG; asymmetric tagged JPEG fixtures verify all eight orientations and the requested native layout.
+
+practice.logger 0.14.1 / build27 — compact Block heading and upright full-width references
+APK source: ff50707374108c16c4b4ab2653a5fdfd6110853c
+Final test/workflow source: 04c1f41c504c65e97ffd052b1ee828e0a5be655a; later closeout is documentation only.
+Initial build/package: https://github.com/mrayover/practice.logger/actions/runs/40913878853 (successful build; superseded native jobs canceled after test compile correction)
+Final release CI: https://github.com/mrayover/practice.logger/actions/runs/40915328499
+80 unit/Robolectric tests passed, 0 failures/errors/skips; debug/release compilation passed; lint 0 errors / 12 unchanged warnings.
+Android8/API26: Complete catalog and all34 direct phases passed in job123595592990, including portrait image workflow/reopen/install-over, Log, practice/history, backup/pickers, recordings/loops, Tools, Routines, Goals, deletion and enlarged-text workflows.
+Android15/API35: Complete catalog and all34 direct phases passed in job123595593190, including portrait image workflow/reopen/install-over, Log, practice/history, backup/pickers, recordings/loops, Tools, Routines, Goals, deletion and enlarged-text workflows.
+200% text API26: Corrected portrait workflow and cold-process reopen passed at 200% text, job123593933297, including EXIF upright dimensions, compact heading gap, full safe-width bounds and timer/click/BPM/notes continuity. (https://github.com/mrayover/practice.logger/actions/runs/40915333166)
+200% text API35: Corrected portrait workflow and cold-process reopen passed at 200% text, job123593977317, including EXIF upright dimensions, compact heading gap, full safe-width bounds and timer/click/BPM/notes continuity. (https://github.com/mrayover/practice.logger/actions/runs/40915337470)
+Normal API35 portrait workflow/reopen passed in https://github.com/mrayover/practice.logger/actions/runs/40914467244.
+Visual review: Normal API35 and 200% API26/API35 portrait staff-page screenshots reviewed: upright page, full safe screen width and bounded aspect-preserving display; compact heading gap is asserted natively.
+All eight EXIF rotation/flip cases tested with asymmetric corner colors; original/private bytes unchanged.
+Room10/JSON6 unchanged; schema exports1–10 unchanged. No migration or media backup change.
+Signature, pinned permanent certificate, package/version, APK checksum and ZIP integrity verified.
+APK SHA256: 7066ce3522dec435c8e55e2fc78830a3a2c8c5216cdecea9936d848ecd6f5217
+ZIP SHA256: a0f16f1dd53a5c56838a40abd7626139a3c807df17ca31e54e2c540198a07666
+Permanent certificate SHA256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+All 96 prior packages preserved byte-identical.
+Install in place; never uninstall/clear the existing permanent-key app.
+Phone acceptance of the owner's original photographed page remains pending; it was supplied as a screenshot, not the source image.
+Images stay excluded from JSON backups; keep originals separately. Recording-sheet image/PDF integration remains deferred.
+
+
+Recorded the initial native-test compile error and cancellation of superseded native jobs above. Corrected targeted checks preceded final gates; no passing claim for canceled or compile-failed runs. Local/remote main and clean state are verified at final handoff. Distribution/signing remain local and ignored; all prior packages retained and synced sources untouched. Next task: install this update in place and check the owner’s already-attached photo and practice controls. No future feature selected.

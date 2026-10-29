@@ -1,67 +1,58 @@
-# Refinement in progress — 0.14.1 / build 27
+# Current state — practice.logger 0.14.1, build 27
 
-2026-10-29: owner requests compact Block top matter, upright portrait reference and full-width phone display. Implementation and targeted orientation/layout tests are added; verification and permanent-key package pending. Room10 and JSON6 are unchanged. Exact next task: run focused EXIF/image tests, build and sign candidate27, verify native normal/enlarged behavior, then update release evidence and publish. Previous delivered build26 follows as historical baseline until this update is verified.
-
-# Current state — practice.logger 0.14.0, build 26
-
-Updated 2026-10-29 (America/Los_Angeles). This is the authoritative delivery and verification record. Increment 1 (Daily Log / Weekly View) is complete and retained. Increment 2 delivers one collapsible Block reference image. Historical evidence and the mandatory efficiency procedure remain in [WORK_LOG.md](WORK_LOG.md).
+Updated 2026-10-29 (America/Los_Angeles). This is the authoritative delivery and verification record. Daily Log/Weekly View and single-image Block references are delivered. This update refines the owner’s phone feedback: compact Block top matter, upright portrait photos and wider inline images. History and the mandatory efficiency procedure remain in [WORK_LOG.md](WORK_LOG.md).
 
 ## Delivery and provenance
 
 | Item | Verified value |
 |---|---|
-| Release | **0.14.0 / versionCode 26** |
-| Signed APK source | `3106e7e1ce95f4ef25e9ee0c11a182ae1d1a8c46` |
-| Final native test/workflow source | `cb75a69d3cc298029e4f9aa6ea915fd9dbc53db8`; product sources unchanged since the APK source |
-| Package | `com.mrayover.practicelogger.app`, Android 8.0+ / min API26 / compile and target API36 |
-| Database | Room **10**; explicit migrations 1→10, compiler schemas 1–10 retained |
-| JSON | Writer **6**, readers **1–6**; Logs and structured data included, images and all recording media/metadata excluded |
-| APK SHA-256 | `7b465a51f89211b720bfd981b7a6b7857dfdf3633589be037d20872cf048a03f` |
-| ZIP SHA-256 | `ec9ad9343f78e793dc123356a9f5910b3c4cc153613a78c17adb83f8d7f9cad6` |
-| Permanent certificate SHA-256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
+| Release | **0.14.1 / versionCode 27**, superseding retained 0.14.0/build26 |
+| Signed APK source | `ff50707374108c16c4b4ab2653a5fdfd6110853c` |
+| Final native test/workflow source | `04c1f41c504c65e97ffd052b1ee828e0a5be655a`; product source unchanged since the signed APK source |
+| Package/Android | `com.mrayover.practicelogger.app`, Android8+/minAPI26, compile/targetAPI36 |
+| Database/JSON | Room **10**, migrations/schemas1–10 retained; JSON writer**6**, readers**1–6** unchanged |
+| APK SHA256 | `7066ce3522dec435c8e55e2fc78830a3a2c8c5216cdecea9936d848ecd6f5217` |
+| ZIP SHA256 | `a0f16f1dd53a5c56838a40abd7626139a3c807df17ca31e54e2c540198a07666` |
+| Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
 
-- [Signed APK](dist/practice.logger-0.14.0-b26-3106e7e/practice.logger-0.14.0-b26-3106e7e.apk)
-- [ZIP distribution](dist/practice.logger-0.14.0-b26-3106e7e.zip)
-- [Build provenance](dist/practice.logger-0.14.0-b26-3106e7e/BUILD_INFO.json)
-- [Verification status](dist/practice.logger-0.14.0-b26-3106e7e/VERIFICATION_STATUS.txt)
+- [Signed APK](dist/practice.logger-0.14.1-b27-ff50707/practice.logger-0.14.1-b27-ff50707.apk)
+- [ZIP distribution](dist/practice.logger-0.14.1-b27-ff50707.zip)
+- [Build provenance](dist/practice.logger-0.14.1-b27-ff50707/BUILD_INFO.json)
+- [Verification status](dist/practice.logger-0.14.1-b27-ff50707/VERIFICATION_STATUS.txt)
 - [Latest pointer](dist/LATEST.txt)
 
-Existing Windows checkout: `C:\Users\mrove\Projects\practice.logger`. Source, tests, schemas and documentation are in Git; dist and signing material remain local and intentionally ignored. No synced sources were changed. The permanent publisher verified signature, pinned certificate, package/version, checksum and ZIP round trip. All 92 earlier APK/ZIP packages remain byte-identical. **Install over the permanent-key app without uninstalling or clearing data.** Physical-phone installation is pending; the old temporary-key 0.1.0 app is separate.
+The permanent publisher verified signature, pinned certificate, app identity/version, checksum and ZIP round trip. All 96 earlier APK/ZIP files remain byte-identical. **Install over the permanent-key app without uninstalling or clearing data.** APK source precedes test/documentation corrections; app and Gradle product sources are identical at final verification. Existing checkout `C:\Users\mrove\Projects\practice.logger` is updated; dist/signing stay local and Git-ignored. Synced project sources are untouched.
 
-## Implemented behavior and data safety
+## Refinements and retained behavior
 
-After saving a Block, reopen its editor and Add reference image through Android’s system picker. One JPEG, PNG or WebP is copied to app-owned private storage. View with Show reference / Hide reference; Replace reference image safely retains the old attachment until the new file and metadata commit. Remove reference image requires confirmation. Picker cancellation and failed imports retain the previous attachment. Archive preserves ownership.
+Focused Practice groups the Block count/name/action/BPM/reference notes with **4dp gaps**, replacing the former 20dp gaps. Controls retain **16dp side insets**. The image itself spans the complete safe phone width. Its region follows the oriented image aspect ratio within **180–640dp**, so a normal portrait page uses the width rather than shrinking into the old fixed240dp landscape region; unusually tall images remain bounded. Show/Hide and fitted aspect ratio, pinch zoom up to6×, enlarged panning and Reset image zoom are retained. Normal scrolling works when not manipulating the image.
 
-Focused Practice retrieves the live attachment by sourceBlockId, including archived Blocks, without changing immutable textual snapshots or adding media to session history. Each placement starts collapsed. The fitted viewer preserves aspect ratio, occupies a bounded 240dp region, supports pinch zoom up to 6×, panning while enlarged and Reset image zoom. Local viewer state does not invoke timer/click or recording lifecycle. Native checks exercise repeated show/hide/gestures with timer and click running, notes/BPM retention and switching to an image-free Block. Recording engine, lifecycle and modal sheet are unchanged; **reference viewing inside the recording sheet is not implemented**.
+AndroidX ExifInterface1.4.2 reads camera rotation/flip metadata while decoding on IO and applies it to the sampled display bitmap. All eight EXIF orientations are handled. **Existing attachments are corrected at display time without reattaching or rewriting original bytes or metadata.** Untagged images retain their stored pixel orientation; this update does not infer orientation from musical content or add an image editor. The owner’s particular source photo has not been inspected directly, so its physical-phone acceptance remains pending.
 
-Private imports use generated UUID names, up to 20 MiB, 40 million decoded pixels and 16384 pixels per side. Copy/validation/decoding run on IO; preview decoding is sampled to about 2048 pixels per side. Files are synced and finalized before a transactional metadata upsert. A shared file mutex serializes replacement, removal and conservative recovery. Known generated orphans are removed only after a successful metadata read; interrupted cleanup retries on next launch. Missing/corrupt files show an inline error with Retry and editor repair/removal. Original selected files are untouched.
+One private JPEG/PNG/WebP per saved Block; generated UUID files, up to20MiB/40MP/16384px validation, sampled decode around2048px, safe file-first transactional replacement, confirmed removal and conservative startup orphan cleanup remain. Picker cancellation/failed imports retain the old image. Archive preserves stable Block ownership. Missing/corrupt files show Retry or editor repair/removal. New Blocks require Save/reopen first.
 
-Room 9→10 only adds the one-row-per-Block block_images table with a restrictive foreign key. Images join Goal links, saved Routine references, takes and every session placement as permanent-deletion blockers. Confirmation-time recheck/delete remains transactional; the refusal explains Remove image first. Confirmed removal deletes metadata then the private file. No historical protection or association is weakened.
+Practice resolves sourceBlockId without changing immutable textual snapshots. Viewer state remains separate from timer/click and recording lifecycle; their engine/model files are unchanged. Image attachments still block permanent Block deletion alongside every earlier Goal/Routine/take/session dependency, with confirmation-time transactional recheck and a restrictive foreign key. No Room migration is needed for this refinement.
 
-JSON remains format 6/readers 1–6. All Logs, Blocks, Goals, Routines, sessions/history and notes remain backed up. **Image bytes, metadata, filenames and URIs are excluded**, as are recordings. Restore creates no missing-media image references and retains all empty-target protections. Keep original images separately and reattach after restore. Clearing/uninstalling/device loss destroys app-owned media; platform backup/transfer remains excluded. No media-inclusive ZIP backup or per-image export is included.
+JSON6/readers1–6 retains Logs, Blocks, Goals, Routines, sessions/history and notes. Image bytes/metadata/filenames/URIs and recordings remain excluded. Keep originals separately and reattach after restore; no missing-media metadata is recreated and empty-target restore protections remain. Private media is lost on uninstall/clear/device loss, and platform backup remains excluded. No PDF, multiple attachments, camera capture, annotation, image editing, media-inclusive backup or recording-sheet reference viewing is included.
 
 ## Actual verification
 
 | Check | Result |
 |---|---|
-| Build, units and lint | 79 unit/Robolectric tests passed with 0 failures/errors/skips; debug/release compilation passed; lint 0 errors / 12 warnings (10 existing and 2 conservative free-space recommendations). [Final release CI](https://github.com/mrayover/practice.logger/actions/runs/40907898581); initial package build [CI40904738845](https://github.com/mrayover/practice.logger/actions/runs/40904738845). |
-| Focused persistence/failures | JPEG/PNG/WebP, reopen/archive/replacement/removal, malformed/oversize/low-space/interrupted IO and failed-commit preservation, path safety, missing/corrupt decode, dependency recheck/restrictive FK, JSON exclusion/empty-target refusal and orphan recovery pass. |
-| Migration/schema | Schema 9 fixture preserves every prior table and row, including Logs, notes, Goal/Routine/session links and takes. Earlier migration tests pass. Compiler schema 10 retained; schemas 1–9 unchanged. |
-| API26 full release workflow | Complete final suite passed in job 123569735286: catalog plus all 34 direct phases, including image picker/zoom/timer/click, cold reopen and install-over retention; Log, practice/history, backup/pickers, recording/loops, Tools, Routines, Goals, deletion and enlarged-text workflows. |
-| API35 full release workflow | Complete final suite passed in job 123569735205: catalog plus all 34 direct phases, including image picker/zoom/timer/click, cold reopen and install-over retention; Log, practice/history, backup/pickers, recording/loops, Tools, Routines, Goals, deletion and enlarged-text workflows. |
-| 200% text API26 | Image workflow and cold-process reopen passed at 200% text (job 123567637479), including real picker import/cancel, zoom/pan, running timer/click/BPM/notes preservation, replacement/removal and archived ownership. [CI](https://github.com/mrayover/practice.logger/actions/runs/40907908344). |
-| 200% text API35 | Image workflow and cold-process reopen passed at 200% text (job 123567643837), including real picker import/cancel, zoom/pan, running timer/click/BPM/notes preservation, replacement/removal and archived ownership. [CI](https://github.com/mrayover/practice.logger/actions/runs/40907912062). |
-| Visual review | Normal API35 and 200% API26/API35 editor and inline zoom-view screenshots reviewed. Image controls and backup disclosure remain readable and scrollable; the viewer stays bounded and its controls remain reachable. |
-| Package/previous releases | Signature/certificate/identity/version, manifest hash, ZIP CRC and extracted APK hash verified. All 92 pre-session packages retained. |
+| Build/units/lint | 80 unit/Robolectric tests passed, 0 failures/errors/skips; debug/release compilation passed; lint 0 errors / 12 unchanged warnings. [Final release CI](https://github.com/mrayover/practice.logger/actions/runs/40915328499); signed package originated from the successful build job in [initial CI](https://github.com/mrayover/practice.logger/actions/runs/40913878853). |
+| Orientation regression | Asymmetric corner-color assertions verify every EXIF rotation/flip, expected portrait/landscape dimensions and unchanged source/private bytes. Existing image persistence/failure/deletion/backup tests pass. |
+| Native normal API35 | Portrait-tagged camera-style JPEG imported through actual picker; upright dimensions, compact title/action gap, full safe edge-to-edge viewer width and portrait shape asserted. Timer/click/BPM/notes continuity, repeated zoom/pan/show/hide, replacement/removal/archive and cold reopen pass in [CI40914467244](https://github.com/mrayover/practice.logger/actions/runs/40914467244). |
+| API26 full release | Complete catalog and all34 direct phases passed in job123595592990, including portrait image workflow/reopen/install-over, Log, practice/history, backup/pickers, recordings/loops, Tools, Routines, Goals, deletion and enlarged-text workflows. |
+| API35 full release | Complete catalog and all34 direct phases passed in job123595593190, including portrait image workflow/reopen/install-over, Log, practice/history, backup/pickers, recordings/loops, Tools, Routines, Goals, deletion and enlarged-text workflows. |
+| 200% text API26 | Corrected portrait workflow and cold-process reopen passed at 200% text, job123593933297, including EXIF upright dimensions, compact heading gap, full safe-width bounds and timer/click/BPM/notes continuity. [CI](https://github.com/mrayover/practice.logger/actions/runs/40915333166). |
+| 200% text API35 | Corrected portrait workflow and cold-process reopen passed at 200% text, job123593977317, including EXIF upright dimensions, compact heading gap, full safe-width bounds and timer/click/BPM/notes continuity. [CI](https://github.com/mrayover/practice.logger/actions/runs/40915337470). |
+| Visual review | Normal API35 and 200% API26/API35 portrait staff-page screenshots reviewed: upright page, full safe screen width and bounded aspect-preserving display; compact heading gap is asserted natively. |
+| Data/package safety | Schemas1–10 unchanged; no JSON/data-model migration. Existing timer/session/recording/backup engine files unchanged. Signature/certificate/package/version/hash/ZIP verified; 96 prior packages preserved. |
 
-The focused native workflow uses an actual system-picker JPEG, saved editor reopen, cancel replacement/removal, deletion refusal, zoom/pan, repeated show/hide while timer/click run at 111 BPM, saved note/time retention, movement to an image-free placement, confirmed removal and replacement retained on an archived Block after cold restart. Full release checks include an install-over probe, using CI debug signing; matching permanent certificate/package and migration tests establish update compatibility, while physical-phone permanent-key installation remains pending.
-
-Initial CI40904738845’s native jobs stopped at the new picker selector before import; isolated CI40906218662 showed the same symptom. Captured screenshot/hierarchy revealed a present JPEG whose grid filename was an accessibility description with empty text. Correcting that selector produced the isolated normal API35 pass in [CI40907101426](https://github.com/mrayover/practice.logger/actions/runs/40907101426). The earlier file-copy hypothesis was not independently established. Product code and signed APK were unchanged by these test corrections. Failures are retained in WORK_LOG.md; no initial full-device success is claimed.
+Initial native diagnostic40913944791 failed compilation of a new test assertion because this Compose rectangle API exposes edges rather than width/height properties. The assertion was corrected to bottom−top/right−left, preserving its coverage; app code did not change. Initial full CI40913878853’s build passed, but superseded native jobs were canceled after this correction to avoid repeating a known compile failure. Corrected focused checks preceded final release gates; no native success is claimed from those first attempts. Earlier build26 results/failures remain historical in WORK_LOG.md.
 
 ## Limits and exact next task
 
-Physical-phone permanent-key install-over and provider/landscape/TalkBack/acoustic acceptance remain pending. No simultaneous image viewing inside the recording sheet, PDF, multi-image or media-inclusive backup is implemented.
+Automated install-over probes use CI debug signing; matching permanent package/certificate and preserved schemas establish update compatibility. Physical-phone install-over/data/audio retention, the owner’s original music photo, provider/low-storage/landscape/TalkBack and acoustic acceptance remain pending. Stage3 detailed phone acceptance remains pending; Stage4 remains **0/10 documented real sessions**. Original temporary-key0.1.0 is separate.
 
-Physical-phone install-over/data/audio retention, vendor provider/low-storage behavior, portrait/landscape, TalkBack and acoustic acceptance remain pending. Use the reference-image and in-place-update checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md), retaining originals separately. No PDF, multiple attachments, camera capture, annotation, image editing, media-inclusive backup or recording-sheet image integration. Stage 3 detailed phone acceptance is pending; Stage 4 remains **0/10 documented real sessions**.
-
-**Exact next task:** install signed 0.14.0/build 26 over the existing permanent-key app and run the six Increment 2 phone checks in MANUAL_TESTS.md; report phone, Android/build and actual pass/fail. Do not uninstall or clear the app. No later feature is selected.
+**Exact next task:** install signed0.14.1/build27 over the existing app, reopen the already-attached photographed page and confirm upright orientation, compact heading, wider image and uninterrupted timer/click. Follow [MANUAL_TESTS.md](MANUAL_TESTS.md), retaining originals separately. No later feature is selected.

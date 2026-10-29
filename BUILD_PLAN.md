@@ -53,6 +53,10 @@ Long-press interactions, historical-reference redesign, overdubs/layers/multitra
 
 Stage 4 may eventually support choosing at most one further feature from real observations, or none. Use observed problem → simplest change → cost/tradeoff → owner decision. Reliability feedback takes priority over speculative expansion.
 
+## Owner-requested image refinement
+
+The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice top matter, upright camera-photo orientation and full safe-width image display. Signed0.14.1/build27 delivers these refinements; Room10/JSON6, private originals and timer/recording architecture stay unchanged. Delivery/testing status is in CURRENT_STATE.md.
+
 ## Next action
 
-Install signed 0.14.0/build 26 in place and perform the image and update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Install signed 0.14.1/build 27 in place and perform the image and update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.

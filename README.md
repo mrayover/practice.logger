@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.14.0/build 26**, with collapsible Block reference images. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.14.1/build 27**, with compact Block headings, upright photo orientation and wider collapsible reference images. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
 
 ## Install and verify
 
@@ -11,7 +11,7 @@ Android 8.0+; install over the existing permanent-key app **without uninstalling
 ## Using the app
 
 - **Blocks:** create/edit with required Name/Action, default duration and optional tempo/notes. Search name/action/notes literally, switch Active/Archived, Archive/Restore, or select Delete Permanently in a saved Block's editor.
-- **Reference image:** save a Block, reopen its editor and choose Add reference image from Android’s picker. One JPEG, PNG or WebP up to 20 MiB, 40 megapixels and 16384 pixels per side is copied into private app storage. Show reference/Hide reference opens a fitted inline viewer; pinch to zoom up to 6×, drag while enlarged and use Reset image zoom. In the editor use Replace reference image, or Remove reference image and confirm. Cancellation or failed import retains the existing image. Saved and archived Blocks retain ownership across restarts. In Focused Practice the viewer starts collapsed for each placement; show/hide/zoom does not change timer, BPM, notes or session progress. Images are not shown inside the recording sheet.
+- **Reference image:** save a Block, reopen its editor and choose Add reference image from Android’s picker. One JPEG, PNG or WebP up to 20 MiB, 40 megapixels and 16384 pixels per side is copied into private app storage. Show reference/Hide reference opens a fitted inline viewer. Saved photo rotation/flip metadata is honored automatically, including existing attachments. Focused Practice groups the heading compactly and lets the image span the full safe screen width; portrait pages use a taller region (180–640dp) to preserve their shape. Pinch to zoom up to 6×, drag while enlarged and use Reset image zoom. In the editor use Replace reference image, or Remove reference image and confirm. Cancellation or failed import retains the existing image. Saved and archived Blocks retain ownership across restarts. In Focused Practice the viewer starts collapsed for each placement; show/hide/zoom does not change timer, BPM, notes or session progress. Images are not shown inside the recording sheet.
 - **Safe deletion:** unused active or archived Blocks can be deleted after confirmation. An attached reference image, Goal links, saved Routines, recordings and all draft/unfinished/completed session entries protect the Block. Remove the image deliberately in the editor before permanent deletion. Refusal shows persistent counts and explains completed history. Associations/audio/history are never removed automatically; use Archive when dependencies remain.
 - **Practice Now:** build a session, reorder placements and override their durations, or select an unfinished session. Starting fresh retains older unfinished practice and the shared builder draft. Focus starts paused; Start/Resume, Pause, Complete and Skip record foreground active time. At zero, choose Continue for overtime or Complete. Save for later/Back saves and pauses; restart resumes saved practice paused.
 - **Notes and history:** Quick Block notes save via Save Block note, Save for later, Back, Complete or Skip. Session notes require Save note. Routines retains Recent Practice and reopenable summaries with historical instruction snapshots.
@@ -31,7 +31,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-All **79 unit/Robolectric tests**, debug/release compilation and lint pass (0 errors / 12 warnings, including two conservative free-space recommendations). Native results, including image and Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
+All **80 unit/Robolectric tests**, debug/release compilation and lint pass (0 errors / 12 warnings, including two conservative free-space recommendations). Native results, including image and Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
 
 Next: install the signed update without uninstalling and follow the reference-image and in-place-upgrade checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone acceptance remains pending; [EVALUATION.md](EVALUATION.md) stays deferred at0/10 documented real sessions.
 
