@@ -1,8 +1,6 @@
 # Stage 4 — Ten real practice sessions
 
-Owner instruction 2026-10-26: defer manual backup/recovery acceptance and the ten-real-session evaluation until this build cycle finishes. They remain unverified and do not block this authorized 0.3.2 note-reliability increment. General owner report: 0.3.0 works; no model/OS or individual checklist evidence supplied. Feature work stops by 10% usage remaining; prioritize stable signed APK and closing records. This cycle delivered verified 0.3.2; acceptance/evaluation resumes only when the owner is ready.
-
-Status: evaluation prepared; **0 of 10 real sessions recorded**. Automated/emulator sessions never count. Start the numbered evaluation after Stage 3 phone acceptance below; use the latest permanently signed APK and keep each release ZIP/folder.
+Updated 2026-10-28 against the current app. Evaluation is prepared and owner-deferred: **0 of 10 real sessions documented**. Detailed Stage 3 phone acceptance remains pending. Use the latest permanently signed release identified in CURRENT_STATE.md; no model/Android or individual checklist results have been supplied. Automated/emulator sessions never count. Later tools/audio/Routines/Goals/deletion were explicitly owner-approved while evaluation stayed deferred; they are already implemented.
 
 ## Before session 1
 
@@ -43,6 +41,6 @@ If data loss, crash, inflated timing, failed recovery or unusable backup occurs,
 
 Group repeated observations, distinguish bugs from convenience requests, and fix the most frequent concrete friction first. Record each decision as **observed problem → simplest change → cost/tradeoff → decision**. Update WORK_LOG.md and CURRENT_STATE.md for each development session; deliver a tested, versioned APK for fixes.
 
-Choose at most **one** future feature supported by these observations, or choose none. Goals, Routines, audio, metronome/tuner, deep analytics, accounts/cloud and in-app update controls remain deferred until explicitly approved. Stage 4 completes only when ten real sessions are recorded, observed friction is addressed and the one-feature-or-none decision is documented.
+Choose at most **one** future feature supported by these observations, or choose none. Goals, saved Routines, free/loop audio and metronome/tuner are already implemented. Additional analytics, accounts/cloud, in-app updates and other future work remain outside scope until explicitly approved; see BUILD_PLAN.md. Broader storage/audio-inclusive backup remains an unresolved owner discussion. Stage 4 completes only when ten real sessions are recorded, observed friction is addressed and the one-feature-or-none decision is documented.
 
 Decision: **pending real-session evidence**.
