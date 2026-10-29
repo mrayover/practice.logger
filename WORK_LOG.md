@@ -204,3 +204,19 @@ All100 prior distributions and compiler schemas1–10 verified byte-identical. N
 
 
 Native edge finding40943395356/source8accc0e: API35 accepted owner-locked.pdf (encrypted with an empty opening password), contrary to this increment’s encrypted-file exclusion; API26 storage checks had rejected it. Added a bounded8192-byte/96-byte-overlap scan for the reserved /Encrypt PDF name including hex escapes, conservatively rejecting encryption before PdfRenderer on every API. This is a product fix based on a failing real fixture. Build28 remains preserved as an early signed candidate; corrected distributed update advances versionCode29 (0.15.0). No production key change. Isolated baseline-upgrade40943505589 stopped before install because assumed ~/.android/debug.keystore path did not exist; locate the actual CI debug store, validate/generate the ordinary Gradle debug identity if absent, and re-sign baseline/current/test APKs consistently within that CI job. Permanent signing materials are untouched. Full native recording/upgrade gates remain pending; no continuity success claimed.
+
+
+Corrected signed-candidate milestone: practice.logger0.15.0/build29 — corrected signed candidate, final release gates in progress.
+Source:4f97f3ddbfc9024d385e6e95984c974cfc116a0f
+Build/package CI40944290626:81 unit/Robolectric tests,0failures/errors/skips; debug/release compile; lint0errors/13warnings.
+API35 PDF validation/picker/viewer/free-recording/page-zoom-show-hide continuity/phrase-count-in-loop/dismissal/reopen:passed40944294502(job123695454032).
+API26 actual build27-to29 install-over:passed40944299002(job123695469410),every table and private original image/audio byte retained.
+Signature,pinned permanent certificate,identity/version,APK checksum and ZIP round trip verified. Room10/JSON6/readers1–6 unchanged;schemas1–10 byte-identical.
+All100 prior packages and early build28 retained byte-identical.
+Final full API26/API35 suites40945038634 and200% API26/35 checks40945043010/40945047534 pending.
+Physical-phone acceptance pending. Install over permanent-key app WITHOUT uninstalling or clearing data.
+APK SHA256:bddcb96335768d4dc84308fa090f762260f57f5d88a84d1b5cc5424752edaf70
+ZIP SHA256:3d33be2fb432349952374d775167305c4a01f12a2d5b7670658da056b61fff5a
+JSON excludes images/PDFs and recordings; keep originals separately and export wanted takes individually.
+
+Normal API35 active-reference/phrase screenshots reviewed:readable page controls and pinned Stop/Save;real native assertions verify timer,BPM and take continuity. Required full release/200% gates started only after focused checks passed. Exact signed artifacts/checksums are now in CURRENT_STATE.md;no phone acceptance invented.

@@ -1,39 +1,51 @@
-# Current state — Increment3 signed candidate0.15.0/build28
+# Current state — practice.logger0.15.0,build29
 
-Updated2026-10-29(America/Los_Angeles). Authoritative delivery/verification record. Increment3 source implements one PDF OR image per saved Block and inline reference viewing within the recording sheet during capture. This is an installable signed candidate; final native recording-continuity/regression/200% verification is pending. Historical verified release0.14.1/build27 remains preserved.
+Updated2026-10-29(America/Los_Angeles). Authoritative delivery and verification record. Increment3 implements PDF references and inline image/PDF viewing while recording. Build29 is signed/installable and focused native verification passes; final release/200% gates are in progress. Early build28 is retained and superseded after its API35 owner-encryption edge case was corrected.
 
-## Candidate delivery and provenance
+## Delivery and provenance
 
-- Version0.15.0/versionCode28; app ID com.mrayover.practicelogger.app; minAPI26/target36.
-- Signed APK source:`4a33b7fded54d349378935ff958993ee97b53fbc`; app source unchanged since initial6726aac.
-- [Signed APK](dist/practice.logger-0.15.0-b28-4a33b7f/practice.logger-0.15.0-b28-4a33b7f.apk) and [ZIP](dist/practice.logger-0.15.0-b28-4a33b7f.zip).
-- [Build info](dist/practice.logger-0.15.0-b28-4a33b7f/BUILD_INFO.json), [verification status](dist/practice.logger-0.15.0-b28-4a33b7f/VERIFICATION_STATUS.txt), [latest pointer](dist/LATEST.txt).
-- APK SHA256:`0a3393974fd42997dff6550fc3ac27534989feb61661a299142b4405bc574119`; ZIP SHA256:`2abce2bb414db162e9cdc8353934d119ccf77a0ca73341a36bb1c4415606a49f`.
-- Permanent certificate SHA256:`f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
-- Publisher verified signature,pinned certificate,identity/version,hash and ZIP roundtrip. All100 prior packages and schemas1–10 remain byte-identical.
+| Item | Verified value |
+|---|---|
+| Version | **0.15.0/versionCode29** |
+| Signed APK and current verification source | `4f97f3ddbfc9024d385e6e95984c974cfc116a0f` |
+| Package | `com.mrayover.practicelogger.app`;Android8+/minAPI26,target/compile36 |
+| Data | Room**10**,all schemas/migrations1–10 retained;JSON writer**6**,readers**1–6** |
+| APK SHA256 | `bddcb96335768d4dc84308fa090f762260f57f5d88a84d1b5cc5424752edaf70` |
+| ZIP SHA256 | `3d33be2fb432349952374d775167305c4a01f12a2d5b7670658da056b61fff5a` |
+| Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
 
-Install over the permanent-key app **without uninstalling or clearing data**. Existing Windows checkout is updated; signing/distributions stay local/Git-ignored and synced sources untouched. No permanent-key phone installation is claimed.
+- [Signed APK](dist/practice.logger-0.15.0-b29-4f97f3d/practice.logger-0.15.0-b29-4f97f3d.apk)
+- [ZIP](dist/practice.logger-0.15.0-b29-4f97f3d.zip)
+- [Build provenance](dist/practice.logger-0.15.0-b29-4f97f3d/BUILD_INFO.json),[verification status](dist/practice.logger-0.15.0-b29-4f97f3d/VERIFICATION_STATUS.txt),[phone checklist](dist/practice.logger-0.15.0-b29-4f97f3d/PHONE_CHECKLIST.txt),[latest pointer](dist/LATEST.txt).
 
-## Implemented behavior and data
+The existing permanent publisher verified signature,pinned certificate,app identity/version,checksum and ZIP integrity. All100 pre-session APK/ZIP files and early build28 remain byte-identical. Install **over the permanent-key app without uninstalling or clearing data**. The original Windows checkout is updated;signing/distributions remain local and Git-ignored;synced project sources are untouched. No permanent-key phone install is claimed.
 
-One generated private image OR PDF per stable Block, with safe replace and confirmed removal. Existing MIME/dimension columns in block_images support PDFs without a database migration; Room10/migrations1–10 and old rows/files are retained. Images keep EXIF orientation,full safe-width Focused Practice layout,180–640dp bounds and zoom/pan. PDFs:20MiB,1–100pages,supported1–14400point dimensions; validate each page with a256px temporary bitmap before ownership commit. PdfRenderer renders one requested page at2048px on IO and closes every page/document/descriptor. Viewer has Show/Hide,Previous/Next,page count,pinch/pan/reset; page changes reset zoom and discarded UI work cannot publish stale bitmaps.
+## Implemented reference and recording behavior
 
-Recording sheet contains the viewer and retains the existing enterBlock/leaveBlock/foreground lifecycle. Active status and Stop and save take/Cancel phrase are outside scrolling content. Recording/practice engines remain unchanged; real continuity verification is pending. Archive keeps ownership; attachment count/FK/transactional deletion recheck protect either media type alongside existing dependencies.
+One image(JPEG/PNG/WebP) OR PDF per saved Block. The existing block_images row already has MIME/dimensions;using those fields preserves schema10,old rows and original files without any migration. Archive retains stable Block ownership. System picker sources are read-only and copied to generated private files;no persistent external URI grant. Replacement validates before transactionally committing ownership,then cleans the prior file. Failure/cancellation retains the current attachment. Confirmed removal and conservative startup cleanup include PDFs and leave recordings/unknown files alone. Either attachment type blocks permanent Block deletion,with existing counts,FK restrictions and transactional recheck retained.
 
-JSON writer6/readers1–6 and empty-target atomic restore are unchanged. Image/PDF bytes,reference metadata/paths/URIs and take metadata/audio are excluded. Keep originals separately and export wanted takes individually. Restore creates no broken attachment/take rows. No multiple attachments,annotation/OCR,camera capture,media-inclusive backup or background recording.
+PDFs:20MiB,1–100pages,1–14400point page dimensions. A bounded encryption-name scan rejects encrypted files consistently across APIs,including owner-encrypted PDFs that API35 opens without a password. PDFs containing reserved encryption markers are conservatively unsupported. PdfRenderer validates every page with one256px temporary bitmap and renders the requested page at2048px on IO. Every page,renderer and descriptor closes;no whole-document bitmap cache. Show/Hide,Previous/Next,page count,pinch/pan/reset and aspect ratio are supported;page changes reset zoom and stale results are discarded. Existing EXIF orientation,full safe-width Focused Practice view,180–640dp region and image zoom/panning are retained.
+
+The existing recording sheet now contains the reusable viewer during free capture,phrase count-in/capture and loop playback. Active recording status and Stop and save take/Cancel phrase stay above scrolling content. Showing,hiding,zooming and page changes do not call sheet enter/leave,change selected Block or touch recording/practice/metronome engines. Deliberate sheet close and actual backgrounding retain existing foreground-only safety. Standalone Free recording has no Block reference.
+
+JSON6/readers1–6 and empty-target atomic restore remain unchanged. **Image/PDF bytes,reference metadata/paths/URIs and take metadata/audio are excluded. Keep originals separately;export wanted takes individually.** Restore creates no broken reference/take rows. No multiple attachments,annotation/OCR,camera capture,media-inclusive backup or background recording.
 
 ## Actual verification
 
-- [Candidate build CI40942064682](https://github.com/mrayover/practice.logger/actions/runs/40942064682):81 unit/Robolectric tests,0failures/errors/skips; debug/release compilation passed; lint0errors/13warnings(12existing,one createBitmap KTX suggestion).
-- [Real API26 PDF storage CI40942068595](https://github.com/mrayover/practice.logger/actions/runs/40942068595):all3 substantive persistence/render/portrait-landscape/replacement/encrypted-corrupt-size-cancellation-low-storage-commit-failure/deletion/backup/recovery tests passed,including owner-encrypted/no-opening-password fixture.
-- API35 native validation passed in40941670196; picker/render/page/zoom assertions passed until test-only replacement-cancellation timing failure at line64. Screenshot shows DocumentsUI still open: the test checked currentPackageName before picker launch completed. Adding an explicit picker-open wait before Back. No recording-continuity pass claimed yet.
-- Initial failed checks40940867493/40941665858 established missing/stub Robolectric PDF support. The three substantive tests moved to real Android without weakening assertions. Initial native40940871813 failed on stale Downloads drawer object; corrected with idle/reacquire. Failures retained in WORK_LOG.
-- Full API26/API35 release matrix,true build27→28 install-over and200% PDF/image checks pending. Owner phone/provider/TalkBack/landscape/acoustic acceptance pending; Stage3 detailed acceptance pending and Stage4 remains0/10real sessions.
+| Check | Actual evidence |
+|---|---|
+| Build/units/lint | [CI40944290626](https://github.com/mrayover/practice.logger/actions/runs/40944290626):81unit/Robolectric tests,0failures/errors/skips;debug/release compilation passed;lint0errors/13warnings(12baseline plus one createBitmap KTX suggestion).Compiler schemas1–10 byte-identical. |
+| Real PDF storage | [API26 CI40942068595](https://github.com/mrayover/practice.logger/actions/runs/40942068595):all3 substantive PDF storage/render/persistence/portrait-landscape/size-cancel-low-space-failed-commit/replacement/deletion/backup/recovery tests passed.Real updated full-API storage reruns are pending below. |
+| Normal API35 PDF/recording | [CI40944294502](https://github.com/mrayover/practice.logger/actions/runs/40944294502),job123695454032:validation/picker/page-navigation/zoom/cancel/removal-protection,practice timer/click/BPM/notes,continuous free capture while showing/hiding/changing pages,save/playback,phrase count-in/capture/loop,deliberate dismissal,archive and cold reopen passed. |
+| True previous-release upgrade | [API26 CI40944299002](https://github.com/mrayover/practice.logger/actions/runs/40944299002),job123695469410:seed retained actual build27,install build29 over it,every table row and private image/audio byte unchanged;legacy image still decodes and FK check passes.CI uses a shared temporary debug identity,not the permanent phone key. |
+| Full API26/API35 suites | In progress:[CI40945038634](https://github.com/mrayover/practice.logger/actions/runs/40945038634).No final matrix pass claimed yet. |
+| 200% text | In progress:[API26 CI40945043010](https://github.com/mrayover/practice.logger/actions/runs/40945043010),[API35 CI40945047534](https://github.com/mrayover/practice.logger/actions/runs/40945047534);both exercise PDF recording/reopen and existing EXIF image workflow/reopen. |
+| Visual/package review | Normal API35 portrait PDF and active recording/page controls reviewed;Stop and save remains visible above the reference.Permanent publisher identity/signature/certificate/hash/ZIP verified.All prior packages preserved. |
 
-## Corrected build29 in progress
+Failed checks and fixes are retained in WORK_LOG:API35 Robolectric lacks the required FileDescriptor method;API34 uses a non-rendering stub,so all3 substantive PDF tests moved to real Android without weakened assertions.Picker drawer/cancellation waits were corrected from screenshots/hierarchy.API35 owner-encryption acceptance was a product bug fixed in29;build28 stays an early candidate.The first upgrade diagnostic failed before installation on a debug-store path assumption;store discovery/consistent test signing corrected it. No failed/canceled run is counted as passing.
 
-API35 edge check40943395356 found owner-encrypted/no-opening-password PDFs accepted by the platform. Build28 is superseded for final delivery; it remains an early candidate. Source now adds a bounded explicit encryption-name rejection and advances to0.15.0/build29. Corrected build/signing/native verification are pending. Baseline-upgrade CI40943505589 failed before install on the assumed debug-store path; it is being corrected without touching the permanent key.
+Physical-phone permanent-key install-over,owner’s original photographed page,vendor pickers,landscape,TalkBack and acoustic/loop quality acceptance remain pending.Stage3 detailed phone acceptance is pending;Stage4 remains0/10documented real sessions.
 
 ## One next task
 
-Finish isolated recording-continuity checks,then complete the required native release/200% gates and reconcile candidate status before final delivery. Phone checklist:[MANUAL_TESTS.md](MANUAL_TESTS.md).
+Complete the running release/200% gates and reconcile this candidate’s final verification record;then the owner phone checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md) is the next acceptance task.
