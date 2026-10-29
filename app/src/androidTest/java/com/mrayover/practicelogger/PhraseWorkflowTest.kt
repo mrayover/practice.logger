@@ -25,7 +25,7 @@ class PhraseWorkflowTest {
         try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
         node.performClick()
     }
-    private fun sheet(text: String) { if (!compose.onNodeWithText(text).isDisplayed()) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); click(text) }
+    private fun sheet(text: String) { if (text !in setOf("Stop and save take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); click(text) }
     @Test fun nativePhraseCountInExactLengthRepeatCancellationExportAndFreeTakeCoexistence() {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {

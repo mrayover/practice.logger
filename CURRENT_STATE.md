@@ -26,13 +26,13 @@ Room10,migrations/schemas1–10 and JSON writer6/readers1–6 are retained. JSON
 
 - [Build40949598879](https://github.com/mrayover/practice.logger/actions/runs/40949598879):81unit/Robolectric tests,0failures/errors/skips;debug/release compilation;lint0errors/13warnings;all compiler schemas1–10 byte-identical.
 - [API26 focused40949603306](https://github.com/mrayover/practice.logger/actions/runs/40949603306),job123713913507:actual encrypted/corrupt import rejection with intact-original byte checks and immediate rendering;picker,page/zoom,practice/timer/BPM/notes,free/phrase recording continuity,playback,dismissal,archive and cold reopen pass.
-- API35 test keyboard correction passed in[40948857925](https://github.com/mrayover/practice.logger/actions/runs/40948857925). Previous build29 enlarged PDF/image workflows passed both APIs;build30’s actual reruns are pending below.
-- Full release:[40950300706](https://github.com/mrayover/practice.logger/actions/runs/40950300706),in progress.
--200% PDF/image recording/reopen:[API26 40950305578](https://github.com/mrayover/practice.logger/actions/runs/40950305578),[API35 40950309794](https://github.com/mrayover/practice.logger/actions/runs/40950309794),in progress.
+- API35 test keyboard correction passed in[40948857925](https://github.com/mrayover/practice.logger/actions/runs/40948857925). Previous build29 enlarged PDF/image workflows passed both APIs;build30’s final enlarged-text reruns also pass below.
+- Full release:[40950300706](https://github.com/mrayover/practice.logger/actions/runs/40950300706) passed all new PDF/upgrade and preceding regressions on both APIs,then stopped in PhraseWorkflowTest timer/cancellation assertions. An isolated audio-sequence rerun is pending after restoring original non-pinned control scrolling in the test helper. No complete matrix pass is claimed.
+-200% PDF/image recording/reopen:[API26 40950305578](https://github.com/mrayover/practice.logger/actions/runs/40950305578),[API35 40950309794](https://github.com/mrayover/practice.logger/actions/runs/40950309794),all4 phases passed on each API (jobs123716358670/123716373567).
 - Prior full40946722042 passed actual build27 upgrade retention and3 real PDF storage tests on both APIs,but did not complete:API26 renderer state failed after corrupt replacement(bytes unchanged),API35 test restored the notes keyboard. Build30 preflight and explicit test focus handling address those observed failures. Earlier test/framework/setup failures and exact evidence remain in WORK_LOG;no full matrix pass claimed yet.
 
 Normal and200% reference screenshots were reviewed;build30 viewer and earlier portrait/active-capture visual evidence are being reconciled with its gates. Deep unsupported PDF parse failures may require reopening the app before retrying;bytes/metadata are preserved. Physical-phone permanent-key update,owner’s original photo,vendor pickers,device landscape,TalkBack and acoustic/loop checks remain pending. Stage3 detailed acceptance pending;Stage4 remains0/10documented sessions.
 
 ## One next task
 
-Complete the running build30 release/200% gates and reconcile the release record,then perform the Increment3 owner phone checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md). Do not uninstall or clear data.
+Complete the running build30 full release gate and reconcile the release record,then perform the Increment3 owner phone checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md). Do not uninstall or clear data.
