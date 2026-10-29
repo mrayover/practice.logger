@@ -35,6 +35,7 @@ class RecordingWorkflowTest {
         try {
             val block = runBlocking { BlockRepository(db).save(null, BlockDraft("Recorder fixture", "Play and listen", "5", "120")) }
             shown("Practice Now"); click("Practice Now"); shown("Add Recorder fixture"); click("Add Recorder fixture")
+            compose.waitUntil(15000) { compose.onAllNodes(hasText("Start Session") and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired=false).size == 1 }
             click("Start Session"); shown("Ready when you are"); click("Recordings"); shown("Block recordings")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
