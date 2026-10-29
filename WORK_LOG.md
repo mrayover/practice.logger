@@ -264,3 +264,6 @@ Isolated audio40953263950/API26 and40953268123/API35:free recording/reopen pass;
 
 
 API26 64s-window run40955437613/source152d41a did not reach phrase testing:RecordingWorkflowTest stopped at line38 waiting for Ready when you are after clicking Start Session. Captured screenshot/hierarchy show the builder with the newly added Recorder fixture and now-enabled Start Session. Add one specific wait for that button’s enabled state before clicking,matching the established async Room/Flow convention;retain all workflow assertions. No cancellation result claimed from this run. Rerun only the same API26 audio sequence. Product/APK30 and prior successful PDF/200% checks remain unchanged.
+
+
+Isolated audio verification now passes:API26 CI40956557616/job123738051438 completes RecordingWorkflow/Reopen→PhraseWorkflow/Reopen with background precondition elapsed21300ms of64000ms and exact3 saved phrase takes afterward. API35’s sequence passed in40954391648/job123730578932 with the earlier32s fixture;the final matrix will cover its64s fixture. No product change since signed dce8b32/build30. Started required full release rerun40957534780 from994fae1 only after this focused pass;existing final200% runs40950305578/40950309794 remain valid because app source is identical. Full CI results remain pending;no phone acceptance invented.
