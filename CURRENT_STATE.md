@@ -7,7 +7,8 @@ Updated2026-10-29(America/Los_Angeles). Authoritative delivery and verification 
 | Item | Verified value |
 |---|---|
 | Version | **0.15.0/versionCode29** |
-| Signed APK and current verification source | `4f97f3ddbfc9024d385e6e95984c974cfc116a0f` |
+| Signed APK source | `4f97f3ddbfc9024d385e6e95984c974cfc116a0f` |
+| Final test/workflow source in progress | `5d673a5aba27117d9826dbd58a48c3c3e546d3b9`; app/Gradle sources identical to signed APK |
 | Package | `com.mrayover.practicelogger.app`;Android8+/minAPI26,target/compile36 |
 | Data | Room**10**,all schemas/migrations1–10 retained;JSON writer**6**,readers**1–6** |
 | APK SHA256 | `bddcb96335768d4dc84308fa090f762260f57f5d88a84d1b5cc5424752edaf70` |
@@ -38,11 +39,11 @@ JSON6/readers1–6 and empty-target atomic restore remain unchanged. **Image/PDF
 | Real PDF storage | [API26 CI40942068595](https://github.com/mrayover/practice.logger/actions/runs/40942068595):all3 substantive PDF storage/render/persistence/portrait-landscape/size-cancel-low-space-failed-commit/replacement/deletion/backup/recovery tests passed.Real updated full-API storage reruns are pending below. |
 | Normal API35 PDF/recording | [CI40944294502](https://github.com/mrayover/practice.logger/actions/runs/40944294502),job123695454032:validation/picker/page-navigation/zoom/cancel/removal-protection,practice timer/click/BPM/notes,continuous free capture while showing/hiding/changing pages,save/playback,phrase count-in/capture/loop,deliberate dismissal,archive and cold reopen passed. |
 | True previous-release upgrade | [API26 CI40944299002](https://github.com/mrayover/practice.logger/actions/runs/40944299002),job123695469410:seed retained actual build27,install build29 over it,every table row and private image/audio byte unchanged;legacy image still decodes and FK check passes.CI uses a shared temporary debug identity,not the permanent phone key. |
-| Full API26/API35 suites | In progress:[CI40945038634](https://github.com/mrayover/practice.logger/actions/runs/40945038634).No final matrix pass claimed yet. |
-| 200% text | In progress:[API26 CI40945043010](https://github.com/mrayover/practice.logger/actions/runs/40945043010),[API35 CI40945047534](https://github.com/mrayover/practice.logger/actions/runs/40945047534);both exercise PDF recording/reopen and existing EXIF image workflow/reopen. |
+| Full API26/API35 suites | In progress:[CI40946722042](https://github.com/mrayover/practice.logger/actions/runs/40946722042).No final matrix pass claimed yet. |
+| 200% text | In progress:[API26 CI40946392437](https://github.com/mrayover/practice.logger/actions/runs/40946392437),[API35 CI40946397134](https://github.com/mrayover/practice.logger/actions/runs/40946397134);both exercise PDF recording/reopen and existing EXIF image workflow/reopen. |
 | Visual/package review | Normal API35 portrait PDF and active recording/page controls reviewed;Stop and save remains visible above the reference.Permanent publisher identity/signature/certificate/hash/ZIP verified.All prior packages preserved. |
 
-Failed checks and fixes are retained in WORK_LOG:API35 Robolectric lacks the required FileDescriptor method;API34 uses a non-rendering stub,so all3 substantive PDF tests moved to real Android without weakened assertions.Picker drawer/cancellation waits were corrected from screenshots/hierarchy.API35 owner-encryption acceptance was a product bug fixed in29;build28 stays an early candidate.The first upgrade diagnostic failed before installation on a debug-store path assumption;store discovery/consistent test signing corrected it. No failed/canceled run is counted as passing.
+Failed checks and fixes are retained in WORK_LOG:API35 Robolectric lacks the required FileDescriptor method;API34 uses a non-rendering stub,so all3 substantive PDF tests moved to real Android without weakened assertions.Picker drawer/cancellation waits were corrected from screenshots/hierarchy.API35 owner-encryption acceptance was a product bug fixed in29;build28 stays an early candidate.The first upgrade diagnostic failed before installation on a debug-store path assumption;store discovery/consistent test signing corrected it. Full run40945038634 then stopped before installation because separate YAML shell lines lost that variable;shared single-shell preparation corrected it. Initial200% runs40945043010/40945047534 saved takes but failed at the new test’s playback scroll;it now uses the established lazy-list helper,with substantive assertions retained. No failed/canceled run is counted as passing.
 
 Physical-phone permanent-key install-over,owner’s original photographed page,vendor pickers,landscape,TalkBack and acoustic/loop quality acceptance remain pending.Stage3 detailed phone acceptance is pending;Stage4 remains0/10documented real sessions.
 
