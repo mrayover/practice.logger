@@ -267,3 +267,37 @@ API26 64s-window run40955437613/source152d41a did not reach phrase testing:Recor
 
 
 Isolated audio verification now passes:API26 CI40956557616/job123738051438 completes RecordingWorkflow/Reopen→PhraseWorkflow/Reopen with background precondition elapsed21300ms of64000ms and exact3 saved phrase takes afterward. API35’s sequence passed in40954391648/job123730578932 with the earlier32s fixture;the final matrix will cover its64s fixture. No product change since signed dce8b32/build30. Started required full release rerun40957534780 from994fae1 only after this focused pass;existing final200% runs40950305578/40950309794 remain valid because app source is identical. Full CI results remain pending;no phone acceptance invented.
+
+
+## 2026-10-29 — Increment 3 signed delivery and closeout
+
+Started from clean local/remote main3911c15136f97fd5fbdc827cdd82c49f34d60e46,0.14.1/build27. Reviewed/applied the mandatory efficiency procedure. Delivered0.15.0/build30: image/PDF private reference storage and reusable page/zoom viewer integrated inside the existing recording sheet, with active controls pinned above scrolling content. Changed ImageReferenceData/View/ViewModel, RecordingSheet, MainActivity integration, deletion/backup disclosure and versioning; added real PDF fixtures/native storage/viewer/recording/upgrade tests, legacy schema preservation and CI helpers. RecordingViewModel, PracticeViewModel and BackupData engines are unchanged. Room10/schema1–10 retained without migration by reusing MIME/dimensions in block_images; stable ownership/FK/deletion protection and original media bytes remain. JSON6/readers1–6 still excludes all media and restore recreates no broken rows. No runtime dependency/permission added; existing notices retained. API26 malformed-input rendering is guarded by bounded structural preflight; test assertions preserve private originals byte-for-byte and render them after rejection.
+
+practice.logger 0.15.0 / build 30 — Increment 3 delivered; physical-phone acceptance pending.
+Signed APK source: dce8b3241d8dfa59270fbb3fdee4054d29d56082
+Final full-release test/workflow source: 994fae11cf0931440f45054931beafb455081a41
+200% test source: dce8b3241d8dfa59270fbb3fdee4054d29d56082
+App/Gradle product sources and Room schemas are identical across these commits.
+Build/package: https://github.com/mrayover/practice.logger/actions/runs/40949598879
+Final release: https://github.com/mrayover/practice.logger/actions/runs/40957534780
+81 unit/Robolectric tests: 0 failures/errors/skips. Debug/release compilation passed; lint 0 errors / 13 warnings.
+Complete API26 and API35 release suites passed, including catalog and all41 direct phases.
+API26 job123743503207; API35 job123743503037.
+Real build27-to30 install-over retains every table and original image/audio byte on both APIs.
+Real PDF storage/render/failure tests, picker/page/zoom/practice/free/phrase recording continuity, playback, dismissal, reopen and install-over pass.
+200% PDF/image workflows and cold reopen pass: API26 CI40950305578/job123716358670; API35 CI40950309794/job123716373567.
+Normal and enlarged-text reference/recording screenshots reviewed. Permanent signature, pinned certificate, app identity/version, APK checksum and ZIP integrity verified.
+Room10 / JSON6 readers1–6 unchanged; schemas1–10 and all100 earlier packages plus candidates28/29 preserved.
+APK SHA256: e9747a15e929505b98df76c235061b9ca1596218818df270265f376e01ccc559
+ZIP SHA256: 56b5de2f31ffba71f8247335ce16854cd662a026ac09a8081f826002fea2a4f3
+Certificate SHA256: f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830
+Install OVER the permanent-key app WITHOUT uninstalling or clearing data.
+Physical-phone permanent-key upgrade, original owner photo, vendor pickers, landscape, TalkBack and acoustic acceptance remain pending.
+JSON excludes images/PDFs and recordings. Keep original source files separately; export wanted takes individually.
+No multiple attachments, annotations/OCR, media-inclusive backup or background recording.
+
+The documented failures were resolved with concrete evidence: unsupported/stub Robolectric PDF rendering moved3 substantive tests to real Android; actual picker timing and large-text playback scrolling corrected in tests; API35 owner-encryption acceptance fixed explicitly in build30; CI debug-store discovery and per-line shell scoping corrected without production signing changes. Corrected enlarged-text tests pass on both APIs with the established take-list helper; no app change was needed for that playback test failure. Full suites were run after focused checks passed; the setup-failed matrix did not reach app tests and is not reported as passing.
+
+Required operational documents, source/tests/fixtures/schema-preservation evidence and manual checklist are reconciled. All intended changes are committed/pushed to main in the original Windows checkout; exact remote HEAD/clean state are verified at final chat handoff. Signed sourcedce8b32, final verification source994fae1 and enlarged-text sourcedce8b32 are distinguished above; later closeout is documentation only. Distribution/signing stay local/ignored, all old packages preserved, synced sources untouched. One next task: install build30 in place and perform the owner Increment3 phone checklist. No new feature or real evaluation session is invented.
+
+Final evidence audit: downloaded reports from CI40957534780 confirm every direct phase passes on both APIs, including all seven PDF/legacy-upgrade phases; no instrumentation failure is present. The signed build30 audit again confirms both package hashes, ZIP integrity, unchanged product source/schemas, all100 prior packages and candidates28/29. Current documents were checked for stale acceptance claims; the Increment2 checklist is explicitly historical where Increment3 supersedes its image-only recording limitation.

@@ -1,6 +1,6 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. The original Stage 0 first-build task is complete.
+Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
 ## Product and implemented scope
 
@@ -39,7 +39,7 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Stage 6A/6B: free takes/phrase loops | Implemented; owner generally accepted. Detailed physical timing/quality/lifecycle checks remain unverified individually. |
 | Tools, standalone recording, saved Routines, Goals, visual polish | Owner-approved extensions, implemented. Earlier stage deferrals do not prohibit these shipped features. |
 | Safe permanent deletion | Delivered in 0.12.0/build 23 and retained. Historical evidence is in WORK_LOG.md; current verification is in CURRENT_STATE.md. Phone acceptance pending. |
-| Increment 2: collapsible Block image reference | Complete: signed 0.14.0/build 26 delivered; exact native results and remaining phone acceptance in CURRENT_STATE.md. Build27 delivered the portrait/layout refinement; Increment3 now authorizes PDF and recording integration, with current verification in CURRENT_STATE.md. |
+| Increment 2: collapsible Block image reference | Complete: signed 0.14.0/build 26 delivered; exact native results and remaining phone acceptance in CURRENT_STATE.md. Build27 delivered the portrait/layout refinement; Increment 3 delivers PDF and recording integration; current verification is in CURRENT_STATE.md. |
 | Daily Log and Weekly View (Increment 1, complete) | Delivered in 0.13.0/build25; exact tests/package status in CURRENT_STATE.md. |
 
 The owner explicitly approved later features while Stage 3 phone acceptance and Stage 4 evaluation remained deferred. Do not mark those gates completed or turn their deferral into a blanket prohibition on an explicit new owner request.
@@ -47,7 +47,7 @@ The owner explicitly approved later features while Stage 3 phone acceptance and 
 
 ## Retained future boundaries
 
-Increment 1 (Daily Log/Weekly View) is complete. Increment 2 explicitly authorizes the smallest reliable single-image Block attachment and collapsible inline practice viewer. PDF support and reference viewing inside the recording sheet are authorized by Increment3; implementation and delivery evidence are maintained in CURRENT_STATE.md. No tagging, AI analysis, rich text, search or practice correlations are included. Broader save/storage and audio-inclusive bulk export/restore require an owner discussion. A future media portability design must include audio bytes, a versioned manifest, integrity/reference validation and a safe restore policy; JSON must not be presented as media backup.
+Increment 1 (Daily Log/Weekly View) is complete. Increment 2 delivered a single-image Block attachment and collapsible inline practice viewer. Increment 3 delivers PDF support and reference viewing inside the recording sheet; implementation and delivery evidence are maintained in CURRENT_STATE.md. No tagging, AI analysis, rich text, search or practice correlations are included. Broader save/storage and audio-inclusive bulk export/restore require an owner discussion. A future media portability design must include audio bytes, a versioned manifest, integrity/reference validation and a safe restore policy; JSON must not be presented as media backup.
 
 Long-press interactions, historical-reference redesign, overdubs/layers/multitrack/mixer/effects/waveforms/trimming, tempo maps/time signatures/subdivisions/accent/tap tempo, transcription/auto tempo, backing tracks, YouTube embedding, multi-face cubes, randomization, notifications, algorithmic spaced repetition, deep analytics, accounts/cloud/backend/subscriptions/sharing, automatic updates, desktop apps, integrations, remote/background recording/looping and advanced animations remain outside current approved scope. These are retained boundaries/ideas, not implementation tasks or claims of infeasibility. No unresolved future decision is inferred as approved.
 
@@ -59,8 +59,8 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Finish Increment3 verification and permanent-key packaging, then install the new signed update in place and perform the PDF/recording/update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Install signed 0.15.0/build 30 in place and perform the PDF/recording/update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
 
-## Increment 3 — authorized 2026-10-29, implementation in progress
+## Increment 3 — delivered 2026-10-29
 
-Build26 single-image references and build27 portrait/layout refinement are both complete. The owner now authorizes one image OR PDF per saved Block, bounded local PdfRenderer page viewing and inline recording-sheet reference viewing during capture/count-in. Preserve original bytes, ownership/deletion, recording lifecycle and JSON6 exclusions. Planned0.15.0/build30; build/signing/native verification pending. Multiple attachments, annotations/OCR, media-inclusive backup and background recording remain deferred.
+Build26 single-image references and build27 portrait/layout refinement are both complete. The authorized scope is one image OR PDF per saved Block, bounded local PdfRenderer page viewing and inline recording-sheet reference viewing during capture/count-in. Preserve original bytes, ownership/deletion, recording lifecycle and JSON6 exclusions. Delivered 0.15.0/build 30; permanent-key packaging, full API26/API35 release and 200% PDF/image checks pass. Physical-phone acceptance remains pending. Multiple attachments, annotations/OCR, media-inclusive backup and background recording remain deferred.

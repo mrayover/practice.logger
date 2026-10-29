@@ -57,12 +57,12 @@ Install over the existing permanent-key app **without uninstalling or clearing i
 4. At normal/200% text, landscape and TalkBack check shared Lato/cream/green/banner, Home Goal bars, Back to Home, keyboard/scrolling and reachable controls/dialogs. Specifically report Phrase BPM label/range, keyboard Done/Back dismissal and access to lower phrase controls; old screenshots did not establish reliable Done dismissal.
 5. Detailed Stage 3 phone backup/recovery acceptance remains pending. Resume [EVALUATION.md](EVALUATION.md) when the owner is ready; it currently records0/10 real sessions. Save observations in existing optional notes and report concrete friction. Synthetic CI sessions never count.
 
-Actual automated release results and the current Android8 recording-dialog verification limit are in CURRENT_STATE.md. Passing emulator checks do not complete this phone checklist.
+Actual automated release results and remaining phone acceptance are in CURRENT_STATE.md. Passing emulator checks do not complete this phone checklist.
 
 
-## Increment 2 — Reference image and in-place update phone acceptance
+## Increment 2 — Historical image acceptance checklist (superseded where noted)
 
-Use the actual signed version in CURRENT_STATE.md. Install over the permanent-key app without uninstalling/clearing it. Record phone/Android/build/text size and actual pass/fail; these are pending owner checks, not automated results.
+This records the build 26 scope. For current PDF and recording behavior use the Increment 3 checklist below; its recording-sheet integration supersedes the image-only limitations here. Install the actual signed version in CURRENT_STATE.md over the permanent-key app without uninstalling/clearing it. Record phone/Android/build/text size and actual pass/fail; phone results remain pending.
 
 1. Before updating, note saved Logs, Goals, Routines, Blocks, unfinished/history notes/BPM and a playable recording. Install the signed update in place and confirm all remain accessible and audio plays.
 2. Create/save a Block; reopen it, Add reference image and select a local JPEG. Reopen/process-restart and confirm Show reference persists. Also try PNG/WebP, portrait photos and normal/200% text, landscape and TalkBack.

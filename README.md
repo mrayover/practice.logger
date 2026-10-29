@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Increment 3 adds **0.15.0/build 30** PDF references and inline reference viewing while recording; candidate/release status is in CURRENT_STATE.md. Compact Block headings and upright, wide photo references are retained. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.15.0/build 30**, adding PDF references and inline reference viewing while recording. Compact Block headings and upright, wide photo references are retained. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
 
 ## Install and verify
 
@@ -31,7 +31,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-The baseline had 80 passing unit/Robolectric tests. Increment 3 adds focused PDF storage/render/failure and legacy data-retention tests; actual current build/unit/lint outcomes are recorded in CURRENT_STATE.md. Native results, including image and Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
+All **81 unit/Robolectric tests**, debug/release compilation and lint pass (0 errors / 13 warnings). Complete API26/API35 release suites and 200% PDF/image recording/reopen checks pass. Real PDF storage tests run on Android, with old-image/audio upgrade retention checked against build27. Native results, including image and Log reopen/install-over and enlarged-text checks, exact source/package provenance and any regression-suite limits are recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Physical-phone acceptance remains pending.
 
 Next: install the signed update without uninstalling and follow the PDF/recording-continuity, old-image and in-place-upgrade checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage 3 detailed phone acceptance remains pending; [EVALUATION.md](EVALUATION.md) stays deferred at0/10 documented real sessions.
 
