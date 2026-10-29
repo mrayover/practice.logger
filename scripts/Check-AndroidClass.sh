@@ -6,7 +6,12 @@ adb shell wm dismiss-keyguard
 bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
 if [[ "$TARGET_TEST_CLASS" == *LegacyReferenceSeedTest* ]]; then
   APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
-  "$APKSIGNER" sign --ks "$HOME/.android/debug.keystore" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --out baseline-apk/upgrade-baseline.apk baseline-apk/app-debug.apk
+  DEBUG_STORE=$(find "$HOME" -name debug.keystore -type f -print -quit)
+  if [ -z "$DEBUG_STORE" ]; then bash ./gradlew validateSigningDebug --rerun-tasks; DEBUG_STORE=$(find "$HOME" -name debug.keystore -type f -print -quit); fi
+  test -n "$DEBUG_STORE"
+  "$APKSIGNER" sign --ks "$DEBUG_STORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --out baseline-apk/upgrade-baseline.apk baseline-apk/app-debug.apk
+  "$APKSIGNER" sign --ks "$DEBUG_STORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android app/build/outputs/apk/debug/app-debug.apk
+  "$APKSIGNER" sign --ks "$DEBUG_STORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
   adb install -r baseline-apk/upgrade-baseline.apk
 else
   adb install -r app/build/outputs/apk/debug/app-debug.apk

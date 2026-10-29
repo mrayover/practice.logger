@@ -16,7 +16,7 @@ At the end of every session, including incomplete work: record factual work/resu
 
 ## Current app and data rules
 
-Daily Log/Weekly View shipped in 0.13.0/build25; Increment3 source is0.15.0/build28 (check CURRENT_STATE.md for candidate/release verification); consult CURRENT_STATE.md for actual delivery/verification status. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an actual owner request or approved scope in BUILD_PLAN.md.
+Daily Log/Weekly View shipped in 0.13.0/build25; Increment3 source is0.15.0/build29 (check CURRENT_STATE.md for candidate/release verification); consult CURRENT_STATE.md for actual delivery/verification status. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an actual owner request or approved scope in BUILD_PLAN.md.
 
 Keep Kotlin, Jetpack Compose, Room, Lifecycle and bundled Lato Regular/Bold throughout app-controlled text. Preserve the current cream/green theme, navigation and functioning controls. No destructive database fallback; retain schema exports and explicit data-preserving migrations.
 

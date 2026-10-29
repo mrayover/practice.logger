@@ -30,6 +30,10 @@ JSON writer6/readers1–6 and empty-target atomic restore are unchanged. Image/P
 - Initial failed checks40940867493/40941665858 established missing/stub Robolectric PDF support. The three substantive tests moved to real Android without weakening assertions. Initial native40940871813 failed on stale Downloads drawer object; corrected with idle/reacquire. Failures retained in WORK_LOG.
 - Full API26/API35 release matrix,true build27→28 install-over and200% PDF/image checks pending. Owner phone/provider/TalkBack/landscape/acoustic acceptance pending; Stage3 detailed acceptance pending and Stage4 remains0/10real sessions.
 
+## Corrected build29 in progress
+
+API35 edge check40943395356 found owner-encrypted/no-opening-password PDFs accepted by the platform. Build28 is superseded for final delivery; it remains an early candidate. Source now adds a bounded explicit encryption-name rejection and advances to0.15.0/build29. Corrected build/signing/native verification are pending. Baseline-upgrade CI40943505589 failed before install on the assumed debug-store path; it is being corrected without touching the permanent key.
+
 ## One next task
 
 Finish isolated recording-continuity checks,then complete the required native release/200% gates and reconcile candidate status before final delivery. Phone checklist:[MANUAL_TESTS.md](MANUAL_TESTS.md).

@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Increment 3 adds **0.15.0/build 28** PDF references and inline reference viewing while recording; candidate/release status is in CURRENT_STATE.md. Compact Block headings and upright, wide photo references are retained. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Increment 3 adds **0.15.0/build 29** PDF references and inline reference viewing while recording; candidate/release status is in CURRENT_STATE.md. Compact Block headings and upright, wide photo references are retained. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
 
 ## Install and verify
 

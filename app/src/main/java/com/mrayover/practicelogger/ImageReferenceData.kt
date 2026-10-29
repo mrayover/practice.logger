@@ -95,8 +95,24 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
         val header = ByteArray(5)
         input.read(header) == 5 && header.contentEquals("%PDF-".toByteArray(Charsets.US_ASCII))
     }
+    private fun rejectEncryptedPdf(file: File) {
+        // API35 can open owner-encrypted PDFs with an empty user password. This increment
+        // excludes encryption on every API. A conservative bounded name scan also recognizes
+        // PDF hex escapes, before handing the file to the platform renderer.
+        val encryptionKey = Regex("""/(?:E|#45)(?:n|#6[eE])(?:c|#63)(?:r|#72)(?:y|#79)(?:p|#70)(?:t|#74)(?=[\s<>\[\]()/{}%]|$)""")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(8192); var tail = ""
+            while (true) {
+                val count = input.read(buffer); if (count < 0) break
+                val text = tail + String(buffer, 0, count, Charsets.ISO_8859_1)
+                require(!encryptionKey.containsMatchIn(text)) { "Encrypted PDFs are unsupported. Choose an unencrypted original." }
+                tail = text.takeLast(96)
+            }
+        }
+    }
     private fun <T> withPdf(file: File, action: (PdfRenderer) -> T): T {
         require(file.isFile && file.length() in 1..MAX_BYTES.toLong()) { "PDF is missing or larger than 20 MiB." }
+        rejectEncryptedPdf(file)
         // Both resources are closed even if construction, page opening or rendering fails.
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
             PdfRenderer(descriptor).use { renderer ->
