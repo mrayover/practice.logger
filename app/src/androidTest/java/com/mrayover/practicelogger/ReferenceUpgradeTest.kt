@@ -68,7 +68,7 @@ class PdfValidationNativeTest {
             val assets=InstrumentationRegistry.getInstrumentation().context.assets
             val first=repo.import(id) { assets.open("references/single.pdf") }
             val page=repo.loadPage(first); assertEquals(1,page.pageCount); page.bitmap.recycle()
-            for (name in listOf("locked.pdf","corrupt.pdf","too-many.pdf")) {
+            for (name in listOf("locked.pdf", "owner-locked.pdf","corrupt.pdf","too-many.pdf")) {
                 var rejected=false
                 try { repo.import(id) { assets.open("references/$name") } } catch (_: IllegalArgumentException) { rejected=true }
                 assertTrue(name,rejected); assertEquals(first,db.images().find(id)); repo.decode(first).recycle()

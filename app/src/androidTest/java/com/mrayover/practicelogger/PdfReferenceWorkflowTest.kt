@@ -84,6 +84,7 @@ class PdfReferenceWorkflowTest {
                 compose.onNodeWithText("Stop and save take").assertIsDisplayed()
                 assertTrue(recordings.recording); assertFalse(recordings.phrasing)
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111,practice.workingBpm)
+                if (it == 0) captureStage3("pdf-active-page")
                 click("Previous page"); shown("Page 1 of 2"); click("Hide reference")
             }
             assertTrue(recordings.elapsedMs > before); captureStage3("pdf-active-recording")

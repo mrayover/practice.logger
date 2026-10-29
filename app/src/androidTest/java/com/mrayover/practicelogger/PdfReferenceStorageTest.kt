@@ -3,22 +3,16 @@ package com.mrayover.practicelogger
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.*
 import org.junit.Assert.*
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 import java.io.*
 import java.util.UUID
 
-@RunWith(RobolectricTestRunner::class) @Config(sdk = [34])
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
-class PdfReferenceTest {
-    private val context get() = ApplicationProvider.getApplicationContext<Context>()
-    private fun bytes(name: String) = javaClass.classLoader!!.getResourceAsStream("references/$name")!!.use { it.readBytes() }
+class PdfReferenceStorageTest {
+    private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
+    private fun bytes(name: String) = InstrumentationRegistry.getInstrumentation().context.assets.open("references/$name").use { it.readBytes() }
     private suspend fun rejected(action: suspend () -> Unit) {
         var failed = false
         try { action() } catch (_: Exception) { failed = true }
@@ -64,7 +58,7 @@ class PdfReferenceTest {
             val id = BlockRepository(db).save(null, BlockDraft("PDF", "Read")); val repo = ImageReferenceRepository(db, dir)
             val pdf = repo.import(id) { ByteArrayInputStream(bytes("single.pdf")) }
             assertEquals(1, repo.loadPage(pdf).also { it.bitmap.recycle() }.pageCount)
-            for (fixture in listOf("corrupt.pdf", "locked.pdf", "too-many.pdf")) rejected { repo.import(id) { ByteArrayInputStream(bytes(fixture)) } }
+            for (fixture in listOf("corrupt.pdf", "locked.pdf", "owner-locked.pdf", "too-many.pdf")) rejected { repo.import(id) { ByteArrayInputStream(bytes(fixture)) } }
             rejected { repo.import(id) { object : InputStream() { override fun read(): Int = throw IOException("unreadable") } } }
             val job = launch { repo.import(id) { object : InputStream() {
                 override fun read(): Int = 1

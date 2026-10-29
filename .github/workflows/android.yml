@@ -30,6 +30,7 @@ on:
         options: ['1.0', '2.0']
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: android-${{ github.ref }}-${{ inputs.test_class || 'release' }}-${{ inputs.api || 'all' }}
   cancel-in-progress: true
@@ -50,7 +51,7 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Targeted image storage, migration and backup checks
-        run: bash ./gradlew testDebugUnitTest --tests '*.ImageReferenceTest' --tests '*.ImageMigrationTest' --tests '*.PdfReferenceTest' --stacktrace
+        run: bash ./gradlew testDebugUnitTest --tests '*.ImageReferenceTest' --tests '*.ImageMigrationTest' --stacktrace
       - name: Build, test and lint
         run: bash ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Record schema for migration baseline
@@ -122,6 +123,9 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.LegacyReferenceUpgradeTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-legacy-upgrade.txt
             grep -q "OK (1 test)" app/build/pdf-legacy-upgrade.txt
+            adb shell pm clear com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.PdfReferenceStorageTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-storage.txt
+            grep -q "OK (3 tests)" app/build/pdf-storage.txt
             adb shell pm clear com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.PdfValidationNativeTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-validation.txt
             grep -q "OK (1 test)" app/build/pdf-validation.txt
