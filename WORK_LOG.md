@@ -249,3 +249,6 @@ Install over the permanent-key app without uninstalling/clearing data. Physical-
 JSON excludes images/PDFs and recordings;keep original source files separately.
 
 The bounded preflight resolves the reproduced API26 corrupt-fixture renderer problem:focused tests now assert unchanged original bytes and successfully render immediately after every rejection. Corrected full and200% gates started only after this focused pass. Earlier candidates retain their original APK/ZIP bytes. Final phone acceptance remains pending.
+
+
+Build30 enlarged-text milestone:all4 PDF recording/reopen and image/EXIF workflow/reopen phases pass at200% on API26 CI40950305578/job123716358670 and API35 CI40950309794/job123716373567,source dce8b32. Build30 package/source/document-link audit passes;all100 pre-session packages and early candidate28/29 APK/ZIP hashes remain unchanged. Full release40950300706 build passes;both native regression jobs remain in progress. No complete matrix or physical-phone pass claimed yet.

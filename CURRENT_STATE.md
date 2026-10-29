@@ -31,7 +31,7 @@ Room10,migrations/schemas1–10 and JSON writer6/readers1–6 are retained. JSON
 -200% PDF/image recording/reopen:[API26 40950305578](https://github.com/mrayover/practice.logger/actions/runs/40950305578),[API35 40950309794](https://github.com/mrayover/practice.logger/actions/runs/40950309794),in progress.
 - Prior full40946722042 passed actual build27 upgrade retention and3 real PDF storage tests on both APIs,but did not complete:API26 renderer state failed after corrupt replacement(bytes unchanged),API35 test restored the notes keyboard. Build30 preflight and explicit test focus handling address those observed failures. Earlier test/framework/setup failures and exact evidence remain in WORK_LOG;no full matrix pass claimed yet.
 
-Normal and200% reference screenshots were reviewed;final build30 visual evidence will be reconciled after its gates. Deep unsupported PDF parse failures may require reopening the app before retrying;bytes/metadata are preserved. Physical-phone permanent-key update,owner’s original photo,vendor pickers,device landscape,TalkBack and acoustic/loop checks remain pending. Stage3 detailed acceptance pending;Stage4 remains0/10documented sessions.
+Normal and200% reference screenshots were reviewed;build30 viewer and earlier portrait/active-capture visual evidence are being reconciled with its gates. Deep unsupported PDF parse failures may require reopening the app before retrying;bytes/metadata are preserved. Physical-phone permanent-key update,owner’s original photo,vendor pickers,device landscape,TalkBack and acoustic/loop checks remain pending. Stage3 detailed acceptance pending;Stage4 remains0/10documented sessions.
 
 ## One next task
 
