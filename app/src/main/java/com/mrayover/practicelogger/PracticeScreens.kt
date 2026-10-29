@@ -122,7 +122,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 
-@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null) {
+@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null) {
 
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
@@ -144,6 +144,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         Text(current.action, style = MaterialTheme.typography.titleLarge)
         current.tempo?.let { Text(it.toString() + " BPM reference") }
         if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes)
+        PracticeImageReference(current.sourceBlockId, current.id, images)
         Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
             style = MaterialTheme.typography.displayLarge, modifier = Modifier.fillMaxWidth().testTag("practice-timer").semantics { contentDescription = if (current.overtimeAccepted) "Overtime " + practiceTime(current.activeMs - current.configuredMs) else "Time remaining " + practiceTime(current.configuredMs - current.activeMs, roundUp = true) })
         Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" })

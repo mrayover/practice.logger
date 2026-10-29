@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel()) {
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
-            "focus" -> FocusedPractice(sessions.active, practice, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id))
+            "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id))
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" }, goalName = goalName(summaryId))
             "library" -> {
                 val libraryScroll = rememberLazyListState()
@@ -189,7 +189,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorId) {
-                    BlockEditor(block, vm.busy, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = editorReturn },
+                    BlockEditor(block, vm.busy || images.busy, images, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }
@@ -233,7 +233,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, onDelete: () -> Unit, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -252,6 +252,7 @@ class MainActivity : ComponentActivity() {
         if (block?.archived == true) Text("Archived — restore to return this Block to your active library.")
         if (block != null) OutlinedButton(onClick = onRecordings, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
         if (block != null) recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        BlockImageEditor(block?.id, images, busy)
         EditorField("Name", name, { name = it }, errors["name"], busy, singleLine = true)
         EditorField("Action", action, { action = it }, errors["action"], busy)
         EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true)

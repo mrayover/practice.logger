@@ -92,3 +92,8 @@ Stage 3 detailed phone acceptance pending; Stage 4 stays0/10. JSON excludes reco
 APK SHA256: aad00c5f137f2c6ed9b27435cdfc8dfba8f67cdd523805b24fd7f5b5b3d3796d
 
 Final native/visual findings and exact next phone task are authoritative in CURRENT_STATE.md; no permanent-key phone installation, phone acceptance or new real evaluation session is invented. Documentation-only closeout follows APK source; final local/remote main SHA and clean state are verified at handoff. No image/PDF attachments or unrelated feature work.
+
+
+## 2026-10-29 — Increment 2 implementation started
+
+Reviewed mandatory efficiency procedure and required source/records before edits. Clean existing Windows main c916963 matches actual GitHub main; Room9/JSON6/build25 verified. Owner explicitly authorizes implementation, tests, signing, commit and push. Added one Block-keyed RESTRICT attachment table and explicit 9→10 migration, private generated filenames, bounded 20MiB/40MP imports and 2048px sampled decoding on IO, transactional replacement retaining prior file until commit, startup orphan cleanup, confirmed removal and confirmation-time deletion protection. Editor system picker and local bounded inline show/hide/zoom/pan reuse Compose/Lato/cream/green; sourceBlockId resolves archived ownership without changing snapshots. Practice timer/click and recording engine/sheet unchanged. JSON stays6/readers1–6; images/paths excluded, limitations disclosed in editor and backup UI. Focused storage/failure/migration/backup/dependency tests and native picker/timer/click/zoom/reopen/upgrade coverage added. Candidate0.14.0/build26; verification/signing pending, not delivered yet. CI remains the existing build environment (local checkout has publisher tools but no full Android SDK/JDK).

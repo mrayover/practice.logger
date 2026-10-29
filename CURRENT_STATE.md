@@ -1,3 +1,7 @@
+# Increment 2 in progress — Block reference images
+
+2026-10-29: authorized implementation from clean main c916963. Candidate 0.14.0/build26, Room10 with explicit 9→10 migration; JSON6/readers1–6 unchanged and excludes images. Single private image per saved Block, confirmed removal/deletion protection and collapsible inline practice zoom/pan implemented. Focused tests, native verification, compiler schema, signed package and publication pending. No new verified delivery claimed. Exact next task: run focused image/migration checks, package an early candidate, finish release verification and refresh these records. Previous delivered build25 record follows as historical baseline.
+
 # Current state — practice.logger 0.13.0, build 25
 
 Updated 2026-10-29 (America/Los_Angeles). This is the authoritative delivery and verification record. Release history and the mandatory efficiency procedure remain in [WORK_LOG.md](WORK_LOG.md).
