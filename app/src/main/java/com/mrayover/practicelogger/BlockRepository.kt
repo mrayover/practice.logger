@@ -26,7 +26,7 @@ data class BlockDependencies(val goals: Int, val routines: Int, val recordings: 
     val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0
     fun explanation(): String = buildList {
         add("It is associated with:")
-        if (images > 0) add("• $images reference image. Remove the image first in this Block editor (confirmation required).")
+        if (images > 0) add("• $images reference attachment (image or PDF). Remove the reference first in this Block editor (confirmation required).")
         if (goals > 0) add("• $goals Goal associations")
         if (routines > 0) add("• $routines saved Routines")
         if (recordings > 0) add("• $recordings recordings")

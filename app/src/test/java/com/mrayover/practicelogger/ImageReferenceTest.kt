@@ -86,7 +86,7 @@ class ImageReferenceTest {
             assertTrue(blocks.reviewDeletion(id).dependencies.canDelete)
             val repo = ImageReferenceRepository(db, directory); attach(repo, id)
             val review = blocks.reviewDeletion(id)
-            assertEquals(1, review.dependencies.images); assertTrue(review.dependencies.explanation().contains("Remove the image first"))
+            assertEquals(1, review.dependencies.images); assertTrue(review.dependencies.explanation().contains("Remove the reference first"))
             assertEquals(BlockDeletionResult.Blocked(review), blocks.deletePermanently(id))
             rejected { db.blocks().delete(id) }
             repo.remove(id); assertEquals(BlockDeletionResult.Deleted, blocks.deletePermanently(id))

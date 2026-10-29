@@ -55,7 +55,7 @@ class ImageReferenceWorkflowTest {
             val listing = device.executeShellCommand("ls -l /sdcard/Download/reference-fixture.jpg")
             assertTrue("Picker fixture was not copied: $listing", listing.contains(jpeg.size.toString()))
             device.executeShellCommand("am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/reference-fixture.jpg")
-            click("Add reference image"); downloads()
+            click("Add image or PDF"); downloads()
             checkNotNull(device.wait(Until.findObject(By.descStartsWith("reference-fixture.jpg")), 10000)
                 ?: device.wait(Until.findObject(By.text("reference-fixture.jpg")), 3000)).click()
             shown("Replace reference image")
@@ -68,7 +68,7 @@ class ImageReferenceWorkflowTest {
             repeat(3) { if (device.currentPackageName.contains("documentsui")) device.pressBack() }
             shown("Replace reference image"); assertEquals(first, runBlocking { db.images().find(id) })
             compose.onNodeWithTag("block-delete-action").performScrollTo().performClick(); shown("This Block cannot be deleted yet.")
-            compose.onNodeWithText("Remove the image first", substring = true).assertExists(); click("OK")
+            compose.onNodeWithText("Remove the reference first", substring = true).assertExists(); click("OK")
             click("Cancel"); editor("Image reference fixture"); click("Show reference"); click("Hide reference"); click("Cancel")
             click("Back to Home")
             val session = runBlocking {
@@ -117,7 +117,7 @@ class ImageReferenceWorkflowTest {
             compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
             assertEquals(first, runBlocking { db.images().find(id) })
             click("Remove reference image"); click("Remove image")
-            compose.waitUntil(15000) { runBlocking { db.images().find(id) == null } }; shown("Add reference image")
+            compose.waitUntil(15000) { runBlocking { db.images().find(id) == null } }; shown("Add image or PDF")
             assertFalse(File(compose.activity.filesDir, "block-images/${first.fileName}").exists())
             // Leave an actual replacement attached to an archived Block for cold-process and upgrade checks.
             val repo = ImageReferenceRepository(db, File(compose.activity.filesDir, "block-images"))

@@ -56,3 +56,7 @@ Initial native diagnostic40913944791 failed compilation of a new test assertion 
 Automated install-over probes use CI debug signing; matching permanent package/certificate and preserved schemas establish update compatibility. Physical-phone install-over/data/audio retention, the owner’s original music photo, provider/low-storage/landscape/TalkBack and acoustic acceptance remain pending. Stage3 detailed phone acceptance remains pending; Stage4 remains **0/10 documented real sessions**. Original temporary-key0.1.0 is separate.
 
 **Exact next task:** install signed0.14.1/build27 over the existing app, reopen the already-attached photographed page and confirm upright orientation, compact heading, wider image and uninterrupted timer/click. Follow [MANUAL_TESTS.md](MANUAL_TESTS.md), retaining originals separately. No later feature is selected.
+
+## Active development — Increment 3
+
+Owner-authorized PDF references and inline recording-sheet viewer are in progress from clean main3911c15. Planned0.15.0/build28 is not yet delivered; the verified signed release above remains0.14.1/build27. Room10/JSON6 are retained. Next task during this session: implement and verify the bounded PDF/reference recording integration, then publish a permanent-key installable update and reconcile this record.

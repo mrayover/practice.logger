@@ -8,6 +8,10 @@ on:
       - "**.md"
   workflow_dispatch:
     inputs:
+      build_only:
+        description: "Build/unit/lint candidate before native release gates"
+        type: boolean
+        default: false
       test_class:
         description: 'Optional diagnostic class (full package); empty runs full release gates'
         required: false
@@ -46,7 +50,7 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Targeted image storage, migration and backup checks
-        run: bash ./gradlew testDebugUnitTest --tests '*.ImageReferenceTest' --tests '*.ImageMigrationTest' --stacktrace
+        run: bash ./gradlew testDebugUnitTest --tests '*.ImageReferenceTest' --tests '*.ImageMigrationTest' --tests '*.PdfReferenceTest' --stacktrace
       - name: Build, test and lint
         run: bash ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Record schema for migration baseline
@@ -73,6 +77,7 @@ jobs:
             app/schemas
           retention-days: 30
   device:
+    if: ${{ !inputs.build_only }}
     strategy:
       fail-fast: false
       matrix:
@@ -105,12 +110,24 @@ jobs:
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.PdfReferenceWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-workflow.txt
+            grep -q "OK (1 test)" app/build/pdf-workflow.txt || { adb logcat -d > app/build/pdf-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/pdf-failure-screenshots; exit 1; }
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.PdfReferenceReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-reopen.txt
+            grep -q "OK (1 test)" app/build/pdf-reopen.txt
+            bash ./gradlew assembleDebug -PversionCodeOverride=29 --stacktrace
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e class com.mrayover.practicelogger.PdfReferenceReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-upgrade.txt
+            grep -q "OK (1 test)" app/build/pdf-upgrade.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/pdf-screenshots
+            adb shell pm clear com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ImageReferenceWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/image-workflow.txt
             grep -q "OK (1 test)" app/build/image-workflow.txt || { adb logcat -d > app/build/image-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/image-failure-screenshots; exit 1; }
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ImageReferenceReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/image-reopen.txt
             grep -q "OK (1 test)" app/build/image-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=28 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=29 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ImageReferenceReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/image-upgrade.txt
@@ -122,7 +139,7 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.LogReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/log-reopen.txt
             grep -q "OK (1 test)" app/build/log-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=28 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=29 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.LogReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/log-upgrade.txt
@@ -130,7 +147,7 @@ jobs:
             adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/log-screenshots
             adb shell pm clear com.mrayover.practicelogger.app
 
-            bash ./gradlew connectedDebugAndroidTest -PversionCodeOverride=28 -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace || { adb logcat -d > app/build/catalog-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/catalog-failure-screenshots; exit 1; }
+            bash ./gradlew connectedDebugAndroidTest -PversionCodeOverride=29 -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace || { adb logcat -d > app/build/catalog-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/catalog-failure-screenshots; exit 1; }
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ProcessReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/process-reopen.txt
@@ -143,7 +160,7 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=29 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=30 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt
@@ -236,6 +253,7 @@ jobs:
           path: |
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
+            app/build/pdf-*
             app/build/image-*
             app/build/log-*
             app/build/deletion-*

@@ -29,7 +29,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun BlockRecordings(blockId: String?, blockName: String, vm: RecordingViewModel,
-    practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit, startOnOpen: Boolean = false) {
+    practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit, startOnOpen: Boolean = false, references: ImageReferenceViewModel? = null) {
     val keyboard = LocalSoftwareKeyboardController.current
     val all by vm.takes.collectAsStateWithLifecycle()
     val takes = all.filter { it.blockId == blockId }
@@ -67,6 +67,16 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
       Column(Modifier.fillMaxWidth().fillMaxHeight(0.9f).imePadding().padding(horizontal = 24.dp)) {
         vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(bottom = 8.dp)) }
+        if (vm.recording) {
+            // Always reachable, including when a tall reference or take list is scrolled.
+            Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4"
+                else "Recording · " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "",
+                style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.testTag("recording-elapsed"))
+            if (vm.phrasing && vm.countInBeat == 0) Text(if (vm.phraseClickEnabled) "Recording click on" else "Recording click off", modifier = Modifier.testTag("phrase-click-status"))
+            Button(onClick = { vm.finishCapture() }, enabled = vm.ready && !vm.busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (vm.phrasing) "Cancel phrase" else "Stop and save take") }
+        }
         LazyColumn(Modifier.fillMaxWidth().weight(1f).testTag("take-list"),
             contentPadding = PaddingValues(bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
@@ -85,11 +95,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 }
             }
             item {
-                if (vm.recording) Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4"
-                    else "Recording · " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "", style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("recording-elapsed"))
-                if (vm.phrasing && vm.countInBeat == 0) Text(if (vm.phraseClickEnabled) "Recording click on" else "Recording click off",
-                    modifier = Modifier.testTag("phrase-click-status"))
+                if (!vm.recording) {
                 Button(onClick = {
                     if (vm.recording) vm.finishCapture()
                     else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
@@ -107,6 +113,10 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     Button(onClick = vm::stopPlayback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Stop loop") }
                 }
                 if (vm.busy) Text("Working…")
+                }
+            }
+            item(key = "block-reference") {
+                if (blockId != null && references != null) PracticeImageReference(blockId, "recording-$blockId", references)
             }
             item {
                 Text("JSON backups exclude recordings. Export each take to keep a copy outside this app. Uninstalling or clearing the app loses unexported audio.", style = MaterialTheme.typography.bodySmall)

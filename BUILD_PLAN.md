@@ -60,3 +60,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 ## Next action
 
 Install signed 0.14.1/build 27 in place and perform the image and update-retention phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+
+## Increment 3 — authorized 2026-10-29, implementation in progress
+
+Build26 single-image references and build27 portrait/layout refinement are both complete. The owner now authorizes one image OR PDF per saved Block, bounded local PdfRenderer page viewing and inline recording-sheet reference viewing during capture/count-in. Preserve original bytes, ownership/deletion, recording lifecycle and JSON6 exclusions. Planned0.15.0/build28; build/signing/native verification pending. Multiple attachments, annotations/OCR, media-inclusive backup and background recording remain deferred.

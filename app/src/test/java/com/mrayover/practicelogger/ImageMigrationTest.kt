@@ -14,6 +14,30 @@ import java.time.LocalDate
 @RunWith(RobolectricTestRunner::class) @Config(sdk = [35])
 class ImageMigrationTest {
     private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+    @Test fun schemaTenReopensAllTablesAndLegacyImageRowsWithoutMigration(): Unit = runBlocking {
+        val name = "reference-v10.db"; context.deleteDatabase(name)
+        val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/10.json")!!.bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
+        val file = context.getDatabasePath(name); file.parentFile!!.mkdirs()
+        val sql = android.database.sqlite.SQLiteDatabase.openOrCreateDatabase(file, null)
+        val entities = schema.getJSONArray("entities")
+        repeat(entities.length()) { i ->
+            val entity = entities.getJSONObject(i); val table = entity.getString("tableName")
+            sql.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}",table))
+            val indices = entity.optJSONArray("indices") ?: org.json.JSONArray()
+            repeat(indices.length()) { sql.execSQL(indices.getJSONObject(it).getString("createSql").replace("\${TABLE_NAME}",table)) }
+        }
+        sql.execSQL("INSERT INTO blocks VALUES ('b','Legacy','Play',5,90,'Notes',1,1,2)")
+        sql.execSQL("INSERT INTO block_images VALUES ('b','00000000-0000-0000-0000-000000000001.img','image/jpeg',800,1200,1234)")
+        sql.execSQL("INSERT INTO daily_logs VALUES ('2026-10-29','Keep Log')")
+        val setup = schema.getJSONArray("setupQueries"); repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
+        sql.version = 10; sql.close()
+        val db = BlockDatabase.open(context,name)
+        try {
+            assertEquals(BlockImage("b","00000000-0000-0000-0000-000000000001.img","image/jpeg",800,1200,1234),db.images().find("b"))
+            assertTrue(db.blocks().find("b")!!.archived); assertEquals("Keep Log",db.logs().readAll().single().text)
+            db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0,it.count) }
+        } finally { db.close(); context.deleteDatabase(name) }
+    }
     @Test fun migrationNinePreservesAllTablesAndAddsOnlyImages(): Unit = runBlocking {
         val name = "image-migration.db"; context.deleteDatabase(name)
         val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/9.json")!!.bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
