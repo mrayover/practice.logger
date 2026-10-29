@@ -71,7 +71,11 @@ class PdfValidationNativeTest {
             for (name in listOf("locked.pdf", "owner-locked.pdf","corrupt.pdf","too-many.pdf")) {
                 var rejected=false
                 try { repo.import(id) { assets.open("references/$name") } } catch (_: IllegalArgumentException) { rejected=true }
-                assertTrue(name,rejected); assertEquals(first,db.images().find(id)); repo.decode(first).recycle()
+                assertTrue(name,rejected); assertEquals(first,db.images().find(id))
+                val original=assets.open("references/single.pdf").use { it.readBytes() }
+                assertArrayEquals("Original bytes changed after $name",original,File(app.filesDir,"block-images/${first.fileName}").readBytes())
+                println("Reopening intact original after rejection: $name")
+                repo.decode(first).recycle()
             }
             repo.remove(id)
         } finally { db.close() }

@@ -23,6 +23,11 @@ class PdfReferenceWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText(text))
         }
         shown(text); val node = compose.onAllNodesWithText(text).onLast(); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
+    private fun clearKeyboard() = compose.runOnIdle {
+        compose.activity.currentFocus?.clearFocus()
+        compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+            .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0)
+    }
     private fun viewer() = compose.onAllNodesWithTag("reference-viewer").onLast()
     private fun rendered() { compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() } }
     private fun zoom() {
@@ -74,6 +79,7 @@ class PdfReferenceWorkflowTest {
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("PDF recording practice note")
+            clearKeyboard()
             click("Save Block note"); compose.waitUntil(15000) { !practice.busy }
             click("Show reference"); rendered(); zoom(); click("Next page"); shown("Page 2 of 2"); click("Hide reference")
             assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111,practice.workingBpm)
@@ -110,6 +116,7 @@ class PdfReferenceWorkflowTest {
             click("Record take"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1500 }
             click("Close recordings"); compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
             assertEquals("PDF recording practice note",runBlocking { db.sessions().find(session)!!.current!!.note })
+            clearKeyboard()
             click("Save for later"); click("Blocks")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); click("PDF reference fixture")
             click("Archive Block"); click("Archive"); shown("Block Library")
