@@ -93,7 +93,7 @@ class ImageReferenceWorkflowTest {
                 val viewer = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
                 val page = compose.onRoot().getUnclippedBoundsInRoot()
                 assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)
-                assertTrue("Portrait viewer should be taller than wide", viewer.height > viewer.width)
+                assertTrue("Portrait viewer should be taller than wide", viewer.bottom - viewer.top > viewer.right - viewer.left)
                 if (it == 0) { compose.onNodeWithTag("reference-viewer").performScrollTo(); captureStage3("image-focus-portrait-fit") }
                 compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
                     pinch(Offset(width * .4f, height * .4f), Offset(width * .6f, height * .6f),
