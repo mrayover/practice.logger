@@ -1,6 +1,6 @@
 # practice.logger
 
-Latest installable release: **0.11.1/build21**, visual-only darker cream, thin Home Goal progress bars and clearer Back to Home buttons. Permanently signed; see CURRENT_STATE.md for verification and provenance.
+Latest installable release: **0.12.0/build23**, safe permanent deletion of unreferenced active or archived Blocks. Permanently signed; verification and limitations in CURRENT_STATE.md.
 
 An offline Android practice tool: create reusable Blocks and saved ordered Routines, arrange sessions, practice with a timer and inspect saved results. Kotlin + Compose + Room, with locally bundled Lato Regular/Bold throughout app-controlled text.
 
@@ -10,9 +10,9 @@ Read AGENTS.md, CURRENT_STATE.md, WORK_LOG.md and authoritative BUILD_PLAN.md co
 
 ## Install the versioned local build
 
-- ZIP: dist/practice.logger-0.11.1-b21-c49dbc8.zip
-- APK: dist/practice.logger-0.11.1-b21-c49dbc8/practice.logger-0.11.1-b21-c49dbc8.apk
-- Provenance/signature/hash: dist/practice.logger-0.11.1-b21-c49dbc8/BUILD_INFO.json
+- ZIP: dist/practice.logger-0.12.0-b23-8b469dc.zip
+- APK: dist/practice.logger-0.12.0-b23-8b469dc/practice.logger-0.12.0-b23-8b469dc.apk
+- Provenance/signature/hash: dist/practice.logger-0.12.0-b23-8b469dc/BUILD_INFO.json
 
 Android8+; install over current permanent-key app without uninstalling to retain practice data/audio. All earlier releases remain under dist. JSON backup excludes recordings; export wanted takes separately. Original0.1.0 remains separate.
 
@@ -182,3 +182,6 @@ Home Goals settings/Edit opens management of up to five active Goals. Set outcom
 
 ## Visual polish0.11.1
 Cream#F1E6D3 replaces#FFF8EB through the shared theme and launch background. Green/Lato/design retained; Home Goal bars reflect saved progress and Back to Home is outlined/bold. All practice/data/audio/schema/backup behavior unchanged. Provenance and actual test results: CURRENT_STATE.md.
+
+## Safe permanent Block deletion0.12.0
+Block Editor → Delete Permanently → review/confirm. Goal associations, saved Routines, recordings and every draft/unfinished/completed session entry protect the Block; exact counts explain refusal. Completed history remains protected. No schema/JSON-format change; previous data and audio remain. See CURRENT_STATE.md for actual tests/limits and MANUAL_TESTS.md for phone checks.

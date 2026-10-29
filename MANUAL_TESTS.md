@@ -161,7 +161,7 @@ Install permanent-key APK over existing app without uninstalling. Create/edit5Go
 ## Visual polish0.11.1/build21 — phone check pending
 Install over the existing app without uninstalling. Inspect darker cream on Home/Goals/Routines/Blocks/dialogs/recording; green/Lato unchanged. Verify each Home bar matches its saved percentage and empty slots stay functional. Check outlined/bold Back to Home at normal and200%text; navigation unchanged. Confirm existing practice/takes still available. Report phone/Android and visual findings; no extra feature evaluation required.
 
-## Safe permanent Block deletion — 0.12.0/build22 phone check
+## Safe permanent Block deletion — 0.12.0/build23 phone check
 
 Install over the permanent-key app without uninstalling. Physical-phone checks pending:
 1. Create an unused Block, reopen its editor, scroll below Archive to Delete Permanently. Cancel: saved Block and unsaved draft remain unchanged. Confirm: return to Library, row disappears; restart and verify absence.
