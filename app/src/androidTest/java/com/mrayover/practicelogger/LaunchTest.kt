@@ -90,6 +90,7 @@ class LaunchTest {
         shown("Block Library")
         shown("8 min")
         compose.onNodeWithText("Search Blocks").performTextInput("nonexistent")
+        compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("No matching Blocks."))
         displayed("No matching Blocks.")
         compose.onNodeWithText("No matching Blocks.").assertIsDisplayed()
         compose.onNodeWithText("Search Blocks").performTextReplacement("bridge")

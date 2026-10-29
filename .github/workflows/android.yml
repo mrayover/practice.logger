@@ -105,13 +105,6 @@ jobs:
             bash ./gradlew connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true -Pandroid.testInstrumentationRunnerArguments.class=com.mrayover.practicelogger.LaunchTest -Pandroid.testInstrumentationRunnerArguments.timeout_msec=120000 --stacktrace || { adb logcat -d > app/build/catalog-failure-log.txt; adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/catalog-failure-screenshots; exit 1; }
             cp -R app/build/reports/androidTests app/build/catalog-workflow-reports
             adb shell am force-stop com.mrayover.practicelogger.app
-            adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.BlockDeletionWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/deletion-workflow.txt
-            grep -q "OK (1 test)" app/build/deletion-workflow.txt
-            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/deletion-screenshots
-            adb shell am force-stop com.mrayover.practicelogger.app
-            adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.BlockDeletionReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/deletion-reopen.txt
-            grep -q "OK (1 test)" app/build/deletion-reopen.txt
-            adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.ProcessReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/process-reopen.txt
             grep -q "OK (1 test)" app/build/process-reopen.txt
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.PracticeWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/practice-workflow.txt
@@ -122,7 +115,7 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/history-reopen.txt
             grep -q "OK (1 test)" app/build/history-reopen.txt
-            bash ./gradlew assembleDebug -PversionCodeOverride=23 --stacktrace
+            bash ./gradlew assembleDebug -PversionCodeOverride=24 --stacktrace
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.HistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/upgrade-reopen.txt
@@ -191,6 +184,15 @@ jobs:
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.AccessibilityWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/accessibility-workflow.txt
             adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/accessibility-screenshots
             grep -q "OK (1 test)" app/build/accessibility-workflow.txt
+            adb shell pm clear com.mrayover.practicelogger.app
+            adb shell settings put system font_scale 1.0
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.BlockDeletionWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/deletion-workflow.txt
+            grep -q "OK (1 test)" app/build/deletion-workflow.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/deletion-screenshots
+            adb shell am force-stop com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.BlockDeletionReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/deletion-reopen.txt
+            grep -q "OK (1 test)" app/build/deletion-reopen.txt
             adb shell pm clear com.mrayover.practicelogger.app
             adb shell settings put system font_scale 2.0
             adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.BlockDeletionWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/deletion-large.txt
