@@ -91,8 +91,8 @@ class PhraseWorkflowTest {
             assertEquals(3, runBlocking { db.takes().readAll().count { it.blockId == block } })
             // A long capture gives real UI timer actions enough time on slow emulators.
             // The first saved take above still verifies the required 8 beats / 120 BPM exactly.
-            compose.runOnIdle { vm.startPhrase(block, PhraseSpec(60, 32)) }
-            compose.waitUntil(10000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
+            compose.runOnIdle { vm.startPhrase(block, PhraseSpec(30, 32)) }
+            compose.waitUntil(15000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
             sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
             sheet("Resume timer")
             compose.waitUntil(5000) { vm.recording && practice.running }
