@@ -120,7 +120,7 @@ class RecordingWorkflowTest {
             sheet("Close recordings"); click("Resume"); shown("Practicing"); click("Recordings")
             takeAction("play", takes[0]); compose.waitUntil(10000) { vm.playingId == takes[0].id }
             sheet("Close recordings"); compose.runOnIdle { assertNull(vm.playingId); assertTrue(practice.running) }
-            click("Save for later"); shown("Practice Now")
+            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
             runBlocking {
                 BlockRepository(db).save(block, BlockDraft("Recorder renamed", "Still the same Block"))
                 BlockRepository(db).setArchived(block, true)

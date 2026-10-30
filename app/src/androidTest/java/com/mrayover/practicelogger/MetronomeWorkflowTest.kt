@@ -12,23 +12,23 @@ import org.junit.Test
 class MetronomeWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = false).fetchSemanticsNodes().isNotEmpty() } }
-    private fun click(text: String) { compose.onNodeWithText(text, substring = false).performScrollTo().performClick() }
+    private fun click(text: String) { compose.onNodeWithText(text, substring = false).scrollIfNeeded().performClick() }
     @Test fun clickTempoTimerAndLifecycleStayIndependent() {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Metronome test", "Play with click", "5", "90")) }
             shown("Practice Now"); click("Practice Now"); shown("Add Metronome test"); click("Add Metronome test")
             click("Start Session"); shown("Metronome · 90 BPM")
-            compose.onNodeWithContentDescription("Increase click BPM by 1").performScrollTo().performClick()
+            compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick()
             shown("Metronome · 91 BPM")
             val unused = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
             assertNull(unused.current!!.lastUsedBpm)
-            compose.onNodeWithContentDescription("Decrease click BPM by 1").performScrollTo().performClick()
+            compose.onNodeWithContentDescription("Decrease click BPM by 1").scrollIfNeeded().performClick()
             shown("Metronome · 90 BPM")
             repeat(3) { click("Start click"); shown("Stop click"); click("Stop click"); shown("Start click") }
             click("Start click"); shown("Stop click")
             compose.onNodeWithText("Ready when you are").assertExists()
-            click("Set BPM"); compose.onNodeWithText("BPM (30–300)").performTextReplacement("301")
+            compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().performClick(); compose.onNodeWithText("BPM (30–300)").performTextReplacement("301")
             compose.onNodeWithText("Apply BPM").assertIsNotEnabled()
             compose.onNodeWithText("BPM (30–300)").performTextReplacement("126"); compose.onNodeWithText("Apply BPM").performClick()
             shown("Metronome · 126 BPM"); shown("Stop click")
@@ -41,7 +41,7 @@ class MetronomeWorkflowTest {
             shown("Start click"); compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.running) }
             click("Start click"); shown("Stop click")
             compose.activityRule.scenario.recreate(); shown("Start click")
-            click("Save for later"); openHomePractice(compose); shown("Continue Session"); click("Continue Session"); shown("Metronome · 126 BPM"); shown("Start click")
+            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomePractice(compose); shown("Continue Session"); click("Continue Session"); shown("Metronome · 126 BPM"); shown("Start click")
             val session = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
             assertEquals(126, session.current!!.lastUsedBpm)
             assertEquals(90, runBlocking { db.blocks().find(session.current!!.sourceBlockId) }!!.tempo)

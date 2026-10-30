@@ -11,7 +11,7 @@ import org.junit.Test
 class PracticeWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = false).fetchSemanticsNodes().isNotEmpty() } }
-    private fun click(text: String) { compose.onNodeWithText(text, substring = false).performScrollTo().performClick() }
+    private fun click(text: String) { compose.onNodeWithText(text, substring = false).scrollIfNeeded().performClick() }
     @Test fun buildThreePracticeOutcomesAndLeaveRecoverableOvertime() {
         val context = compose.activity.applicationContext
         val db = BlockDatabase.open(context)
@@ -27,11 +27,11 @@ class PracticeWorkflowTest {
             shown("1. Warmup fixture")
             click("Add Skip fixture"); shown("2. Skip fixture")
             click("Add Overtime fixture"); shown("3. Overtime fixture")
-            compose.onNode(hasText("Up") and hasAnyAncestor(hasTestTag("placement-2"))).performScrollTo().performClick()
+            compose.onNode(hasText("Up") and hasAnyAncestor(hasTestTag("placement-2"))).scrollIfNeeded().performClick()
             shown("2. Overtime fixture")
-            compose.onNode(hasText("Down") and hasAnyAncestor(hasTestTag("placement-1"))).performScrollTo().performClick()
+            compose.onNode(hasText("Down") and hasAnyAncestor(hasTestTag("placement-1"))).scrollIfNeeded().performClick()
             shown("3. Overtime fixture")
-            compose.onNode(hasText("Change duration") and hasAnyAncestor(hasTestTag("placement-0"))).performScrollTo().performClick()
+            compose.onNode(hasText("Change duration") and hasAnyAncestor(hasTestTag("placement-0"))).scrollIfNeeded().performClick()
             compose.onNodeWithText("Minutes").performTextReplacement("2")
             compose.onNodeWithText("Apply duration").performClick()
             shown("Session duration: 2:00")
@@ -65,18 +65,23 @@ class PracticeWorkflowTest {
             assertEquals(background, runBlocking { val active = db.sessions().withStatus("IN_PROGRESS")!!; db.sessions().find(active.id)!!.current!!.activeMs })
             compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
             shown("Resume")
+            revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Saved while unfinished")
             click("Save Block note"); shown("Block note saved")
+            revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextReplacement("Saved on leaving ♫")
-            click("Save for later"); openHomePractice(compose); shown("Continue Session")
+            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomePractice(compose); shown("Continue Session")
             click("Continue Session"); shown("Overtime fixture")
+            revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on leaving ♫")
+            revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performTextReplacement("Saved on Back ♫")
             val device = androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation())
             // The first Back may dismiss the IME; the next must save and leave Focus.
             repeat(2) {
                 if (compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes().isEmpty()) {
                     device.pressBack(); device.waitForIdle(); compose.waitForIdle()
+                    if (compose.onAllNodesWithText("Back to Main").fetchSemanticsNodes().isNotEmpty()) compose.onNodeWithText("Back to Main").performClick()
                 }
             }
             openHomePractice(compose); shown("Continue Session")
@@ -90,14 +95,15 @@ class PracticeRecoveryTest {
     @Test fun recoverPausedThenCompleteAndRetainSnapshots() {
         openHomePractice(compose); shown("Continue Session"); compose.onNodeWithText("Continue Session").performClick()
         shown("Overtime fixture")
+        revealPracticeNotes(compose)
         compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on Back ♫")
-        compose.onNodeWithText("Resume").assertExists().performScrollTo().performClick()
-        compose.onNodeWithText("Pause").assertExists().performScrollTo().performClick()
-        compose.onNodeWithText("Complete").performScrollTo().performClick()
+        compose.onNodeWithText("Resume").assertExists().scrollIfNeeded().performClick()
+        compose.onNodeWithText("Pause").assertExists().scrollIfNeeded().performClick()
+        compose.onNodeWithText("Complete").scrollIfNeeded().performClick()
         shown("Session Summary"); compose.waitForIdle(); compose.onNodeWithText("Session Summary").assertIsDisplayed(); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync(); capturePractice("05-summary")
         compose.onNodeWithText("Original warmup action").assertExists()
         compose.onNodeWithText("Session note (optional)").performScrollTo().performTextInput("Restart verified")
-        compose.onNodeWithText("Save note").performScrollTo().performClick(); shown("Note saved")
+        compose.onNodeWithText("Save note").scrollIfNeeded().performClick(); shown("Note saved")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking {
@@ -113,7 +119,7 @@ class PracticeRecoveryTest {
                 BlockRepository(db).setArchived(source, true)
             }
         } finally { db.close() }
-        compose.onNodeWithText("Home", substring = false).performScrollTo().performClick()
+        compose.onNodeWithText("Home", substring = false).scrollIfNeeded().performClick()
         openHomeRoutines(compose); shown("Recent Practice")
     }
 }
@@ -123,7 +129,7 @@ class HistoryReopenTest {
     @Test fun savedSummaryAndOriginalSnapshotsReopenAfterRestart() {
         openHomeRoutines(compose)
         compose.waitUntil(15000) { compose.onAllNodes(hasText("2 completed · 1 skipped", substring = true)).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNode(hasText("2 completed · 1 skipped", substring = true)).performScrollTo().performClick()
+        compose.onNode(hasText("2 completed · 1 skipped", substring = true)).scrollIfNeeded().performClick()
         compose.onNodeWithText("Session Summary").assertExists()
         compose.onNodeWithText("Original warmup action").assertExists()
         compose.onNodeWithText("Warmup fixture", substring = false).assertExists()

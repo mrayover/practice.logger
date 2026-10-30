@@ -79,6 +79,9 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         clickError = null
         if (metronome.start(workingBpm)) { clicking = true; persistUsedBpm(workingBpm) }
     }
+    private var completionArmedFor: String? = null
+    internal var completionSignals by mutableIntStateOf(0); private set
+    internal fun completionFramesWritten() = metronome.completionFramesWritten
     private var anchor: Long? = null
     private var timingSessionId: String? = null
     private val mutex = Mutex()
@@ -103,7 +106,17 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         val id = timingSessionId ?: return
         val updated = repository.checkpoint(id, maxOf(0L, until - start))
         anchor = until
-        if (!updated.overtimeAccepted && updated.activeMs >= updated.configuredMs) { running = false; anchor = null }
+        if (!updated.overtimeAccepted && updated.activeMs >= updated.configuredMs) {
+            val alert = running && foreground && completionArmedFor == updated.id
+            completionArmedFor = null
+            running = false; anchor = null
+            if (alert) {
+                completionSignals++
+                // A committed running crossing is the only source of this one-shot cue.
+                // Audio failure must never undo the checkpoint or prevent the visual zero state.
+                runCatching { metronome.playCompletion() }
+            }
+        }
     }
     private fun operation(action: suspend () -> Unit) {
         if (busy) return
@@ -134,11 +147,10 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     fun resume(overtime: Boolean = false) = operation {
         check(foreground)
         val id = checkNotNull(catalog.value.active).session.id
+        val current = checkNotNull(db.sessions().find(id)?.current)
         if (overtime) repository.continueOvertime(id)
-        else {
-            val current = checkNotNull(db.sessions().find(id)?.current)
-            check(current.overtimeAccepted || current.activeMs < current.configuredMs)
-        }
+        else check(current.overtimeAccepted || current.activeMs < current.configuredMs)
+        completionArmedFor = current.id.takeIf { !overtime && !current.overtimeAccepted && current.activeMs < current.configuredMs }
         check(foreground)
         timingSessionId = id; anchor = SystemClock.elapsedRealtime(); running = true
     }

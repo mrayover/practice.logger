@@ -15,7 +15,7 @@ class BackupWorkflowTest {
     @Test fun backupScreenExportPreviewCancelAndProtectedRestore() {
         openHomeTools(compose)
         shown("Backup and restore")
-        compose.onNodeWithText("Backup and restore").performScrollTo().performClick()
+        compose.onNodeWithText("Backup and restore").scrollIfNeeded().performClick()
         shown("Export backup")
         compose.activityRule.scenario.recreate()
         shown("Export backup")
@@ -54,7 +54,7 @@ class BackupWorkflowTest {
             compose.runOnIdle { vm.inspect(Uri.fromFile(file)) }
             shown("Unsupported backup format/version.")
             compose.onNodeWithText("Restore this backup?").assertDoesNotExist()
-            compose.onNodeWithText("Back to Home").performScrollTo().performClick()
+            compose.onNodeWithText("Back to Home").scrollIfNeeded().performClick()
             openHomeRoutines(compose); shown("Recent Practice")
         } finally { db.close(); restored.close(); context.deleteDatabase(restoredName); file.delete() }
     }

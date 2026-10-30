@@ -51,7 +51,7 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Targeted image storage, migration and backup checks
-        run: bash ./gradlew testDebugUnitTest --tests '*.ImageReferenceTest' --tests '*.ImageMigrationTest' --stacktrace
+        run: bash ./gradlew testDebugUnitTest --tests '*.CompletionPcmTest' --tests '*.ImageReferenceTest' --tests '*.ImageMigrationTest' --stacktrace
       - name: Build, test and lint
         run: bash ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Record schema for migration baseline
@@ -124,6 +124,10 @@ jobs:
             adb shell am force-stop com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.LegacyReferenceUpgradeTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-legacy-upgrade.txt
             grep -q "OK (1 test)" app/build/pdf-legacy-upgrade.txt
+            adb shell pm clear com.mrayover.practicelogger.app
+            adb shell am instrument -w -r -e timeout_msec 120000 -e class com.mrayover.practicelogger.FocusedPracticeTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/focused-workflow.txt
+            adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots app/build/focused-screenshots
+            grep -q "OK (1 test)" app/build/focused-workflow.txt
             adb shell pm clear com.mrayover.practicelogger.app
             adb shell am instrument -w -r -e class com.mrayover.practicelogger.PdfReferenceStorageTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/pdf-storage.txt
             grep -q "OK (3 tests)" app/build/pdf-storage.txt
@@ -274,6 +278,7 @@ jobs:
           path: |
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
+            app/build/focused-*
             app/build/pdf-*
             app/build/image-*
             app/build/log-*

@@ -137,7 +137,7 @@ class PhraseWorkflowTest {
             compose.waitUntil(10000) { !vm.busy && vm.takes.value.none { it.id == disposable.id } }
             assertFalse(java.io.File(compose.activity.filesDir, "recordings/" + disposable.fileName).exists())
             assertTrue(runBlocking { db.takes().readAll() }.containsAll(previous))
-            sheet("Close recordings"); click("Save for later"); shown("Practice Now")
+            sheet("Close recordings"); click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
             runBlocking { BlockRepository(db).setArchived(block, true) }
         } catch (failure: Throwable) { captureStage3("phrase-failure"); throw failure }
         finally { db.close() }

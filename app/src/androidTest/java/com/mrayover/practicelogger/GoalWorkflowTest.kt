@@ -10,7 +10,7 @@ import org.junit.Test
 class GoalWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
-    private fun click(text: String) { shown(text); compose.onNodeWithText(text).performScrollTo().performClick() }
+    private fun click(text: String) { shown(text); compose.onNodeWithText(text).scrollIfNeeded().performClick() }
     @Test fun goalManagementSharedBlocksIndependentPracticeAndRecovery() {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
@@ -41,7 +41,7 @@ class GoalWorkflowTest {
             compose.onNodeWithText("Goal title").performTextInput("Second Goal")
             click("Save Goal"); click("Manage Blocks"); click("Add Goal active fixture")
             shown("Remove Goal active fixture"); click("Back to Goal"); click("Back to Goals")
-            compose.onNodeWithContentDescription("Move Second Goal up").performScrollTo().performClick()
+            compose.onNodeWithContentDescription("Move Second Goal up").scrollIfNeeded().performClick()
             shown("1. Second Goal · 0%"); captureStage3("goal-02-management")
             click("Back to Home"); shown("1. Second Goal · 0%"); shown("2. Goal workflow edited · 37%")
             captureStage3("goal-03-home")
@@ -49,7 +49,7 @@ class GoalWorkflowTest {
             click("Practice Goal"); shown("Ready when you are"); shown("Goal: Goal workflow edited")
             click("Start"); shown("Practicing")
             compose.waitUntil(15000) { runBlocking { db.goals().readSessions().any { it.goalId == id && (db.sessions().find(it.sessionId)?.activeMs ?: 0) > 500 } } }
-            click("Pause"); click("Save for later"); shown("Practice Now")
+            click("Pause"); click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
             val first = runBlocking { db.goals().readSessions().single { it.goalId == id }.sessionId }
             val committed = runBlocking { db.sessions().find(first)!! }
             assertTrue(committed.activeMs > 0)
@@ -87,7 +87,7 @@ class GoalReopenTest {
             assertEquals(1, rows.count { it.session.status == "COMPLETED" }); assertEquals(1, rows.count { it.session.status == "IN_PROGRESS" })
             assertTrue(rows.sumOf { it.activeMs } > 0)
             compose.waitUntil(15000) { compose.onAllNodesWithText("2. Goal workflow edited · 37%").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("2. Goal workflow edited · 37%").performScrollTo().performClick()
+            compose.onNodeWithText("2. Goal workflow edited · 37%").scrollIfNeeded().performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithText(practiceTime(rows.sumOf { it.activeMs }) + " actual practice").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("37% complete · set by you").assertExists()
             captureStage3("goal-06-cold-reopen")

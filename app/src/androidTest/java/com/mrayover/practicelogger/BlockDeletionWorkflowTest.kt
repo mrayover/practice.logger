@@ -11,7 +11,7 @@ class BlockDeletionWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     private fun click(text: String) { shown(text); val node = compose.onNodeWithText(text); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
-    private fun request() { compose.onNodeWithTag("block-delete-action").performScrollTo().performClick() }
+    private fun request() { compose.onNodeWithTag("block-delete-action").scrollIfNeeded().performClick() }
     private fun confirm() { compose.onNodeWithTag("block-delete-confirm").performClick() }
     @Test fun confirmedAndCancelledDeletionActiveArchivedAndLateDependency() {
         val db = BlockDatabase.open(compose.activity.applicationContext)

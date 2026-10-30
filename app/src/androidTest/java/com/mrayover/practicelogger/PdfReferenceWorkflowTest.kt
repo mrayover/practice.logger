@@ -71,13 +71,14 @@ class PdfReferenceWorkflowTest {
             shown("Replace reference PDF"); assertEquals(pdf,runBlocking { db.images().find(id) })
             click("Remove reference PDF"); shown("Remove reference PDF?")
             compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick(); assertEquals(pdf,runBlocking { db.images().find(id) })
-            compose.onNodeWithTag("block-delete-action").performScrollTo().performClick(); shown("This Block cannot be deleted yet.")
+            compose.onNodeWithTag("block-delete-action").scrollIfNeeded().performClick(); shown("This Block cannot be deleted yet.")
             compose.onNodeWithText("Remove the reference first",substring=true).assertExists(); click("OK"); click("Cancel"); click("Back to Home")
             val session = runBlocking { SessionRepository(db).let { it.addBlock(id); it.start() } }
             compose.runOnIdle { practice.openSession(session) }; shown("Start"); click("Start")
             compose.waitUntil(15000) { practice.running && !practice.busy }
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }
+            revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("PDF recording practice note")
             clearKeyboard()
             click("Save Block note"); compose.waitUntil(15000) { !practice.busy }
@@ -117,7 +118,7 @@ class PdfReferenceWorkflowTest {
             click("Close recordings"); compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
             assertEquals("PDF recording practice note",runBlocking { db.sessions().find(session)!!.current!!.note })
             clearKeyboard()
-            click("Save for later"); click("Blocks")
+            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); click("Blocks")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); click("PDF reference fixture")
             click("Archive Block"); click("Archive"); shown("Block Library")
             assertTrue(runBlocking { db.blocks().find(id)!!.archived }); assertEquals(pdf,runBlocking { db.images().find(id) })

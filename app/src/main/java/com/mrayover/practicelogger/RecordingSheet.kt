@@ -29,7 +29,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun BlockRecordings(blockId: String?, blockName: String, vm: RecordingViewModel,
-    practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit, startOnOpen: Boolean = false, references: ImageReferenceViewModel? = null) {
+    practice: PracticeViewModel, timer: SessionBundle?, initialBpm: Int, onBeforePlayback: () -> Unit, onDismiss: () -> Unit, startOnOpen: Boolean = false, references: ImageReferenceViewModel? = null, manageLifecycle: Boolean = true) {
     val keyboard = LocalSoftwareKeyboardController.current
     val all by vm.takes.collectAsStateWithLifecycle()
     val takes = all.filter { it.blockId == blockId }
@@ -38,9 +38,6 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     var exportId by rememberSaveable { mutableStateOf<String?>(null) }
     var phraseDialog by rememberSaveable { mutableStateOf(false) }
-    var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
-    var phraseBeats by rememberSaveable(blockId) { mutableIntStateOf(8) }
-    var phraseClick by rememberSaveable(blockId) { mutableStateOf(true) }
     var pendingStart by rememberSaveable { mutableStateOf(startOnOpen) }
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -56,7 +53,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mp4"), exportResult)
     val exportWave = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/wav"), exportResult)
-    DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
+    if (manageLifecycle) DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
     LaunchedEffect(pendingStart, vm.ready, vm.busy, lifecycleState) {
         if (pendingStart && vm.ready && !vm.busy && lifecycleState == Lifecycle.State.RESUMED) {
             pendingStart = false // Recreation/background must never restart capture automatically.
@@ -151,9 +148,33 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
       }
     }
     if (phraseDialog) {
+        blockId?.let { PhraseSetupDialog(it, vm, initialBpm, onBeforePlayback, { permission.launch(Manifest.permission.RECORD_AUDIO) }, { phraseDialog = false }) }
+    }
+
+    all.find { it.id == renameId }?.let { take ->
+        AlertDialog(onDismissRequest = { renameId = null }, title = { Text("Rename take") }, text = {
+            OutlinedTextField(label, { label = it }, label = { Text("Take label (optional)") }, isError = label.trim().length > 120,
+                supportingText = { Text("Up to 120 characters. Leave blank to use the date.") })
+        }, confirmButton = { TextButton(onClick = { vm.rename(take, label); renameId = null }, enabled = !vm.busy && label.trim().length <= 120) { Text("Save take label") } },
+            dismissButton = { TextButton(onClick = { renameId = null }) { Text("Cancel") } })
+    }
+    all.find { it.id == deleteId }?.let { take ->
+        AlertDialog(onDismissRequest = { deleteId = null }, title = { Text("Delete this take?") },
+            text = { Text("Delete " + takeTitle(take) + " and its audio? This cannot be undone. Other takes and practice history are kept.") },
+            confirmButton = { TextButton(onClick = { vm.delete(take); deleteId = null }, enabled = !vm.busy) { Text("Delete take permanently") } },
+            dismissButton = { TextButton(onClick = { deleteId = null }) { Text("Keep take") } })
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable private fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit) {
+    val keyboard = LocalSoftwareKeyboardController.current
+    var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
+    var phraseBeats by rememberSaveable(blockId) { mutableIntStateOf(8) }
+    var phraseClick by rememberSaveable(blockId) { mutableStateOf(true) }
         val bpm = phraseBpm.toIntOrNull()
         val spec = bpm?.takeIf { it in 30..300 }?.let { PhraseSpec(it, phraseBeats) }
-        AlertDialog(onDismissRequest = { phraseDialog = false }, title = { Text("Record one phrase") }, text = {
+        AlertDialog(onDismissRequest = { onDismiss() }, title = { Text("Record one phrase") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
@@ -177,24 +198,40 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             }
         }, confirmButton = { TextButton(onClick = {
             if (spec != null) {
-                keyboard?.hide(); phraseDialog = false
-                if (vm.hasMicrophonePermission()) { onBeforePlayback(); blockId?.let { vm.startPhrase(it, spec, phraseClick) } }
-                else permission.launch(Manifest.permission.RECORD_AUDIO)
+                keyboard?.hide(); onDismiss()
+                if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec, phraseClick) }
+                else requestPermission()
             }
         }, enabled = spec != null && vm.ready && !vm.busy && !vm.recording) { Text("Start 4-click count-in") } },
-            dismissButton = { TextButton(onClick = { phraseDialog = false }) { Text("Cancel") } })
+            dismissButton = { TextButton(onClick = { onDismiss() }) { Text("Cancel") } })
+}
+
+@Composable fun CompactRecordingControls(blockId: String, initialBpm: Int, vm: RecordingViewModel, onBeforePlayback: () -> Unit) {
+    val all by vm.takes.collectAsStateWithLifecycle()
+    val takes = all.filter { it.blockId == blockId }
+    var phraseDialog by rememberSaveable(blockId) { mutableStateOf(false) }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
+    val enabled = vm.ready && !vm.busy
+    Column {
+        if (vm.recording) Text(if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4" else "Recording · " + practiceTime(vm.elapsedMs),
+            color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("compact-recording-status").semantics { liveRegion = LiveRegionMode.Polite })
+        listOf(false, true).forEach { loop ->
+            val latest = takes.filter { (it.mode == "LOOP") == loop }.maxByOrNull { it.createdAt }
+            val playing = latest != null && (vm.playingId == latest.id || vm.preparingId == latest.id)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(if (loop) "Loop recording" else "Free recording", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                OutlinedButton(onClick = {
+                    if (vm.recording) vm.finishCapture()
+                    else if (loop) phraseDialog = true
+                    else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
+                    else permission.launch(Manifest.permission.RECORD_AUDIO)
+                }, enabled = enabled && (!vm.recording || vm.phrasing == loop), contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(if (vm.recording && vm.phrasing == loop) { if (loop) "Cancel phrase" else "Stop and Save" } else if (loop) "Record Loop" else "Record", style = MaterialTheme.typography.bodyMedium)
+                }
+                TextButton(onClick = { if (playing) vm.stopPlayback() else latest?.let { onBeforePlayback(); vm.play(it) } }, enabled = enabled && !vm.recording && latest != null,
+                    contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = (if (playing) "Stop" else "Play") + if (loop) " latest loop" else " latest free take" }) { Text(if (playing) "Stop" else "Play") }
+            }
+        }
     }
-    all.find { it.id == renameId }?.let { take ->
-        AlertDialog(onDismissRequest = { renameId = null }, title = { Text("Rename take") }, text = {
-            OutlinedTextField(label, { label = it }, label = { Text("Take label (optional)") }, isError = label.trim().length > 120,
-                supportingText = { Text("Up to 120 characters. Leave blank to use the date.") })
-        }, confirmButton = { TextButton(onClick = { vm.rename(take, label); renameId = null }, enabled = !vm.busy && label.trim().length <= 120) { Text("Save take label") } },
-            dismissButton = { TextButton(onClick = { renameId = null }) { Text("Cancel") } })
-    }
-    all.find { it.id == deleteId }?.let { take ->
-        AlertDialog(onDismissRequest = { deleteId = null }, title = { Text("Delete this take?") },
-            text = { Text("Delete " + takeTitle(take) + " and its audio? This cannot be undone. Other takes and practice history are kept.") },
-            confirmButton = { TextButton(onClick = { vm.delete(take); deleteId = null }, enabled = !vm.busy) { Text("Delete take permanently") } },
-            dismissButton = { TextButton(onClick = { deleteId = null }) { Text("Keep take") } })
-    }
+    if (phraseDialog) PhraseSetupDialog(blockId, vm, initialBpm, onBeforePlayback, { permission.launch(Manifest.permission.RECORD_AUDIO) }, { phraseDialog = false })
 }

@@ -13,7 +13,7 @@ import org.junit.Test
 
 class ToolsWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    private fun click(text: String) { compose.onNodeWithText(text).performScrollTo().performClick() }
+    private fun click(text: String) { compose.onNodeWithText(text).scrollIfNeeded().performClick() }
     private fun banner() { compose.onNodeWithTag("home-brand").assertIsDisplayed() }
     @Test fun standaloneToolsRunAndStopOnExitWithoutChangingPractice() {
         val vm = ViewModelProvider(compose.activity)[ToolsViewModel::class.java]

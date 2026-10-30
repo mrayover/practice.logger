@@ -77,6 +77,9 @@ class MainActivity : ComponentActivity() {
     DisposableEffect(practice.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
+    var headerHomeRequested by remember { mutableStateOf(false) }
+    val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    LaunchedEffect(page) { headerHomeRequested = false }
     SideEffect {
         (view.context as? Activity)?.window?.let { window ->
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
@@ -116,7 +119,11 @@ class MainActivity : ComponentActivity() {
     BackHandler(page == "library") { page = "home" }
     Surface(Modifier.fillMaxSize()) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
-        PracticeBanner()
+        PracticeBanner(onHome = {
+            if (page in setOf("focus", "editor", "routine-editor", "goal-editor", "log")) {
+                headerHomeRequested = true; backDispatcher?.onBackPressed()
+            } else { focus.clearFocus(force = true); keyboard?.hide(); page = "home" }
+        }, enabled = !recordings.recording && !recordings.busy && recordingsBlockId == null && page != "free-recording")
         Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
@@ -136,13 +143,13 @@ class MainActivity : ComponentActivity() {
                 onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") })
             }
             "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
-                onCancel = { page = if (goalEditorId == null) "goals" else "goal-detail" }) }
+                onCancel = { page = if (headerHomeRequested) "home" else if (goalEditorId == null) "goals" else "goal-detail" }) }
             "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,
                 onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
             "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
-            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = "routines" })
+            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) "home" else "routines" })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { page = it })
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
@@ -150,7 +157,7 @@ class MainActivity : ComponentActivity() {
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
-            "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id))
+            "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings)
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" }, goalName = goalName(summaryId))
             "library" -> {
                 val libraryScroll = rememberLazyListState()
@@ -189,7 +196,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorId) {
-                    BlockEditor(block, vm.busy || images.busy, images, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = editorReturn },
+                    BlockEditor(block, vm.busy || images.busy, images, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) "home" else editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }
@@ -201,7 +208,10 @@ class MainActivity : ComponentActivity() {
             catalog.blocks.find { it.id == id }?.let { block ->
                 BlockRecordings(id, block.name, recordings, practice, if (page == "focus") sessions.active else null,
                     initialBpm = if (page == "focus") practice.workingBpm else block.tempo?.takeIf { it in 30..300 } ?: 120,
-                    onBeforePlayback = practice::stopClick, onDismiss = { recordingsBlockId = null }, references = images)
+                    onBeforePlayback = practice::stopClick, onDismiss = {
+                        if (page == "focus") { recordings.stopPlayback(); recordings.finishCapture() }
+                        recordingsBlockId = null
+                    }, references = images, manageLifecycle = page != "focus")
             }
         }
         practice.error?.let { message ->

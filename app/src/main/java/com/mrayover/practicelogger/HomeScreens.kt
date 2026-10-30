@@ -1,12 +1,12 @@
 package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -142,9 +142,9 @@ import kotlin.math.sin
     }
 }
 
-@Composable fun PracticeBanner() {
+@Composable fun PracticeBanner(onHome: () -> Unit = {}, enabled: Boolean = true) {
     Column {
-        Box(Modifier.fillMaxWidth().background(PracticeGreen).statusBarsPadding().padding(horizontal = 20.dp, vertical = 24.dp)) {
+        Box(Modifier.fillMaxWidth().background(PracticeGreen).statusBarsPadding().clickable(enabled = enabled, role = Role.Button, onClickLabel = "Back to Home", onClick = onHome).heightIn(min = 48.dp).padding(horizontal = 20.dp, vertical = 16.dp)) {
             Text("practice.logger", modifier = Modifier.fillMaxWidth().testTag("home-brand").semantics { heading() },
                 fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 34.sp,
                 textAlign = TextAlign.Center, color = Color.White)

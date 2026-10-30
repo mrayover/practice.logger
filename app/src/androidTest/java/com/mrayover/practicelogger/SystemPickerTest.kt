@@ -64,8 +64,8 @@ class SystemPickerExportTest {
             }
             openHomeTools(compose)
             shownPickerApp(compose, "Backup and restore")
-            compose.onNodeWithText("Backup and restore").performScrollTo().performClick()
-            compose.onNodeWithText("Export backup").performScrollTo().performClick()
+            compose.onNodeWithText("Backup and restore").scrollIfNeeded().performClick()
+            compose.onNodeWithText("Export backup").scrollIfNeeded().performClick()
             pickerDownloads()
             val filename = checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), 10000))
             filename.text = PICKER_FILE
@@ -81,12 +81,12 @@ class SystemPickerExportTest {
             assertEquals(1, exported.goalBlocks.size)
             assertEquals("Picker saved routine", exported.routines.single().name)
             assertEquals(listOf(180_000L, 60_000L), exported.routinePlacements.map { it.configuredMs })
-            compose.onNodeWithText("Choose backup to restore").performScrollTo().performClick()
+            compose.onNodeWithText("Choose backup to restore").scrollIfNeeded().performClick()
             pickerDownloads()
             cancelPicker()
             shownPickerApp(compose, "Export backup")
             compose.onNodeWithText("Restore this backup?").assertDoesNotExist()
-            compose.onNodeWithText("Export backup").performScrollTo().performClick()
+            compose.onNodeWithText("Export backup").scrollIfNeeded().performClick()
             pickerDownloads(); cancelPicker()
             shownPickerApp(compose, "Export backup")
             runBlocking { assertEquals(exported, BackupRepository(db).snapshot()) }
@@ -106,24 +106,24 @@ class SystemPickerRestoreTest {
             runBlocking { assertTrue(BackupRepository(db).snapshot().blocks.isEmpty()) }
             openHomeTools(compose)
             shownPickerApp(compose, "Backup and restore")
-            compose.onNodeWithText("Backup and restore").performScrollTo().performClick()
-            compose.onNodeWithText("Choose backup to restore").performScrollTo().performClick()
+            compose.onNodeWithText("Backup and restore").scrollIfNeeded().performClick()
+            compose.onNodeWithText("Choose backup to restore").scrollIfNeeded().performClick()
             pickerDownloads()
             checkNotNull(device.wait(Until.findObject(By.text(PICKER_FILE)), 10000)).click()
             shownPickerApp(compose, "Restore this backup?")
             compose.onNodeWithText("Cancel").performClick()
             runBlocking { assertTrue(BackupRepository(db).snapshot().blocks.isEmpty()) }
-            compose.onNodeWithText("Choose backup to restore").performScrollTo().performClick()
+            compose.onNodeWithText("Choose backup to restore").scrollIfNeeded().performClick()
             pickerDownloads(); checkNotNull(device.wait(Until.findObject(By.text(PICKER_FILE)), 10000)).click()
             shownPickerApp(compose, "Restore this backup?")
             compose.activityRule.scenario.recreate(); shownPickerApp(compose, "Restore this backup?")
             compose.onNodeWithText("Restore backup").performClick()
             shownPickerApp(compose, "Backup restored.")
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
-            compose.onNodeWithText("Back to Home").performScrollTo().performClick()
+            compose.onNodeWithText("Back to Home").scrollIfNeeded().performClick()
             openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
-            compose.onNodeWithText("Continue Session").performScrollTo().performClick()
+            compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()
             shownPickerApp(compose, "Picker recovery")
             compose.onNodeWithText("Resume").assertExists()
             compose.onNodeWithText("Block 2 of 2").assertExists()
@@ -133,7 +133,7 @@ class SystemPickerRestoreTest {
                 assertEquals("first note", bundle.ordered[0].note)
             }
             captureStage3("08-restored-paused")
-            compose.onNodeWithText("Save for later").performScrollTo().performClick()
+            compose.onNodeWithText("Save for later").scrollIfNeeded().performClick(); compose.onNodeWithText("Back to Main").performClick()
         } catch (e: Throwable) { pickerFailureEvidence(); throw e }
         finally { db.close() }
     }
@@ -148,10 +148,10 @@ class SystemPickerReopenTest {
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
             openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
-            compose.onNodeWithText("Continue Session").performScrollTo().performClick()
+            compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()
             shownPickerApp(compose, "Picker recovery")
             compose.onNodeWithText("Resume").assertExists()
-            compose.onNodeWithText("Complete").performScrollTo().performClick()
+            compose.onNodeWithText("Complete").scrollIfNeeded().performClick()
             shownPickerApp(compose, "Session Summary")
             compose.onNodeWithText("Session Summary").assertIsDisplayed()
             captureStage3("09-restored-summary")

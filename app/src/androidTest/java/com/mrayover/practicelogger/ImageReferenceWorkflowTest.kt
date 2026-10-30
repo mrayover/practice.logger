@@ -67,7 +67,7 @@ class ImageReferenceWorkflowTest {
             click("Hide reference"); click("Replace reference image"); downloads()
             repeat(3) { if (device.currentPackageName.contains("documentsui")) device.pressBack() }
             shown("Replace reference image"); assertEquals(first, runBlocking { db.images().find(id) })
-            compose.onNodeWithTag("block-delete-action").performScrollTo().performClick(); shown("This Block cannot be deleted yet.")
+            compose.onNodeWithTag("block-delete-action").scrollIfNeeded().performClick(); shown("This Block cannot be deleted yet.")
             compose.onNodeWithText("Remove the reference first", substring = true).assertExists(); click("OK")
             click("Cancel"); editor("Image reference fixture"); click("Show reference"); click("Hide reference"); click("Cancel")
             click("Back to Home")
@@ -107,12 +107,13 @@ class ImageReferenceWorkflowTest {
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111, practice.workingBpm)
             }
             assertTrue(runBlocking { db.sessions().find(session)!!.current!!.activeMs } > before)
+            revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Reference practice note")
             click("Save Block note"); compose.waitUntil(15000) { !practice.busy }
             click("Complete"); shown("Without image")
             compose.onNodeWithText("Show reference").assertDoesNotExist(); assertFalse(practice.clicking)
             assertEquals("Reference practice note", runBlocking { db.sessions().find(session)!!.ordered.first().note })
-            click("Save for later"); click("Blocks"); editor("Image reference fixture")
+            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); click("Blocks"); editor("Image reference fixture")
             click("Remove reference image"); shown("Remove reference image?")
             compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
             assertEquals(first, runBlocking { db.images().find(id) })

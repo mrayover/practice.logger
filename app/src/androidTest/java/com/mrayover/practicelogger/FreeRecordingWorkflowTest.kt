@@ -22,9 +22,9 @@ class FreeRecordingWorkflowTest {
             val linked = runBlocking { db.takes().readAll().filter { it.blockId != null } }
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Recording").performScrollTo().performClick()
+            compose.onNodeWithText("Recording").scrollIfNeeded().performClick()
             captureStage3("30-cream-recording-menu")
-            compose.onNodeWithText("Free recording").performScrollTo().performClick()
+            compose.onNodeWithText("Free recording").scrollIfNeeded().performClick()
             compose.waitUntil(15000) { vm.recording && vm.elapsedMs >= 1500 }
             compose.onNodeWithText("Record phrase").assertDoesNotExist()
             sheet("Stop and save take")
@@ -44,7 +44,7 @@ class FreeRecordingWorkflowTest {
             compose.waitUntil(10000) { vm.playingId == take.id }
             compose.runOnIdle { vm.stopPlayback() }
             sheet("Close recordings")
-            compose.onNodeWithText("Saved free recordings").performScrollTo().performClick()
+            compose.onNodeWithText("Saved free recordings").scrollIfNeeded().performClick()
             compose.runOnIdle { assertFalse(vm.recording) }
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Standalone saved take"))
             captureStage3("31-free-recordings-saved")
@@ -59,8 +59,8 @@ class FreeRecordingReopenTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun standaloneCollectionReopensAfterColdRestartWithoutCapturing(): Unit {
         compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("Recording").performScrollTo().performClick()
-        compose.onNodeWithText("Saved free recordings").performScrollTo().performClick()
+        compose.onNodeWithText("Recording").scrollIfNeeded().performClick()
+        compose.onNodeWithText("Saved free recordings").scrollIfNeeded().performClick()
         val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
         compose.waitUntil(15000) { vm.ready && vm.takes.value.count { it.blockId == null } == 2 }
         compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }

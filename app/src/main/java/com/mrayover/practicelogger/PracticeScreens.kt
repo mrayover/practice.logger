@@ -122,50 +122,88 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 
-@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null) {
-
+@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel) {
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
         return
     }
     val current = bundle.current!!
-    DisposableEffect(current.id, vm) {
-        vm.enterFocusedPlacement(current)
-        onDispose { vm.leaveFocusedPlacement() }
+    DisposableEffect(current.id, vm, recordings) {
+        vm.enterFocusedPlacement(current); recordings.enterBlock(current.sourceBlockId)
+        onDispose { vm.leaveFocusedPlacement(); recordings.leaveBlock() }
     }
     var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
-    fun leave() { vm.saveForLater(bundle.session.id, current.id, note) }
-    BackHandler { leave() }
+    var notesOpen by rememberSaveable(current.id) { mutableStateOf(false) }
+    var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
-    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-      Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.titleMedium)
-        goalName?.let { Text("Goal: " + it) }
-        Text(current.name, style = MaterialTheme.typography.headlineLarge)
-        Text(current.action, style = MaterialTheme.typography.titleLarge)
-        current.tempo?.let { Text(it.toString() + " BPM reference") }
-        if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes)
-      }
-        PracticeImageReference(current.sourceBlockId, current.id, images, edgeToEdge = true)
-      Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
-            style = MaterialTheme.typography.displayLarge, modifier = Modifier.fillMaxWidth().testTag("practice-timer").semantics { contentDescription = if (current.overtimeAccepted) "Overtime " + practiceTime(current.activeMs - current.configuredMs) else "Time remaining " + practiceTime(current.configuredMs - current.activeMs, roundUp = true) })
-        Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" })
-        if (awaiting) ActionButton("Continue", { vm.resume(overtime = true) }, !vm.busy)
-        else ActionButton(if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume", { if (vm.running) vm.pause() else vm.resume() }, !vm.busy)
-        ActionButton("Complete", { vm.finish("COMPLETED", note) }, !vm.busy)
-        OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Skip") }
-        PracticeMetronome(vm)
-        OutlinedButton(onClick = { onRecordings(current.sourceBlockId) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
-        recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-        OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
-        OutlinedButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Block note") }
-        if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-        Text("Notes save with Save Block note, Save for later, Back, Complete or Skip.")
-        TextButton(onClick = ::leave, enabled = !vm.busy) { Text("Save for later") }
-      }
+    val audioBusy = recordings.recording || recordings.busy
+    fun requestLeave() { if (!vm.busy) leaving = true }
+    BackHandler { requestLeave() }
+    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 16.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth().testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
+                goalName?.let { Text("Goal: " + it, style = MaterialTheme.typography.bodySmall) }
+                Text(current.name, style = MaterialTheme.typography.titleMedium)
+            }
+            Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.surfaceVariant) {
+                Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
+                    style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp).testTag("practice-timer").semantics {
+                        contentDescription = if (current.overtimeAccepted) "Overtime " + practiceTime(current.activeMs - current.configuredMs) else "Time remaining " + practiceTime(current.configuredMs - current.activeMs, roundUp = true)
+                        liveRegion = LiveRegionMode.None
+                    })
+            }
+        }
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).testTag("practice-workspace"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            OutlinedCard(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Practice Description", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
+                    Text(current.action, style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp, max = 152.dp).verticalScroll(rememberScrollState()).testTag("practice-description"))
+                }
+            }
+            OutlinedCard(Modifier.fillMaxWidth()) {
+                Column(Modifier.fillMaxWidth().heightIn(max = 300.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Reference Material", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(start = 12.dp, top = 8.dp).semantics { heading() })
+                    if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
+                    current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
+                    PracticeImageReference(current.sourceBlockId, current.id, images)
+                    Spacer(Modifier.height(4.dp))
+                }
+            }
+            PracticeMetronome(vm)
+            CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                TextButton(onClick = { notesOpen = !notesOpen }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (notesOpen) "Hide notes" else "Notes") }
+                TextButton(onClick = { onRecordings(current.sourceBlockId) }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Recordings") }
+                TextButton(onClick = ::requestLeave, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
+            }
+            if (notesOpen) {
+                OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
+                TextButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
+                if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+            }
+            recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+        }
+        Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" },
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+        Row(Modifier.fillMaxWidth().testTag("practice-bottom-actions"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
+                contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
+                Text(if (awaiting) "Continue" else if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume")
+            }
+            Button(onClick = { vm.finish("COMPLETED", note) }, enabled = !vm.busy && !audioBusy,
+                contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Complete") }
+            OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy && !audioBusy,
+                contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Skip") }
+        }
     }
+    if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) leaving = false }, title = { Text("Leave current session?") }, text = {
+        Text(if (audioBusy) "Stop and save your recording, or cancel the phrase, before leaving. Your current practice note is kept here."
+            else "Your current session and note will be saved for later, and practice will pause.")
+    }, confirmButton = { TextButton(onClick = { vm.saveForLater(bundle.session.id, current.id, note) }, enabled = !vm.busy && !audioBusy) { Text("Back to Main") } },
+        dismissButton = { TextButton(onClick = { leaving = false }, enabled = !vm.busy) { Text("Continue") } })
 }
 
 @Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null) {
@@ -199,22 +237,19 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 @Composable private fun PracticeMetronome(vm: PracticeViewModel) {
     var editing by rememberSaveable { mutableStateOf(false) }
     var entered by rememberSaveable { mutableStateOf("") }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.testTag("metronome-bpm").semantics { heading() })
-        Text("Working tempo · saved Block reference stays unchanged. Media volume controls the click.", style = MaterialTheme.typography.bodySmall)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            OutlinedButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) },
-                enabled = vm.workingBpm > 30 && !vm.busy, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
-            OutlinedButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) },
-                enabled = vm.workingBpm < 300 && !vm.busy, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
-            TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true }, enabled = !vm.busy,
-                modifier = Modifier.heightIn(min = 48.dp)) { Text("Set BPM") }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true }, enabled = !vm.busy,
+            contentPadding = PaddingValues(horizontal = 2.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp).semantics { contentDescription = "Set BPM" }) {
+            Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("metronome-bpm"))
         }
+        TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
+            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
+        TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
+            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
         OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (vm.clicking) "Stop click" else "Start click") }
-        vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
     }
+    vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
     if (editing) AlertDialog(onDismissRequest = { editing = false }, title = { Text("Working BPM") }, text = {
         OutlinedTextField(entered, { entered = it }, label = { Text("BPM (30–300)") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = parseWorkingBpm(entered) == null,

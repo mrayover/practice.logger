@@ -36,6 +36,29 @@ internal class BeatPcm(private val sampleRate: Int = 48_000) {
     }
 }
 
+/** A brief two-note cue, mixed into the same sample clock. Click phase still advances
+ * under the cue; ducking changes only amplitude, never BPM or beat scheduling. */
+internal class CompletionPcm(private val rate: Int = 48_000) {
+    private var frame = rate
+    val length = rate * 3 / 5
+    @Synchronized fun trigger() { frame = 0 }
+    @Synchronized fun cancel() { frame = length }
+    @Synchronized fun active() = frame < length
+    @Synchronized fun mix(samples: ShortArray): Int {
+        var mixed = 0
+        for (i in samples.indices) {
+            if (frame >= length) break
+            val noteLength = rate / 4
+            val local = if (frame < rate * 3 / 10) frame else frame - rate * 3 / 10
+            val frequency = if (frame < rate * 3 / 10) 784.0 else 1046.5
+            val envelope = if (local < noteLength) minOf(1.0, local / (rate * .008)) * (1.0 - local.toDouble() / noteLength) else 0.0
+            samples[i] = (samples[i] * .12 + sin(2 * PI * frequency * local / rate) * envelope * 26_000).toInt().coerceIn(-32768, 32767).toShort()
+            frame++; mixed++
+        }
+        return mixed
+    }
+}
+
 /** One foreground click stream. Blocking writes are paced by AudioTrack's sample consumption. */
 internal class MetronomeAudio(context: Context, private val interrupted: (String?) -> Unit) {
     private val manager = context.getSystemService(AudioManager::class.java)
@@ -44,6 +67,16 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
     @Volatile private var generation = 0L
     @Volatile private var tempo = 120
     private var track: AudioTrack? = null
+    @Volatile private var clickEnabled = false
+    private val completion = CompletionPcm()
+    @Volatile internal var completionFramesWritten = 0L; private set
+
+    fun playCompletion() {
+        completion.trigger()
+        completionFramesWritten = 0
+        // No extra focus request: a cue must not interrupt a phrase or take playback.
+        if (track == null) startOutput(requestFocus = false)
+    }
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -59,9 +92,14 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
     fun start(bpm: Int): Boolean {
         stop()
         changeTempo(bpm)
+        clickEnabled = true
+        return startOutput(requestFocus = true)
+    }
+
+    private fun startOutput(requestFocus: Boolean): Boolean {
         var created: AudioTrack? = null
         try {
-            if (manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            if (requestFocus && manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 interrupted("Click could not start because audio is in use. Try again."); return false
             }
             val minimum = AudioTrack.getMinBufferSize(48_000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -79,13 +117,22 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
                     Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO)
                     val pcm = BeatPcm()
                     val chunk = ShortArray(480)
+                    var quietFrames = 0
                     while (generation == token) {
-                        pcm.render(chunk, tempo)
+                        if (clickEnabled) pcm.render(chunk, tempo) else chunk.fill(0)
+                        val cueFrames = completion.mix(chunk)
                         var offset = 0
                         while (offset < chunk.size && generation == token) {
                             val written = audio.write(chunk, offset, chunk.size - offset, AudioTrack.WRITE_BLOCKING)
                             check(written > 0)
                             offset += written
+                        }
+                        if (generation == token) completionFramesWritten += cueFrames
+                        quietFrames = if (!clickEnabled && !completion.active()) quietFrames + chunk.size else 0
+                        // Let the final queued samples drain, then release this cue-only stream.
+                        if (quietFrames >= 24_000) {
+                            main.post { if (generation == token && !clickEnabled && !completion.active()) stop() }
+                            break
                         }
                     }
                 } catch (_: Exception) {
@@ -106,6 +153,8 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
     }
 
     fun stop() {
+        clickEnabled = false
+        completion.cancel()
         ++generation
         synchronized(lock) {
             track?.let { audio ->
