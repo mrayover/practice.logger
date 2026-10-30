@@ -59,7 +59,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Owner-phone-check the signed0.16.0/build35 owner-test layout preview in place using its PHONE_CHECKLIST.txt. Full regression verification remains pending. See CURRENT_STATE.md for exact source/packages/checks. Further implementation or release verification requires an owner request.
+Owner-phone-check the signed0.16.0/build36 owner-test layout preview in place using its PHONE_CHECKLIST.txt. Full regression verification remains pending. See CURRENT_STATE.md for exact source/packages/checks. Further implementation or release verification requires an owner request.
 
 ## Increment 3 — delivered 2026-10-29
 
@@ -74,3 +74,8 @@ Scope is the missing short Block-duration audio cue, compact one-screen Focused 
 ## Build35 — owner-authorized layout preview, 2026-10-30
 
 The owner confirmed shorter Practice Description, expanded Reference Material and secondary controls moved toward pinned primary actions. Scope is layout only plus versionCode35 and existing permanent-key packaging. Explicit preview-only exception: compile debug/release, one API35 launch smoke check and verify signed package/identity/version/integrity; skip full units/lint/API26/35/regression/screenshot automation and unrelated legacy investigations. Added a separate manual owner-preview workflow; the normal android.yml and release verification rules are unchanged. Delivered as an owner-test preview with full regression and phone layout/data acceptance pending; CURRENT_STATE.md records actual evidence.
+
+
+## Build36 — owner-requested compact reference, 2026-10-30
+
+Owner accepted build35's expanded size and requested Reference Material small until clicked. Build36 starts with an Expand header, opens the approved area/media in one tap, and offers Collapse while retaining lower controls and existing scrolling. Only presentation/versionCode changed. Reused one manual preview compilation/API35 debug launch smoke run and permanent-key publisher. Full regression and owner compact/expand/collapse/data acceptance remain pending; normal release rules unchanged. Exact package/check evidence is in CURRENT_STATE.md.

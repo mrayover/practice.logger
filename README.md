@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current delivery: **0.16.0/build35 owner-test preview**. The confirmed layout adjustment shortens Practice Description, expands Reference Material and moves secondary controls toward the pinned bottom actions. Debug/release compilation and one API35 debug launch smoke check pass; **full regression verification is pending**. Exact package/source/checks and phone acceptance are authoritative in CURRENT_STATE.md.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current delivery: **0.16.0/build36 owner-test preview**. Reference Material starts compact; tap Expand to open the approved larger area and its media, or Collapse to close it. The shorter description and lower secondary controls remain. Debug/release compilation and one API35 debug launch smoke check pass; **full regression verification is pending**. Exact package/source/checks and phone acceptance are authoritative in CURRENT_STATE.md.
 
 ## Compact practice refinement
 
@@ -41,7 +41,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 Build35 passed debug/release compilation, one clean API35 debug install/launch smoke check and permanent-key package/signature/version/hash/ZIP verification. Full units/lint/regression suites were not run under the owner's explicit preview-only exception; the normal release rules remain unchanged. Prior build34 results and incomplete full-regression evidence remain in WORK_LOG.md.
 
-Next: install build35 over the current permanent-key app and inspect the layout/data using the package PHONE_CHECKLIST.txt. Full regression and phone acoustic/install-over/TalkBack acceptance remain pending; Stage3 is pending and EVALUATION.md stays0/10real sessions.
+Next: install build36 over the current permanent-key app and inspect the layout/data using the package PHONE_CHECKLIST.txt. Full regression and phone acoustic/install-over/TalkBack acceptance remain pending; Stage3 is pending and EVALUATION.md stays0/10real sessions.
 
 ## Development
 
