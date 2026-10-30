@@ -231,7 +231,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 verticalArrangement = Arrangement.Center) {
                 Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = green)
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
+                    Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
                         maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = green)
                     Text(" ▾", color = green)
                 }

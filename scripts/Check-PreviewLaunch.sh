@@ -17,8 +17,11 @@ if grep -q "Process: $package" app/build/preview-crashes.txt; then
 fi
 echo 'PASS: debug variant installed, launched, remained alive and displayed app UI; release compiled. Full regression pending.' | tee app/build/preview-result.txt
 
-# One directly affected transport scenario on this same emulator; no full suite/matrix.
+# Two directly affected notes checks, with a fresh app process between them. No full suite/matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-adb shell am instrument -w -r -e class com.mrayover.practicelogger.TransportPreviewTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-transport.txt
-adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/transport-preview app/build/preview-transport-screens || true
-grep -q 'OK (1 test)' app/build/preview-transport.txt
+adb shell am instrument -w -r -e class com.mrayover.practicelogger.NotesHistoryPreviewTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-notes.txt
+adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/notes-preview app/build/preview-notes-screens || true
+grep -q 'OK (1 test)' app/build/preview-notes.txt
+adb shell am force-stop "$package"
+adb shell am instrument -w -r -e class com.mrayover.practicelogger.NotesHistoryReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-notes-reopen.txt
+grep -q 'OK (1 test)' app/build/preview-notes-reopen.txt

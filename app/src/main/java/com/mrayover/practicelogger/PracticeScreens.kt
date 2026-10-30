@@ -124,7 +124,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel) {
+@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
         return
@@ -138,19 +138,12 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
     val loopPermission = androidx.activity.compose.rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), recordings::permissionResult)
-    var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
+    val note = current.note // Preserve the legacy placement note in existing session actions.
+    val noteDraft by notes.draft(current.id).collectAsStateWithLifecycle()
+    val noteHistory by notes.history.collectAsStateWithLifecycle()
     var transportPanel by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
-    var savingNote by remember(current.id) { mutableStateOf(false) }
-    LaunchedEffect(savingNote, vm.busy, current.note, vm.blockNoteSavedFor) {
-        if (savingNote && !vm.busy) {
-            if (vm.blockNoteSavedFor == current.id && current.note == note.trim()) {
-                if (transportPanel == "notes") transportPanel = null
-                focusManager.clearFocus(force = true); keyboard?.hide()
-                savingNote = false
-            } else if (vm.error != null) savingNote = false
-            // Room can deliver the saved placement after the operation finishes; wait for it.
-        }
-    }
+    var bpmDialog by rememberSaveable(current.id) { mutableStateOf(false) }
+    var pendingNoteAction by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
     val transportScroll = rememberScrollState()
     LaunchedEffect(transportPanel) { transportScroll.scrollTo(0) }
     val allTakes by recordings.takes.collectAsStateWithLifecycle()
@@ -168,11 +161,19 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     val audioBusy = recordings.recording || recordings.busy
-    fun requestLeave() { if (!vm.busy) leaving = true }
+    fun performPracticeAction(action: String) {
+        if (action == "leave") leaving = true else vm.finish(action, note)
+    }
+    fun requestPracticeAction(action: String) {
+        if (vm.busy || notes.busy) return
+        if (noteDraft.isNotBlank() || notes.hasUnsavedEdits(current.sourceBlockId)) pendingNoteAction = action else performPracticeAction(action)
+    }
+    fun requestLeave() { requestPracticeAction("leave") }
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-    val transportMaxHeight = maxHeight * 0.42f
-    val panelMaxHeight = maxHeight * 0.24f
+    val panelOpen = transportPanel != null
+    val transportMaxHeight = if (panelOpen) minOf(maxHeight * .42f,
+        (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -188,34 +189,30 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     })
             }
         }
-        Box(Modifier.weight(1f).fillMaxWidth().testTag("practice-workspace-viewport")) {
-            FocusedWorkspace(current, images, Modifier.fillMaxSize())
+        Box(Modifier.fillMaxWidth().then(if (panelOpen) Modifier else Modifier.weight(1f)).testTag("practice-workspace-viewport")) {
+            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog)
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .22f))
-        Surface(color = androidx.compose.ui.graphics.lerp(PracticeCream, PracticeGreen, .085f), modifier = Modifier.fillMaxWidth().testTag("practice-transport-surface")) {
-        Column {
-            if (transportPanel == "notes") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight).padding(horizontal = 16.dp)
-                .testTag("practice-notes-panel")) {
-                PracticeScrollPanel(Modifier.weight(1f, fill = false).fillMaxWidth(), tag = "practice-notes-content") {
-                    OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
-                }
-                TextButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note); savingNote = true },
-                    enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save and return") }
-                vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-            }
-            if (transportPanel == "loop") PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight).padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
+        Surface(color = androidx.compose.ui.graphics.lerp(PracticeCream, PracticeGreen, .085f), modifier = Modifier.fillMaxWidth().then(if (panelOpen) Modifier.weight(1f) else Modifier).testTag("practice-transport-surface")) {
+        Column(if (panelOpen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()) {
+            if (transportPanel == "notes") BlockNotesPanel(noteHistory.filter { it.blockId == current.sourceBlockId }, noteDraft,
+                { notes.edit(current.id, it) }, notes.busy, notes.message,
+                { notes.save(current.sourceBlockId, bundle.session.id, current.id) },
+                { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
+                Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
+            if (transportPanel == "loop") PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
                 PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
                     { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
             }
             if (transportPanel == "free-list" || transportPanel == "loop-list") Box(Modifier.fillMaxWidth()
-                .heightIn(max = panelMaxHeight).padding(horizontal = 16.dp).testTag("practice-selection-panel")) {
+                .weight(1f).padding(horizontal = 16.dp).testTag("practice-selection-panel")) {
                 val loop = transportPanel == "loop-list"
                 PracticeTakeSelection(if (loop) loopTakes else freeTakes, if (loop) loopId else freeId, loop,
                     onSelect = { if (loop) loopId = it.id else freeId = it.id; transportPanel = null }, onClose = { transportPanel = null })
             }
         PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
             state = transportScroll, tag = "practice-transport") {
-            PracticeMetronome(vm)
+            PracticeMetronome(vm) { open -> bpmDialog = open; if (open) transportPanel = null }
             CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
                 { transportPanel = if (transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
@@ -226,7 +223,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
             practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
-        if (recordings.recording) {
+        if (recordings.recording && !panelOpen) {
             val status: @Composable (Modifier) -> Unit = { modifier ->
                 Text(if (recordings.countInBeat > 0) "Count-in · ${recordings.countInBeat} of 4" else "Recording · " + practiceTime(recordings.elapsedMs),
                     color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = modifier)
@@ -250,15 +247,21 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp).semantics { stateDescription = if (vm.running) "Practicing" else "Paused" }) {
                 Text(if (awaiting) "Continue" else if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume")
             }
-            Button(onClick = { vm.finish("COMPLETED", note) }, enabled = !vm.busy && !audioBusy,
+            Button(onClick = { requestPracticeAction("COMPLETED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp)) { Text("Complete") }
-            OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy && !audioBusy,
+            OutlinedButton(onClick = { requestPracticeAction("SKIPPED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(.7f).heightIn(min = 48.dp)) { Text("Skip") }
         }
         }
         }
     }
     }
+    if (pendingNoteAction != null) AlertDialog(onDismissRequest = { pendingNoteAction = null }, title = { Text("Unsaved note text") },
+        text = { Text("Return to Notes to save your new note or edits, or discard unsaved text before continuing. Saved notes stay kept.") },
+        confirmButton = { TextButton(onClick = {
+            val action = pendingNoteAction!!; pendingNoteAction = null; notes.edit(current.id, ""); notes.discardEdits(current.sourceBlockId); performPracticeAction(action)
+        }) { Text("Discard draft and continue") } },
+        dismissButton = { TextButton(onClick = { pendingNoteAction = null; transportPanel = "notes" }) { Text("Keep editing") } })
     if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) leaving = false }, title = { Text("Leave current session?") }, text = {
         Text(if (audioBusy) "Stop and save your recording, or cancel the phrase, before leaving. Your current practice note is kept here."
             else "Your current session and note will be saved for later, and practice will pause.")
@@ -300,12 +303,12 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun PracticeMetronome(vm: PracticeViewModel) {
+@Composable private fun PracticeMetronome(vm: PracticeViewModel, onEditingChanged: (Boolean) -> Unit = {}) {
     var editing by rememberSaveable { mutableStateOf(false) }
     var entered by rememberSaveable { mutableStateOf("") }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
     val bpmControl: @Composable (Modifier) -> Unit = { modifier ->
-        TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true }, enabled = !vm.busy,
+        TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true; onEditingChanged(true) }, enabled = !vm.busy,
             contentPadding = PaddingValues(horizontal = 2.dp), modifier = modifier.heightIn(min = 48.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" }) {
             Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.bodyMedium)
         }
@@ -326,13 +329,13 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         controls()
     }
     vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-    if (editing) AlertDialog(onDismissRequest = { editing = false }, title = { Text("Working BPM") }, text = {
+    if (editing) AlertDialog(onDismissRequest = { editing = false; onEditingChanged(false) }, title = { Text("Working BPM") }, text = {
         OutlinedTextField(entered, { entered = it }, label = { Text("BPM (30–300)") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = parseWorkingBpm(entered) == null,
             supportingText = { Text("Enter a whole number from 30 to 300.") })
-    }, confirmButton = { TextButton(onClick = { parseWorkingBpm(entered)?.let { vm.changeWorkingBpm(it); editing = false } },
+    }, confirmButton = { TextButton(onClick = { parseWorkingBpm(entered)?.let { vm.changeWorkingBpm(it); editing = false; onEditingChanged(false) } },
         enabled = parseWorkingBpm(entered) != null && !vm.busy) { Text("Apply BPM") } },
-        dismissButton = { TextButton(onClick = { editing = false }) { Text("Cancel") } })
+        dismissButton = { TextButton(onClick = { editing = false; onEditingChanged(false) }) { Text("Cancel") } })
 }
 
 @Composable private fun ActionButton(label: String, click: () -> Unit, enabled: Boolean = true) {

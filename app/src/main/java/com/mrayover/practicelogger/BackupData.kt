@@ -5,7 +5,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 const val BACKUP_LIMIT = 8 * 1024 * 1024
-data class BackupData(val blocks: List<Block>, val sessions: List<PracticeSession>, val placements: List<Placement>, val routines: List<SavedRoutine> = emptyList(), val routinePlacements: List<RoutinePlacement> = emptyList(), val goals: List<Goal> = emptyList(), val goalBlocks: List<GoalBlock> = emptyList(), val sessionGoals: List<GoalSession> = emptyList(), val logs: List<DailyLog> = emptyList())
+data class BackupData(val blocks: List<Block>, val sessions: List<PracticeSession>, val placements: List<Placement>, val routines: List<SavedRoutine> = emptyList(), val routinePlacements: List<RoutinePlacement> = emptyList(), val goals: List<Goal> = emptyList(), val goalBlocks: List<GoalBlock> = emptyList(), val sessionGoals: List<GoalSession> = emptyList(), val logs: List<DailyLog> = emptyList(), val practiceNotes: List<PracticeNote> = emptyList())
 
 /** Format version is independent of Room's internal schema version. No running timer anchor is exported. */
 object BackupCodec {
@@ -13,7 +13,7 @@ object BackupCodec {
     private fun array(rows: List<JSONObject>) = JSONArray().apply { rows.forEach { put(it) } }
     fun encode(data: BackupData): ByteArray {
         validate(data)
-        val root = obj("format" to "practice.logger.backup", "version" to 6,
+        val root = obj("format" to "practice.logger.backup", "version" to 7,
             "blocks" to array(data.blocks.map { b -> obj("id" to b.id, "name" to b.name, "action" to b.action, "durationMinutes" to b.durationMinutes, "tempo" to b.tempo, "notes" to b.notes, "archived" to b.archived, "createdAt" to b.createdAt, "updatedAt" to b.updatedAt) }),
             "sessions" to array(data.sessions.map { s -> obj("id" to s.id, "startedAt" to s.startedAt, "endedAt" to s.endedAt, "status" to s.status, "currentIndex" to s.currentIndex, "note" to s.note) }),
             "placements" to array(data.placements.map { p -> obj("id" to p.id, "sessionId" to p.sessionId, "sourceBlockId" to p.sourceBlockId, "name" to p.name, "action" to p.action, "tempo" to p.tempo, "referenceNotes" to p.referenceNotes, "position" to p.position, "configuredMs" to p.configuredMs, "activeMs" to p.activeMs, "outcome" to p.outcome, "overtimeAccepted" to p.overtimeAccepted, "note" to p.note, "lastUsedBpm" to p.lastUsedBpm) }),
@@ -21,6 +21,7 @@ object BackupCodec {
             "routinePlacements" to array(data.routinePlacements.map { p -> obj("id" to p.id, "routineId" to p.routineId, "sourceBlockId" to p.sourceBlockId, "position" to p.position, "configuredMs" to p.configuredMs) }),
             "goals" to array(data.goals.map { g -> obj("id" to g.id, "title" to g.title, "description" to g.description, "progress" to g.progress, "notes" to g.notes, "completed" to g.completed, "priority" to g.priority, "createdAt" to g.createdAt, "updatedAt" to g.updatedAt) }),
             "goalBlocks" to array(data.goalBlocks.map { b -> obj("goalId" to b.goalId, "blockId" to b.blockId, "position" to b.position) }),
+            "practiceNotes" to array(data.practiceNotes.map { n -> obj("id" to n.id, "blockId" to n.blockId, "sessionId" to n.sessionId, "placementId" to n.placementId, "createdAt" to n.createdAt, "text" to n.text) }),
             "logs" to array(data.logs.map { obj("date" to it.date, "text" to it.text) }),
             "sessionGoals" to array(data.sessionGoals.map { s -> obj("sessionId" to s.sessionId, "goalId" to s.goalId) }))
         return root.toString(2).toByteArray(Charsets.UTF_8).also { require(it.size <= BACKUP_LIMIT) { "Backup exceeds the 8 MiB limit." } }
@@ -54,7 +55,7 @@ object BackupCodec {
         val tokener = org.json.JSONTokener(text)
         val root = tokener.nextValue() as? JSONObject ?: error("Invalid backup object.")
         require(tokener.nextClean() == '\u0000') { "Trailing backup content." }
-        require(root.text("format") == "practice.logger.backup" && root.int("version") in 1..6) { "Unsupported backup format/version." }
+        require(root.text("format") == "practice.logger.backup" && root.int("version") in 1..7) { "Unsupported backup format/version." }
         return BackupData(
             root.rows("blocks").map { b -> Block(b.text("id"), b.text("name"), b.text("action"), b.int("durationMinutes"), b.nullInt("tempo"), b.text("notes"), b.bool("archived"), b.number("createdAt"), b.number("updatedAt")) },
             root.rows("sessions").map { s -> PracticeSession(s.text("id"), s.number("startedAt"), s.nullLong("endedAt"), s.text("status"), s.int("currentIndex"), s.text("note")) },
@@ -64,7 +65,8 @@ object BackupCodec {
             if (root.int("version") >= 5) root.rows("goals").map { g -> Goal(g.text("id"), g.text("title"), g.text("description"), g.int("progress"), g.text("notes"), g.bool("completed"), g.int("priority"), g.number("createdAt"), g.number("updatedAt")) } else emptyList(),
             if (root.int("version") >= 5) root.rows("goalBlocks").map { b -> GoalBlock(b.text("goalId"), b.text("blockId"), b.int("position")) } else emptyList(),
             if (root.int("version") >= 5) root.rows("sessionGoals").map { s -> GoalSession(s.text("sessionId"), s.text("goalId")) } else emptyList(),
-            if (root.int("version") >= 6) root.rows("logs").map { DailyLog(it.text("date"), it.text("text")) } else emptyList()
+            if (root.int("version") >= 6) root.rows("logs").map { DailyLog(it.text("date"), it.text("text")) } else emptyList(),
+            if (root.int("version") >= 7) root.rows("practiceNotes").map { n -> PracticeNote(n.text("id"), n.text("blockId"), n.text("sessionId"), n.text("placementId"), n.number("createdAt"), n.text("text")) } else emptyList()
         ).also {
             validate(it)
             if (root.int("version") == 1) require(it.sessions.count { s -> s.status != "COMPLETED" } <= 1) { "Invalid legacy unfinished sessions." }
@@ -111,6 +113,12 @@ object BackupCodec {
             require(p.outcome in setOf("PENDING", "COMPLETED", "SKIPPED"))
             require(if (p.overtimeAccepted) p.activeMs >= p.configuredMs else p.activeMs <= p.configuredMs)
         }
+        ids(data.practiceNotes.map { it.id })
+        val placementIds = data.placements.associateBy { it.id }
+        data.practiceNotes.forEach { n ->
+            val p = placementIds[n.placementId]
+            require(n.blockId in blocks && n.sessionId in sessions && p != null && p.sourceBlockId == n.blockId && p.sessionId == n.sessionId && n.createdAt >= 0 && n.text.isNotBlank()) { "Invalid practice note or broken note reference." }
+        }
         val bySession = data.placements.groupBy { it.sessionId }
         data.sessions.forEach { s ->
             require(s.status in setOf("DRAFT", "IN_PROGRESS", "COMPLETED"))
@@ -136,11 +144,11 @@ class BackupRepository(private val db: BlockDatabase) {
         val bundles = db.sessions().readAll()
         val routines = db.routines().readAll()
         val goals = db.goals().readAll()
-        BackupData(db.blocks().readAll(), bundles.map { it.session }, bundles.flatMap { it.ordered }, routines.map { it.routine }, routines.flatMap { it.ordered }, goals.map { it.goal }, goals.flatMap { it.ordered }, db.goals().readSessions(), db.logs().readAll())
+        BackupData(db.blocks().readAll(), bundles.map { it.session }, bundles.flatMap { it.ordered }, routines.map { it.routine }, routines.flatMap { it.ordered }, goals.map { it.goal }, goals.flatMap { it.ordered }, db.goals().readSessions(), db.logs().readAll(), db.practiceNotes().readAll())
     }
     suspend fun restore(data: BackupData) = db.withTransaction {
         BackupCodec.validate(data)
-        if (db.logs().hasEntries() || db.goals().readAll().isNotEmpty() || db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty() || db.routines().readAll().isNotEmpty() || db.takes().readAll().isNotEmpty()) throw NonEmptyRestoreException()
+        if (db.practiceNotes().readAll().isNotEmpty() || db.logs().hasEntries() || db.goals().readAll().isNotEmpty() || db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty() || db.routines().readAll().isNotEmpty() || db.takes().readAll().isNotEmpty()) throw NonEmptyRestoreException()
         data.blocks.forEach { db.blocks().insert(it) }
         data.sessions.forEach { db.sessions().insert(it) }
         data.placements.forEach { db.sessions().insert(it) }
@@ -150,5 +158,6 @@ class BackupRepository(private val db: BlockDatabase) {
         data.goalBlocks.forEach { db.goals().insert(it) }
         data.sessionGoals.forEach { db.goals().insert(it) }
         data.logs.forEach { db.logs().insert(it) }
+        data.practiceNotes.forEach { db.practiceNotes().insert(it) }
     }
 }

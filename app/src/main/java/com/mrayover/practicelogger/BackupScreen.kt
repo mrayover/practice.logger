@@ -48,7 +48,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
             catch (e: CancellationException) { throw e }
             catch (e: IllegalArgumentException) { message = e.message ?: "Invalid backup data." }
             catch (_: NonEmptyRestoreException) { message = "Restore needs an empty app. Your existing Blocks and practice history were kept. Use this backup on a new phone or spare empty installation." }
-            catch (_: Exception) { message = "Could not complete this backup operation. Existing practice data was kept. Check the file, free space and access, then try again. Restore supports version 1, 2, 3, 4, 5 and 6 backups up to 8 MiB and needs an empty app." }
+            catch (_: Exception) { message = "Could not complete this backup operation. Existing practice data was kept. Check the file, free space and access, then try again. Restore supports version 1, 2, 3, 4, 5, 6 and 7 backups up to 8 MiB and needs an empty app." }
             finally { busy = false }
         }
     }
