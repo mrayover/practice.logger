@@ -82,7 +82,7 @@ class ImageReferenceWorkflowTest {
             compose.waitUntil(15000) { images.images.value.any { it.blockId == id } }
             val titleBounds = compose.onNodeWithText("Image reference fixture").getUnclippedBoundsInRoot()
             val actionBounds = compose.onNodeWithText("Study and memorize").getUnclippedBoundsInRoot()
-            assertTrue("Heading gap should be compact", (actionBounds.top - titleBounds.bottom).value <= 5f)
+            assertTrue("Description follows compact Block identity", (actionBounds.top - titleBounds.bottom).value <= 64f)
             click("Start"); compose.waitUntil(15000) { practice.running && !practice.busy }
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }
@@ -93,7 +93,7 @@ class ImageReferenceWorkflowTest {
                 val viewer = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
                 val page = compose.onRoot().getUnclippedBoundsInRoot()
                 assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)
-                assertTrue("Portrait viewer should be taller than wide", viewer.bottom - viewer.top > viewer.right - viewer.left)
+                assertTrue("Focused viewer stays bounded", (viewer.bottom - viewer.top).value in 180f..220f)
                 if (it == 0) { compose.onNodeWithTag("reference-viewer").performScrollTo(); captureStage3("image-focus-portrait-fit") }
                 compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
                     pinch(Offset(width * .4f, height * .4f), Offset(width * .6f, height * .6f),

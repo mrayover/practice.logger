@@ -139,8 +139,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val audioBusy = recordings.recording || recordings.busy
     fun requestLeave() { if (!vm.busy) leaving = true }
     BackHandler { requestLeave() }
-    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 16.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(Modifier.fillMaxWidth().testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
                 goalName?.let { Text("Goal: " + it, style = MaterialTheme.typography.bodySmall) }
@@ -155,7 +155,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).testTag("practice-workspace"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            OutlinedCard(Modifier.fillMaxWidth()) {
+            OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("Practice Description", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
                     Text(current.action, style = MaterialTheme.typography.titleMedium,
@@ -168,26 +168,28 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
                     current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
-                    PracticeImageReference(current.sourceBlockId, current.id, images)
+                    PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = 220.dp)
                     Spacer(Modifier.height(4.dp))
                 }
             }
-            PracticeMetronome(vm)
-            CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                PracticeMetronome(vm)
+                CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
+            }
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = { notesOpen = !notesOpen }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (notesOpen) "Hide notes" else "Notes") }
                 TextButton(onClick = { onRecordings(current.sourceBlockId) }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Recordings") }
                 TextButton(onClick = ::requestLeave, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
             }
             if (notesOpen) {
-                OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
                 TextButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
                 if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             }
             recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.recording) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(if (recordings.countInBeat > 0) "Count-in · ${recordings.countInBeat} of 4" else "Recording · " + practiceTime(recordings.elapsedMs),
                     color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                 Button(onClick = { recordings.finishCapture() }, enabled = recordings.ready && !recordings.busy,
@@ -195,8 +197,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
         Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" },
-            style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-        Row(Modifier.fillMaxWidth().testTag("practice-bottom-actions"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
                 contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
                 Text(if (awaiting) "Continue" else if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume")
@@ -215,12 +217,18 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null) {
-    BackHandler { onHome() }
     if (bundle == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available."); ActionButton("Home", onHome) }
         return
     }
     var note by rememberSaveable(bundle.session.id) { mutableStateOf(bundle.session.note) }
+    var discard by rememberSaveable(bundle.session.id) { mutableStateOf(false) }
+    fun leave() { if (!vm.busy) { if (note.trim() != bundle.session.note) discard = true else onHome() } }
+    BackHandler { leave() }
+    if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard unsaved session note?") },
+        text = { Text("Save note first to keep these changes.") },
+        confirmButton = { TextButton(onClick = { discard = false; onHome() }) { Text("Discard") } },
+        dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep editing") } })
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         goalName?.let { Text("Goal: " + it) }
@@ -237,7 +245,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         OutlinedTextField(note, { note = it; vm.noteChanged() }, label = { Text("Session note (optional)") }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.saveNote(bundle.session.id, note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save note") }
         if (vm.noteSaved && note.trim() == bundle.session.note) Text("Note saved")
-        ActionButton("Home", onHome)
+        ActionButton("Home", ::leave)
     }
 }
 

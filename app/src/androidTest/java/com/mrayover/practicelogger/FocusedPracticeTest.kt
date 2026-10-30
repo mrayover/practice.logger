@@ -83,7 +83,7 @@ class FocusedPracticeTest {
             assertTrue(practice.clicking); assertEquals(113,practice.workingBpm)
             // Continue dismisses the dialog without changing click state.
             compose.onNodeWithTag("home-brand").performClick(); shown("Leave current session?")
-            compose.onNodeWithText("Continue").performClick(); assertTrue(practice.clicking)
+            compose.onNode(hasText("Continue") and hasAnyAncestor(isDialog())).performClick(); assertTrue(practice.clicking)
             // Force a real SQLite note-write failure and prove navigation waits for success.
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("retry note")

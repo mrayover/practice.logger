@@ -120,7 +120,9 @@ class MainActivity : ComponentActivity() {
     Surface(Modifier.fillMaxSize()) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         PracticeBanner(onHome = {
-            if (page in setOf("focus", "editor", "routine-editor", "goal-editor", "log")) {
+            if (page == "log") {
+                focus.clearFocus(force = true); keyboard?.hide(); log.leave { page = "home" }
+            } else if (page in setOf("focus", "editor", "routine-editor", "goal-editor", "summary")) {
                 headerHomeRequested = true; backDispatcher?.onBackPressed()
             } else { focus.clearFocus(force = true); keyboard?.hide(); page = "home" }
         }, enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")

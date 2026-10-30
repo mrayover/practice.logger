@@ -51,12 +51,12 @@ import kotlin.coroutines.coroutineContext
         dismissButton = { TextButton(onClick = { confirmRemoval = false }) { Text("Cancel") } })
 }
 
-@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false) {
+@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp) {
     val all by vm.images.collectAsStateWithLifecycle()
-    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge) } }
+    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge, viewerMaxHeight) } }
 }
 
-@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false) {
+@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp) {
     val inset = if (edgeToEdge) 16.dp else 0.dp
     // These states never enter/leave the sheet or touch any practice/audio model.
     var expanded by rememberSaveable(image.fileName) { mutableStateOf(false) }
@@ -98,13 +98,13 @@ import kotlin.coroutines.coroutineContext
                 }
                 // One displayed bitmap per viewer. Dropped pages are left to Android GC rather
                 // than recycling a bitmap that the Compose render thread may still be drawing.
-                ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf")
+                ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf", viewerMaxHeight)
             }
         }
     }
 }
 
-@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false) {
+@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp) {
     var scale by remember(bitmap) { mutableFloatStateOf(1f) }
     var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -122,7 +122,7 @@ import kotlin.coroutines.coroutineContext
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Pinch to zoom; drag while enlarged.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = inset))
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(180.dp, 640.dp)
+        val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(180.dp, maxHeight)
         Box(Modifier.fillMaxWidth().height(viewerHeight).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
             .onSizeChanged { size = it }.testTag("reference-viewer")
             .semantics { contentDescription = "Reference ${if (pdf) "PDF" else "image"} viewer, zoom ${"%.1f".format(scale)}" }
