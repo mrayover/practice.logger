@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current development delivery: **0.16.0/build34 signed candidate**, adding the compact sketch-based practice workspace, one-shot timer cue and guarded header/Home navigation. Full release regression and phone acceptance are pending; exact source, packages and actual checks are authoritative in CURRENT_STATE.md.
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current development delivery: **0.16.0/build34 signed candidate**, adding the compact sketch-based practice workspace, one-shot timer cue and guarded header/Home navigation. Development/testing stopped at the owner’s request. Full release regression is incomplete and phone acceptance is pending; exact source, packages and actual checks are authoritative in CURRENT_STATE.md.
 
 ## Compact practice refinement
 
@@ -39,9 +39,9 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-All **82 unit/Robolectric tests**, debug/release compilation and lint pass (0errors/13warnings). Focused timing/exit/free/loop/long-description/Goal/PDF and enlarged-text recording/reference paths are verified as recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Final image/reopen and complete API26/API35 release gates are pending. Phone acoustic/install-over/TalkBack acceptance is separate.
+All **82 unit/Robolectric tests**, debug/release compilation and lint pass (0errors/13warnings). Focused timing/exit/free/loop/long-description/Goal/PDF and enlarged-text recording/reference paths are verified as recorded in [CURRENT_STATE.md](CURRENT_STATE.md). Final image/reopen checks pass. The complete release matrix failed in legacy session/routine test interactions; follow-up session checks pass, but the full matrix has not been rerun. Work stopped at the owner’s request. Phone acoustic/install-over/TalkBack acceptance is separate.
 
-Next: finish the required final release gates, then install the current signed update in place and perform the Increment4 phone checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage3 phone acceptance remains pending and [EVALUATION.md](EVALUATION.md) stays0/10real sessions.
+Next: owner phone-check the current signed candidate in place and perform the Increment4 phone checks in [MANUAL_TESTS.md](MANUAL_TESTS.md). Stage3 phone acceptance remains pending and [EVALUATION.md](EVALUATION.md) stays0/10real sessions.
 
 ## Development
 

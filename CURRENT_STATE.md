@@ -1,6 +1,15 @@
 # Current state — practice.logger 0.16.0, build34 signed candidate
 
-Updated October29,2026 (America/Los_Angeles). Timer completion audio, the sketch-based compact Focused Practice and protected Home navigation are implemented. **Full release regression is pending; physical-phone acceptance is pending.** Build34 fixes the enlarged-text layout and compact reference reset problems found during verification. Candidates31–33 and the previous verified0.15.0/build30 remain preserved.
+## Owner-requested closeout — October29,2026
+
+The owner ended development/testing because of usage cost. **Implementation and signed build34 are available; complete release regression is NOT passing/complete. No further tests or follow-up automation are scheduled.**
+
+- Signed APK source: `fe175d2631523bbc9d5de3843c19a9c03b1d3148`; last implementation/test commit before closeout: `877083fb623853be72beab32030e0eb60a94d199`. Product/Gradle/schema source remains identical to the signed build; later commits adapt tests/records.
+- Build41004107948 passes82unit/Robolectric tests, debug/release compilation and lint(0errors/13warnings). Signature, permanent certificate, app ID/version, hashes and ZIP integrity are verified.
+- Focused alarm/UI/exit/free/loop/long Goal/expired-reopen checks and200% PDF/free/phrase/reference/reopen paths pass as recorded below. Final image/reopen checks pass completely on API26 CI41005701177 andAPI35 CI41005703557. Physical speaker audibility and permanent-key owner-phone install-over are unverified.
+- Full release CI41006485533/source3ba47765bcb71d4e895af4ded35609b8aaf78a08 failed: API35 at MultipleSessionWorkflowTest.kt30(missing leave confirmation after a legacy keyboard/tap sequence); API26 later at RoutineWorkflowTest.kt88(obsolete scroll call on the pinned timer). No full matrix pass is claimed. Tests were adapted without changing the product or removing persistence/visibility assertions.
+- Isolated multiple-session workflow/reopen subsequently pass on API35 CI41007778661 andAPI26 CI41007781246, source252e4d574034ea7e9c54c6c6ad6ab9bdd451bf1d. Routine diagnostic41008222598 was running when the owner stopped; final snapshot: **in_progress / None**. Cancellation was requested if still running. No routine pass or final rerun is inferred.
+- All112pre-session APK/ZIP files and candidates31–33 remain byte-identical; data/schema/migration/backup/recording-engine sources are unchanged. Source/tests/required records are committed/pushed; final remote SHA is verified at closeout. Synced sources are untouched.
 
 ## Delivery and source
 
@@ -36,7 +45,7 @@ Room10, schema exports/migrations1–10, SessionData, RecordingViewModel and Bac
 - Normal API35 and200% API26 focused3-class checks passed earlier; final build34's200% API35 focused checks, including actual off/on AudioTrack cue writes, once-only/recreation/overtime/BPM, save failure/retry, live recording header refusal/Continue, dirty editor retention, direct free/loop, long Goal/PDF and expired cold-open, passed in the first5phases of[41005098664](https://github.com/mrayover/practice.logger/actions/runs/41005098664).
 - Complete PDF workflow and cold reopen passed at200% on API26[41005044213](https://github.com/mrayover/practice.logger/actions/runs/41005044213) andAPI35[41005098664](https://github.com/mrayover/practice.logger/actions/runs/41005098664), including actual free/phrase capture, reference pages/zoom/reset, Stop/Save, playback, dismissal and timer/BPM/note continuity. Both runs then stopped at an image geometry assertion; neither entire run is called successful.
 - Minimal saved-note/compact zoom/reset diagnostic[41004105479](https://github.com/mrayover/practice.logger/actions/runs/41004105479) passes on API26/200%. Image bound check now allows one physical pixel for dp rounding; isolated final image/reopen runs passed: API26[41005701177](https://github.com/mrayover/practice.logger/actions/runs/41005701177),API35[41005703557](https://github.com/mrayover/practice.logger/actions/runs/41005703557).
-- Actual normal and200% screenshots reviewed against the sketch, including final whole-word primary actions, wrapping metronome and pinned main/sheet Stop/Save. Final full API26/API35 release matrix remains pending after focused image checks. Earlier compile/test selector, nested scroll, keyboard, Reset, rounding and setup-only dispatch failures are documented in WORK_LOG; no failed/cancelled matrix is counted as passing.
+- Actual normal and200% screenshots reviewed against the sketch, including final whole-word primary actions, wrapping metronome and pinned main/sheet Stop/Save. The final full matrix was attempted and failed as recorded in the closeout above; it was not rerun after the test corrections because the owner stopped work. Earlier compile/test selector, nested scroll, keyboard, Reset, rounding and setup-only dispatch failures are documented in WORK_LOG; no failed/cancelled matrix is counted as passing.
 
 ## Remaining acceptance
 
@@ -44,4 +53,4 @@ Physical speaker audibility/simultaneous click balance, media routing/volume, pe
 
 ## One next task
 
-Run and reconcile the required complete API26/API35 release gates for signed build34 before closeout.
+Owner phone acceptance of signed candidate34: install over the existing permanent-key app without uninstalling/clearing data and check the short completion cue with click off/on, compact controls and retained notes/references/takes using MANUAL_TESTS.md. Resume incomplete routine/full regression verification only if the owner requests it; no automated work is scheduled.
