@@ -51,20 +51,20 @@ import kotlin.coroutines.coroutineContext
         dismissButton = { TextButton(onClick = { confirmRemoval = false }) { Text("Cancel") } })
 }
 
-@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp) {
+@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false) {
     val all by vm.images.collectAsStateWithLifecycle()
-    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge, viewerMaxHeight) } }
+    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge, viewerMaxHeight, embeddedExpanded) } }
 }
 
-@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp) {
+@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false) {
     val inset = if (edgeToEdge) 16.dp else 0.dp
     // These states never enter/leave the sheet or touch any practice/audio model.
     var expanded by rememberSaveable(image.fileName) { mutableStateOf(false) }
     var page by rememberSaveable(image.fileName) { mutableIntStateOf(0) }
     var retry by remember(image.fileName) { mutableIntStateOf(0) }
-    OutlinedButton(onClick = { expanded = !expanded },
+    if (!embeddedExpanded) OutlinedButton(onClick = { expanded = !expanded },
         modifier = Modifier.fillMaxWidth().padding(horizontal = inset).heightIn(min = 48.dp).testTag("reference-toggle")) { Text(if (expanded) "Hide reference" else "Show reference") }
-    if (expanded) key(image.fileName, page, retry) {
+    if (embeddedExpanded || expanded) key(image.fileName, page, retry) {
         var result by remember { mutableStateOf<ReferencePage?>(null) }
         var failure by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {

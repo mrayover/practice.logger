@@ -1,3 +1,7 @@
+# Build36 owner-test preview in preparation
+
+Owner accepted build35's expanded size and requested Reference Material collapsed until clicked. Layout refinement implemented; compile/smoke-launch/signing pending. Prior build35 delivery record follows until build36 is packaged. Full regression verification remains pending under the same preview-only exception.
+
 # Current state — owner-test preview 0.16.0/build35
 
 Updated2026-10-30 (America/Los_Angeles). **Signed, installable owner-test preview; full regression verification pending.** The owner explicitly limited this layout-only preview to compilation, a basic launch check and package verification. Normal release requirements remain unchanged. No further automated work is scheduled.

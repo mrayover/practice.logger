@@ -137,6 +137,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
     var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
     var notesOpen by rememberSaveable(current.id) { mutableStateOf(false) }
+    var referenceOpen by rememberSaveable(current.id) { mutableStateOf(false) }
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     val audioBusy = recordings.recording || recordings.busy
@@ -171,19 +172,30 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                             modifier = Modifier.fillMaxWidth().heightIn(min = 32.dp, max = 80.dp).verticalScroll(rememberScrollState()).testTag("practice-description"))
                     }
                 }
-                OutlinedCard(Modifier.fillMaxWidth().then(if (stretchReference) Modifier.weight(1f) else Modifier)
+                OutlinedCard(Modifier.fillMaxWidth().then(if (stretchReference && referenceOpen) Modifier.weight(1f) else Modifier)
                     .testTag("practice-reference-area")) {
-                    Column(Modifier.fillMaxWidth().then(if (stretchReference) Modifier.fillMaxHeight() else Modifier)
-                        .heightIn(min = 100.dp, max = if (stretchReference) workspaceHeight else 300.dp)
-                        .verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Reference Material", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(start = 12.dp, top = 8.dp).semantics { heading() })
-                        if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
-                        current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
-                        PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = 220.dp)
-                        Spacer(Modifier.height(4.dp))
+                    TextButton(onClick = { referenceOpen = !referenceOpen },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("practice-reference-toggle")
+                            .semantics { stateDescription = if (referenceOpen) "Expanded" else "Collapsed" }) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Text("Reference Material", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f).semantics { heading() })
+                            Text(if (referenceOpen) "Collapse" else "Expand", style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                    if (referenceOpen) {
+                        Column(Modifier.fillMaxWidth().then(if (stretchReference) Modifier.fillMaxHeight() else Modifier)
+                            .heightIn(min = 52.dp, max = if (stretchReference) workspaceHeight else 252.dp)
+                            .verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
+                            current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
+                            PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = 220.dp, embeddedExpanded = true)
+                            Spacer(Modifier.height(4.dp))
+                        }
                     }
                 }
+                if (stretchReference && !referenceOpen) Spacer(Modifier.weight(1f))
                 Column(Modifier.padding(horizontal = 16.dp)) {
                     PracticeMetronome(vm)
                     CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
