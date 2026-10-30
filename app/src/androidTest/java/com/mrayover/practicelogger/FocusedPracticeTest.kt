@@ -24,6 +24,22 @@ fun SemanticsNodeInteraction.scrollIfNeeded(): SemanticsNodeInteraction {
     return assertIsDisplayed()
 }
 
+fun scrollPracticeWorkspace(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>, matcher: SemanticsMatcher) {
+    if (compose.onAllNodesWithTag("practice-workspace").fetchSemanticsNodes().isNotEmpty() &&
+        compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isEmpty()) {
+        compose.onNodeWithTag("practice-workspace").performScrollToNode(matcher)
+    }
+}
+
+fun revealPracticeReference(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
+    if (compose.onAllNodesWithTag("practice-workspace").fetchSemanticsNodes().isNotEmpty() &&
+        compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isEmpty()) {
+        compose.onNodeWithTag("reference-viewer").performScrollTo()
+        scrollPracticeWorkspace(compose, hasTestTag("reference-viewer"))
+        compose.onNodeWithTag("reference-viewer").assertIsDisplayed()
+    }
+}
+
 fun revealPracticeNotes(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
     if (compose.onAllNodesWithText("Quick note (optional)").fetchSemanticsNodes().isEmpty())
         compose.onNodeWithText("Notes").scrollIfNeeded().performClick()

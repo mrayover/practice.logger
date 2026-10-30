@@ -20,7 +20,12 @@ class ImageReferenceWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() } }
-    private fun click(text: String) { shown(text); val node = compose.onNodeWithText(text); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
+    private fun click(text: String) {
+        shown(text); val node = compose.onNodeWithText(text)
+        if (!node.isDisplayed()) scrollPracticeWorkspace(compose, hasText(text))
+        if (!node.isDisplayed()) node.performScrollTo()
+        node.assertIsDisplayed().performClick()
+    }
     private fun editor(name: String) {
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText(name)); click(name); shown("Edit Block")
     }
@@ -90,6 +95,7 @@ class ImageReferenceWorkflowTest {
             repeat(3) {
                 click("Show reference")
                 compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
+                revealPracticeReference(compose)
                 val viewer = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
                 val page = compose.onRoot().getUnclippedBoundsInRoot()
                 assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)

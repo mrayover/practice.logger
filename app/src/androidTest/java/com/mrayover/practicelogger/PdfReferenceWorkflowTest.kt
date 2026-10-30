@@ -22,7 +22,10 @@ class PdfReferenceWorkflowTest {
             (compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty() || !compose.onAllNodesWithText(text).onLast().isDisplayed())) {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText(text))
         }
-        shown(text); val node = compose.onAllNodesWithText(text).onLast(); if (!node.isDisplayed()) node.performScrollTo(); node.performClick() }
+        shown(text); val node = compose.onAllNodesWithText(text).onLast()
+        if (!node.isDisplayed()) scrollPracticeWorkspace(compose, hasText(text))
+        if (!node.isDisplayed()) node.performScrollTo()
+        node.assertIsDisplayed().performClick() }
     private fun clearKeyboard() = compose.runOnIdle {
         compose.activity.currentFocus?.clearFocus()
         compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
@@ -31,6 +34,7 @@ class PdfReferenceWorkflowTest {
     private fun viewer() = compose.onAllNodesWithTag("reference-viewer").onLast()
     private fun rendered() { compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() } }
     private fun zoom() {
+        revealPracticeReference(compose)
         viewer().performScrollTo().performTouchInput { pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f)) }
         shown("Reset PDF zoom"); viewer().performTouchInput { swipe(center,center+Offset(40f,25f)) }; click("Reset PDF zoom")
     }
