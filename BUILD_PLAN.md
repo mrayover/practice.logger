@@ -64,3 +64,8 @@ Install signed 0.15.0/build 30 in place and perform the PDF/recording/update-ret
 ## Increment 3 — delivered 2026-10-29
 
 Build26 single-image references and build27 portrait/layout refinement are both complete. The authorized scope is one image OR PDF per saved Block, bounded local PdfRenderer page viewing and inline recording-sheet reference viewing during capture/count-in. Preserve original bytes, ownership/deletion, recording lifecycle and JSON6 exclusions. Delivered 0.15.0/build 30; permanent-key packaging, full API26/API35 release and 200% PDF/image checks pass. Physical-phone acceptance remains pending. Multiple attachments, annotations/OCR, media-inclusive backup and background recording remain deferred.
+
+
+## Increment 4 — focused reliability/UI refinement, authorized 2026-10-29
+
+Scope is the missing short Block-duration audio cue, compact one-screen Focused Practice matching the owner's hand-drawn sketch and safe interactive header/Home navigation. Reuse the sample-clock metronome, recorder/phrase setup, bounded reference viewer and saved-session workflow. Preserve exact BPM/history, foreground-only timing, explicit overtime and Complete/Skip, snapshot instructions/reference notes, expandable Quick notes and full take management. Exit confirmation saves/checkpoints before Home and keeps failed drafts recoverable; other editors retain discard guards. No schema/backup/audio-engine redesign. Candidate0.16.0/build31 implemented; checks/signing pending in CURRENT_STATE.md. Physical speaker/mixing and owner-phone usability remain separate acceptance requirements.

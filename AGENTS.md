@@ -41,3 +41,12 @@ Never commit APKs, dist, build outputs, SDKs, tool downloads, local.properties, 
 Current operational documents must describe the current app, not accumulate contradictory old “current states,” obsolete install paths or completed next tasks. Keep current delivery paths in CURRENT_STATE.md and dist/LATEST.txt; other records should link to that authority. Record actual source/CI evidence and uncertainty; do not invent phone results or resolve ambiguous future decisions.
 
 The owner explicitly requested consolidation on 2026-10-28, superseding the former append-only/preserve-every-entry rule for that cleanup. The complete pre-cleanup records remain in Git history at 84565ea. Retain meaningful release facts and the mandatory efficiency procedure. After this consolidation, append concise factual session entries; further broad historical cleanup requires an owner request. Avoid repeating entire release narratives across every file.
+
+
+## Focused Practice UI/audio/navigation invariants
+
+The owner's sketch governs compact Focused Practice: count/Goal beside timer, bounded description/reference content, compact click/free/loop rows and pinned horizontal Block actions. Keep accessible touch sizes, enlarged-text scrolling, expandable Quick notes and full take management. Pinned active Stop/Save must survive workspace scrolling. Reuse recording ownership when opening its management sheet from focus; viewer state never reenters/leaves audio.
+
+Completion audio is a one-shot from a successfully committed, armed, foreground running duration crossing, never from composition/database emissions/recovery. Stop at zero independently of output failure. Reuse sample-clock audio, briefly duck amplitude without resetting BPM/beat phase or requesting competing focus; no automatic completion/advance. Preserve foreground-only clocks and explicit overtime. Verify actual PCM/output writes separately from mandatory physical acoustic acceptance.
+
+Banner and Android Back share practice exit confirmation. Continue preserves state; Back to Main checkpoints/saves the note and navigates only after success, with rapid-tap guards and a recoverable failure. Active capture requires Stop/Save or phrase cancel first. Banner must reuse existing Block/Goal/Routine discard and Log save barriers.

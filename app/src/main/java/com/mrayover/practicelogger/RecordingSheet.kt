@@ -225,8 +225,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     else if (loop) phraseDialog = true
                     else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
                     else permission.launch(Manifest.permission.RECORD_AUDIO)
-                }, enabled = enabled && (!vm.recording || vm.phrasing == loop), contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) {
-                    Text(if (vm.recording && vm.phrasing == loop) { if (loop) "Cancel phrase" else "Stop and Save" } else if (loop) "Record Loop" else "Record", style = MaterialTheme.typography.bodyMedium)
+                }, enabled = enabled && !vm.recording, contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(if (vm.recording && vm.phrasing == loop) "Recording…" else if (loop) "Record Loop" else "Record", style = MaterialTheme.typography.bodyMedium)
                 }
                 TextButton(onClick = { if (playing) vm.stopPlayback() else latest?.let { onBeforePlayback(); vm.play(it) } }, enabled = enabled && !vm.recording && latest != null,
                     contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = (if (playing) "Stop" else "Play") + if (loop) " latest loop" else " latest free take" }) { Text(if (playing) "Stop" else "Play") }

@@ -2,6 +2,14 @@
 
 An offline Android practice app built with Kotlin, Jetpack Compose, Room and locally bundled Lato. Current signed release: **0.15.0/build 30**, adding PDF references and inline reference viewing while recording. Compact Block headings and upright, wide photo references are retained. Daily Log/Weekly View is retained. Exact verification and limitations are in CURRENT_STATE.md.
 
+## Compact practice refinement
+
+The current development increment places Block/Goal details beside a small timer, then bounded Practice Description and Reference Material areas, a compact metronome row and direct free/loop recording rows. Tap the displayed BPM for exact entry; ±1 and click start/stop remain independent of timing. Notes expands the Quick note editor; Recordings opens the full take list for older takes, rename/export/delete. Recording Stop/Save and Start/Pause/Resume, Complete and Skip stay below scrolling content. Long descriptions and expanded references scroll within bounds; enlarged text permits workspace scrolling.
+
+A running Block crossing its configured duration plays a short two-note cue through the existing media AudioTrack path, briefly ducking a running click while retaining BPM/beat phase. It stops at zero and still requires explicit Continue for overtime or Complete. It never marks a Block finished or replays from reopening/recomposition. Device media volume/routing determine physical audibility.
+
+The banner returns Home. During practice, banner and Android Back open **Leave current session?**: Continue stays put; Back to Main pauses/checkpoints and saves the note before navigation. Save failure remains recoverable on the same screen. Stop/Save or cancel an active recording before confirming exit. Unsaved Block/Goal/Routine editors reuse their discard safeguards; Log retains its save barrier. Current candidate/release verification is in CURRENT_STATE.md.
+
 ## Install and verify
 
 Use the current APK or ZIP linked in [CURRENT_STATE.md](CURRENT_STATE.md). That file is the single authority for delivery paths, source SHA, signature/hash, actual CI results and known limitations. The local distribution pointer is [dist/LATEST.txt](dist/LATEST.txt). Packages are local, ignored by Git, and earlier releases remain preserved.

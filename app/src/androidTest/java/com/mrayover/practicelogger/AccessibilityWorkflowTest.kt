@@ -13,7 +13,7 @@ import org.junit.Test
 class AccessibilityWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() } }
-    private fun visible(node: SemanticsNodeInteraction): SemanticsNodeInteraction = try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo().assertIsDisplayed() }
+    private fun visible(node: SemanticsNodeInteraction): SemanticsNodeInteraction = try { node.assertIsDisplayed() } catch (_: AssertionError) { node.scrollIfNeeded().assertIsDisplayed() }
     private fun click(text: String) {
         compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
         visible(compose.onNodeWithText(text)).performClick()
@@ -69,7 +69,7 @@ class AccessibilityWorkflowTest {
             shown("Routine name"); readable("Routine name")
             compose.onNodeWithText("Routine name").performTextInput("Large text routine")
             click("Add Accessible fixture"); shown("1. Accessible fixture"); click("Add Accessible fixture"); shown("2. Accessible fixture")
-            compose.onNodeWithContentDescription("Move Accessible fixture, Routine placement 2, up").performScrollTo().assertIsDisplayed().performClick()
+            compose.onNodeWithContentDescription("Move Accessible fixture, Routine placement 2, up").scrollIfNeeded().assertIsDisplayed().performClick()
             compose.onNode(hasText("Change duration") and hasAnyAncestor(hasTestTag("routine-placement-0"))).scrollIfNeeded().performClick()
             readable("Minutes"); readable("Apply duration"); compose.onNodeWithText("Minutes").performTextReplacement("2")
             compose.onNodeWithText("Apply duration").performClick(); readable("Routine duration: 2:00")
@@ -81,13 +81,13 @@ class AccessibilityWorkflowTest {
             shown("2. Accessible fixture"); readable("Change duration")
             // Repeated controls identify their Block for assistive technology.
             compose.onNodeWithContentDescription("Move Accessible fixture, placement 2, up").assertExists()
-            compose.onNode(hasText("Down") and hasAnyAncestor(hasTestTag("placement-0"))).performScrollTo().assertIsDisplayed().performClick()
+            compose.onNode(hasText("Down") and hasAnyAncestor(hasTestTag("placement-0"))).scrollIfNeeded().assertIsDisplayed().performClick()
             captureStage3("10-large-builder")
             readable("Save as Routine"); click("Save as Routine"); readable("Routine name"); readable("Save Routine"); captureStage3("10-large-save-as-routine"); compose.onNodeWithText("Cancel").performClick()
             click("Start Session"); shown("Ready when you are")
-            compose.onNodeWithTag("practice-timer").performScrollTo().assertIsDisplayed().assertContentDescriptionEquals("Time remaining 1:00")
+            compose.onNodeWithTag("practice-timer").scrollIfNeeded().assertIsDisplayed().assertContentDescriptionEquals("Time remaining 1:00")
             captureStage3("11-large-timer")
-            readable("Metronome · 120 BPM"); compose.onNodeWithContentDescription("Set BPM").performScrollTo().assertIsDisplayed(); readable("Start click")
+            readable("Metronome · 120 BPM"); compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().assertIsDisplayed(); readable("Start click")
             compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().performClick(); readable("Apply BPM")
             compose.onNodeWithText("BPM (30–300)").performTextReplacement("300")
             click("Apply BPM"); readable("Metronome · 300 BPM")
@@ -98,7 +98,7 @@ class AccessibilityWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record phrase")); readable("Record phrase")
             compose.onNodeWithText("Record phrase").performClick(); readable("Phrase BPM"); readable("30–300"); captureStage3("11-large-phrase-input"); readable("32 beats")
             readable("Click while recording")
-            compose.onNodeWithTag("phrase-recording-click").performScrollTo().assertIsOn().performClick().assertIsOff()
+            compose.onNodeWithTag("phrase-recording-click").scrollIfNeeded().assertIsOn().performClick().assertIsOff()
             compose.onNodeWithTag("phrase-recording-click").performClick().assertIsOn()
             readable("Start 4-click count-in"); captureStage3("11-large-phrase-setup")
             compose.onNodeWithText("Cancel").performClick()

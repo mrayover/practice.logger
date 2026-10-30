@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
             if (page in setOf("focus", "editor", "routine-editor", "goal-editor", "log")) {
                 headerHomeRequested = true; backDispatcher?.onBackPressed()
             } else { focus.clearFocus(force = true); keyboard?.hide(); page = "home" }
-        }, enabled = !recordings.recording && !recordings.busy && recordingsBlockId == null && page != "free-recording")
+        }, enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
         Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }

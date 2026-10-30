@@ -1,5 +1,6 @@
 # Current state — practice.logger 0.15.0, build 30
 
+**New owner-approved increment in progress (2026-10-29):** timer completion cue, compact sketch-based Focused Practice and protected header-to-Home navigation. Candidate 0.16.0/build31 is implemented at 4c55480; compilation, native checks and signing are pending. The build30 delivery record below remains the last verified release until replaced. Next task: finish focused validation, publish the first signed candidate, then run the required final release gates.
 Updated October 29, 2026 (America/Los_Angeles). This is the authoritative release record. **Increment 3 is delivered:** one PDF or image per saved Block, with inline reference viewing during practice and recording. Automated release gates pass. Physical-phone acceptance remains pending.
 
 ## Delivery and provenance

@@ -99,8 +99,8 @@ class FocusedPracticeTest {
             click("Continue"); compose.waitUntil(5000) { practice.running }
             // The direct free take uses the existing engine; exit/Complete cannot lose it.
             click("Record"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs>=1000 }
-            compose.onNodeWithText("Complete").assertIsNotEnabled(); compose.onNodeWithText("Stop and Save").assertIsDisplayed()
-            screenshot("free-recording"); click("Stop and Save")
+            compose.onNodeWithText("Complete").assertIsNotEnabled(); compose.onNodeWithTag("practice-recording-stop").assertIsDisplayed()
+            screenshot("free-recording"); compose.onNodeWithTag("practice-recording-stop").performClick()
             compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId==db.sessions().let { runBlocking { it.find(session)!!.current!!.sourceBlockId } } } }
             compose.onNodeWithContentDescription("Play latest free take").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId!=null }; compose.runOnIdle { recordings.stopPlayback() }

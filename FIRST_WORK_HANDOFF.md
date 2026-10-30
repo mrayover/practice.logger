@@ -1,5 +1,6 @@
 # practice.logger — Current work handoff
 
+**New owner-approved increment in progress (2026-10-29):** timer completion cue, compact sketch-based Focused Practice and protected header-to-Home navigation. Candidate 0.16.0/build31 is implemented at 4c55480; compilation, native checks and signing are pending. The build30 delivery record below remains the last verified release until replaced. Next task: finish focused validation, publish the first signed candidate, then run the required final release gates.
 Updated 2026-10-29 (America/Los_Angeles). This is the existing Kotlin/Compose/Room app in `C:\Users\mrove\Projects\practice.logger`. Do not recreate it or change synced project sources.
 
 1. Read AGENTS.md, CURRENT_STATE.md, BUILD_PLAN.md, WORK_LOG.md (mandatory efficiency procedure), README.md and BACKUP_FORMAT.md.
