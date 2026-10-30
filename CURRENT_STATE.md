@@ -1,42 +1,41 @@
-# Current state — Assignment 1 owner preview 0.16.0/build38
+# Current state — Focused Practice UI refinement, 0.16.0/build39
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview. Full regression verification pending.** Assignment 1 only; later recording acceptance and multiple-note history are not implemented. No further automated work is scheduled.
+Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview. Full regression verification pending.** UI refinement only; no later recording acceptance workflow or multiple-note history. No further automated work scheduled.
 
 ## Delivery and provenance
 
 | Item | Verified value |
 |---|---|
-| Version | 0.16.0 / code38 |
-| Signed app source | `a9e438603811e4137016af438fa15eae4b6540a2` |
-| Limited preview run | [41110598208](https://github.com/mrayover/practice.logger/actions/runs/41110598208) |
+| Version | 0.16.0 / code39 |
+| Signed app source | `b0e7d40df6646595b2d7436a4d342becb3f96fad` |
+| Limited preview run | [41115775640](https://github.com/mrayover/practice.logger/actions/runs/41115775640) |
+| Final workflow status | completed / success |
 | App identity | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
 | Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `88994562827508cd1fc8ec4b733b05002693f468dbfd1204a5b8085ab04162cd` |
-| ZIP SHA256 | `f92bdb40d67fa4b18711291ba55a33c12ffc2078c3018d44fbc72bfb81501636` |
+| APK SHA256 | `383d2a8b6f63f7edfddbd21717e6964cdd0509efbbda60527a4c9f0e66de3391` |
+| ZIP SHA256 | `41024d34e161b08c407547dd057a7eaa2a2297811511f243ef1ac4076a875a71` |
 
-[Installable APK](dist/practice.logger-0.16.0-b38-a9e4386/practice.logger-0.16.0-b38-a9e4386.apk) · [ZIP](dist/practice.logger-0.16.0-b38-a9e4386.zip) · [build info](dist/practice.logger-0.16.0-b38-a9e4386/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b38-a9e4386/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b38-a9e4386/PHONE_CHECKLIST.txt) · [latest pointer](dist/LATEST.txt).
+[Installable APK](dist/practice.logger-0.16.0-b39-b0e7d40/practice.logger-0.16.0-b39-b0e7d40.apk) · [ZIP](dist/practice.logger-0.16.0-b39-b0e7d40.zip) · [build info](dist/practice.logger-0.16.0-b39-b0e7d40/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b39-b0e7d40/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b39-b0e7d40/PHONE_CHECKLIST.txt) · [latest pointer](dist/LATEST.txt).
 
-Install over the existing permanent-key app without uninstalling or clearing data. Existing publisher verifies the pinned certificate, cryptographic signature, stable app ID and version38. Final ZIP CRC/member round trip and all 142 prior APK/ZIP hashes pass. Packages are ignored local artifacts. A documentation-only commit follows the signed source; it does not change the app.
+Install over the existing permanent-key app without uninstalling or clearing data. Existing publisher verifies the pinned permanent certificate, cryptographic signature, stable app ID and version39. ZIP CRC/member round trip and all 146 prior APK/ZIP hashes pass. Local packages remain ignored by Git. A documentation-only commit follows the signed source.
 
-## Assignment 1 changes
+## Before and after
 
-Focused Practice retains banner, Block identity/timer and primary actions. The metronome and compact free/loop rows now occupy a pinned transport outside reference scrolling. Each row has a dropdown of this Block's saved recordings, readable name/date (loop BPM/beats), Record and selected playback/Stop. Selection starts at latest, survives panel/reference toggles during this visit and is never persisted. Earlier takes are retained. Existing automatic loop playback can be stopped from the loop row even if an older loop remains selected.
+Build38 always displayed a bounded description alongside a separately collapsible reference, and used multiple recording metadata lines on the cream background. Build39 shares the flexible workspace between Description and Reference, keeps both compact single-line headers visible and permits one expansion or both collapsed. An attached image/PDF is favored after attachment data loads; otherwise Description opens. Empty reference content does not create a large reference card. The existing viewer now has a default-off option that sizes its viewport from available height after measuring its page/guide controls; aspect fit, pages, zoom/reset and resource loading remain.
 
-Notes and loop setup expand inline above the controls; one local panel flag makes them mutually exclusive. The weighted workspace contracts/expands as panel height changes. Panel/transport scrolling and wrapping controls provide reachability on shorter displays and enlarged text; primary and active recording actions stay outside that scroll. Reference collapse/image/PDF viewer reuse is retained.
+The pinned transport has a subtle cream/green blended surface and a divider. Plain clickable recording labels have no rounded wrapper; action buttons retain their established rounded style and 48dp targets. A selected recording uses one ellipsized line: user name or concise date/time including seconds. No raw IDs or duplicate dates. Green action/playback states replace the redundant Looping line; recording/count-in/errors remain. Normal rows have fewer gaps/lines. Ready/practicing/paused feedback is represented by the timer action's accessible state; time-reached guidance stays visible.
 
-Loop setup reuses the management dialog's form, BPM30–300, 4/8/16/32 beats, optional recording click, validation and four-click count-in. Record collapses the panel and calls the existing capture/automatic-save/autoplay path; count-in/capture status remains in the transport. Notes reuses the single Block-session placement note; Save and return closes after a successful saved value arrives. No new note history, recording lifecycle, storage/schema, media engine or navigation architecture. Daily Log is unchanged. Full Recordings navigation is removed only from Focused Practice; management and main Recording remain.
+Free/loop selection lists now expand inline into the same exclusive Notes/setup/history panel state. Lists contain detailed existing metadata. Standard Compose verticalScroll handles contents; a persistent right-side track/thumb is drawn when there is overflow in Notes, selection lists, loop setup, workspace and short-display fallback controls. Panel height is bounded; main/active practice actions remain outside panel scrolling. Notes still saves the same single Block-session note. No database, schema, recording engine, audio ownership, timer, daily Log or unrelated navigation change. FocusedPractice's original placement-keyed DisposableEffect remains the sole session/audio owner.
 
-RecordingViewModel enterBlock/leaveBlock remain owned by the original focus DisposableEffect keyed to placement/VM, outside panel composition. Panel/reference state cannot restart that effect. Starting capture still stops playback; simultaneous loop playback/free capture is excluded. The independent click retains its established start/playback behavior.
+## Verification performed
 
-## Verification actually performed
+- Debug/release and instrumentation APK compilation pass.
+- One clean API35 debug emulator install/launch: successful start, live process, visible app UI and no app crash in smoke window.
+- One targeted TransportPreviewTest scenario passes: reference default/display, Description/Reference exclusivity and both-collapsed switching, no-reference Description default, workspace contraction, setup/Notes/free-list/loop-list overflow indicators, note save during capture, timer/click continuity, two real free takes and two real loops, older selections/playback, placement identity and retained take count. Directly affected screenshots reviewed before signing.
+- Permanent-key publisher, final APK/ZIP/member/hash audit, prior-package preservation and source/whitespace checks pass.
 
-- Debug/release APK and instrumentation APK compilation pass in the limited preview run above.
-- One clean API35 debug emulator install/start, live process, visible app UI and empty app crash window pass.
-- Exactly one TransportPreviewTest scenario passes: PDF opens, transport remains reachable, Notes/loop panel exclusivity and workspace contraction, timer/click continue across toggles, note saves while free capture continues, two real free takes and two real loops save, old free/loop selection/playback works, loop playback survives Notes toggles, placement identity and all four saved takes remain.
-- Existing permanent-key publisher and archive/hash audit pass. Git whitespace/source scope checks pass. Previous distribution files are preserved.
-
-No full unit/lint/regression/instrumentation suite/API matrix, historical failure investigation, dedicated enlarged-text/landscape/TalkBack or permission/failure injection was run. The smoke/transport tests use debug signing. Physical-phone signed APK install-over, retained-data acceptance, layout/keyboard accessibility and acoustic recording/click/loop quality remain owner checks. Full release rules remain intact; prior incomplete build34 regression records remain in WORK_LOG. Room10/migrations1–10 and JSON6/readers1–6 are unchanged; JSON still excludes reference/take media and metadata. Stage3 phone acceptance pending, Stage4 remains0/10 real sessions.
+Not run: full units/lint/regression/instrumentation suites, API matrix, dedicated 200%/landscape/TalkBack, permission-denial/failure injection or historical diagnostics. Debug emulator checks do not establish permanent-key phone install-over/data retention or physical audio quality/timing. Phone keyboard/enlarged-text/landscape reachability and scrollbar discoverability remain owner checks. Full release requirements remain intact; prior incomplete full-regression evidence stays in WORK_LOG. Room10/migrations1–10, JSON6/readers1–6 and media exclusions are unchanged. Stage3 phone acceptance pending; Stage4 remains0/10 real sessions.
 
 ## One next task
 
-Owner: install build38 in place and run the short Assignment 1 checklist in MANUAL_TESTS.md or the package PHONE_CHECKLIST.txt. Report transport/reference sizing, selection, recording and note behavior. Stop at Assignment 1; no later assignment begins automatically.
+Owner: install build39 in place and follow the six-step refinement phone checklist in MANUAL_TESTS.md or the package PHONE_CHECKLIST.txt. Report workspace sizing, compact transport, scrollbar/keyboard and recording/note behavior. No subsequent assignment starts automatically.

@@ -1,10 +1,10 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current delivery: **0.16.0/build38 Assignment 1 owner preview**. A pinned compact transport contains the metronome, free/loop take selectors and recording/playback actions. Notes and loop setup expand upward, one at a time, resizing the reference workspace. Debug/release compilation, one API35 launch smoke check and one targeted transport scenario pass; **full regression verification is pending**. Exact package/source/checks and pending phone acceptance are authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
+An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current delivery: **0.16.0/build39 Focused Practice UI refinement owner preview**. Description and Reference share an expandable workspace; a subtly tinted compact transport has plain one-line recording labels and persistent overflow thumbs in expanded panels. Compile, one API35 launch and one focused transport check pass; **full regression verification is pending**. Exact delivery and phone acceptance are authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Focused Practice transport
 
-Block/Goal/timer, bounded description/reference viewer and primary actions remain. Dropdowns select this Block's older free takes/loops; each starts at latest on entry and retains its choice during the visit. Notes edits the existing single Block-session note; Save and return closes after successful save. Record Loop opens inline setup with existing BPM/beats/click/count-in; Record collapses it and uses existing automatic saving/playback. Full recording management remains in saved Block management and main Recording. On small displays/enlarged text, panels and transport scroll within bounds while primary/active recording actions remain available.
+Both workspace headers remain visible: opening Description closes Reference and vice versa, or collapse both. An attached reference opens by default; otherwise Description opens. The image/PDF viewport follows available height with the same aspect fit/page/zoom/reset controls. Compact free/loop rows display a saved name or concise date/time on one line with ellipsis and an arrow. Select older takes in bounded inline lists; existing metadata appears there. Overflowing Notes, selection and setup panels have persistent scroll thumbs. Green active controls represent playback without the extra Looping line. Notes reuses the existing single Block-session note and Save and return. Timer/click/recording ownership and all saved data remain. Full recording management stays outside Focused Practice.
 
 A running Block crossing its configured duration plays a short two-note cue through the existing media AudioTrack path, briefly ducking a running click while retaining BPM/beat phase. It stops at zero and still requires explicit Continue for overtime or Complete. It never marks a Block finished or replays from reopening/recomposition. Device media volume/routing determine physical audibility.
 
@@ -39,9 +39,9 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build37 passes debug/release/test-APK compilation, one clean API35 debug launch smoke check and one narrowly targeted transport scenario; permanent-key package/signature/version/hash/ZIP checks pass. Full units/lint/regression suites and API matrix were not run under the owner's explicit Assignment 1 preview exception. Normal release rules remain unchanged; prior incomplete full-regression evidence remains in WORK_LOG.md.
+Build39 passes debug/release/test-APK compilation, one clean API35 debug launch smoke check and one narrowly targeted transport scenario; permanent-key package/signature/version/hash/ZIP checks pass. Full units/lint/regression suites and API matrix were not run under the owner's explicit UI-refinement preview exception. Normal full-release rules remain unchanged. Exact checks/limitations and signed source are in CURRENT_STATE.md.
 
-Next: install build38 over the current permanent-key app and follow the short Assignment 1 checklist in MANUAL_TESTS.md or its package PHONE_CHECKLIST.txt. Phone install-over/data retention, landscape/enlarged text/TalkBack and acoustic acceptance remain pending; Stage3 is pending and EVALUATION.md remains0/10 real sessions.
+Next: install the current signed preview in place and run the refinement section of MANUAL_TESTS.md or package PHONE_CHECKLIST.txt. Physical-phone install-over/data, audio, keyboard, landscape/enlarged text and TalkBack acceptance remain pending. Stage3 pending; EVALUATION remains0/10 real sessions.
 
 ## Development
 

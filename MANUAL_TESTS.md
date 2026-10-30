@@ -1,19 +1,17 @@
-# Current phone checklist — Assignment 1 transport,0.16.0/build38
+# Current phone checklist — Focused Practice refinement,0.16.0/build39
 
-Updated 2026-10-30 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
+Updated 2026-10-30 (America/Los_Angeles). Pending owner checks, not phone results already performed. Use the current signed package in CURRENT_STATE.md; record phone/Android/build and observations.
 
-## Assignment 1 limited owner preview
+## Limited owner-preview refinement checklist
 
-1. Install build38 over your permanent-key app without uninstalling/clearing data. Confirm existing Blocks, history, notes, references, free takes and loops remain.
-2. Open Focused Practice with an image/PDF. Expand/collapse the reference and scroll/zoom/change PDF pages; metronome, recording controls and primary practice actions should remain available.
-3. Start timer/metronome. Open Notes then Record Loop: only one panel opens, workspace contracts and re-expands on close, timer/click continue through panel toggles. Check portrait, landscape and enlarged text; scroll within a panel/transport if needed.
-4. Each dropdown initially selects the latest take of its type for this Block. Select/play/stop older free takes and loops; check readable name/date/BPM/beats and selection retained across panel/reference toggles. Reentering starts from latest; selections are not stored permanently.
-5. Record free audio, toggle reference/Notes during capture, Stop and confirm automatic save without losing earlier takes. Starting capture replaces playback; simultaneous free capture/loop playback is excluded.
-6. Record Loop: check BPM 30–300 validation, 4/8/16/32 beats and optional click. Record closes setup, shows four-count/capture status with reference still available; auto-save/loop playback and cancel remain. Listen on the phone for quality/timing.
-7. Notes: edit the single Block-session note, Save and return; panel closes after save. Reopen and confirm text, then leave/resume session. This is one note per placement, not multiple-note history. Check separate daily Log is retained.
-8. Confirm full recording management (older takes/rename/export/delete) remains through saved Block management and main Recording; no library button is expected in Focused Practice.
+1. Install build39 over the permanent-key app without uninstalling/clearing data; confirm existing Blocks, notes, history, images/PDFs and recordings remain.
+2. Attached reference should open by default; an unattached Block should open Description. Toggle both headers: one expansion at a time or both collapsed, both headers reachable. PDF pages/zoom/reset should work and use the available workspace.
+3. Check compact tinted transport, green action/playing states, plain labels and one-line titles/ellipsis. Select named and older free/loop takes; full details belong in the list. Confirm playback Stop and recording Stop/save/cancel/count-in remain functional.
+4. Open Notes, each recording list and loop setup. Long content should show a persistent right-side thumb and scroll inside its panel; main controls/actions remain accessible and workspace contracts/restores. Check a long note with keyboard open, portrait/landscape and enlarged text.
+5. Start timer/click and toggle workspace/panels during free capture or playback; toggles must preserve the session/audio. Playback still stops the independent click as before; simultaneous loop playback/free capture remains excluded. Listen on the phone for audio quality/timing.
+6. Save and return from Notes, reopen and confirm the single Block-session note. Check Complete/Skip/Save for later, existing recording management outside practice and the separate daily Log. No multiple-note history or later recording-acceptance workflow is included.
 
-The broader retained acceptance checks below are future full-release/phone reference material; they were not run for this preview. In Focused Practice, the former Save Block note action is now Save and return.
+The broader retained checks below are future phone/full-release reference material; they were not run for this preview. Focused Practice uses Save and return for the single Block-session note.
 
 ## Install and preserve data
 
