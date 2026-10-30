@@ -54,6 +54,12 @@ class FocusedPracticeTest {
             }
             shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; shown("Practice Description")
             screenshot("initial-before-assertions")
+            listOf("Start", "Complete", "Skip").forEach { label ->
+                val layouts=mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+                compose.onNodeWithText(label,useUnmergedTree=true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                assertTrue("Primary label must not break inside a word: $label",layouts.isNotEmpty() && layouts.all { it.lineCount==1 })
+            }
+
             // At normal font scale this verifies real visibility without scrolling first.
             if (app.resources.configuration.fontScale < 1.5f) {
                 listOf("Practice Description","Free recording","Loop recording","Recordings","Start","Complete","Skip").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
