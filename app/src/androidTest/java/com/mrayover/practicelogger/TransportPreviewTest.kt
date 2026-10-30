@@ -81,6 +81,10 @@ class TransportPreviewTest {
                 tagged("practice-free-record").performClick()
                 compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.count { it.blockId == block && it.mode == "FREE" } == index + 1 }
             }
+            // Long saved labels must stay within their selector, before the adjacent Record button.
+            val selectorBounds = tagged("practice-free-selector").fetchSemanticsNode().boundsInRoot
+            val buttonBounds = tagged("practice-free-record").fetchSemanticsNode().boundsInRoot
+            assertTrue("Recording selector overlaps Record", selectorBounds.right <= buttonBounds.left + 1f)
             val free = recordings.takes.value.filter { it.blockId == block && it.mode == "FREE" }.sortedBy { it.createdAt }
             select("free", free.last().id); select("free", free.first().id)
             compose.onNodeWithContentDescription("Play selected free recording").scrollIfNeeded().performClick()

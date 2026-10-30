@@ -135,6 +135,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         vm.enterFocusedPlacement(current); recordings.enterBlock(current.sourceBlockId)
         onDispose { vm.leaveFocusedPlacement(); recordings.leaveBlock() }
     }
+    val loopPermission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), recordings::permissionResult)
     var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
     var transportPanel by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
     var savingNote by remember(current.id) { mutableStateOf(false) }
@@ -228,10 +230,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
             if (transportPanel == "loop") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
                 .verticalScroll(rememberScrollState())) {
-                val permission = androidx.activity.compose.rememberLauncherForActivityResult(
-                    androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), recordings::permissionResult)
                 PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
-                    { permission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
+                    { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
             }
             PracticeMetronome(vm)
             CompactRecordingControls(current.sourceBlockId, current.id, recordings, vm::stopClick,

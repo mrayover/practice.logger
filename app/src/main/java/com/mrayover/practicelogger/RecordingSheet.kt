@@ -235,9 +235,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             // Includes the existing automatic playback of a newly saved loop even if an older loop is selected.
             val playing = choices.any { it.id == vm.playingId || it.id == vm.preparingId }
             val enabled = vm.ready && !vm.busy
-            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp),
-                itemVerticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Box(Modifier.weight(1f).widthIn(min = 128.dp)) {
+            val selector: @Composable (Modifier) -> Unit = { modifier ->
+                Box(modifier) {
                     TextButton(onClick = { menuOpen = true }, enabled = enabled && !vm.recording && choices.isNotEmpty(),
                         contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .testTag("practice-$type-selector").semantics { contentDescription = "Select $type recording" }) {
@@ -253,6 +252,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                             modifier = Modifier.testTag("practice-select-${take.id}").semantics { this.selected = take.id == selected?.id }) }
                     }
                 }
+            }
+            val actions: @Composable () -> Unit = {
                 OutlinedButton(onClick = {
                     if (activeCapture) vm.finishCapture()
                     else if (loop) onLoopSetup()
@@ -267,6 +268,15 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = (if (playing) "Stop" else "Play") + " selected $type recording" }) {
                     Text(if (playing) "Stop" else "Play")
                 }
+            }
+            if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) {
+                Column(Modifier.fillMaxWidth()) {
+                    selector(Modifier.fillMaxWidth())
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { actions() }
+                }
+            } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                selector(Modifier.weight(1f)); actions()
             }
         }
     }
