@@ -130,7 +130,7 @@ class RecordingWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("First free take")); compose.onNodeWithText("First free take").assertExists()
             assertEquals(2, runBlocking { db.takes().readAll().count { it.blockId == block } })
             captureStage3("20-free-takes")
-            sheet("Close recordings"); click("Cancel"); compose.onNodeWithTag("home-brand").performClick(); shown("Practice Now")
+            sheet("Close recordings"); click("Cancel"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
         } catch (failure: Throwable) {
             val tree = java.io.ByteArrayOutputStream(); device.dumpWindowHierarchy(tree); println(tree.toString("UTF-8"))
             captureStage3("recording-failure"); throw AssertionError("Recorder workflow failed. UI: " + tree.toString("UTF-8"), failure)
@@ -164,7 +164,7 @@ class RecordingReopenTest {
             compose.activityRule.scenario.recreate()
             compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); compose.onNodeWithText("Close recordings").performClick()
-            click("Cancel"); compose.onNodeWithTag("home-brand").performClick()
+            click("Cancel"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
         } finally { db.close() }
     }
 }

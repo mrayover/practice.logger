@@ -54,7 +54,7 @@ class BackupWorkflowTest {
             compose.runOnIdle { vm.inspect(Uri.fromFile(file)) }
             shown("Unsupported backup format/version.")
             compose.onNodeWithText("Restore this backup?").assertDoesNotExist()
-            compose.onNodeWithTag("home-brand").scrollIfNeeded().performClick()
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick()
             openHomeRoutines(compose); shown("Recent Practice")
         } finally { db.close(); restored.close(); context.deleteDatabase(restoredName); file.delete() }
     }

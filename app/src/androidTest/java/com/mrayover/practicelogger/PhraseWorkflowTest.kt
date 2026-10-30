@@ -177,7 +177,7 @@ class PhraseReopenTest {
             compose.activityRule.scenario.recreate()
             compose.runOnIdle { assertNull(vm.playingId); assertFalse(vm.recording) }
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); click("Close recordings")
-            click("Cancel"); compose.onNodeWithTag("home-brand").performClick()
+            click("Cancel"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
         } finally { db.close() }
     }
 }

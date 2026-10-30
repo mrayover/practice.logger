@@ -49,7 +49,7 @@ class MetronomeWorkflowTest {
             compose.onNodeWithText("Last used click: 126 BPM").assertExists()
             val nextVm = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.runOnIdle { assertFalse(nextVm.clicking) }
-            compose.onNodeWithTag("home-brand").performClick(); shown("Practice Now")
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
         } finally { db.close() }
     }
 }

@@ -65,7 +65,7 @@ class GoalAccessibilityTest {
             click("Cancel Goal editing"); click("Manage Blocks"); readable("Find Blocks")
             readable("Remove Goal active fixture"); readable("Remove Goal archived fixture (archived)")
             captureStage3("goal-09-large-blocks")
-            click("Back to Goal"); click("Back to Goals"); compose.onNodeWithTag("home-brand").performClick()
+            click("Back to Goal"); click("Back to Goals"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
         } finally { db.close() }
     }
 }

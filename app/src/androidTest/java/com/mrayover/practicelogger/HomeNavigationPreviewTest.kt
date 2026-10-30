@@ -18,7 +18,7 @@ class HomeNavigationPreviewTest {
         val folder = File(compose.activity.getExternalFilesDir(null), "home-preview").apply { mkdirs() }
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(folder, "$file.png"))
     }
-    private fun home() { compose.onNodeWithTag("home-brand").performClick(); shown("Practice Now") }
+    private fun home() { compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now") }
     @Test fun sectionsUseBannerAndLogStillSaves() {
         shown("Practice Now")
         click("Blocks"); inspect("Block Library", "library"); home()
