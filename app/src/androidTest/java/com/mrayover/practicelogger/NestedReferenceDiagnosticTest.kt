@@ -30,6 +30,12 @@ class NestedReferenceDiagnosticTest {
             compose.onNodeWithText("Show reference").assertIsDisplayed().performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             revealPracticeReference(compose);compose.onNodeWithTag("reference-viewer").assertIsDisplayed()
+            compose.onNodeWithTag("reference-viewer").performTouchInput {
+                pinch(androidx.compose.ui.geometry.Offset(width*.4f,height*.4f),androidx.compose.ui.geometry.Offset(width*.6f,height*.6f),
+                    androidx.compose.ui.geometry.Offset(width*.15f,height*.15f),androidx.compose.ui.geometry.Offset(width*.85f,height*.85f))
+            }
+            compose.onNodeWithText("Reset PDF zoom").assertIsDisplayed().performClick()
+            compose.onNodeWithText("Reset PDF zoom").assertDoesNotExist()
             assertEquals("A saved note",runBlocking { db.sessions().find(sid)!!.current!!.note })
         } finally { db.close() }
     }

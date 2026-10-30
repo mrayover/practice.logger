@@ -131,8 +131,17 @@ import kotlin.coroutines.coroutineContext
                 modifier = Modifier.fillMaxSize().graphicsLayer {
                     scaleX = scale; scaleY = scale; translationX = offset.x; translationY = offset.y
                 })
+            if (scale > 1f && maxHeight < 640.dp) {
+                // Keep reset inside a compact viewport: enlarged-image pans must not
+                // trap the only reset control below its scrolling parent's boundary.
+                Surface(modifier = Modifier.align(androidx.compose.ui.Alignment.TopEnd).padding(4.dp), shape = MaterialTheme.shapes.small) {
+                    TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { scale = 1f; offset = Offset.Zero }) {
+                        Text(if (pdf) "Reset PDF zoom" else "Reset image zoom")
+                    }
+                }
+            }
         }
         }
-        if (scale > 1f) TextButton(modifier = Modifier.padding(horizontal = inset), onClick = { scale = 1f; offset = Offset.Zero }) { Text(if (pdf) "Reset PDF zoom" else "Reset image zoom") }
+        if (scale > 1f && maxHeight >= 640.dp) TextButton(modifier = Modifier.padding(horizontal = inset), onClick = { scale = 1f; offset = Offset.Zero }) { Text(if (pdf) "Reset PDF zoom" else "Reset image zoom") }
     }
 }
