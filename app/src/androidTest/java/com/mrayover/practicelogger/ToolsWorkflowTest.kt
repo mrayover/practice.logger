@@ -14,7 +14,7 @@ import org.junit.Test
 class ToolsWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun click(text: String) { compose.onNodeWithText(text).scrollIfNeeded().performClick() }
-    private fun banner() { compose.onNodeWithTag("home-brand").assertIsDisplayed() }
+    private fun banner() { compose.onNodeWithTag("home-brand", useUnmergedTree = true).assertIsDisplayed() }
     @Test fun standaloneToolsRunAndStopOnExitWithoutChangingPractice() {
         val vm = ViewModelProvider(compose.activity)[ToolsViewModel::class.java]
         openHomeTools(compose); banner(); captureStage3("20-tools-menu")
