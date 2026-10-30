@@ -1,13 +1,13 @@
-# Current state — practice.logger 0.16.0, build31 signed candidate
+# Current state — practice.logger 0.16.0, build32 signed candidate; build33 in validation
 
-Updated October29,2026 (America/Los_Angeles). The owner-approved Focused Practice refinement is implemented and a permanent-key candidate is available. **Full native release gates and physical-phone acceptance remain pending.** Previous verified release0.15.0/build30 remains preserved; its complete PDF/recording release record is in WORK_LOG.md and Git history at6969abb.
+Updated October29,2026 (America/Los_Angeles). The owner-approved Focused Practice refinement is implemented and a permanent-key candidate is available. **Full native release gates and physical-phone acceptance remain pending. Final build33 adds a wrapping secondary Notes/Recordings/Save toolbar after200% screenshot review; build32 and build31 remain preserved candidates. The current build33 product is92bcc89; focused nested-reference diagnostics are in progress.** Previous verified release0.15.0/build30 remains preserved; its complete PDF/recording release record is in WORK_LOG.md and Git history at6969abb.
 
 ## Delivery and provenance
 
-- Signed APK source: `1bcf03b55a80266e745b74666c51d74e7d320f85`; current tests follow in40d1d7d with identical product/Gradle/schema source.
-- [Signed APK](dist/practice.logger-0.16.0-b31-1bcf03b/practice.logger-0.16.0-b31-1bcf03b.apk), [ZIP](dist/practice.logger-0.16.0-b31-1bcf03b.zip), [build info](dist/practice.logger-0.16.0-b31-1bcf03b/BUILD_INFO.json), [verification status](dist/practice.logger-0.16.0-b31-1bcf03b/VERIFICATION_STATUS.txt), [phone checklist](dist/practice.logger-0.16.0-b31-1bcf03b/PHONE_CHECKLIST.txt), [latest pointer](dist/LATEST.txt).
-- Package `com.mrayover.practicelogger.app`; version0.16.0/code31; minAPI26/target36. Permanent certificate SHA256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
-- APK SHA256 `cefbfcc43901ab6275a872f812bb6e101117c0659d2f7c23688c0dbf5bfb72db`; ZIP SHA256 `9a01d095edf29dc7f13a703e77cf21f0af52f292e2464b13d3a49faba167e93d`. Publisher checks signature, pinned certificate, identity/version and ZIP round trip. Earlier packages retained.
+- Signed APK source: `14ae372d605b36e897d5051331782b151cebe02c`; build32 checks are CI41001594197 (82units, lint0/13, compilation/schema checks). Build33 production source follows; do not install a candidate as a fully verified release.
+- [Signed APK](dist/practice.logger-0.16.0-b32-14ae372/practice.logger-0.16.0-b32-14ae372.apk), [ZIP](dist/practice.logger-0.16.0-b32-14ae372.zip), [build info](dist/practice.logger-0.16.0-b32-14ae372/BUILD_INFO.json), [verification status](dist/practice.logger-0.16.0-b32-14ae372/VERIFICATION_STATUS.txt), [phone checklist](dist/practice.logger-0.16.0-b32-14ae372/PHONE_CHECKLIST.txt), [latest pointer](dist/LATEST.txt).
+- Package `com.mrayover.practicelogger.app`; version0.16.0/code32; minAPI26/target36. Permanent certificate SHA256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA256 `bb33ae1e3fa9e0d7131bb225f4639df6f7504da84e70ea3442c09c360d784ba4`; ZIP SHA256 `dcfb84cee66cdecea09e0f495e87f4e315866f9806563e51a03e4440d19e6175`. Publisher checks signature, pinned certificate, identity/version and ZIP round trip. Earlier packages retained.
 - Install **over the permanent-key app without uninstalling or clearing data**. Local dist/signing remain Git-ignored; source lives in the original Windows checkout/GitHub. Synced project sources are untouched.
 
 ## Implemented behavior

@@ -25,10 +25,24 @@ fun SemanticsNodeInteraction.scrollIfNeeded(): SemanticsNodeInteraction {
 }
 
 fun scrollPracticeWorkspace(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>, matcher: SemanticsMatcher) {
-    if (compose.onAllNodesWithTag("practice-workspace").fetchSemanticsNodes().isNotEmpty() &&
-        compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isEmpty()) {
-        compose.onNodeWithTag("practice-workspace").performScrollToNode(matcher)
+    if (compose.onAllNodesWithTag("practice-workspace").fetchSemanticsNodes().isEmpty() ||
+        compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isNotEmpty()) return
+    val workspace=compose.onNodeWithTag("practice-workspace")
+    val target=compose.onNode(matcher)
+    // A bounded real gesture traverses nested scroll containers the same way as a finger.
+    repeat(12) {
+        if (target.isDisplayed()) return
+        val bounds=target.getUnclippedBoundsInRoot();val viewport=workspace.getUnclippedBoundsInRoot()
+        android.util.Log.d("PracticeScroll", "step=$it target=$bounds viewport=$viewport")
+        val down=bounds.top<viewport.top
+        workspace.performTouchInput {
+            val x=width-3f
+            swipe(androidx.compose.ui.geometry.Offset(x,height*(if(down) .2f else .75f)),
+                androidx.compose.ui.geometry.Offset(x,height*(if(down) .75f else .2f)),300)
+        }
+        compose.waitForIdle()
     }
+    target.assertIsDisplayed()
 }
 
 fun revealPracticeReference(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
