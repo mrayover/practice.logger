@@ -157,42 +157,52 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     })
             }
         }
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).testTag("practice-workspace"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Practice Description", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
-                    Text(current.action, style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp, max = 152.dp).verticalScroll(rememberScrollState()).testTag("practice-description"))
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+            val workspaceHeight = maxHeight
+            // Use spare portrait space for references; short screens, notes and large text scroll naturally.
+            val stretchReference = workspaceHeight >= 420.dp &&
+                androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f && !notesOpen
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+                .heightIn(min = workspaceHeight).testTag("practice-workspace"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Practice Description", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
+                        Text(current.action, style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 32.dp, max = 80.dp).verticalScroll(rememberScrollState()).testTag("practice-description"))
+                    }
                 }
-            }
-            OutlinedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.fillMaxWidth().heightIn(max = 300.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Reference Material", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(start = 12.dp, top = 8.dp).semantics { heading() })
-                    if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
-                    current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
-                    PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = 220.dp)
-                    Spacer(Modifier.height(4.dp))
+                OutlinedCard(Modifier.fillMaxWidth().then(if (stretchReference) Modifier.weight(1f) else Modifier)
+                    .testTag("practice-reference-area")) {
+                    Column(Modifier.fillMaxWidth().then(if (stretchReference) Modifier.fillMaxHeight() else Modifier)
+                        .heightIn(min = 100.dp, max = if (stretchReference) workspaceHeight else 300.dp)
+                        .verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Reference Material", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(start = 12.dp, top = 8.dp).semantics { heading() })
+                        if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
+                        current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
+                        PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = 220.dp)
+                        Spacer(Modifier.height(4.dp))
+                    }
                 }
+                Column(Modifier.padding(horizontal = 16.dp)) {
+                    PracticeMetronome(vm)
+                    CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
+                }
+                FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    TextButton(onClick = { notesOpen = !notesOpen }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (notesOpen) "Hide notes" else "Notes") }
+                    TextButton(onClick = { onRecordings(current.sourceBlockId) }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Recordings") }
+                    TextButton(onClick = ::requestLeave, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
+                }
+                if (notesOpen) {
+                    OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+                    TextButton(onClick = {
+                        focusManager.clearFocus(force = true); keyboard?.hide()
+                        vm.saveBlockNote(bundle.session.id, current.id, note)
+                    }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
+                    if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                }
+                recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             }
-            Column(Modifier.padding(horizontal = 16.dp)) {
-                PracticeMetronome(vm)
-                CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
-            }
-            FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = { notesOpen = !notesOpen }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (notesOpen) "Hide notes" else "Notes") }
-                TextButton(onClick = { onRecordings(current.sourceBlockId) }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Recordings") }
-                TextButton(onClick = ::requestLeave, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
-            }
-            if (notesOpen) {
-                OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-                TextButton(onClick = {
-                    focusManager.clearFocus(force = true); keyboard?.hide()
-                    vm.saveBlockNote(bundle.session.id, current.id, note)
-                }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
-                if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-            }
-            recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.recording) {
             val status: @Composable (Modifier) -> Unit = { modifier ->

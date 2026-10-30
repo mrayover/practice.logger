@@ -355,3 +355,12 @@ The owner ended development/testing because of usage cost. **Implementation and 
 - All112pre-session APK/ZIP files and candidates31–33 remain byte-identical; data/schema/migration/backup/recording-engine sources are unchanged. Source/tests/required records are committed/pushed; final remote SHA is verified at closeout. Synced sources are untouched.
 
 The owner explicitly requested stopping and wrapping up rather than further usage. Repeated remote UI interaction diagnostics consumed excessive time/usage; this closeout does not conceal that cost or turn partial/isolated results into a release pass. No more implementation, tests or monitoring were started after the stop request. Cancelled the outstanding diagnostic where still running, reconciled current records/package status, and published authorized changes. Full verification remains incomplete; the signed package is a candidate.
+
+
+## 2026-10-30 — Owner-test layout preview, build35
+
+Reviewed mandatory efficiency procedure, README, BUILD_PLAN, CURRENT_STATE, repository status/version/remote and CI before implementation. Starting main was clean at02bda5c. Prior routine diagnostic41008222598 is cancelled; earlier full regression remains incomplete. The owner explicitly authorizes layout-only preview delivery, permanent-key packaging, build-number increment and Git commit/push, superseding full release gates for this preview only. Normal release requirements remain unchanged.
+
+Confirmed markup interpretation with the owner: shorten Practice Description, give Reference Material the freed space and move metronome/free/loop/Notes controls toward the pinned bottom actions. Description body now32–80dp (previously80–152dp); normal portrait Reference Material fills remaining workspace above existing controls. Small screens, large text and open Notes use bounded reference content and outer scrolling. No data, recording/audio, timing, reference loading or navigation callback changes. Version remains0.16.0; code35. All prior APK/ZIP hashes recorded before packaging.
+
+Added an explicitly manual owner-preview workflow: compile debug/release, then one clean API35 debug installation/launch smoke check (start result, live process, visible app UI and crash buffer). Existing android.yml and normal release rules unchanged. No full units/lint/regression/API26/35 matrix or screenshot automation is requested. Build/signing results and final package evidence will be recorded at closeout; phone layout/data acceptance and full regression remain pending.
