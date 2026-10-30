@@ -59,7 +59,7 @@ class NotesHistoryPreviewTest {
             compose.onNodeWithText("Save for later").assertDoesNotExist()
             val footer = tag("practice-bottom-actions").fetchSemanticsNode().boundsInRoot
             val notesPill = tag("practice-notes-toggle").fetchSemanticsNode().boundsInRoot
-            assertTrue(footer.contains(notesPill.topLeft) && footer.contains(notesPill.bottomRight))
+            assertTrue("Notes pill must stay inside footer: $notesPill / $footer", notesPill.left >= footer.left && notesPill.top >= footer.top && notesPill.right <= footer.right && notesPill.bottom <= footer.bottom)
             screenshot("description-default-footer")
             tag("practice-reference-toggle").performClick()
             compose.waitUntil(15000) { audio.ready && compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
