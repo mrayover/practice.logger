@@ -1,13 +1,17 @@
-# Current phone checklist — Notes history/editing,0.16.0/build40
+# Current phone checklist — Notes history/editing,0.16.0/build41
 
 Updated 2026-10-30 (America/Los_Angeles). Pending phone acceptance; use current signed delivery in CURRENT_STATE and record phone/Android/build/observations.
 
-## Limited Notes preview
+## Workspace/footer visual check
 
-1. Install build40 over the existing permanent-key app without uninstalling/clearing it. Confirm old Blocks, sessions, recordings, references, placement notes and daily Logs remain.
+Description should start open even with a reference attached. Switch either header: one section remains open. Notes sits beside the footer actions; Save for later and its old row are gone. Transport sits lower. Check Notes open/close, PDF page/zoom restore, Back to Main/resume, enlarged text wrapping and keyboard access.
+
+## Retained Notes preview checks
+
+1. Install build41 over the existing permanent-key app without uninstalling/clearing it. Confirm old Blocks, sessions, recordings, references, placement notes and daily Logs remain.
 2. Open Notes for a practiced Block: see legacy notes from earlier sessions. Add two notes with Save Note; each appears as its own timestamped history entry, editor clears, and panel stays open. Expand/collapse full text; Return to Practice closes separately.
 3. Edit a saved new note and an earlier-session note; Save Changes updates only that text and keeps its original date. Cancel Changes keeps the saved text. Unsaved new/edit text should survive panel switches; leaving/completing asks before discarding it.
-4. Start from Reference expanded on a later PDF page/zoom. Open Notes, free/loop lists and loop setup; both upper headers should collapse. Switch panels directly; only one expands. Close the final panel and verify reference/page/zoom restored. Repeat from Description and from both collapsed.
+4. Start from Reference expanded on a later PDF page/zoom. Open Notes, free/loop lists and loop setup; both upper headers should collapse. Switch panels directly; only one expands. Close the final panel and verify reference/page/zoom restored. Repeat from Description and with one workspace always open.
 5. Check a long Notes history with persistent scrollbar, editor + Save Note while keyboard is open, portrait/landscape and enlarged text. Main controls/actions remain accessible; compact controls may scroll in constrained space. Try notes during free recording and with metronome/timer running; toggles must not stop/recreate audio or practice.
 6. Close/reopen app and revisit this Block from another session; old and new notes/edits remain. Export JSON7 and restore only into a spare empty installation: notes/history should match. Legacy1–6 imports remain supported; older app versions cannot import format7. Keep original media/export audio separately as before.
 

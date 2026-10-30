@@ -2,7 +2,11 @@
 
 Updated 2026-10-30 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
-## Authorized Block note history and workspace behavior
+## Authorized visual preview build41
+
+Description defaults expanded; one section remains open outside transport panels. Notes moves to the pinned footer; remove Save for later and its row. Keep existing notes/PDF/audio/session behavior. Scoped existing storage/native checks and compilation/one launch; full release gates unchanged. Delivery evidence is in CURRENT_STATE.
+
+## Existing Block note history and workspace behavior
 
 Build40 adds multiple timestamped Block/session practice notes, immediate collapsible history, explicit new/legacy note editing and draft safeguards. Room11 adds only practice_notes; legacy placement notes read through without copying. JSON7/readers1–7 preserve both forms. Descriptions/reference notes, overall session notes and daily Log remain distinct. Transport panels temporarily suppress and restore the saved upper workspace while retaining PDF page/zoom and the existing audio/session owner. This scope supersedes the earlier multi-note/migration exclusions; the owner explicitly added Edit during implementation. Limited compile/one launch/focused storage/UI checks only. Actual signed delivery is in CURRENT_STATE. Accept/Re-record/Discard audio lifecycle, concurrent loop playback/free capture, mixing, YouTube and unrelated work remain excluded; no subsequent assignment begins automatically.
 
