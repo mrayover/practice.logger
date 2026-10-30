@@ -143,10 +143,13 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             if (vm.blockNoteSavedFor == current.id && current.note == note.trim()) {
                 if (transportPanel == "notes") transportPanel = null
                 focusManager.clearFocus(force = true); keyboard?.hide()
-            }
-            savingNote = false
+                savingNote = false
+            } else if (vm.error != null) savingNote = false
+            // Room can deliver the saved placement after the operation finishes; wait for it.
         }
     }
+    val transportScroll = rememberScrollState()
+    LaunchedEffect(transportPanel) { transportScroll.scrollTo(0) }
     var referenceOpen by rememberSaveable(current.id) { mutableStateOf(false) }
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
@@ -214,7 +217,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         // A sibling of the weighted workspace: panel height takes space from the reference.
         // On short displays/large text the transport itself scrolls, while primary actions stay pinned.
         Column(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight)
-            .verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).testTag("practice-transport")) {
+            .verticalScroll(transportScroll).padding(horizontal = 16.dp).testTag("practice-transport")) {
             if (transportPanel == "notes") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
                 .verticalScroll(rememberScrollState()).testTag("practice-notes-panel")) {
                 OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
