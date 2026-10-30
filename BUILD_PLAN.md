@@ -2,7 +2,11 @@
 
 Updated 2026-10-30 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
-## Authorized visual preview build41
+## Authorized Home button removal build42
+
+Remove standalone Back to Home/Home buttons throughout the app and their rows; move following content up. Retain banner/Android Back with current save/discard barriers and parent-specific navigation. Compile/one launch/one targeted navigation and Log-save scenario only; full release gates unchanged. Delivery in CURRENT_STATE.
+
+## Existing workspace/footer behavior
 
 Description defaults expanded; one section remains open outside transport panels. Notes moves to the pinned footer; remove Save for later and its row. Keep existing notes/PDF/audio/session behavior. Scoped existing storage/native checks and compilation/one launch; full release gates unchanged. Delivery evidence is in CURRENT_STATE.
 

@@ -1,4 +1,14 @@
-# Current phone checklist — Notes history/editing,0.16.0/build41
+# Build42 phone visual check
+
+Build42 visual preview - phone acceptance pending
+1. Install over the existing app without uninstalling/clearing data; confirm your Blocks, sessions, notes, references and recordings remain.
+2. Open Blocks, Practice Now, Routines, Recording, Goals, Tools, Backup, Log/Weekly View and a session summary. Separate Back to Home/Home buttons should be absent and following content should move up.
+3. Tap the green practice.logger banner to return Home. Check Android Back and existing edit/discard/session-exit guards.
+4. Edit Log, return through the banner and reopen: text must remain. Check library search, keyboard and enlarged text on your phone.
+
+The retained checks below describe existing features; they were not all rerun for build42.
+
+# Current phone checklist — Notes history/editing,0.16.0/build42
 
 Updated 2026-10-30 (America/Los_Angeles). Pending phone acceptance; use current signed delivery in CURRENT_STATE and record phone/Android/build/observations.
 
@@ -8,7 +18,7 @@ Description should start open even with a reference attached. Switch either head
 
 ## Retained Notes preview checks
 
-1. Install build41 over the existing permanent-key app without uninstalling/clearing it. Confirm old Blocks, sessions, recordings, references, placement notes and daily Logs remain.
+1. Install build42 over the existing permanent-key app without uninstalling/clearing it. Confirm old Blocks, sessions, recordings, references, placement notes and daily Logs remain.
 2. Open Notes for a practiced Block: see legacy notes from earlier sessions. Add two notes with Save Note; each appears as its own timestamped history entry, editor clears, and panel stays open. Expand/collapse full text; Return to Practice closes separately.
 3. Edit a saved new note and an earlier-session note; Save Changes updates only that text and keeps its original date. Cancel Changes keeps the saved text. Unsaved new/edit text should survive panel switches; leaving/completing asks before discarding it.
 4. Start from Reference expanded on a later PDF page/zoom. Open Notes, free/loop lists and loop setup; both upper headers should collapse. Switch panels directly; only one expands. Close the final panel and verify reference/page/zoom restored. Repeat from Description and with one workspace always open.

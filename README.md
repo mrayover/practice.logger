@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app built with Kotlin, Jetpack Compose, Room and bundled Lato. Current delivery: **0.16.0/build41 Notes history/editing owner preview**. Notes now supports independent timestamped entries and text editing; transport panels temporarily collapse and then restore the upper workspace. Scoped storage/migration tests, compile, one API35 launch and two notes/reopen checks pass; **full regression pending**. Exact signed delivery/phone acceptance is in [CURRENT_STATE.md](CURRENT_STATE.md).
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build42 visual owner preview**. Redundant Home buttons are removed and content moves up. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Focused Practice transport and Notes
 
@@ -28,8 +28,8 @@ Android 8.0+; install over the existing permanent-key app **without uninstalling
 - **Saved Routines:** reusable ordered Block references with independent durations, create/edit/reorder/delete, builder Save as Routine, and independent fresh starts. Archived or unavailable references prevent starting until repaired/restored.
 - **Goals:** up to five active Goals, manual percentage/notes/outcome, priority, top-two Home progress bars, completion/reopen, shared Block links and Goal practice. Displayed practice time uses actual explicitly attributed sessions; it does not automatically set progress.
 - **Recordings:** Show reference within a Block’s recording sheet opens the same image/PDF inline, including during free capture and phrase count-in/capture. Hide, zoom, pan and page changes keep the sheet and recording active. Active status and Stop and save take/Cancel phrase stay above the scrolling content. Close recordings and genuine app backgrounding retain their existing stop/save-or-discard behavior; recording never runs in the background. Standalone Free recording has no Block reference. Each Block retains multiple free M4A takes and fixed-phrase WAV loops; Full recording management is available in the saved Block editor, including archived Blocks, and main Recording; Focused Practice uses compact selectors. Record phrase supports 30–300 BPM, 4/8/16/32 beats, four count-in clicks and optional Click while recording (on by default). Takes support playback, rename, confirmed deletion and per-take export. Recording also provides standalone Free recording and Saved free recordings without creating a synthetic Block. Audio stops on leave/background and never restarts automatically.
-- **Log:** Home → Log opens today in your local calendar. Write freely; text saves automatically. Wait for Saved. Choose date to revisit and edit any day. Weekly View displays Monday–Sunday from the same entries; Previous/Next week navigate, and tapping a day opens its editor. Back returns from the week to the daily editor; Back to Home saves before leaving. If saving fails, the text stays in the editor for Retry. Returning on another day opens that day without changing earlier text.
-- **Tools:** standalone metronome, chromatic microphone tuner, stopwatch/countdown and Backup and restore. The practice click and Block timer are independent. The green banner, cream surfaces, Lato and prominent Back to Home controls are shared throughout app screens.
+- **Log:** Home → Log opens today in your local calendar. Write freely; text saves automatically. Wait for Saved. Choose date to revisit and edit any day. Weekly View displays Monday–Sunday from the same entries; Previous/Next week navigate, and tapping a day opens its editor. Back returns from the week to the daily editor; The banner saves before leaving. If saving fails, the text stays in the editor for Retry. Returning on another day opens that day without changing earlier text.
+- **Tools:** standalone metronome, chromatic microphone tuner, stopwatch/countdown and Backup and restore. The practice click and Block timer are independent. The green banner, cream surfaces, Lato and banner navigation are shared throughout app screens.
 
 ## Backup and important limits
 
@@ -41,7 +41,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build40 passes three focused notes migration/storage/backup tests, debug/release/test-APK compilation, one clean API35 launch smoke check and two notes UI/reopen scenarios. Existing permanent-key publisher verifies identity/signature/version/hash/ZIP. Full units/lint/regression/API matrix were not run under the owner's limited preview exception. Phone keyboard/landscape/enlarged text/TalkBack/provider/audio/install-over acceptance remains pending. Normal full-release rules remain intact; consult CURRENT_STATE for exact evidence and MANUAL_TESTS for the short phone checklist.
+Build42 passes compilation, one API35 launch and one targeted navigation/Log-save scenario with nine section screenshots reviewed. Full regression and phone acceptance remain pending; see CURRENT_STATE for exact provenance and limits. Separate Back to Home/Home buttons are removed; tap the green banner to return Home.
 
 ## Development
 
