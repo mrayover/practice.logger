@@ -255,8 +255,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     var entered by rememberSaveable { mutableStateOf("") }
     Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true }, enabled = !vm.busy,
-            contentPadding = PaddingValues(horizontal = 2.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp).semantics { contentDescription = "Set BPM" }) {
-            Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("metronome-bpm"))
+            contentPadding = PaddingValues(horizontal = 2.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" }) {
+            Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.bodyMedium)
         }
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }

@@ -53,6 +53,7 @@ class FocusedPracticeTest {
                 sid
             }
             shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; shown("Practice Description")
+            screenshot("initial-before-assertions")
             // At normal font scale this verifies real visibility without scrolling first.
             if (app.resources.configuration.fontScale < 1.5f) {
                 listOf("Practice Description","Free recording","Loop recording","Recordings","Start","Complete","Skip").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
@@ -119,6 +120,6 @@ class FocusedPracticeTest {
             click("Blocks"); click("New Block"); compose.onNodeWithTag("Name").performScrollTo().performTextInput("Unsaved draft")
             compose.onNodeWithTag("home-brand").performClick(); shown("Discard unsaved changes?")
             screenshot("editor-guard")
-        } finally { db.close() }
+        } catch (failure: Throwable) { screenshot("failure"); throw failure } finally { db.close() }
     }
 }
