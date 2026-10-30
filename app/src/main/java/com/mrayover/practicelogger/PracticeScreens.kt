@@ -136,14 +136,27 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         onDispose { vm.leaveFocusedPlacement(); recordings.leaveBlock() }
     }
     var note by rememberSaveable(current.id) { mutableStateOf(current.note) }
-    var notesOpen by rememberSaveable(current.id) { mutableStateOf(false) }
+    var transportPanel by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
+    var savingNote by remember(current.id) { mutableStateOf(false) }
+    LaunchedEffect(savingNote, vm.busy, current.note, vm.blockNoteSavedFor) {
+        if (savingNote && !vm.busy) {
+            if (vm.blockNoteSavedFor == current.id && current.note == note.trim()) {
+                if (transportPanel == "notes") transportPanel = null
+                focusManager.clearFocus(force = true); keyboard?.hide()
+            }
+            savingNote = false
+        }
+    }
     var referenceOpen by rememberSaveable(current.id) { mutableStateOf(false) }
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     val audioBusy = recordings.recording || recordings.busy
     fun requestLeave() { if (!vm.busy) leaving = true }
     BackHandler { requestLeave() }
-    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
+    val transportMaxHeight = maxHeight * 0.60f
+    val panelMaxHeight = maxHeight * 0.28f
+    Column(Modifier.fillMaxSize().padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
@@ -158,11 +171,11 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     })
             }
         }
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().testTag("practice-workspace-viewport")) {
             val workspaceHeight = maxHeight
             // Use spare portrait space for references; short screens, notes and large text scroll naturally.
             val stretchReference = workspaceHeight >= 420.dp &&
-                androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f && !notesOpen
+                androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
                 .heightIn(min = workspaceHeight).testTag("practice-workspace"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
@@ -196,25 +209,36 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     }
                 }
                 if (stretchReference && !referenceOpen) Spacer(Modifier.weight(1f))
-                Column(Modifier.padding(horizontal = 16.dp)) {
-                    PracticeMetronome(vm)
-                    CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
-                }
-                FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    TextButton(onClick = { notesOpen = !notesOpen }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (notesOpen) "Hide notes" else "Notes") }
-                    TextButton(onClick = { onRecordings(current.sourceBlockId) }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Recordings") }
-                    TextButton(onClick = ::requestLeave, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
-                }
-                if (notesOpen) {
-                    OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-                    TextButton(onClick = {
-                        focusManager.clearFocus(force = true); keyboard?.hide()
-                        vm.saveBlockNote(bundle.session.id, current.id, note)
-                    }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
-                    if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                }
-                recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             }
+        }
+        // A sibling of the weighted workspace: panel height takes space from the reference.
+        // On short displays/large text the transport itself scrolls, while primary actions stay pinned.
+        Column(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight)
+            .verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).testTag("practice-transport")) {
+            if (transportPanel == "notes") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
+                .verticalScroll(rememberScrollState()).testTag("practice-notes-panel")) {
+                OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
+                TextButton(onClick = {
+                    vm.saveBlockNote(bundle.session.id, current.id, note); savingNote = true
+                }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save and return") }
+                vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            }
+            if (transportPanel == "loop") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
+                .verticalScroll(rememberScrollState())) {
+                val permission = androidx.activity.compose.rememberLauncherForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), recordings::permissionResult)
+                PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
+                    { permission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
+            }
+            PracticeMetronome(vm)
+            CompactRecordingControls(current.sourceBlockId, current.id, recordings, vm::stopClick,
+                { transportPanel = if (transportPanel == "loop") null else "loop" })
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                TextButton(onClick = { transportPanel = if (transportPanel == "notes") null else "notes" },
+                    modifier = Modifier.heightIn(min = 48.dp).semantics { stateDescription = if (transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
+                TextButton(onClick = ::requestLeave, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
+            }
+            recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.recording) {
             val status: @Composable (Modifier) -> Unit = { modifier ->
@@ -245,6 +269,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(.7f).heightIn(min = 48.dp)) { Text("Skip") }
         }
+    }
     }
     if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) leaving = false }, title = { Text("Leave current session?") }, text = {
         Text(if (audioBusy) "Stop and save your recording, or cancel the phrase, before leaving. Your current practice note is kept here."

@@ -167,15 +167,15 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit) {
+@Composable fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit, inline: Boolean = false) {
     val keyboard = LocalSoftwareKeyboardController.current
     var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
     var phraseBeats by rememberSaveable(blockId) { mutableIntStateOf(8) }
     var phraseClick by rememberSaveable(blockId) { mutableStateOf(true) }
         val bpm = phraseBpm.toIntOrNull()
         val spec = bpm?.takeIf { it in 30..300 }?.let { PhraseSpec(it, phraseBeats) }
-        AlertDialog(onDismissRequest = { onDismiss() }, title = { Text("Record one phrase") }, text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val form: @Composable () -> Unit = {
+            Column(if (inline) Modifier else Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("30–300") },
@@ -196,42 +196,83 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 Text("The click follows the phrase BPM and may be heard in the microphone recording.", style = MaterialTheme.typography.bodySmall)
                 Text("Listen to four clicks, then play on the next beat. Recording ends automatically and loops at this fixed tempo. A new tempo needs a new take.")
             }
-        }, confirmButton = { TextButton(onClick = {
+        }
+        val record: @Composable () -> Unit = { TextButton(onClick = {
             if (spec != null) {
                 keyboard?.hide(); onDismiss()
                 if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec, phraseClick) }
                 else requestPermission()
             }
-        }, enabled = spec != null && vm.ready && !vm.busy && !vm.recording) { Text("Start 4-click count-in") } },
-            dismissButton = { TextButton(onClick = { onDismiss() }) { Text("Cancel") } })
+        }, enabled = spec != null && vm.ready && !vm.busy && !vm.recording) { Text(if (inline) "Record" else "Start 4-click count-in") } }
+        val cancel: @Composable () -> Unit = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        if (inline) Column(Modifier.fillMaxWidth().testTag("practice-loop-panel")) {
+            Text("Loop setup", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+            form()
+            FlowRow { record(); cancel() }
+        } else AlertDialog(onDismissRequest = onDismiss, title = { Text("Record one phrase") }, text = form,
+            confirmButton = record, dismissButton = cancel)
 }
 
-@Composable fun CompactRecordingControls(blockId: String, initialBpm: Int, vm: RecordingViewModel, onBeforePlayback: () -> Unit) {
+@OptIn(ExperimentalLayoutApi::class)
+@Composable fun CompactRecordingControls(blockId: String, visitId: String, vm: RecordingViewModel,
+    onBeforePlayback: () -> Unit, onLoopSetup: () -> Unit) {
     val all by vm.takes.collectAsStateWithLifecycle()
-    val takes = all.filter { it.blockId == blockId }
-    var phraseDialog by rememberSaveable(blockId) { mutableStateOf(false) }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
-    val enabled = vm.ready && !vm.busy
     Column {
-        if (vm.recording) Text(if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4" else "Recording · " + practiceTime(vm.elapsedMs),
-            color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("compact-recording-status").semantics { liveRegion = LiveRegionMode.Polite })
         listOf(false, true).forEach { loop ->
-            val latest = takes.filter { (it.mode == "LOOP") == loop }.maxByOrNull { it.createdAt }
-            val playing = latest != null && (vm.playingId == latest.id || vm.preparingId == latest.id)
-            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(if (loop) "Loop recording" else "Free recording", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+            val choices = all.filter { it.blockId == blockId && (it.mode == "LOOP") == loop }
+                .sortedWith(compareByDescending<BlockTake> { it.createdAt }.thenBy { it.id })
+            // A null selection resolves on the first repository emission, including delayed loading.
+            // Saveable UI state lasts for this placement visit; nothing is written to the repository.
+            var selectedId by rememberSaveable(visitId, loop) { mutableStateOf<String?>(null) }
+            var menuOpen by remember(visitId, loop) { mutableStateOf(false) }
+            LaunchedEffect(choices.map { it.id }) {
+                if (choices.none { it.id == selectedId }) selectedId = choices.firstOrNull()?.id
+            }
+            val selected = choices.find { it.id == selectedId } ?: choices.firstOrNull()
+            val type = if (loop) "loop" else "free"
+            val activeCapture = vm.recording && vm.phrasing == loop
+            // Includes the existing automatic playback of a newly saved loop even if an older loop is selected.
+            val playing = choices.any { it.id == vm.playingId || it.id == vm.preparingId }
+            val enabled = vm.ready && !vm.busy
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp),
+                itemVerticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Box(Modifier.weight(1f).widthIn(min = 128.dp)) {
+                    TextButton(onClick = { menuOpen = true }, enabled = enabled && !vm.recording && choices.isNotEmpty(),
+                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                            .testTag("practice-$type-selector").semantics { contentDescription = "Select $type recording" }) {
+                        Column(Modifier.fillMaxWidth()) {
+                            Text(if (loop) "Loop recording ▾" else "Free recording ▾", style = MaterialTheme.typography.labelLarge)
+                            Text(selected?.let(::practiceTakeLabel) ?: "No saved recordings", maxLines = 2,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        choices.forEach { take -> DropdownMenuItem(text = { Text(practiceTakeLabel(take)) },
+                            onClick = { selectedId = take.id; menuOpen = false },
+                            modifier = Modifier.testTag("practice-select-${take.id}").semantics { this.selected = take.id == selected?.id }) }
+                    }
+                }
                 OutlinedButton(onClick = {
-                    if (vm.recording) vm.finishCapture()
-                    else if (loop) phraseDialog = true
+                    if (activeCapture) vm.finishCapture()
+                    else if (loop) onLoopSetup()
                     else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
                     else permission.launch(Manifest.permission.RECORD_AUDIO)
-                }, enabled = enabled && !vm.recording, contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) {
-                    Text(if (vm.recording && vm.phrasing == loop) "Recording…" else if (loop) "Record Loop" else "Record", style = MaterialTheme.typography.bodyMedium)
+                }, enabled = enabled && (!vm.recording || activeCapture), contentPadding = PaddingValues(horizontal = 8.dp),
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("practice-$type-record")) {
+                    Text(if (activeCapture) { if (loop) "Cancel loop" else "Stop" } else if (loop) "Record Loop" else "Record")
                 }
-                TextButton(onClick = { if (playing) vm.stopPlayback() else latest?.let { onBeforePlayback(); vm.play(it) } }, enabled = enabled && !vm.recording && latest != null,
-                    contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = (if (playing) "Stop" else "Play") + if (loop) " latest loop" else " latest free take" }) { Text(if (playing) "Stop" else "Play") }
+                TextButton(onClick = { if (playing) vm.stopPlayback() else selected?.let { onBeforePlayback(); vm.play(it) } },
+                    enabled = enabled && !vm.recording && selected != null, contentPadding = PaddingValues(horizontal = 8.dp),
+                    modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = (if (playing) "Stop" else "Play") + " selected $type recording" }) {
+                    Text(if (playing) "Stop" else "Play")
+                }
             }
         }
     }
-    if (phraseDialog) PhraseSetupDialog(blockId, vm, initialBpm, onBeforePlayback, { permission.launch(Manifest.permission.RECORD_AUDIO) }, { phraseDialog = false })
 }
+
+private fun practiceTakeLabel(take: BlockTake): String = takeTitle(take) + " · " +
+    java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a").withZone(java.time.ZoneId.systemDefault())
+        .format(java.time.Instant.ofEpochMilli(take.createdAt)) +
+    if (take.mode == "LOOP") " · ${take.recordedBpm} BPM · ${take.beatCount} beats" else ""
