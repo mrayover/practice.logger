@@ -59,7 +59,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Owner-phone-check the signed0.16.0/build34 candidate in place and perform Increment4 phone checks in MANUAL_TESTS.md. See CURRENT_STATE.md for precise pending acceptance and verification limits. Resume deferred acceptance/evaluation only when the owner is ready. New development follows actual feedback or a new explicit owner request; do not restart completed stages.
+Owner-phone-check the signed0.16.0/build35 owner-test layout preview in place using its PHONE_CHECKLIST.txt. Full regression verification remains pending. See CURRENT_STATE.md for exact source/packages/checks. Further implementation or release verification requires an owner request.
 
 ## Increment 3 — delivered 2026-10-29
 
@@ -69,3 +69,8 @@ Build26 single-image references and build27 portrait/layout refinement are both 
 ## Increment 4 — focused reliability/UI refinement, authorized 2026-10-29
 
 Scope is the missing short Block-duration audio cue, compact one-screen Focused Practice matching the owner's hand-drawn sketch and safe interactive header/Home navigation. Reuse the sample-clock metronome, recorder/phrase setup, bounded reference viewer and saved-session workflow. Preserve exact BPM/history, foreground-only timing, explicit overtime and Complete/Skip, snapshot instructions/reference notes, expandable Quick notes and full take management. Exit confirmation saves/checkpoints before Home and keeps failed drafts recoverable; other editors retain discard guards. No schema/backup/audio-engine redesign. Implemented as signed0.16.0/build34 candidate; focused checks pass as recorded in CURRENT_STATE.md, with final image checks passed and complete release regression incomplete. The owner stopped further development/testing; resume only on an explicit new request. Candidates31–33 are retained. Physical speaker/mixing and owner-phone usability remain separate acceptance requirements.
+
+
+## Build35 — owner-authorized layout preview, 2026-10-30
+
+The owner confirmed shorter Practice Description, expanded Reference Material and secondary controls moved toward pinned primary actions. Scope is layout only plus versionCode35 and existing permanent-key packaging. Explicit preview-only exception: compile debug/release, one API35 launch smoke check and verify signed package/identity/version/integrity; skip full units/lint/API26/35/regression/screenshot automation and unrelated legacy investigations. Added a separate manual owner-preview workflow; the normal android.yml and release verification rules are unchanged. Delivered as an owner-test preview with full regression and phone layout/data acceptance pending; CURRENT_STATE.md records actual evidence.
