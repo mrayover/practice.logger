@@ -122,6 +122,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel) {
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
@@ -178,7 +179,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 PracticeMetronome(vm)
                 CompactRecordingControls(current.sourceBlockId, vm.workingBpm, recordings, vm::stopClick)
             }
-            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = { notesOpen = !notesOpen }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (notesOpen) "Hide notes" else "Notes") }
                 TextButton(onClick = { onRecordings(current.sourceBlockId) }, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Recordings") }
                 TextButton(onClick = ::requestLeave, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
