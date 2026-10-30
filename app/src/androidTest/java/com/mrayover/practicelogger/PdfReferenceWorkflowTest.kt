@@ -94,7 +94,7 @@ class PdfReferenceWorkflowTest {
             val before = recordings.elapsedMs
             repeat(2) {
                 click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2"); rendered(); zoom()
-                compose.onNodeWithText("Stop and save take").assertIsDisplayed()
+                compose.onAllNodesWithText("Stop and save take").onLast().assertIsDisplayed()
                 assertTrue(recordings.recording); assertFalse(recordings.phrasing)
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111,practice.workingBpm)
                 if (it == 0) captureStage3("pdf-active-page")

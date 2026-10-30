@@ -138,6 +138,10 @@ class FocusedPracticeTest {
             // The direct free take uses the existing engine; exit/Complete cannot lose it.
             click("Record"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs>=1000 }
             compose.onNodeWithText("Complete").assertIsNotEnabled(); compose.onNodeWithTag("practice-recording-stop").assertIsDisplayed()
+            compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick(); shown("Leave current session?")
+            compose.onNodeWithText("Back to Main").assertIsNotEnabled()
+            compose.onNode(hasText("Continue") and hasAnyAncestor(isDialog())).performClick()
+            compose.runOnIdle { assertTrue(recordings.recording); assertTrue(practice.running) }
             screenshot("free-recording"); compose.onNodeWithTag("practice-recording-stop").performClick()
             compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId==db.sessions().let { runBlocking { it.find(session)!!.current!!.sourceBlockId } } } }
             compose.onNodeWithContentDescription("Play latest free take").scrollIfNeeded().performClick()
@@ -157,6 +161,8 @@ class FocusedPracticeTest {
             click("Blocks"); click("New Block"); compose.onNodeWithTag("Name").performScrollTo().performTextInput("Unsaved draft")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Discard unsaved changes?")
             screenshot("editor-guard")
+            compose.onNodeWithText("Keep editing").performClick()
+            compose.onNodeWithTag("Name").assertTextContains("Unsaved draft")
         } catch (failure: Throwable) { screenshot("failure"); throw failure } finally { db.close() }
     }
 }

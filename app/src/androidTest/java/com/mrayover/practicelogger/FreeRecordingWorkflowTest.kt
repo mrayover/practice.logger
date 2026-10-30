@@ -12,7 +12,7 @@ import org.junit.Test
 
 class FreeRecordingWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    private fun sheet(text: String) { if (text !in setOf("Stop and save take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onNodeWithText(text).performClick() }
+    private fun sheet(text: String) { if (text !in setOf("Stop and save take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onAllNodesWithText(text).onLast().assertIsDisplayed().performClick() }
     @Test fun menuTapStartsCaptureAndKeepsIndependentTakesThroughRecreation(): Unit {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.executeShellCommand("pm grant com.mrayover.practicelogger.app android.permission.RECORD_AUDIO")
