@@ -1,6 +1,19 @@
-# Current phone checklist — Increment3 PDF/recording references,0.15.0/build30
+# Current phone checklist — Assignment 1 transport,0.16.0/build38
 
-Updated 2026-10-29 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
+Updated 2026-10-30 (America/Los_Angeles). These are pending owner checks, not claims of phone tests already performed. Earlier general app/metronome/recording/loop acceptance does not establish individual results. Use only the current signed delivery linked in [CURRENT_STATE.md](CURRENT_STATE.md); record phone, Android version, exact build and pass/fail observations.
+
+## Assignment 1 limited owner preview
+
+1. Install build38 over your permanent-key app without uninstalling/clearing data. Confirm existing Blocks, history, notes, references, free takes and loops remain.
+2. Open Focused Practice with an image/PDF. Expand/collapse the reference and scroll/zoom/change PDF pages; metronome, recording controls and primary practice actions should remain available.
+3. Start timer/metronome. Open Notes then Record Loop: only one panel opens, workspace contracts and re-expands on close, timer/click continue through panel toggles. Check portrait, landscape and enlarged text; scroll within a panel/transport if needed.
+4. Each dropdown initially selects the latest take of its type for this Block. Select/play/stop older free takes and loops; check readable name/date/BPM/beats and selection retained across panel/reference toggles. Reentering starts from latest; selections are not stored permanently.
+5. Record free audio, toggle reference/Notes during capture, Stop and confirm automatic save without losing earlier takes. Starting capture replaces playback; simultaneous free capture/loop playback is excluded.
+6. Record Loop: check BPM 30–300 validation, 4/8/16/32 beats and optional click. Record closes setup, shows four-count/capture status with reference still available; auto-save/loop playback and cancel remain. Listen on the phone for quality/timing.
+7. Notes: edit the single Block-session note, Save and return; panel closes after save. Reopen and confirm text, then leave/resume session. This is one note per placement, not multiple-note history. Check separate daily Log is retained.
+8. Confirm full recording management (older takes/rename/export/delete) remains through saved Block management and main Recording; no library button is expected in Focused Practice.
+
+The broader retained acceptance checks below are future full-release/phone reference material; they were not run for this preview. In Focused Practice, the former Save Block note action is now Save and return.
 
 ## Install and preserve data
 

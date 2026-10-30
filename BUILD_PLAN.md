@@ -1,6 +1,10 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-29 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+Updated 2026-10-30 (America/Los_Angeles). This is the approved scope for the app as it exists in Git. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+
+## Assignment 1 — authorized focused transport preview
+
+Build37 implements pinned compact transport, visit-only free/loop selectors, inline shared loop setup and existing single Block-session Notes. Only one panel opens; workspace resizes, audio ownership stays with FocusedPractice. Full library remains outside practice. Limited preview verification and actual delivery are in CURRENT_STATE.md. This exception authorizes compile/single launch/targeted checks only; full release gates remain unchanged. Subsequent Accept/Re-record/Discard, naming after acceptance, multiple timestamped notes/migrations, mixing/overdubs/concurrent free capture and loop playback, YouTube and unrelated redesigns remain excluded. Do not begin the next assignment automatically.
 
 ## Product and implemented scope
 
