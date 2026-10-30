@@ -127,6 +127,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
         return
     }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val current = bundle.current!!
     DisposableEffect(current.id, vm, recordings) {
         vm.enterFocusedPlacement(current); recordings.enterBlock(current.sourceBlockId)
@@ -183,7 +185,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
             if (notesOpen) {
                 OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-                TextButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note) }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
+                TextButton(onClick = {
+                    focusManager.clearFocus(force = true); keyboard?.hide()
+                    vm.saveBlockNote(bundle.session.id, current.id, note)
+                }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Block note") }
                 if (vm.blockNoteSavedFor == current.id && note.trim() == current.note) Text("Block note saved", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             }
             recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }

@@ -35,6 +35,7 @@ class FocusedPracticeTest {
     private fun click(text: String) = compose.onNodeWithText(text).scrollIfNeeded().performClick()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     private fun screenshot(name: String) {
+        compose.waitForIdle(); InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         val dir = File(compose.activity.getExternalFilesDir(null), "screenshots"); dir.mkdirs()
         device.takeScreenshot(File(dir, "focused-$name.png"))
     }

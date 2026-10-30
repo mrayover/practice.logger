@@ -17,7 +17,7 @@ class FocusedLayoutTest {
     private val device get()=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private fun shown(text:String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     private fun click(text:String) { shown(text);compose.onNodeWithText(text).scrollIfNeeded().performClick() }
-    private fun screenshot(name:String) { val dir=File(compose.activity.getExternalFilesDir(null),"screenshots");dir.mkdirs();device.takeScreenshot(File(dir,"focused-$name.png")) }
+    private fun screenshot(name:String) { compose.waitForIdle();InstrumentationRegistry.getInstrumentation().waitForIdleSync(); val dir=File(compose.activity.getExternalFilesDir(null),"screenshots");dir.mkdirs();device.takeScreenshot(File(dir,"focused-$name.png")) }
     @Test fun longGoalInstructionsReferenceAndCompactLoop() {
         val app=compose.activity.application
         val db=BlockDatabase.open(app)
