@@ -83,14 +83,14 @@ class FocusedPracticeTest {
             compose.waitUntil(5000) { practice.completionFramesWritten()>=28_800 }
             assertTrue(practice.clicking); assertEquals(113,practice.workingBpm)
             // Continue dismisses the dialog without changing click state.
-            compose.onNodeWithTag("home-brand").performClick(); shown("Leave current session?")
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Leave current session?")
             compose.onNode(hasText("Continue") and hasAnyAncestor(isDialog())).performClick(); assertTrue(practice.clicking)
             // Force a real SQLite note-write failure and prove navigation waits for success.
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("retry note")
             compose.runOnIdle { (app.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) }
             runBlocking { db.openHelper.writableDatabase.execSQL("CREATE TRIGGER focused_save_failure BEFORE UPDATE OF note ON placements BEGIN SELECT RAISE(FAIL, 'injected note failure'); END") }
-            compose.onNodeWithTag("home-brand").performClick(); compose.onNodeWithText("Back to Main").performClick()
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); compose.onNodeWithText("Back to Main").performClick()
             shown("Practice paused"); compose.onNodeWithTag("practice-timer").assertExists(); assertFalse(practice.running)
             runBlocking { db.openHelper.writableDatabase.execSQL("DROP TRIGGER focused_save_failure") }
             compose.onNodeWithText("OK").performClick(); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
@@ -118,7 +118,7 @@ class FocusedPracticeTest {
             // Header protects an unrelated dirty Block editor.
             click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
             click("Blocks"); click("New Block"); compose.onNodeWithTag("Name").performScrollTo().performTextInput("Unsaved draft")
-            compose.onNodeWithTag("home-brand").performClick(); shown("Discard unsaved changes?")
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Discard unsaved changes?")
             screenshot("editor-guard")
         } catch (failure: Throwable) { screenshot("failure"); throw failure } finally { db.close() }
     }
