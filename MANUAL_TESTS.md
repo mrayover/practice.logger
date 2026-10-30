@@ -1,17 +1,17 @@
-# Current phone checklist — Focused Practice refinement,0.16.0/build39
+# Current phone checklist — Notes history/editing,0.16.0/build40
 
-Updated 2026-10-30 (America/Los_Angeles). Pending owner checks, not phone results already performed. Use the current signed package in CURRENT_STATE.md; record phone/Android/build and observations.
+Updated 2026-10-30 (America/Los_Angeles). Pending phone acceptance; use current signed delivery in CURRENT_STATE and record phone/Android/build/observations.
 
-## Limited owner-preview refinement checklist
+## Limited Notes preview
 
-1. Install build39 over the permanent-key app without uninstalling/clearing data; confirm existing Blocks, notes, history, images/PDFs and recordings remain.
-2. Attached reference should open by default; an unattached Block should open Description. Toggle both headers: one expansion at a time or both collapsed, both headers reachable. PDF pages/zoom/reset should work and use the available workspace.
-3. Check compact tinted transport, green action/playing states, plain labels and one-line titles/ellipsis. Select named and older free/loop takes; full details belong in the list. Confirm playback Stop and recording Stop/save/cancel/count-in remain functional.
-4. Open Notes, each recording list and loop setup. Long content should show a persistent right-side thumb and scroll inside its panel; main controls/actions remain accessible and workspace contracts/restores. Check a long note with keyboard open, portrait/landscape and enlarged text.
-5. Start timer/click and toggle workspace/panels during free capture or playback; toggles must preserve the session/audio. Playback still stops the independent click as before; simultaneous loop playback/free capture remains excluded. Listen on the phone for audio quality/timing.
-6. Save and return from Notes, reopen and confirm the single Block-session note. Check Complete/Skip/Save for later, existing recording management outside practice and the separate daily Log. No multiple-note history or later recording-acceptance workflow is included.
+1. Install build40 over the existing permanent-key app without uninstalling/clearing it. Confirm old Blocks, sessions, recordings, references, placement notes and daily Logs remain.
+2. Open Notes for a practiced Block: see legacy notes from earlier sessions. Add two notes with Save Note; each appears as its own timestamped history entry, editor clears, and panel stays open. Expand/collapse full text; Return to Practice closes separately.
+3. Edit a saved new note and an earlier-session note; Save Changes updates only that text and keeps its original date. Cancel Changes keeps the saved text. Unsaved new/edit text should survive panel switches; leaving/completing asks before discarding it.
+4. Start from Reference expanded on a later PDF page/zoom. Open Notes, free/loop lists and loop setup; both upper headers should collapse. Switch panels directly; only one expands. Close the final panel and verify reference/page/zoom restored. Repeat from Description and from both collapsed.
+5. Check a long Notes history with persistent scrollbar, editor + Save Note while keyboard is open, portrait/landscape and enlarged text. Main controls/actions remain accessible; compact controls may scroll in constrained space. Try notes during free recording and with metronome/timer running; toggles must not stop/recreate audio or practice.
+6. Close/reopen app and revisit this Block from another session; old and new notes/edits remain. Export JSON7 and restore only into a spare empty installation: notes/history should match. Legacy1–6 imports remain supported; older app versions cannot import format7. Keep original media/export audio separately as before.
 
-The broader retained checks below are future phone/full-release reference material; they were not run for this preview. Focused Practice uses Save and return for the single Block-session note.
+The broader retained checks below are future full-release/phone references and were not run for this preview. Earlier single Quick note instructions are historical; Focused Practice now uses Save Note/Save Changes and separate Return to Practice.
 
 ## Install and preserve data
 
