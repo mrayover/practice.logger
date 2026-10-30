@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -152,16 +153,27 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
     val transportScroll = rememberScrollState()
     LaunchedEffect(transportPanel) { transportScroll.scrollTo(0) }
-    var referenceOpen by rememberSaveable(current.id) { mutableStateOf(false) }
+    val allTakes by recordings.takes.collectAsStateWithLifecycle()
+    val takes = allTakes.filter { it.blockId == current.sourceBlockId }.sortedWith(compareByDescending<BlockTake> { it.createdAt }.thenBy { it.id })
+    val freeTakes = takes.filter { it.mode != "LOOP" }
+    val loopTakes = takes.filter { it.mode == "LOOP" }
+    var freeId by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
+    var loopId by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(freeTakes.map { it.id }, loopTakes.map { it.id }) {
+        if (freeTakes.none { it.id == freeId }) freeId = freeTakes.firstOrNull()?.id
+        if (loopTakes.none { it.id == loopId }) loopId = loopTakes.firstOrNull()?.id
+    }
+    val freeTake = freeTakes.find { it.id == freeId } ?: freeTakes.firstOrNull()
+    val loopTake = loopTakes.find { it.id == loopId } ?: loopTakes.firstOrNull()
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     val audioBusy = recordings.recording || recordings.busy
     fun requestLeave() { if (!vm.busy) leaving = true }
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-    val transportMaxHeight = maxHeight * 0.60f
-    val panelMaxHeight = maxHeight * 0.28f
-    Column(Modifier.fillMaxSize().padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    val transportMaxHeight = maxHeight * 0.42f
+    val panelMaxHeight = maxHeight * 0.24f
+    Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
@@ -176,72 +188,43 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     })
             }
         }
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().testTag("practice-workspace-viewport")) {
-            val workspaceHeight = maxHeight
-            // Use spare portrait space for references; short screens, notes and large text scroll naturally.
-            val stretchReference = workspaceHeight >= 420.dp &&
-                androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f
-            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
-                .heightIn(min = workspaceHeight).testTag("practice-workspace"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Practice Description", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
-                        Text(current.action, style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 32.dp, max = 80.dp).verticalScroll(rememberScrollState()).testTag("practice-description"))
-                    }
-                }
-                OutlinedCard(Modifier.fillMaxWidth().then(if (stretchReference && referenceOpen) Modifier.weight(1f) else Modifier)
-                    .testTag("practice-reference-area")) {
-                    TextButton(onClick = { referenceOpen = !referenceOpen },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("practice-reference-toggle")
-                            .semantics { stateDescription = if (referenceOpen) "Expanded" else "Collapsed" }) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            Text("Reference Material", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f).semantics { heading() })
-                            Text(if (referenceOpen) "Collapse" else "Expand", style = MaterialTheme.typography.labelMedium)
-                        }
-                    }
-                    if (referenceOpen) {
-                        Column(Modifier.fillMaxWidth().then(if (stretchReference) Modifier.fillMaxHeight() else Modifier)
-                            .heightIn(min = 52.dp, max = if (stretchReference) workspaceHeight else 252.dp)
-                            .verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(horizontal = 12.dp).heightIn(max = 80.dp).verticalScroll(rememberScrollState()))
-                            current.tempo?.let { Text("$it BPM reference", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp)) }
-                            PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = 220.dp, embeddedExpanded = true)
-                            Spacer(Modifier.height(4.dp))
-                        }
-                    }
-                }
-                if (stretchReference && !referenceOpen) Spacer(Modifier.weight(1f))
-            }
+        Box(Modifier.weight(1f).fillMaxWidth().testTag("practice-workspace-viewport")) {
+            FocusedWorkspace(current, images, Modifier.fillMaxSize())
         }
-        // A sibling of the weighted workspace: panel height takes space from the reference.
-        // On short displays/large text the transport itself scrolls, while primary actions stay pinned.
-        Column(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight)
-            .verticalScroll(transportScroll).padding(horizontal = 16.dp).testTag("practice-transport")) {
-            if (transportPanel == "notes") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
-                .verticalScroll(rememberScrollState()).testTag("practice-notes-panel")) {
-                OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
-                TextButton(onClick = {
-                    vm.saveBlockNote(bundle.session.id, current.id, note); savingNote = true
-                }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save and return") }
+        HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .22f))
+        Surface(color = androidx.compose.ui.graphics.lerp(PracticeCream, PracticeGreen, .085f), modifier = Modifier.fillMaxWidth().testTag("practice-transport-surface")) {
+        Column {
+            if (transportPanel == "notes") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight).padding(horizontal = 16.dp)
+                .testTag("practice-notes-panel")) {
+                PracticeScrollPanel(Modifier.weight(1f, fill = false).fillMaxWidth(), tag = "practice-notes-content") {
+                    OutlinedTextField(note, { note = it }, label = { Text("Quick note (optional)") }, modifier = Modifier.fillMaxWidth())
+                }
+                TextButton(onClick = { vm.saveBlockNote(bundle.session.id, current.id, note); savingNote = true },
+                    enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save and return") }
                 vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             }
-            if (transportPanel == "loop") Column(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
-                .verticalScroll(rememberScrollState())) {
+            if (transportPanel == "loop") PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = panelMaxHeight).padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
                 PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
                     { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
             }
+            if (transportPanel == "free-list" || transportPanel == "loop-list") Box(Modifier.fillMaxWidth()
+                .heightIn(max = panelMaxHeight).padding(horizontal = 16.dp).testTag("practice-selection-panel")) {
+                val loop = transportPanel == "loop-list"
+                PracticeTakeSelection(if (loop) loopTakes else freeTakes, if (loop) loopId else freeId, loop,
+                    onSelect = { if (loop) loopId = it.id else freeId = it.id; transportPanel = null }, onClose = { transportPanel = null })
+            }
+        PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
+            state = transportScroll, tag = "practice-transport") {
             PracticeMetronome(vm)
-            CompactRecordingControls(current.sourceBlockId, current.id, recordings, vm::stopClick,
-                { transportPanel = if (transportPanel == "loop") null else "loop" })
+            CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
+                { transportPanel = if (transportPanel == "loop") null else "loop" },
+                { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = { transportPanel = if (transportPanel == "notes") null else "notes" },
                     modifier = Modifier.heightIn(min = 48.dp).semantics { stateDescription = if (transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
                 TextButton(onClick = ::requestLeave, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
             }
-            recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.recording) {
             val status: @Composable (Modifier) -> Unit = { modifier ->
@@ -260,17 +243,19 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 status(Modifier.weight(1f)); stop(Modifier)
             }
         }
-        Text(when { awaiting -> "Time reached. Continue for overtime or complete this Block."; vm.running -> "Practicing"; current.activeMs == 0L -> "Ready when you are"; else -> "Paused — time away from this screen is not counted" },
+        if (awaiting) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
-                contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp)) {
+                contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp).semantics { stateDescription = if (vm.running) "Practicing" else "Paused" }) {
                 Text(if (awaiting) "Continue" else if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume")
             }
             Button(onClick = { vm.finish("COMPLETED", note) }, enabled = !vm.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp)) { Text("Complete") }
             OutlinedButton(onClick = { vm.finish("SKIPPED", note) }, enabled = !vm.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(.7f).heightIn(min = 48.dp)) { Text("Skip") }
+        }
+        }
         }
     }
     }

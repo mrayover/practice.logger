@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.selection.toggleable
@@ -213,76 +214,54 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             confirmButton = record, dismissButton = cancel)
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable fun CompactRecordingControls(blockId: String, visitId: String, vm: RecordingViewModel,
-    onBeforePlayback: () -> Unit, onLoopSetup: () -> Unit) {
-    val all by vm.takes.collectAsStateWithLifecycle()
+@Composable fun CompactRecordingControls(blockId: String, takes: List<BlockTake>, freeTake: BlockTake?, loopTake: BlockTake?,
+    vm: RecordingViewModel, onBeforePlayback: () -> Unit, onLoopSetup: () -> Unit, onSelectType: (Boolean) -> Unit) {
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
-    Column {
-        listOf(false, true).forEach { loop ->
-            val choices = all.filter { it.blockId == blockId && (it.mode == "LOOP") == loop }
-                .sortedWith(compareByDescending<BlockTake> { it.createdAt }.thenBy { it.id })
-            // A null selection resolves on the first repository emission, including delayed loading.
-            // Saveable UI state lasts for this placement visit; nothing is written to the repository.
-            var selectedId by rememberSaveable(visitId, loop) { mutableStateOf<String?>(null) }
-            var menuOpen by remember(visitId, loop) { mutableStateOf(false) }
-            LaunchedEffect(choices.map { it.id }) {
-                if (choices.none { it.id == selectedId }) selectedId = choices.firstOrNull()?.id
-            }
-            val selected = choices.find { it.id == selectedId } ?: choices.firstOrNull()
-            val type = if (loop) "loop" else "free"
-            val activeCapture = vm.recording && vm.phrasing == loop
-            // Includes the existing automatic playback of a newly saved loop even if an older loop is selected.
-            val playing = choices.any { it.id == vm.playingId || it.id == vm.preparingId }
-            val enabled = vm.ready && !vm.busy
-            val selector: @Composable (Modifier) -> Unit = { modifier ->
-                Box(modifier) {
-                    TextButton(onClick = { menuOpen = true }, enabled = enabled && !vm.recording && choices.isNotEmpty(),
-                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                            .testTag("practice-$type-selector").semantics { contentDescription = "Select $type recording" }) {
-                        Column(Modifier.fillMaxWidth()) {
-                            Text(if (loop) "Loop recording ▾" else "Free recording ▾", style = MaterialTheme.typography.labelLarge)
-                            Text(selected?.let(::practiceTakeLabel) ?: "No saved recordings", maxLines = 2,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                        choices.forEach { take -> DropdownMenuItem(text = { Text(practiceTakeLabel(take)) },
-                            onClick = { selectedId = take.id; menuOpen = false },
-                            modifier = Modifier.testTag("practice-select-${take.id}").semantics { this.selected = take.id == selected?.id }) }
-                    }
+    val green = MaterialTheme.colorScheme.primary
+    listOf(false, true).forEach { loop ->
+        val selected = if (loop) loopTake else freeTake
+        val type = if (loop) "loop" else "free"
+        val activeCapture = vm.recording && vm.phrasing == loop
+        val playing = takes.any { (it.mode == "LOOP") == loop && (it.id == vm.playingId || it.id == vm.preparingId) }
+        val enabled = vm.ready && !vm.busy
+        val selector: @Composable (Modifier) -> Unit = { modifier ->
+            Column(modifier.heightIn(min = 48.dp).clickable(enabled = enabled && !vm.recording && selected != null,
+                role = Role.Button, onClick = { onSelectType(loop) }).padding(vertical = 4.dp)
+                .testTag("practice-$type-selector").semantics { contentDescription = "Select $type recording" },
+                verticalArrangement = Arrangement.Center) {
+                Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = green)
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text(selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
+                        maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = green)
+                    Text(" ▾", color = green)
                 }
-            }
-            val actions: @Composable () -> Unit = {
-                OutlinedButton(onClick = {
-                    if (activeCapture) vm.finishCapture()
-                    else if (loop) onLoopSetup()
-                    else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
-                    else permission.launch(Manifest.permission.RECORD_AUDIO)
-                }, enabled = enabled && (!vm.recording || activeCapture), contentPadding = PaddingValues(horizontal = 8.dp),
-                    modifier = Modifier.heightIn(min = 48.dp).testTag("practice-$type-record")) {
-                    Text(if (activeCapture) { if (loop) "Cancel loop" else "Stop" } else if (loop) "Record Loop" else "Record")
-                }
-                TextButton(onClick = { if (playing) vm.stopPlayback() else selected?.let { onBeforePlayback(); vm.play(it) } },
-                    enabled = enabled && !vm.recording && selected != null, contentPadding = PaddingValues(horizontal = 8.dp),
-                    modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = (if (playing) "Stop" else "Play") + " selected $type recording" }) {
-                    Text(if (playing) "Stop" else "Play")
-                }
-            }
-            if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) {
-                Column(Modifier.fillMaxWidth()) {
-                    selector(Modifier.fillMaxWidth())
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { actions() }
-                }
-            } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                selector(Modifier.weight(1f)); actions()
             }
         }
+        val actions: @Composable () -> Unit = {
+            OutlinedButton(onClick = {
+                if (activeCapture) vm.finishCapture()
+                else if (loop) onLoopSetup()
+                else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
+                else permission.launch(Manifest.permission.RECORD_AUDIO)
+            }, enabled = enabled && (!vm.recording || activeCapture), contentPadding = PaddingValues(horizontal = 6.dp),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (activeCapture) green else androidx.compose.ui.graphics.Color.Transparent,
+                    contentColor = if (activeCapture) MaterialTheme.colorScheme.onPrimary else green),
+                modifier = Modifier.heightIn(min = 48.dp).testTag("practice-$type-record")) {
+                Text(if (activeCapture) { if (loop) "Cancel" else "Stop" } else if (loop) "Record Loop" else "Record")
+            }
+            TextButton(onClick = { if (playing) vm.stopPlayback() else selected?.let { onBeforePlayback(); vm.play(it) } },
+                enabled = enabled && !vm.recording && selected != null, contentPadding = PaddingValues(horizontal = 6.dp),
+                colors = ButtonDefaults.textButtonColors(containerColor = if (playing) green else androidx.compose.ui.graphics.Color.Transparent,
+                    contentColor = if (playing) MaterialTheme.colorScheme.onPrimary else green),
+                modifier = Modifier.heightIn(min = 48.dp).semantics {
+                    contentDescription = (if (playing) "Stop" else "Play") + " selected $type recording"
+                    stateDescription = if (playing) "Playing" else "Stopped"
+                }) { Text(if (playing) "Stop" else "Play") }
+        }
+        if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) Column(Modifier.fillMaxWidth()) {
+            selector(Modifier.fillMaxWidth())
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) { actions() }
+        } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)) { selector(Modifier.weight(1f)); actions() }
     }
 }
-
-private fun practiceTakeLabel(take: BlockTake): String = takeTitle(take) + " · " +
-    java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a").withZone(java.time.ZoneId.systemDefault())
-        .format(java.time.Instant.ofEpochMilli(take.createdAt)) +
-    if (take.mode == "LOOP") " · ${take.recordedBpm} BPM · ${take.beatCount} beats" else ""

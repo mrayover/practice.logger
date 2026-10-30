@@ -32,13 +32,20 @@ class TransportPreviewTest {
     }
     private fun select(type: String, id: String) {
         tagged("practice-$type-selector").performClick()
+        compose.onNodeWithTag("practice-$type-list-scrollbar").assertExists()
         tagged("practice-select-$id").performClick()
+    }
+    private fun screenshot(name: String) {
+        compose.waitForIdle()
+        val dir = File(compose.activity.getExternalFilesDir(null), "transport-preview"); dir.mkdirs()
+        device.takeScreenshot(File(dir, name + ".png"))
     }
     @Test fun pinnedWorkspacePanelsNotesAndOlderTakes() {
         val app = compose.activity.application
         val db = BlockDatabase.open(app)
         val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
         val recordings = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
+        val noteText = "Saved during free capture\n" + "A longer practice note for scrolling.\n".repeat(18)
         try {
             device.executeShellCommand("pm grant ${app.packageName} ${Manifest.permission.RECORD_AUDIO}")
             val session = runBlocking {
@@ -54,8 +61,18 @@ class TransportPreviewTest {
             val block = practice.catalog.value.active!!.current!!.sourceBlockId
             compose.waitUntil(10000) { recordings.ready }
             compose.onNodeWithText("Recordings").assertDoesNotExist()
-            click("Start"); click("Start click"); click("Expand")
+            click("Start"); click("Start click")
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithTag("practice-description").assertDoesNotExist()
+            tagged("practice-description-toggle").performClick()
+            compose.onNodeWithTag("practice-description").assertExists()
+            compose.onNodeWithTag("reference-viewer").assertDoesNotExist()
+            tagged("practice-description-toggle").performClick()
+            compose.onNodeWithTag("practice-description").assertDoesNotExist()
+            tagged("practice-reference-toggle").performClick()
+            compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
+            compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
+            screenshot("refinement-reference")
             tagged("practice-free-record"); tagged("practice-loop-record")
             val fullHeight = compose.onNodeWithTag("practice-workspace-viewport").fetchSemanticsNode().boundsInRoot.height
             click("Notes")
@@ -66,14 +83,17 @@ class TransportPreviewTest {
             compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
             compose.onNodeWithTag("practice-loop-panel").assertExists()
             compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
+            compose.onNodeWithTag("practice-loop-setup-content-scrollbar").assertExists()
             click("Cancel")
             repeat(2) { index ->
                 tagged("practice-free-record").performClick()
                 compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1300 }
                 if (index == 0) {
                     click("Notes")
-                    compose.onNodeWithText("Quick note (optional)").performTextReplacement("Saved during free capture")
+                    compose.onNodeWithText("Quick note (optional)").performTextReplacement(noteText)
                     clearKeyboard()
+                    compose.waitUntil(10000) { compose.onAllNodesWithTag("practice-notes-content-scrollbar").fetchSemanticsNodes().isNotEmpty() }
+                    screenshot("refinement-notes-scrollbar")
                     click("Save and return")
                     compose.waitUntil(10000) { compose.onAllNodesWithTag("practice-notes-panel").fetchSemanticsNodes().isEmpty() }
                     compose.runOnIdle { assertTrue(recordings.recording); assertTrue(practice.clicking) }
@@ -90,7 +110,7 @@ class TransportPreviewTest {
             compose.onNodeWithContentDescription("Play selected free recording").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId == free.first().id }
             compose.onNodeWithContentDescription("Stop selected free recording").scrollIfNeeded().performClick()
-            click("Notes"); compose.onNodeWithText("Saved during free capture").assertExists(); click("Notes")
+            click("Notes"); compose.onNodeWithText("Saved during free capture", substring = true).assertExists(); click("Notes")
             repeat(2) { index ->
                 click("Record Loop")
                 compose.onNodeWithText("Phrase BPM").scrollIfNeeded().performTextReplacement("240")
@@ -113,8 +133,18 @@ class TransportPreviewTest {
             click("Notes")
             compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()
             assertEquals(4, runBlocking { db.takes().readAll().count { it.blockId == block } })
-            assertEquals("Saved during free capture", practice.catalog.value.active!!.current!!.note)
+            assertEquals(noteText.trim(), practice.catalog.value.active!!.current!!.note)
             tagged("practice-bottom-actions")
+            compose.onAllNodesWithText("Looping ·", substring = true).assertCountEquals(0)
+            screenshot("refinement-final-reference")
+            val plainSession = runBlocking {
+                val plain = BlockRepository(db).save(null, BlockDraft("No reference", "Description is the default", "5"))
+                val repo = SessionRepository(db); repo.addBlock(plain); repo.start()
+            }
+            compose.runOnIdle { practice.openSession(plainSession) }
+            shown("Description is the default")
+            compose.onNodeWithTag("practice-reference-area").assertDoesNotExist()
+            screenshot("refinement-no-reference")
         } finally {
             val dir = File(app.getExternalFilesDir(null), "transport-preview"); dir.mkdirs()
             device.takeScreenshot(File(dir, "transport-final.png"))

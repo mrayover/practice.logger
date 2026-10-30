@@ -51,12 +51,12 @@ import kotlin.coroutines.coroutineContext
         dismissButton = { TextButton(onClick = { confirmRemoval = false }) { Text("Cancel") } })
 }
 
-@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false) {
+@Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false) {
     val all by vm.images.collectAsStateWithLifecycle()
-    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge, viewerMaxHeight, embeddedExpanded) } }
+    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge, viewerMaxHeight, embeddedExpanded, fitAvailableHeight) } }
 }
 
-@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false) {
+@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false) {
     val inset = if (edgeToEdge) 16.dp else 0.dp
     // These states never enter/leave the sheet or touch any practice/audio model.
     var expanded by rememberSaveable(image.fileName) { mutableStateOf(false) }
@@ -86,9 +86,11 @@ import kotlin.coroutines.coroutineContext
             result == null -> Text("Loading reference…", modifier = Modifier.padding(horizontal = inset))
             else -> {
                 val loaded = result!!
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                var controlsHeight by remember { mutableStateOf(0.dp) }
                 if (image.mimeType == "application/pdf") {
                     // Wrapping controls remain reachable at enlarged text sizes.
-                    Column(Modifier.fillMaxWidth().padding(horizontal = inset)) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = inset).onSizeChanged { controlsHeight = with(density) { it.height.toDp() } }) {
                         Text("Page ${page + 1} of ${loaded.pageCount}", modifier = Modifier.testTag("reference-page"))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = { page-- }, enabled = page > 0, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous page") }
@@ -98,13 +100,14 @@ import kotlin.coroutines.coroutineContext
                 }
                 // One displayed bitmap per viewer. Dropped pages are left to Android GC rather
                 // than recycling a bitmap that the Compose render thread may still be drawing.
-                ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf", viewerMaxHeight)
+                ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf",
+                    if (fitAvailableHeight) (viewerMaxHeight - controlsHeight).coerceAtLeast(1.dp) else viewerMaxHeight, fitAvailableHeight)
             }
         }
     }
 }
 
-@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp) {
+@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false) {
     var scale by remember(bitmap) { mutableFloatStateOf(1f) }
     var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -119,10 +122,14 @@ import kotlin.coroutines.coroutineContext
         offset = if (next == 1f) Offset.Zero else bounded(offset * (next / scale) + pan, next)
         scale = next
     }
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    var guideHeight by remember { mutableStateOf(0.dp) }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Pinch to zoom; drag while enlarged.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = inset))
+        Text("Pinch to zoom; drag while enlarged.", style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(horizontal = inset).onSizeChanged { guideHeight = with(density) { it.height.toDp() } })
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(180.dp, maxHeight)
+        val cap = if (fitAvailableHeight) (maxHeight - guideHeight - 4.dp).coerceAtLeast(1.dp) else maxHeight
+        val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(minOf(180.dp, cap), cap)
         Box(Modifier.fillMaxWidth().height(viewerHeight).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
             .onSizeChanged { size = it }.testTag("reference-viewer")
             .semantics { contentDescription = "Reference ${if (pdf) "PDF" else "image"} viewer, zoom ${"%.1f".format(scale)}" }
@@ -131,7 +138,7 @@ import kotlin.coroutines.coroutineContext
                 modifier = Modifier.fillMaxSize().graphicsLayer {
                     scaleX = scale; scaleY = scale; translationX = offset.x; translationY = offset.y
                 })
-            if (scale > 1f && maxHeight < 640.dp) {
+            if (scale > 1f && (fitAvailableHeight || maxHeight < 640.dp)) {
                 // Keep reset inside a compact viewport: enlarged-image pans must not
                 // trap the only reset control below its scrolling parent's boundary.
                 Surface(modifier = Modifier.align(androidx.compose.ui.Alignment.TopEnd).padding(4.dp), shape = MaterialTheme.shapes.small) {
@@ -142,6 +149,6 @@ import kotlin.coroutines.coroutineContext
             }
         }
         }
-        if (scale > 1f && maxHeight >= 640.dp) TextButton(modifier = Modifier.padding(horizontal = inset), onClick = { scale = 1f; offset = Offset.Zero }) { Text(if (pdf) "Reset PDF zoom" else "Reset image zoom") }
+        if (scale > 1f && !fitAvailableHeight && maxHeight >= 640.dp) TextButton(modifier = Modifier.padding(horizontal = inset), onClick = { scale = 1f; offset = Offset.Zero }) { Text(if (pdf) "Reset PDF zoom" else "Reset image zoom") }
     }
 }
