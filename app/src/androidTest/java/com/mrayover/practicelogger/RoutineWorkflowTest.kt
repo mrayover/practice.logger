@@ -85,7 +85,7 @@ class RoutineWorkflowTest {
                 assertEquals(template, db.routines().find(routineId)); assertEquals(draft, db.sessions().find(draft.session.id))
                 assertEquals("Current notes", two.current!!.referenceNotes)
             }
-            compose.onNodeWithTag("practice-timer").performScrollTo(); compose.waitForIdle(); captureStage3("routine-03-fresh-practice")
+            compose.onNodeWithTag("practice-timer").scrollIfNeeded(); compose.waitForIdle(); captureStage3("routine-03-fresh-practice")
             click("Complete"); shown("Routine A"); click("Skip"); shown("Routine C"); click("Complete")
             shown("Session Summary"); click("Home"); openHomeRoutines(compose)
             compose.onNodeWithText("Recent Practice").performScrollTo().assertIsDisplayed()
