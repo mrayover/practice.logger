@@ -99,7 +99,7 @@ class ImageReferenceWorkflowTest {
                 val viewer = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
                 val page = compose.onRoot().getUnclippedBoundsInRoot()
                 assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)
-                assertTrue("Focused viewer stays bounded", (viewer.bottom - viewer.top).value in 180f..220f)
+                assertEquals("Focused viewer stays at its 220dp bound (one physical pixel tolerance)", 220f, (viewer.bottom - viewer.top).value, 1f / compose.activity.resources.displayMetrics.density + .01f)
                 if (it == 0) { compose.onNodeWithTag("reference-viewer").performScrollTo(); captureStage3("image-focus-portrait-fit") }
                 compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
                     pinch(Offset(width * .4f, height * .4f), Offset(width * .6f, height * .6f),
