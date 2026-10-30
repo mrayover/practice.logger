@@ -162,7 +162,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
     val audioBusy = recordings.recording || recordings.busy
     fun performPracticeAction(action: String) {
-        if (action == "leave") leaving = true else vm.finish(action, note)
+        if (action == "leave") leaving = true else vm.finish(action, note, preserveNote = true)
     }
     fun requestPracticeAction(action: String) {
         if (vm.busy || notes.busy) return
@@ -265,7 +265,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) leaving = false }, title = { Text("Leave current session?") }, text = {
         Text(if (audioBusy) "Stop and save your recording, or cancel the phrase, before leaving. Your current practice note is kept here."
             else "Your current session and note will be saved for later, and practice will pause.")
-    }, confirmButton = { TextButton(onClick = { vm.saveForLater(bundle.session.id, current.id, note) }, enabled = !vm.busy && !audioBusy) { Text("Back to Main") } },
+    }, confirmButton = { TextButton(onClick = { vm.saveForLater(bundle.session.id, current.id, note, preserveNote = true) }, enabled = !vm.busy && !audioBusy) { Text("Back to Main") } },
         dismissButton = { TextButton(onClick = { leaving = false }, enabled = !vm.busy) { Text("Continue") } })
 }
 

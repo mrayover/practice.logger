@@ -174,12 +174,12 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         check(current.activeMs >= current.configuredMs)
         dao.update(current.copy(overtimeAccepted = true))
     }
-    suspend fun finishBlock(id: String, outcome: String, note: String): Boolean = db.withTransaction {
+    suspend fun finishBlock(id: String, outcome: String, note: String, preserveNote: Boolean = false): Boolean = db.withTransaction {
         require(outcome == "COMPLETED" || outcome == "SKIPPED")
         val bundle = active(id)
         val current = checkNotNull(bundle.current)
         check(current.outcome == "PENDING")
-        dao.update(current.copy(outcome = outcome, note = note.trim()))
+        dao.update(current.copy(outcome = outcome, note = if (preserveNote) current.note else note.trim()))
         val finished = bundle.session.currentIndex + 1 == bundle.placements.size
         dao.update(if (finished) bundle.session.copy(status = "COMPLETED", endedAt = now()) else bundle.session.copy(currentIndex = bundle.session.currentIndex + 1))
         finished

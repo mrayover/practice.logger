@@ -189,7 +189,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         if (running || clicking) { error = "Save your current practice for later before starting a Goal session."; return }
         operation { selectSession(repository.startGoal(id)) }
     }
-    fun finish(outcome: String, note: String) {
+    fun finish(outcome: String, note: String, preserveNote: Boolean = false) {
         if (busy) return
         stopClick()
         val until = SystemClock.elapsedRealtime()
@@ -197,21 +197,21 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         operation {
             flush(until); anchor = null
             val id = checkNotNull(catalog.value.active).session.id
-            if (repository.finishBlock(id, outcome, note)) { completedId = id; destination = "summary" }
+            if (repository.finishBlock(id, outcome, note, preserveNote)) { completedId = id; destination = "summary" }
         }
     }
     fun saveBlockNote(sessionId: String, placementId: String, note: String) = operation {
         repository.saveBlockNote(sessionId, placementId, note)
         blockNoteSavedFor = placementId
     }
-    fun saveForLater(sessionId: String, placementId: String, note: String) {
+    fun saveForLater(sessionId: String, placementId: String, note: String, preserveNote: Boolean = false) {
         if (busy) return
         stopClick()
         val until = SystemClock.elapsedRealtime()
         running = false
         operation {
             flush(until); anchor = null
-            repository.saveBlockNote(sessionId, placementId, note)
+            if (!preserveNote) repository.saveBlockNote(sessionId, placementId, note)
             destination = "home"
         }
     }

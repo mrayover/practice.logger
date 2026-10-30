@@ -78,6 +78,9 @@ class PracticeNoteRepositoryTest {
 
             assertEquals("Overall session note", db.sessions().find("s")!!.session.note)
             assertEquals("Earlier practice note edited", db.sessions().find("s")!!.current!!.note)
+            SessionRepository(db).finishBlock("s", "COMPLETED", "Stale screen copy", preserveNote = true)
+            assertEquals("Earlier practice note edited", db.sessions().find("s")!!.ordered.single().note)
+            assertEquals(1234L, db.sessions().find("s")!!.ordered.single().activeMs)
             db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
     }
