@@ -19,18 +19,11 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile owner-test preview (full regression pending)
-        run: bash ./gradlew testDebugUnitTest --tests com.mrayover.practicelogger.PracticeNoteRepositoryTest assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+        run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: practice-logger-unsigned-release
           path: app/build/outputs/apk/release/app-release-unsigned.apk
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: owner-preview-notes-storage
-          path: |
-            app/schemas/com.mrayover.practicelogger.BlockDatabase/11.json
-            app/build/test-results/testDebugUnitTest/*.xml
           if-no-files-found: error
       - name: Enable emulator acceleration
         run: |

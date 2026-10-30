@@ -165,12 +165,11 @@ class MainActivity : ComponentActivity() {
                 val libraryScroll = rememberLazyListState()
                 var searchFocused by remember { mutableStateOf(false) }
                 LaunchedEffect(query, archived, searchFocused) {
-                    libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 3 else 0)
+                    libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 2 else 0)
                 }
                 val matches = matchingBlocks(catalog.blocks, query, archived)
                 LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
-                    item { BackToHomeButton(onClick = { page = "home" }) }
                     item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
                     item { Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") } }
                     item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,

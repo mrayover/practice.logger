@@ -29,7 +29,6 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 @Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit, routines: RoutineViewModel, practice: PracticeViewModel, onNewRoutine: () -> Unit, onEditRoutine: (String) -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        BackToHomeButton(onClick = onHome)
         Text("Routines", style = MaterialTheme.typography.headlineLarge)
         SavedRoutines(catalog, routines, practice, onNewRoutine, onEditRoutine)
         ActionButton("Practice Now", onPractice)
@@ -59,7 +58,6 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val entries = draft?.ordered ?: emptyList()
     BackHandler { onHome() }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        BackToHomeButton(onClick = onHome)
         if (sessions.unfinished.isNotEmpty()) {
             Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             Text("Continue saved practice below, or build a new session. All sessions resume paused.")
@@ -126,7 +124,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     if (bundle == null || bundle.current == null) {
-        Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved."); ActionButton("Home", onHome) }
+        Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved.") }
         return
     }
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
@@ -271,7 +269,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 
 @Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null) {
     if (bundle == null) {
-        Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available."); ActionButton("Home", onHome) }
+        Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available.") }
         return
     }
     var note by rememberSaveable(bundle.session.id) { mutableStateOf(bundle.session.note) }
@@ -298,7 +296,6 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         OutlinedTextField(note, { note = it; vm.noteChanged() }, label = { Text("Session note (optional)") }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.saveNote(bundle.session.id, note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save note") }
         if (vm.noteSaved && note.trim() == bundle.session.note) Text("Note saved")
-        ActionButton("Home", ::leave)
     }
 }
 

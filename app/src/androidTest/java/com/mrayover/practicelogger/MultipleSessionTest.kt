@@ -57,12 +57,12 @@ class MultipleSessionReopenTest {
             if (firstControl.fetchSemanticsNodes().isNotEmpty()) firstControl[0].scrollIfNeeded().performClick()
             else click("Continue Session")
             shown("Parallel A"); revealPracticeNotes(compose); compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
-            click("Complete"); shown("Session Summary"); click("Home"); openHomePractice(compose); shown("Continue Session")
+            click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand").performClick(); openHomePractice(compose); shown("Continue Session")
             click("Continue Session"); shown("Parallel B")
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep B")
             compose.onNodeWithText("Ready when you are").assertExists()
-            click("Complete"); shown("Session Summary"); click("Home"); shown("Practice Now")
+            click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand").performClick(); shown("Practice Now")
             runBlocking {
                 val pair = db.sessions().readAll().filter { it.ordered.firstOrNull()?.name in setOf("Parallel A", "Parallel B") }
                 assertEquals(2, pair.size)

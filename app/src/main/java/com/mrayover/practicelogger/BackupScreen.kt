@@ -84,7 +84,6 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
     val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::inspect) }
     BackHandler { if (!vm.busy) { vm.cancel(); onHome() } }
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        BackToHomeButton(onClick = { vm.cancel(); onHome() }, enabled = !vm.busy)
         Text("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Save your Logs, Blocks, archived Blocks, Goals, Routines, practice history and unfinished sessions as a versioned JSON file. Choose a safe location using Android's file picker.")
         Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")

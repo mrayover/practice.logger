@@ -65,9 +65,9 @@ class ToolsWorkflowTest {
         compose.runOnIdle { assertEquals(pausedRemaining, vm.remainingMs); assertFalse(vm.countdownRunning) }
         click("Reset stopwatch"); assertEquals(0, vm.stopwatchMs)
         click("Reset timer"); assertEquals(60000, vm.remainingMs)
-        click("Back to Tools"); click("Back to Home"); banner()
+        click("Back to Tools"); compose.onNodeWithTag("home-brand").performClick(); banner()
         openHomeRoutines(compose)
         compose.onNodeWithText("Unfinished sessions").assertDoesNotExist()
-        click("Back to Home")
+        compose.onNodeWithTag("home-brand").performClick()
     }
 }

@@ -119,7 +119,7 @@ class PracticeRecoveryTest {
                 BlockRepository(db).setArchived(source, true)
             }
         } finally { db.close() }
-        compose.onNodeWithText("Home", substring = false).scrollIfNeeded().performClick()
+        compose.onNodeWithTag("home-brand").scrollIfNeeded().performClick()
         openHomeRoutines(compose); shown("Recent Practice")
     }
 }

@@ -76,7 +76,7 @@ class PdfReferenceWorkflowTest {
             click("Remove reference PDF"); shown("Remove reference PDF?")
             compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick(); assertEquals(pdf,runBlocking { db.images().find(id) })
             compose.onNodeWithTag("block-delete-action").scrollIfNeeded().performClick(); shown("This Block cannot be deleted yet.")
-            compose.onNodeWithText("Remove the reference first",substring=true).assertExists(); click("OK"); click("Cancel"); click("Back to Home")
+            compose.onNodeWithText("Remove the reference first",substring=true).assertExists(); click("OK"); click("Cancel"); compose.onNodeWithTag("home-brand").performClick()
             val session = runBlocking { SessionRepository(db).let { it.addBlock(id); it.start() } }
             compose.runOnIdle { practice.openSession(session) }; shown("Start"); click("Start")
             compose.waitUntil(15000) { practice.running && !practice.busy }

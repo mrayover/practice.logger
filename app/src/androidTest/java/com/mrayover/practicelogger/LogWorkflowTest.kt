@@ -21,14 +21,14 @@ class LogWorkflowTest {
             click("Log"); shown("Choose date")
             compose.waitUntil(15000) { val vm = ViewModelProvider(compose.activity)[LogViewModel::class.java]; vm.ready && !vm.busy }
             compose.onNodeWithTag("log-editor").performTextReplacement("Today Log fixture\nIdeas 🎵")
-            click("Back to Home"); click("Log"); shown("Choose date")
+            compose.onNodeWithTag("home-brand").performClick(); click("Log"); shown("Choose date")
             compose.onNodeWithTag("log-editor").assertTextContains("Today Log fixture\nIdeas 🎵")
             click("Weekly View"); shown("Previous week")
             if (logWeek(yesterday) != logWeek(today)) click("Previous week")
             compose.onNodeWithTag("log-week").performScrollToNode(hasTestTag("log-day-$yesterday"))
             compose.onNodeWithTag("log-day-$yesterday").performClick(); shown("Choose date")
             compose.onNodeWithTag("log-editor").performTextReplacement("Yesterday Log fixture")
-            click("Back to Home"); click("Log"); shown("Choose date")
+            compose.onNodeWithTag("home-brand").performClick(); click("Log"); shown("Choose date")
             compose.onNodeWithTag("log-editor").assertTextContains("Today Log fixture\nIdeas 🎵")
             compose.onNodeWithTag("log-editor").performTextReplacement("Today Log edited fixture")
             compose.activityRule.scenario.recreate(); shown("Choose date")
@@ -45,7 +45,7 @@ class LogWorkflowTest {
             compose.waitUntil(15000) { vm.date == today && !vm.busy }
             click("Weekly View"); shown("Previous week"); captureStage3("log-weekly")
             click("Next week"); click("Previous week")
-            click("Back to Home")
+            compose.onNodeWithTag("home-brand").performClick()
         } finally { db.close() }
     }
 }

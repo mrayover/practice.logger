@@ -120,7 +120,7 @@ class SystemPickerRestoreTest {
             compose.onNodeWithText("Restore backup").performClick()
             shownPickerApp(compose, "Backup restored.")
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
-            compose.onNodeWithText("Back to Home").scrollIfNeeded().performClick()
+            compose.onNodeWithTag("home-brand").scrollIfNeeded().performClick()
             openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
             compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()

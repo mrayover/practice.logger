@@ -34,7 +34,7 @@ class RoutineWorkflowTest {
                 assertEquals(draft, db.sessions().find(draft.session.id)); assertEquals(blocks, db.blocks().readAll())
                 db.routines().readAll().single { it.routine.name == "Warmup saved" }.routine.id
             }
-            click("Back to Home"); openHomeRoutines(compose)
+            compose.onNodeWithTag("home-brand").performClick(); openHomeRoutines(compose)
             compose.waitForIdle(); captureStage3("routine-01-list")
             compose.onNodeWithTag("edit-routine-$routineId").scrollIfNeeded().performClick()
             shown("Routine name"); compose.onNodeWithText("Routine name").performTextReplacement("Daily routine")
@@ -87,7 +87,7 @@ class RoutineWorkflowTest {
             }
             compose.onNodeWithTag("practice-timer").scrollIfNeeded(); compose.waitForIdle(); captureStage3("routine-03-fresh-practice")
             click("Complete"); shown("Routine A"); click("Skip"); shown("Routine C"); click("Complete")
-            shown("Session Summary"); click("Home"); openHomeRoutines(compose)
+            shown("Session Summary"); compose.onNodeWithTag("home-brand").performClick(); openHomeRoutines(compose)
             compose.onNodeWithText("Recent Practice").performScrollTo().assertIsDisplayed()
             compose.waitForIdle(); captureStage3("routine-04-history-retained")
         } finally { db.close() }
@@ -108,7 +108,7 @@ class RoutineReopenTest {
                 val recovery = db.sessions().readAll().single { it.current?.note == "Routine recovery note" }
                 assertEquals("IN_PROGRESS", recovery.session.status); assertEquals("Routine B", recovery.current!!.name)
             }
-            compose.onNodeWithText("Back to Home").scrollIfNeeded().performClick(); openHomePractice(compose)
+            compose.onNodeWithTag("home-brand").scrollIfNeeded().performClick(); openHomePractice(compose)
             compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithText("Routine B").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Resume").assertExists(); compose.onNodeWithText("Pause").assertDoesNotExist()

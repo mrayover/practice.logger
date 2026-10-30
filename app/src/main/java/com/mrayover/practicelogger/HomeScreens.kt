@@ -1,7 +1,6 @@
 package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -93,14 +92,6 @@ import kotlin.math.sin
     }
 }
 
-@Composable fun BackToHomeButton(onClick: () -> Unit, enabled: Boolean = true) {
-    OutlinedButton(onClick = onClick, enabled = enabled,
-        modifier = Modifier.heightIn(min = 48.dp), border = BorderStroke(1.5.dp, PracticeGreen),
-        shape = RoundedCornerShape(8.dp)) {
-        Text("Back to Home", fontWeight = FontWeight.Bold)
-    }
-}
-
 @Composable fun HomeButton(label: String, action: () -> Unit) {
     Button(onClick = action, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
         shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White)) {
@@ -112,7 +103,6 @@ import kotlin.math.sin
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        BackToHomeButton(onClick = onHome)
         Text("Tools", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Metronome") { onTool("metronome") }
         HomeButton("Tuner") { onTool("tuner") }
@@ -125,7 +115,6 @@ import kotlin.math.sin
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        BackToHomeButton(onClick = onHome)
         Text("Recording", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Free recording") { onFree(true) }
         TextButton(onClick = { onFree(false) }) { Text("Saved free recordings") }

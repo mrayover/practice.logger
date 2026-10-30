@@ -75,7 +75,7 @@ class ImageReferenceWorkflowTest {
             compose.onNodeWithTag("block-delete-action").scrollIfNeeded().performClick(); shown("This Block cannot be deleted yet.")
             compose.onNodeWithText("Remove the reference first", substring = true).assertExists(); click("OK")
             click("Cancel"); editor("Image reference fixture"); click("Show reference"); click("Hide reference"); click("Cancel")
-            click("Back to Home")
+            compose.onNodeWithTag("home-brand").performClick()
             val session = runBlocking {
                 val second = BlockRepository(db).save(null, BlockDraft("Image second fixture", "Without image"))
                 SessionRepository(db).let { it.addBlock(id); it.addBlock(second); it.start() }

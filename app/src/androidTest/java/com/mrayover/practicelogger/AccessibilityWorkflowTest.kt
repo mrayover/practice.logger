@@ -53,14 +53,14 @@ class AccessibilityWorkflowTest {
         click("Back to Tools"); click("Timer"); readable("Start stopwatch"); readable("Reset stopwatch")
         readable("Minute timer"); readable("Start timer"); readable("Reset timer")
         captureStage3("03-large-tool-timer")
-        click("Back to Tools"); click("Back to Home")
+        click("Back to Tools"); compose.onNodeWithTag("home-brand").performClick()
         click("Recording"); readable("Free recording"); readable("Saved free recordings")
         click("Saved free recordings")
         compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record take")); readable("Record take")
         compose.onNodeWithText("Record phrase").assertDoesNotExist()
         captureStage3("04-large-free-recordings")
         compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings"))
-        click("Close recordings"); click("Back to Home")
+        click("Close recordings"); compose.onNodeWithTag("home-brand").performClick()
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             // Goal recovery already verified the preserved draft. Reset only this disposable test fixture.
@@ -76,7 +76,7 @@ class AccessibilityWorkflowTest {
             compose.waitForIdle(); captureStage3("05-large-routine-duration")
             readable("Save Routine"); captureStage3("06-large-routine-save"); click("Save Routine"); shown("Large text routine")
             readable("Practice Routine"); readable("Edit Routine"); readable("Delete Routine")
-            click("Back to Home")
+            compose.onNodeWithTag("home-brand").performClick()
             click("Practice Now"); shown("Add Accessible fixture"); click("Add Accessible fixture"); shown("1. Accessible fixture"); compose.waitForIdle(); click("Add Accessible fixture")
             shown("2. Accessible fixture"); readable("Change duration")
             // Repeated controls identify their Block for assistive technology.
@@ -105,8 +105,8 @@ class AccessibilityWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); compose.onNodeWithText("Close recordings").performClick()
             readable("Complete"); captureStage3("11-large-focus"); click("Complete"); shown("Block 2 of 2"); click("Skip")
             shown("Session Summary"); readable("Session Summary"); captureStage3("12-large-summary")
-            readable("Save note"); click("Home"); click("Blocks"); shown("Block Library"); readable("New Block")
-            click("New Block"); shown("Default duration (minutes)"); readable("Cancel"); click("Cancel"); click("Back to Home")
+            readable("Save note"); compose.onNodeWithTag("home-brand").performClick(); click("Blocks"); shown("Block Library"); readable("New Block")
+            click("New Block"); shown("Default duration (minutes)"); readable("Cancel"); click("Cancel"); compose.onNodeWithTag("home-brand").performClick()
             openHomeTools(compose); click("Backup and restore"); shown("Export backup"); readable("Export backup"); readable("Choose backup to restore")
             captureStage3("13-large-backup")
         } finally { db.close() }

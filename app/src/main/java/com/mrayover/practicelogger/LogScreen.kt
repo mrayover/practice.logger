@@ -48,7 +48,6 @@ import java.time.format.FormatStyle
         val editorHeight = (maxHeight - 240.dp).coerceAtLeast(240.dp)
         val header: @Composable () -> Unit = {
           Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            BackToHomeButton(onClick = ::home, enabled = !vm.busy)
             Text(if (vm.weekly) "Weekly View" else "Log", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             if (vm.error != null || status.startsWith("Could not")) TextButton(onClick = vm::retry, enabled = !vm.busy) { Text("Retry") }
