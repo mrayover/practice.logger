@@ -73,7 +73,7 @@ class RoutineWorkflowTest {
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Routine recovery note")
             click("Save Block note"); shown("Block note saved")
             click("Start"); shown("Pause"); click("Pause"); shown("Resume")
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomeRoutines(compose)
+            leavePracticeForLater(compose); openHomeRoutines(compose)
             runBlocking { BlockRepository(db).save(ids[1], BlockDraft("Routine B updated", "Current action", "9", "140", "Current notes")) }
             compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick(); shown("Ready when you are")
             shown("Routine B updated"); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
@@ -115,7 +115,7 @@ class RoutineReopenTest {
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Routine recovery note")
             compose.waitForIdle(); captureStage3("routine-05-cold-recovery")
-            compose.onNodeWithText("Save for later").scrollIfNeeded().performClick(); compose.onNodeWithText("Back to Main").performClick()
+            leavePracticeForLater(compose)
             runBlocking { SessionRepository(db).discardDraft() }
         } finally { db.close() }
     }

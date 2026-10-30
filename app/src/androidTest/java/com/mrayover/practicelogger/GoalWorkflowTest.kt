@@ -49,7 +49,7 @@ class GoalWorkflowTest {
             click("Practice Goal"); shown("Ready when you are"); shown("Goal: Goal workflow edited")
             click("Start"); shown("Practicing")
             compose.waitUntil(15000) { runBlocking { db.goals().readSessions().any { it.goalId == id && (db.sessions().find(it.sessionId)?.activeMs ?: 0) > 500 } } }
-            click("Pause"); click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
+            click("Pause"); leavePracticeForLater(compose); shown("Practice Now")
             val first = runBlocking { db.goals().readSessions().single { it.goalId == id }.sessionId }
             val committed = runBlocking { db.sessions().find(first)!! }
             assertTrue(committed.activeMs > 0)

@@ -119,7 +119,7 @@ class ImageReferenceWorkflowTest {
             click("Complete"); shown("Without image")
             compose.onNodeWithText("Show reference").assertDoesNotExist(); assertFalse(practice.clicking)
             assertEquals("Reference practice note", runBlocking { db.sessions().find(session)!!.ordered.first().note })
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); click("Blocks"); editor("Image reference fixture")
+            leavePracticeForLater(compose); click("Blocks"); editor("Image reference fixture")
             click("Remove reference image"); shown("Remove reference image?")
             compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
             assertEquals(first, runBlocking { db.images().find(id) })

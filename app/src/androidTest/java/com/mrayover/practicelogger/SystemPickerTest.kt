@@ -133,7 +133,7 @@ class SystemPickerRestoreTest {
                 assertEquals("first note", bundle.ordered[0].note)
             }
             captureStage3("08-restored-paused")
-            compose.onNodeWithText("Save for later").scrollIfNeeded().performClick(); compose.onNodeWithText("Back to Main").performClick()
+            leavePracticeForLater(compose)
         } catch (e: Throwable) { pickerFailureEvidence(); throw e }
         finally { db.close() }
     }

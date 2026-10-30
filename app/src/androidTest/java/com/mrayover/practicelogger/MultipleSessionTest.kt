@@ -22,12 +22,12 @@ class MultipleSessionWorkflowTest {
             click("Start Session"); shown("Parallel A")
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Keep A")
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
             shown("Add Parallel B"); click("Add Parallel B")
             click("Start Session"); shown("Parallel B")
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Keep B")
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
             assertEquals(2, runBlocking { db.sessions().readAll().count { it.session.status == "IN_PROGRESS" } })
             compose.onNodeWithTag("continue-session-" + first.session.id).scrollIfNeeded().performClick()
@@ -38,7 +38,7 @@ class MultipleSessionWorkflowTest {
             compose.activityRule.scenario.recreate(); shown("Parallel A")
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
         } finally { db.close() }
     }
 }

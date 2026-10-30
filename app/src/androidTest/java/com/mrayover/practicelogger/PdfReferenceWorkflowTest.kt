@@ -122,7 +122,7 @@ class PdfReferenceWorkflowTest {
             click("Close recordings"); compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
             assertEquals("PDF recording practice note",runBlocking { db.sessions().find(session)!!.current!!.note })
             clearKeyboard()
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); click("Blocks")
+            leavePracticeForLater(compose); click("Blocks")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); click("PDF reference fixture")
             click("Archive Block"); click("Archive"); shown("Block Library")
             assertTrue(runBlocking { db.blocks().find(id)!!.archived }); assertEquals(pdf,runBlocking { db.images().find(id) })

@@ -54,6 +54,22 @@ fun revealPracticeReference(compose: AndroidComposeTestRule<ActivityScenarioRule
     }
 }
 
+fun leavePracticeForLater(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
+    fun keyboardVisible()=compose.runOnIdle {
+        androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+            ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime())==true
+    }
+    if (keyboardVisible()) {
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+        compose.waitUntil(5000) { !keyboardVisible() }
+    }
+    scrollPracticeWorkspace(compose,hasText("Save for later"))
+    compose.waitUntil(15000) { compose.onAllNodes(hasText("Save for later") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+    compose.onNodeWithText("Save for later").assertIsDisplayed().performClick()
+    compose.waitUntil(15000) { compose.onAllNodes(hasText("Back to Main") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+    compose.onNodeWithText("Back to Main").assertIsDisplayed().performClick()
+}
+
 fun revealPracticeNotes(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
     if (compose.onAllNodesWithText("Quick note (optional)").fetchSemanticsNodes().isEmpty())
         compose.onNodeWithText("Notes").scrollIfNeeded().performClick()

@@ -70,7 +70,7 @@ class PracticeWorkflowTest {
             click("Save Block note"); shown("Block note saved")
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextReplacement("Saved on leaving ♫")
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
             click("Continue Session"); shown("Overtime fixture")
             revealPracticeNotes(compose)
             compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Saved on leaving ♫")
