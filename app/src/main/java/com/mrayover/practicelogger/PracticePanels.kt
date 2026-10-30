@@ -55,14 +55,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable fun FocusedWorkspace(current: Placement, images: ImageReferenceViewModel, modifier: Modifier = Modifier, suppressed: Boolean = false) {
     val attachments by images.images.collectAsStateWithLifecycle()
     val attached = attachments.any { it.blockId == current.sourceBlockId }
-    // Null follows asynchronous attachment loading until the musician makes an explicit choice.
+    // Description is the default; outside transport panels one workspace always stays open.
     var choice by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
-    val expanded = choice ?: if (attached) "reference" else "description"
+    val expanded = if (choice == "reference") "reference" else "description"
     var referenceOpened by rememberSaveable(current.id) { mutableStateOf(false) }
     LaunchedEffect(expanded, attached) { if (attached && expanded == "reference") referenceOpened = true }
     Column(modifier.testTag("practice-workspace")) {
         WorkspaceHeader("Practice Description", !suppressed && expanded == "description", "practice-description-toggle", enabled = !suppressed) {
-            choice = if (expanded == "description") "none" else "description"
+            choice = if (expanded == "description") "reference" else "description"
         }
         if (expanded == "description") RetainedWorkspaceContent(suppressed,
             if (suppressed) Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
@@ -72,10 +72,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .16f))
         WorkspaceHeader("Reference Material", !suppressed && expanded == "reference", "practice-reference-toggle", enabled = !suppressed) {
-            choice = if (expanded == "reference") "none" else "reference"
+            choice = if (expanded == "reference") "description" else "reference"
         }
         if (expanded == "reference" || (referenceOpened && attached)) RetainedWorkspaceContent(suppressed || expanded != "reference",
-            if (suppressed || expanded != "reference" || !attached) Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
+            if (suppressed || expanded != "reference") Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
             if (attached) BoxWithConstraints(Modifier.fillMaxSize().testTag("practice-reference-area")) {
                 val available = maxHeight.coerceAtLeast(1.dp)
                 PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-reference-panel") {

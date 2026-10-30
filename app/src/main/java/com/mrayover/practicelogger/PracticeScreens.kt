@@ -216,11 +216,6 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
                 { transportPanel = if (transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
-            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = { transportPanel = if (transportPanel == "notes") null else "notes" },
-                    modifier = Modifier.heightIn(min = 48.dp).semantics { stateDescription = if (transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
-                TextButton(onClick = ::requestLeave, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Save for later") }
-            }
             practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.recording && !panelOpen) {
@@ -242,13 +237,18 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         }
         if (awaiting) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions"),
+            maxItemsInEachRow = if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) 2 else 4,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp).semantics { stateDescription = if (vm.running) "Practicing" else "Paused" }) {
                 Text(if (awaiting) "Continue" else if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume")
             }
             Button(onClick = { requestPracticeAction("COMPLETED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp)) { Text("Complete") }
+            OutlinedButton(onClick = { transportPanel = if (transportPanel == "notes") null else "notes" },
+                contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                    .testTag("practice-notes-toggle").semantics { stateDescription = if (transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
             OutlinedButton(onClick = { requestPracticeAction("SKIPPED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(.7f).heightIn(min = 48.dp)) { Text("Skip") }
         }

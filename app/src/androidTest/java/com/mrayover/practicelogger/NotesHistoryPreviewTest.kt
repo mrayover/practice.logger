@@ -55,6 +55,13 @@ class NotesHistoryPreviewTest {
             shown("Practice Now");compose.runOnIdle { practice.openSession(session) }
             shown("Practice Description")
             val placement = practice.catalog.value.active!!.current!!.id
+            tag("practice-description").assertTextContains("Practice slowly")
+            compose.onNodeWithText("Save for later").assertDoesNotExist()
+            val footer = tag("practice-bottom-actions").fetchSemanticsNode().boundsInRoot
+            val notesPill = tag("practice-notes-toggle").fetchSemanticsNode().boundsInRoot
+            assertTrue(footer.contains(notesPill.topLeft) && footer.contains(notesPill.bottomRight))
+            screenshot("description-default-footer")
+            tag("practice-reference-toggle").performClick()
             compose.waitUntil(15000) { audio.ready && compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             click("Next page");shown("Page 2 of 2")
             tag("reference-viewer").performTouchInput {
@@ -96,8 +103,8 @@ class NotesHistoryPreviewTest {
             tag("practice-description-toggle").performClick();shown("Practice slowly")
             click("Notes");collapsedHeaders();click("Return to Practice");shown("Practice slowly")
             tag("practice-description-toggle").performClick()
-            click("Notes");collapsedHeaders();click("Return to Practice");collapsedHeaders()
-            tag("practice-reference-toggle").performClick();shown("Page 2 of 2")
+            click("Notes");collapsedHeaders();click("Return to Practice");shown("Page 2 of 2")
+            tag("practice-reference-toggle").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription, "Expanded"));shown("Page 2 of 2")
             click("Notes");tag("practice-new-note").performTextReplacement("Keep this draft")
             clearKeyboard();click("Return to Practice");click("Notes")
             tag("practice-new-note").assertTextContains("Keep this draft")
@@ -107,7 +114,7 @@ class NotesHistoryPreviewTest {
             compose.runOnIdle { assertEquals(placement, practice.catalog.value.active!!.current!!.id); assertTrue(practice.running) }
             File(app.filesDir,"notes-preview-fixture.json").writeText(JSONObject().put("block",block).put("session",session).put("placement",placement).toString())
             screenshot("notes-restored-reference")
-            click("Save for later");click("Back to Main");shown("Practice Now")
+            device.pressBack();click("Back to Main");shown("Practice Now")
         } finally {
             screenshot("notes-final")
             compose.runOnIdle { audio.finishCapture();audio.stopPlayback();practice.stopClick() };db.close()
