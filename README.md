@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build51 P4 loop recorder debug preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build52 P4 loop spacing debug preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
@@ -51,7 +51,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build51 compacts loop setup into one viewport at normal portrait settings, keeps phrase click permanently enabled, adds inline Keep/Re-record/Preview/Discard and aligns Free/Loop action columns. Compilation, seven scoped phrase audio/storage checks and one API35 native geometry/capture/review/free-recording scenario pass. Physical-phone acceptance remains pending; see CURRENT_STATE.
+Build52 corrects clipped numeric values and distributes loop setup through the available height, anchoring Record Loop/review immediately above the transport. Permanent phrase click, inline Keep/Re-record/Preview/Discard and aligned Free/Loop action columns remain. Compilation, seven scoped phrase audio/storage checks and one expanded API35 compact/tall geometry/capture/review/free-recording scenario pass. Physical-phone acceptance remains pending; see CURRENT_STATE.
 
 Historical build47 passes 22 scoped PCM/compatibility tests, debug/release/test APK compilation and ten API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. P1–P3 generally owner-accepted; P4 phone and full regression remain pending. See [CURRENT_STATE.md](CURRENT_STATE.md). P5/final full gates remain; P5 has not started.
 

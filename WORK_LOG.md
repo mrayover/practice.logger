@@ -554,3 +554,10 @@ Reviewed mandatory efficiency procedure, current records/baseline and owner phon
 
 
 Initial build52 CI41234041892/source9a7e829 passed compilation/seven unit tests, then the compact no-scroll assertion found a near-full-height scrollbar. Screenshot confirms complete digits and all controls visible. The form subtracted a fractional typography heading height while Text rounds to physical pixels; replaced that estimate with the measured heading pixel height to avoid the rounding overflow. Kept all visibility/footer/gap/text assertions. Rerunning the same single scoped native workflow.
+
+
+### Build52 verified delivery
+
+Source `1dbaa4d25d903c091908012ad670e328ba3ca177`, [focused CI 41234666560](https://github.com/mrayover/practice.logger/actions/runs/41234666560) completed/success: debug/release/instrumentation compile, seven existing phrase audio/storage unit checks and one expanded API35 native path. Compact1080x1920 and tall1080x2340 geometry confirms numeric line height/no scrollbar, equal distributed gaps and footer against the transport boundary; retained count-in/permanent native guide/exact WAV/preview/re-record/Keep/Discard/free-review checks pass. Screenshots inspected. No engine/VM/storage changes or full regression/lint/API matrix/enlarged-text native run. Same-phone visual/acoustic confirmation remains pending.
+
+Existing publisher produced permanent-key debug52; app/version/debuggable/signature/certificate/hash and non-signature member equality to CI debug verified. ZIP CRC/member bytes and 198 prior package hashes preserved. APK SHA256 `9152dc3a143e83f6e59bd41193820e9aa9abec8457147f22d15e47e904998c80`; ZIP `1ab4dcd3979ac95d44bce805b7359292d258398f13939565a7543aceaa230d82`. CURRENT_STATE records current paths/evidence and exact phone-check next task. Documentation-only closeout follows APK source; remote SHA verified after push.

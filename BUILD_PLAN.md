@@ -6,6 +6,10 @@ Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and his
 
 Build48 removes only the duplicate Goal gear; existing Edit opens Manage Goals. No global Settings screen is introduced; Tools Audio Settings remains. Existing preview workflow checks compile/launch/Home navigation and Log saving; exact delivery and pending P4/P5 gates in CURRENT_STATE.
 
+## P4 loop spacing follow-up
+
+Build52 fixes the owner phone screenshot’s clipped digits and unused lower setup area: intrinsic/minimum field height, proportional vertical distribution and recording/review footer at the transport boundary. Existing loop behavior/engine remains. Scoped compilation/seven phrase unit checks and an expanded compact/tall API35 path pass. Permanent-key debug delivery and phone confirmation pending in CURRENT_STATE. No new milestone/full regression.
+
 ## P4 loop recorder screenshot refinement
 
 Build51 compacts three fields/eight shortcuts/duration/green Record Loop and execution budget, always enables the existing phrase click, and replaces Record Loop with inline Keep/Re-record plus small Preview/Discard. Free/Loop action columns align; selectors/footer retained. Scoped compilation, seven phrase audio/storage unit checks and one API35 native layout/capture/review path pass. Permanent-key debug APK and pending phone acceptance in CURRENT_STATE. No new milestone/P5/full regression.
