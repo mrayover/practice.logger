@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.*
@@ -199,6 +200,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val spec = result.getOrNull()
     val review = vm.reviewTake?.takeIf { it.mode == "LOOP" }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
+    var headingHeight by remember { mutableIntStateOf(0) }
     LaunchedEffect(review?.id) {
         review?.let {
             phraseBpm = it.recordedBpm.toString(); phraseBeats = it.beatCount.toString()
@@ -208,7 +210,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val editable = !vm.recording && review == null && !vm.busy
     val form: @Composable () -> Unit = {
         Column(if (inline) Modifier.heightIn(min = (minimumHeight - with(androidx.compose.ui.platform.LocalDensity.current) {
-            MaterialTheme.typography.titleSmall.lineHeight.toDp()
+            headingHeight.toDp()
         }).coerceAtLeast(0.dp)) else Modifier.verticalScroll(rememberScrollState()),
             verticalArrangement = if (inline) Arrangement.SpaceBetween else Arrangement.Top) {
             Row(Modifier.fillMaxWidth().testTag("phrase-fields"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -278,7 +280,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         }
     }
     if (inline) Column(Modifier.fillMaxWidth().testTag("practice-loop-panel")) {
-        Text("Loop setup", style = MaterialTheme.typography.titleSmall, modifier = Modifier.semantics { heading() })
+        Text("Loop setup", style = MaterialTheme.typography.titleSmall, modifier = Modifier.onSizeChanged { headingHeight = it.height }.semantics { heading() })
         form()
     } else AlertDialog(onDismissRequest = onDismiss, title = { Text("Record one phrase") }, text = form,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
