@@ -2,6 +2,10 @@
 
 An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build42 visual owner preview**. Redundant Home buttons are removed and content moves up. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
+## Forward V1 roadmap
+
+[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 baseline audit and documentation integration are complete; the next recommended assignment is **P1 temporary audio take review**, only when assigned. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
+
 ## Focused Practice transport and Notes
 
 Description and Reference retain their shared workspace; Description starts open and switching sections always leaves one open. Notes is a footer pill beside the practice actions; Save for later and its row are removed. Opening a transport panel temporarily hides both contents, retains both headers and gives the panel the space. Closing restores the prior workspace choice, including PDF page/zoom. Only one transport panel opens. Compact tinted recording controls/selection, timer/metronome and primary actions remain.

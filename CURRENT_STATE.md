@@ -1,6 +1,6 @@
 # Current state — Home button removal visual preview,0.16.0/build42
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview; full regression pending.** This assignment removes redundant Home buttons and their layout rows throughout the app. Existing Room11/JSON7 and notes behavior remain. No later audio acceptance workflow or unrelated feature started. No further automated work scheduled.
+Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview; full regression pending.** Build42 removed redundant Home buttons and their layout rows throughout the app. P0 audited the baseline and integrated the forward roadmap with documentation changes only. Existing Room11/JSON7 and notes behavior remain. No later audio acceptance workflow or unrelated feature started. No further automated work scheduled.
 
 ## Delivery
 
@@ -40,9 +40,16 @@ JSON writer7/readers1–7 adds practiceNotes with strict ownership/nonblank/time
 
 Not run: full units/lint/regression/API matrix, dedicated enlarged-text/landscape/TalkBack, editor/session guard campaign, audio or physical-phone install-over acceptance. Prior build41 notes/storage checks are historical evidence and were not rerun. Full release requirements remain unchanged. Stage3 phone acceptance pending; Stage4 remains0/10 real sessions.
 
+## P0 baseline audit and V1 integration — 2026-10-30
+
+P0 documentation integration is complete. Audited the existing Windows checkout on clean `main` at `e030fbf57adb88386b6cadb8af3d91b1eaf0c528`, confirmed by live `git ls-remote origin refs/heads/main`. Since starting reference `5ebbd58b8705b0fc80f95b2443b9db464db07a75`, the only commit was `e030fbf`: added the master plan and updated CURRENT_STATE, FIRST_WORK_HANDOFF and WORK_LOG. All tracked differences since signed source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5` were Markdown only; app/configuration/schema/scripts/workflows were unchanged.
+
+Live GitHub Actions listing confirms the latest run is still [41145916544](https://github.com/mrayover/practice.logger/actions/runs/41145916544), completed/success at the signed source. This is limited preview evidence, not full regression. Existing BUILD_INFO, LATEST and Gradle agree on version0.16.0/code42, source and app ID; current APK/ZIP hashes match the delivery table. The certificate is retained from the publisher's recorded verification; P0 did not rerun signing or physical-device checks. Earlier failed runs remain historical evidence and were not investigated.
+
+README and BUILD_PLAN now link the [master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md). BUILD_PLAN/AGENTS distinguish future review, loop/meter/Settings, Library, storage/recovery and Goal/statistics phases from the implemented baseline. Existing data safeguards, historical delivery facts, JSON7 exclusions and phone limitations remain. The narrow future L1 test-reference exception does not permit P0 data removal. The previous P0 handoff is refreshed as a completion/next-assignment handoff.
+
+Checks: documentation content and local links/anchors, baseline and final Git diffs/whitespace, master-plan/mandatory-procedure preservation and documentation-only changed-file scope. Automatic build CI is skipped via Markdown path exclusions and `[skip ci]`; owner-preview CI is manual-only. No compilation, APK build/signing, Gradle tests/lint, emulator launch, workflow dispatch or regression run for P0. P1–P4 retain scoped delivery checks; P5 and final V1 retain full-regression gates. Publication SHA/branch is confirmed in the closing handoff after push; this audit baseline is not the final commit SHA.
+
 ## One next task
 
-Owner: install build42 in place and check removed Home buttons, content placement, banner/Android Back, Log save, library search and existing data on the phone. No subsequent work starts automatically.
-
-## V1 roadmap handoff — 2026-10-30
-Master plan added to Git with FIRST_WORK_HANDOFF.md assigning P0 baseline audit/documentation integration only. This supersedes the previous next-task instruction for development; build42 phone acceptance remains pending. No app changes, builds or regression tests in this documentation increment. Next task: P0 only, with mandatory no full regression; do not start P1 automatically.
+Recommend assigning **P1 temporary audio take review** under master-plan §3: shared preview/save/re-record/discard before permanent take acceptance, with scoped audio/storage checks and versioned permanent-key signed delivery. P1 has not started and must not begin automatically. Build42 full regression and owner-phone acceptance remain pending; later P5/final gates are not waived.
