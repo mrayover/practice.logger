@@ -87,7 +87,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     fun availableBytes(): Long = directory.usableSpace
     fun prepare(blockId: String?, phrase: PhraseSpec? = null): PendingTake {
         check(directory.isDirectory || directory.mkdirs()) { "Recording storage is unavailable." }
-        check(availableBytes() >= 2 * 1024 * 1024 + (phrase?.frames?.toLong() ?: 0L) * 2) { "Free some storage before recording." }
+        requireRecordingSpace(availableBytes(), phrase)
         val id = UUID.randomUUID().toString()
         val file = resolve("$id.pending." + if (phrase == null) "m4a" else "wav")
         activeFiles.add(file.absolutePath)
@@ -98,7 +98,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     /** Validates temporary audio without creating a permanent row or renaming its file. */
     fun inspect(pending: PendingTake): BlockTake {
         val duration = pending.phrase?.let { spec ->
-            require(PhraseWave.read(pending.file).size == spec.frames) { "Incomplete phrase." }; spec.durationMs
+            require(PhraseWave.frames(pending.file) == spec.frames) { "Incomplete phrase." }; spec.durationMs
         } ?: inspectDuration(pending.file)
         require(duration > 0 && pending.file.length() > 0) { "No usable audio was recorded." }
         return BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.phrase == null) "FREE" else "LOOP",

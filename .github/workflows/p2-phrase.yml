@@ -1,0 +1,55 @@
+name: P2 flexible phrase loops and count-in
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Scoped phrase boundary and storage tests and candidate build
+        run: bash ./gradlew testDebugUnitTest --tests '*PhraseAudioTest' --tests '*FlexiblePhraseStorageTest' --tests '*PhraseRepositoryTest' --tests '*TakeReviewTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: practice-logger-unsigned-release
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Scoped API35 phrase and review acceptance
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash scripts/Check-FlexiblePhrase.sh 35
+      - name: Scoped API26 maximum loop playback
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 26
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash scripts/Check-FlexiblePhrase.sh 26
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p2-phrase-evidence
+          path: |
+            app/build/p2-*
+            app/build/test-results/testDebugUnitTest

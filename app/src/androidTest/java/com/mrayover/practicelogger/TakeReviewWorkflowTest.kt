@@ -68,13 +68,13 @@ class TakeReviewWorkflowTest {
             free();tag("review-save").performClick();compose.waitUntil(15000) { !audio.busy && audio.reviewTake == null }
             assertEquals(before.size+1,runBlocking { db.takes().readAll().size })
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record phrase"));click("Record phrase")
-            compose.onNodeWithText("Phrase BPM").performTextReplacement("240");click("4 beats");click("Start 4-click count-in")
+            compose.onNodeWithText("Phrase BPM").performTextReplacement("240");click("4 beats");click("Start count-in")
             review();val loop=audio.reviewTake!!;assertEquals("LOOP",loop.mode);assertNull(audio.playingId)
             assertNull(runBlocking { db.takes().find(loop.id) });tag("review-preview").performClick()
             compose.waitUntil(10000) { audio.playingId == loop.id };compose.waitUntil(10000) { audio.loopFramesPlayed() > 0 }
             shot("loop-review");tag("review-save").performClick();compose.waitUntil(15000) { !audio.busy && audio.reviewTake == null }
             assertNotNull(runBlocking { db.takes().find(loop.id) });assertNull(audio.playingId)
-            compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record phrase"));click("Record phrase");click("Start 4-click count-in")
+            compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record phrase"));click("Record phrase");click("Start count-in")
             compose.waitUntil(10000) { audio.phrasing && audio.countInBeat > 0 };click("Cancel phrase")
             compose.waitUntil(15000) { !audio.recording && !audio.busy && !audio.phrasing }
             assertNull(audio.reviewTake);assertEquals(2,runBlocking { db.takes().readAll().count { it.blockId == block } })

@@ -77,7 +77,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(bottom = 8.dp)) }
         if (vm.recording) {
             // Always reachable, including when a tall reference or take list is scrolled.
-            Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4"
+            Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}"
                 else "Recording · " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "",
                 style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.testTag("recording-elapsed"))
@@ -116,7 +116,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 if (blockId != null) {
                 OutlinedButton(onClick = { keyboard?.hide(); phraseDialog = true }, enabled = vm.ready && !vm.busy && !vm.recording && vm.reviewTake == null,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Record phrase") }
-                Text("Four clicks, then one fixed phrase. A complete phrase opens Review Take before saving. Leaving cancels an incomplete phrase.", style = MaterialTheme.typography.bodySmall)
+                Text("Your selected count-in, then one fixed-tempo phrase. A complete phrase opens Review Take before saving. Leaving cancels an incomplete phrase.", style = MaterialTheme.typography.bodySmall)
                 }
                 if (takes.any { it.id == vm.playingId && it.mode == "LOOP" }) {
                     Button(onClick = vm::stopPlayback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Stop loop") }
@@ -187,23 +187,41 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 @Composable fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit, inline: Boolean = false) {
     val keyboard = LocalSoftwareKeyboardController.current
     var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
-    var phraseBeats by rememberSaveable(blockId) { mutableIntStateOf(8) }
+    var phraseBeats by rememberSaveable(blockId) { mutableStateOf("8") }
+    var countIn by rememberSaveable(blockId) { mutableStateOf(vm.defaultCountIn.toString()) }
     var phraseClick by rememberSaveable(blockId) { mutableStateOf(true) }
         val bpm = phraseBpm.toIntOrNull()
-        val spec = bpm?.takeIf { it in 30..300 }?.let { PhraseSpec(it, phraseBeats) }
+        val length = phraseBeats.toIntOrNull()
+        val intro = countIn.toLongOrNull()
+        val result = runCatching {
+            require(bpm != null) { "Enter a whole BPM from 30 to 300." }
+            require(length != null) { "Enter a whole loop length from 1 to 64 beats." }
+            require(intro != null) { "Enter a positive whole count-in beat count." }
+            PhraseSpec(bpm, length, intro)
+        }
+        val spec = result.getOrNull()
         val form: @Composable () -> Unit = {
             Column(if (inline) Modifier else Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("30–300") },
                     modifier = Modifier.padding(top = 8.dp), isError = spec == null, singleLine = true)
-                Text("Phrase length in beats")
+                OutlinedTextField(phraseBeats, { phraseBeats = it }, label = { Text("Loop beats") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("Any whole number from 1 to 64") },
+                    singleLine = true, isError = length == null || length !in 1..64, modifier = Modifier.testTag("phrase-beats"))
+                OutlinedTextField(countIn, { countIn = it }, label = { Text("Count-in beats") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("Positive whole beats; default ${vm.defaultCountIn}. Execution budget: 15 minutes.") },
+                    singleLine = true, isError = intro == null || intro <= 0 || (bpm != null && bpm in 30..300 && result.isFailure), modifier = Modifier.testTag("phrase-count-in"))
+                TextButton(onClick = { countIn = vm.defaultCountIn.toString() }) { Text("Use default count-in") }
+                Text("Loop shortcuts")
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(4, 8, 16, 32).forEach { beats ->
-                        FilterChip(selected = phraseBeats == beats, onClick = { phraseBeats = beats }, label = { Text("$beats beats") })
+                        FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() }, label = { Text("$beats beats") })
                     }
                 }
-                Text(spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) } ?: "Enter a whole BPM from 30 to 300.")
+                Text(spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) } ?: (result.exceptionOrNull()?.message ?: "Check loop settings."))
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("phrase-recording-click")
                     .toggleable(value = phraseClick, role = Role.Checkbox, onValueChange = { phraseClick = it }),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -211,7 +229,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     Text("Click while recording", modifier = Modifier.weight(1f))
                 }
                 Text("The click follows the phrase BPM and may be heard in the microphone recording.", style = MaterialTheme.typography.bodySmall)
-                Text("Listen to four clicks, then play on the next beat. Recording ends automatically, then you can preview and choose Save, Re-record or Discard. A new tempo needs a new take.")
+                Text("Listen to the selected count-in, then play on the next beat. Recording ends automatically, then you can preview and choose Save, Re-record or Discard. A new tempo needs a new take.")
             }
         }
         val record: @Composable () -> Unit = { TextButton(onClick = {
@@ -220,7 +238,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec, phraseClick) }
                 else requestPermission()
             }
-        }, enabled = spec != null && vm.ready && !vm.busy && !vm.recording && vm.reviewTake == null) { Text(if (inline) "Record" else "Start 4-click count-in") } }
+        }, modifier = Modifier.testTag("phrase-start"), enabled = spec != null && vm.ready && !vm.busy && !vm.recording && vm.reviewTake == null) { Text(if (inline) "Record" else "Start count-in") } }
         val cancel: @Composable () -> Unit = { TextButton(onClick = onDismiss) { Text("Cancel") } }
         if (inline) Column(Modifier.fillMaxWidth().testTag("practice-loop-panel")) {
             Text("Loop setup", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
@@ -247,7 +265,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 verticalArrangement = Arrangement.Center) {
                 Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = green)
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
+                    Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
                         maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = green)
                     Text(" ▾", color = green)
                 }

@@ -153,6 +153,7 @@ class MainActivity : ComponentActivity() {
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
             "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) "home" else "routines" })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { page = it })
+            "audio-settings" -> CountInSettings(recordings, onTools = { page = "tools" })
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,

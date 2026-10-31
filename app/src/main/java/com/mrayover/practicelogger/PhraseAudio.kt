@@ -6,62 +6,115 @@ import android.os.Build
 import android.os.SystemClock
 import java.io.File
 import java.io.FileOutputStream
+import java.io.DataInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 import kotlin.math.*
 
-/** One mono PCM frame per sample. Only the final division is rounded, never each beat. */
-data class PhraseSpec(val bpm: Int, val beats: Int) {
-    init { require(bpm in 30..300 && beats in listOf(4, 8, 16, 32)) }
+/** Counts are musical beats; the execution budget is time, not a fixed menu of beat choices. */
+data class PhraseSpec(val bpm: Int, val beats: Int, val countInBeats: Long = 4) {
+    init {
+        require(bpm in 30..300) { "Enter a whole BPM from 30 to 300." }
+        require(beats in 1..64) { "Enter a whole loop length from 1 to 64 beats." }
+        require(countInBeats > 0) { "Enter a positive whole count-in beat count." }
+        // Check before multiplication; even Long.MAX_VALUE cannot overflow this calculation.
+        require(countInBeats <= MAX_COUNT_IN_MS * bpm / 60_000L) {
+            "This count-in would exceed the 15-minute execution budget. Reduce count-in beats or increase BPM."
+        }
+    }
     val frames: Int get() = (60.0 * RATE * beats / bpm).roundToInt()
     val durationMs: Long get() = frames * 1000L / RATE
-    companion object { const val RATE = 48_000 }
+    val countInFrames: Long get() = (60.0 * RATE * countInBeats / bpm).roundToLong()
+    val countInDurationMs: Long get() = (60_000.0 * countInBeats / bpm).roundToLong()
+    companion object {
+        const val RATE = 48_000
+        const val MAX_FRAMES = 6_144_000 // 30 BPM x 64 beats = 128 seconds.
+        const val MAX_COUNT_IN_MS = 15 * 60_000L
+    }
 }
 
-/** Canonical PCM16 mono WAV; exact frame boundaries without compressed encoder padding. */
+fun recordingSpaceRequired(spec: PhraseSpec?): Long = 2 * 1024 * 1024L + (spec?.frames?.toLong() ?: 0L) * 2 + 44
+fun requireRecordingSpace(available: Long, spec: PhraseSpec?) {
+    check(available >= recordingSpaceRequired(spec)) { "Free some storage before recording." }
+}
+
+/** One rounded absolute sample boundary per beat; memory stays bounded for long count-ins. */
+class PhraseGuide(private val spec: PhraseSpec, private val enabled: Boolean) {
+    val totalFrames: Long = spec.countInFrames + if (enabled) spec.frames else 0
+    fun fill(offset: Long, destination: ShortArray): Int {
+        require(offset >= 0 && destination.isNotEmpty())
+        val count = minOf(destination.size.toLong(), (totalFrames - offset).coerceAtLeast(0)).toInt()
+        java.util.Arrays.fill(destination, 0, count, 0.toShort())
+        if (count == 0) return 0
+        fun ticks(base: Long, length: Long, beats: Long) {
+            var beat = maxOf(0, floor((offset - base) * spec.bpm.toDouble() / (60.0 * PhraseSpec.RATE)).toLong() - 1)
+            while (beat < beats) {
+                val start = base + (60.0 * PhraseSpec.RATE * beat / spec.bpm).roundToLong()
+                if (start >= offset + count) break
+                val from = maxOf(offset, start)
+                val to = minOf(offset + count, start + 480, base + length)
+                for (frame in from until to) {
+                    val i = frame - start
+                    destination[(frame - offset).toInt()] =
+                        (sin(2 * PI * 1400 * i / PhraseSpec.RATE) * 11000 * (1.0 - i / 480.0)).toInt().toShort()
+                }
+                beat++
+            }
+        }
+        ticks(0, spec.countInFrames, spec.countInBeats)
+        if (enabled) ticks(spec.countInFrames, spec.frames.toLong(), spec.beats.toLong())
+        return count
+    }
+}
+
+/** Canonical PCM16 WAV. Only one full PCM array is needed; file IO uses small byte chunks. */
 object PhraseWave {
+    private fun header(frames: Int): ByteArray {
+        require(frames in 1..PhraseSpec.MAX_FRAMES) { "Invalid phrase size." }
+        return ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN).apply {
+            put("RIFF".toByteArray()).putInt(36 + frames * 2).put("WAVEfmt ".toByteArray())
+            putInt(16).putShort(1).putShort(1).putInt(PhraseSpec.RATE).putInt(PhraseSpec.RATE * 2)
+            putShort(2).putShort(16).put("data".toByteArray()).putInt(frames * 2)
+        }.array()
+    }
     fun write(file: File, samples: ShortArray) {
-        val bytes = ByteBuffer.allocate(44 + samples.size * 2).order(ByteOrder.LITTLE_ENDIAN)
-        bytes.put("RIFF".toByteArray()).putInt(36 + samples.size * 2).put("WAVEfmt ".toByteArray())
-        bytes.putInt(16).putShort(1).putShort(1).putInt(PhraseSpec.RATE).putInt(PhraseSpec.RATE * 2)
-        bytes.putShort(2).putShort(16).put("data".toByteArray()).putInt(samples.size * 2)
-        samples.forEach(bytes::putShort)
-        FileOutputStream(file).use { it.write(bytes.array()); it.fd.sync() }
+        FileOutputStream(file).use { output ->
+            output.write(header(samples.size))
+            val chunk = ByteBuffer.allocate(8192).order(ByteOrder.LITTLE_ENDIAN)
+            var position = 0
+            while (position < samples.size) {
+                chunk.clear()
+                repeat(minOf(chunk.capacity() / 2, samples.size - position)) { chunk.putShort(samples[position++]) }
+                output.write(chunk.array(), 0, chunk.position())
+            }
+            output.fd.sync()
+        }
+    }
+    fun frames(file: File): Int {
+        require(file.length() in 46..(44 + PhraseSpec.MAX_FRAMES * 2L) && (file.length() - 44) % 2 == 0L) { "Invalid phrase size." }
+        val bytes = ByteArray(44)
+        DataInputStream(file.inputStream()).use { it.readFully(bytes) }
+        val count = ((file.length() - 44) / 2).toInt()
+        require(bytes.contentEquals(header(count))) { "Invalid or incomplete PCM16 phrase." }
+        return count
     }
     fun read(file: File): ShortArray {
-        require(file.length() in 46..(44 + PhraseSpec(30, 32).frames * 2L)) { "Invalid phrase size." }
-        val bytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
-        fun text(n: Int) = ByteArray(n).also(bytes::get).toString(Charsets.US_ASCII)
-        require(text(4) == "RIFF" && bytes.int == bytes.capacity() - 8 && text(8) == "WAVEfmt ")
-        require(bytes.int == 16 && bytes.short.toInt() == 1 && bytes.short.toInt() == 1)
-        require(bytes.int == PhraseSpec.RATE && bytes.int == PhraseSpec.RATE * 2)
-        require(bytes.short.toInt() == 2 && bytes.short.toInt() == 16 && text(4) == "data")
-        require(bytes.int == bytes.remaining() && bytes.remaining() % 2 == 0)
-        return ShortArray(bytes.remaining() / 2) { bytes.short }
-    }
-    fun countIn(bpm: Int): ShortArray {
-        val length = PhraseSpec(bpm, 4).frames
-        return ShortArray(length).also { samples ->
-            repeat(4) { beat ->
-                val start = (60.0 * PhraseSpec.RATE * beat / bpm).roundToInt()
-                repeat(480) { i ->
-                    samples[start + i] = (sin(2 * PI * 1400 * i / PhraseSpec.RATE) * 11000 * (1.0 - i / 480.0)).toInt().toShort()
-                }
+        val samples = ShortArray(frames(file))
+        DataInputStream(file.inputStream()).use { input ->
+            val chunk = ByteArray(8192)
+            input.readFully(chunk, 0, 44)
+            var position = 0
+            while (position < samples.size) {
+                val count = minOf(chunk.size / 2, samples.size - position)
+                input.readFully(chunk, 0, count * 2)
+                val buffer = ByteBuffer.wrap(chunk, 0, count * 2).order(ByteOrder.LITTLE_ENDIAN)
+                repeat(count) { samples[position++] = buffer.short }
             }
+            require(input.read() == -1) { "Unexpected phrase bytes." }
         }
-    }
-    /** Continue the same output clock past the count-in; the microphone is never mixed digitally. */
-    fun recordingGuide(spec: PhraseSpec, enabled: Boolean): ShortArray {
-        val intro = countIn(spec.bpm)
-        if (!enabled) return intro
-        val guide = intro.copyOf(intro.size + spec.frames)
-        repeat(spec.beats) { beat ->
-            val start = intro.size + (60.0 * PhraseSpec.RATE * beat / spec.bpm).roundToInt()
-            repeat(480) { i ->
-                guide[start + i] = (sin(2 * PI * 1400 * i / PhraseSpec.RATE) * 11000 * (1.0 - i / 480.0)).toInt().toShort()
-            }
-        }
-        return guide
+        return samples
     }
 }
 
@@ -81,7 +134,7 @@ fun phraseTrack(samples: ShortArray, repeat: Boolean): AudioTrack {
     } catch (failure: Exception) { audio.release(); throw failure }
 }
 
-/** Only one worker owns reads/writes. cancel synchronously stops native audio before returning. */
+/** One capture owner, one output sample clock, bounded streaming guide. */
 class PhraseCapture {
     private val lock = Any()
     @Volatile private var cancelled = false
@@ -94,7 +147,7 @@ class PhraseCapture {
         cancelled = true
         runCatching { input?.stop() }; runCatching { output?.pause(); output?.flush() }
     }
-    @SuppressLint("MissingPermission") // ViewModel checks permission at the explicit record action.
+    @SuppressLint("MissingPermission")
     fun capture(spec: PhraseSpec, file: File, clickWhileRecording: Boolean, onCount: (Int) -> Unit, onFrames: (Int) -> Unit,
         hasSpaceAndPermission: () -> Boolean) {
         val minimum = AudioRecord.getMinBufferSize(PhraseSpec.RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -102,23 +155,49 @@ class PhraseCapture {
         val mic = AudioRecord.Builder().setAudioSource(MediaRecorder.AudioSource.MIC)
             .setAudioFormat(AudioFormat.Builder().setSampleRate(PhraseSpec.RATE).setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                 .setChannelMask(AudioFormat.CHANNEL_IN_MONO).build()).setBufferSizeInBytes(max(minimum * 2, 9600)).build()
+        var writer: Thread? = null
+        val guideFailure = AtomicReference<Throwable?>(null)
         try {
             check(mic.state == AudioRecord.STATE_INITIALIZED)
-            val countInFrames = PhraseSpec(spec.bpm, 4).frames
-            val clicks = PhraseWave.recordingGuide(spec, clickWhileRecording)
-            synchronized(lock) { check(!cancelled); input = mic; output = phraseTrack(clicks, false); output!!.play() }
-            val deadline = SystemClock.elapsedRealtime() + spec.copy(beats = 4).durationMs + 5000
+            val outMinimum = AudioTrack.getMinBufferSize(PhraseSpec.RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
+            check(outMinimum > 0)
+            val track = AudioTrack.Builder().setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                .setAudioFormat(AudioFormat.Builder().setSampleRate(PhraseSpec.RATE).setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+                .setTransferMode(AudioTrack.MODE_STREAM).setBufferSizeInBytes(max(outMinimum * 2, 9600)).build()
+            synchronized(lock) { output = track; check(!cancelled); input = mic; check(track.state == AudioTrack.STATE_INITIALIZED); track.play() }
+            val guide = PhraseGuide(spec, clickWhileRecording)
+            writer = thread(name = "phrase-guide", isDaemon = true) {
+                try {
+                    val chunk = ShortArray(960)
+                    var offset = 0L
+                    while (!cancelled) {
+                        val count = guide.fill(offset, chunk)
+                        if (count == 0) break
+                        var position = 0
+                        while (position < count && !cancelled) {
+                            val written = track.write(chunk, position, count - position, AudioTrack.WRITE_BLOCKING)
+                            check(written > 0) { "Count-in output failed." }; position += written
+                        }
+                        offset += count
+                    }
+                } catch (failure: Throwable) { if (!cancelled) guideFailure.set(failure) }
+            }
+            val deadline = SystemClock.elapsedRealtime() + spec.countInDurationMs + 5000
             var last = 0
             while (true) {
                 check(!cancelled && hasSpaceAndPermission()) { "Phrase interrupted." }
+                check(guideFailure.get() == null) { "Count-in output failed." }
                 val frames = synchronized(lock) { output!!.playbackHeadPosition.toLong() and 0xffffffffL }
-                if (frames >= countInFrames) break
+                if (frames >= spec.countInFrames) break
                 check(SystemClock.elapsedRealtime() < deadline) { "Count-in output stalled." }
-                val beat = (frames * spec.bpm / (60L * PhraseSpec.RATE)).toInt().coerceIn(0, 3) + 1
+                val beat = (frames * spec.bpm / (60L * PhraseSpec.RATE)).coerceIn(0, spec.countInBeats - 1).toInt() + 1
                 if (beat != last) { last = beat; onCount(beat) }
                 Thread.sleep(5)
             }
-            // Four output-clock beats end before capture starts. Device I/O latency is not calibrated.
+            // Mic starts only after the selected output-clock count-in; I/O latency is not calibrated.
+            if (!clickWhileRecording) writer?.join(1000)
             synchronized(lock) {
                 check(!cancelled)
                 if (!clickWhileRecording) { output?.release(); output = null }
@@ -126,9 +205,12 @@ class PhraseCapture {
             }
             onCount(0)
             val samples = ShortArray(spec.frames)
+            val captureDeadline = SystemClock.elapsedRealtime() + spec.durationMs + 5000
             var position = 0
             while (position < samples.size) {
                 check(!cancelled && hasSpaceAndPermission()) { "Phrase interrupted." }
+                check(guideFailure.get() == null) { "Recording guide output failed." }
+                check(SystemClock.elapsedRealtime() < captureDeadline) { "Microphone capture stalled." }
                 if (Build.VERSION.SDK_INT >= 29) check(mic.activeRecordingConfiguration?.isClientSilenced != true) { "Microphone silenced." }
                 val read = mic.read(samples, position, min(960, samples.size - position), AudioRecord.READ_BLOCKING)
                 check(read > 0) { "Microphone read failed." }
@@ -136,14 +218,15 @@ class PhraseCapture {
             }
             synchronized(lock) {
                 check(!cancelled); mic.stop()
-                output?.pause(); output?.flush(); output?.release(); output = null
+                output?.pause(); output?.flush()
             }
             check(!cancelled); PhraseWave.write(file, samples)
         } finally {
             synchronized(lock) {
                 runCatching { mic.stop() }; mic.release(); input = null
-                runCatching { output?.release() }; output = null
+                runCatching { output?.pause(); output?.flush(); output?.release() }; output = null
             }
+            writer?.join(1000)
         }
     }
 }

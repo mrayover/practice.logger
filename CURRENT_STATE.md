@@ -1,6 +1,6 @@
 # Current state — P1 temporary take review, 0.16.0/build44
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed, installable scoped candidate; P1 engineering checks pass, owner-phone acceptance and full regression pending.** P1 implements explicit temporary take review only. P2 has not started. No automated follow-up is scheduled.
+Updated 2026-10-30 (America/Los_Angeles). **Signed, installable scoped candidate; P1 engineering checks pass, owner reports P1 works; detailed phone checks and full regression pending.** P1 implements explicit temporary take review only. P2 is now owner-assigned and in implementation; candidate code45/checks/signing pending. Delivery table still identifies build44. No P3 work started.
 
 ## Delivery
 
@@ -41,6 +41,10 @@ Existing build42 Home-button removal/banner navigation, build41 workspace/footer
 
 P1 began on clean existing Windows main `b2a97211f629cbc98cee1d738f81ae4dd7020747`, confirmed against remote; build42 source was cafa1bf and latest preview41145916544 was successful. P0 master-plan integration remains complete. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) governs forward work. P1 source, tests and records use `[skip ci]` with a dedicated manually dispatched scoped workflow; no automatic full build or regression was dispatched. Sources references remained read-only. The closing handoff reports final confirmed remote main SHA, distinct from the signed source above.
 
+## P2 implementation status
+
+Owner generally accepted P1 and assigned P2. Source now supports custom1–64 loop beats, per-loop positive count-in and persistent default in minimal Audio Settings. Count-in/guide stream in bounded chunks on the existing output sample clock; WAV IO is chunked and validation avoids full PCM allocation. Code45 verification/signing pending; no new delivered package is claimed yet. P1 detailed physical checks and full regression remain separate.
+
 ## One next task
 
-Owner: install build44 in place and complete its **P1 PHONE_CHECKLIST.txt**, including real mic/speaker audio, review/save/re-record/discard and existing data retention. P2 is unassigned and must not start automatically.
+Complete P2 scoped verification and signed delivery; do not start P3 automatically. Full regression remains at P5 and final V1.

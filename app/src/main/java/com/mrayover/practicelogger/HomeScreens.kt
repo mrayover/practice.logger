@@ -108,6 +108,7 @@ import kotlin.math.sin
         HomeButton("Tuner") { onTool("tuner") }
         HomeButton("Timer") { onTool("timer") }
         HomeButton("Backup and restore", onBackup)
+        HomeButton("Audio Settings") { onTool("audio-settings") }
     }
 }
 

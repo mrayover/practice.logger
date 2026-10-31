@@ -45,12 +45,12 @@ class PhraseWorkflowTest {
             compose.onNodeWithTag("phrase-recording-click").performScrollTo().assertIsOn().performClick().assertIsOff()
             compose.onNodeWithTag("phrase-recording-click").performClick().assertIsOn()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("0")
-            compose.onNodeWithText("Start 4-click count-in").assertIsNotEnabled()
+            compose.onNodeWithText("Start count-in").assertIsNotEnabled()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("120")
             compose.onNodeWithText("One phrase: 4.00 seconds").assertExists()
             compose.onNodeWithText("Phrase BPM").performImeAction()
             captureStage3("30-phrase-setup")
-            click("Start 4-click count-in")
+            click("Start count-in")
             compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }
             compose.runOnIdle { assertFalse(practice.clicking); assertTrue(practice.running) }
             captureStage3("31-phrase-count-in")

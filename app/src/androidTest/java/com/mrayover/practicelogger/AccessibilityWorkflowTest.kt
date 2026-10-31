@@ -100,7 +100,7 @@ class AccessibilityWorkflowTest {
             readable("Click while recording")
             compose.onNodeWithTag("phrase-recording-click").scrollIfNeeded().assertIsOn().performClick().assertIsOff()
             compose.onNodeWithTag("phrase-recording-click").performClick().assertIsOn()
-            readable("Start 4-click count-in"); captureStage3("11-large-phrase-setup")
+            readable("Start count-in"); captureStage3("11-large-phrase-setup")
             compose.onNodeWithText("Cancel").performClick()
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings")); compose.onNodeWithText("Close recordings").performClick()
             readable("Complete"); captureStage3("11-large-focus"); click("Complete"); shown("Block 2 of 2"); click("Skip")

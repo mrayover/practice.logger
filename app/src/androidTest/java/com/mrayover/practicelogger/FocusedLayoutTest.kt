@@ -41,7 +41,7 @@ class FocusedLayoutTest {
             assertTrue(practice.running);assertTrue(practice.clicking);screenshot("bounded-pdf")
             click("Hide reference");click("Record Loop");shown("Record one phrase")
             compose.onNodeWithText("Phrase BPM").performTextReplacement("240")
-            click("4 beats");click("Start 4-click count-in")
+            click("4 beats");click("Start count-in")
             acceptTemporaryTake(compose, recordings, playAfterSave = true)
             compose.waitUntil(12000) { !recordings.recording && recordings.takes.value.any { it.mode=="LOOP" } }
             compose.waitUntil(10000) { recordings.playingId!=null }

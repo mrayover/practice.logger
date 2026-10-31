@@ -29,6 +29,16 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var recording by mutableStateOf(false); private set
     var phrasing by mutableStateOf(false); private set
     var countInBeat by mutableIntStateOf(0); private set
+    var countInTotal by mutableLongStateOf(4L); private set
+    private val countInPreferences = CountInPreferences(app)
+    var defaultCountIn by mutableLongStateOf(countInPreferences.read()); private set
+    fun saveDefaultCountIn(text: String) = work {
+        val value = text.trim().toLongOrNull()
+        if (value == null || value <= 0) { message = "Enter a positive whole count-in beat count."; return@work }
+        try { PhraseSpec(300, 1, value) } catch (failure: IllegalArgumentException) { message = failure.message; return@work }
+        withContext(Dispatchers.IO) { countInPreferences.save(value) }
+        defaultCountIn = value; message = "Default count-in saved."
+    }
     var phraseDurationMs by mutableLongStateOf(0L); private set
     var phraseClickEnabled by mutableStateOf(false); private set
     var elapsedMs by mutableLongStateOf(0L); private set
@@ -184,7 +194,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         }
         val generation = ++audioGeneration
         val capture = PhraseCapture(); phraseCapture = capture; captureOwner = this
-        phrasing = true; recording = true; countInBeat = 1; elapsedMs = 0; phraseDurationMs = spec.durationMs
+        phrasing = true; recording = true; countInTotal = spec.countInBeats; countInBeat = 1; elapsedMs = 0; phraseDurationMs = spec.durationMs
         phraseClickEnabled = clickWhileRecording; message = null
         phraseJob = viewModelScope.launch {
             var draft: PendingTake? = null
