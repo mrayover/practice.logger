@@ -140,6 +140,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val noteDraft by notes.draft(current.id).collectAsStateWithLifecycle()
     val noteHistory by notes.history.collectAsStateWithLifecycle()
     var transportPanel by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
+    // Only presentation state: a workspace tap must never discard/stop a temporary take.
+    var reviewCollapsed by rememberSaveable(current.id, recordings.reviewTake?.id) { mutableStateOf(false) }
     var bpmDialog by rememberSaveable(current.id) { mutableStateOf(false) }
     var pendingNoteAction by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
     val transportScroll = rememberScrollState()
@@ -169,7 +171,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     fun requestLeave() { requestPracticeAction("leave") }
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-    val panelOpen = transportPanel != null || recordings.reviewTake != null
+    val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
     val transportMaxHeight = if (panelOpen) minOf(maxHeight * .42f,
         (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
@@ -188,7 +190,11 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
         Box(Modifier.fillMaxWidth().then(if (panelOpen) Modifier else Modifier.weight(1f)).testTag("practice-workspace-viewport")) {
-            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog)
+            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, onReveal = {
+                focusManager.clearFocus(force = true); keyboard?.hide()
+                transportPanel = null
+                reviewCollapsed = recordings.reviewTake != null
+            })
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .22f))
         Surface(color = androidx.compose.ui.graphics.lerp(PracticeCream, PracticeGreen, .085f), modifier = Modifier.fillMaxWidth().then(if (panelOpen) Modifier.weight(1f) else Modifier).testTag("practice-transport-surface")) {
@@ -210,9 +216,9 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         if (recordings.reviewTake == null && transportPanel == "metronome") PracticeScrollPanel(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal=16.dp),tag="practice-metronome-panel") {
-            MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.workingBpm,vm::configureMetronome,vm::changeWorkingBpm,!vm.busy)
+            MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.workingBpm,vm::configureMetronome,vm::changeWorkingBpm,!vm.busy,compact=true)
         }
-        if (recordings.reviewTake != null) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
+        if (recordings.reviewTake != null && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
         PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
@@ -224,6 +230,13 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 { transportPanel = if (recordings.reviewTake == null && transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
             practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+        }
+        if (recordings.reviewTake != null && reviewCollapsed) Row(Modifier.fillMaxWidth().padding(horizontal=16.dp),
+            verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
+            TextButton(onClick={ reviewCollapsed=false; transportPanel=null }, modifier=Modifier.weight(1f).heightIn(min=48.dp)
+                .testTag("practice-review-expand")) { Text("Review Take · Not saved") }
+            Button(onClick=recordings::saveReview,enabled=!recordings.busy,
+                modifier=Modifier.heightIn(min=48.dp).testTag("review-save")) { Text("Save") }
         }
         if (recordings.recording && !panelOpen) {
             val status: @Composable (Modifier) -> Unit = { modifier ->

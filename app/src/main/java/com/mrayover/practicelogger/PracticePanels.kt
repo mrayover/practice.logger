@@ -52,7 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
     }
 }
 
-@Composable fun FocusedWorkspace(current: Placement, images: ImageReferenceViewModel, modifier: Modifier = Modifier, suppressed: Boolean = false) {
+@Composable fun FocusedWorkspace(current: Placement, images: ImageReferenceViewModel, modifier: Modifier = Modifier, suppressed: Boolean = false, onReveal: () -> Unit = {}) {
     val attachments by images.images.collectAsStateWithLifecycle()
     val attached = attachments.any { it.blockId == current.sourceBlockId }
     // Description is the default; outside transport panels one workspace always stays open.
@@ -61,8 +61,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
     var referenceOpened by rememberSaveable(current.id) { mutableStateOf(false) }
     LaunchedEffect(expanded, attached) { if (attached && expanded == "reference") referenceOpened = true }
     Column(modifier.testTag("practice-workspace")) {
-        WorkspaceHeader("Practice Description", !suppressed && expanded == "description", "practice-description-toggle", enabled = !suppressed) {
-            choice = if (expanded == "description") "reference" else "description"
+        WorkspaceHeader("Practice Description", !suppressed && expanded == "description", "practice-description-toggle") {
+            choice = if (suppressed) "description" else if (expanded == "description") "reference" else "description"
+            onReveal()
         }
         if (expanded == "description") RetainedWorkspaceContent(suppressed,
             if (suppressed) Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
@@ -71,8 +72,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
             }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .16f))
-        WorkspaceHeader("Reference Material", !suppressed && expanded == "reference", "practice-reference-toggle", enabled = !suppressed) {
-            choice = if (expanded == "reference") "description" else "reference"
+        WorkspaceHeader("Reference Material", !suppressed && expanded == "reference", "practice-reference-toggle") {
+            choice = if (suppressed) "reference" else if (expanded == "reference") "description" else "reference"
+            onReveal()
         }
         if (expanded == "reference" || (referenceOpened && attached)) RetainedWorkspaceContent(suppressed || expanded != "reference",
             if (suppressed || expanded != "reference") Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {

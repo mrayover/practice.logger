@@ -1,4 +1,8 @@
-# Current state — P4 metronome button feedback, 0.16.0/build49
+# Current state — P4 interface refinement build50 in progress
+
+Build50 compact practice metronome/workspace switching is implemented; focused compilation/native checks and signed delivery pending. Current installable delivery remains build49 below. No full regression, P5 or Media Library. Next task: finish focused preview checks and deliver build50.
+
+## Previous signed preview — build49
 
 Updated 2026-10-31 (America/Los_Angeles). **Signed scoped owner preview.** Both Stop click buttons now pulse across their whole surface on flash-enabled beats; circular indicators removed. Existing sample clock, audio and 90ms decay reused. P1–P3 generally owner-accepted; P4 physical acceptance pending. P5 has not started; no separate milestone or regression gate added.
 
