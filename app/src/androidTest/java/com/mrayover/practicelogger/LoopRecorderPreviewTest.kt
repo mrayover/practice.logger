@@ -71,9 +71,9 @@ class LoopRecorderPreviewTest {
             compose.waitUntil(15000) { audio.ready }
             tag("practice-loop-record").performClick()
             layout(); compose.onNodeWithText("One phrase: 3.10 seconds").assertExists(); shot("setup-portrait")
-            tag("phrase-beats").performTextReplacement("65"); tag("phrase-start").assertIsNotEnabled()
+            tag("phrase-beats").performTextReplacement("65"); keyboard(); tag("phrase-start").assertIsNotEnabled()
             tag("phrase-beats").performTextReplacement("7")
-            tag("phrase-count-in").performTextReplacement("9223372036854775807"); tag("phrase-start").assertIsNotEnabled()
+            tag("phrase-count-in").performTextReplacement("9223372036854775807"); keyboard(); tag("phrase-start").assertIsNotEnabled()
             tag("phrase-bpm").performTextReplacement("300"); tag("phrase-beats").performTextReplacement("16")
             tag("phrase-count-in").performTextReplacement("4"); keyboard()
             val savedBefore=runBlocking { db.takes().readAll() }
@@ -87,6 +87,11 @@ class LoopRecorderPreviewTest {
             assertEquals(PhraseSpec(300,16,4).frames,PhraseWave.frames(File(app.filesDir,"recordings/"+first.fileName)))
             tag("review-preview").performClick(); compose.waitUntil(10000) { audio.playingId==first.id }
             tag("review-preview").performClick(); compose.runOnIdle { assertNull(audio.playingId) }
+            tag("practice-reference-toggle").performClick()
+            compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist()
+            tag("practice-review-expand").performClick()
+            layout(true); tag("phrase-bpm").assertTextContains("300"); tag("phrase-beats").assertTextContains("16")
+            tag("phrase-count-in").assertTextContains("4")
             tag("review-rerecord").performClick()
             compose.waitUntil(10000) { audio.phrasing && audio.countInTotal==4L && audio.phraseClickEnabled }
             assertFalse(File(app.filesDir,"recordings/"+first.fileName).exists())
@@ -99,11 +104,12 @@ class LoopRecorderPreviewTest {
             tag("phrase-start").assertIsEnabled(); assertNull(audio.reviewTake)
             assertFalse(File(app.filesDir,"recordings/"+discarded.fileName).exists())
             assertNotNull(runBlocking { db.takes().find(second.id) }); shot("after-discard")
-            tag("practice-loop-record").performClick()
             tag("practice-free-record").performClick(); compose.waitUntil(10000) { audio.recording && audio.elapsedMs>1200 }
             compose.runOnIdle { assertFalse(audio.phrasing); assertFalse(audio.phraseClickEnabled) }
             tag("practice-free-record").performClick(); compose.waitUntil(10000) { audio.reviewTake!=null && !audio.busy }
-            assertEquals("FREE",audio.reviewTake!!.mode); tag("review-discard").performClick()
+            assertEquals("FREE",audio.reviewTake!!.mode)
+            compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist()
+            compose.onAllNodesWithTag("review-discard").assertCountEquals(1); tag("review-discard").performClick()
         } finally {
             shot("final")
             compose.runOnIdle { audio.stopPlayback(); if(audio.recording) audio.finishCapture(); practice.stopClick() }

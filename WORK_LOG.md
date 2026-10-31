@@ -533,3 +533,6 @@ Build50 scoped closeout: source `b94c5ea6ea6fdec7e9a325d340b44792a3d03f3f`, [pre
 ## 2026-10-31 — P4 loop recorder screenshot refinement
 
 Reviewed mandatory efficiency procedure and current P4 baseline. Reused existing capture/sample timing and temporary take operations; compact fields and eight shortcuts, permanent phrase click, inline Keep/Re-record/Preview/Discard and fixed transport action columns. Current owner request supersedes the earlier optional-loop-click rule. Focused loop preview plus existing phrase timing/storage unit checks pending; no full regression.
+
+
+Initial focused CI41231441298/source3224e34 passed compilation and seven unit tests. Normal portrait setup geometry/visibility passed and screenshot was inspected. Native test then failed at its overflow-validation disabled-button visibility assertion while the numeric keyboard covered Record Loop (LoopRecorderPreviewTest.kt:76); screenshot confirms IME obstruction. The test now dismisses IME before disabled assertions without weakening normal-display geometry checks. Also tightened loop-panel visibility to exclude free review and added that assertion plus collapse/reopen coverage; debug artifact retained for requested signed-debug delivery. Rerun remains the same focused workflow, no full suite.
