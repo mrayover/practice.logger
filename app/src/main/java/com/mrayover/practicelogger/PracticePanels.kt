@@ -24,7 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 /** Standard touch/keyboard scrolling with an always-visible thumb when content overflows. */
 @Composable fun PracticeScrollPanel(modifier: Modifier = Modifier, state: ScrollState = rememberScrollState(),
     tag: String, content: @Composable ColumnScope.() -> Unit) {
-    val color = MaterialTheme.colorScheme.primary
+    val colors = PracticeTheme.colors
     Box(modifier.testTag(tag)) {
         Column(Modifier.fillMaxWidth().verticalScroll(state).padding(end = 12.dp), content = content)
         if (state.maxValue > 0 && state.maxValue != Int.MAX_VALUE) Canvas(Modifier.matchParentSize()
@@ -33,9 +33,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
             val total = size.height + state.maxValue
             val thumb = (size.height * size.height / total).coerceAtLeast(24.dp.toPx()).coerceAtMost(size.height)
             val top = (size.height - thumb) * state.value / state.maxValue.toFloat()
-            drawRoundRect(color.copy(alpha = .16f), Offset(size.width - width, 0f), Size(width, size.height),
+            drawRoundRect(colors.scrollTrack, Offset(size.width - width, 0f), Size(width, size.height),
                 androidx.compose.ui.geometry.CornerRadius(width / 2))
-            drawRoundRect(color.copy(alpha = .8f), Offset(size.width - width, top), Size(width, thumb),
+            drawRoundRect(colors.scrollThumb, Offset(size.width - width, top), Size(width, thumb),
                 androidx.compose.ui.geometry.CornerRadius(width / 2))
         }
     }
@@ -71,7 +71,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
                 Text(current.action, style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().testTag("practice-description"))
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .16f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         WorkspaceHeader("Reference Material", !suppressed && expanded == "reference", "practice-reference-toggle") {
             choice = if (suppressed) "reference" else if (expanded == "reference") "description" else "reference"
             onReveal()
@@ -118,7 +118,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
                     Text(compactPracticeTakeTitle(take), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
                     Text(practiceTakeDetails(take), style = MaterialTheme.typography.bodySmall)
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .12f))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             }
         }
     }
@@ -150,7 +150,7 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
                 var expanded by rememberSaveable(entry.id) { mutableStateOf(false) }
                 val editing = entry.id in editingIds
                 val editText by editModel.editDraft(entry).collectAsStateWithLifecycle()
-                HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .16f))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = Role.Button) { if (!editing) expanded = !expanded }
                     .testTag("practice-note-${entry.id}").semantics { stateDescription = if (expanded || editing) "Expanded" else "Collapsed" },
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

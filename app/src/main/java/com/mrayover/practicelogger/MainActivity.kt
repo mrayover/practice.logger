@@ -23,6 +23,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.foundation.isSystemInDarkTheme
+import android.content.res.Configuration
+import android.graphics.drawable.ColorDrawable
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,11 +39,44 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 
 class MainActivity : ComponentActivity() {
+    lateinit var themePreferences: ThemePreferences
+        private set
     override fun onCreate(savedInstanceState: Bundle?) {
+        themePreferences = ThemePreferences(applicationContext)
+        val initial = resolvePalette(themePreferences.choice.value,
+            resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
+        // Apply explicit preference before Activity inflation; native resources mirror these palettes.
+        setTheme(if (initial.id == LightPalette.id) R.style.Theme_PracticeLogger_Light else R.style.Theme_PracticeLogger_Dark)
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(PracticeGreen.toArgb()),
-            navigationBarStyle = SystemBarStyle.light(PracticeCream.toArgb(), android.graphics.Color.BLACK))
-        setContent { PracticeTheme { CatalogApp() } }
+        updateThemeWindow(initial)
+        setContent {
+            val choice by themePreferences.choice.collectAsStateWithLifecycle()
+            val systemDark = isSystemInDarkTheme()
+            val palette = resolvePalette(choice, systemDark)
+            SideEffect { updateThemeWindow(palette) }
+            CompositionLocalProvider(LocalThemePreferences provides themePreferences) {
+                PracticeTheme(choice, systemDark) { CatalogApp() }
+            }
+        }
+    }
+    @Suppress("DEPRECATION")
+    private fun updateThemeWindow(palette: PracticePalette) {
+        val banner = palette.colors.banner.toArgb()
+        val surface = palette.scheme.background.toArgb()
+        val lightStatus = palette.colors.banner.luminance() > .5f
+        val lightNavigation = palette.scheme.background.luminance() > .5f
+        enableEdgeToEdge(
+            statusBarStyle = if (lightStatus) SystemBarStyle.light(banner, banner) else SystemBarStyle.dark(banner),
+            navigationBarStyle = if (lightNavigation) SystemBarStyle.light(surface, surface) else SystemBarStyle.dark(surface))
+        window.setBackgroundDrawable(ColorDrawable(surface))
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = lightStatus
+            isAppearanceLightNavigationBars = lightNavigation
+        }
+        if (Build.VERSION.SDK_INT < 35) {
+            window.statusBarColor = banner
+            window.navigationBarColor = surface
+        }
     }
 }
 
@@ -77,15 +114,10 @@ class MainActivity : ComponentActivity() {
     DisposableEffect(practice.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
+    var settingsReturn by rememberSaveable { mutableStateOf("tools") }
     var headerHomeRequested by remember { mutableStateOf(false) }
     val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     LaunchedEffect(page) { headerHomeRequested = false }
-    SideEffect {
-        (view.context as? Activity)?.window?.let { window ->
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-            if (Build.VERSION.SDK_INT < 35) window.statusBarColor = PracticeGreen.toArgb()
-        }
-    }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
     var summaryId by rememberSaveable { mutableStateOf<String?>(null) }
     var editorId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -117,7 +149,7 @@ class MainActivity : ComponentActivity() {
     fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
     fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
     BackHandler(page == "library") { page = "home" }
-    Surface(Modifier.fillMaxSize()) {
+    Surface(Modifier.fillMaxSize().testTag("app-surface")) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         PracticeBanner(onHome = {
             if (page == "log") {
@@ -134,7 +166,7 @@ class MainActivity : ComponentActivity() {
         } else when (page) {
             "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
-                onLog = { log.open(); page = "log" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+                onLog = { log.open(); page = "log" }, onSettings = { settingsReturn = "home"; page = "audio-settings" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
             "log" -> LogScreen(log, onHome = { page = "home" })
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
@@ -152,8 +184,8 @@ class MainActivity : ComponentActivity() {
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
             "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) "home" else "routines" })
-            "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { page = it })
-            "audio-settings" -> CountInSettings(recordings, onTools = { page = "tools" })
+            "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { settingsReturn = "tools"; page = it })
+            "audio-settings" -> CountInSettings(recordings, onTools = { page = settingsReturn }, fromHome = settingsReturn == "home")
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,

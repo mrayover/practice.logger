@@ -79,7 +79,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             // Always reachable, including when a tall reference or take list is scrolled.
             Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}"
                 else "Recording · " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "",
-                style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.titleLarge, color = PracticeTheme.colors.recording,
                 modifier = Modifier.testTag("recording-elapsed"))
             if (vm.phrasing && vm.countInBeat == 0) Text(if (vm.phraseClickEnabled) "Recording click on" else "Recording click off", modifier = Modifier.testTag("phrase-click-status"))
             Button(onClick = { vm.finishCapture() }, enabled = vm.ready && !vm.busy,
@@ -289,7 +289,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 @Composable fun CompactRecordingControls(blockId: String, takes: List<BlockTake>, freeTake: BlockTake?, loopTake: BlockTake?,
     vm: RecordingViewModel, onBeforePlayback: () -> Unit, onLoopSetup: () -> Unit, onSelectType: (Boolean) -> Unit) {
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
-    val green = MaterialTheme.colorScheme.primary
+    val action = MaterialTheme.colorScheme.primary
+    val colors = PracticeTheme.colors
     listOf(false, true).forEach { loop ->
         val selected = if (loop) loopTake else freeTake
         val type = if (loop) "loop" else "free"
@@ -301,11 +302,11 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 role = Role.Button, onClick = { onSelectType(loop) }).padding(vertical = 4.dp)
                 .testTag("practice-$type-selector").semantics { contentDescription = "Select $type recording" },
                 verticalArrangement = Arrangement.Center) {
-                Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = green)
+                Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = action)
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
-                        maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = green)
-                    Text(" ▾", color = green)
+                        maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = action)
+                    Text(" ▾", color = action)
                 }
             }
         }
@@ -316,15 +317,15 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 else if (vm.hasMicrophonePermission()) vm.startCapture(blockId)
                 else permission.launch(Manifest.permission.RECORD_AUDIO)
             }, enabled = enabled && (!vm.recording || activeCapture), contentPadding = PaddingValues(horizontal = 6.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (activeCapture) green else androidx.compose.ui.graphics.Color.Transparent,
-                    contentColor = if (activeCapture) MaterialTheme.colorScheme.onPrimary else green),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (activeCapture) colors.recording else androidx.compose.ui.graphics.Color.Transparent,
+                    contentColor = if (activeCapture) colors.onRecording else action),
                 modifier = Modifier.width(104.dp).heightIn(min = 48.dp).testTag("practice-$type-record")) {
                 Text(if (activeCapture) { if (loop) "Cancel" else "Stop" } else if (loop) "Loop Setup" else "Record")
             }
             TextButton(onClick = { if (playing) vm.stopPlayback() else selected?.let { onBeforePlayback(); vm.play(it) } },
                 enabled = enabled && !vm.recording && selected != null, contentPadding = PaddingValues(horizontal = 6.dp),
-                colors = ButtonDefaults.textButtonColors(containerColor = if (playing) green else androidx.compose.ui.graphics.Color.Transparent,
-                    contentColor = if (playing) MaterialTheme.colorScheme.onPrimary else green),
+                colors = ButtonDefaults.textButtonColors(containerColor = if (playing) action else androidx.compose.ui.graphics.Color.Transparent,
+                    contentColor = if (playing) MaterialTheme.colorScheme.onPrimary else action),
                 modifier = Modifier.width(56.dp).heightIn(min = 48.dp).testTag("practice-$type-play").semantics {
                     contentDescription = (if (playing) "Stop" else "Play") + " selected $type recording"
                     stateDescription = if (playing) "Playing" else "Stopped"

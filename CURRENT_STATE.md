@@ -37,6 +37,10 @@ Accepted build52 fields/proportional spacing/footer, permanent phrase click/coun
 
 Completed the [generalized theme readiness audit](docs/P4_THEME_READINESS.md) against main 6f82088. Existing Material roles provide a foundation; direct palette references, custom state colors and platform chrome still need centralization. Recommended: complete Light/Dark Material schemes, one small app-specific token set, root Light/Dark/System selection and a separate future Goal identity mapping. No theme implementation, app/source/version/data/audio change, build or regression run. Build53 delivery and pending owner audible acceptance above remain unchanged; P5/Library/G1 have not started.
 
+## Theme implementation — verification in progress
+
+Owner assigned implementation of the readiness audit, then specified Home Settings directly below Log. Central Light/Dark semantic schemes and app extras, persistent Light/Dark/System selection, Home route and native system-bar/fallback styling are implemented in the working source for build54. Existing install default remains Light; Goal identity data and imported media are untouched. Focused token/preference and API26/API35 lifecycle/UI checks are prepared, not yet run; no theme acceptance or build54 delivery is claimed yet. Existing build53 signed delivery/evidence above remains available.
+
 ## Exact next task
 
-Owner install-over build53 and confirm immediate audible loop audition after successful capture, explicit Keep/Re-record/Discard behavior, and stopped playback/quiet return after backgrounding on the same phone.
+Complete scoped theme verification, inspect Light/Dark screenshots and publish a permanent-key build54 candidate with actual results and limits. Owner install-over/appearance and audible acceptance remains required; P5/Library/G1 remain unassigned.

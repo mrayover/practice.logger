@@ -1,0 +1,7 @@
+<resources>
+    <!-- Native window mirrors of Theme.kt, needed before Compose draws. -->
+    <color name="practice_light_background">#F1E6D3</color>
+    <color name="practice_light_accent">#315C47</color>
+    <color name="practice_dark_background">#171C19</color>
+    <color name="practice_dark_accent">#A5D2B2</color>
+</resources>

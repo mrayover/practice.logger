@@ -1,8 +1,26 @@
 <resources>
     <style name="Theme.PracticeLogger" parent="android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">#F1E6D3</item>
+        <item name="android:windowBackground">@color/practice_light_background</item>
+        <item name="android:colorBackground">@color/practice_light_background</item>
         <item name="android:fontFamily">@font/lato</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:colorAccent">#315C47</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorAccent">@color/practice_light_accent</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    <style name="Theme.PracticeLogger.Light" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/practice_light_background</item>
+        <item name="android:colorBackground">@color/practice_light_background</item>
+        <item name="android:fontFamily">@font/lato</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorAccent">@color/practice_light_accent</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    <style name="Theme.PracticeLogger.Dark" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/practice_dark_background</item>
+        <item name="android:colorBackground">@color/practice_dark_background</item>
+        <item name="android:fontFamily">@font/lato</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorAccent">@color/practice_dark_accent</item>
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 </resources>

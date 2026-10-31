@@ -1,0 +1,4 @@
+<resources>
+    <!-- OS-selected starting window; explicit app preference is applied before onCreate inflation. -->
+    <style name="Theme.PracticeLogger" parent="Theme.PracticeLogger.Dark" />
+</resources>

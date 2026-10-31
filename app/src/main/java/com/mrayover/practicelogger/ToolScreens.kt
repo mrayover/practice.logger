@@ -53,7 +53,7 @@ import java.util.Locale
         when (tool) {
             "metronome" -> {
                 Text(vm.bpm.toString(), Modifier.fillMaxWidth().testTag("tool-bpm"), textAlign = TextAlign.Center,
-                    fontSize = 64.sp, lineHeight = 72.sp, fontWeight = FontWeight.Bold, color = PracticeGreen)
+                    fontSize = 64.sp, lineHeight = 72.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Text("BPM")
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     TempoButton("−", "Decrease BPM by 1", vm.bpm > 30, Modifier.weight(1f)) { vm.changeBpm(-1) }
@@ -93,7 +93,7 @@ import java.util.Locale
     }
     val pitch = vm.pitch
     Text(pitch?.note ?: "—", Modifier.fillMaxWidth().testTag("tuner-note"), textAlign = TextAlign.Center,
-        fontSize = 56.sp, lineHeight = 64.sp, fontWeight = FontWeight.Bold, color = PracticeGreen)
+        fontSize = 56.sp, lineHeight = 64.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
     Text(if (pitch == null) "Play one steady note" else String.format(Locale.US, "%.1f Hz", pitch.frequency))
     Text(if (pitch == null) "A4 = 440 Hz" else String.format(Locale.US, "%+.0f cents", pitch.cents),
         style = MaterialTheme.typography.headlineSmall)
@@ -150,13 +150,13 @@ import java.util.Locale
             true
         }
     }) {
-        Box(Modifier.fillMaxWidth().height(rowHeight).align(Alignment.Center).border(1.dp, PracticeGreen))
+        Box(Modifier.fillMaxWidth().height(rowHeight).align(Alignment.Center).border(1.dp, MaterialTheme.colorScheme.primary))
         LazyColumn(state = state, flingBehavior = rememberSnapFlingBehavior(state), userScrollEnabled = enabled,
             contentPadding = PaddingValues(vertical = rowHeight), modifier = Modifier.fillMaxSize()) {
             items(180) { index ->
                 Box(Modifier.fillMaxWidth().height(rowHeight), contentAlignment = Alignment.Center) {
                     Text((index + 1).toString(), fontSize = 24.sp, fontWeight = if (minutes == index + 1) FontWeight.Bold else FontWeight.Normal,
-                        color = PracticeGreen.copy(alpha = if (minutes == index + 1) 1f else 0.5f))
+                        color = if (minutes == index + 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

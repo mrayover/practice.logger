@@ -197,8 +197,8 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 reviewCollapsed = recordings.reviewTake != null
             })
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .22f))
-        Surface(color = androidx.compose.ui.graphics.lerp(PracticeCream, PracticeGreen, .085f), modifier = Modifier.fillMaxWidth().then(if (panelOpen) Modifier.weight(1f) else Modifier).testTag("practice-transport-surface")) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Surface(color = PracticeTheme.colors.transportSurface, modifier = Modifier.fillMaxWidth().then(if (panelOpen) Modifier.weight(1f) else Modifier).testTag("practice-transport-surface")) {
         Column(if (panelOpen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()) {
             if (recordings.reviewTake == null && transportPanel == "notes") BlockNotesPanel(noteHistory.filter { it.blockId == current.sourceBlockId }, noteDraft,
                 { notes.edit(current.id, it) }, notes.busy, notes.message,
@@ -246,7 +246,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         if (recordings.recording && !panelOpen) {
             val status: @Composable (Modifier) -> Unit = { modifier ->
                 Text(if (recordings.countInBeat > 0) "Count-in · ${recordings.countInBeat} of ${recordings.countInTotal}" else "Recording · " + practiceTime(recordings.elapsedMs),
-                    color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = modifier)
+                    color = PracticeTheme.colors.recording, style = MaterialTheme.typography.bodyMedium, modifier = modifier)
             }
             val stop: @Composable (Modifier) -> Unit = { modifier ->
                 Button(onClick = { recordings.finishCapture() }, enabled = recordings.ready && !recordings.busy,

@@ -10,10 +10,12 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
+import org.junit.After
 import java.io.File
 
 class MetronomeButtonPulseTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    @After fun resetAppearance() { compose.runOnIdle { compose.activity.themePreferences.save(ThemeChoice.LIGHT) } }
     private fun shown(text: String) = compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
     private fun click(text: String) { shown(text); compose.onNodeWithText(text).scrollIfNeeded().performClick() }
     private fun button(tag: String) = compose.onNodeWithTag(tag).scrollIfNeeded().assertIsDisplayed()
@@ -49,7 +51,11 @@ class MetronomeButtonPulseTest {
         compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(mode=MetronomeMode.SOUND_FLASH)); vm.applyMetronomeBpm(90) }
         compose.onNodeWithContentDescription("Increase BPM by 1").scrollIfNeeded().performClick()
         compose.runOnIdle { assertEquals(91,vm.bpm) }
-        click("Start click"); cycles("tool-metronome-pulse",PracticeCream,PracticeGreen)
+        for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK)) {
+            compose.runOnIdle { compose.activity.themePreferences.save(choice) }; compose.waitForIdle()
+            val palette = resolvePalette(choice, false)
+            click("Start click"); cycles("tool-metronome-pulse",palette.scheme.primaryContainer,palette.scheme.primary)
+        }
         compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.metronomePulse.lit); assertTrue(vm.metronomeNonZeroFramesWritten()>0) }
         click("Start click"); shown("Stop click"); click("Stop click"); shown("Start click")
     }
@@ -64,7 +70,11 @@ class MetronomeButtonPulseTest {
             shown("Practice Now");compose.runOnIdle { vm.openSession(session) };shown("90 BPM")
             compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(mode=MetronomeMode.SOUND_FLASH)) }
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick(); shown("91 BPM")
-            click("Start click"); cycles("practice-metronome-pulse",PracticeGreen,androidx.compose.ui.graphics.lerp(PracticeCream,PracticeGreen,.085f))
+            for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK)) {
+                compose.runOnIdle { compose.activity.themePreferences.save(choice) }; compose.waitForIdle()
+                val palette = resolvePalette(choice, false)
+                click("Start click"); cycles("practice-metronome-pulse",palette.scheme.primary,palette.colors.transportSurface)
+            }
             compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.metronomePulse.lit); assertTrue(vm.metronomeNonZeroFramesWritten()>0) }
             click("Start click");shown("Stop click");click("Stop click");shown("Start click")
         } finally { compose.runOnIdle { vm.stopClick() };db.close() }

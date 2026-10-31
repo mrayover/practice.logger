@@ -55,7 +55,9 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
                             OutlinedButton(onClick={ onConfig(config.copy(meter=meter)) },enabled=enabled,
                                 contentPadding=PaddingValues(horizontal=2.dp), shape=MaterialTheme.shapes.small,
                                 colors=ButtonDefaults.outlinedButtonColors(containerColor=if(config.meter==meter)
-                                    MaterialTheme.colorScheme.primaryContainer else androidx.compose.ui.graphics.Color.Transparent),
+                                    PracticeTheme.colors.selectionContainer else androidx.compose.ui.graphics.Color.Transparent,
+                                    contentColor=if(config.meter==meter) PracticeTheme.colors.onSelectionContainer else MaterialTheme.colorScheme.primary),
+                                    border=androidx.compose.foundation.BorderStroke(1.dp, if(config.meter==meter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
                                 modifier=Modifier.weight(1f).heightIn(min=48.dp).testTag("meter-${meter.label}")
                                     .semantics { selected=config.meter==meter }) { Text(meter.label,style=MaterialTheme.typography.labelMedium) }
                         }
@@ -78,7 +80,9 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
                 OutlinedButton(onClick={ onConfig(config.copy(mode=mode)) },enabled=enabled,
                     shape=MaterialTheme.shapes.small,contentPadding=PaddingValues(horizontal=2.dp,vertical=4.dp),
                     colors=ButtonDefaults.outlinedButtonColors(containerColor=if(config.mode==mode)
-                        MaterialTheme.colorScheme.primaryContainer else androidx.compose.ui.graphics.Color.Transparent),
+                        PracticeTheme.colors.selectionContainer else androidx.compose.ui.graphics.Color.Transparent,
+                                    contentColor=if(config.mode==mode) PracticeTheme.colors.onSelectionContainer else MaterialTheme.colorScheme.primary),
+                                    border=androidx.compose.foundation.BorderStroke(1.dp, if(config.mode==mode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
                     modifier=Modifier.weight(1f).heightIn(min=48.dp).testTag("mode-${mode.name}")
                         .semantics { selected=config.mode==mode }) {
                     Text(if(mode==MetronomeMode.FLASH_ONLY) "Flash Only" else mode.label,

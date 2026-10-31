@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
-    Column(Modifier.fillMaxSize().testTag("home-menu").background(PracticeCream)
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onSettings: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
+    Column(Modifier.fillMaxSize().testTag("home-menu").background(MaterialTheme.colorScheme.background)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
             val viewportHeight = maxHeight
@@ -31,19 +31,19 @@ import androidx.compose.ui.unit.sp
                 Column {
                     Box(Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
                         Text("Goals", modifier = Modifier.align(Alignment.Center).semantics { heading() },
-                            fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = PracticeGreen)
+                            fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
-                    Column(Modifier.fillMaxWidth().border(1.dp, PracticeGreen, RoundedCornerShape(6.dp)).testTag("home-goals")) {
+                    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp)).testTag("home-goals")) {
                         repeat(2) { index ->
-                            if (index > 0) HorizontalDivider(color = PracticeGreen.copy(alpha = 0.35f))
+                            if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             val goal = homeGoals(goals).getOrNull(index)?.goal
                             Column(Modifier.fillMaxWidth().clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
                                 if (goal == null) onGoals() else onGoal(goal.id)
                             }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}%", color = PracticeGreen, fontSize = 16.sp)
+                                Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}%", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
                                 if (goal != null) LinearProgressIndicator(
-                                    progress = { goal.progress / 100f }, color = PracticeGreen,
-                                    trackColor = PracticeGreen.copy(alpha = 0.18f),
+                                    progress = { goal.progress / 100f }, color = MaterialTheme.colorScheme.primary,
+                                    trackColor = PracticeTheme.colors.scrollTrack,
                                     strokeCap = androidx.compose.ui.graphics.StrokeCap.Butt, gapSize = 0.dp,
                                     drawStopIndicator = {},
                                     modifier = Modifier.fillMaxWidth().height(3.dp).testTag("home-goal-progress-${goal.id}"))
@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.sp
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = onGoals,
-                            colors = ButtonDefaults.textButtonColors(disabledContentColor = PracticeGreen)) {
+                            colors = ButtonDefaults.textButtonColors(disabledContentColor = MaterialTheme.colorScheme.primary)) {
                             Text("Edit", fontWeight = FontWeight.Bold)
                         }
                     }
@@ -64,17 +64,18 @@ import androidx.compose.ui.unit.sp
                         HomeButton("Tools", onTools)
                         HomeButton("Recording", onRecording)
                         HomeButton("Log", onLog)
+                        HomeButton("Settings", onSettings)
                     }
                 }
                 Text("Data usage", modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
-                    textAlign = TextAlign.Center, color = PracticeGreen, fontSize = 16.sp)
+                    textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
             }
         }
     }
 }
 
 @Composable fun HomeButton(label: String, action: () -> Unit) {
-    HomeButton(label, ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White), action = action)
+    HomeButton(label, ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary), action = action)
 }
 
 @Composable fun HomeButton(label: String, colors: ButtonColors, modifier: Modifier = Modifier, action: () -> Unit) {
@@ -119,11 +120,11 @@ import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeBanner(onHome: () -> Unit = {}, enabled: Boolean = true) {
     Column {
-        Box(Modifier.fillMaxWidth().background(PracticeGreen).statusBarsPadding().clickable(enabled = enabled, role = Role.Button, onClickLabel = "Back to Home", onClick = onHome).heightIn(min = 48.dp).padding(horizontal = 20.dp, vertical = 16.dp)) {
+        Box(Modifier.fillMaxWidth().background(PracticeTheme.colors.banner).statusBarsPadding().clickable(enabled = enabled, role = Role.Button, onClickLabel = "Back to Home", onClick = onHome).heightIn(min = 48.dp).padding(horizontal = 20.dp, vertical = 16.dp)) {
             Text("practice.logger", modifier = Modifier.fillMaxWidth().testTag("home-brand").semantics { heading() },
                 fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 34.sp,
-                textAlign = TextAlign.Center, color = Color.White)
+                textAlign = TextAlign.Center, color = PracticeTheme.colors.onBanner)
         }
-        HorizontalDivider(thickness = 2.dp, color = Color(0xFF244A37))
+        HorizontalDivider(thickness = 2.dp, color = PracticeTheme.colors.bannerEdge)
     }
 }

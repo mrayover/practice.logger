@@ -15,6 +15,16 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -25,7 +35,7 @@ class CountInPreferences(context: Context) {
     fun save(value: Long) { PhraseSpec(300,1,value); check(preferences.edit().putLong("count-in-beats",value).commit()) { "Default count-in could not be saved." } }
 }
 
-@Composable fun CountInSettings(vm: RecordingViewModel, onTools: () -> Unit) {
+@Composable fun CountInSettings(vm: RecordingViewModel, onTools: () -> Unit, fromHome: Boolean = false) {
     BackHandler(onBack = onTools)
     var value by rememberSaveable(vm.defaultCountIn) { mutableStateOf(vm.defaultCountIn.toString()) }
     val parsed = value.toLongOrNull()
@@ -52,7 +62,10 @@ class CountInPreferences(context: Context) {
     }
     PracticeScrollPanel(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal=16.dp), tag="audio-settings-scroll") {
     Column(Modifier.fillMaxWidth().padding(vertical=24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Audio Settings", style = MaterialTheme.typography.headlineMedium)
+        Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        AppearanceSettings()
+        HorizontalDivider()
+        Text("Audio Settings", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
         Text("Metronome sound", style = MaterialTheme.typography.titleMedium)
         ClickSound.entries.forEach { choice ->
             FilterChip(selected=sound == choice, onClick={ save { preferences.saveSound(choice); sound=choice } }, label={ Text(choice.label) })
@@ -78,7 +91,35 @@ class CountInPreferences(context: Context) {
         Text("Positive whole beats. Each loop can override this default. Count-ins must fit a 15-minute execution budget at the selected BPM.")
         Button(onClick = { vm.saveDefaultCountIn(value) }, enabled = !vm.busy && parsed != null && parsed > 0) { Text("Save default count-in") }
         vm.message?.let { Text(it) }
-        TextButton(onClick = onTools) { Text("Back to Tools") }
+        if (!fromHome) TextButton(onClick = onTools) { Text("Back to Tools") }
     }
     }
+}
+
+@Composable private fun AppearanceSettings() {
+    val preferences = LocalThemePreferences.current
+    val choice by preferences.choice.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    var saving by remember { mutableStateOf(false) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+    Text("Appearance", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+    Text("Theme", style = MaterialTheme.typography.titleMedium)
+    ThemeChoice.entries.forEach { option ->
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("theme-${option.id}")
+            .selectable(selected = choice == option, enabled = !saving, role = Role.RadioButton, onClick = {
+                saving = true
+                scope.launch {
+                    runCatching { withContext(Dispatchers.IO) { preferences.save(option) } }
+                        .onSuccess { error = null }.onFailure { error = it.message }
+                    saving = false
+                }
+            }), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            RadioButton(selected = choice == option, onClick = null, enabled = !saving)
+            Text(option.label)
+        }
+    }
+    Text("System Default follows your device appearance. Light keeps the original cream and green palette.",
+        style = MaterialTheme.typography.bodySmall)
+    error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
 }
