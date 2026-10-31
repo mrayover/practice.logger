@@ -147,3 +147,8 @@ P2 is generally owner-accepted; P3 physical acceptance pending. Use PHONE_CHECKL
 ## P4 audio Settings scoped candidate
 
 Use CURRENT_STATE.md and the current package PHONE_CHECKLIST.txt for build47 sound/mode persistence, previews, shared Block/countdown alarms/Off/capture safety, retained Notes/PDF/timing, large text/landscape and physical acoustic/install-over checks. Scoped automated results are distinct from pending phone and P5/final full-regression gates. Dark mode is explicitly deferred.
+
+
+## Build48 Home gear removal
+
+Check no gear beside Goals; Edit still opens Manage Goals, Goal cards work and Tools → Audio Settings remains. Follow the current package checklist for remaining P4 physical checks. P5/final gates unchanged.

@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build47 P4 audio Settings candidate**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build48 Home gear removal preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
@@ -51,7 +51,9 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build47 passes 22 scoped PCM/compatibility tests, debug/release/test APK compilation and ten API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. P1–P3 generally owner-accepted; P4 phone and full regression remain pending. See [CURRENT_STATE.md](CURRENT_STATE.md). P5/final full gates remain; P5 has not started.
+Build48 removes the duplicate Goals gear; use the existing Edit link for Goal management. Tools → Audio Settings remains. Compilation, API35 launch and one Home navigation/Goal-management/Log-save check pass; see CURRENT_STATE for signed delivery and limits.
+
+Historical build47 passes 22 scoped PCM/compatibility tests, debug/release/test APK compilation and ten API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. P1–P3 generally owner-accepted; P4 phone and full regression remain pending. See [CURRENT_STATE.md](CURRENT_STATE.md). P5/final full gates remain; P5 has not started.
 
 ## Development
 

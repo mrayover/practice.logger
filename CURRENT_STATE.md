@@ -1,42 +1,40 @@
-# Current state — P4 audio Settings, 0.16.0/build47
+# Current state — Home gear removed, 0.16.0/build48
 
-Updated 2026-10-31 (America/Los_Angeles). **Signed installable scoped candidate; P4 engineering checks pass, physical acceptance and full regression pending.** Owner generally accepts P1/P2/P3 (“works”); individual phone checklist results are not inferred. P5 has not started; no automatic follow-up scheduled.
+Updated 2026-10-31 (America/Los_Angeles). **Signed limited owner preview.** The duplicate Goal gear is removed; existing **Edit** opens Manage Goals. There is no general Settings destination; Tools → Audio Settings retains P4 preferences. P1–P3 generally owner-accepted; P4/build48 physical acceptance and full regression pending. P5 has not started.
 
 ## Delivery
 
 | Item | Verified value |
 |---|---|
-| Version | 0.16.0 / code47 |
-| Signed source | `4341af132882e26e24cc3fc85be8d289977b0e6e` |
-| Scoped CI | [41178720243](https://github.com/mrayover/practice.logger/actions/runs/41178720243) — completed/success |
+| Version | 0.16.0 / code48 |
+| Signed source | `8cbe3478c5b05f98ad6720c460d50d0e595d62c5` |
+| Preview CI | [41180090915](https://github.com/mrayover/practice.logger/actions/runs/41180090915) — completed/success |
 | App | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
 | Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `651dbaf29e5dac33c1730fbe849427068968ff5c02d2fa0ccbbca8860dcb4370` |
-| ZIP SHA256 | `46ccabd1d697aaa83514a5c015f18b239b421f52bbf8cb7918aab313643ad4c8` |
+| APK SHA256 | `ea76e39070d98ffa1a6134e323d85331c49bff7e1178e81955d4ad9b1bc2cbe3` |
+| ZIP SHA256 | `84a5cc97579999f33b00180ec1b8c52e2b41054eed058e2ff20bcf3aee253f33` |
 
-[APK](dist/practice.logger-0.16.0-b47-4341af1/practice.logger-0.16.0-b47-4341af1.apk) · [ZIP](dist/practice.logger-0.16.0-b47-4341af1.zip) · [build info](dist/practice.logger-0.16.0-b47-4341af1/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b47-4341af1/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b47-4341af1/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
+[APK](dist/practice.logger-0.16.0-b48-8cbe347/practice.logger-0.16.0-b48-8cbe347.apk) · [ZIP](dist/practice.logger-0.16.0-b48-8cbe347.zip) · [build info](dist/practice.logger-0.16.0-b48-8cbe347/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b48-8cbe347/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b48-8cbe347/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
 
-Existing publisher verifies signature, pinned certificate, stable app/version and APK hash. ZIP CRC/all-member bytes verified; all 178 pre-P4 APK/ZIP files retained byte-identical. Install over permanent-key app **without uninstalling or clearing data**. Key/packages stay local and Git-ignored. Later documentation follows signed source; app/test equivalence checked at closeout.
+Publisher verifies permanent signature/certificate/app/version/hash; ZIP CRC/member bytes and all 182 prior APK/ZIP files byte-identical. Install over the permanent-key app **without uninstalling or clearing data**. Key/packages remain local and Git-ignored. Final remote main SHA confirmed in chat; later documentation follows signed app source.
 
-## Implemented P4 behavior
+## Current behavior and safeguards
 
-- Tools → Audio Settings persists Classic/Woodblock/Soft tick/Electronic pulse and Sound + Flash/Sound only/Flash only defaults. Both metronomes observe changes; meter/accent/timbre/output apply at next beat without fractional-phase or practice-clock reset. Meter/accent remain runtime choices. /8 BPM still counts each eighth; flash uses consumed sample boundaries, with Android output/display latency uncalibrated.
-- Shared completion choice: two-tone, bell, rising chime, short beep, Off. Block alarm retains committed/armed/foreground crossing and independent timer stop; standalone countdown now alarms once on its running foreground zero crossing. Off and active capture suppress cue output; no auto-advance/replay. Cue mixing ducks clicks without changing beat phase. Settings previews stop on leave/background and refuse active capture/take playback.
-- Existing positive count-in default4/per-loop override and explicit recording click On/Off retained. Settings has visible overflow thumb, safe/keyboard insets and vertical choices. Existing compact transport, exclusive panels, retained PDF page/zoom/Notes drafts, immediate note history/edit and pinned controls reused. No visual redesign; cream/green/Lato retained. Optional dark mode explicitly deferred because hard-coded screen colors require broader centralization.
-- Room11/JSON7 readers1–7, schema/migrations, IDs/media/history and app identity/key retained. JSON still excludes reference/take metadata/audio. No Library/storage/analytics work. Stage3 detailed phone acceptance remains pending; Stage4 remains0/10 documented real sessions.
+Home keeps centered Goals heading, Goal cards and Edit link; only duplicate gear/drawing imports removed. Existing navigation and data unchanged. P4 retains four click timbres, shared last/default Sound+Flash/Sound only/Flash only and four completion sounds plus Off, previews and count-in default4/per-loop override. Both metronomes observe defaults without clock reset; meter/accent remain runtime. /8 BPM counts each eighth; actual display/audio latency uncalibrated. Block cue follows committed armed foreground crossing; standalone countdown alarms once at foreground running zero. Off/capture suppress output without clock changes; previews refuse capture/take playback and stop on leave/background. Explicit recording-click On/Off retained.
 
-## Exact scoped verification
+Compact transport/exclusive panels, retained PDF page/zoom/Notes drafts, immediate note save/edit/history and pinned controls remain. Cream/green/Lato retained; optional dark mode explicitly deferred. Room11/JSON7 readers1–7/schema/migrations/IDs/media/history remain; JSON excludes reference/take metadata/audio. No Library/storage/analytics changes. Stage3 detailed phone acceptance pending; Stage4 remains0/10 documented sessions.
 
-- 22 JVM/Robolectric tests, zero failures/errors/skips: AudioSettingsPcmTest2, MeterPcmTest6, BeatPcmTest2, CompletionPcmTest1, MetronomePersistenceTest2, PhraseAudioTest5, TakeReviewTest4. Distinct timbres/accents/alarms, zero silent PCM/Off, bounds, phase/chunk continuity, BPM history/backup/migration and P1/P2 compatibility checked.
-- Debug/release/test APK compilation passes. API35: ten native tests (AudioSettingsWorkflowTest2, NotesHistoryPreviewTest1, MeterWorkflowTest3, MetronomeOutputTest1, TakeReviewWorkflowTest3) pass. Preference new readers/activity recreation/shared defaults, preview controls, Settings200%-text/landscape/overflow, deterministic foreground countdown one-shot/Off/background and actual alarm PCM covered. Existing note append/edit/history/draft guards, retained PDF/Notes/timer, free capture/phrase count-in and review/failure/re-record/discard checks retained.
-- Settings screenshots inspected; signature/certificate/app/version/hash, ZIP CRC/member bytes and prior package hashes verified. P3’s previous20 scoped tests,7 API35 and1 API26 probe remain historical evidence in WORK_LOG; this phase does not rerun full API26 matrix.
+## Exact verification
 
-**Not run:** full unit suite/lint/API26–35 regression matrix, whole-app200%-text/landscape/TalkBack, physical-phone permanent-key install-over, speaker/headphone/mic/flash acoustic acceptance. Settings activity recreation/new readers plus synchronous preference commits checked; a forced-process-kill phone checklist remains. P5 pre-Library and final V1 full gates are mandatory. P4 narrow UI checks do not establish all-screen accessibility acceptance.
+- **Build48:** debug/release/test APK compilation, one API35 install/launch smoke and one existing HomeNavigationPreviewTest pass, including Home sections/Edit → Manage Goals/banner navigation/Log save. Screenshot inspected; scope/diff/local links, signed-source equivalence and package integrity checked. No new tests added for this reversible icon removal.
+- **Historical P4 build47** source4341af132882e26e24cc3fc85be8d289977b0e6e, [CI41178720243](https://github.com/mrayover/practice.logger/actions/runs/41178720243) completed/success:22 scoped JVM/Robolectric tests and10 API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. Not rerun for this icon-only change. Detailed phase evidence retained in WORK_LOG. P4 audio/capture/schema/backup/transport source unchanged by build48.
+
+**Not run:** full unit suite/lint/API26–35 regression matrix, whole-app enlarged-text/landscape/TalkBack, physical-phone install-over/acoustic/flash/mic acceptance or forced-process-restart checklist. P5 and final V1 full gates remain required. General owner acceptance does not infer individual phone results.
 
 ## Baseline and publication
 
-P4 began on clean existing local/remote main `c702a6c1667239d8bd404db9b2538ecb06f57905`; latest P3 CI41176982100 completed/success. Mandatory efficiency procedure reviewed; [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) unchanged. Owner authorized bounded progress with usage monitoring. Automatic broad CI skipped with `[skip ci]`; only manual phase-scoped workflow dispatched. No unrelated historical failure investigation, uninstall/clear or owner-data edits. Final remote main SHA is confirmed in chat after publication.
+Clean local/remote main c262e1324c520dc74a45b691c722aaf58cd7a947 and latest scoped P4 CI41178720243 success verified before changes. Mandatory efficiency procedure/master roadmap reviewed. Owner explicitly requested duplicate gear removal. Existing owner-preview workflow reused; automatic broad CI skipped with `[skip ci]`. No unrelated failure investigation, owner-data edits, uninstall/clear or later phase started.
 
 ## One next task
 
-Owner install-over and **P4 PHONE_CHECKLIST.txt on build47**. P5 full pre-Library regression is the next recommended engineering assignment after acceptance; do not start it automatically. L1 remains behind P5.
+Owner install-over and **build48 PHONE_CHECKLIST.txt**, covering Home Edit access and remaining P4 phone checks. Recommend assigning P5 full pre-Library regression after acceptance; do not start automatically. L1 remains behind P5.
