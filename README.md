@@ -1,10 +1,16 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build45 P2 flexible phrase-loop candidate**. Custom 1–64 beats and configurable count-ins retain P1 explicit take review. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build46 P3 metronome candidate**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
-[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are delivered with scoped checks; P2 phone acceptance remains pending. P3 and later phases remain planned and unassigned. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
+[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 metronome is delivered with scoped checks; P3 phone acceptance remains pending. P4 and later phases remain planned and unassigned. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
+
+## Metronome
+
+Use the compact practice row for BPM, −1/+1 and Start/Stop; the chevron opens shared controls for 2/4, 3/4, 4/4, 5/4, 6/8 or 7/8, Accent first beat (Off by default), and Sound + Flash / Sound only / Flash only. The running meter and small pulse remain available while collapsed. Opening/closing restores the prior Description/Reference, PDF page/zoom and Notes draft without restarting practice or recording. Tools → Metronome provides the same controls and clock.
+
+For 6/8 and 7/8, BPM counts each eighth note: six or seven clicks per bar, without grouped/dotted-quarter mode. Meter/accent/output changes take effect on the next beat; BPM retains phase. Flash follows the audio playback clock; actual display/speaker latency can differ. Silent mode silences click PCM; the existing separate completion cue is unchanged. Runtime controls are implemented; broader persisted defaults and timbre choices remain for P4.
 
 ## Focused Practice transport and Notes
 
@@ -45,7 +51,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build45 passes 13 scoped audio/storage tests, debug/release/test APK compilation, seven API35 native P2/P1-review checks and one API26 maximum-loop playback check. A real 128-second capture and native playback across the full 64-beat boundary are verified on the scoped emulator paths. Full regression and P2 phone acceptance remain pending; see [CURRENT_STATE.md](CURRENT_STATE.md). P5/final gates remain required; P3 has not started.
+Build46 passes 20 scoped PCM/clock/compatibility tests, debug/release/test APK compilation, seven API35 metronome/recording scenarios and one API26 native output probe. All meters, accent modes, silent click PCM, sample-clock pulse, practice/Tools parity and workspace/recording continuity are checked. Full regression and P3 phone acceptance remain pending; see [CURRENT_STATE.md](CURRENT_STATE.md). P5/final gates remain; P4 has not started.
 
 ## Development
 
