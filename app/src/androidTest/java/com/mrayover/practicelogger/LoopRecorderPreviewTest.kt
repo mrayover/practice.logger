@@ -113,31 +113,39 @@ class LoopRecorderPreviewTest {
             compose.waitUntil(15000) { !audio.recording && audio.reviewTake!=null }
             layout(true); shot("review-inline")
             val first=audio.reviewTake!!
+            // No Preview tap: completed audio must already be looping while still temporary.
+            compose.waitUntil(15000) { !audio.busy && audio.playingId == first.id && audio.loopFramesPlayed() > PhraseSpec(300,16,4).frames }
             assertEquals(savedBefore,runBlocking { db.takes().readAll() })
             assertEquals(PhraseSpec(300,16,4).frames,PhraseWave.frames(File(app.filesDir,"recordings/"+first.fileName)))
-            tag("review-preview").performClick(); compose.waitUntil(10000) { audio.playingId==first.id }
+            tag("review-preview").performClick(); compose.runOnIdle { assertNull(audio.playingId) }
+            tag("review-preview").performClick(); compose.waitUntil(10000) { audio.playingId==first.id && audio.loopFramesPlayed()>0 }
             tag("review-preview").performClick(); compose.runOnIdle { assertNull(audio.playingId) }
             tag("practice-reference-toggle").performClick()
             compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist()
             tag("practice-review-expand").performClick()
-            layout(true); tag("phrase-bpm").assertTextContains("300"); tag("phrase-beats").assertTextContains("16")
+            layout(true); compose.runOnIdle { assertNull(audio.playingId) }
+            tag("phrase-bpm").assertTextContains("300"); tag("phrase-beats").assertTextContains("16")
             tag("phrase-count-in").assertTextContains("4")
             tag("review-rerecord").performClick()
             compose.waitUntil(10000) { audio.phrasing && audio.countInTotal==4L && audio.phraseClickEnabled }
             assertFalse(File(app.filesDir,"recordings/"+first.fileName).exists())
             compose.waitUntil(15000) { !audio.recording && audio.reviewTake!=null }
             val second=audio.reviewTake!!; assertNotEquals(first.id,second.id)
+            compose.waitUntil(10000) { !audio.busy && audio.playingId==second.id && audio.loopFramesPlayed()>0 }
             tag("review-save").performClick(); compose.waitUntil(15000) { !audio.busy && audio.reviewTake==null }
-            tag("phrase-start").assertIsEnabled(); assertNotNull(runBlocking { db.takes().find(second.id) }); layout()
+            tag("phrase-start").assertIsEnabled(); assertNull(audio.playingId)
+            assertNotNull(runBlocking { db.takes().find(second.id) }); layout()
             tag("phrase-start").performClick(); compose.waitUntil(15000) { !audio.recording && audio.reviewTake!=null }
-            val discarded=audio.reviewTake!!; tag("review-discard").performClick()
+            val discarded=audio.reviewTake!!
+            compose.waitUntil(10000) { !audio.busy && audio.playingId==discarded.id && audio.loopFramesPlayed()>0 }
+            tag("review-discard").performClick(); assertNull(audio.playingId)
             tag("phrase-start").assertIsEnabled(); assertNull(audio.reviewTake)
             assertFalse(File(app.filesDir,"recordings/"+discarded.fileName).exists())
             assertNotNull(runBlocking { db.takes().find(second.id) }); layout(); shot("after-discard")
             tag("practice-free-record").performClick(); compose.waitUntil(10000) { audio.recording && audio.elapsedMs>1200 }
             compose.runOnIdle { assertFalse(audio.phrasing); assertFalse(audio.phraseClickEnabled) }
             tag("practice-free-record").performClick(); compose.waitUntil(10000) { audio.reviewTake!=null && !audio.busy }
-            assertEquals("FREE",audio.reviewTake!!.mode)
+            assertEquals("FREE",audio.reviewTake!!.mode); assertNull(audio.playingId)
             compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist()
             compose.onAllNodesWithTag("review-discard").assertCountEquals(1); tag("review-discard").performClick()
         } finally {
@@ -147,4 +155,57 @@ class LoopRecorderPreviewTest {
             device.executeShellCommand("wm size reset")
         }
     }
+    @Test fun cancelledLoopsNeverAuditionAndBackgroundStopsWithoutRestart() {
+        val app = compose.activity.application
+        val db = BlockDatabase.open(app)
+        val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+        val audio = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
+        fun returnToApp() {
+            device.executeShellCommand("am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n ${app.packageName}/com.mrayover.practicelogger.MainActivity")
+            shown("Practice Description")
+        }
+        fun cancelled() {
+            compose.waitUntil(15000) { !audio.phrasing && !audio.recording && !audio.busy }
+            compose.runOnIdle { assertNull(audio.reviewTake); assertNull(audio.playingId); assertEquals(0L,audio.loopFramesPlayed()) }
+        }
+        try {
+            device.executeShellCommand("pm grant ${app.packageName} ${Manifest.permission.RECORD_AUDIO}")
+            val (block,session) = runBlocking {
+                val b = BlockRepository(db).save(null,BlockDraft("Loop autoplay safety","Listen, then decide.","5","300"))
+                val repo=SessionRepository(db);repo.addBlock(b);b to repo.start()
+            }
+            shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("Practice Description")
+            compose.waitUntil(15000) { audio.ready };tag("practice-loop-record").performClick()
+            val savedBefore=runBlocking { db.takes().readAll() }
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(300,16,12)) }
+            compose.waitUntil(10000) { audio.phrasing && audio.countInBeat>0 }
+            compose.runOnIdle { audio.finishCapture() };cancelled()
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(300,16,1)) }
+            compose.waitUntil(10000) { audio.phrasing && audio.countInBeat==0 && audio.elapsedMs>250 }
+            compose.runOnIdle { audio.finishCapture() };cancelled()
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(300,16,12)) }
+            compose.waitUntil(10000) { audio.phrasing && audio.countInBeat>0 }
+            device.pressHome();cancelled();returnToApp();cancelled()
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(300,8,1)) }
+            compose.waitUntil(15000) { audio.reviewTake!=null && !audio.recording && !audio.busy && audio.playingId==audio.reviewTake?.id && audio.loopFramesPlayed()>0 }
+            val temporary=audio.reviewTake!!
+            assertNull(runBlocking { db.takes().find(temporary.id) })
+            device.pressHome();compose.waitUntil(10000) { audio.playingId==null && !audio.busy }
+            returnToApp();tag("review-preview").assertIsDisplayed()
+            android.os.SystemClock.sleep(500)
+            compose.runOnIdle { assertNull(audio.playingId);assertEquals(temporary.id,audio.reviewTake?.id) }
+            assertEquals(savedBefore,runBlocking { db.takes().readAll() })
+            tag("review-preview").performClick()
+            compose.waitUntil(10000) { audio.playingId==temporary.id && audio.loopFramesPlayed()>0 }
+            tag("review-preview").performClick();compose.runOnIdle { assertNull(audio.playingId) }
+            shot("auto-preview-background-review")
+            tag("review-discard").performClick()
+            assertFalse(File(app.filesDir,"recordings/"+temporary.fileName).exists())
+            assertEquals(savedBefore,runBlocking { db.takes().readAll() })
+        } finally {
+            compose.runOnIdle { audio.stopPlayback();if(audio.recording) audio.finishCapture();practice.stopClick() }
+            db.close()
+        }
+    }
+
 }

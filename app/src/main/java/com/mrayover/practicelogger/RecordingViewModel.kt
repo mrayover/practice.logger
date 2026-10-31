@@ -226,6 +226,11 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                 phrasing = false; recording = false; busy = false; countInBeat = 0; phraseClickEnabled = false
                 runCatching { manager.abandonAudioFocusRequest(focus) }
             }
+            // Audition only this successful completion, after capture/focus cleanup.
+            // Background/cancellation invalidates the generation; UI recomposition never starts it.
+            if (reviewed && generation == audioGeneration && foreground && recordingScreenOpen && visibleBlockId == blockId) {
+                previewReview()
+            }
         }
     }
 

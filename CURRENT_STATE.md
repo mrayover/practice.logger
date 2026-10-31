@@ -1,3 +1,9 @@
+# Current state — P4 loop auto-preview build53 in progress
+
+Owner accepts build52 layout as visually perfect. Investigated missing loop autoplay: completion only created review state; Preview required a manual tap. Added one completion-triggered audition after capture/focus cleanup, using existing playback and guards. Focused autoplay/review/background checks and signed build53 pending. Last signed delivery remains build52 below. Exact next task: finish scoped verification and package build53.
+
+## Previous delivery
+
 # Current state — P4 loop spacing correction, 0.16.0/build52
 
 Updated 2026-10-31 (America/Los_Angeles). **Signed scoped debug preview.** Owner phone screenshot exposed clipped digits and unused space below Record Loop in build51. Build52 corrects numeric field sizing, spreads loop setup proportionally through its viewport and anchors the recording/review footer directly above the lower transport. Focused compact/tall checks pass; confirmation on the owner’s phone remains pending. P5 and Media Library have not started.
