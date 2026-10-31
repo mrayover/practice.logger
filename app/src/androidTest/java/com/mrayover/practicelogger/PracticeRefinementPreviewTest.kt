@@ -45,8 +45,19 @@ class PracticeRefinementPreviewTest {
         compose.onNodeWithText("Flash Only").assertExists()
         listOf("Sound + Flash","Sound only","Flash Only").forEach { label ->
             val layouts=mutableListOf<TextLayoutResult>()
-            compose.onNodeWithText(label).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
-            assertTrue("Clipped mode text: $label",layouts.isNotEmpty() && layouts.none { it.hasVisualOverflow })
+            compose.onNodeWithText(label,useUnmergedTree=true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            // Compose's fractional line metrics may exceed the rounded IntSize by a pixel.
+            // Keep actual line/ellipsis bounds rather than treating that rounding as clipping.
+            assertTrue("Missing mode text layout: $label",layouts.isNotEmpty())
+            layouts.forEach { layout ->
+                val details="$label size=${layout.size} paragraph=${layout.multiParagraph.height} lines=${layout.lineCount}"
+                println("P4 mode layout: $details")
+                for (line in 0 until layout.lineCount) {
+                    assertFalse(details,layout.isLineEllipsized(line))
+                    assertTrue(details,layout.getLineLeft(line)>=-1f && layout.getLineRight(line)<=layout.size.width+1f)
+                    assertTrue(details,layout.getLineBottom(line)<=layout.size.height+1f)
+                }
+            }
         }
     }
     @Test fun compactPanelWorkspaceCaptureAndReviewPreserveState() {

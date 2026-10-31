@@ -25,7 +25,7 @@ adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/metronome-pu
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/practice-refinement app/build/preview-refinement-screens || true
 if [[ "${PREVIEW_TEST_CLASS:-}" == PracticeRefinementPreviewTest,* ]]; then
   grep -q 'OK (4 tests)' app/build/preview-home.txt
-elif [ "${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest}" = MetronomeButtonPulseTest ]; then
+elif [ "${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest}" = MetronomeButtonPulseTest ] || [ "${PREVIEW_TEST_CLASS:-}" = PracticeRefinementPreviewTest ]; then
   grep -q 'OK (2 tests)' app/build/preview-home.txt
 else
   grep -q 'OK (1 test)' app/build/preview-home.txt
