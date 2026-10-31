@@ -46,18 +46,22 @@ class PracticeRefinementPreviewTest {
         listOf("Sound + Flash","Sound only","Flash Only").forEach { label ->
             val layouts=mutableListOf<TextLayoutResult>()
             compose.onNodeWithText(label,useUnmergedTree=true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
-            // Compose's fractional line metrics may exceed the rounded IntSize by a pixel.
-            // Keep actual line/ellipsis bounds rather than treating that rounding as clipping.
+            // Centered paragraph coordinates can include an alignment offset. Compare the
+            // rendered line width to the Text width; separately bound Text inside its button.
             assertTrue("Missing mode text layout: $label",layouts.isNotEmpty())
             layouts.forEach { layout ->
-                val details="$label size=${layout.size} paragraph=${layout.multiParagraph.height} lines=${layout.lineCount}"
+                val details="$label size=${layout.size} paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height} lines=${layout.lineCount}"
                 println("P4 mode layout: $details")
                 for (line in 0 until layout.lineCount) {
                     assertFalse(details,layout.isLineEllipsized(line))
-                    assertTrue(details,layout.getLineLeft(line)>=-1f && layout.getLineRight(line)<=layout.size.width+1f)
+                    assertTrue(details,layout.getLineRight(line)-layout.getLineLeft(line)<=layout.size.width+1f)
                     assertTrue(details,layout.getLineBottom(line)<=layout.size.height+1f)
                 }
             }
+            val textBounds=compose.onNodeWithText(label,useUnmergedTree=true).fetchSemanticsNode().boundsInRoot
+            val mode=MetronomeMode.entries.first { (if(it==MetronomeMode.FLASH_ONLY) "Flash Only" else it.label)==label }
+            val button=tag("mode-${mode.name}").fetchSemanticsNode().boundsInRoot
+            assertTrue("Text outside button: $label $textBounds / $button",textBounds.left>=button.left-1 && textBounds.right<=button.right+1 && textBounds.top>=button.top-1 && textBounds.bottom<=button.bottom+1)
         }
     }
     @Test fun compactPanelWorkspaceCaptureAndReviewPreserveState() {
