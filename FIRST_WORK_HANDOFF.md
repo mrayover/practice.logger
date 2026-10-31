@@ -1,11 +1,18 @@
-# practice.logger — Current work handoff
+# practice.logger — P0 handoff
 
-Updated2026-10-30 (America/Los_Angeles). Use the original `C:\Users\mrove\Projects\practice.logger` checkout; synced project sources are read-only.
+Assigned scope: P0 only — baseline audit and integration of PRACTICE_LOGGER_V1_MASTER_PLAN.md. Do not start P1 or implement app features.
 
-1. Read AGENTS, CURRENT_STATE, BUILD_PLAN, WORK_LOG's mandatory efficiency procedure, README and MANUAL_TESTS. CURRENT_STATE is authoritative for actual package/source/checks and one exact next task.
-2. Current delivery is0.16.0/build42 visual owner preview: redundant Home buttons/rows removed. Banner/Android Back retain existing save/discard behavior. Compile, one API35 launch and one navigation/Log-save scenario pass; full regression/phone acceptance pending. See CURRENT_STATE.
-3. Alarm root cause was a missing audio call. Keep committed foreground crossing-only one-shot behavior, independent visual zero, click sample phase/BPM, explicit overtime/Complete/Skip and no alert on recovery. Reuse the established AudioTrack/recording infrastructure.
-4. Preserve exclusive transport panels, both temporarily collapsed upper headers and exact workspace/PDF restoration. Notes appends via Save Note and stays open; Return closes separately; saved notes have explicit Edit/Save Changes/Cancel. No note deletion. Drafts/edits require protection. Keep scrolling thumbs and pinned actions; never reenter/leave audio from panel state.
-5. Banner/Android Back share save-before-Home confirmation; Continue preserves state, failed saves retain drafts, active capture requires Stop/Save or cancel. Preserve other editor discard and Log save barriers.
-6. Keep permanent app/key, Room11/schemas/migrations1–11 and JSON7/readers1–7. The sole new table is practice_notes. Legacy notes remain in placements; no backfill/duplicate history. Saved text edits retain timestamps/associations/timing. JSON still excludes references and all take media/metadata. Never uninstall/clear owner data.
-7. The one next task is owner phone acceptance of build42 in place using its Notes PHONE_CHECKLIST.txt or MANUAL_TESTS section. No further automated work is scheduled; do not start another assignment automatically.
+Use the existing repository. Read AGENTS.md, README.md, CURRENT_STATE.md, BUILD_PLAN.md, WORK_LOG.md's mandatory efficiency procedure and the master plan. Inspect live branch, local changes, remote SHA and latest CI. Preserve unrelated work.
+
+Starting reference: main at 5ebbd58b8705b0fc80f95b2443b9db464db07a75 before this documentation commit. Current signed app is 0.16.0/build42, source cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5. It is a limited owner preview; full regression and phone acceptance remain pending. Verify live evidence before changing these statements.
+
+P0 deliverables:
+1. Audit the baseline and any changes since the starting reference.
+2. Link the master plan from README.md and BUILD_PLAN.md as the forward V1 roadmap.
+3. Reconcile obsolete future-scope exclusions in BUILD_PLAN.md and AGENTS.md against that roadmap. Preserve implemented-state facts, data safeguards and historical evidence. Planned features are not implemented features.
+4. Update CURRENT_STATE.md and WORK_LOG.md with factual audit results and the next recommended assignment, P1 temporary audio take review. Do not begin P1 automatically.
+5. Verify documentation content, links and diff; commit/push only intended changes and confirm remote branch/SHA. Report any blocked publication honestly.
+
+MANDATORY — NO FULL REGRESSION for P0. This is documentation only: do not compile, build/sign an APK, launch an emulator, run Gradle tests/lint, or dispatch the API26/API35 regression matrix. Use documentation checks only and skip automatic build CI for this documentation commit. Do not investigate unrelated historical failures. This does not waive the plan's later P5 and final V1 full-regression gates. P1–P4 use scoped checks and delivery as defined in the plan, not a full regression per increment.
+
+Preserve the permanent app ID/key, existing data/media/IDs, migrations and prior distributions. Never uninstall or clear owner data. Keep sources/ references read-only. Finish with exact changed files, checks actually performed, commit/confirmed remote SHA and one next task.

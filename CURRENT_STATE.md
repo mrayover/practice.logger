@@ -43,3 +43,6 @@ Not run: full units/lint/regression/API matrix, dedicated enlarged-text/landscap
 ## One next task
 
 Owner: install build42 in place and check removed Home buttons, content placement, banner/Android Back, Log save, library search and existing data on the phone. No subsequent work starts automatically.
+
+## V1 roadmap handoff — 2026-10-30
+Master plan added to Git with FIRST_WORK_HANDOFF.md assigning P0 baseline audit/documentation integration only. This supersedes the previous next-task instruction for development; build42 phone acceptance remains pending. No app changes, builds or regression tests in this documentation increment. Next task: P0 only, with mandatory no full regression; do not start P1 automatically.
