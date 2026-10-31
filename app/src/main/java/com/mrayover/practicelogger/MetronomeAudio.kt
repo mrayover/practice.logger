@@ -17,20 +17,43 @@ fun initialWorkingBpm(placement: Placement): Int =
 
 fun parseWorkingBpm(text: String): Int? = text.trim().toIntOrNull()?.takeIf { it in 30..300 }
 
-/** A sample clock, not a UI delay. Fractional phase avoids cumulative beat rounding drift. */
+enum class MetronomeMeter(val beats: Int, val unit: Int) {
+    TWO_FOUR(2,4), THREE_FOUR(3,4), FOUR_FOUR(4,4), FIVE_FOUR(5,4), SIX_EIGHT(6,8), SEVEN_EIGHT(7,8);
+    val label: String get() = "$beats/$unit"
+}
+enum class MetronomeMode(val sound: Boolean, val flash: Boolean, val label: String) {
+    SOUND_FLASH(true,true,"Sound + Flash"), SOUND_ONLY(true,false,"Sound only"), FLASH_ONLY(false,true,"Flash only / silent")
+}
+data class MetronomeConfig(val meter: MetronomeMeter = MetronomeMeter.FOUR_FOUR, val accent: Boolean = false,
+    val mode: MetronomeMode = MetronomeMode.SOUND_FLASH)
+data class MetronomePulse(val sequence: Long = 0, val beat: Int = 0, val config: MetronomeConfig = MetronomeConfig(), val lit: Boolean = false)
+internal data class MetronomeBeat(val frame: Long, val sequence: Long, val beat: Int, val config: MetronomeConfig)
+
+/** One fractional sample phase for sound, bar position and flash events, even with accent off. */
 internal class BeatPcm(private val sampleRate: Int = 48_000) {
     private var phase = 1.0
-    private var clickFrame = sampleRate // First render starts a click.
-    fun render(output: ShortArray, bpm: Int) {
+    private var clickFrame = sampleRate
+    private var rendered = 0L
+    private var sequence = 0L
+    private var beat = 0
+    private var active = MetronomeConfig()
+    fun render(output: ShortArray, bpm: Int, requested: MetronomeConfig = MetronomeConfig(), onBeat: (MetronomeBeat) -> Unit = {}) {
         require(bpm in 30..300)
-        val clickLength = sampleRate / 100 // 10 ms, identical timbre at every tempo.
+        val clickLength = sampleRate / 100
         output.indices.forEach { i ->
-            if (phase >= 1.0) { phase -= 1.0; clickFrame = 0 }
-            output[i] = if (clickFrame < clickLength) {
+            if (phase >= 1.0) {
+                phase -= 1.0; clickFrame = 0
+                // Meter changes begin a new bar at the next beat; no beat phase or timer restart.
+                beat = if (active.meter != requested.meter) 1 else beat % requested.meter.beats + 1
+                active = requested; sequence++
+                onBeat(MetronomeBeat(rendered,sequence,beat,active))
+            }
+            val accented = active.accent && beat == 1
+            output[i] = if (active.mode.sound && clickFrame < clickLength) {
                 val envelope = 1.0 - clickFrame.toDouble() / clickLength
-                (sin(2 * PI * 1800 * clickFrame / sampleRate) * envelope * 20_000).toInt().toShort()
+                (sin(2 * PI * (if (accented) 2400 else 1800) * clickFrame / sampleRate) * envelope * (if (accented) 24_000 else 20_000)).toInt().toShort()
             } else 0
-            clickFrame++
+            clickFrame++; rendered++
             phase += bpm.toDouble() / (60 * sampleRate)
         }
     }
@@ -60,12 +83,17 @@ internal class CompletionPcm(private val rate: Int = 48_000) {
 }
 
 /** One foreground click stream. Blocking writes are paced by AudioTrack's sample consumption. */
-internal class MetronomeAudio(context: Context, private val interrupted: (String?) -> Unit) {
+internal class MetronomeAudio(context: Context, private val pulseChanged: (MetronomePulse) -> Unit = {}, private val interrupted: (String?) -> Unit) {
     private val manager = context.getSystemService(AudioManager::class.java)
     private val main = Handler(Looper.getMainLooper())
     private val lock = Any()
     @Volatile private var generation = 0L
     @Volatile private var tempo = 120
+    @Volatile private var configuration = MetronomeConfig()
+    @Volatile internal var sampleFramesWritten = 0L; private set
+    @Volatile internal var nonZeroClickFramesWritten = 0L; private set
+    private var lastPulseSequence = 0L
+    fun configure(value: MetronomeConfig) { configuration = value }
     private var track: AudioTrack? = null
     @Volatile private var clickEnabled = false
     private val completion = CompletionPcm()
@@ -93,6 +121,7 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
         stop()
         changeTempo(bpm)
         clickEnabled = true
+        sampleFramesWritten = 0; nonZeroClickFramesWritten = 0
         return startOutput(requestFocus = true)
     }
 
@@ -118,8 +147,10 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
                     val pcm = BeatPcm()
                     val chunk = ShortArray(480)
                     var quietFrames = 0
+                    val beats = java.util.ArrayDeque<MetronomeBeat>()
                     while (generation == token) {
-                        if (clickEnabled) pcm.render(chunk, tempo) else chunk.fill(0)
+                        if (clickEnabled) pcm.render(chunk, tempo, configuration) { beats.addLast(it) } else chunk.fill(0)
+                        val nonZeroClick = chunk.count { it.toInt() != 0 }
                         val cueFrames = completion.mix(chunk)
                         var offset = 0
                         while (offset < chunk.size && generation == token) {
@@ -127,7 +158,26 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
                             check(written > 0)
                             offset += written
                         }
-                        if (generation == token) completionFramesWritten += cueFrames
+                        if (generation == token) {
+                            completionFramesWritten += cueFrames
+                            sampleFramesWritten += chunk.size
+                            nonZeroClickFramesWritten += nonZeroClick
+                            // Emit only after AudioTrack consumes the event's sample boundary.
+                            val played = audio.playbackHeadPosition.toLong() and 0xffffffffL
+                            while (!beats.isEmpty() && beats.peekFirst().frame < played) {
+                                val event = beats.removeFirst()
+                                main.post {
+                                    if (generation == token && clickEnabled) {
+                                        lastPulseSequence = event.sequence
+                                        val pulse = MetronomePulse(event.sequence,event.beat,event.config,event.config.mode.flash)
+                                        pulseChanged(pulse)
+                                        if (pulse.lit) main.postDelayed({
+                                            if (generation == token && clickEnabled && lastPulseSequence == event.sequence) pulseChanged(pulse.copy(lit = false))
+                                        }, 90) // One-shot flash decay, never a separate beat clock.
+                                    }
+                                }
+                            }
+                        }
                         quietFrames = if (!clickEnabled && !completion.active()) quietFrames + chunk.size else 0
                         // Let the final queued samples drain, then release this cue-only stream.
                         if (quietFrames >= 24_000) {
@@ -154,6 +204,7 @@ internal class MetronomeAudio(context: Context, private val interrupted: (String
 
     fun stop() {
         clickEnabled = false
+        lastPulseSequence = 0; pulseChanged(MetronomePulse())
         completion.cancel()
         ++generation
         synchronized(lock) {

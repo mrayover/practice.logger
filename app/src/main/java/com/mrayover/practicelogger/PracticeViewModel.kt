@@ -48,7 +48,12 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         private set
     var clickError by mutableStateOf<String?>(null)
         private set
-    private val metronome = MetronomeAudio(application) { message -> clicking = false; clickError = message }
+    var metronomeConfig by mutableStateOf(MetronomeConfig()); private set
+    var metronomePulse by mutableStateOf(MetronomePulse()); private set
+    private val metronome = MetronomeAudio(application, { metronomePulse = it }) { message -> clicking = false; clickError = message }
+    fun configureMetronome(value: MetronomeConfig) { metronomeConfig = value; metronome.configure(value) }
+    internal fun metronomeFramesWritten() = metronome.sampleFramesWritten
+    internal fun metronomeNonZeroFramesWritten() = metronome.nonZeroClickFramesWritten
 
     fun enterFocusedPlacement(placement: Placement) {
         if (focusedPlacementId != placement.id) {

@@ -1,0 +1,55 @@
+name: P3 metronome meter accent and visual pulse
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Scoped metronome PCM and compatibility tests and candidate build
+        run: bash ./gradlew testDebugUnitTest --tests '*MeterPcmTest' --tests '*BeatPcmTest' --tests '*CompletionPcmTest' --tests '*MetronomePersistenceTest' --tests '*PhraseAudioTest' --tests '*TakeReviewTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: practice-logger-unsigned-release
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Scoped API35 metronome and recording acceptance
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash scripts/Check-Meter.sh 35
+      - name: Scoped API26 silent and audible native output
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 26
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash scripts/Check-Meter.sh 26
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p3-meter-evidence
+          path: |
+            app/build/p3-*
+            app/build/test-results/testDebugUnitTest

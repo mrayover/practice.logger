@@ -21,7 +21,12 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
     var countdownRunning by mutableStateOf(false); private set
     private val stopwatch = ToolClock(SystemClock::elapsedRealtime)
     private val countdown = ToolClock(SystemClock::elapsedRealtime)
-    private val click = MetronomeAudio(app) { error -> clicking = false; message = error }
+    var metronomeConfig by mutableStateOf(MetronomeConfig()); private set
+    var metronomePulse by mutableStateOf(MetronomePulse()); private set
+    private val click = MetronomeAudio(app, { metronomePulse = it }) { error -> clicking = false; message = error }
+    fun configureMetronome(value: MetronomeConfig) { metronomeConfig = value; click.configure(value) }
+    internal fun metronomeFramesWritten() = click.sampleFramesWritten
+    internal fun metronomeNonZeroFramesWritten() = click.nonZeroClickFramesWritten
     private val tuner = TunerAudio(app, { pitch = it }, { error -> listening = false; pitch = null; message = error })
     internal val tunerFramesRead get() = tuner.framesRead
     private var foreground = false
@@ -35,7 +40,8 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
     fun enter(value: String) { stopAll(); screen = value; message = null }
     fun leave() { stopAll(); screen = null }
     fun setForeground(value: Boolean) { foreground = value; if (!value) stopAll() }
-    fun changeBpm(delta: Int) { bpm = (bpm + delta).coerceIn(30, 300); click.changeTempo(bpm) }
+    fun changeBpm(delta: Int) { setBpm((bpm + delta).coerceIn(30,300)) }
+    fun setBpm(value: Int) { require(value in 30..300); bpm = value; click.changeTempo(value) }
     fun toggleClick() {
         message = null
         if (clicking) { click.stop(); clicking = false }

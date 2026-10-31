@@ -208,12 +208,18 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 PracticeTakeSelection(if (loop) loopTakes else freeTakes, if (loop) loopId else freeId, loop,
                     onSelect = { if (loop) loopId = it.id else freeId = it.id; transportPanel = null }, onClose = { transportPanel = null })
             }
+        if (recordings.reviewTake == null && transportPanel == "metronome") PracticeScrollPanel(
+            Modifier.weight(1f).fillMaxWidth().padding(horizontal=16.dp),tag="practice-metronome-panel") {
+            MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.workingBpm,vm::configureMetronome,vm::changeWorkingBpm,!vm.busy)
+        }
         if (recordings.reviewTake != null) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
         PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
             state = transportScroll, tag = "practice-transport") {
-            PracticeMetronome(vm) { open -> bpmDialog = open; if (open) transportPanel = null }
+            PracticeMetronome(vm, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
+                onExpand = { transportPanel = if (transportPanel == "metronome") null else "metronome" },
+                onEditingChanged = { open -> bpmDialog = open; if (open) transportPanel = null })
             CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
                 { transportPanel = if (recordings.reviewTake == null && transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
@@ -303,14 +309,20 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun PracticeMetronome(vm: PracticeViewModel, onEditingChanged: (Boolean) -> Unit = {}) {
+@Composable private fun PracticeMetronome(vm: PracticeViewModel, expanded: Boolean, blocked: Boolean, onExpand: () -> Unit, onEditingChanged: (Boolean) -> Unit = {}) {
     var editing by rememberSaveable { mutableStateOf(false) }
     var entered by rememberSaveable { mutableStateOf("") }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
     val bpmControl: @Composable (Modifier) -> Unit = { modifier ->
         TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true; onEditingChanged(true) }, enabled = !vm.busy,
             contentPadding = PaddingValues(horizontal = 2.dp), modifier = modifier.heightIn(min = 48.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" }) {
-            Text("Metronome · ${vm.workingBpm} BPM", style = MaterialTheme.typography.bodyMedium)
+            Column {
+                Text("Metronome",style=MaterialTheme.typography.labelSmall)
+                Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+                    MetronomeFlash(vm.metronomePulse,vm.clicking,"practice-metronome-pulse")
+                    Text("${vm.workingBpm} BPM",style=MaterialTheme.typography.bodySmall)
+                }
+            }
         }
     }
     val controls: @Composable () -> Unit = {
@@ -318,15 +330,25 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
-        OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy,
+        OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
             contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
     }
+        val expand: @Composable () -> Unit = {
+            TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.sizeIn(minWidth=48.dp,minHeight=48.dp)
+                .testTag("practice-metronome-expand").semantics { contentDescription=if(expanded) "Collapse metronome" else "Expand metronome" }) {
+                Column(horizontalAlignment=androidx.compose.ui.Alignment.CenterHorizontally) {
+                    if(vm.clicking) Text((if(vm.metronomePulse.sequence>0) vm.metronomePulse.config else vm.metronomeConfig).meter.label,
+                        style=MaterialTheme.typography.labelSmall,modifier=Modifier.testTag("practice-metronome-meter"))
+                    Text(if(expanded) "▴" else "▾")
+                }
+            }
+        }
     if (largeText) FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         bpmControl(Modifier.fillMaxWidth())
-        controls()
+        controls(); expand()
     } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         bpmControl(Modifier.weight(1f))
-        controls()
+        controls(); expand()
     }
     vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
     if (editing) AlertDialog(onDismissRequest = { editing = false; onEditingChanged(false) }, title = { Text("Working BPM") }, text = {

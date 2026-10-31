@@ -1,6 +1,6 @@
 # Current state — P2 flexible phrase loops, 0.16.0/build45
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed installable scoped candidate; P2 engineering checks pass, P2 phone acceptance/full regression pending.** Owner explicitly reports P1 works; record general P1 acceptance only. P3 has not started. No automatic follow-up scheduled.
+Updated 2026-10-30 (America/Los_Angeles). **Signed installable scoped candidate; P2 engineering checks pass, P2 phone acceptance/full regression pending.** Owner explicitly reports P1 works; record general P1 acceptance only. Owner generally accepts P2 and assigns P3. P3 source/code46 is in progress; verification/signing pending. Delivery table remains build45. No P4 started.
 
 ## Delivery
 
@@ -44,6 +44,10 @@ P1 is generally owner-accepted from explicit “works” feedback, not an invent
 
 P2 began on clean existing local/remote main `9fe6fbc61b5709b601e5f2bffbeff64e684a6345`; latest scoped P1 run41172401080 successful. Owner generally accepted P1 and assigned only P2. Mandatory efficiency procedure reviewed; existing architecture reused. [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) remains the roadmap. Source/records use `[skip ci]`; only the explicit P2 scoped and isolated API26 manual workflows were dispatched. Synced sources read-only; no owner app installed/cleared. Final remote main SHA is confirmed in the closing handoff, distinct from signed source.
 
+## P3 implementation status
+
+General P2 acceptance recorded from owner feedback. P3 source adds shared meter/accent/mode controls, a sample-consumption-derived flash, running compact meter and exclusive expanded practice panel. No new signed delivery yet; code46 scoped checks/signing pending. P2 recording/count-in sources, Room11 and JSON7 are unchanged.
+
 ## One next task
 
-Owner: install build45 in place and complete its P2 PHONE_CHECKLIST.txt for custom loops/count-ins and real audio/data retention. P3 remains unassigned; do not start automatically.
+Complete P3 scoped verification and permanent-key signed delivery. Do not start P4 automatically; full regression remains at P5/final.
