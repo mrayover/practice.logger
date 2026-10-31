@@ -539,3 +539,10 @@ Initial focused CI41231441298/source3224e34 passed compilation and seven unit te
 
 
 CI41232272665/source824f800 passed compilation, seven phrase unit checks and the native flow. Final screenshot review caught a small scrollbar/clipped budget after Discard: its redundant success message consumed panel height. Loop-open presentation now omits that success message and redundant time-reached guidance (Continue/timer/state remain), keeping errors and all free/global behavior. Added full no-scroll geometry assertions after Keep and Discard; corrected the existing TransportPreviewTest repeat to close retained loop setup between captures. Rerunning only the same scoped workflow for this evidenced presentation change.
+
+
+### Build51 verification and delivery
+
+Final source `b81ecb5a1ff97fcf20fd3895f8e48469f6ed24a2`, [focused CI 41232807446](https://github.com/mrayover/practice.logger/actions/runs/41232807446): debug/release/instrumentation compilation, seven PhraseAudioTest/PhraseRepositoryTest checks and one API35 LoopRecorderPreviewTest pass. Native assertions cover normal-portrait setup/review without scroll, field/action/footer geometry, both shortcut rows, validation, selected count-in, permanent native guide output, exact WAV length, Preview/Stop, review collapse/reopen, Re-record temporary deletion, Keep/Discard and saved audio preservation, and free capture/review from an open loop panel. Screenshots inspected. No full regression/lint/API matrix/enlarged-text native or physical-phone acceptance claimed.
+
+Delivered permanent-key **debug** APK via existing publisher, which replaces the temporary CI signature. Non-signature APK member hashes match the tested debug artifact; certificate/app/version/debuggable/hash/ZIP verified and 194 previous package hashes preserved. Current paths/evidence and one next phone-check task in CURRENT_STATE. APK SHA256 `943dfbcbbe0f9875a561dd41a45a5f88ea5aabc439047acc7217ff6c2d40e963`; ZIP `3de7b52f547205187df6dd854ca562e173259367e3b281d126452cbb68a8ecef`. Source precedes this documentation-only closeout; remote branch SHA is verified after push.
