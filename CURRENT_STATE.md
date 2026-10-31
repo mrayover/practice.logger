@@ -1,42 +1,38 @@
-# Current state — P4 loop auto-preview build53 in progress
+# Current state — P4 automatic loop audition, 0.16.0/build53
 
-Owner accepts build52 layout as visually perfect. Investigated missing loop autoplay: completion only created review state; Preview required a manual tap. Added one completion-triggered audition after capture/focus cleanup, using existing playback and guards. Focused autoplay/review/background checks and signed build53 pending. Last signed delivery remains build52 below. Exact next task: finish scoped verification and package build53.
-
-## Previous delivery
-
-# Current state — P4 loop spacing correction, 0.16.0/build52
-
-Updated 2026-10-31 (America/Los_Angeles). **Signed scoped debug preview.** Owner phone screenshot exposed clipped digits and unused space below Record Loop in build51. Build52 corrects numeric field sizing, spreads loop setup proportionally through its viewport and anchors the recording/review footer directly above the lower transport. Focused compact/tall checks pass; confirmation on the owner’s phone remains pending. P5 and Media Library have not started.
+Updated 2026-10-31 (America/Los_Angeles). **Signed scoped debug preview.** Owner accepted build52 appearance as visually perfect and requested automatic playback after loop capture to judge Keep/Re-record. Build53 automatically auditions a successfully completed foreground loop while it is still temporary. Layout source is unchanged. Focused verification passes; owner audible-playback confirmation remains pending. P5 and Media Library have not started.
 
 ## Delivery
 
 | Item | Verified value |
 |---|---|
-| Version / variant | 0.16.0 / code52 / debug |
-| APK source | `1dbaa4d25d903c091908012ad670e328ba3ca177` |
-| Focused CI | [41234666560](https://github.com/mrayover/practice.logger/actions/runs/41234666560) — completed/success |
+| Version / variant | 0.16.0 / code53 / debug |
+| APK source | `15af3ea7f49bb0ab565b3ccd1addd3e16c99d125` |
+| Focused CI | [41235843607](https://github.com/mrayover/practice.logger/actions/runs/41235843607) — completed/success |
 | App | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
 | Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `9152dc3a143e83f6e59bd41193820e9aa9abec8457147f22d15e47e904998c80` |
-| ZIP SHA256 | `1ab4dcd3979ac95d44bce805b7359292d258398f13939565a7543aceaa230d82` |
+| APK SHA256 | `d0b27896422d6265b115478a05610b3e97cf74c8dee2cf2edd7d06cc9e4a9dad` |
+| ZIP SHA256 | `ee26bfd6db1bde2616399355b34b3b1da3f95620a15d4a371523c804c64f59e8` |
 
-[Debug APK](dist/practice.logger-0.16.0-b52-1dbaa4d/practice.logger-0.16.0-b52-1dbaa4d.apk) · [ZIP](dist/practice.logger-0.16.0-b52-1dbaa4d.zip) · [Build info](dist/practice.logger-0.16.0-b52-1dbaa4d/BUILD_INFO.json) · [Verification](dist/practice.logger-0.16.0-b52-1dbaa4d/VERIFICATION_STATUS.txt) · [Phone checklist](dist/practice.logger-0.16.0-b52-1dbaa4d/PHONE_CHECKLIST.txt) · [Latest](dist/LATEST.txt).
+[Debug APK](dist/practice.logger-0.16.0-b53-15af3ea/practice.logger-0.16.0-b53-15af3ea.apk) · [ZIP](dist/practice.logger-0.16.0-b53-15af3ea.zip) · [Build info](dist/practice.logger-0.16.0-b53-15af3ea/BUILD_INFO.json) · [Verification](dist/practice.logger-0.16.0-b53-15af3ea/VERIFICATION_STATUS.txt) · [Phone checklist](dist/practice.logger-0.16.0-b53-15af3ea/PHONE_CHECKLIST.txt) · [Latest](dist/LATEST.txt).
 
-Existing publisher re-signed the tested CI debug variant with the permanent key; all non-signature app members match. Signature/certificate/package/version/debuggable flag, APK hash and ZIP CRC/member bytes verified. All 198 prior APK/ZIP hashes preserved. Install over the permanent-key app **without uninstalling or clearing data**. Packages/keys stay local and ignored. Later documentation commits follow APK source.
+The existing publisher re-signed the tested CI debug variant with the permanent key; non-signature app members match. App/version/debuggable flag, signature/certificate and hashes verified; ZIP CRC/member bytes checked; all 202 previous APK/ZIP hashes preserved. Install over the permanent-key app **without uninstalling or clearing data**. Packages/keys remain local and ignored. Later documentation commits follow APK source.
 
 ## Behavior and safeguards
 
-The three numeric fields use intrinsic sizing with a64dp minimum rather than a forced56dp height. The inline form receives its existing viewport height and distributes spare space equally between fields, shortcut rows, duration and the recording footer. Record Loop/Keep/Re-record and the small budget/Preview/Discard row stay together at the transport boundary. Existing overflow behavior remains available; no new scrolling container is added.
+The investigation found no automatic preview invocation: capture completion previously created only review state. One call to the existing previewReview/play path now follows successful capture cleanup and audio-focus release. It runs from that completion event, with matching generation, foreground, recording-screen and Block guards, so cancelled/incomplete/background/stale captures do not start playback. UI recomposition or returning from background never restarts it.
 
-Build51’s eight shortcuts, validation, permanent loop recording click, count-in, automatic completion, temporary review/explicit Keep, re-record/preview/discard and aligned Free/Loop action columns remain. Free review, global metronome and bottom practice actions retain their behavior. This follow-up changes presentation only: no RecordingViewModel/sample engine/storage changes. Cream/green/Lato, retained PDF/Notes/workspace guards, Room11/JSON7/readers1–7, IDs/history/media and saved recordings remain. JSON still excludes references/take metadata/audio; dark mode remains deferred.
+The temporary WAV loops for audition without creating a saved take. Stop/manual Preview remains available. Re-record stops/deletes the prior temporary take and auditions its successful replacement. Keep explicitly saves and stops; Discard stops and removes only temporary audio. Background stops preview and retains in-process review without saving/restarting. Free recording remains manual preview. Existing failure messages/manual retry and saved-file ownership safeguards remain.
+
+Accepted build52 fields/proportional spacing/footer, permanent phrase click/count-in, transport alignment and Notes/PDF/workspace guards remain. RecordingSheet.kt and PracticeScreens.kt match accepted build52 source exactly. No sample engine, capture timing, Room11/JSON7/readers1–7, IDs/history/media or saved audio changes. JSON still excludes references/take metadata/audio; dark mode deferred.
 
 ## Exact verification and limits
 
-- Final focused CI compiles debug/release/instrumentation APKs; seven existing phrase timing/storage unit checks and one expanded API35 native path pass.
-- Native assertions cover compact1080x1920 and tall1080x2340 screens: numeric text line height, no scrollbar, proportional gaps, footer against the transport boundary, field/action/footer alignment; then the existing count-in/permanent guide/exact WAV/Preview/Stop/Re-record/review collapse/Keep/Discard/free-review flow. Screenshots inspected.
-- Build51’s earlier emulator pass did not establish fit on the owner’s phone; their screenshot is the evidence for this correction. Other affected legacy test callers/TransportPreviewTest remain updated/compiled rather than executed as broader workflows. No full regression, lint/API matrix, enlarged-text native run or physical-phone/acoustic acceptance is claimed.
-- Prior P1–P4 evidence remains historical in WORK_LOG. P5/final gates remain unassigned/unrun; Stage3 detailed phone checks pending, Stage4 remains0/10 documented sessions.
+- Final CI compiles debug/release/instrumentation APKs and passes seven existing phrase timing/storage unit tests plus two API35 native scenarios.
+- Automatic preview is verified by the actual native loop playback counter crossing a complete phrase with no Preview tap and no saved row. Native tests exercise Stop/manual replay, stopped review collapse/reopen, Re-record/new automatic audition, Keep/Discard and saved-take preservation, and free review remaining manual.
+- Count-in/partial capture cancellation produces no review/playback. Real Android Home/return during count-in cancels without restart; Home during audition stops it, retains temporary review, stays quiet on return and permits manual replay. Existing compact/tall numeric/spacing/footer/action geometry remains passing; screenshots inspected.
+- Other affected legacy review expectations were updated/compiled, not executed as broader workflows. No full regression, lint/API matrix or owner physical acoustic/routing acceptance is claimed. P1–P4 historical evidence remains in WORK_LOG; P5/final gates remain unassigned/unrun. Stage3 detailed phone checks pending; Stage4 remains0/10 documented sessions.
 
 ## Exact next task
 
-Owner install-over build52 on the same phone and confirm fully visible digits, proportional setup spacing and Record Loop/review footer immediately above the transport, using its PHONE_CHECKLIST.
+Owner install-over build53 and confirm immediate audible loop audition after successful capture, explicit Keep/Re-record/Discard behavior, and stopped playback/quiet return after backgrounding on the same phone.

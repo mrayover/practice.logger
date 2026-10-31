@@ -6,6 +6,10 @@ Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and his
 
 Build48 removes only the duplicate Goal gear; existing Edit opens Manage Goals. No global Settings screen is introduced; Tools Audio Settings remains. Existing preview workflow checks compile/launch/Home navigation and Log saving; exact delivery and pending P4/P5 gates in CURRENT_STATE.
 
+## P4 automatic completed-loop audition
+
+Build53 reuses existing preview playback once after successful foreground loop capture cleanup, before explicit Keep. Incomplete/cancelled/stale/background capture never auditions; background/recomposition never restarts it. Stop/manual Preview and Keep/Re-record/Discard retain temporary ownership. Free preview remains manual and the owner-accepted build52 layout is unchanged. Scoped compilation/seven phrase unit checks/two API35 playback/lifecycle/layout scenarios pass. Signed debug delivery/phone audible confirmation in CURRENT_STATE; no new milestone/full regression.
+
 ## P4 loop spacing follow-up
 
 Build52 fixes the owner phone screenshot’s clipped digits and unused lower setup area: intrinsic/minimum field height, proportional vertical distribution and recording/review footer at the transport boundary. Existing loop behavior/engine remains. Scoped compilation/seven phrase unit checks and an expanded compact/tall API35 path pass. Permanent-key debug delivery and phone confirmation pending in CURRENT_STATE. No new milestone/full regression.
