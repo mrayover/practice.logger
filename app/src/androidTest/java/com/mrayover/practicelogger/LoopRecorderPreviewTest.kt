@@ -98,12 +98,12 @@ class LoopRecorderPreviewTest {
             compose.waitUntil(15000) { !audio.recording && audio.reviewTake!=null }
             val second=audio.reviewTake!!; assertNotEquals(first.id,second.id)
             tag("review-save").performClick(); compose.waitUntil(15000) { !audio.busy && audio.reviewTake==null }
-            tag("phrase-start").assertIsEnabled(); assertNotNull(runBlocking { db.takes().find(second.id) })
+            tag("phrase-start").assertIsEnabled(); assertNotNull(runBlocking { db.takes().find(second.id) }); layout()
             tag("phrase-start").performClick(); compose.waitUntil(15000) { !audio.recording && audio.reviewTake!=null }
             val discarded=audio.reviewTake!!; tag("review-discard").performClick()
             tag("phrase-start").assertIsEnabled(); assertNull(audio.reviewTake)
             assertFalse(File(app.filesDir,"recordings/"+discarded.fileName).exists())
-            assertNotNull(runBlocking { db.takes().find(second.id) }); shot("after-discard")
+            assertNotNull(runBlocking { db.takes().find(second.id) }); layout(); shot("after-discard")
             tag("practice-free-record").performClick(); compose.waitUntil(10000) { audio.recording && audio.elapsedMs>1200 }
             compose.runOnIdle { assertFalse(audio.phrasing); assertFalse(audio.phraseClickEnabled) }
             tag("practice-free-record").performClick(); compose.waitUntil(10000) { audio.reviewTake!=null && !audio.busy }

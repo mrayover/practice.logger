@@ -172,6 +172,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
+    val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.mode == "LOOP" && !reviewCollapsed)
     val transportMaxHeight = if (panelOpen) minOf(maxHeight * .42f,
         (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
@@ -204,7 +205,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 { notes.save(current.sourceBlockId, bundle.session.id, current.id) },
                 { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
-            if ((recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.mode == "LOOP" && !reviewCollapsed)) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
+            if (loopPanelOpen) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
                 PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
                     { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
             }
@@ -229,7 +230,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
                 { reviewCollapsed = false; transportPanel = if (transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
-            practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            practiceTransportMessage(recordingMessage)?.takeUnless { loopPanelOpen && it == "Temporary take discarded. Saved recordings were kept." }?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.reviewTake != null && reviewCollapsed) Row(Modifier.fillMaxWidth().padding(horizontal=16.dp),
             verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
@@ -255,7 +256,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 status(Modifier.weight(1f)); stop(Modifier)
             }
         }
-        if (awaiting) Text("Time reached. Continue for overtime or complete this Block.",
+        if (awaiting && !loopPanelOpen) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
         FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions"),
             maxItemsInEachRow = if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) 2 else 4,

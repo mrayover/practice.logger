@@ -127,7 +127,7 @@ class TransportPreviewTest {
                 click("Loop Setup")
                 compose.onNodeWithText("Phrase BPM").scrollIfNeeded().performTextReplacement("240")
                 clearKeyboard(); click("4 beats")
-                // The inline Record button is distinct from the compact free-record control.
+                // The primary loop action is distinct from the compact free-record control.
                 compose.onNodeWithTag("phrase-start").assertIsDisplayed().performClick()
                 compose.waitUntil(10000) { recordings.recording }
                 compose.onNodeWithTag("practice-loop-panel").assertIsDisplayed()
@@ -136,6 +136,7 @@ class TransportPreviewTest {
                 compose.waitUntil(15000) { !recordings.recording && recordings.takes.value.count { it.blockId == block && it.mode == "LOOP" } == index + 1 }
                 compose.waitUntil(10000) { recordings.playingId != null }
                 compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()
+                click("Loop Setup")
             }
             val loops = recordings.takes.value.filter { it.blockId == block && it.mode == "LOOP" }.sortedBy { it.createdAt }
             select("loop", loops.last().id); select("loop", loops.first().id)
