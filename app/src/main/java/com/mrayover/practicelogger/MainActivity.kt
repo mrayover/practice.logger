@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
         val initial = resolvePalette(themePreferences.choice.value,
             resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
         // Apply explicit preference before Activity inflation; native resources mirror these palettes.
-        setTheme(if (initial.id == LightPalette.id) R.style.Theme_PracticeLogger_Light else R.style.Theme_PracticeLogger_Dark)
+        setTheme(if (initial.scheme.background.luminance() > .5f) R.style.Theme_PracticeLogger_Light else R.style.Theme_PracticeLogger_Dark)
         super.onCreate(savedInstanceState)
         updateThemeWindow(initial)
         setContent {
@@ -61,6 +61,9 @@ class MainActivity : ComponentActivity() {
     }
     @Suppress("DEPRECATION")
     private fun updateThemeWindow(palette: PracticePalette) {
+        // Keep native dialog/decor defaults aligned during an in-place Compose palette switch.
+        // Updating the resource theme does not recreate the Activity or its audio owners.
+        setTheme(if (palette.scheme.background.luminance() > .5f) R.style.Theme_PracticeLogger_Light else R.style.Theme_PracticeLogger_Dark)
         val banner = palette.colors.banner.toArgb()
         val surface = palette.scheme.background.toArgb()
         val lightStatus = palette.colors.banner.luminance() > .5f

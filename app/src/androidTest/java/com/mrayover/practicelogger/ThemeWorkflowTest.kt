@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import android.Manifest
 import android.content.res.Configuration
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.*
@@ -26,7 +27,7 @@ class ThemeWorkflowTest {
     private fun choose(choice: ThemeChoice) { compose.runOnIdle { compose.activity.themePreferences.save(choice) }; compose.waitForIdle() }
     private fun shot(name: String) {
         val dir=File(compose.activity.getExternalFilesDir(null),"theme").apply { mkdirs() }
-        compose.waitForIdle(); device.takeScreenshot(File(dir,"$name.png"))
+        compose.waitForIdle(); device.waitForIdle(); device.takeScreenshot(File(dir,"$name.png"))
     }
     private fun background(palette: PracticePalette) {
         compose.waitForIdle()
@@ -41,6 +42,9 @@ class ThemeWorkflowTest {
         compose.runOnIdle {
             assertEquals(palette.id==LightPalette.id,WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightNavigationBars)
             assertFalse(WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightStatusBars)
+            val native=android.util.TypedValue()
+            assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.windowLightNavigationBar,native,true))
+            assertEquals(palette.scheme.background.luminance() > .5f,native.data!=0)
         }
     }
     @After fun resetAppearance() {
