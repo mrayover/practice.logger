@@ -40,8 +40,8 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
     fun enter(value: String) { stopAll(); screen = value; message = null }
     fun leave() { stopAll(); screen = null }
     fun setForeground(value: Boolean) { foreground = value; if (!value) stopAll() }
-    fun changeBpm(delta: Int) { setBpm((bpm + delta).coerceIn(30,300)) }
-    fun setBpm(value: Int) { require(value in 30..300); bpm = value; click.changeTempo(value) }
+    fun changeBpm(delta: Int) { applyMetronomeBpm((bpm + delta).coerceIn(30,300)) }
+    fun applyMetronomeBpm(value: Int) { require(value in 30..300); bpm = value; click.changeTempo(value) }
     fun toggleClick() {
         message = null
         if (clicking) { click.stop(); clicking = false }

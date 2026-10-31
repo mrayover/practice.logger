@@ -68,7 +68,7 @@ import java.util.Locale
                     MetronomeFlash(vm.metronomePulse,vm.clicking,"tool-metronome-pulse")
                     if(vm.clicking) Text((if(vm.metronomePulse.sequence>0) vm.metronomePulse.config else vm.metronomeConfig).meter.label)
                 }
-                MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.bpm,vm::configureMetronome,vm::setBpm)
+                MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.bpm,vm::configureMetronome,vm::applyMetronomeBpm)
                 Text("30–300 BPM · media volume")
             }
             "tuner" -> TunerControls(vm)
