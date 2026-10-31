@@ -1,3 +1,9 @@
+# Current state — P4 loop spacing build52 in progress
+
+Owner phone screenshot identified clipped numeric values and top-packed content in build51. Corrected field sizing and viewport-height distribution; Record Loop/review footer anchors above transport. Focused compact/tall verification and signed build52 pending. Latest signed delivery remains build51 below. Exact next task: finish scoped layout checks and package build52.
+
+## Previous delivery
+
 # Current state — P4 loop recorder refinement, 0.16.0/build51
 
 Updated 2026-10-31 (America/Los_Angeles). **Signed scoped debug preview.** Compact loop setup, permanent loop click, inline review and aligned recording actions implemented. Focused checks pass. Physical-phone fit/acoustic acceptance remains pending. This is a bounded P4 refinement; P5 and Media Library have not started.

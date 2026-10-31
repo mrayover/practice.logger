@@ -182,7 +182,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     }
 }
 
-@Composable fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit, inline: Boolean = false) {
+@Composable fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit, inline: Boolean = false, minimumHeight: androidx.compose.ui.unit.Dp = 0.dp) {
     val keyboard = LocalSoftwareKeyboardController.current
     var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
     var phraseBeats by rememberSaveable(blockId) { mutableStateOf("8") }
@@ -207,7 +207,10 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     }
     val editable = !vm.recording && review == null && !vm.busy
     val form: @Composable () -> Unit = {
-        Column(if (inline) Modifier else Modifier.verticalScroll(rememberScrollState())) {
+        Column(if (inline) Modifier.heightIn(min = (minimumHeight - with(androidx.compose.ui.platform.LocalDensity.current) {
+            MaterialTheme.typography.titleSmall.lineHeight.toDp()
+        }).coerceAtLeast(0.dp)) else Modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = if (inline) Arrangement.SpaceBetween else Arrangement.Top) {
             Row(Modifier.fillMaxWidth().testTag("phrase-fields"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 val field: @Composable RowScope.(String, (String) -> Unit, String, String, Boolean) -> Unit = { value, change, label, tag, error ->
                     OutlinedTextField(value, change, label = { Text(label, style = MaterialTheme.typography.labelSmall) },
@@ -215,7 +218,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                         textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
-                        modifier = Modifier.weight(1f).then(if (largeText) Modifier.heightIn(min = 56.dp) else Modifier.height(56.dp)).testTag(tag))
+                        modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag(tag))
                 }
                 field(phraseBpm, { phraseBpm = it }, "Phrase BPM", "phrase-bpm", bpm == null || bpm !in 30..300)
                 field(phraseBeats, { phraseBeats = it }, "Loop beats", "phrase-beats", length == null || length !in 1..64)
@@ -234,6 +237,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
                 color = if (spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("phrase-duration"))
+            // Keep recording/review and its metadata together against the transport boundary.
+            Column(Modifier.fillMaxWidth().testTag("phrase-footer")) {
             if (inline && review != null) {
                 Row(Modifier.fillMaxWidth().testTag("phrase-primary-actions"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = vm::saveReview, enabled = !vm.busy,
@@ -257,18 +262,19 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     else "Cancel · Recording " + practiceTime(vm.elapsedMs)
                 } else if (inline) "Record Loop" else "Start count-in")
             }
-            Row(Modifier.fillMaxWidth().heightIn(min = 32.dp).testTag("phrase-budget-row"), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 24.dp).testTag("phrase-budget-row"), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text("Execution budget: 15 minutes.", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
                 if (inline && review != null) {
                     val playing = vm.playingId == review.id || vm.preparingId == review.id
                     TextButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
-                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.then(if (largeText) Modifier.heightIn(min = 48.dp) else Modifier.height(32.dp)).testTag("review-preview")) {
+                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.then(if (largeText) Modifier.heightIn(min = 48.dp) else Modifier.height(24.dp)).testTag("review-preview")) {
                         Text(if (playing) "Stop" else "Preview", style = MaterialTheme.typography.labelSmall)
                     }
                     TextButton(onClick = vm::discardReview, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp),
-                        modifier = Modifier.then(if (largeText) Modifier.heightIn(min = 48.dp) else Modifier.height(32.dp)).testTag("review-discard")) { Text("Discard", style = MaterialTheme.typography.labelSmall) }
+                        modifier = Modifier.then(if (largeText) Modifier.heightIn(min = 48.dp) else Modifier.height(24.dp)).testTag("review-discard")) { Text("Discard", style = MaterialTheme.typography.labelSmall) }
                 }
             }
+        }
         }
     }
     if (inline) Column(Modifier.fillMaxWidth().testTag("practice-loop-panel")) {

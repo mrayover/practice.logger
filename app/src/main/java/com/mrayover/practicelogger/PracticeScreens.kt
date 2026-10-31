@@ -205,9 +205,13 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 { notes.save(current.sourceBlockId, bundle.session.id, current.id) },
                 { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
-            if (loopPanelOpen) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
-                PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
-                    { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
+            if (loopPanelOpen) BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp)) {
+                val loopHeight = maxHeight
+                PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-loop-setup-content") {
+                    PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
+                        { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null },
+                        inline = true, minimumHeight = loopHeight)
+                }
             }
             if (recordings.reviewTake == null && (transportPanel == "free-list" || transportPanel == "loop-list")) Box(Modifier.fillMaxWidth()
                 .weight(1f).padding(horizontal = 16.dp).testTag("practice-selection-panel")) {

@@ -2,6 +2,8 @@ package com.mrayover.practicelogger
 
 import android.Manifest
 import androidx.compose.ui.test.*
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -41,6 +43,17 @@ class LoopRecorderPreviewTest {
             val bounds = tag(name).fetchSemanticsNode().boundsInRoot
             assertTrue("$name clipped: $bounds / $panel", bounds.top >= panel.top-1 && bounds.bottom <= panel.bottom+1)
         }
+        val budget = tag("phrase-budget-row").fetchSemanticsNode().boundsInRoot
+        assertEquals("Loop footer must end at the transport boundary", panel.bottom, budget.bottom, 2f)
+        listOf("phrase-bpm", "phrase-beats", "phrase-count-in").forEach { name ->
+            val layouts = mutableListOf<TextLayoutResult>()
+            tag(name).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            assertTrue("Missing numeric text layout: $name", layouts.isNotEmpty())
+            layouts.forEach { value ->
+                assertFalse("Numeric value clipped: $name ${value.size}", value.didOverflowHeight)
+                for (line in 0 until value.lineCount) assertTrue("Numeric line clipped: $name", value.getLineBottom(line) <= value.size.height + 1f)
+            }
+        }
         val fields = listOf("phrase-bpm", "phrase-beats", "phrase-count-in").map { tag(it).fetchSemanticsNode().boundsInRoot }
         assertTrue(fields.zipWithNext().all { (a,b) -> a.right<=b.left+1 && kotlin.math.abs(a.top-b.top)<=1 })
         for (action in listOf("record", "play")) {
@@ -70,7 +83,24 @@ class LoopRecorderPreviewTest {
             shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; shown("Practice Description")
             compose.waitUntil(15000) { audio.ready }
             tag("practice-loop-record").performClick()
-            layout(); compose.onNodeWithText("One phrase: 3.10 seconds").assertExists(); shot("setup-portrait")
+            layout(); compose.onNodeWithText("One phrase: 3.10 seconds").assertExists(); shot("setup-compact")
+            val compact = tag("practice-loop-setup-content").fetchSemanticsNode().boundsInRoot.height
+            device.executeShellCommand("wm size 1080x2340")
+            compose.waitUntil(15000) {
+                compose.onAllNodesWithTag("practice-loop-setup-content").fetchSemanticsNodes().firstOrNull()?.boundsInRoot?.height?.let { it > compact + 100f } == true
+            }
+            layout(); shot("setup-tall")
+            val fieldsBottom = tag("phrase-fields").fetchSemanticsNode().boundsInRoot.bottom
+            val firstTop = tag("phrase-shortcut-4").fetchSemanticsNode().boundsInRoot.top
+            val firstBottom = tag("phrase-shortcut-4").fetchSemanticsNode().boundsInRoot.bottom
+            val secondTop = tag("phrase-shortcut-6").fetchSemanticsNode().boundsInRoot.top
+            val secondBottom = tag("phrase-shortcut-6").fetchSemanticsNode().boundsInRoot.bottom
+            val durationTop = tag("phrase-duration").fetchSemanticsNode().boundsInRoot.top
+            val durationBottom = tag("phrase-duration").fetchSemanticsNode().boundsInRoot.bottom
+            val recordTop = tag("phrase-start").fetchSemanticsNode().boundsInRoot.top
+            val gaps = listOf(firstTop-fieldsBottom, secondTop-firstBottom, durationTop-secondBottom, recordTop-durationBottom)
+            assertTrue("Tall layout must distribute spare height: $gaps", gaps.min() > 12f)
+            assertTrue("Unequal setup spacing: $gaps", gaps.max()-gaps.min() <= 3f)
             tag("phrase-beats").performTextReplacement("65"); keyboard(); tag("phrase-start").assertIsNotEnabled()
             tag("phrase-beats").performTextReplacement("7")
             tag("phrase-count-in").performTextReplacement("9223372036854775807"); keyboard(); tag("phrase-start").assertIsNotEnabled()
@@ -114,6 +144,7 @@ class LoopRecorderPreviewTest {
             shot("final")
             compose.runOnIdle { audio.stopPlayback(); if(audio.recording) audio.finishCapture(); practice.stopClick() }
             db.close()
+            device.executeShellCommand("wm size reset")
         }
     }
 }
