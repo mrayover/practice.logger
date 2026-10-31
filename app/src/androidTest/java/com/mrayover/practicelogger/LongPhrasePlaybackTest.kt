@@ -27,7 +27,7 @@ class LongPhrasePlaybackTest {
             click("Recording");click("P2 maximum loop")
             val repo=TakeRepository(db,app)
             val take=if(Build.VERSION.SDK_INT>=35) {
-                compose.runOnIdle { audio.startPhrase(block,spec,false) }
+                compose.runOnIdle { audio.startPhrase(block,spec) }
                 compose.waitUntil(155000) { !audio.recording && !audio.busy && audio.reviewTake!=null }
                 assertEquals(128000L,audio.reviewTake!!.durationMs)
                 val id=audio.reviewTake!!.id;compose.onNodeWithTag("review-save").scrollIfNeeded().performClick()

@@ -97,7 +97,7 @@ class NotesHistoryPreviewTest {
             acceptTemporaryTake(compose, audio)
             compose.waitUntil(15000) { !audio.recording && !audio.busy && audio.takes.value.any { it.blockId == block && it.mode == "FREE" } }
             compose.onNodeWithTag("practice-notes-content-scrollbar").assertExists();screenshot("notes-history")
-            click("Record Loop");collapsedHeaders();compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
+            click("Loop Setup");collapsedHeaders();compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
             click("Cancel");shown("Page 2 of 2");shown("Reset PDF zoom")
             tag("practice-free-selector").performClick();collapsedHeaders();click("Close");shown("Page 2 of 2")
             tag("practice-loop-selector").performClick();collapsedHeaders();click("Close");shown("Page 2 of 2")

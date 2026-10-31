@@ -91,7 +91,7 @@ class MeterWorkflowTest {
             click("Stop click");tag("practice-free-record").performClick()
             compose.waitUntil(15000) { !audio.busy && audio.reviewTake!=null };tag("review-save").performClick()
             compose.waitUntil(15000) { !audio.busy && audio.reviewTake==null && audio.takes.value.any { it.blockId==block } }
-            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(120,5,3),false) }
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(120,5,3)) }
             compose.waitUntil(5000) { audio.phrasing && audio.countInTotal==3L }
             compose.onNodeWithText("Start click").assertIsNotEnabled();tag("meter-7/8").performClick()
             compose.waitUntil(15000) { !audio.busy && audio.reviewTake?.mode=="LOOP" }

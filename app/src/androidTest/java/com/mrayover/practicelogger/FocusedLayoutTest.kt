@@ -39,7 +39,7 @@ class FocusedLayoutTest {
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             click("Next page");shown("Page 2 of 2")
             assertTrue(practice.running);assertTrue(practice.clicking);screenshot("bounded-pdf")
-            click("Hide reference");click("Record Loop");shown("Record one phrase")
+            click("Hide reference");click("Loop Setup");shown("Record one phrase")
             compose.onNodeWithText("Phrase BPM").performTextReplacement("240")
             click("4 beats");click("Start count-in")
             acceptTemporaryTake(compose, recordings, playAfterSave = true)

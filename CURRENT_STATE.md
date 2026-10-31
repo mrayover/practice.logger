@@ -1,3 +1,9 @@
+# Current state — P4 loop recorder build51 in progress
+
+Compact loop setup/permanent click/inline review/aligned controls implemented. Scoped compilation/unit/native checks and APK delivery pending; latest verified signed package is build50 below. No full regression/P5. Exact next task: finish loop-refinement verification and package build51.
+
+## Previous delivery
+
 # Current state — P4 practice interface refinement, 0.16.0/build50
 
 Updated 2026-10-31 (America/Los_Angeles). **Signed scoped owner preview.** Compact practice metronome and workspace-to-transport switching implemented and focused automated checks passed. Physical phone acceptance remains pending; this task's final on-phone criterion is not yet established. P1–P3 generally accepted; P5 and Media Library have not started.

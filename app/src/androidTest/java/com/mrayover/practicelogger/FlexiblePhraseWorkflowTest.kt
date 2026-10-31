@@ -32,7 +32,7 @@ class FlexiblePhraseWorkflowTest {
             assertEquals(7L,CountInPreferences(app).read());compose.activityRule.scenario.recreate();tag("default-count-in").assertTextContains("7")
             click("Back to Tools");compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Practice Now")
             val (block,session)=runBlocking { val b=BlockRepository(db).save(null,BlockDraft("P2 custom loop","Play","5","120"));val repo=SessionRepository(db);repo.addBlock(b);b to repo.start() }
-            compose.runOnIdle { practice.openSession(session) };shown("Practice Description");click("Record Loop")
+            compose.runOnIdle { practice.openSession(session) };shown("Practice Description");click("Loop Setup")
             tag("phrase-count-in").assertTextContains("7")
             for(value in listOf("0","65","128","bad")) { tag("phrase-beats").performTextReplacement(value);tag("phrase-start").assertIsNotEnabled() }
             tag("phrase-beats").performTextReplacement("3");tag("phrase-count-in").performTextReplacement("9223372036854775807");keyboard();tag("phrase-start").assertIsNotEnabled()
@@ -55,7 +55,7 @@ class FlexiblePhraseWorkflowTest {
             click("Recording");click("P2 boundary loops");shown("Block recordings")
             val old=runBlocking { db.takes().readAll() }
             for(spec in listOf(PhraseSpec(300,5,1),PhraseSpec(120,7,3),PhraseSpec(30,11,1))) {
-                compose.runOnIdle { audio.startPhrase(block,spec,false) };review()
+                compose.runOnIdle { audio.startPhrase(block,spec) };review()
                 val take=audio.reviewTake!!;assertEquals(spec.beats,take.beatCount);assertEquals(spec.durationMs,take.durationMs)
                 assertEquals(spec.frames,PhraseWave.frames(File(app.filesDir,"recordings/"+take.fileName)))
                 compose.runOnIdle { audio.discardReview() }
@@ -70,10 +70,10 @@ class FlexiblePhraseWorkflowTest {
             ready();val block=runBlocking { BlockRepository(db).save(null,BlockDraft("P2 cancel","Play")) }
             click("Recording");click("P2 cancel");shown("Block recordings")
             val old=runBlocking { db.takes().readAll() }
-            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(30,64,12),true) }
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(30,64,12)) }
             compose.waitUntil(10000) { audio.countInBeat>0 && audio.countInTotal==12L };click("Cancel phrase")
             compose.waitUntil(15000) { !audio.phrasing && !audio.busy };assertNull(audio.reviewTake)
-            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(120,64,1),true) }
+            compose.runOnIdle { audio.startPhrase(block,PhraseSpec(120,64,1)) }
             compose.waitUntil(10000) { audio.countInBeat==0 && audio.elapsedMs>250 }
             device.pressHome();compose.waitUntil(15000) { !audio.phrasing && !audio.busy }
             device.executeShellCommand("am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n ${app.packageName}/com.mrayover.practicelogger.MainActivity")

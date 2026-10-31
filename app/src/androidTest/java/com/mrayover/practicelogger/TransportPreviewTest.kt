@@ -79,12 +79,23 @@ class TransportPreviewTest {
             compose.onNodeWithTag("practice-notes-panel").assertExists()
             assertTrue(compose.onNodeWithTag("practice-workspace-viewport").fetchSemanticsNode().boundsInRoot.height < fullHeight)
             compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
-            click("Record Loop")
+            click("Loop Setup")
             compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
             compose.onNodeWithTag("practice-loop-panel").assertExists()
             compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
-            compose.onNodeWithTag("practice-loop-setup-content-scrollbar").assertExists()
-            click("Cancel")
+            compose.onNodeWithTag("practice-loop-setup-content-scrollbar").assertDoesNotExist()
+            listOf("phrase-bpm", "phrase-beats", "phrase-count-in", "phrase-start", "phrase-duration", "phrase-budget-row").forEach {
+                compose.onNodeWithTag(it).assertIsDisplayed()
+            }
+            val fields = listOf("phrase-bpm", "phrase-beats", "phrase-count-in").map { compose.onNodeWithTag(it).fetchSemanticsNode().boundsInRoot }
+            assertTrue(fields.zipWithNext().all { (a,b) -> a.right <= b.left + 1 && kotlin.math.abs(a.top-b.top) <= 1 })
+            for (action in listOf("record", "play")) {
+                val free = compose.onNodeWithTag("practice-free-$action").fetchSemanticsNode().boundsInRoot
+                val loop = compose.onNodeWithTag("practice-loop-$action").fetchSemanticsNode().boundsInRoot
+                assertEquals(free.left, loop.left, 1f); assertEquals(free.right, loop.right, 1f)
+                assertEquals(free.height, loop.height, 1f)
+            }
+            click("Loop Setup")
             repeat(2) { index ->
                 tagged("practice-free-record").performClick()
                 compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1300 }
@@ -113,14 +124,14 @@ class TransportPreviewTest {
             compose.onNodeWithContentDescription("Stop selected free recording").scrollIfNeeded().performClick()
             click("Notes"); compose.onNodeWithText("Saved during free capture", substring = true).assertExists(); click("Notes")
             repeat(2) { index ->
-                click("Record Loop")
+                click("Loop Setup")
                 compose.onNodeWithText("Phrase BPM").scrollIfNeeded().performTextReplacement("240")
                 clearKeyboard(); click("4 beats")
                 // The inline Record button is distinct from the compact free-record control.
-                compose.onAllNodesWithText("Record").onFirst().scrollIfNeeded().assertIsDisplayed().performClick()
+                compose.onNodeWithTag("phrase-start").assertIsDisplayed().performClick()
                 compose.waitUntil(10000) { recordings.recording }
-                compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist()
-                tagged("practice-recording-stop")
+                compose.onNodeWithTag("practice-loop-panel").assertIsDisplayed()
+                tagged("phrase-start")
                 acceptTemporaryTake(compose, recordings, playAfterSave = true)
                 compose.waitUntil(15000) { !recordings.recording && recordings.takes.value.count { it.blockId == block && it.mode == "LOOP" } == index + 1 }
                 compose.waitUntil(10000) { recordings.playingId != null }

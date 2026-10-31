@@ -204,7 +204,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 { notes.save(current.sourceBlockId, bundle.session.id, current.id) },
                 { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
-            if (recordings.reviewTake == null && transportPanel == "loop") PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
+            if (transportPanel == "loop" || (recordings.reviewTake?.mode == "LOOP" && !reviewCollapsed)) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
                 PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
                     { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
             }
@@ -218,7 +218,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             Modifier.weight(1f).fillMaxWidth().padding(horizontal=16.dp),tag="practice-metronome-panel") {
             MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.workingBpm,vm::configureMetronome,vm::changeWorkingBpm,!vm.busy,compact=true)
         }
-        if (recordings.reviewTake != null && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
+        if (recordings.reviewTake != null && recordings.reviewTake?.mode != "LOOP" && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
         PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
@@ -227,13 +227,13 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 onExpand = { transportPanel = if (transportPanel == "metronome") null else "metronome" },
                 onEditingChanged = { open -> bpmDialog = open; if (open) transportPanel = null })
             CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
-                { transportPanel = if (recordings.reviewTake == null && transportPanel == "loop") null else "loop" },
+                { reviewCollapsed = false; transportPanel = if (transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
             practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
         if (recordings.reviewTake != null && reviewCollapsed) Row(Modifier.fillMaxWidth().padding(horizontal=16.dp),
             verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
-            TextButton(onClick={ reviewCollapsed=false; transportPanel=null }, modifier=Modifier.weight(1f).heightIn(min=48.dp)
+            TextButton(onClick={ reviewCollapsed=false; transportPanel=if(recordings.reviewTake?.mode=="LOOP") "loop" else null }, modifier=Modifier.weight(1f).heightIn(min=48.dp)
                 .testTag("practice-review-expand")) { Text("Review Take · Not saved") }
             Button(onClick=recordings::saveReview,enabled=!recordings.busy,
                 modifier=Modifier.heightIn(min=48.dp).testTag("review-save")) { Text("Save") }

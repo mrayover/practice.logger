@@ -122,7 +122,7 @@ Expose a discoverable Settings destination (Home or Tools, whichever integrates 
 | **Completion alarm** | Current two-tone, bell-like, rising chime, short beep, **Off**; preview audio. Used for Block timeouts **and the foreground standalone countdown timer**. Avoid collisions with currently captured audio; completion must never change elapsed-time accounting. |
 | **Default count-in** | Any validated positive whole beat count, default 4; each loop can override. |
 | **Metronome output mode** | Sound + Flash / Sound Only / Flash Only; persist last selected default. |
-| **Recording click** | Retain an explicit On/Off choice in loop setup; optionally remember default if minimal. No forced sound guide. |
+| **Recording click** | Always enabled for loop recording (owner refinement, 2026-10-31); no setup toggle. Free recording/global output settings remain separate. |
 | **Storage destination** | **Later in S1:** select/inspect/replace export root, with clear permission status. Do not implement cloud services in P4. |
 | **Appearance** | Keep Lato, cream/green identity. See conditional dark mode below. |
 

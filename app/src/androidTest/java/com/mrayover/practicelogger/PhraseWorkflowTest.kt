@@ -42,8 +42,7 @@ class PhraseWorkflowTest {
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }
             sheet("Record phrase"); shown("Record one phrase")
-            compose.onNodeWithTag("phrase-recording-click").performScrollTo().assertIsOn().performClick().assertIsOff()
-            compose.onNodeWithTag("phrase-recording-click").performClick().assertIsOn()
+            compose.onNodeWithTag("phrase-recording-click").assertDoesNotExist()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("0")
             compose.onNodeWithText("Start count-in").assertIsNotEnabled()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("120")
@@ -72,15 +71,12 @@ class PhraseWorkflowTest {
             sheet("Stop loop"); compose.runOnIdle { assertNull(vm.playingId); assertEquals(0L, vm.loopFramesPlayed()) }
             // Exercise count-in/capture at 60 and 180 BPM through the production native path.
             for (bpm in listOf(60, 180)) {
-                val guideEnabled = bpm != 60
-                compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4), guideEnabled) }
+                compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4)) }
                 // Check the live capture and native counter in the same poll. Waiting for UI idle
                 // afterward can outlast a 1.33-second phrase and observe the cleared final state.
                 compose.waitUntil(15000) {
                     vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 &&
-                        vm.phraseClickEnabled == guideEnabled &&
-                        if (guideEnabled) vm.phraseGuideFramesPlayed() > PhraseSpec(bpm, 4).frames
-                        else vm.phraseGuideFramesPlayed() == 0L
+                        vm.phraseClickEnabled && vm.phraseGuideFramesPlayed() > PhraseSpec(bpm, 4).frames
                 }
                 acceptTemporaryTake(compose, vm, playAfterSave = true)
                 compose.waitUntil(25000) { !vm.recording && !vm.busy && vm.playingId != null }

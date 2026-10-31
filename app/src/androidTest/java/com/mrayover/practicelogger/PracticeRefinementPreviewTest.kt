@@ -104,7 +104,7 @@ class PracticeRefinementPreviewTest {
             compose.waitUntil(10000) { practice.metronomePulse.sequence>sequence && practice.metronomeNonZeroFramesWritten()>frames && practice.catalog.value.active!!.current!!.activeMs>elapsed }
             // Repeated explicit close still restores the selected workspace.
             tag("practice-metronome-expand").performClick();tag("practice-metronome-expand").performClick();shown("Keep the phrase relaxed.")
-            click("Record Loop");tag("practice-reference-toggle").performClick()
+            click("Loop Setup");tag("practice-reference-toggle").performClick()
             compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist();shown("Page 2 of 2");shown("Reset PDF zoom")
             tag("practice-free-record").performClick()
             compose.waitUntil(15000) { audio.recording && audio.elapsedMs>=1200 }

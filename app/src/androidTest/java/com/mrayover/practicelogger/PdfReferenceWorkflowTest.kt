@@ -110,7 +110,7 @@ class PdfReferenceWorkflowTest {
             click("Close recordings"); shown("Recordings"); assertTrue(practice.running)
             click("Recordings"); shown("Block recordings")
             // Real phrase capture/count-in shares the same sheet and viewer; existing phrase tests cover setup UI.
-            compose.runOnIdle { practice.stopClick(); recordings.startPhrase(id,PhraseSpec(240,32),true) }
+            compose.runOnIdle { practice.stopClick(); recordings.startPhrase(id,PhraseSpec(240,32)) }
             compose.waitUntil(5000) { recordings.phrasing && recordings.countInBeat > 0 }
             click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2")
             assertTrue(recordings.recording); assertTrue(recordings.phrasing); assertTrue(practice.running)
