@@ -12,7 +12,7 @@ if [ "$api" = 35 ]; then
   classes="$classes,com.mrayover.practicelogger.MetronomeButtonPulseTest,com.mrayover.practicelogger.AudioSettingsWorkflowTest,com.mrayover.practicelogger.LoopRecorderPreviewTest"
   expected=9
 fi
-adb logcat -c
+adb logcat -c || true
 adb shell am instrument -w -r -e class "$classes" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
 adb logcat -d > "$out/logcat.txt"
 for folder in theme metronome-pulse p4-settings loop-refinement; do
