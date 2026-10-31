@@ -157,3 +157,11 @@ Check no gear beside Goals; Edit still opens Manage Goals, Goal cards work and T
 ## Build49 P4 metronome button feedback
 
 Follow the current package PHONE_CHECKLIST: both complete Stop click surfaces pulse in flash-enabled modes, return between beats and remain static immediately on stop; verify readable labels, BPM/start-stop/meter behavior and acoustic/display synchronization. Sound only remains static. Layout/geometry unchanged; no full regression required for this refinement.
+
+## Theme regression — next assigned P5/F1
+
+Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; recheck this area during the next assigned P5/F1 regression. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred.
+
+- [ ] Home Settings below Log; Light/Dark/System persistence and OS overrides; native chrome/contrast; selected/disabled/error/recording/button and overlay states; normal/200% text/landscape; timer/metronome pulse and Stop; free/loop capture/review/background safety; Notes drafts and reference page/zoom/original image/PDF colors.
+
+Do not run automatically.

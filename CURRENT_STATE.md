@@ -1,46 +1,21 @@
-# Current state — P4 automatic loop audition, 0.16.0/build53
+# Current state — Theme increment complete; owner accepted Light/Dark
 
-Updated 2026-10-31 (America/Los_Angeles). **Signed scoped debug preview.** Owner accepted build52 appearance as visually perfect and requested automatic playback after loop capture to judge Keep/Re-record. Build53 automatically auditions a successfully completed foreground loop while it is still temporary. Layout source is unchanged. Focused verification passes; owner audible-playback confirmation remains pending. P5 and Media Library have not started.
+Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; recheck this area during the next assigned P5/F1 regression. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred.
 
 ## Delivery
 
-| Item | Verified value |
-|---|---|
-| Version / variant | 0.16.0 / code53 / debug |
-| APK source | `15af3ea7f49bb0ab565b3ccd1addd3e16c99d125` |
-| Focused CI | [41235843607](https://github.com/mrayover/practice.logger/actions/runs/41235843607) — completed/success |
-| App | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
-| Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `d0b27896422d6265b115478a05610b3e97cf74c8dee2cf2edd7d06cc9e4a9dad` |
-| ZIP SHA256 | `ee26bfd6db1bde2616399355b34b3b1da3f95620a15d4a371523c804c64f59e8` |
+Current signed release:0.16.0/build55. App source `ea059ac6ad809328771603619741efd99c5f1d5a`; later commits change tests/records. Existing publisher verified permanent signature/app/version. [APK](dist/practice.logger-0.16.0-b55-ea059ac/practice.logger-0.16.0-b55-ea059ac.apk) · [ZIP](dist/practice.logger-0.16.0-b55-ea059ac.zip) · [Build info](dist/practice.logger-0.16.0-b55-ea059ac/BUILD_INFO.json). Install over the permanent-key app; never uninstall/clear data. Earlier packages preserved and ignored.
 
-[Debug APK](dist/practice.logger-0.16.0-b53-15af3ea/practice.logger-0.16.0-b53-15af3ea.apk) · [ZIP](dist/practice.logger-0.16.0-b53-15af3ea.zip) · [Build info](dist/practice.logger-0.16.0-b53-15af3ea/BUILD_INFO.json) · [Verification](dist/practice.logger-0.16.0-b53-15af3ea/VERIFICATION_STATUS.txt) · [Phone checklist](dist/practice.logger-0.16.0-b53-15af3ea/PHONE_CHECKLIST.txt) · [Latest](dist/LATEST.txt).
+APK SHA256 `f8e6c58fa15fd973aa490722a43f2933bd2e6bf3a37bd874aa404a47a0e24cbe`; ZIP SHA256 `657843614549a16d55e00d3c7f351e81aa285a6d9957f6ba54ae94b8fd73aff7`.
 
-The existing publisher re-signed the tested CI debug variant with the permanent key; non-signature app members match. App/version/debuggable flag, signature/certificate and hashes verified; ZIP CRC/member bytes checked; all 202 previous APK/ZIP hashes preserved. Install over the permanent-key app **without uninstalling or clearing data**. Packages/keys remain local and ignored. Later documentation commits follow APK source.
+## Scope and evidence
 
-## Behavior and safeguards
+Settings is below Log on Home. Persistent Light/Dark/System uses central Material/app semantic roles and native window defaults. Existing-install Light, Lato/layout, audio ownership, Room11/JSON7/history and original media remain. Goal identity data remains G1.
 
-The investigation found no automatic preview invocation: capture completion previously created only review state. One call to the existing previewReview/play path now follows successful capture cleanup and audio-focus release. It runs from that completion event, with matching generation, foreground, recording-screen and Block guards, so cancelled/incomplete/background/stale captures do not start playback. UI recomposition or returning from background never restarts it.
+12 focused palette/preference/audio unit checks pass on unchanged palette/preference/engine source. Earlier isolated build54 theme checks pass3 each API26/API35, plus7 prior API35 pulse/settings/countdown/loop checks. Build55 compiles both variants/instrumentation; actual capture/preview/PDF palette retention passes on both APIs and enhanced preference/native-window checks pass API35 before cancellation. No complete final55 native-suite pass is claimed.
 
-The temporary WAV loops for audition without creating a saved take. Stop/manual Preview remains available. Re-record stops/deletes the prior temporary take and auditions its successful replacement. Keep explicitly saves and stops; Discard stops and removes only temporary audio. Background stops preview and retains in-process review without saving/restarting. Free recording remains manual preview. Existing failure messages/manual retry and saved-file ownership safeguards remain.
-
-Accepted build52 fields/proportional spacing/footer, permanent phrase click/count-in, transport alignment and Notes/PDF/workspace guards remain. RecordingSheet.kt and PracticeScreens.kt match accepted build52 source exactly. No sample engine, capture timing, Room11/JSON7/readers1–7, IDs/history/media or saved audio changes. JSON still excludes references/take metadata/audio; dark mode deferred.
-
-## Exact verification and limits
-
-- Final CI compiles debug/release/instrumentation APKs and passes seven existing phrase timing/storage unit tests plus two API35 native scenarios.
-- Automatic preview is verified by the actual native loop playback counter crossing a complete phrase with no Preview tap and no saved row. Native tests exercise Stop/manual replay, stopped review collapse/reopen, Re-record/new automatic audition, Keep/Discard and saved-take preservation, and free review remaining manual.
-- Count-in/partial capture cancellation produces no review/playback. Real Android Home/return during count-in cancels without restart; Home during audition stops it, retains temporary review, stays quiet on return and permits manual replay. Existing compact/tall numeric/spacing/footer/action geometry remains passing; screenshots inspected.
-- Other affected legacy review expectations were updated/compiled, not executed as broader workflows. No full regression, lint/API matrix or owner physical acoustic/routing acceptance is claimed. P1–P4 historical evidence remains in WORK_LOG; P5/final gates remain unassigned/unrun. Stage3 detailed phone checks pending; Stage4 remains0/10 documented sessions.
-
-## Theme architecture audit — documentation only
-
-Completed the [generalized theme readiness audit](docs/P4_THEME_READINESS.md) against main 6f82088. Existing Material roles provide a foundation; direct palette references, custom state colors and platform chrome still need centralization. Recommended: complete Light/Dark Material schemes, one small app-specific token set, root Light/Dark/System selection and a separate future Goal identity mapping. No theme implementation, app/source/version/data/audio change, build or regression run. Build53 delivery and pending owner audible acceptance above remain unchanged; P5/Library/G1 have not started.
-
-## Theme implementation — verification in progress
-
-Owner assigned implementation of the readiness audit, then specified Home Settings directly below Log. Central Light/Dark semantic schemes and app extras, persistent Light/Dark/System selection, Home route and native system-bar/fallback styling are implemented in the working source for build54. Existing install default remains Light; Goal identity data and imported media are untouched. Focused token/preference and API26/API35 lifecycle/UI checks are prepared, not yet run; no theme acceptance or build54 delivery is claimed yet. Existing build53 signed delivery/evidence above remains available.
+Earlier runner/query failures, an API27-only attribute assertion on API26, stalled overlay diagnostics and cancelled runs are recorded in WORK_LOG. A test-only correction adds the API guard, removes optional global screenshot idle waiting, bounds instrumentation and collects diagnostics. Optional rerun41248361244 was requested cancelled after owner acceptance; no pass claimed. Owner requested logs finalized and work stopped; no further testing.
 
 ## Exact next task
 
-Complete scoped theme verification, inspect Light/Dark screenshots and publish a permanent-key build54 candidate with actual results and limits. Owner install-over/appearance and audible acceptance remains required; P5/Library/G1 remain unassigned.
+At the next owner-assigned P5/F1 regression, recheck: Home Settings below Log; Light/Dark/System persistence and OS overrides; native chrome/contrast; selected/disabled/error/recording/button and overlay states; normal/200% text/landscape; timer/metronome pulse and Stop; free/loop capture/review/background safety; Notes drafts and reference page/zoom/original image/PDF colors. See [MANUAL_TESTS.md](MANUAL_TESTS.md). No automatic regression or later phase. P5/Library/G1 remain unassigned.
