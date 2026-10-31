@@ -1,50 +1,49 @@
-# Current state — P1 temporary take review, 0.16.0/build44
+# Current state — P2 flexible phrase loops, 0.16.0/build45
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed, installable scoped candidate; P1 engineering checks pass, owner reports P1 works; detailed phone checks and full regression pending.** P1 implements explicit temporary take review only. P2 is now owner-assigned and in implementation; candidate code45/checks/signing pending. Delivery table still identifies build44. No P3 work started.
+Updated 2026-10-30 (America/Los_Angeles). **Signed installable scoped candidate; P2 engineering checks pass, P2 phone acceptance/full regression pending.** Owner explicitly reports P1 works; record general P1 acceptance only. P3 has not started. No automatic follow-up scheduled.
 
 ## Delivery
 
 | Item | Verified value |
 |---|---|
-| Version | 0.16.0 / code44 |
-| Signed app source | `6ebf1924e36423877f4ef77dffee93d03f8c98ab` |
-| Scoped CI | [41172401080](https://github.com/mrayover/practice.logger/actions/runs/41172401080) — completed/success |
+| Version | 0.16.0 / code45 |
+| Signed source | `feca6767c83c34580ccee7e7d07037839b535c9a` |
+| Build/storage/API35 CI | [41174052523](https://github.com/mrayover/practice.logger/actions/runs/41174052523) —13 tests/build/API35 pass; overall failed before API26 instrumentation (optional log clearing) |
+| Isolated API26 playback | [41175096904](https://github.com/mrayover/practice.logger/actions/runs/41175096904) — completed/success; app/test source unchanged |
 | App | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
 | Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `e31b68aa0cd8b82af7600901b59c2f1ee422555ca4c066d6a7e88f53dc5e7ee2` |
-| ZIP SHA256 | `8d543ebcd24f1ea9ad9b580a276e992025ccb60d9e73d6394e627323a9624cd9` |
+| APK SHA256 | `6e87ca8b854b34c42e36542bdeef9ee8cf9cbf81228ac85f69c695deb06b0099` |
+| ZIP SHA256 | `db519cf0ea8328abf59c4ed6973c091098b8c6c257c2a548f1fd008565571cdb` |
 
-[APK](dist/practice.logger-0.16.0-b44-6ebf192/practice.logger-0.16.0-b44-6ebf192.apk) · [ZIP](dist/practice.logger-0.16.0-b44-6ebf192.zip) · [build info](dist/practice.logger-0.16.0-b44-6ebf192/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b44-6ebf192/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b44-6ebf192/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
+[APK](dist/practice.logger-0.16.0-b45-feca676/practice.logger-0.16.0-b45-feca676.apk) · [ZIP](dist/practice.logger-0.16.0-b45-feca676.zip) · [build info](dist/practice.logger-0.16.0-b45-feca676/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b45-feca676/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b45-feca676/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
 
-Existing permanent publisher verified signature, pinned certificate, stable package/version and APK hash. Final ZIP CRC/all-member byte checks pass. All 162 pre-P1 APK/ZIP files remain byte-identical; early signed build43 is retained. Install over the permanent-key app **without uninstalling or clearing data**. Signed distributions/signing material stay local and Git-ignored. Later test/documentation commits may follow the signed source; app-source equivalence is checked at closeout.
+Existing publisher verifies signature/pinned certificate/stable identity/version/hash. Final ZIP CRC/all-member bytes verified; all 170 pre-P2 APK/ZIP files retained byte-identical, including build43/44. Install OVER the permanent-key app without uninstalling/clearing data. Packages/key remain local and ignored. Later records follow signed source; product-source equivalence is verified at closeout.
 
-## P1 behavior and safeguards
+## Implemented P2 behavior
 
-- Free recording Stop opens temporary Review Take with Play/Stop Preview, Save, Re-record and Discard. Same controls in Focused Practice, saved-Block recording management and standalone Free Recording; no synthetic Block/session/Goal is created.
-- Only successful Save renames/commits permanent take metadata. Before that the pending file is protected from live orphan cleanup and absent from saved listings. Failed database commit rolls bytes back to the pending name for retry; existing saved recordings remain intact. Re-record replaces only temporary audio through existing mic/foreground rules; Discard removes only the temporary file.
-- Completed PCM16 WAV phrases also await review; no automatic saving or playback. Incomplete phrases remain rejected/discarded. Preset beats/four-click count-in remain; P2 is not implemented. Free audio remains AAC/M4A.
-- Background stops capture/playback; returning never auto-starts/resumes or auto-saves. Valid free audio may await review within the process; incomplete loops are discarded. Review is temporary: process loss removes unsaved audio on cold recovery. Explicitly Save valuable takes.
-- Active Stop/Cancel and sheet review controls remain outside scrolling references. Focus review temporarily uses the existing transport area and restores Notes draft/PDF page afterward; practice timer is independent. Session completion/exit waits for recording/review resolution. Management closing offers Return to review or deliberate discard.
+- Loop setup accepts any whole 1–64 beats;4/8/16/32 remain shortcuts. BPM stays30–300.128 beats, meter-aware bar entry and P3 meter/flash are absent.
+- Count-in accepts positive whole beats, default 4. Tools → Audio Settings saves a shared default across restarts; per-loop input overrides it without changing the default. Other P4 settings are not implemented. A 15-minute execution budget at chosen BPM rejects excessive/overflow requests with a meaningful resource message; count-in is not a preset list.
+- Count-in/optional capture guide stream from bounded buffers using the existing output sample clock and absolute rounded beat boundaries. Mic starts after the selected count-in; WAV has only the configured loop frames. UI displays beat N of total. Countdown/guide/recording cancel and foreground guards remain.
+- PCM16 WAV IO uses8KiB byte chunks and header-only validation, avoiding duplicate whole-file/guide allocations. Maximum 30BPMx64 is6,144,000 frames,128seconds,12,288,044 WAV bytes. Native static playback has been checked through the full repeated boundary on API26 and35.
+- P1 Review Take remains shared: preview/Save/Re-record/Discard; no permanent take until Save succeeds, no automatic loop playback/save, safe retry on failed commit, no incomplete-loop acceptance and no background restart. Free captures remain AAC/M4A.
 
-Existing build42 Home-button removal/banner navigation, build41 workspace/footer and timestamped Notes remain. Room11/JSON7 readers1–7, schemas/migrations1–11, existing IDs/media/session history, permanent app ID/key and prior distributions are preserved. JSON still excludes image/PDF references and all take metadata/labels/audio; per-take export remains available. No Library, full media backup, custom loop length/count-in, meter, Settings or Goal/statistics extension was added.
+P1 is generally owner-accepted from explicit “works” feedback, not an invented checklist. Existing Notes/PDF/timer/session behavior, stable IDs/data/media, app ID/key and prior packages are retained. Room11/JSON7 readers1–7 and schema/migration history unchanged. JSON still excludes reference files/metadata and take labels/metadata/audio; no full-media recovery is claimed. Existing single references/Goals/Routines/Log/Tools and build42 navigation remain.
 
-## Exact verification and limits
+## Exact scoped verification
 
-- **12 scoped JVM/Robolectric tests, 0 failures/errors/skips:** TakeReviewTest4, RecordingRepositoryTest4, StandaloneRecordingTest2 and PhraseRepositoryTest2. Covers temporary visibility/discard/live-orphan protection, retry after injected commit failure, incomplete-loop rejection, byte preservation, existing repository/export/migration safety and no synthetic sessions.
-- Debug/release/test APK compilation passed. Three API35 TakeReviewWorkflowTest scenarios passed: Focused Practice free review/preview/re-record/save/discard with running timer, Notes draft and PDF page2 restoration; saved Block free and completed-loop review/save/native playback/cancel; standalone save failure/retry, background playback/capture stop, discard guard and unchanged existing saved rows/bytes/Blocks/sessions.
-- Screenshots of focus review/restored content, loop preview and failed-save retry inspected. Permanent signing/identity/version/hash, ZIP CRC/member round trip and prior distribution hashes verified.
-- First run41171943218/sourceb310619 passed12 storage tests, compilation and2/3 native scenarios. The remaining scenario launched a second activity on return (logs show nonmatching launcher intent), so it could not see the original review. Corrected test task launch and UI wait; screenshot review separately exposed a Windows-default encoding mistake in RecordingSheet. UTF-8 corrected and version advanced44; build43 retained. This final scoped run verifies the corrections. Directly affected older native tests now make explicit review acceptance and compile, but their broader historical UI workflows were not run or investigated.
+- 13 JVM/Robolectric tests: PhraseAudioTest (5), FlexiblePhraseStorageTest (2), PhraseRepositoryTest (2), TakeReviewTest (4); zero failures/errors/skips. All supported BPM/loop frame boundaries, custom count-in/guide ticks, chunk boundaries,15-minute/overflow guards, maximum WAV round-trip/corruption, low-space preflight, preference persistence and existing review/storage safety checked.
+- Debug/release/test APK compilation passes.
+- API35: 7 native tests pass (FlexiblePhraseWorkflowTest (3), LongPhrasePlaybackTest (1), TakeReviewWorkflowTest (3)). Custom3/5/7/11 loop lengths and count-ins, tempo edges, persisted default/recreation/per-loop UI validation, guide clock during capture, count-in excluded from WAV, cancellation/background, P1 failed-save/re-record/discard/old-take preservation and Notes/PDF/timer continuity checked. Real30BPMx64 capture produces the exact 128-second WAV; native playback head crosses the full loop boundary.
+- API26: 1 scoped LongPhrasePlaybackTest passes; maximum 128-second WAV loads and actual AudioTrack playback crosses its full loop boundary. This is scoped audio verification, not a full API26/API35 regression matrix.
+- First run41174052523 reached API26 installs, then optional `adb logcat -c` failed before instrumentation. No API26 audio failure was established. Corrected only log housekeeping and ran isolated API26 compilation/playback at 41175096904; existing signed app/test sources and passing unit/API35 results were retained. No full pipeline or API35 repeat.
+- Screenshots inspected; permanent-key signature/certificate/app/version/APK hash, ZIP CRC/member integrity and all prior package hashes verified. Frame and byte arithmetic remains bounded and file validation precedes full sample allocation.
 
-**Not run:** full unit suite, lint, API26/full API26–35 regression matrix, dedicated200%-text/landscape/TalkBack, permanent-key phone install-over or physical mic/speaker/acoustic timing tests. P5 pre-Library and final F1–F2 full-regression/phone gates remain mandatory. Stage3 detailed phone acceptance remains pending; Stage4 remains0/10 documented real sessions. Emulator capture/playback is not physical-phone acceptance.
+**Not run:** full unit suite/lint/regression matrix; dedicated200%-text/landscape/TalkBack; physical-phone permanent-key install-over, mic/speaker/interface timing/onset/loop-boundary acceptance.15-minute count-in generation/resource boundaries are tested in chunks; no claim of a 15-minute real-device count-in run. P5 pre-Library and final V1 full gates remain mandatory. Stage3 detailed phone acceptance and Stage4 0/10 documented real sessions remain unchanged.
 
 ## Baseline and publication
 
-P1 began on clean existing Windows main `b2a97211f629cbc98cee1d738f81ae4dd7020747`, confirmed against remote; build42 source was cafa1bf and latest preview41145916544 was successful. P0 master-plan integration remains complete. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) governs forward work. P1 source, tests and records use `[skip ci]` with a dedicated manually dispatched scoped workflow; no automatic full build or regression was dispatched. Sources references remained read-only. The closing handoff reports final confirmed remote main SHA, distinct from the signed source above.
-
-## P2 implementation status
-
-Owner generally accepted P1 and assigned P2. Source now supports custom1–64 loop beats, per-loop positive count-in and persistent default in minimal Audio Settings. Count-in/guide stream in bounded chunks on the existing output sample clock; WAV IO is chunked and validation avoids full PCM allocation. Code45 verification/signing pending; no new delivered package is claimed yet. P1 detailed physical checks and full regression remain separate.
+P2 began on clean existing local/remote main `9fe6fbc61b5709b601e5f2bffbeff64e684a6345`; latest scoped P1 run41172401080 successful. Owner generally accepted P1 and assigned only P2. Mandatory efficiency procedure reviewed; existing architecture reused. [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) remains the roadmap. Source/records use `[skip ci]`; only the explicit P2 scoped and isolated API26 manual workflows were dispatched. Synced sources read-only; no owner app installed/cleared. Final remote main SHA is confirmed in the closing handoff, distinct from signed source.
 
 ## One next task
 
-Complete P2 scoped verification and signed delivery; do not start P3 automatically. Full regression remains at P5 and final V1.
+Owner: install build45 in place and complete its P2 PHONE_CHECKLIST.txt for custom loops/count-ins and real audio/data retention. P3 remains unassigned; do not start automatically.
