@@ -1,7 +1,6 @@
 package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,17 +12,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.cos
-import kotlin.math.sin
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
     onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
@@ -37,20 +32,6 @@ import kotlin.math.sin
                     Box(Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
                         Text("Goals", modifier = Modifier.align(Alignment.Center).semantics { heading() },
                             fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = PracticeGreen)
-                        IconButton(onClick = onGoals, modifier = Modifier.align(Alignment.CenterEnd)
-                            .semantics { contentDescription = "Goal settings" }) {
-                            Canvas(Modifier.size(24.dp)) {
-                                val radius = size.minDimension / 2f
-                                repeat(8) { index ->
-                                    val angle = index * Math.PI / 4
-                                    val direction = Offset(cos(angle).toFloat(), sin(angle).toFloat())
-                                    drawLine(PracticeGreen, center + direction * (radius * 0.62f),
-                                        center + direction * (radius * 0.94f), strokeWidth = 3.dp.toPx())
-                                }
-                                drawCircle(PracticeGreen, radius * 0.62f, style = Stroke(2.dp.toPx()))
-                                drawCircle(PracticeGreen, radius * 0.22f, style = Stroke(2.dp.toPx()))
-                            }
-                        }
                     }
                     Column(Modifier.fillMaxWidth().border(1.dp, PracticeGreen, RoundedCornerShape(6.dp)).testTag("home-goals")) {
                         repeat(2) { index ->
