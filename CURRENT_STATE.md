@@ -33,6 +33,10 @@ Accepted build52 fields/proportional spacing/footer, permanent phrase click/coun
 - Count-in/partial capture cancellation produces no review/playback. Real Android Home/return during count-in cancels without restart; Home during audition stops it, retains temporary review, stays quiet on return and permits manual replay. Existing compact/tall numeric/spacing/footer/action geometry remains passing; screenshots inspected.
 - Other affected legacy review expectations were updated/compiled, not executed as broader workflows. No full regression, lint/API matrix or owner physical acoustic/routing acceptance is claimed. P1–P4 historical evidence remains in WORK_LOG; P5/final gates remain unassigned/unrun. Stage3 detailed phone checks pending; Stage4 remains0/10 documented sessions.
 
+## Theme architecture audit — documentation only
+
+Completed the [generalized theme readiness audit](docs/P4_THEME_READINESS.md) against main 6f82088. Existing Material roles provide a foundation; direct palette references, custom state colors and platform chrome still need centralization. Recommended: complete Light/Dark Material schemes, one small app-specific token set, root Light/Dark/System selection and a separate future Goal identity mapping. No theme implementation, app/source/version/data/audio change, build or regression run. Build53 delivery and pending owner audible acceptance above remain unchanged; P5/Library/G1 have not started.
+
 ## Exact next task
 
 Owner install-over build53 and confirm immediate audible loop audition after successful capture, explicit Keep/Re-record/Discard behavior, and stopped playback/quiet return after backgrounding on the same phone.
