@@ -2,6 +2,10 @@
 
 Updated 2026-10-31 (America/Los_Angeles). **Signed limited owner preview.** The duplicate Goal gear is removed; existing **Edit** opens Manage Goals. There is no general Settings destination; Tools → Audio Settings retains P4 preferences. P1–P3 generally owner-accepted; P4/build48 physical acceptance and full regression pending. P5 has not started.
 
+## P4 refinement in progress
+
+Build49 source changes replace both circular indicators with full Stop click button pulses, synchronized to existing beat state/decay. No audio timing/engine/layout changes. Compilation and two focused native checks pending; build49 not yet packaged. Existing signed build48 delivery below remains valid. No full regression or new gate initiated. Exact next task: compile and run the two button checks, then package the authorized signed P4 refinement and refresh this record.
+
 ## Delivery
 
 | Item | Verified value |

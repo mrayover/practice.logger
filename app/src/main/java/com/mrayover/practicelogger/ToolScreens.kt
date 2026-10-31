@@ -63,9 +63,10 @@ import java.util.Locale
                     TempoButton("−5", "Decrease BPM by 5", vm.bpm > 30, Modifier.weight(1f)) { vm.changeBpm(-5) }
                     TempoButton("+5", "Increase BPM by 5", vm.bpm < 300, Modifier.weight(1f)) { vm.changeBpm(5) }
                 }
-                HomeButton(if (vm.clicking) "Stop click" else "Start click", vm::toggleClick)
+                HomeButton(if (vm.clicking) "Stop click" else "Start click",
+                    metronomeButtonColors(vm.metronomePulse, vm.clicking),
+                    Modifier.metronomeBeat(vm.metronomePulse, vm.clicking, "tool-metronome-pulse"), vm::toggleClick)
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                    MetronomeFlash(vm.metronomePulse,vm.clicking,"tool-metronome-pulse")
                     if(vm.clicking) Text((if(vm.metronomePulse.sequence>0) vm.metronomePulse.config else vm.metronomeConfig).meter.label)
                 }
                 MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.bpm,vm::configureMetronome,vm::applyMetronomeBpm)

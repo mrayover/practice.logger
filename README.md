@@ -8,7 +8,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Cu
 
 ## Metronome
 
-Use the compact practice row for BPM, −1/+1 and Start/Stop; the chevron opens shared controls for 2/4, 3/4, 4/4, 5/4, 6/8 or 7/8, Accent first beat (Off by default), and Sound + Flash / Sound only / Flash only. The running meter and small pulse remain available while collapsed. Opening/closing restores the prior Description/Reference, PDF page/zoom and Notes draft without restarting practice or recording. Tools → Metronome provides the same controls and clock.
+Use the compact practice row for BPM, −1/+1 and Start/Stop; the chevron opens shared controls for 2/4, 3/4, 4/4, 5/4, 6/8 or 7/8, Accent first beat (Off by default), and Sound + Flash / Sound only / Flash only. The running meter remains available while collapsed; the entire Stop click button pulses with each flash-enabled beat in practice and Tools. Opening/closing restores the prior Description/Reference, PDF page/zoom and Notes draft without restarting practice or recording. Tools → Metronome provides the same controls and clock.
 
 For 6/8 and 7/8, BPM counts each eighth note: six or seven clicks per bar, without grouped/dotted-quarter mode. Meter/accent/output changes take effect on the next beat; BPM retains phase. Flash follows the audio playback clock; actual display/speaker latency can differ. Silent mode silences click PCM. Tools → Audio Settings saves four click timbres, output default and a shared completion alarm (four sounds or Off) for Block and foreground countdown timers; previews stop on leave/background. Active capture suppresses completion audio.
 

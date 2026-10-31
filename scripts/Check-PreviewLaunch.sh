@@ -19,6 +19,11 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 
 # One targeted navigation/layout preview; no full regression matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-adb shell am instrument -w -r -e class com.mrayover.practicelogger.HomeNavigationPreviewTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/home-preview app/build/preview-home-screens || true
-grep -q 'OK (1 test)' app/build/preview-home.txt
+adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/metronome-pulse app/build/preview-metronome-screens || true
+if [ "${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest}" = MetronomeButtonPulseTest ]; then
+  grep -q 'OK (2 tests)' app/build/preview-home.txt
+else
+  grep -q 'OK (1 test)' app/build/preview-home.txt
+fi

@@ -1,6 +1,12 @@
 name: Owner-test preview (build and launch only)
 on:
   workflow_dispatch:
+    inputs:
+      check:
+        description: Focused preview check
+        type: choice
+        options: [home, metronome]
+        default: home
 permissions:
   contents: read
 jobs:
@@ -38,6 +44,8 @@ jobs:
           profile: pixel_2
           disable-animations: true
           script: bash scripts/Check-PreviewLaunch.sh
+        env:
+          PREVIEW_TEST_CLASS: ${{ inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

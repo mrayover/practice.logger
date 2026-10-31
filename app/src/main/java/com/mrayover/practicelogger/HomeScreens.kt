@@ -74,8 +74,12 @@ import androidx.compose.ui.unit.sp
 }
 
 @Composable fun HomeButton(label: String, action: () -> Unit) {
-    Button(onClick = action, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-        shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White)) {
+    HomeButton(label, ButtonDefaults.buttonColors(containerColor = PracticeGreen, contentColor = Color.White), action = action)
+}
+
+@Composable fun HomeButton(label: String, colors: ButtonColors, modifier: Modifier = Modifier, action: () -> Unit) {
+    Button(onClick = action, modifier = modifier.fillMaxWidth().heightIn(min = 56.dp),
+        shape = RoundedCornerShape(8.dp), colors = colors) {
         Text(label, modifier = Modifier.fillMaxWidth(), fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 28.sp, textAlign = TextAlign.Center)
     }
 }

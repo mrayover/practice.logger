@@ -1,9 +1,6 @@
 package com.mrayover.practicelogger
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -15,16 +12,20 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
-@Composable fun MetronomeFlash(pulse: MetronomePulse, running: Boolean, tag: String) {
+// Reuse the consumed-audio beat's existing 90ms decay; no UI beat clock.
+@Composable fun metronomeButtonColors(pulse: MetronomePulse, running: Boolean, outlined: Boolean = false): ButtonColors {
     val lit = running && pulse.lit
-    val color = MaterialTheme.colorScheme.primary
-    Box(Modifier.size(if (lit && pulse.config.accent && pulse.beat == 1) 14.dp else 12.dp)
-        .background(if (lit) color else color.copy(alpha=.12f),CircleShape).border(1.dp,color,CircleShape)
-        .testTag(tag).semantics {
-            contentDescription = if (running) "Metronome beat ${pulse.beat} of ${pulse.config.meter.beats}" else "Metronome stopped"
-            stateDescription = if (lit) "Beat" else "Between beats"
-        })
+    val palette = MaterialTheme.colorScheme
+    return if (outlined) ButtonDefaults.outlinedButtonColors(
+        containerColor = if (lit) palette.primary else androidx.compose.ui.graphics.Color.Transparent,
+        contentColor = if (lit) palette.onPrimary else palette.primary)
+    else ButtonDefaults.buttonColors(
+        containerColor = if (lit) palette.primaryContainer else palette.primary,
+        contentColor = if (lit) palette.onPrimaryContainer else palette.onPrimary)
 }
+
+fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String): Modifier =
+    testTag(tag).semantics { stateDescription = if (running && pulse.lit) "Beat" else "Between beats" }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun MetronomeOptions(config: MetronomeConfig, pulse: MetronomePulse, bpm: Int,

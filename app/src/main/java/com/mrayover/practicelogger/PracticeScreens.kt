@@ -319,7 +319,6 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             Column {
                 Text("Metronome",style=MaterialTheme.typography.labelSmall)
                 Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-                    MetronomeFlash(vm.metronomePulse,vm.clicking,"practice-metronome-pulse")
                     Text("${vm.workingBpm} BPM",style=MaterialTheme.typography.bodySmall)
                 }
             }
@@ -331,7 +330,9 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
         OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
-            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
+            colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
+            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
+                .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
     }
         val expand: @Composable () -> Unit = {
             TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.sizeIn(minWidth=48.dp,minHeight=48.dp)
