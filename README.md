@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build49 P4 metronome button feedback preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build50 P4 practice interface preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
@@ -14,7 +14,7 @@ For 6/8 and 7/8, BPM counts each eighth note: six or seven clicks per bar, witho
 
 ## Focused Practice transport and Notes
 
-Description and Reference retain their shared workspace; Description starts open and switching sections always leaves one open. Notes is a footer pill beside the practice actions; Save for later and its row are removed. Opening a transport panel temporarily hides both contents, retains both headers and gives the panel the space. Closing restores the prior workspace choice, including PDF page/zoom. Only one transport panel opens. Compact tinted recording controls/selection, timer/metronome and primary actions remain.
+Description and Reference retain their shared workspace; Description starts open and switching sections always leaves one open. Notes is a footer pill beside the practice actions; Save for later and its row are removed. Opening a transport panel temporarily hides both contents, retains both headers and gives the panel the space. Closing restores the prior workspace choice, including PDF page/zoom. Tapping either workspace header while a panel is open collapses it and opens that section; active capture continues with pinned Stop, and collapsed temporary review keeps Save and a full-review button. Only one transport panel opens. Compact tinted recording controls/selection, timer/metronome and primary actions remain.
 
 Notes opens Add New Note with the Block's newest-first collapsible history across sessions. Save Note adds an independent timestamped entry, clears the editor after commit and keeps Notes open; Return to Practice closes separately. Expand a saved new/legacy note for Edit, Save Changes or Cancel Changes; original creation/session date and timing stay unchanged. Drafts survive panel switches and leaving unsaved text asks before discarding. Legacy notes are marked Earlier session because their actual creation timestamp was not stored. Room11 and JSON7/readers1–7 preserve old/new notes independently; descriptions, overall session notes and daily Log remain separate.
 
@@ -51,7 +51,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build49 replaces metronome dots with full Stop click button pulses in Tools and Focused Practice. Compilation, API35 launch and two focused rendered-surface/live-beat/BPM/start-stop checks pass. See CURRENT_STATE for signed delivery and physical-phone limitations.
+Build50 compacts the practice metronome and lets workspace headers collapse transport without interrupting audio or losing viewer/review state. Compilation, API35 launch and four focused layout/audio/capture/review/button scenarios pass across same-product runs. Physical-phone acceptance remains pending; see CURRENT_STATE.
 
 Historical build47 passes 22 scoped PCM/compatibility tests, debug/release/test APK compilation and ten API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. P1–P3 generally owner-accepted; P4 phone and full regression remain pending. See [CURRENT_STATE.md](CURRENT_STATE.md). P5/final full gates remain; P5 has not started.
 

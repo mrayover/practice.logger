@@ -6,6 +6,10 @@ Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and his
 
 Build48 removes only the duplicate Goal gear; existing Edit opens Manage Goals. No global Settings screen is introduced; Tools Audio Settings remains. Existing preview workflow checks compile/launch/Home navigation and Log saving; exact delivery and pending P4/P5 gates in CURRENT_STATE.
 
+## P4 targeted practice interface refinement
+
+Build50 adds practice-specific compact metronome options and one-row output modes, removes explanatory text there, and allows workspace header taps to collapse transport and select that section while preserving live audio/capture and retained viewers. Collapsed temporary review retains Save/full-review access. Four focused preview UI tests and compilation pass; physical phone fit/switching acceptance pending in CURRENT_STATE. No new milestone, P5, Media Library or full regression cycle.
+
 ## P4 metronome button feedback refinement
 
 Build49 replaces both metronome dots with full Stop click button background pulses, using the existing consumed-audio beat/90ms decay and cream/green palette. Button geometry, audio, modes and controls are retained. Compilation and two focused API35 surface-pixel/start-stop/BPM checks pass; no separate milestone or regression gate. Actual results/delivery in CURRENT_STATE.
