@@ -142,3 +142,8 @@ P1 is generally owner-accepted; P2 physical acceptance pending. Use current PHON
 ## P3 metronome — build46
 
 P2 is generally owner-accepted; P3 physical acceptance pending. Use PHONE_CHECKLIST.txt linked from [CURRENT_STATE.md](CURRENT_STATE.md). Check compact pulse/running-only meter/chevron and shared expanded controls in practice/Tools;3/4,5/4 and6/8,7/8 counting; accent Off identical ticks and On first-beat distinction; Sound+Flash/Sound only/Flash only; phase-preserving BPM and next-beat config changes; PDF page/zoom/Notes draft/timer retention; active capture/review ownership; background/stop without restart. /8 BPM counts each eighth, not grouped/dotted-quarter beats. Verify real acoustic/display latency, install-over saved data and larger-text/keyboard/landscape reachability. Completion cue remains separate. No full regression or P4 settings result is inferred.
+
+
+## P4 audio Settings scoped candidate
+
+Use CURRENT_STATE.md and the current package PHONE_CHECKLIST.txt for build47 sound/mode persistence, previews, shared Block/countdown alarms/Off/capture safety, retained Notes/PDF/timing, large text/landscape and physical acoustic/install-over checks. Scoped automated results are distinct from pending phone and P5/final full-regression gates. Dark mode is explicitly deferred.
