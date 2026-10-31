@@ -40,6 +40,9 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     private var foreground = false
     private var recorder: MediaRecorder? = null
     private var pending: PendingTake? = null
+    var reviewTake by mutableStateOf<BlockTake?>(null); private set
+    private var reviewPending: PendingTake? = null
+    private var reviewClick = true
     private var captureStart = 0L
     private var player: MediaPlayer? = null
     private var loopTrack: AudioTrack? = null
@@ -53,7 +56,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         .setWillPauseWhenDucked(true).setOnAudioFocusChangeListener({ change ->
             if (change != AudioManager.AUDIOFOCUS_GAIN) {
                 stopPlayback()
-                if (phrasing) finishCapture("Audio interrupted. Incomplete phrase discarded.", discard = true)
+                if (recording) finishCapture("Audio interrupted. Take discarded; saved recordings were kept.", discard = true)
             }
         }, Handler(Looper.getMainLooper())).build()
     private val noisy = object : BroadcastReceiver() {
@@ -91,9 +94,10 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun enterBlock(id: String?) {
+        if (reviewTake != null && reviewTake?.blockId != id) clearReview()
         if (!recordingScreenOpen || visibleBlockId != id) { stopPlayback(); finishCapture(); visibleBlockId = id }; recordingScreenOpen = true
     }
-    fun leaveBlock() { recordingScreenOpen = false; visibleBlockId = null; stopPlayback(); finishCapture() }
+    fun leaveBlock() { recordingScreenOpen = false; visibleBlockId = null; stopPlayback(); finishCapture("Recording interrupted before review. Temporary audio discarded.", discard = true) }
     fun setForeground(value: Boolean) {
         foreground = value
         if (!value) { stopPlayback(); finishCapture("Recording stopped when the app left the foreground.") }
@@ -105,7 +109,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     @Suppress("DEPRECATION")
     fun startCapture(blockId: String?) {
-        if (!ready || busy || recording || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
+        if (!ready || busy || recording || reviewTake != null || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
         captureOwner = this
@@ -132,7 +136,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             message = "Could not record. Check microphone permission, other apps using the microphone, and free storage, then retry."
         }
     }
-    /** Microphone stop/release is synchronous; only validation/commit continues after leaving. */
+    /** Microphone stop/release is synchronous; usable bytes stay temporary until explicit Save. */
     fun finishCapture(reason: String? = null, discard: Boolean = false) {
         audioGeneration++
         if (phrasing) {
@@ -153,19 +157,25 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                     withContext(Dispatchers.IO) { repository.abandon(draft) }
                     message = reason ?: "No usable audio was captured. Record a little longer and retry."
                 } else {
-                    withContext(Dispatchers.IO) { repository.save(draft) }
-                    message = if (reason == null) "Take saved." else "$reason Take saved."
+                    val inspected = withContext(Dispatchers.IO) { repository.inspect(draft) }
+                    if (recordingScreenOpen && visibleBlockId == draft.blockId) {
+                        reviewPending = draft; reviewTake = inspected
+                        message = reason?.let { "$it Review the temporary take before saving." }
+                    } else withContext(Dispatchers.IO) { repository.abandon(draft) }
                 }
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) {
-                withContext(Dispatchers.IO) { repository.abandon(draft) }
-                message = "Take could not be saved. Check storage and retry. Earlier takes were kept."
-            } finally { busy = false }
+                withContext(NonCancellable + Dispatchers.IO) { repository.abandon(draft) }
+                message = "Temporary take could not be prepared. Check storage and retry. Earlier takes were kept."
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) { if (reviewPending !== draft) repository.abandon(draft) }
+                busy = false
+            }
         }
     }
 
     fun startPhrase(blockId: String, spec: PhraseSpec, clickWhileRecording: Boolean = true) {
-        if (!ready || busy || recording || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
+        if (!ready || busy || recording || reviewTake != null || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
         stopPlayback()
@@ -178,33 +188,68 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         phraseClickEnabled = clickWhileRecording; message = null
         phraseJob = viewModelScope.launch {
             var draft: PendingTake? = null
-            var saved: BlockTake? = null
+            var reviewed = false
             try {
-                saved = withContext(Dispatchers.IO) {
+                val inspected = withContext(Dispatchers.IO) {
                     val pending = repository.prepare(blockId, spec); draft = pending
                     capture.capture(spec, pending.file, clickWhileRecording,
                         onCount = { beat -> viewModelScope.launch { if (generation == audioGeneration) countInBeat = beat } },
                         onFrames = { frames -> viewModelScope.launch { if (generation == audioGeneration) elapsedMs = frames * 1000L / PhraseSpec.RATE } },
                         hasSpaceAndPermission = { repository.availableBytes() >= 512 * 1024 && hasMicrophonePermission() })
                     currentCoroutineContext().ensureActive()
-                    // Cancelling while validation commits may retain a complete take, but never autoplays it.
-                    repository.save(pending)
+                    repository.inspect(pending)
                 }
-                message = if (generation == audioGeneration) "Phrase saved. Looping at ${spec.bpm} BPM." else "Complete phrase saved. Playback stopped."
+                if (generation == audioGeneration && recordingScreenOpen && visibleBlockId == blockId) {
+                    reviewPending = draft; reviewTake = inspected; reviewClick = clickWhileRecording; reviewed = true
+                    message = null
+                }
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (failure: Exception) {
                 android.util.Log.e("PhraseCapture", "Phrase capture or commit failed", failure)
                 if (generation == audioGeneration) message = "Phrase not saved. Check microphone, audio output and storage, then retry. Earlier takes were kept."
             } finally {
-                withContext(NonCancellable + Dispatchers.IO) { draft?.let(repository::abandon) }
+                withContext(NonCancellable + Dispatchers.IO) { if (!reviewed) draft?.let(repository::abandon) }
                 capture.cancel(); phraseCapture = null; phraseJob = null
                 if (captureOwner === this@RecordingViewModel) captureOwner = null
                 phrasing = false; recording = false; busy = false; countInBeat = 0; phraseClickEnabled = false
                 runCatching { manager.abandonAudioFocusRequest(focus) }
             }
-            if (saved != null && generation == audioGeneration && foreground && recordingScreenOpen && visibleBlockId == blockId) play(saved)
         }
     }
+
+    private fun clearReview() {
+        stopPlayback()
+        reviewPending?.let(repository::abandon)
+        reviewPending = null; reviewTake = null
+    }
+    fun discardReview() {
+        if (busy || recording || reviewPending == null) return
+        clearReview(); message = "Temporary take discarded. Saved recordings were kept."
+    }
+    fun rerecordReview() {
+        if (busy || recording || !foreground || !recordingScreenOpen) return
+        val draft = reviewPending ?: return
+        if (!hasMicrophonePermission()) { permissionResult(false); return }
+        val click = reviewClick
+        clearReview()
+        if (draft.phrase != null && draft.blockId != null) startPhrase(draft.blockId, draft.phrase, click)
+        else startCapture(draft.blockId)
+    }
+    fun saveReview() {
+        if (!ready || busy || recording) return
+        val draft = reviewPending ?: return
+        stopPlayback(); busy = true; message = null
+        viewModelScope.launch {
+            try {
+                withContext(NonCancellable + Dispatchers.IO) { repository.save(draft) }
+                reviewPending = null; reviewTake = null; message = "Take saved."
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                message = "Take could not be saved. Check storage and retry Save, or discard the temporary take. Saved recordings were kept."
+            } finally { busy = false }
+        }
+    }
+    fun previewReview() { reviewTake?.let(::play) }
 
     private fun work(action: suspend () -> Unit) {
         if (!ready || busy || recording) return
@@ -217,6 +262,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
     fun play(take: BlockTake) = work {
+        if (reviewTake != null && reviewTake?.id != take.id) return@work
         stopPlayback()
         val generation = audioGeneration
         val file = withContext(Dispatchers.IO) { repository.audioFile(take) }
@@ -285,6 +331,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         audioGeneration++; phraseCapture?.cancel(); phraseJob?.cancel()
         runCatching { recorder?.release() }; recorder = null // Pending capture is recovered on next cold start.
         pending?.let(repository::abandon); pending = null
+        clearReview()
         if (captureOwner === this) captureOwner = null
         stopPlayback(); runCatching { app.unregisterReceiver(noisy) }; super.onCleared()
     }

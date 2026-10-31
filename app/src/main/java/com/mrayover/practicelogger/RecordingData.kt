@@ -95,26 +95,33 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
         return PendingTake(id, blockId, System.currentTimeMillis(), file, phrase)
     }
     fun abandon(pending: PendingTake) { pending.file.delete(); activeFiles.remove(pending.file.absolutePath) }
-    suspend fun save(pending: PendingTake): BlockTake = filesMutex.withLock {
-        try {
+    /** Validates temporary audio without creating a permanent row or renaming its file. */
+    fun inspect(pending: PendingTake): BlockTake {
         val duration = pending.phrase?.let { spec ->
             require(PhraseWave.read(pending.file).size == spec.frames) { "Incomplete phrase." }; spec.durationMs
         } ?: inspectDuration(pending.file)
         require(duration > 0 && pending.file.length() > 0) { "No usable audio was recorded." }
+        return BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.phrase == null) "FREE" else "LOOP",
+            durationMs = duration, fileName = pending.file.name, recordedBpm = pending.phrase?.bpm, beatCount = pending.phrase?.beats)
+    }
+    suspend fun save(pending: PendingTake): BlockTake = filesMutex.withLock {
+      // Resolve commit/rollback before honoring cancellation, so a failed Save is safe to retry.
+      withContext(NonCancellable) {
+        val inspected = inspect(pending)
         java.io.FileOutputStream(pending.file, true).use { it.fd.sync() }
         val target = resolve(pending.id + "." + pending.file.extension)
         check(!target.exists() && pending.file.renameTo(target)) { "Could not finish the recording file." }
-        val take = BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.phrase == null) "FREE" else "LOOP",
-            durationMs = duration, fileName = target.name, recordedBpm = pending.phrase?.bpm, beatCount = pending.phrase?.beats)
+        val take = inspected.copy(fileName = target.name)
         try {
             db.withTransaction { take.blockId?.let { checkNotNull(db.blocks().find(it)) }; dao.insert(take) }
         } catch (failure: Exception) {
-            // Cancellation can arrive just after a commit; never delete audio referenced by a saved row.
-            withContext(NonCancellable) { runCatching { if (dao.find(take.id) == null) target.delete() } }
+            // Keep failed transactions reviewable; never remove bytes referenced by a saved row.
+            if (dao.find(take.id) == null) check(target.renameTo(pending.file)) { "Could not recover temporary audio after failed save." }
             throw failure
         }
+        activeFiles.remove(pending.file.absolutePath)
         take
-        } finally { activeFiles.remove(pending.file.absolutePath) }
+      }
     }
     fun audioFile(take: BlockTake): File = resolve(take.fileName).also {
         check(it.isFile && it.length() > 0) { "The recording file is missing. Other takes are unchanged." }

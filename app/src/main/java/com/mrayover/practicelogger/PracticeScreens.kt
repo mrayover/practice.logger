@@ -158,7 +158,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val loopTake = loopTakes.find { it.id == loopId } ?: loopTakes.firstOrNull()
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val awaiting = current.activeMs >= current.configuredMs && !current.overtimeAccepted
-    val audioBusy = recordings.recording || recordings.busy
+    val audioBusy = recordings.recording || recordings.busy || recordings.reviewTake != null
     fun performPracticeAction(action: String) {
         if (action == "leave") leaving = true else vm.finish(action, note, preserveNote = true)
     }
@@ -169,7 +169,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     fun requestLeave() { requestPracticeAction("leave") }
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-    val panelOpen = transportPanel != null
+    val panelOpen = transportPanel != null || recordings.reviewTake != null
     val transportMaxHeight = if (panelOpen) minOf(maxHeight * .42f,
         (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
@@ -193,26 +193,29 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = .22f))
         Surface(color = androidx.compose.ui.graphics.lerp(PracticeCream, PracticeGreen, .085f), modifier = Modifier.fillMaxWidth().then(if (panelOpen) Modifier.weight(1f) else Modifier).testTag("practice-transport-surface")) {
         Column(if (panelOpen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()) {
-            if (transportPanel == "notes") BlockNotesPanel(noteHistory.filter { it.blockId == current.sourceBlockId }, noteDraft,
+            if (recordings.reviewTake == null && transportPanel == "notes") BlockNotesPanel(noteHistory.filter { it.blockId == current.sourceBlockId }, noteDraft,
                 { notes.edit(current.id, it) }, notes.busy, notes.message,
                 { notes.save(current.sourceBlockId, bundle.session.id, current.id) },
                 { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
-            if (transportPanel == "loop") PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
+            if (recordings.reviewTake == null && transportPanel == "loop") PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-loop-setup-content") {
                 PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
                     { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null }, inline = true)
             }
-            if (transportPanel == "free-list" || transportPanel == "loop-list") Box(Modifier.fillMaxWidth()
+            if (recordings.reviewTake == null && (transportPanel == "free-list" || transportPanel == "loop-list")) Box(Modifier.fillMaxWidth()
                 .weight(1f).padding(horizontal = 16.dp).testTag("practice-selection-panel")) {
                 val loop = transportPanel == "loop-list"
                 PracticeTakeSelection(if (loop) loopTakes else freeTakes, if (loop) loopId else freeId, loop,
                     onSelect = { if (loop) loopId = it.id else freeId = it.id; transportPanel = null }, onClose = { transportPanel = null })
             }
+        if (recordings.reviewTake != null) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
+            TakeReviewControls(recordings, vm::stopClick)
+        }
         PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
             state = transportScroll, tag = "practice-transport") {
             PracticeMetronome(vm) { open -> bpmDialog = open; if (open) transportPanel = null }
             CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
-                { transportPanel = if (transportPanel == "loop") null else "loop" },
+                { transportPanel = if (recordings.reviewTake == null && transportPanel == "loop") null else "loop" },
                 { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
             practiceTransportMessage(recordingMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         }
@@ -223,7 +226,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
             val stop: @Composable (Modifier) -> Unit = { modifier ->
                 Button(onClick = { recordings.finishCapture() }, enabled = recordings.ready && !recordings.busy,
-                    modifier = modifier.heightIn(min = 48.dp).testTag("practice-recording-stop")) { Text(if (recordings.phrasing) "Cancel phrase" else "Stop and save take") }
+                    modifier = modifier.heightIn(min = 48.dp).testTag("practice-recording-stop")) { Text(if (recordings.phrasing) "Cancel phrase" else "Stop and review take") }
             }
             if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -244,9 +247,9 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
             Button(onClick = { requestPracticeAction("COMPLETED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp)) { Text("Complete") }
-            OutlinedButton(onClick = { transportPanel = if (transportPanel == "notes") null else "notes" },
+            OutlinedButton(onClick = { transportPanel = if (recordings.reviewTake == null && transportPanel == "notes") null else "notes" },
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                    .testTag("practice-notes-toggle").semantics { stateDescription = if (transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
+                    .testTag("practice-notes-toggle").semantics { stateDescription = if (recordings.reviewTake == null && transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
             OutlinedButton(onClick = { requestPracticeAction("SKIPPED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(.7f).heightIn(min = 48.dp)) { Text("Skip") }
         }
@@ -261,7 +264,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         }) { Text("Discard draft and continue") } },
         dismissButton = { TextButton(onClick = { pendingNoteAction = null; transportPanel = "notes" }) { Text("Keep editing") } })
     if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) leaving = false }, title = { Text("Leave current session?") }, text = {
-        Text(if (audioBusy) "Stop and save your recording, or cancel the phrase, before leaving. Your current practice note is kept here."
+        Text(if (audioBusy) "Stop your recording, then Save or Discard the temporary take, or cancel an incomplete phrase, before leaving. Your current practice note is kept here."
             else "Your current session and note will be saved for later, and practice will pause.")
     }, confirmButton = { TextButton(onClick = { vm.saveForLater(bundle.session.id, current.id, note, preserveNote = true) }, enabled = !vm.busy && !audioBusy) { Text("Back to Main") } },
         dismissButton = { TextButton(onClick = { leaving = false }, enabled = !vm.busy) { Text("Continue") } })

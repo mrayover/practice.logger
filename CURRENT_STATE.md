@@ -1,6 +1,6 @@
 # Current state — Home button removal visual preview,0.16.0/build42
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview; full regression pending.** Build42 removed redundant Home buttons and their layout rows throughout the app. P0 audited the baseline and integrated the forward roadmap with documentation changes only. Existing Room11/JSON7 and notes behavior remain. No later audio acceptance workflow or unrelated feature started. No further automated work scheduled.
+Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview; full regression pending.** Build42 removed redundant Home buttons and their layout rows throughout the app. P0 audited the baseline and integrated the forward roadmap with documentation changes only. Existing Room11/JSON7 and notes behavior remain. P1 temporary audio take review is now in implementation under owner authorization; build43 source/checks/signing are pending. The delivery table still describes the prior signed build42. No P2 work started.
 
 ## Delivery
 
@@ -50,6 +50,10 @@ README and BUILD_PLAN now link the [master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.
 
 Checks: documentation content and local links/anchors, baseline and final Git diffs/whitespace, master-plan/mandatory-procedure preservation and documentation-only changed-file scope. Automatic build CI is skipped via Markdown path exclusions and `[skip ci]`; owner-preview CI is manual-only. No compilation, APK build/signing, Gradle tests/lint, emulator launch, workflow dispatch or regression run for P0. P1–P4 retain scoped delivery checks; P5 and final V1 retain full-regression gates. Publication SHA/branch is confirmed in the closing handoff after push; this audit baseline is not the final commit SHA.
 
+## P1 implementation status
+
+Owner assigned P1 after P0 and approved implementation, scoped verification, signing and publication. Shared Review Take controls and temporary-file validation/explicit save/re-record/discard are implemented in source for free and complete loop takes; not yet compiled, tested or delivered. Failed commits retain temporary bytes for retry; current Room11/JSON7 and existing saved records are unchanged. Candidate code43. A dedicated manual workflow targets recording storage tests and three API35 review scenarios, not full regression. Actual results/signing pending; build42 remains the current signed preview.
+
 ## One next task
 
-Recommend assigning **P1 temporary audio take review** under master-plan §3: shared preview/save/re-record/discard before permanent take acceptance, with scoped audio/storage checks and versioned permanent-key signed delivery. P1 has not started and must not begin automatically. Build42 full regression and owner-phone acceptance remain pending; later P5/final gates are not waived.
+Complete P1 scoped verification and permanent-key build43 delivery; do not start P2 automatically. P5 and final V1 retain full-regression and phone gates.
