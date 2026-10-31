@@ -25,7 +25,7 @@ enum class MetronomeMode(val sound: Boolean, val flash: Boolean, val label: Stri
     SOUND_FLASH(true,true,"Sound + Flash"), SOUND_ONLY(true,false,"Sound only"), FLASH_ONLY(false,true,"Flash only / silent")
 }
 data class MetronomeConfig(val meter: MetronomeMeter = MetronomeMeter.FOUR_FOUR, val accent: Boolean = false,
-    val mode: MetronomeMode = MetronomeMode.SOUND_FLASH)
+    val mode: MetronomeMode = MetronomeMode.SOUND_FLASH, val sound: ClickSound = ClickSound.CLASSIC)
 data class MetronomePulse(val sequence: Long = 0, val beat: Int = 0, val config: MetronomeConfig = MetronomeConfig(), val lit: Boolean = false)
 internal data class MetronomeBeat(val frame: Long, val sequence: Long, val beat: Int, val config: MetronomeConfig)
 
@@ -51,7 +51,8 @@ internal class BeatPcm(private val sampleRate: Int = 48_000) {
             val accented = active.accent && beat == 1
             output[i] = if (active.mode.sound && clickFrame < clickLength) {
                 val envelope = 1.0 - clickFrame.toDouble() / clickLength
-                (sin(2 * PI * (if (accented) 2400 else 1800) * clickFrame / sampleRate) * envelope * (if (accented) 24_000 else 20_000)).toInt().toShort()
+                (sin(2 * PI * active.sound.frequency * (if (accented) 4.0/3 else 1.0) * clickFrame / sampleRate) * envelope *
+                    (active.sound.amplitude * (if (accented) 1.2 else 1.0))).toInt().toShort()
             } else 0
             clickFrame++; rendered++
             phase += bpm.toDouble() / (60 * sampleRate)
@@ -64,16 +65,23 @@ internal class BeatPcm(private val sampleRate: Int = 48_000) {
 internal class CompletionPcm(private val rate: Int = 48_000) {
     private var frame = rate
     val length = rate * 3 / 5
-    @Synchronized fun trigger() { frame = 0 }
+    private var sound = AlarmSound.TWO_TONE
+    @Synchronized fun trigger(value: AlarmSound = AlarmSound.TWO_TONE) { sound = value; frame = if (value == AlarmSound.OFF) length else 0 }
     @Synchronized fun cancel() { frame = length }
     @Synchronized fun active() = frame < length
     @Synchronized fun mix(samples: ShortArray): Int {
         var mixed = 0
         for (i in samples.indices) {
             if (frame >= length) break
-            val noteLength = rate / 4
-            val local = if (frame < rate * 3 / 10) frame else frame - rate * 3 / 10
-            val frequency = if (frame < rate * 3 / 10) 784.0 else 1046.5
+            val segment = when(sound) { AlarmSound.RISING -> rate / 5; AlarmSound.TWO_TONE -> rate * 3 / 10; else -> length }
+            val noteLength = when(sound) { AlarmSound.BEEP -> rate / 8; AlarmSound.BELL -> length; else -> rate / 4 }
+            val local = frame % segment
+            val frequency = when(sound) {
+                AlarmSound.BELL -> 1318.5
+                AlarmSound.RISING -> when(frame / segment) { 0 -> 659.25; 1 -> 830.61; else -> 1046.5 }
+                AlarmSound.BEEP -> 880.0
+                else -> if (frame < rate * 3 / 10) 784.0 else 1046.5
+            }
             val envelope = if (local < noteLength) minOf(1.0, local / (rate * .008)) * (1.0 - local.toDouble() / noteLength) else 0.0
             samples[i] = (samples[i] * .12 + sin(2 * PI * frequency * local / rate) * envelope * 26_000).toInt().coerceIn(-32768, 32767).toShort()
             frame++; mixed++
@@ -83,7 +91,7 @@ internal class CompletionPcm(private val rate: Int = 48_000) {
 }
 
 /** One foreground click stream. Blocking writes are paced by AudioTrack's sample consumption. */
-internal class MetronomeAudio(context: Context, private val pulseChanged: (MetronomePulse) -> Unit = {}, private val interrupted: (String?) -> Unit) {
+internal class MetronomeAudio(private val context: Context, private val pulseChanged: (MetronomePulse) -> Unit = {}, private val interrupted: (String?) -> Unit) {
     private val manager = context.getSystemService(AudioManager::class.java)
     private val main = Handler(Looper.getMainLooper())
     private val lock = Any()
@@ -99,9 +107,10 @@ internal class MetronomeAudio(context: Context, private val pulseChanged: (Metro
     private val completion = CompletionPcm()
     @Volatile internal var completionFramesWritten = 0L; private set
 
-    fun playCompletion() {
-        completion.trigger()
+    fun playCompletion(sound: AlarmSound = AudioPreferences(context).alarm) {
         completionFramesWritten = 0
+        if (sound == AlarmSound.OFF || RecordingViewModel.isCapturingAudio) return
+        completion.trigger(sound)
         // No extra focus request: a cue must not interrupt a phrase or take playback.
         if (track == null) startOutput(requestFocus = false)
     }
@@ -151,6 +160,7 @@ internal class MetronomeAudio(context: Context, private val pulseChanged: (Metro
                     while (generation == token) {
                         if (clickEnabled) pcm.render(chunk, tempo, configuration) { beats.addLast(it) } else chunk.fill(0)
                         val nonZeroClick = chunk.count { it.toInt() != 0 }
+                        if (RecordingViewModel.isCapturingAudio) completion.cancel()
                         val cueFrames = completion.mix(chunk)
                         var offset = 0
                         while (offset < chunk.size && generation == token) {

@@ -19,12 +19,22 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
     var minutes by mutableIntStateOf(5); private set
     var remainingMs by mutableLongStateOf(300_000); private set
     var countdownRunning by mutableStateOf(false); private set
-    private val stopwatch = ToolClock(SystemClock::elapsedRealtime)
-    private val countdown = ToolClock(SystemClock::elapsedRealtime)
-    var metronomeConfig by mutableStateOf(MetronomeConfig()); private set
+    internal var clockNow: () -> Long = SystemClock::elapsedRealtime
+    private val stopwatch = ToolClock { clockNow() }
+    private val countdown = ToolClock { clockNow() }
+    private val audioPreferences = AudioPreferences(app)
+    var metronomeConfig by mutableStateOf(audioPreferences.applyTo(MetronomeConfig())); private set
     var metronomePulse by mutableStateOf(MetronomePulse()); private set
     private val click = MetronomeAudio(app, { metronomePulse = it }) { error -> clicking = false; message = error }
-    fun configureMetronome(value: MetronomeConfig) { metronomeConfig = value; click.configure(value) }
+    private val stopObservingAudio = audioPreferences.observe {
+        metronomeConfig = audioPreferences.applyTo(metronomeConfig); click.configure(metronomeConfig)
+    }
+    fun configureMetronome(value: MetronomeConfig) {
+        try {
+            audioPreferences.saveMode(value.mode)
+            metronomeConfig = audioPreferences.applyTo(value); click.configure(metronomeConfig)
+        } catch (_: Exception) { message = "Audio setting could not be saved. Try again." }
+    }
     internal fun metronomeFramesWritten() = click.sampleFramesWritten
     internal fun metronomeNonZeroFramesWritten() = click.nonZeroClickFramesWritten
     private val tuner = TunerAudio(app, { pitch = it }, { error -> listening = false; pitch = null; message = error })
@@ -33,6 +43,7 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
     private var screen: String? = null
 
     init {
+        click.configure(metronomeConfig)
         viewModelScope.launch {
             while (true) { delay(100); updateClocks() }
         }
@@ -70,15 +81,20 @@ class ToolsViewModel(app: Application) : AndroidViewModel(app) {
         updateClocks()
     }
     fun resetCountdown() { countdown.reset(); updateClocks() }
-    private fun updateClocks() {
+    internal fun updateClocks() {
         stopwatchMs = stopwatch.elapsed; stopwatchRunning = stopwatch.running
         remainingMs = (minutes * 60_000L - countdown.elapsed).coerceAtLeast(0)
-        if (remainingMs == 0L) countdown.pause()
+        if (remainingMs == 0L && countdown.running) {
+            countdown.pause()
+            if (foreground && screen == "timer") { completionSignals++; runCatching { click.playCompletion() } }
+        }
         countdownRunning = countdown.running
     }
+    internal fun completionFramesWritten() = click.completionFramesWritten
+    internal var completionSignals = 0; private set
     private fun stopAll() {
         click.stop(); clicking = false; tuner.stop(); listening = false; pitch = null
         stopwatch.pause(); countdown.pause(); updateClocks()
     }
-    override fun onCleared() { stopAll() }
+    override fun onCleared() { stopObservingAudio(); stopAll() }
 }

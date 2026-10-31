@@ -48,10 +48,19 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         private set
     var clickError by mutableStateOf<String?>(null)
         private set
-    var metronomeConfig by mutableStateOf(MetronomeConfig()); private set
+    private val audioPreferences = AudioPreferences(application)
+    var metronomeConfig by mutableStateOf(audioPreferences.applyTo(MetronomeConfig())); private set
     var metronomePulse by mutableStateOf(MetronomePulse()); private set
     private val metronome = MetronomeAudio(application, { metronomePulse = it }) { message -> clicking = false; clickError = message }
-    fun configureMetronome(value: MetronomeConfig) { metronomeConfig = value; metronome.configure(value) }
+    private val stopObservingAudio = audioPreferences.observe {
+        metronomeConfig = audioPreferences.applyTo(metronomeConfig); metronome.configure(metronomeConfig)
+    }
+    fun configureMetronome(value: MetronomeConfig) {
+        try {
+            audioPreferences.saveMode(value.mode)
+            metronomeConfig = audioPreferences.applyTo(value); metronome.configure(metronomeConfig)
+        } catch (_: Exception) { clickError = "Audio setting could not be saved. Try again." }
+    }
     internal fun metronomeFramesWritten() = metronome.sampleFramesWritten
     internal fun metronomeNonZeroFramesWritten() = metronome.nonZeroClickFramesWritten
 
@@ -92,6 +101,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     private val mutex = Mutex()
 
     init {
+        metronome.configure(metronomeConfig)
         viewModelScope.launch {
             while (isActive) {
                 delay(250)
@@ -221,6 +231,6 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         }
     }
     fun saveNote(id: String, note: String) = operation { repository.saveSessionNote(id, note); noteSaved = true }
-    override fun onCleared() { metronome.stop(); super.onCleared() }
+    override fun onCleared() { stopObservingAudio(); metronome.stop(); super.onCleared() }
     // The shared database belongs to the application, not an individual screen.
 }

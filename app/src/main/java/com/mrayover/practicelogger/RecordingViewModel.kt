@@ -18,7 +18,10 @@ import kotlinx.coroutines.flow.*
 
 @Suppress("DEPRECATION")
 class RecordingViewModel(application: Application) : AndroidViewModel(application) {
-    companion object { private var captureOwner: RecordingViewModel? = null }
+    companion object {
+        @Volatile private var captureOwner: RecordingViewModel? = null
+        internal val isCapturingAudio get() = captureOwner != null
+    }
     private val app = application
     private val db = BlockDatabase.appInstance(application)
     private val repository = TakeRepository(db, application)
