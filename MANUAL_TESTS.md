@@ -152,3 +152,8 @@ Use CURRENT_STATE.md and the current package PHONE_CHECKLIST.txt for build47 sou
 ## Build48 Home gear removal
 
 Check no gear beside Goals; Edit still opens Manage Goals, Goal cards work and Tools → Audio Settings remains. Follow the current package checklist for remaining P4 physical checks. P5/final gates unchanged.
+
+
+## Build49 P4 metronome button feedback
+
+Follow the current package PHONE_CHECKLIST: both complete Stop click surfaces pulse in flash-enabled modes, return between beats and remain static immediately on stop; verify readable labels, BPM/start-stop/meter behavior and acoustic/display synchronization. Sound only remains static. Layout/geometry unchanged; no full regression required for this refinement.

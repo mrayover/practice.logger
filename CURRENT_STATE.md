@@ -1,44 +1,39 @@
-# Current state — Home gear removed, 0.16.0/build48
+# Current state — P4 metronome button feedback, 0.16.0/build49
 
-Updated 2026-10-31 (America/Los_Angeles). **Signed limited owner preview.** The duplicate Goal gear is removed; existing **Edit** opens Manage Goals. There is no general Settings destination; Tools → Audio Settings retains P4 preferences. P1–P3 generally owner-accepted; P4/build48 physical acceptance and full regression pending. P5 has not started.
-
-## P4 refinement in progress
-
-Build49 source changes replace both circular indicators with full Stop click button pulses, synchronized to existing beat state/decay. No audio timing/engine/layout changes. Compilation and two focused native checks pending; build49 not yet packaged. Existing signed build48 delivery below remains valid. No full regression or new gate initiated. Exact next task: compile and run the two button checks, then package the authorized signed P4 refinement and refresh this record.
+Updated 2026-10-31 (America/Los_Angeles). **Signed scoped owner preview.** Both Stop click buttons now pulse across their whole surface on flash-enabled beats; circular indicators removed. Existing sample clock, audio and 90ms decay reused. P1–P3 generally owner-accepted; P4 physical acceptance pending. P5 has not started; no separate milestone or regression gate added.
 
 ## Delivery
 
 | Item | Verified value |
 |---|---|
-| Version | 0.16.0 / code48 |
-| Signed source | `8cbe3478c5b05f98ad6720c460d50d0e595d62c5` |
-| Preview CI | [41180090915](https://github.com/mrayover/practice.logger/actions/runs/41180090915) — completed/success |
+| Version | 0.16.0 / code49 |
+| Signed source | `858dabf0f3a855177274ce3d87b3741b77c8ae04` |
+| Scoped CI | [41222926473](https://github.com/mrayover/practice.logger/actions/runs/41222926473) — completed/success |
 | App | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
 | Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `ea76e39070d98ffa1a6134e323d85331c49bff7e1178e81955d4ad9b1bc2cbe3` |
-| ZIP SHA256 | `84a5cc97579999f33b00180ec1b8c52e2b41054eed058e2ff20bcf3aee253f33` |
+| APK SHA256 | `446503d54fca92aec856177762a662c00a75852f26496d81ec540d24bca11937` |
+| ZIP SHA256 | `eebb9f55c8d1e299a887f10907c937ee089c1efa36bb1451e92cccce83571288` |
 
-[APK](dist/practice.logger-0.16.0-b48-8cbe347/practice.logger-0.16.0-b48-8cbe347.apk) · [ZIP](dist/practice.logger-0.16.0-b48-8cbe347.zip) · [build info](dist/practice.logger-0.16.0-b48-8cbe347/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b48-8cbe347/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b48-8cbe347/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
+[APK](dist/practice.logger-0.16.0-b49-858dabf/practice.logger-0.16.0-b49-858dabf.apk) · [ZIP](dist/practice.logger-0.16.0-b49-858dabf.zip) · [build info](dist/practice.logger-0.16.0-b49-858dabf/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b49-858dabf/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b49-858dabf/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
 
-Publisher verifies permanent signature/certificate/app/version/hash; ZIP CRC/member bytes and all 182 prior APK/ZIP files byte-identical. Install over the permanent-key app **without uninstalling or clearing data**. Key/packages remain local and Git-ignored. Final remote main SHA confirmed in chat; later documentation follows signed app source.
+Publisher verifies permanent signature/certificate/app/version/hash; ZIP CRC/member bytes and all 186 prior APK/ZIP files unchanged. Install over the permanent-key app **without uninstalling or clearing data**. Key/packages remain local and ignored by Git. Later verification documentation follows the signed source; actual remote SHA verified at session close.
 
 ## Current behavior and safeguards
 
-Home keeps centered Goals heading, Goal cards and Edit link; only duplicate gear/drawing imports removed. Existing navigation and data unchanged. P4 retains four click timbres, shared last/default Sound+Flash/Sound only/Flash only and four completion sounds plus Off, previews and count-in default4/per-loop override. Both metronomes observe defaults without clock reset; meter/accent remain runtime. /8 BPM counts each eighth; actual display/audio latency uncalibrated. Block cue follows committed armed foreground crossing; standalone countdown alarms once at foreground running zero. Off/capture suppress output without clock changes; previews refuse capture/take playback and stop on leave/background. Explicit recording-click On/Off retained.
+Standalone Stop click alternates green/white and cream/green; outlined practice Stop click fills green/white then returns transparent over the existing tinted transport. Shared button colors use `running && pulse.lit`; explicit stop immediately removes the highlight. Existing output-mode behavior remains: Sound only suppresses flash; Flash only pulses silently. No audio/VM, independent timer, button geometry, navigation, BPM, meter, accent or transport redesign. HomeButton adds a styling overload; other callers keep their existing defaults.
 
-Compact transport/exclusive panels, retained PDF page/zoom/Notes drafts, immediate note save/edit/history and pinned controls remain. Cream/green/Lato retained; optional dark mode explicitly deferred. Room11/JSON7 readers1–7/schema/migrations/IDs/media/history remain; JSON excludes reference/take metadata/audio. No Library/storage/analytics changes. Stage3 detailed phone acceptance pending; Stage4 remains0/10 documented sessions.
+P4 preferences/timbres/completion safeguards, P1 review/P2 loops/count-in, compact panels/Notes/reference retention and cream/green/Lato remain. Room11/JSON7 readers1–7/schema/migrations/IDs/media/history unchanged; JSON excludes reference/take metadata/audio. Dark mode remains deferred. Stage3 detailed phone acceptance pending; Stage4 remains0/10 documented sessions.
 
 ## Exact verification
 
-- **Build48:** debug/release/test APK compilation, one API35 install/launch smoke and one existing HomeNavigationPreviewTest pass, including Home sections/Edit → Manage Goals/banner navigation/Log save. Screenshot inspected; scope/diff/local links, signed-source equivalence and package integrity checked. No new tests added for this reversible icon removal.
-- **Historical P4 build47** source4341af132882e26e24cc3fc85be8d289977b0e6e, [CI41178720243](https://github.com/mrayover/practice.logger/actions/runs/41178720243) completed/success:22 scoped JVM/Robolectric tests and10 API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. Not rerun for this icon-only change. Detailed phase evidence retained in WORK_LOG. P4 audio/capture/schema/backup/transport source unchanged by build48.
-
-**Not run:** full unit suite/lint/API26–35 regression matrix, whole-app enlarged-text/landscape/TalkBack, physical-phone install-over/acoustic/flash/mic acceptance or forced-process-restart checklist. P5 and final V1 full gates remain required. General owner acceptance does not infer individual phone results.
+- Build49 debug/release/test APK compilation, one API35 install/launch and two focused native button scenarios pass. Tests inspect rendered surface pixels over successive live beats and between beats, readable Stop click text, immediate stopped appearance plus a later static sample, repeated start/stop and BPM +1 for both interfaces. Native nonzero click PCM confirmed. Button screenshots reviewed.
+- Relevant initial verification failures/repairs, if any, are recorded in WORK_LOG. Historical build47 scoped22 JVM/10 API35 Settings/transport checks and build48 Home preview remain historical, not rerun here.
+- Scope/diff/document links/source equivalence and signed-package integrity checked. No full unit suite/lint/API26–35 matrix, broad regression/release gate, whole-app accessibility or physical-phone install-over/acoustic/display-latency acceptance. P5/final gates retained, not started.
 
 ## Baseline and publication
 
-Clean local/remote main c262e1324c520dc74a45b691c722aaf58cd7a947 and latest scoped P4 CI41178720243 success verified before changes. Mandatory efficiency procedure/master roadmap reviewed. Owner explicitly requested duplicate gear removal. Existing owner-preview workflow reused; automatic broad CI skipped with `[skip ci]`. No unrelated failure investigation, owner-data edits, uninstall/clear or later phase started.
+Existing clean main36682c3 matched live remote; latest scoped CI41180090915 successful. Mandatory efficiency procedure and P4 master-plan scope reviewed. Owner explicitly approved commit/push, focused CI and signed delivery. Existing preview workflow now accepts a metronome test selector; default Home check preserved. Automatic broad CI skipped with `[skip ci]`. No owner-data edits or later phase.
 
 ## One next task
 
-Owner install-over and **build48 PHONE_CHECKLIST.txt**, covering Home Edit access and remaining P4 phone checks. Recommend assigning P5 full pre-Library regression after acceptance; do not start automatically. L1 remains behind P5.
+Owner install-over and **build49 PHONE_CHECKLIST.txt**, checking both pulses/audio synchronization and remaining P4 acceptance. P5 is a separate recommended assignment after acceptance; do not start automatically. L1 remains behind P5.

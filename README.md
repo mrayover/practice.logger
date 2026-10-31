@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build48 Home gear removal preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build49 P4 metronome button feedback preview**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
@@ -51,7 +51,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-Build48 removes the duplicate Goals gear; use the existing Edit link for Goal management. Tools → Audio Settings remains. Compilation, API35 launch and one Home navigation/Goal-management/Log-save check pass; see CURRENT_STATE for signed delivery and limits.
+Build49 replaces metronome dots with full Stop click button pulses in Tools and Focused Practice. Compilation, API35 launch and two focused rendered-surface/live-beat/BPM/start-stop checks pass. See CURRENT_STATE for signed delivery and physical-phone limitations.
 
 Historical build47 passes 22 scoped PCM/compatibility tests, debug/release/test APK compilation and ten API35 Settings/countdown/Notes/metronome/review scenarios, including Settings200%-text/landscape. P1–P3 generally owner-accepted; P4 phone and full regression remain pending. See [CURRENT_STATE.md](CURRENT_STATE.md). P5/final full gates remain; P5 has not started.
 

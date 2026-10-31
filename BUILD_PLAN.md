@@ -8,7 +8,7 @@ Build48 removes only the duplicate Goal gear; existing Edit opens Manage Goals. 
 
 ## P4 metronome button feedback refinement
 
-Build49 replaces both metronome dots with full Stop click button background pulses, using the existing consumed-audio beat/90ms decay and cream/green palette. Button geometry, audio, modes and controls are retained. Compilation and two focused API35 surface-pixel/start-stop/BPM checks only; no separate milestone or regression gate. Actual results/delivery in CURRENT_STATE.
+Build49 replaces both metronome dots with full Stop click button background pulses, using the existing consumed-audio beat/90ms decay and cream/green palette. Button geometry, audio, modes and controls are retained. Compilation and two focused API35 surface-pixel/start-stop/BPM checks pass; no separate milestone or regression gate. Actual results/delivery in CURRENT_STATE.
 
 ## P4 audio Settings and bounded UI polish — scoped candidate delivered
 
