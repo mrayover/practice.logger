@@ -1,59 +1,46 @@
-# Current state — Home button removal visual preview,0.16.0/build42
+# Current state — P1 temporary take review, 0.16.0/build44
 
-Updated 2026-10-30 (America/Los_Angeles). **Signed, installable limited owner preview; full regression pending.** Build42 removed redundant Home buttons and their layout rows throughout the app. P0 audited the baseline and integrated the forward roadmap with documentation changes only. Existing Room11/JSON7 and notes behavior remain. P1 temporary audio take review is now in implementation under owner authorization; build43 source/checks/signing are pending. The delivery table still describes the prior signed build42. No P2 work started.
+Updated 2026-10-30 (America/Los_Angeles). **Signed, installable scoped candidate; P1 engineering checks pass, owner-phone acceptance and full regression pending.** P1 implements explicit temporary take review only. P2 has not started. No automated follow-up is scheduled.
 
 ## Delivery
 
 | Item | Verified value |
 |---|---|
-| Version | 0.16.0 / code42 |
-| Signed app source | `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5` |
-| Limited preview | [41145916544](https://github.com/mrayover/practice.logger/actions/runs/41145916544) |
-| Workflow status | completed / success |
+| Version | 0.16.0 / code44 |
+| Signed app source | `6ebf1924e36423877f4ef77dffee93d03f8c98ab` |
+| Scoped CI | [41172401080](https://github.com/mrayover/practice.logger/actions/runs/41172401080) — completed/success |
 | App | `com.mrayover.practicelogger.app`; minAPI26 / target36 |
 | Permanent certificate SHA256 | `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` |
-| APK SHA256 | `ef739401ff70dc3880eda9d90fdd895396be21f1cfa832f732ead52c260b6daa` |
-| ZIP SHA256 | `10376148ceea3dc22b5569a3b14b05e7a0e6676b63e8835e693938dc8bef5c72` |
+| APK SHA256 | `e31b68aa0cd8b82af7600901b59c2f1ee422555ca4c066d6a7e88f53dc5e7ee2` |
+| ZIP SHA256 | `8d543ebcd24f1ea9ad9b580a276e992025ccb60d9e73d6394e627323a9624cd9` |
 
-[APK](dist/practice.logger-0.16.0-b42-cafa1bf/practice.logger-0.16.0-b42-cafa1bf.apk) · [ZIP](dist/practice.logger-0.16.0-b42-cafa1bf.zip) · [build info](dist/practice.logger-0.16.0-b42-cafa1bf/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b42-cafa1bf/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b42-cafa1bf/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
+[APK](dist/practice.logger-0.16.0-b44-6ebf192/practice.logger-0.16.0-b44-6ebf192.apk) · [ZIP](dist/practice.logger-0.16.0-b44-6ebf192.zip) · [build info](dist/practice.logger-0.16.0-b44-6ebf192/BUILD_INFO.json) · [verification status](dist/practice.logger-0.16.0-b44-6ebf192/VERIFICATION_STATUS.txt) · [phone checklist](dist/practice.logger-0.16.0-b44-6ebf192/PHONE_CHECKLIST.txt) · [latest](dist/LATEST.txt).
 
-Install over the permanent-key app without uninstalling/clearing data. Existing publisher verifies signature, pinned certificate, identity/version and APK hash. Final ZIP CRC/member audit passes; all 158 prior APK/ZIP files match their pre-work hashes. Packages remain local/ignored. Application code remains identical to signed source; schema11 is unchanged.
+Existing permanent publisher verified signature, pinned certificate, stable package/version and APK hash. Final ZIP CRC/all-member byte checks pass. All 162 pre-P1 APK/ZIP files remain byte-identical; early signed build43 is retained. Install over the permanent-key app **without uninstalling or clearing data**. Signed distributions/signing material stay local and Git-ignored. Later test/documentation commits may follow the signed source; app-source equivalence is checked at closeout.
 
-## Behavior
+## P1 behavior and safeguards
 
-Removed the standalone Back to Home button and its layout row from Block Library, Practice Now/session builder, Routines, Recording, Goals, Tools, Backup and Log/Weekly View. Removed redundant Home actions from practice empty/summary screens too. Following content moves up with the existing padding/spacing. Library search scroll index is adjusted for its removed lazy item. The shared green banner and Android Back retain their existing navigation and save/discard barriers. Parent-specific Back to Tools/Goals and editor Cancel remain.
+- Free recording Stop opens temporary Review Take with Play/Stop Preview, Save, Re-record and Discard. Same controls in Focused Practice, saved-Block recording management and standalone Free Recording; no synthetic Block/session/Goal is created.
+- Only successful Save renames/commits permanent take metadata. Before that the pending file is protected from live orphan cleanup and absent from saved listings. Failed database commit rolls bytes back to the pending name for retry; existing saved recordings remain intact. Re-record replaces only temporary audio through existing mic/foreground rules; Discard removes only the temporary file.
+- Completed PCM16 WAV phrases also await review; no automatic saving or playback. Incomplete phrases remain rejected/discarded. Preset beats/four-click count-in remain; P2 is not implemented. Free audio remains AAC/M4A.
+- Background stops capture/playback; returning never auto-starts/resumes or auto-saves. Valid free audio may await review within the process; incomplete loops are discarded. Review is temporary: process loss removes unsaved audio on cold recovery. Explicitly Save valuable takes.
+- Active Stop/Cancel and sheet review controls remain outside scrolling references. Focus review temporarily uses the existing transport area and restores Notes draft/PDF page afterward; practice timer is independent. Session completion/exit waits for recording/review resolution. Management closing offers Return to review or deliberate discard.
 
-Build41 workspace/footer behavior remains: Description defaults open, one section stays expanded outside temporary transport panel suppression, Notes is a footer pill and Save for later is absent. Timestamped practice note history/editing/draft guards, PDF state restoration and audio ownership remain.
+Existing build42 Home-button removal/banner navigation, build41 workspace/footer and timestamped Notes remain. Room11/JSON7 readers1–7, schemas/migrations1–11, existing IDs/media/session history, permanent app ID/key and prior distributions are preserved. JSON still excludes image/PDF references and all take metadata/labels/audio; per-take export remains available. No Library, full media backup, custom loop length/count-in, meter, Settings or Goal/statistics extension was added.
 
-## Persistence and compatibility
+## Exact verification and limits
 
-Room11 adds only `practice_notes`: id, blockId, sessionId, placementId, createdAt and text, restrictive foreign keys and indices. Migration10→11 creates an empty table; all schema10 tables/rows stay intact. Read-through history combines original nonblank placement notes with new rows using separate internal keys. No backfill/copy or duplicate legacy entries. New/edited notes do not overwrite Block instructions/reference notes, overall session notes or daily Log.
+- **12 scoped JVM/Robolectric tests, 0 failures/errors/skips:** TakeReviewTest4, RecordingRepositoryTest4, StandaloneRecordingTest2 and PhraseRepositoryTest2. Covers temporary visibility/discard/live-orphan protection, retry after injected commit failure, incomplete-loop rejection, byte preservation, existing repository/export/migration safety and no synthetic sessions.
+- Debug/release/test APK compilation passed. Three API35 TakeReviewWorkflowTest scenarios passed: Focused Practice free review/preview/re-record/save/discard with running timer, Notes draft and PDF page2 restoration; saved Block free and completed-loop review/save/native playback/cancel; standalone save failure/retry, background playback/capture stop, discard guard and unchanged existing saved rows/bytes/Blocks/sessions.
+- Screenshots of focus review/restored content, loop preview and failed-save retry inspected. Permanent signing/identity/version/hash, ZIP CRC/member round trip and prior distribution hashes verified.
+- First run41171943218/sourceb310619 passed12 storage tests, compilation and2/3 native scenarios. The remaining scenario launched a second activity on return (logs show nonmatching launcher intent), so it could not see the original review. Corrected test task launch and UI wait; screenshot review separately exposed a Windows-default encoding mistake in RecordingSheet. UTF-8 corrected and version advanced44; build43 retained. This final scoped run verifies the corrections. Directly affected older native tests now make explicit review acceptance and compile, but their broader historical UI workflows were not run or investigated.
 
-JSON writer7/readers1–7 adds practiceNotes with strict ownership/nonblank/timestamp/ID validation and atomic empty-target restore. Versions1–6 restore legacy placement notes and no new rows. Legacy notes remain in placements for export, new entries in their own array; no duplication. Older app versions cannot import format7. Images/PDFs and all take media/metadata/labels remain excluded. Schemas/migrations1–10 retained; compiler schema11 is checked against all previous table definitions. Recording engine, timing/transition algorithms, image/PDF loader, branding and unrelated navigation remain unchanged. Focused Practice now uses an opt-in legacy-note preservation flag for Complete/Skip, preventing a stale screen copy from overwriting an edit.
+**Not run:** full unit suite, lint, API26/full API26–35 regression matrix, dedicated200%-text/landscape/TalkBack, permanent-key phone install-over or physical mic/speaker/acoustic timing tests. P5 pre-Library and final F1–F2 full-regression/phone gates remain mandatory. Stage3 detailed phone acceptance remains pending; Stage4 remains0/10 documented real sessions. Emulator capture/playback is not physical-phone acceptance.
 
-## Exact verification
+## Baseline and publication
 
-- Debug/release/test APK compilation passes.
-- One clean API35 debug install/launch/live process/visible UI/no-crash check passes.
-- HomeNavigationPreviewTest passes: visits Blocks, builder, Routines, Recording, Goals, Tools, Backup, Log and Weekly View; checks no Back to Home text, visible headings, banner return and Log edit save/reentry. Screenshots from all nine sections reviewed before signing.
-- Permanent-key publisher verifies signature/certificate/package/version; final APK/ZIP member/CRC/hash audit and all 158 old package hashes pass. Application source matches signed source. Only six presentation files/versionCode changed in app main; DB/schema/storage/audio engines unchanged.
-
-Not run: full units/lint/regression/API matrix, dedicated enlarged-text/landscape/TalkBack, editor/session guard campaign, audio or physical-phone install-over acceptance. Prior build41 notes/storage checks are historical evidence and were not rerun. Full release requirements remain unchanged. Stage3 phone acceptance pending; Stage4 remains0/10 real sessions.
-
-## P0 baseline audit and V1 integration — 2026-10-30
-
-P0 documentation integration is complete. Audited the existing Windows checkout on clean `main` at `e030fbf57adb88386b6cadb8af3d91b1eaf0c528`, confirmed by live `git ls-remote origin refs/heads/main`. Since starting reference `5ebbd58b8705b0fc80f95b2443b9db464db07a75`, the only commit was `e030fbf`: added the master plan and updated CURRENT_STATE, FIRST_WORK_HANDOFF and WORK_LOG. All tracked differences since signed source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5` were Markdown only; app/configuration/schema/scripts/workflows were unchanged.
-
-Live GitHub Actions listing confirms the latest run is still [41145916544](https://github.com/mrayover/practice.logger/actions/runs/41145916544), completed/success at the signed source. This is limited preview evidence, not full regression. Existing BUILD_INFO, LATEST and Gradle agree on version0.16.0/code42, source and app ID; current APK/ZIP hashes match the delivery table. The certificate is retained from the publisher's recorded verification; P0 did not rerun signing or physical-device checks. Earlier failed runs remain historical evidence and were not investigated.
-
-README and BUILD_PLAN now link the [master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md). BUILD_PLAN/AGENTS distinguish future review, loop/meter/Settings, Library, storage/recovery and Goal/statistics phases from the implemented baseline. Existing data safeguards, historical delivery facts, JSON7 exclusions and phone limitations remain. The narrow future L1 test-reference exception does not permit P0 data removal. The previous P0 handoff is refreshed as a completion/next-assignment handoff.
-
-Checks: documentation content and local links/anchors, baseline and final Git diffs/whitespace, master-plan/mandatory-procedure preservation and documentation-only changed-file scope. Automatic build CI is skipped via Markdown path exclusions and `[skip ci]`; owner-preview CI is manual-only. No compilation, APK build/signing, Gradle tests/lint, emulator launch, workflow dispatch or regression run for P0. P1–P4 retain scoped delivery checks; P5 and final V1 retain full-regression gates. Publication SHA/branch is confirmed in the closing handoff after push; this audit baseline is not the final commit SHA.
-
-## P1 implementation status
-
-Owner assigned P1 after P0 and approved implementation, scoped verification, signing and publication. Shared Review Take controls and temporary-file validation/explicit save/re-record/discard are implemented in source for free and complete loop takes; not yet compiled, tested or delivered. Failed commits retain temporary bytes for retry; current Room11/JSON7 and existing saved records are unchanged. Candidate code43. A dedicated manual workflow targets recording storage tests and three API35 review scenarios, not full regression. Actual results/signing pending; build42 remains the current signed preview.
+P1 began on clean existing Windows main `b2a97211f629cbc98cee1d738f81ae4dd7020747`, confirmed against remote; build42 source was cafa1bf and latest preview41145916544 was successful. P0 master-plan integration remains complete. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) governs forward work. P1 source, tests and records use `[skip ci]` with a dedicated manually dispatched scoped workflow; no automatic full build or regression was dispatched. Sources references remained read-only. The closing handoff reports final confirmed remote main SHA, distinct from the signed source above.
 
 ## One next task
 
-Complete P1 scoped verification and permanent-key build43 delivery; do not start P2 automatically. P5 and final V1 retain full-regression and phone gates.
+Owner: install build44 in place and complete its **P1 PHONE_CHECKLIST.txt**, including real mic/speaker audio, review/save/re-record/discard and existing data retention. P2 is unassigned and must not start automatically.

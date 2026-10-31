@@ -2,6 +2,10 @@
 
 Updated 2026-10-30 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## P1 temporary audio take review — scoped candidate delivered
+
+Build44 adds shared temporary Review Take to Focused Practice, saved-Block and standalone free recordings, and complete phrase loops. Preview, explicit Save, Re-record and Discard reuse the existing engines/private-file ownership. Saved rows appear only after a successful commit; failed commits retain temporary bytes for retry. Background stops audio, no automatic saving/playback/resume; incomplete phrases remain invalid. Review is in-process temporary state, not durable saved audio. Room11/JSON7 and existing saved data are unchanged. Exact tests, signing and phone limitations are in [CURRENT_STATE.md](CURRENT_STATE.md). P1 phone acceptance remains pending; P2 and later phases do not start automatically.
+
 ## Delivered Home button removal build42
 
 Remove standalone Back to Home/Home buttons throughout the app and their rows; move following content up. Retain banner/Android Back with current save/discard barriers and parent-specific navigation. Compile/one launch/one targeted navigation and Log-save scenario only; full release gates unchanged. Delivery in CURRENT_STATE.
@@ -12,7 +16,7 @@ Description defaults expanded; one section remains open outside transport panels
 
 ## Existing Block note history and workspace behavior
 
-Build40 adds multiple timestamped Block/session practice notes, immediate collapsible history, explicit new/legacy note editing and draft safeguards. Room11 adds only practice_notes; legacy placement notes read through without copying. JSON7/readers1–7 preserve both forms. Descriptions/reference notes, overall session notes and daily Log remain distinct. Transport panels temporarily suppress and restore the saved upper workspace while retaining PDF page/zoom and the existing audio/session owner. This scope supersedes the earlier multi-note/migration exclusions; the owner explicitly added Edit during implementation. Limited compile/one launch/focused storage/UI checks only. Actual signed delivery is in CURRENT_STATE. Temporary Accept/Re-record/Discard take review is now planned in P1, not implemented in build40 or build42. Concurrent loop playback/free capture, mixing, YouTube and unrelated work remain excluded; no subsequent assignment begins automatically.
+Build40 adds multiple timestamped Block/session practice notes, immediate collapsible history, explicit new/legacy note editing and draft safeguards. Room11 adds only practice_notes; legacy placement notes read through without copying. JSON7/readers1–7 preserve both forms. Descriptions/reference notes, overall session notes and daily Log remain distinct. Transport panels temporarily suppress and restore the saved upper workspace while retaining PDF page/zoom and the existing audio/session owner. This scope supersedes the earlier multi-note/migration exclusions; the owner explicitly added Edit during implementation. Limited compile/one launch/focused storage/UI checks only. Actual signed delivery is in CURRENT_STATE. Temporary Accept/Re-record/Discard take review was absent from build40/build42 and is now delivered as the P1 build44 scoped candidate. Concurrent loop playback/free capture, mixing, YouTube and unrelated work remain excluded; no subsequent assignment begins automatically.
 
 ## Product and implemented scope
 
@@ -59,7 +63,7 @@ The owner explicitly approved later features while Stage 3 phone acceptance and 
 
 ## Forward V1 scope and retained boundaries
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) supersedes older future exclusions only for its explicitly described phases: P1 temporary take review; P2 custom 1–64-beat loops and positive whole-beat count-ins; P3 metronome meter/accent/flash; P4 persistent audio Settings and bounded UI polish; P5 full pre-Library regression; L1–L3 reusable Media Library; S0–S2 provider feasibility, organized copies and complete ZIP backup/restore; G1–G3 Goal identity/filtering/historical time attribution; F1–F2 final verification and phone signoff. Full dark mode remains conditional. None of these extensions is claimed implemented by P0.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) supersedes older future exclusions only for its explicitly described phases: P1 temporary take review; P2 custom 1–64-beat loops and positive whole-beat count-ins; P3 metronome meter/accent/flash; P4 persistent audio Settings and bounded UI polish; P5 full pre-Library regression; L1–L3 reusable Media Library; S0–S2 provider feasibility, organized copies and complete ZIP backup/restore; G1–G3 Goal identity/filtering/historical time attribution; F1–F2 final verification and phone signoff. Full dark mode remains conditional. P0 implemented none of these extensions; only P1 temporary take review has since been delivered, with evidence in CURRENT_STATE.md. The other roadmap extensions remain planned.
 
 Current single Block-owned image/PDF references, preset loops/four-click count-in, existing Goal links/manual progress and JSON7 data-only backup remain the implemented baseline. Media-inclusive backup is required for completed V1 but does not exist yet. Current JSON excludes media bytes and metadata; keep originals separately and retain per-take export until the later phases deliver verified recovery.
 
@@ -75,7 +79,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-P0 audit/integration is complete. Recommend assigning **P1 temporary audio take review** from the master plan; do not begin automatically. Build42 remains a limited owner preview with full regression and phone acceptance pending. See CURRENT_STATE.md for actual delivery and audit evidence; P1–P4 use scoped checks and delivery, with full gates at P5 and final V1.
+Owner-phone-check the signed build44 P1 candidate using its PHONE_CHECKLIST.txt. P1 scoped engineering checks pass; full regression and phone acceptance remain pending. P2 is the next roadmap phase but is unassigned and must not begin automatically. P1–P4 use scoped delivery, with full gates at P5 and final V1. See CURRENT_STATE.md for exact source/packages/checks.
 
 ## Increment 3 — delivered 2026-10-29
 

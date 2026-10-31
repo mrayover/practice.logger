@@ -130,3 +130,7 @@ Automated emulator checks exercise real PDF rendering/encoding and debug-signed 
 
 
 Closeout2026-10-29: signed0.16.0/build34 is a candidate. Targeted checks pass; complete release regression remains incomplete after legacy UI test failures. The owner stopped further work. No physical-phone acceptance is claimed. See CURRENT_STATE.md for exact results and remaining work.
+
+## P1 temporary take review — build44
+
+Current P1 phone acceptance is pending. Use the versioned PHONE_CHECKLIST.txt linked from [CURRENT_STATE.md](CURRENT_STATE.md). In Focused Practice, saved-Block recordings and standalone Free Recording, Stop → Review Take → Play/Stop Preview → Save; then repeat with Re-record and Discard. Saved listing must stay unchanged before Save. Complete loops require review/Save before explicit playback; incomplete loops remain invalid. Verify failed-save retry/earlier-take safety where feasible, background mic/playback stop without automatic saving/resume, deliberate close/discard guards, Notes/reference/timer continuity, real acoustic output and existing data after install-over. Unsaved temporary review is not durable across process death. Earlier checklists describing automatic stop/save or loop autoplay are historical; explicit acceptance now applies. Full regression remains at P5 and final V1.
