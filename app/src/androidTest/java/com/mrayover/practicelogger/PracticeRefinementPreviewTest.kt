@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
@@ -41,6 +43,11 @@ class PracticeRefinementPreviewTest {
         bounds.forEach { assertTrue("Mode outside row: $it / $row",it.left>=row.left-1 && it.right<=row.right+1) }
         assertTrue(bounds.zipWithNext().all { (a,b) -> a.right<=b.left+1 && kotlin.math.abs(a.center.y-b.center.y)<=1 })
         compose.onNodeWithText("Flash Only").assertExists()
+        listOf("Sound + Flash","Sound only","Flash Only").forEach { label ->
+            val layouts=mutableListOf<TextLayoutResult>()
+            compose.onNodeWithText(label).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            assertTrue("Clipped mode text: $label",layouts.isNotEmpty() && layouts.none { it.hasVisualOverflow })
+        }
     }
     @Test fun compactPanelWorkspaceCaptureAndReviewPreserveState() {
         val app=compose.activity.application
@@ -129,7 +136,41 @@ class PracticeRefinementPreviewTest {
         tag("meter-7/8").performClick().assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected,true))
         tag("metronome-accent").performClick()
         tag("metronome-panel-bpm").performTextReplacement("126")
+        compose.runOnIdle {
+            compose.activity.currentFocus?.clearFocus()
+            compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+                .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0)
+        }
         tag("metronome-apply-bpm").assertIsEnabled()
+        val labels=mutableListOf<TextLayoutResult>()
+        compose.onNodeWithText("BPM (30–300)").performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(labels) }
+        assertTrue("BPM label must fit",labels.isNotEmpty() && labels.all { !it.hasVisualOverflow && it.lineCount==1 })
+        tag("practice-metronome-modes")
         shot("narrow-200-percent")
+        // Exercise the real surrounding practice layout at the same width/text scale.
+        val db=BlockDatabase.open(compose.activity.application)
+        val practice=ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+        try {
+            val session=runBlocking {
+                val b=BlockRepository(db).save(null,BlockDraft("Narrow preview","Practice slowly.","5","90"))
+                val repo=SessionRepository(db);repo.addBlock(b);repo.start()
+            }
+            compose.runOnIdle {
+                compose.activity.setContent {
+                    val density=LocalDensity.current
+                    CompositionLocalProvider(LocalDensity provides Density(density.density,2f)) {
+                        PracticeTheme { Box(Modifier.width(320.dp).fillMaxHeight()) { CatalogApp() } }
+                    }
+                }
+            }
+            shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("90 BPM")
+            tag("practice-metronome-expand").performClick();modeRow()
+            tag("metronome-apply-bpm");tag("meter-7/8");tag("metronome-accent")
+            tag("practice-metronome-pulse").performClick();shown("Stop click")
+            tag("practice-description-toggle").performClick();shown("Practice slowly.")
+            compose.runOnIdle { assertTrue(practice.clicking) }
+            tag("practice-metronome-pulse").performClick();shown("Start click")
+            tag("practice-bottom-actions");shot("narrow-full-practice-200-percent")
+        } finally { compose.runOnIdle { practice.stopClick() };db.close() }
     }
 }

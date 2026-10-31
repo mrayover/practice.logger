@@ -42,9 +42,9 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
             TextButton(onClick={ parsed?.let(onBpm) },enabled=enabled && parsed!=null,
                 modifier=Modifier.heightIn(min=48.dp).testTag("metronome-apply-bpm")) { Text("Apply BPM") }
         }
-        if (compact) Row(Modifier.fillMaxWidth(), verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
+        if (compact && androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f) Row(Modifier.fillMaxWidth(), verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
             horizontalArrangement=Arrangement.spacedBy(4.dp)) { bpmField(Modifier.weight(1f)); apply() }
-        else { bpmField(Modifier); apply() }
+        else { bpmField(if(compact) Modifier.fillMaxWidth() else Modifier); apply() }
         Text("Time signature",style=MaterialTheme.typography.labelLarge)
         if (compact) BoxWithConstraints(Modifier.fillMaxWidth()) {
             val columns = if (maxWidth >= 288.dp && androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f) 6 else 3
