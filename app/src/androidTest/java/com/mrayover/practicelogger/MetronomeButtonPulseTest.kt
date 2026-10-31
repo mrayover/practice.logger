@@ -64,7 +64,7 @@ class MetronomeButtonPulseTest {
             shown("Practice Now");compose.runOnIdle { vm.openSession(session) };shown("90 BPM")
             compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(mode=MetronomeMode.SOUND_FLASH)) }
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick(); shown("91 BPM")
-            click("Start click"); cycles("practice-metronome-pulse",PracticeGreen,PracticeCream)
+            click("Start click"); cycles("practice-metronome-pulse",PracticeGreen,androidx.compose.ui.graphics.lerp(PracticeCream,PracticeGreen,.085f))
             compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.metronomePulse.lit); assertTrue(vm.metronomeNonZeroFramesWritten()>0) }
             click("Start click");shown("Stop click");click("Stop click");shown("Start click")
         } finally { compose.runOnIdle { vm.stopClick() };db.close() }
