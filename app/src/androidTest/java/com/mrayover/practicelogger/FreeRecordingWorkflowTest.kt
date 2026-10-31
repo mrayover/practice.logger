@@ -12,7 +12,7 @@ import org.junit.Test
 
 class FreeRecordingWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    private fun sheet(text: String) { if (text !in setOf("Stop and save take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onAllNodesWithText(text).onLast().assertIsDisplayed().performClick() }
+    private fun sheet(text: String) { if (text !in setOf("Stop and review take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onAllNodesWithText(text).onLast().assertIsDisplayed().performClick() }
     @Test fun menuTapStartsCaptureAndKeepsIndependentTakesThroughRecreation(): Unit {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.executeShellCommand("pm grant com.mrayover.practicelogger.app android.permission.RECORD_AUDIO")
@@ -27,9 +27,10 @@ class FreeRecordingWorkflowTest {
             compose.onNodeWithText("Free recording").scrollIfNeeded().performClick()
             compose.waitUntil(15000) { vm.recording && vm.elapsedMs >= 1500 }
             compose.onNodeWithText("Record phrase").assertDoesNotExist()
-            sheet("Stop and save take")
+            sheet("Stop and review take"); acceptTemporaryTake(compose, vm)
             compose.waitUntil(15000) { !vm.busy && vm.takes.value.count { it.blockId == null } == 1 }
             sheet("Record take"); compose.waitUntil(15000) { vm.recording && vm.elapsedMs >= 1500 }
+            sheet("Stop and review take"); acceptTemporaryTake(compose, vm)
             compose.activityRule.scenario.recreate()
             compose.waitUntil(15000) { !vm.recording && !vm.busy && vm.takes.value.count { it.blockId == null } == 2 }
             val takes = runBlocking { db.takes().readAll().filter { it.blockId == null } }

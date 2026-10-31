@@ -26,7 +26,7 @@ class PhraseWorkflowTest {
         node.performClick()
     }
     private fun sheet(text: String) {
-        if (text !in setOf("Stop and save take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text))
+        if (text !in setOf("Stop and review take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text))
         compose.waitUntil(15000) { compose.onAllNodes(hasText(text) and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired=false).isNotEmpty() }
         compose.onAllNodesWithText(text).onLast().assertIsDisplayed().assertIsEnabled().performClick()
     }
@@ -58,6 +58,7 @@ class PhraseWorkflowTest {
                 vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 && vm.phraseClickEnabled &&
                     !practice.clicking && vm.phraseGuideFramesPlayed() > PhraseSpec(120, 4).frames + 4800
             }
+            acceptTemporaryTake(compose, vm, playAfterSave = true)
             compose.waitUntil(20000) { !vm.recording && vm.playingId != null }
             compose.runOnIdle { assertFalse(vm.phraseClickEnabled); assertEquals(0L, vm.phraseGuideFramesPlayed()) }
             val first = runBlocking { db.takes().readAll().single { it.blockId == block } }
@@ -81,6 +82,7 @@ class PhraseWorkflowTest {
                         if (guideEnabled) vm.phraseGuideFramesPlayed() > PhraseSpec(bpm, 4).frames
                         else vm.phraseGuideFramesPlayed() == 0L
                 }
+                acceptTemporaryTake(compose, vm, playAfterSave = true)
                 compose.waitUntil(25000) { !vm.recording && !vm.busy && vm.playingId != null }
                 val take = runBlocking { db.takes().readAll().single { it.blockId == block && it.recordedBpm == bpm } }
                 assertEquals(PhraseSpec(bpm, 4).frames, PhraseWave.read(repository.audioFile(take)).size)

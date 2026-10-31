@@ -27,7 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 
-fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionDate(take.createdAt) + " Â· " + take.id.take(4) }
+fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionDate(take.createdAt) + " · " + take.id.take(4) }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun BlockRecordings(blockId: String?, blockName: String, vm: RecordingViewModel,
@@ -77,8 +77,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(bottom = 8.dp)) }
         if (vm.recording) {
             // Always reachable, including when a tall reference or take list is scrolled.
-            Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in Â· ${vm.countInBeat} of 4"
-                else "Recording Â· " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "",
+            Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4"
+                else "Recording · " + practiceTime(vm.elapsedMs) + if (vm.phrasing) " / " + practiceTime(vm.phraseDurationMs) else "",
                 style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.testTag("recording-elapsed"))
             if (vm.phrasing && vm.countInBeat == 0) Text(if (vm.phraseClickEnabled) "Recording click on" else "Recording click off", modifier = Modifier.testTag("phrase-click-status"))
@@ -96,7 +96,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     val awaiting = placement.activeMs >= placement.configuredMs && !placement.overtimeAccepted
                     val value = if (placement.overtimeAccepted) "+" + practiceTime(placement.activeMs - placement.configuredMs)
                         else practiceTime(placement.configuredMs - placement.activeMs, roundUp = true)
-                    Text("Practice timer Â· $value Â· " + if (practice.running) "Running" else "Paused", style = MaterialTheme.typography.bodyMedium)
+                    Text("Practice timer · $value · " + if (practice.running) "Running" else "Paused", style = MaterialTheme.typography.bodyMedium)
                     OutlinedButton(onClick = { if (practice.running) practice.pause() else practice.resume(overtime = awaiting) }, enabled = !practice.busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         Text(if (practice.running) "Pause timer" else if (awaiting) "Continue timer" else if (placement.activeMs == 0L) "Start timer" else "Resume timer")
@@ -112,7 +112,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 }, enabled = vm.ready && !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                     Text(if (vm.phrasing) "Cancel phrase" else if (vm.recording) "Stop and review take" else "Record take")
                 }
-                Text("Free recording Â· no BPM required. A running click may be captured. Stop to review, then Save to keep the take. Unsaved temporary audio is removed after process loss.", style = MaterialTheme.typography.bodySmall)
+                Text("Free recording · no BPM required. A running click may be captured. Stop to review, then Save to keep the take. Unsaved temporary audio is removed after process loss.", style = MaterialTheme.typography.bodySmall)
                 if (blockId != null) {
                 OutlinedButton(onClick = { keyboard?.hide(); phraseDialog = true }, enabled = vm.ready && !vm.busy && !vm.recording && vm.reviewTake == null,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Record phrase") }
@@ -121,7 +121,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 if (takes.any { it.id == vm.playingId && it.mode == "LOOP" }) {
                     Button(onClick = vm::stopPlayback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Stop loop") }
                 }
-                if (vm.busy) Text("Workingâ€¦")
+                if (vm.busy) Text("Working…")
                 }
             }
             item(key = "block-reference") {
@@ -136,9 +136,9 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 Column(Modifier.fillMaxWidth().testTag("take-" + take.id), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     val title = takeTitle(take)
                     Text(title, style = MaterialTheme.typography.titleMedium)
-                    Text((if (take.mode == "LOOP") "Loop Â· ${take.recordedBpm} BPM Â· ${take.beatCount} beats Â· " else "Free Â· ") + practiceTime(take.durationMs) + " Â· " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
+                    Text((if (take.mode == "LOOP") "Loop · ${take.recordedBpm} BPM · ${take.beatCount} beats · " else "Free · ") + practiceTime(take.durationMs) + " · " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
                     val playing = vm.playingId == take.id || vm.preparingId == take.id
-                    if (vm.preparingId == take.id) Text("Preparing playbackâ€¦")
+                    if (vm.preparingId == take.id) Text("Preparing playback…")
                     OutlinedButton(onClick = {
                         if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.play(take) }
                     }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
@@ -195,7 +195,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             Column(if (inline) Modifier else Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(phraseBpm, { phraseBpm = it }, label = { Text("Phrase BPM") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("30â€“300") },
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }), supportingText = { Text("30–300") },
                     modifier = Modifier.padding(top = 8.dp), isError = spec == null, singleLine = true)
                 Text("Phrase length in beats")
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -247,9 +247,9 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 verticalArrangement = Arrangement.Center) {
                 Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = green)
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in Â· ${vm.countInBeat} of 4" else "Recording Â· " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
+                    Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of 4" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
                         maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = green)
-                    Text(" â–¾", color = green)
+                    Text(" ▾", color = green)
                 }
             }
         }
@@ -289,7 +289,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val playing = vm.playingId == take.id || vm.preparingId == take.id
     Column(Modifier.fillMaxWidth().testTag("take-review"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Review Take", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-        Text((if (take.mode == "LOOP") "Loop" else "Free") + " Â· " + practiceTime(take.durationMs) + " Â· Not saved", style = MaterialTheme.typography.bodySmall)
+        Text((if (take.mode == "LOOP") "Loop" else "Free") + " · " + practiceTime(take.durationMs) + " · Not saved", style = MaterialTheme.typography.bodySmall)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
                 modifier = Modifier.heightIn(min = 48.dp).testTag("review-preview")) { Text(if (playing) "Stop Preview" else "Play Preview") }

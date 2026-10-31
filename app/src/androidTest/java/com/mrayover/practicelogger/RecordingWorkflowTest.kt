@@ -25,7 +25,7 @@ class RecordingWorkflowTest {
         try { node.assertIsDisplayed() } catch (_: AssertionError) { node.performScrollTo() }
         node.performClick()
     }
-    private fun sheet(text: String) { if (text !in setOf("Stop and save take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onAllNodesWithText(text, substring = false).onLast().assertIsDisplayed().performClick() }
+    private fun sheet(text: String) { if (text !in setOf("Stop and review take", "Cancel phrase")) compose.onNodeWithTag("take-list").performScrollToNode(hasText(text)); compose.onAllNodesWithText(text, substring = false).onLast().assertIsDisplayed().performClick() }
     private fun takeAction(prefix: String, take: BlockTake) {
         val tag = prefix + "-" + take.id
         compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag(tag)); compose.onNodeWithTag(tag).performClick()
@@ -71,7 +71,7 @@ class RecordingWorkflowTest {
             click("Recordings"); shown("Block recordings")
             // Emulator capture exercises the real encoder/container path, not perceived microphone quality.
             repeat(3) { index ->
-                sheet("Record take"); shown("Stop and save take")
+                sheet("Record take"); shown("Stop and review take")
                 compose.waitUntil(10000) { vm.elapsedMs >= 1500L }
                 if (index == 0) {
                     sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
@@ -81,7 +81,8 @@ class RecordingWorkflowTest {
                 if (index == 2) {
                     compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
                     compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
-                } else sheet("Stop and save take")
+                } else sheet("Stop and review take")
+                acceptTemporaryTake(compose, vm)
                 compose.waitUntil(15000) { !vm.busy && vm.takes.value.count { it.blockId == block } == index + 1 }
                 compose.runOnIdle { assertFalse(vm.recording) }
                 if (index < 2) compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }

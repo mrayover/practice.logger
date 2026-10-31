@@ -159,6 +159,7 @@ class FocusedPracticeTest {
             compose.onNode(hasText("Continue") and hasAnyAncestor(isDialog())).performClick()
             compose.runOnIdle { assertTrue(recordings.recording); assertTrue(practice.running) }
             screenshot("free-recording"); compose.onNodeWithTag("practice-recording-stop").performClick()
+            acceptTemporaryTake(compose, recordings)
             compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId==db.sessions().let { runBlocking { it.find(session)!!.current!!.sourceBlockId } } } }
             compose.onNodeWithContentDescription("Play latest free take").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId!=null }; compose.runOnIdle { recordings.stopPlayback() }

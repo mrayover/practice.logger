@@ -94,6 +94,7 @@ class NotesHistoryPreviewTest {
             compose.waitUntil(10000) { notes.history.value.count { it.blockId == block } == 3 && notes.draft(placement).value.isEmpty() }
             compose.runOnIdle { assertTrue(audio.recording); assertTrue(practice.running); assertTrue(practice.clicking) }
             tag("practice-free-record").performClick()
+            acceptTemporaryTake(compose, audio)
             compose.waitUntil(15000) { !audio.recording && !audio.busy && audio.takes.value.any { it.blockId == block && it.mode == "FREE" } }
             compose.onNodeWithTag("practice-notes-content-scrollbar").assertExists();screenshot("notes-history")
             click("Record Loop");collapsedHeaders();compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()

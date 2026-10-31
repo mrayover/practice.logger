@@ -99,6 +99,7 @@ class TransportPreviewTest {
                     compose.runOnIdle { assertTrue(recordings.recording); assertTrue(practice.clicking) }
                 }
                 tagged("practice-free-record").performClick()
+                acceptTemporaryTake(compose, recordings)
                 compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.count { it.blockId == block && it.mode == "FREE" } == index + 1 }
             }
             // Long saved labels must stay within their selector, before the adjacent Record button.
@@ -120,6 +121,7 @@ class TransportPreviewTest {
                 compose.waitUntil(10000) { recordings.recording }
                 compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist()
                 tagged("practice-recording-stop")
+                acceptTemporaryTake(compose, recordings, playAfterSave = true)
                 compose.waitUntil(15000) { !recordings.recording && recordings.takes.value.count { it.blockId == block && it.mode == "LOOP" } == index + 1 }
                 compose.waitUntil(10000) { recordings.playingId != null }
                 compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()

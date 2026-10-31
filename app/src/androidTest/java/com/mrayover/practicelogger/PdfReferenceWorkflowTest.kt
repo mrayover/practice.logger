@@ -94,14 +94,14 @@ class PdfReferenceWorkflowTest {
             val before = recordings.elapsedMs
             repeat(2) {
                 click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2"); rendered(); zoom()
-                compose.onAllNodesWithText("Stop and save take").onLast().assertIsDisplayed()
+                compose.onAllNodesWithText("Stop and review take").onLast().assertIsDisplayed()
                 assertTrue(recordings.recording); assertFalse(recordings.phrasing)
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111,practice.workingBpm)
                 if (it == 0) captureStage3("pdf-active-page")
                 click("Previous page"); shown("Page 1 of 2"); click("Hide reference")
             }
             assertTrue(recordings.elapsedMs > before); captureStage3("pdf-active-recording")
-            click("Stop and save take"); compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId == id } }
+            click("Stop and review take"); acceptTemporaryTake(compose, recordings); compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId == id } }
             val free = recordings.takes.value.single { it.blockId == id }
             assertTrue(free.durationMs >= before); assertTrue(runBlocking { db.sessions().find(session)!!.current!!.activeMs } > 0)
             compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("play-${free.id}"))
@@ -114,12 +114,14 @@ class PdfReferenceWorkflowTest {
             compose.waitUntil(5000) { recordings.phrasing && recordings.countInBeat > 0 }
             click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2")
             assertTrue(recordings.recording); assertTrue(recordings.phrasing); assertTrue(practice.running)
+            acceptTemporaryTake(compose, recordings, playAfterSave = true)
             compose.waitUntil(20000) { recordings.takes.value.any { it.blockId == id && it.mode == "LOOP" } && !recordings.recording }
             compose.waitUntil(10000) { recordings.playingId != null }; captureStage3("pdf-phrase-loop")
             compose.runOnIdle { recordings.stopPlayback() }; click("Hide reference")
-            // Deliberate dismissal retains the existing synchronous stop/save behavior.
+            // Deliberate dismissal stops capture for review; only explicit Save accepts it.
             click("Record take"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1500 }
-            click("Close recordings"); compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
+            click("Close recordings"); acceptTemporaryTake(compose, recordings); click("Close recordings")
+            compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
             assertEquals("PDF recording practice note",runBlocking { db.sessions().find(session)!!.current!!.note })
             clearKeyboard()
             leavePracticeForLater(compose); click("Blocks")

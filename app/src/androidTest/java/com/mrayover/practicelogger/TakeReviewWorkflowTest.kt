@@ -19,7 +19,7 @@ class TakeReviewWorkflowTest {
     private fun shown(text: String) = compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
     private fun click(text: String) { shown(text);compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick() }
     private fun tag(name: String) = compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
-    private fun review() { compose.waitUntil(15000) { !audio.busy && !audio.recording && audio.reviewTake != null };tag("take-review").assertExists() }
+    private fun review() { compose.waitUntil(15000) { !audio.busy && !audio.recording && audio.reviewTake != null && compose.onAllNodesWithTag("take-review").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() };tag("take-review").assertExists() }
     private fun ready() { compose.waitUntil(15000) { audio.ready && !audio.busy };device.executeShellCommand("pm grant ${compose.activity.packageName} ${Manifest.permission.RECORD_AUDIO}") }
     private fun shot(name: String) { compose.waitForIdle(); val dir=File(compose.activity.getExternalFilesDir(null),"take-review");dir.mkdirs();device.takeScreenshot(File(dir,"$name.png")) }
     private fun free(stop: String = "Stop and review take") {
@@ -90,7 +90,7 @@ class TakeReviewWorkflowTest {
             click("Stop and review take");review();val pending=audio.reviewTake!!
             tag("review-preview").performClick();compose.waitUntil(10000) { audio.playingId == pending.id }
             device.pressHome();compose.waitUntil(10000) { audio.playingId == null && !audio.recording }
-            device.executeShellCommand("am start -W -n ${app.packageName}/com.mrayover.practicelogger.MainActivity");review()
+            device.executeShellCommand("am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n ${app.packageName}/com.mrayover.practicelogger.MainActivity");review()
             assertNull(audio.playingId);assertEquals(old,runBlocking { db.takes().readAll() })
             db.openHelper.writableDatabase.execSQL("CREATE TRIGGER p1_fail BEFORE INSERT ON takes BEGIN SELECT RAISE(ABORT, 'P1 test failure'); END")
             tag("review-save").performClick();compose.waitUntil(15000) { !audio.busy && audio.message?.startsWith("Take could not be saved") == true }
@@ -101,6 +101,11 @@ class TakeReviewWorkflowTest {
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record take"));free()
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Close recordings"));click("Close recordings");shown("Discard temporary take?");click("Return to review")
             tag("review-discard").performClick();assertNull(audio.reviewTake)
+            compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record take"));click("Record take")
+            compose.waitUntil(10000) { audio.recording && audio.elapsedMs >= 1500 }
+            device.pressHome();compose.waitUntil(10000) { !audio.recording && !audio.busy }
+            device.executeShellCommand("am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n ${app.packageName}/com.mrayover.practicelogger.MainActivity")
+            review();assertNull(audio.playingId);tag("review-discard").performClick()
             assertEquals(old.size+1,runBlocking { db.takes().readAll().size })
             assertEquals(blocks,runBlocking { db.blocks().readAll() });assertEquals(sessions,runBlocking { BackupRepository(db).snapshot().sessions })
             old.forEach { assertEquals(it,runBlocking { db.takes().find(it.id) });assertArrayEquals(oldBytes[it.id],TakeRepository(db,app).audioFile(it).readBytes()) }
