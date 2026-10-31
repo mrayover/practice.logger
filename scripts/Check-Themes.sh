@@ -8,7 +8,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 classes=com.mrayover.practicelogger.ThemeWorkflowTest
 expected=3
-if [ "$api" = 35 ]; then
+if [ "$api" = 35 ] && [ "${2:-all}" = all ]; then
   classes="$classes,com.mrayover.practicelogger.MetronomeButtonPulseTest,com.mrayover.practicelogger.AudioSettingsWorkflowTest,com.mrayover.practicelogger.LoopRecorderPreviewTest"
   expected=9
 fi

@@ -6,6 +6,11 @@ on:
         description: 'Reuse APKs from a successful build job (empty builds current source)'
         required: false
         default: ''
+      scope:
+        description: 'Theme-only diagnostics or complete focused checks'
+        type: choice
+        options: [all, theme]
+        default: all
       api:
         description: 'Native diagnostic API'
         type: choice
@@ -31,7 +36,11 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Focused palette, persistence and existing audio checks; compile variants
-        run: bash ./gradlew testDebugUnitTest --tests '*ThemePaletteTest' --tests '*ThemePreferencesTest' --tests '*AudioSettingsPcmTest' --tests '*PhraseAudioTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+        run: |
+          if [ "${{ inputs.scope }}" = all ]; then
+            bash ./gradlew testDebugUnitTest --tests '*ThemePaletteTest' --tests '*ThemePreferencesTest' --tests '*AudioSettingsPcmTest' --tests '*PhraseAudioTest' --stacktrace
+          fi
+          bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: theme-apks
@@ -78,7 +87,7 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          script: bash scripts/Check-Themes.sh ${{ matrix.api }}
+          script: bash scripts/Check-Themes.sh ${{ matrix.api }} ${{ inputs.scope }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

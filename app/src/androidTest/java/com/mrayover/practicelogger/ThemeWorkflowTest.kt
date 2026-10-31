@@ -69,7 +69,7 @@ class ThemeWorkflowTest {
         device.executeShellCommand("cmd uimode night no")
         compose.waitUntil(15000) { compose.activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK==Configuration.UI_MODE_NIGHT_NO }
         compose.waitForIdle();background(LightPalette)
-        choose(ThemeChoice.DARK);compose.onNodeWithTag("home-brand").performClick();shown("Practice Now");background(DarkPalette);shot("home-dark")
+        choose(ThemeChoice.DARK);compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Practice Now");background(DarkPalette);shot("home-dark")
     }
     @Test fun paletteRecompositionKeepsPracticeCaptureReviewAndPdfContent() {
         val app=compose.activity.application; val db=BlockDatabase.open(app)
@@ -114,10 +114,10 @@ class ThemeWorkflowTest {
         shown("Practice Now");choose(ThemeChoice.DARK)
         click("Edit");click("New Goal")
         compose.onAllNodes(hasSetTextAction())[0].performTextInput("Unsaved theme Goal")
-        compose.onNodeWithTag("home-brand").performClick();shown("Discard unsaved Goal changes?");shot("dialog-dark")
+        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Discard unsaved Goal changes?");shot("dialog-dark")
         click("Discard");shown("Practice Now")
         click("Log");click("Choose date");shot("date-picker-dark");click("Cancel")
-        compose.onNodeWithTag("home-brand").performClick();shown("Practice Now");click("Settings")
+        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Practice Now");click("Settings")
         device.executeShellCommand("settings put system font_scale 2.0")
         compose.activityRule.scenario.recreate();compose.waitForIdle();tag("theme-dark").assertIsSelected();shot("settings-large-dark")
         compose.runOnIdle { compose.activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
