@@ -27,7 +27,7 @@ class ThemeWorkflowTest {
     private fun choose(choice: ThemeChoice) { compose.runOnIdle { compose.activity.themePreferences.save(choice) }; compose.waitForIdle() }
     private fun shot(name: String) {
         val dir=File(compose.activity.getExternalFilesDir(null),"theme").apply { mkdirs() }
-        compose.waitForIdle(); device.waitForIdle(); device.takeScreenshot(File(dir,"$name.png"))
+        compose.waitForIdle(); device.takeScreenshot(File(dir,"$name.png"))
     }
     private fun background(palette: PracticePalette) {
         compose.waitForIdle()
@@ -42,9 +42,12 @@ class ThemeWorkflowTest {
         compose.runOnIdle {
             assertEquals(palette.id==LightPalette.id,WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightNavigationBars)
             assertFalse(WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightStatusBars)
-            val native=android.util.TypedValue()
-            assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.windowLightNavigationBar,native,true))
-            assertEquals(palette.scheme.background.luminance() > .5f,native.data!=0)
+            // XML attribute exists from API27; API26 is covered by the compat flag assertions.
+            if (android.os.Build.VERSION.SDK_INT >= 27) {
+                val native=android.util.TypedValue()
+                assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.windowLightNavigationBar,native,true))
+                assertEquals(palette.scheme.background.luminance() > .5f,native.data!=0)
+            }
         }
     }
     @After fun resetAppearance() {

@@ -56,7 +56,7 @@ jobs:
           path: app/build/test-results/testDebugUnitTest
   native:
     needs: build
-    if: ${{ always() && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.apk_run != '')) }}
+    if: ${{ !cancelled() && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.apk_run != '')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:

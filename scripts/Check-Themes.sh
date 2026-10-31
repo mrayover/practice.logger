@@ -12,10 +12,15 @@ if [ "$api" = 35 ] && [ "${2:-all}" = all ]; then
   classes="$classes,com.mrayover.practicelogger.MetronomeButtonPulseTest,com.mrayover.practicelogger.AudioSettingsWorkflowTest,com.mrayover.practicelogger.LoopRecorderPreviewTest"
   expected=9
 fi
+collect() {
+  timeout 20s adb logcat -d > "$out/logcat.txt" || true
+  timeout 15s adb shell uiautomator dump /sdcard/theme-window.xml || true
+  timeout 15s adb pull /sdcard/theme-window.xml "$out/window.xml" || true
+  for folder in theme metronome-pulse p4-settings loop-refinement; do
+    timeout 20s adb pull "/sdcard/Android/data/$package/files/$folder" "$out/$folder" || true
+  done
+}
+trap collect EXIT
 adb logcat -c || true
-adb shell am instrument -w -r -e class "$classes" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
-adb logcat -d > "$out/logcat.txt"
-for folder in theme metronome-pulse p4-settings loop-refinement; do
-  adb pull "/sdcard/Android/data/$package/files/$folder" "$out/$folder" || true
-done
+timeout 180s adb shell am instrument -w -r -e class "$classes" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
 grep -q "OK ($expected tests)" "$out/results.txt"
