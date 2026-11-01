@@ -1,4 +1,13 @@
-# Current state — P5 complete and owner accepted
+# Current state — Submarine refinement; P5 remains complete
+
+## Submarine increment — November 1, 2026
+
+Submarine adds red night lighting through existing Compose semantic roles and native dark window/dialog styling. Settings order: Light, Dark, Smooth, Sunny, Orchid, Submarine, System Default. Existing palettes, stable saved IDs and Light fallback/default remain. No layout, database or audio changes.
+
+Targeted theme tests and one debug APK build are pending in the manual Submarine workflow. Automatic push CI is skipped; no P5 regression or release rebuild. The accepted permanent-key release below remains current; the optional debug artifact is for inspection and cannot update a permanent-key installation.
+
+**Current next action: complete targeted theme verification and report its debug artifact.** This assigned increment supersedes the historical next-action statement below.
+
 
 Updated November 1, 2026 (America/Los_Angeles). **P5 outcome: PASS — automated verification, signed delivery and owner acceptance complete.** [Full CI41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) passed all nine required jobs on `bf999b9678039dbf669560cd10649b340c11e217`, branch `main`: 111/111 units, 168/168 native executions, lint zero errors/18 advisories, debug/release/instrumentation compilation. Only the optional diagnostic job was skipped.
 

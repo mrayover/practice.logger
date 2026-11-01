@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
         SmoothPalette.id -> R.style.Theme_PracticeLogger_Smooth
         SunnyPalette.id -> R.style.Theme_PracticeLogger_Sunny
         OrchidPalette.id -> R.style.Theme_PracticeLogger_Orchid
+        SubmarinePalette.id -> R.style.Theme_PracticeLogger_Submarine
         LightPalette.id -> R.style.Theme_PracticeLogger_Light
         else -> R.style.Theme_PracticeLogger_Dark
     }

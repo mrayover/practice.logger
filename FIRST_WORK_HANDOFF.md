@@ -1,4 +1,6 @@
-# practice.logger — P5 complete; await next assignment
+# practice.logger — Submarine refinement; P5 complete
+
+The owner assigned a small Submarine theme and Settings ordering increment. See CURRENT_STATE for its targeted verification; the accepted P5 baseline below remains complete.
 
 The final complete P5 automated gate passed in [CI41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) on application/test source `bf999b9678039dbf669560cd10649b340c11e217`: all nine required jobs, 111 units and 168 native executions on API26/API35. Signed 0.17.1/build67 is owner accepted. Read [CURRENT_STATE](CURRENT_STATE.md), [full report](docs/P5_REGRESSION_REPORT.md) and [baseline](docs/P5_REGRESSION_BASELINE.json) for package paths, hashes, failures and preservation evidence.
 

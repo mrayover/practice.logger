@@ -2,6 +2,10 @@
 
 Updated 2026-11-01 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## Owner-assigned Submarine refinement
+
+One dark red palette through existing semantic/native roles and stable persisted ID; Submarine immediately before System Default at the bottom. Existing palettes, Light default and saved choices remain. Theme units and one debug APK build only; no P5 rerun or new signed release. Verification: CURRENT_STATE.
+
 ## P5 — complete and owner accepted
 
 Full pre-Library automated regression and normalization are complete: all nine required CI41329443572 jobs pass, with 111 unit tests and 168 native executions on API26/API35. Signed build67 fixes native-theme API qualification, full-width references and enlarged-text controls; tests follow current Notes/transport/management behavior. Exact source, package, attempt history, 18 lint advisories and physical limitations are in [CURRENT_STATE](CURRENT_STATE.md) and [P5 report](docs/P5_REGRESSION_REPORT.md). Owner accepted build67 on November 1, 2026: “Confirmed complete and running correctly”. P5 is closed. Next: await a separate assignment; L1 has not started.

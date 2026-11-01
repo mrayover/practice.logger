@@ -38,4 +38,9 @@
         <item name="android:colorBackground">@color/practice_orchid_background</item>
         <item name="android:colorAccent">@color/practice_orchid_accent</item>
     </style>
+    <style name="Theme.PracticeLogger.Submarine" parent="Theme.PracticeLogger.Dark">
+        <item name="android:windowBackground">@color/practice_submarine_background</item>
+        <item name="android:colorBackground">@color/practice_submarine_background</item>
+        <item name="android:colorAccent">@color/practice_submarine_accent</item>
+    </style>
 </resources>

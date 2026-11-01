@@ -164,6 +164,35 @@ val OrchidPalette = PracticePalette("orchid", orchidScheme, PracticeColors(
     goals = listOf(GoalColors(orchidScheme.primary, orchidScheme.primaryContainer, orchidScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
     unassignedGoalAccent = Color(0xFFD2C4DC)
 ))
+// Red night lighting; pale accents preserve selected outlines on instrument-red fills.
+private val submarineScheme = darkScheme.copy(
+    primary = Color(0xFFF0B1A5), onPrimary = Color(0xFF3B1017),
+    primaryContainer = Color(0xFFB44A4D), onPrimaryContainer = Color(0xFFFFF5F0), inversePrimary = Color(0xFF8B303A),
+    secondary = Color(0xFFE9AAA5), onSecondary = Color(0xFF3B1017),
+    secondaryContainer = Color(0xFF743139), onSecondaryContainer = Color(0xFFFFDAD2),
+    tertiary = Color(0xFFF4BEA4), onTertiary = Color(0xFF401B12),
+    tertiaryContainer = Color(0xFF663029), onTertiaryContainer = Color(0xFFFFDCCB),
+    background = Color(0xFF140C0D), onBackground = Color(0xFFF0B1A5),
+    surface = Color(0xFF140C0D), onSurface = Color(0xFFF0B1A5),
+    surfaceVariant = Color(0xFF2D1518), onSurfaceVariant = Color(0xFFE5ABA5),
+    surfaceDim = Color(0xFF100809), surfaceBright = Color(0xFF432126),
+    surfaceContainerLowest = Color(0xFF0E0708), surfaceContainerLow = Color(0xFF211013),
+    surfaceContainer = Color(0xFF2D1518), surfaceContainerHigh = Color(0xFF371B20), surfaceContainerHighest = Color(0xFF432126),
+    inverseSurface = Color(0xFFF0B1A5), inverseOnSurface = Color(0xFF3B1017),
+    outline = Color(0xFFCD797A), outlineVariant = Color(0xFF743139),
+    error = Color(0xFFFFC29A), onError = Color(0xFF4A1700),
+    errorContainer = Color(0xFF6B291B), onErrorContainer = Color(0xFFFFDCCB),
+    surfaceTint = Color(0xFFF0B1A5)
+)
+val SubmarinePalette = PracticePalette("submarine", submarineScheme, PracticeColors(
+    banner = Color(0xFFB44A4D), onBanner = Color(0xFFFFF5F0), bannerEdge = Color(0xFF743139),
+    transportSurface = Color(0xFF2D1518),
+    selectionContainer = Color(0xFF743139), onSelectionContainer = Color(0xFFFFDAD2),
+    recording = submarineScheme.error, onRecording = submarineScheme.onError,
+    scrollThumb = submarineScheme.primary, scrollTrack = Color(0xFF743139),
+    goals = listOf(GoalColors(submarineScheme.primary, submarineScheme.primaryContainer, submarineScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
+    unassignedGoalAccent = Color(0xFFE5ABA5)
+))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {
     ThemeChoice.LIGHT -> LightPalette
@@ -171,6 +200,7 @@ fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = 
     ThemeChoice.SMOOTH -> SmoothPalette
     ThemeChoice.SUNNY -> SunnyPalette
     ThemeChoice.ORCHID -> OrchidPalette
+    ThemeChoice.SUBMARINE -> SubmarinePalette
     ThemeChoice.SYSTEM -> if (systemDark) DarkPalette else LightPalette
 }
 private val LocalPracticeColors = staticCompositionLocalOf { LightPalette.colors }

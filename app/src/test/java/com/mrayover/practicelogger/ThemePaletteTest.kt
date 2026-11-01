@@ -1,11 +1,19 @@
 package com.mrayover.practicelogger
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import org.junit.Assert.*
 import org.junit.Test
 
 class ThemePaletteTest {
+    @Test fun submarineDisabledControlsRemainDistinguishable() {
+        val s = SubmarinePalette.scheme
+        val disabledContainer = s.onSurface.copy(alpha = .12f).compositeOver(s.surface)
+        val disabledText = s.onSurface.copy(alpha = .38f).compositeOver(disabledContainer)
+        pair("submarine disabled label", disabledText, disabledContainer, 2.0)
+        pair("submarine disabled outline", s.outlineVariant, s.surface, 1.5)
+    }
     private fun contrast(a: Color, b: Color): Double {
         val x = a.luminance().toDouble(); val y = b.luminance().toDouble()
         return (maxOf(x,y)+.05)/(minOf(x,y)+.05)
@@ -14,7 +22,7 @@ class ThemePaletteTest {
         assertTrue("$name contrast ${contrast(a,b)} < $minimum", contrast(a,b) >= minimum)
     }
     @Test fun textAndControlPairsRemainReadableAcrossAllPalettes() {
-        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette).forEach { p ->
+        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette,SubmarinePalette).forEach { p ->
             val s=p.scheme; val c=p.colors
             listOf(s.onBackground to s.background, s.onSurface to s.surface,
                 s.onSurfaceVariant to s.surfaceVariant, s.onPrimary to s.primary,
@@ -36,7 +44,7 @@ class ThemePaletteTest {
         }
     }
     @Test fun goalSlotsStayDistinctAndReadableWithoutAllocatingGoalIdentity() {
-        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette).forEach { p ->
+        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette,SubmarinePalette).forEach { p ->
             assertEquals(5,p.colors.goals.size)
             assertEquals(5,p.colors.goals.map { it.accent }.distinct().size)
             p.colors.goals.forEach { g ->
@@ -53,6 +61,7 @@ class ThemePaletteTest {
             assertSame(SmoothPalette,resolvePalette(ThemeChoice.SMOOTH,dark))
             assertSame(SunnyPalette,resolvePalette(ThemeChoice.SUNNY,dark))
             assertSame(OrchidPalette,resolvePalette(ThemeChoice.ORCHID,dark))
+            assertSame(SubmarinePalette,resolvePalette(ThemeChoice.SUBMARINE,dark))
             assertSame(if(dark) DarkPalette else LightPalette,resolvePalette(ThemeChoice.SYSTEM,dark))
         }
         assertEquals(ThemeChoice.LIGHT,ThemeChoice.fromId(null))
