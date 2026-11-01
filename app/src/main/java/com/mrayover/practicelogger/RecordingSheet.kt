@@ -246,21 +246,19 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                         ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
                     color = if (!importMode && spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).testTag("phrase-duration"))
-                if (inline && review == null) Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                if (inline && review == null) Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text("Add Backing Track", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     Checkbox(checked = backing, onCheckedChange = { backing = it }, enabled = editable,
-                        modifier = Modifier.height(32.dp).testTag("backing-track-toggle").semantics { contentDescription = "Add Backing Track" })
+                        modifier = Modifier.height(24.dp).width(32.dp).testTag("backing-track-toggle").semantics { contentDescription = "Add Backing Track" })
                 }
             }
             // Keep recording/review and its metadata together against the transport boundary.
             Column(Modifier.fillMaxWidth().testTag("phrase-footer")) {
             if (importMode) {
                 Column(Modifier.fillMaxWidth()) {
-                    vm.backingTrack?.imported?.let { Text(it.name, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth().testTag("backing-track-filename").semantics { contentDescription = it.name }) }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         OutlinedButton(onClick = { keyboard?.hide(); picker.launch(arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")) },
-                            enabled = editable && vm.ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("backing-track-choose")) { Text("Choose file…") }
+                            enabled = editable && vm.ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("backing-track-choose")) { Text(vm.backingTrack?.imported?.name ?: "Choose file…", maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.testTag("backing-track-filename")) }
                         Button(onClick = { vm.saveBackingTrack(blockId) }, enabled = editable && vm.ready && vm.backingTrack?.blockId == blockId,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("backing-track-save")) { Text("Save") }
                     }

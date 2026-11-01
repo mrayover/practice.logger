@@ -118,7 +118,7 @@ class ImportedAudioWorkflowTest {
             val repo=TakeRepository(db,app);imported.forEach{assertTrue(repo.audioFile(it).isFile)}
             val block=runBlocking{db.blocks().find(imported.first().blockId!!)!!}
             click("Blocks");click(block.name);click("Recordings");shown("Block recordings")
-            val selected=imported.first{it.fileName.endsWith(".mp3")};compose.onNodeWithText(selected.label).scrollIfNeeded().assertIsDisplayed()
+            val selected=imported.first{it.fileName.endsWith(".mp3")};compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("take-${selected.id}"));compose.onNodeWithText(selected.label).assertIsDisplayed()
             tag("rename-${selected.id}").performClick();shown("Rename take")
             compose.onNodeWithText("Take label (optional)").performTextReplacement("p61 renamed imported loop")
             compose.runOnIdle { compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) };click("Save take label")
@@ -126,7 +126,7 @@ class ImportedAudioWorkflowTest {
             val output=media("p61-export.mp3","audio/mpeg",byteArrayOf())
             compose.runOnIdle{audio.export(selected,output)};compose.waitUntil(15000){!audio.busy && audio.message?.startsWith("Audio exported")==true}
             assertArrayEquals(repo.audioFile(selected).readBytes(),app.contentResolver.openInputStream(output)!!.use{it.readBytes()});app.contentResolver.delete(output,null,null)
-            val remove=imported.first{it.fileName.endsWith(".m4a")};tag("delete-${remove.id}").performClick();click("Delete take permanently")
+            val remove=imported.first{it.fileName.endsWith(".m4a")};compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("take-${remove.id}"));tag("delete-${remove.id}").performClick();click("Delete take permanently")
             compose.waitUntil(15000){!audio.busy && audio.takes.value.none{it.id==remove.id}}
             assertFalse(File(app.filesDir,"recordings/${remove.fileName}").exists())
             assertEquals(2,audio.takes.value.count{it.kind==TakeKind.IMPORTED_LOOP});assertTrue(audio.takes.value.any{it.kind==TakeKind.FREE});assertTrue(audio.takes.value.any{it.kind==TakeKind.RECORDED_LOOP})
