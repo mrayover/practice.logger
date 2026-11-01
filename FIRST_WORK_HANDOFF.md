@@ -6,6 +6,6 @@ The final complete P5 automated gate passed in [CI41329443572](https://github.co
 
 Owner confirmed on November 1, 2026: “Confirmed complete and running correctly”. This accepts the delivered 0.17.1/build67 in the context of the P5 handoff and closes P5. Phone model, Android version and itemized checklist observations were not supplied; no additional measurements or individual check results are inferred.
 
-**Next action: await a separate owner assignment.** P5 is PASS and closed. Media Library L1 has not started. Stage4 remains 0/10 documented real sessions.
+**Next action: Submarine visual inspection as recorded in CURRENT_STATE.** P5 is PASS and closed. Media Library L1 has not started. Stage4 remains 0/10 documented real sessions.
 
 Reuse the existing checkout and current files. The owner authorized Git publication for this increment. Prior work and packages were preserved; synced project sources are read-only. Review the mandatory efficiency procedure before further work. The final source includes the AudioSettings cleanup correction; its isolated checks and final coherent full gate pass. Later documentation commits are separate from the signed source. Room11, JSON7/readers1–7, media exclusions and permanent identity remain unchanged.

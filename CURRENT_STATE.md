@@ -4,9 +4,11 @@
 
 Submarine adds red night lighting through existing Compose semantic roles and native dark window/dialog styling. Settings order: Light, Dark, Smooth, Sunny, Orchid, Submarine, System Default. Existing palettes, stable saved IDs and Light fallback/default remain. No layout, database or audio changes.
 
-Targeted theme tests and one debug APK build are pending in the manual Submarine workflow. Automatic push CI is skipped; no P5 regression or release rebuild. The accepted permanent-key release below remains current; the optional debug artifact is for inspection and cannot update a permanent-key installation.
+[Targeted CI41333454953](https://github.com/mrayover/practice.logger/actions/runs/41333454953) passed on source `a039df0814a1adc6cdbcfb87f2112e566be51a0f`: 7/7 tests (4 palette/contrast/resolver, 3 preference/persistence/order) and one debug APK compilation. No P5 regression, native scenarios, lint, release compilation or signing ran. Existing palette definitions are unchanged; diff checks pass.
 
-**Current next action: complete targeted theme verification and report its debug artifact.** This assigned increment supersedes the historical next-action statement below.
+[Inspection debug APK](.tools/submarine-checks-41333454953/outputs/apk/debug/app-debug.apk), SHA256 `4121748443f446c08b5ea9fa14e7835ce70ea265fb1a5e79b3b2afa2bb2b4733`; downloaded artifact/APK ZIP integrity verified. It retains version0.17.1/code67 and uses the CI debug key; it cannot update the permanent-key installation. Do not uninstall the accepted app to inspect it. No version bump or new signed release, per this assignment. Visual/device acceptance remains pending. The permanent-key release below remains the accepted installable update.
+
+**Current next action: inspect Submarine visually on an isolated debug installation, including Settings order, dialogs, practice, metronome, recording, selected/disabled controls and warnings.** The accepted P5 baseline below remains closed.
 
 
 Updated November 1, 2026 (America/Los_Angeles). **P5 outcome: PASS — automated verification, signed delivery and owner acceptance complete.** [Full CI41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) passed all nine required jobs on `bf999b9678039dbf669560cd10649b340c11e217`, branch `main`: 111/111 units, 168/168 native executions, lint zero errors/18 advisories, debug/release/instrumentation compilation. Only the optional diagnostic job was skipped.
@@ -33,4 +35,4 @@ Room11, explicit migrations, JSON7/readers1–7, stable IDs, original references
 
 Owner confirmed on November 1, 2026: “Confirmed complete and running correctly”. This accepts the delivered 0.17.1/build67 in the context of the P5 handoff and closes P5. Phone model, Android version and itemized checklist observations were not supplied; no additional measurements or individual check results are inferred.
 
-**Next action: await a separate owner assignment.** No additional P5 work is pending. Media Library L1 has not started and is not authorized by acceptance alone. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.
+No additional P5 work is pending. The current Submarine next action is listed above. Media Library L1 has not started and is not authorized by acceptance alone. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.
