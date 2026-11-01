@@ -1,10 +1,10 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current signed candidate: **0.17.1/build67 P5 pre-Library baseline**, with automated regression passed and owner-phone acceptance pending. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current accepted release: **0.17.1/build67 P5 pre-Library baseline**, with automated regression and owner acceptance complete. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
-[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 is generally owner-accepted. P4 audio Settings is delivered with scoped checks; P4 phone acceptance remains pending. P5 full automated regression has passed; its signed candidate awaits owner-phone acceptance. Later phases have not started. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
+[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 is generally owner-accepted. P4 audio Settings is delivered with scoped checks; P4 phone acceptance remains pending. P5 full automated regression and owner acceptance are complete. Later phases have not started. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Appearance and Settings
 
@@ -61,7 +61,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-P5 full CI41329443572 passes all nine required jobs: 111 unit tests, 168 native executions on API26/API35, lint zero errors/18 documented advisories and debug/release/instrumentation compilation. Signed build67, source provenance, all attempt outcomes and the exact phone-acceptance next action are in [CURRENT_STATE.md](CURRENT_STATE.md), [the P5 report](docs/P5_REGRESSION_REPORT.md) and [machine-readable baseline](docs/P5_REGRESSION_BASELINE.json). Owner-phone acceptance is pending. Media Library remains gated; Stage4 remains 0/10 documented real sessions.
+P5 full CI41329443572 passes all nine required jobs: 111 unit tests, 168 native executions on API26/API35, lint zero errors/18 documented advisories and debug/release/instrumentation compilation. Signed build67, source provenance, all attempt outcomes and the exact phone-acceptance next action are in [CURRENT_STATE.md](CURRENT_STATE.md), [the P5 report](docs/P5_REGRESSION_REPORT.md) and [machine-readable baseline](docs/P5_REGRESSION_BASELINE.json). The owner confirmed build67 complete and running correctly on November 1, 2026; P5 is closed. Media Library requires a separate assignment; Stage4 remains 0/10 documented real sessions.
 
 ## Development
 

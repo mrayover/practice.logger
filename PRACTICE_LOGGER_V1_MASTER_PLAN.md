@@ -151,6 +151,8 @@ Freeze P1–P4 features. Run and record:
 
 **Exit:** Owner accepts the pre-Library candidate (with explicitly documented phone-only limitations if any). **Do not begin L1 until this gate is recorded.**
 
+**Recorded status — November 1, 2026: P5 complete.** Final full CI41329443572 passed all required jobs; permanent-key 0.17.1/build67 was delivered. Owner confirmed: “Confirmed complete and running correctly”. See [CURRENT_STATE](CURRENT_STATE.md) for exact provenance and acceptance limits. L1 remains unstarted and requires a separate assignment.
+
 ---
 
 ## 8. L1–L3 — Media Library (separate from the existing Block list)

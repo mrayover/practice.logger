@@ -4,9 +4,9 @@ Prepared 2026-11-01 (America/Los_Angeles). Run on **Medium**; use High selective
 
 ## Execution pointer
 
-Automated execution is complete: full CI41329443572 passes all nine required jobs, 111 units and 168 native executions across API26/API35. Signed 0.17.1/build67 awaits owner-phone acceptance. The owner authorized Git commit/push and maintenance is published. Follow [CURRENT_STATE](../CURRENT_STATE.md), [P5 report](P5_REGRESSION_REPORT.md) and [machine baseline](P5_REGRESSION_BASELINE.json) for current provenance, package and exact next action.
+Automated execution is complete: full CI41329443572 passes all nine required jobs, 111 units and 168 native executions across API26/API35. Owner accepted signed 0.17.1/build67 on November 1, 2026: “Confirmed complete and running correctly”. P5 is closed; await a separate assignment. The owner authorized Git commit/push and maintenance is published. Follow [CURRENT_STATE](../CURRENT_STATE.md), [P5 report](P5_REGRESSION_REPORT.md) and [machine baseline](P5_REGRESSION_BASELINE.json) for current provenance, package and exact next action.
 
-**The original assignment and starting snapshot below are historical.** Its uncommitted/no-build/build65/authorization statements describe preparation before execution; they are not current instructions to repeat completed work. Owner acceptance remains the P5 exit; no Library phase has started.
+**The original assignment and starting snapshot below are historical.** Its uncommitted/no-build/build65/authorization statements describe preparation before execution; they are not current instructions to repeat completed work. Owner acceptance has satisfied the P5 exit; no Library phase has started.
 
 ## Assignment and exit gate
 

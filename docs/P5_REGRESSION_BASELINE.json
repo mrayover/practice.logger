@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "date": "2026-11-01",
-  "status": "Automated baseline passed; owner-phone acceptance pending",
+  "status": "PASS — automated baseline and owner acceptance complete",
   "version": "0.17.1",
   "versionCode": 67,
   "sourceCommit": "bf999b9678039dbf669560cd10649b340c11e217",
@@ -1658,7 +1658,7 @@
   },
   "nativeDeclaredMethods": 77,
   "nativeExecutions": 168,
-  "phoneAccepted": false,
+  "phoneAccepted": true,
   "libraryStarted": false,
   "package": {
     "apk": "C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9/practice.logger-0.17.1-b67-bf999b9.apk",
@@ -1668,5 +1668,15 @@
     "certificateSha256": "f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830",
     "unsignedEntriesPreserved": 140,
     "zipMembers": 5
+  },
+  "ownerAcceptance": {
+    "date": "2026-11-01",
+    "timezone": "America/Los_Angeles",
+    "statement": "Confirmed complete and running correctly",
+    "release": "0.17.1/build67",
+    "basis": "Owner confirmation following this release handoff",
+    "phoneModel": null,
+    "androidVersion": null,
+    "itemizedObservationsProvided": false
   }
 }

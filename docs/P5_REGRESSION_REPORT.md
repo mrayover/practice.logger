@@ -1,6 +1,6 @@
-# P5 regression report — automated gate passed; phone acceptance pending
+# P5 regression report — PASS; owner accepted
 
-Verified November 1, 2026 (America/Los_Angeles). **All nine required jobs passed on one final source: 111/111 unit tests, 168/168 native executions, zero lint errors, and debug/release/instrumentation compilation.** Signed 0.17.1/build67 is ready for owner acceptance. P5 remains PARTIAL until the owner completes phone acceptance. No Library or later milestone started.
+Verified November 1, 2026 (America/Los_Angeles). **All nine required jobs passed on one final source: 111/111 unit tests, 168/168 native executions, zero lint errors, and debug/release/instrumentation compilation.** The owner accepted signed 0.17.1/build67 on November 1, 2026: “Confirmed complete and running correctly”. P5 is PASS and closed. No Library or later milestone started.
 
 ## Final source and release
 
@@ -101,9 +101,15 @@ Room remains11 with explicit migrations; all 11 compiler schemas match source an
 
 All 278 pre-P5 APK/ZIP hashes and all 282 packages present at completion-session entry remain unchanged, including build66. The intermediate ad1f3ed build67 folder/archive remains preserved; its original ZIP was not finalized to include later folder additions and is not the delivery. No owner distribution of that intermediate was recorded. Final build67 uses identical application code and the final verified test source; no version bump is needed for unchanged application code before owner distribution.
 
-The established Publish-LocalApk.ps1 publisher used the existing permanent key and verified package, versionCode67, version0.17.1, signature and pinned certificate. All 140 original unsigned CI APK entries match the signed APK byte-for-byte. APK/ZIP CRC, unique members, five exact delivery members and archive-to-folder bytes pass. Same package/certificate as build65 and a higher code support in-place updating. Actual signed installation over the owner's phone remains pending; certificate compatibility is not reported as a performed phone installation.
+The established Publish-LocalApk.ps1 publisher used the existing permanent key and verified package, versionCode67, version0.17.1, signature and pinned certificate. All 140 original unsigned CI APK entries match the signed APK byte-for-byte. APK/ZIP CRC, unique members, five exact delivery members and archive-to-folder bytes pass. Same package/certificate as build65 and a higher code support in-place updating. The agent did not perform the owner's phone installation; the subsequent owner acceptance is recorded below.
 
-## Exact next action — owner phone acceptance
+## Owner acceptance — P5 closed
+
+Owner confirmed on November 1, 2026: “Confirmed complete and running correctly”. This accepts the delivered 0.17.1/build67 in the context of the P5 handoff and closes P5. Phone model, Android version and itemized checklist observations were not supplied; no additional measurements or individual check results are inferred.
+
+The checklist below is retained as the delivered acceptance reference, not an itemized record of independently observed results. The packaged checklist/verification text remains the original delivery snapshot; package bytes and hashes are unchanged.
+
+### Delivered phone checklist
 
 Install the final build67 APK over the permanent-key app without uninstalling/clearing. Complete PHONE_CHECKLIST.txt and record phone, Android version, installed build, results and any explicitly accepted limitation:
 
@@ -112,4 +118,4 @@ Install the final build67 APK over the permanent-key app without uninstalling/cl
 3. Check image/PDF colors/page/zoom, all six themes, keyboard/enlarged text/portrait/landscape and TalkBack.
 4. Background/reopen and interrupt audio safely; no automatic recording/playback restart or save. Test real phone/Drive providers and exported originals.
 
-Physical acoustics/display latency/providers/TalkBack cannot be certified by emulators. Imported repeat has no certified seamless-join guarantee. Keep originals separately because JSON excludes media. Stage4 remains0/10 documented real sessions. **P5 exits only after owner acceptance. Stop at P5; L1 requires a separate assignment.**
+Physical acoustics/display latency/providers/TalkBack cannot be certified by emulators. Imported repeat has no certified seamless-join guarantee. Keep originals separately because JSON excludes media. Stage4 remains0/10 documented real sessions. **Owner acceptance has closed P5. Next action: await a separate owner assignment; L1 remains unstarted.**

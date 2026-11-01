@@ -1,8 +1,8 @@
-# Current state — P5 automated gate passed; owner acceptance pending
+# Current state — P5 complete and owner accepted
 
-Updated November 1, 2026 (America/Los_Angeles). **P5 outcome: PARTIAL — automated verification and signed delivery complete; owner-phone acceptance pending.** [Full CI41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) passed all nine required jobs on `bf999b9678039dbf669560cd10649b340c11e217`, branch `main`: 111/111 units, 168/168 native executions, lint zero errors/18 advisories, debug/release/instrumentation compilation. Only the optional diagnostic job was skipped.
+Updated November 1, 2026 (America/Los_Angeles). **P5 outcome: PASS — automated verification, signed delivery and owner acceptance complete.** [Full CI41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) passed all nine required jobs on `bf999b9678039dbf669560cd10649b340c11e217`, branch `main`: 111/111 units, 168/168 native executions, lint zero errors/18 advisories, debug/release/instrumentation compilation. Only the optional diagnostic job was skipped.
 
-## Signed pre-Library candidate
+## Accepted pre-Library release
 
 **0.17.1/build67:** [APK](C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9/practice.logger-0.17.1-b67-bf999b9.apk), [ZIP](C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9.zip). Application and test source: `bf999b9678039dbf669560cd10649b340c11e217`. Later record-only commits are separate.
 
@@ -20,6 +20,8 @@ Earlier P5 product fixes are limited to qualified theme attributes, full-width r
 
 Room11, explicit migrations, JSON7/readers1–7, stable IDs, original references/audio and permanent signing remain. JSON excludes all takes/audio and image/PDF metadata/bytes; retain originals/export audio separately. All 11 compiler schemas and all 282 session-entry APK/ZIP hashes match. Synced sources and owner phone/data were untouched. Owner authorized Git command publication; mandatory efficiency procedure reviewed/preserved.
 
-## Exact next action
+## Owner acceptance and next action
 
-**Owner: install final build67 in place and complete PHONE_CHECKLIST.txt, then record acceptance or concrete issues.** Actual phone install-over/data retention, microphone/speaker/audio timing/loop edges, flash latency, providers and TalkBack remain pending. Imported repeat has no certified seamless-join guarantee. Stage4 remains0/10 documented real sessions. P5 is not fully accepted. Stop here; Media Library L1 requires acceptance and a separate assignment.
+Owner confirmed on November 1, 2026: “Confirmed complete and running correctly”. This accepts the delivered 0.17.1/build67 in the context of the P5 handoff and closes P5. Phone model, Android version and itemized checklist observations were not supplied; no additional measurements or individual check results are inferred.
+
+**Next action: await a separate owner assignment.** No additional P5 work is pending. Media Library L1 has not started and is not authorized by acceptance alone. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.

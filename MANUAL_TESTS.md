@@ -1,6 +1,6 @@
 # Current phone and P5 regression checklist
 
-Reviewed 2026-11-01 (America/Los_Angeles) for signed P5 build67. The full automated gate passes; this physical checklist remains pending. Use [CURRENT_STATE.md](CURRENT_STATE.md) for the signed package, exact source and verification limits; record the installed build, phone, Android version, text scale and observations. This checklist is pending acceptance, not a list of passing results. See [pre-regression review](docs/PRE_REGRESSION_REVIEW.md) for runner corrections and legacy test risks. P5 and final F1/F2 retain full automated and physical-device gates; do not dispatch them automatically from this document.
+Reviewed 2026-11-01 (America/Los_Angeles) for signed P5 build67. The full automated gate passes; the owner accepted build67 on November 1, 2026 as complete and running correctly. Itemized physical observations were not supplied. Use [CURRENT_STATE.md](CURRENT_STATE.md) for the signed package, exact source and verification limits; record the installed build, phone, Android version, text scale and observations. This checklist remains the acceptance reference; it does not assert independently observed results for every item. See [pre-regression review](docs/PRE_REGRESSION_REVIEW.md) for runner corrections and legacy test risks. P5 and final F1/F2 retain full automated and physical-device gates; do not dispatch them automatically from this document.
 
 ## Install, preserve and identify
 
