@@ -1,5 +1,9 @@
 # Current state — Sunny theme /0.17.0/build64
 
+## Orchid increment in progress
+
+Orchid source is prepared for build65: dark plum surfaces and light purple controls with native styles/persisted selector. Focused verification/signing pending; signed build64 below remains the installable baseline until delivery. No phone acceptance claimed.
+
 ## Delivery
 
 Signed **0.17.0/build64**, source `4d71c1e05b2d3f5b4725f68d566e00d5aa346880`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b64-4d71c1e/practice.logger-0.17.0-b64-4d71c1e.apk) · [ZIP](dist/practice.logger-0.17.0-b64-4d71c1e.zip) · [Build info](dist/practice.logger-0.17.0-b64-4d71c1e/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b64-4d71c1e/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling/clearing data. Earlier signed packages remain preserved and ignored.

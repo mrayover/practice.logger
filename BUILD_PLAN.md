@@ -2,6 +2,10 @@
 
 Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## Owner-assigned Orchid theme
+
+Build65 adds dark plum surfaces and light purple accents through existing theme roles, Settings and matching native window/accent styles. Layout/Lato/control state behavior remains shared. Verification and signed-delivery status: CURRENT_STATE. Phone acceptance pending; no later phase/full regression.
+
 ## Owner-assigned Sunny theme
 
 Build64 adds a persisted yellow/orange Sunny palette through existing semantic roles, Settings and matching native window/accent styles. Layout/Lato/control state behavior remains shared. Verification and signed-delivery status: CURRENT_STATE. Phone acceptance pending; no later phase/full regression.

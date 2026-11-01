@@ -51,7 +51,7 @@ class MetronomeButtonPulseTest {
         compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(mode=MetronomeMode.SOUND_FLASH)); vm.applyMetronomeBpm(90) }
         compose.onNodeWithContentDescription("Increase BPM by 1").scrollIfNeeded().performClick()
         compose.runOnIdle { assertEquals(91,vm.bpm) }
-        for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.SMOOTH, ThemeChoice.SUNNY)) {
+        for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.SMOOTH, ThemeChoice.SUNNY, ThemeChoice.ORCHID)) {
             compose.runOnIdle { compose.activity.themePreferences.save(choice) }; compose.waitForIdle()
             val palette = resolvePalette(choice, false)
             click("Start click"); cycles("tool-metronome-pulse",palette.scheme.primaryContainer,palette.scheme.primary)
@@ -70,7 +70,7 @@ class MetronomeButtonPulseTest {
             shown("Practice Now");compose.runOnIdle { vm.openSession(session) };shown("90 BPM")
             compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(mode=MetronomeMode.SOUND_FLASH)) }
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick(); shown("91 BPM")
-            for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.SMOOTH, ThemeChoice.SUNNY)) {
+            for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.SMOOTH, ThemeChoice.SUNNY, ThemeChoice.ORCHID)) {
                 compose.runOnIdle { compose.activity.themePreferences.save(choice) }; compose.waitForIdle()
                 val palette = resolvePalette(choice, false)
                 click("Start click"); cycles("practice-metronome-pulse",palette.scheme.primary,palette.colors.transportSurface)

@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
     private fun nativeTheme(palette: PracticePalette): Int = when (palette.id) {
         SmoothPalette.id -> R.style.Theme_PracticeLogger_Smooth
         SunnyPalette.id -> R.style.Theme_PracticeLogger_Sunny
+        OrchidPalette.id -> R.style.Theme_PracticeLogger_Orchid
         LightPalette.id -> R.style.Theme_PracticeLogger_Light
         else -> R.style.Theme_PracticeLogger_Dark
     }

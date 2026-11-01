@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 enum class ThemeChoice(val id: String, val label: String) {
-    LIGHT("light", "Light"), DARK("dark", "Dark"), SYSTEM("system", "System Default"), SMOOTH("smooth", "Smooth"), SUNNY("sunny", "Sunny");
+    LIGHT("light", "Light"), DARK("dark", "Dark"), SYSTEM("system", "System Default"), SMOOTH("smooth", "Smooth"), SUNNY("sunny", "Sunny"), ORCHID("orchid", "Orchid");
     companion object {
         fun fromId(id: String?): ThemeChoice = entries.find { it.id == id } ?: LIGHT
     }

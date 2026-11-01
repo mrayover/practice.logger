@@ -14,7 +14,7 @@ class ThemePaletteTest {
         assertTrue("$name contrast ${contrast(a,b)} < $minimum", contrast(a,b) >= minimum)
     }
     @Test fun textAndControlPairsRemainReadableAcrossAllPalettes() {
-        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette).forEach { p ->
+        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette).forEach { p ->
             val s=p.scheme; val c=p.colors
             listOf(s.onBackground to s.background, s.onSurface to s.surface,
                 s.onSurfaceVariant to s.surfaceVariant, s.onPrimary to s.primary,
@@ -36,7 +36,7 @@ class ThemePaletteTest {
         }
     }
     @Test fun goalSlotsStayDistinctAndReadableWithoutAllocatingGoalIdentity() {
-        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette).forEach { p ->
+        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette).forEach { p ->
             assertEquals(5,p.colors.goals.size)
             assertEquals(5,p.colors.goals.map { it.accent }.distinct().size)
             p.colors.goals.forEach { g ->
@@ -52,6 +52,7 @@ class ThemePaletteTest {
             assertSame(DarkPalette,resolvePalette(ThemeChoice.DARK,dark))
             assertSame(SmoothPalette,resolvePalette(ThemeChoice.SMOOTH,dark))
             assertSame(SunnyPalette,resolvePalette(ThemeChoice.SUNNY,dark))
+            assertSame(OrchidPalette,resolvePalette(ThemeChoice.ORCHID,dark))
             assertSame(if(dark) DarkPalette else LightPalette,resolvePalette(ThemeChoice.SYSTEM,dark))
         }
         assertEquals(ThemeChoice.LIGHT,ThemeChoice.fromId(null))

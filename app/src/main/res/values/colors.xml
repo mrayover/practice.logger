@@ -8,4 +8,6 @@
     <color name="practice_smooth_accent">#8BD8D1</color>
     <color name="practice_sunny_background">#FFF4CD</color>
     <color name="practice_sunny_accent">#8C4300</color>
+    <color name="practice_orchid_background">#1B1622</color>
+    <color name="practice_orchid_accent">#D8B9FF</color>
 </resources>

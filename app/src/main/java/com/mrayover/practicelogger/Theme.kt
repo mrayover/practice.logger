@@ -138,12 +138,39 @@ val SunnyPalette = PracticePalette("sunny", sunnyScheme, PracticeColors(
     goals = listOf(GoalColors(sunnyScheme.primary, sunnyScheme.primaryContainer, sunnyScheme.onPrimaryContainer)) + LightPalette.colors.goals.drop(1),
     unassignedGoalAccent = Color(0xFF5C4930)
 ))
+// Orchid pairs dark plum surfaces with light lavender actions.
+private val orchidScheme = darkScheme.copy(
+    primary = Color(0xFFD8B9FF), onPrimary = Color(0xFF3D1D5C),
+    primaryContainer = Color(0xFF533573), onPrimaryContainer = Color(0xFFF0DDFF), inversePrimary = Color(0xFF70508F),
+    secondary = Color(0xFFD3C0E0), onSecondary = Color(0xFF382A45),
+    secondaryContainer = Color(0xFF50405D), onSecondaryContainer = Color(0xFFEFDCF9),
+    tertiary = Color(0xFFF0B7D3), onTertiary = Color(0xFF4B243A),
+    tertiaryContainer = Color(0xFF653A51), onTertiaryContainer = Color(0xFFFFD8EA),
+    background = Color(0xFF1B1622), onBackground = Color(0xFFECE3F2),
+    surface = Color(0xFF1B1622), onSurface = Color(0xFFECE3F2),
+    surfaceVariant = Color(0xFF49404F), onSurfaceVariant = Color(0xFFD2C4DC),
+    surfaceDim = Color(0xFF15101C), surfaceBright = Color(0xFF3B3342),
+    surfaceContainerLowest = Color(0xFF100C16), surfaceContainerLow = Color(0xFF211B29),
+    surfaceContainer = Color(0xFF271F30), surfaceContainerHigh = Color(0xFF31283B), surfaceContainerHighest = Color(0xFF3C3346),
+    inverseSurface = Color(0xFFE8DEEF), inverseOnSurface = Color(0xFF342B3E),
+    outline = Color(0xFFA394B0), outlineVariant = Color(0xFF51465D), surfaceTint = Color(0xFFD8B9FF)
+)
+val OrchidPalette = PracticePalette("orchid", orchidScheme, PracticeColors(
+    banner = Color(0xFF392647), onBanner = Color(0xFFF5E8FF), bannerEdge = Color(0xFF271A33),
+    transportSurface = Color(0xFF2A2034),
+    selectionContainer = Color(0xFF57406F), onSelectionContainer = Color(0xFFF5E5FF),
+    recording = orchidScheme.error, onRecording = orchidScheme.onError,
+    scrollThumb = orchidScheme.primary, scrollTrack = Color(0xFF51405F),
+    goals = listOf(GoalColors(orchidScheme.primary, orchidScheme.primaryContainer, orchidScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
+    unassignedGoalAccent = Color(0xFFD2C4DC)
+))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {
     ThemeChoice.LIGHT -> LightPalette
     ThemeChoice.DARK -> DarkPalette
     ThemeChoice.SMOOTH -> SmoothPalette
     ThemeChoice.SUNNY -> SunnyPalette
+    ThemeChoice.ORCHID -> OrchidPalette
     ThemeChoice.SYSTEM -> if (systemDark) DarkPalette else LightPalette
 }
 private val LocalPracticeColors = staticCompositionLocalOf { LightPalette.colors }

@@ -90,6 +90,23 @@ class ThemeWorkflowTest {
         compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick()
         shown("Practice Now"); background(SunnyPalette); shot("home-sunny")
     }
+    @Test fun orchidSelectionPersistsAndRendersNativeChrome() {
+        shown("Practice Now")
+        compose.onNodeWithTag("header-settings").performClick()
+        tag("theme-orchid").performClick()
+        compose.waitUntil(10000) { compose.activity.themePreferences.choice.value == ThemeChoice.ORCHID }
+        tag("theme-orchid").assertIsSelected(); background(OrchidPalette); shot("settings-orchid")
+        assertEquals(ThemeChoice.ORCHID, ThemePreferences(compose.activity.application).choice.value)
+        compose.activityRule.scenario.recreate(); compose.waitForIdle()
+        tag("theme-orchid").assertIsSelected(); background(OrchidPalette)
+        compose.runOnIdle {
+            val native = android.util.TypedValue()
+            assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.colorAccent, native, true))
+            assertEquals(OrchidPalette.scheme.primary, Color(native.data))
+        }
+        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick()
+        shown("Practice Now"); background(OrchidPalette); shot("home-orchid")
+    }
     @Test fun homeSettingsBelowLogPersistsAndSystemFollowsDevice() {
         shown("Practice Now");choose(ThemeChoice.LIGHT);background(LightPalette)
         val settings=compose.onNodeWithText("Settings").scrollIfNeeded().assertIsDisplayed().fetchSemanticsNode().boundsInRoot
