@@ -1,4 +1,6 @@
-# Current state — Submarine refinement; P5 remains complete
+# Current state — Reference photo increment in progress
+
+Owner assigned split Files / camera-gallery reference actions before Media Library. Version0.17.3/build69 implemented; focused release compilation and reference safety checks pending. Current installable delivery remains build68 below until signing completes. Next action: complete targeted build, sign build69 and record exact evidence.
 
 ## Submarine release - November 1, 2026
 

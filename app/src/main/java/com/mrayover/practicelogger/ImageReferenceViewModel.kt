@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import java.io.File
 
 class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
+    val photoCapture = ReferencePhotoCapture(app)
     val repository = ImageReferenceRepository(BlockDatabase.appInstance(app), File(app.filesDir, "block-images"))
     val images = repository.images.catch { message = "Could not read references. Reopen the app to retry."; emit(emptyList()) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -31,6 +32,15 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         repository.import(blockId) { checkNotNull(getApplication<Application>().contentResolver.openInputStream(uri)) }
         message = "Reference saved. Keep your original separately; JSON backups exclude images and PDFs."
     }
+    fun importPhoto(blockId: String, name: String) = work {
+        try {
+            repository.import(blockId) { photoCapture.file(name).inputStream() }
+            message = "Photo saved. JSON backups exclude images and PDFs."
+        } finally {
+            withContext(NonCancellable + Dispatchers.IO) { photoCapture.discard(name) }
+        }
+    }
+    fun photoUnavailable() { message = "Could not open the camera or gallery. Try again, or use Add image or PDF." }
     fun remove(blockId: String) = work {
         message = if (repository.remove(blockId)) "Reference removed."
             else "Reference removed. Private file cleanup will be retried when the app reopens."

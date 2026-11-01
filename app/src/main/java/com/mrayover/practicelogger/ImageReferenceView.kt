@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -18,6 +19,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -36,8 +40,58 @@ import kotlin.coroutines.coroutineContext
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) vm.import(blockId, uri)
     }
-    OutlinedButton(onClick = { picker.launch(arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf")) }, enabled = !busy && !vm.busy,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (image == null) "Add image or PDF" else "Replace reference $kind") }
+    var photoOptions by rememberSaveable(blockId) { mutableStateOf(false) }
+    // Save the private filename across camera activity recreation, never a bitmap in saved state.
+    var pendingPhoto by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
+    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
+        pendingPhoto?.let { name ->
+            if (saved) vm.importPhoto(blockId, name) else vm.photoCapture.discard(name)
+        }
+        pendingPhoto = null
+    }
+    val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) vm.import(blockId, uri)
+    }
+    val enabled = !busy && !vm.busy && pendingPhoto == null
+    val fontScale = LocalDensity.current.fontScale
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val stacked = maxWidth / fontScale < 250.dp
+        val files: @Composable (Modifier) -> Unit = { modifier ->
+            OutlinedButton(onClick = { picker.launch(arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf")) }, enabled = enabled,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 12.dp), modifier = modifier.heightIn(min = 48.dp)) {
+                Text(if (image == null) "Add image or PDF" else "Replace reference $kind", textAlign = TextAlign.Center)
+            }
+        }
+        val photos: @Composable (Modifier) -> Unit = { modifier ->
+            OutlinedButton(onClick = { photoOptions = true }, enabled = enabled,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 12.dp), modifier = modifier.heightIn(min = 48.dp)) {
+                Text("Take or Add a photo", textAlign = TextAlign.Center)
+            }
+        }
+        if (stacked) Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            files(Modifier.fillMaxWidth()); Text("Or", style = MaterialTheme.typography.bodySmall); photos(Modifier.fillMaxWidth())
+        } else Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            files(Modifier.weight(1f).fillMaxHeight()); Text("Or", style = MaterialTheme.typography.bodySmall); photos(Modifier.weight(1f).fillMaxHeight())
+        }
+    }
+    if (photoOptions) AlertDialog(onDismissRequest = { photoOptions = false }, title = { Text("Take or Add a photo") },
+        text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = {
+                photoOptions = false
+                try {
+                    val name = vm.photoCapture.create()
+                    pendingPhoto = name
+                    camera.launch(vm.photoCapture.uri(name))
+                } catch (_: Exception) {
+                    pendingPhoto?.let { vm.photoCapture.discard(it) }; pendingPhoto = null; vm.photoUnavailable()
+                }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Take photo") }
+            OutlinedButton(onClick = {
+                photoOptions = false
+                try { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                catch (_: Exception) { vm.photoUnavailable() }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Choose from gallery") }
+        } }, confirmButton = { TextButton(onClick = { photoOptions = false }) { Text("Cancel") } })
     if (image != null) {
         key(blockId) { CollapsibleImageReference(image, vm.repository) }
         OutlinedButton(onClick = { confirmRemoval = true }, enabled = !busy && !vm.busy,

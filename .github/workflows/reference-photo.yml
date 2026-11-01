@@ -1,0 +1,29 @@
+name: Reference photo targeted checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reference-photo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build release and check reference photo safety
+        run: bash ./gradlew assembleRelease testDebugUnitTest --tests '*ReferencePhotoCaptureTest' --tests '*ImageReferenceTest' --tests '*PdfReferenceTest' --stacktrace
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reference-photo-checks
+          path: |
+            app/build/outputs/apk/release/app-release-unsigned.apk
+            app/build/test-results/testDebugUnitTest
