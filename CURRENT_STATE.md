@@ -1,3 +1,7 @@
+# Smooth theme — build63 verification in progress
+
+Owner-assigned Smooth teal palette is implemented through the existing theme system. Focused build/tests and signed delivery are pending; previous verified delivery follows.
+
 # Current state — imported backing audio /0.17.0/build62
 
 ## Delivery

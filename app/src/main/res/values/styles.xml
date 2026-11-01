@@ -26,4 +26,9 @@
         <item name="android:colorAccent">@color/practice_dark_accent</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
+    <style name="Theme.PracticeLogger.Smooth" parent="Theme.PracticeLogger.Dark">
+        <item name="android:windowBackground">@color/practice_smooth_background</item>
+        <item name="android:colorBackground">@color/practice_smooth_background</item>
+        <item name="android:colorAccent">@color/practice_smooth_accent</item>
+    </style>
 </resources>

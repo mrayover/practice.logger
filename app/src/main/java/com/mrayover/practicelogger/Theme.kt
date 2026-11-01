@@ -86,10 +86,37 @@ val DarkPalette = PracticePalette("dark", darkScheme, PracticeColors(
         GoalColors(Color(0xFFF0B6A4), Color(0xFF66392D), Color(0xFFF8DED5))
     ), unassignedGoalAccent = Color(0xFFC0C8BE)
 ))
+// Smooth shares semantic state behavior with Dark, using a blue-green palette.
+private val smoothScheme = darkScheme.copy(
+    primary = Color(0xFF8BD8D1), onPrimary = Color(0xFF003A38),
+    primaryContainer = Color(0xFF15544F), onPrimaryContainer = Color(0xFFB5F2EB), inversePrimary = Color(0xFF006A64),
+    secondary = Color(0xFFADCCC8), onSecondary = Color(0xFF183835),
+    secondaryContainer = Color(0xFF304F4B), onSecondaryContainer = Color(0xFFD0E8E4),
+    tertiary = Color(0xFFA5CDDC), onTertiary = Color(0xFF103744),
+    tertiaryContainer = Color(0xFF294F5D), onTertiaryContainer = Color(0xFFC3EAF7),
+    background = Color(0xFF101E20), onBackground = Color(0xFFE1ECEA),
+    surface = Color(0xFF101E20), onSurface = Color(0xFFE1ECEA),
+    surfaceVariant = Color(0xFF354A49), onSurfaceVariant = Color(0xFFC0D3D0),
+    surfaceDim = Color(0xFF0A1719), surfaceBright = Color(0xFF304042),
+    surfaceContainerLowest = Color(0xFF081416), surfaceContainerLow = Color(0xFF142527),
+    surfaceContainer = Color(0xFF192C2E), surfaceContainerHigh = Color(0xFF233638), surfaceContainerHighest = Color(0xFF2E4143),
+    inverseSurface = Color(0xFFD7E7E4), inverseOnSurface = Color(0xFF213331),
+    outline = Color(0xFF8AA6A2), outlineVariant = Color(0xFF3C5551), surfaceTint = Color(0xFF8BD8D1)
+)
+val SmoothPalette = PracticePalette("smooth", smoothScheme, PracticeColors(
+    banner = Color(0xFF123F40), onBanner = Color(0xFFDFF7F3), bannerEdge = Color(0xFF092C2E),
+    transportSurface = Color(0xFF172D2E),
+    selectionContainer = Color(0xFF315B58), onSelectionContainer = Color(0xFFD5F5EE),
+    recording = smoothScheme.error, onRecording = smoothScheme.onError,
+    scrollThumb = smoothScheme.primary, scrollTrack = Color(0xFF35534F),
+    goals = listOf(GoalColors(smoothScheme.primary, smoothScheme.primaryContainer, smoothScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
+    unassignedGoalAccent = Color(0xFFC0D3D0)
+))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {
     ThemeChoice.LIGHT -> LightPalette
     ThemeChoice.DARK -> DarkPalette
+    ThemeChoice.SMOOTH -> SmoothPalette
     ThemeChoice.SYSTEM -> if (systemDark) DarkPalette else LightPalette
 }
 private val LocalPracticeColors = staticCompositionLocalOf { LightPalette.colors }

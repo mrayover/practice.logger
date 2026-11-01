@@ -56,6 +56,23 @@ class ThemeWorkflowTest {
         compose.runOnIdle { compose.activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED }
         choose(ThemeChoice.LIGHT)
     }
+    @Test fun smoothSelectionPersistsAndRendersNativeChrome() {
+        shown("Practice Now")
+        compose.onNodeWithTag("header-settings").performClick()
+        tag("theme-smooth").performClick()
+        compose.waitUntil(10000) { compose.activity.themePreferences.choice.value == ThemeChoice.SMOOTH }
+        tag("theme-smooth").assertIsSelected(); background(SmoothPalette); shot("settings-smooth")
+        assertEquals(ThemeChoice.SMOOTH, ThemePreferences(compose.activity.application).choice.value)
+        compose.activityRule.scenario.recreate(); compose.waitForIdle()
+        tag("theme-smooth").assertIsSelected(); background(SmoothPalette)
+        compose.runOnIdle {
+            val native = android.util.TypedValue()
+            assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.colorAccent, native, true))
+            assertEquals(SmoothPalette.scheme.primary, Color(native.data))
+        }
+        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick()
+        shown("Practice Now"); background(SmoothPalette); shot("home-smooth")
+    }
     @Test fun homeSettingsBelowLogPersistsAndSystemFollowsDevice() {
         shown("Practice Now");choose(ThemeChoice.LIGHT);background(LightPalette)
         val settings=compose.onNodeWithText("Settings").scrollIfNeeded().assertIsDisplayed().fetchSemanticsNode().boundsInRoot

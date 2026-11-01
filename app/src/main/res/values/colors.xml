@@ -4,4 +4,6 @@
     <color name="practice_light_accent">#315C47</color>
     <color name="practice_dark_background">#171C19</color>
     <color name="practice_dark_accent">#A5D2B2</color>
+    <color name="practice_smooth_background">#101E20</color>
+    <color name="practice_smooth_accent">#8BD8D1</color>
 </resources>
