@@ -132,13 +132,16 @@ import kotlin.coroutines.coroutineContext
         val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(minOf(180.dp, cap), cap)
         Box(Modifier.fillMaxWidth().height(viewerHeight).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
             .onSizeChanged { size = it }.testTag("reference-viewer")
-            .semantics { contentDescription = "Reference ${if (pdf) "PDF" else "image"} viewer, zoom ${"%.1f".format(scale)}" }
+            .semantics {
+                contentDescription = "Reference ${if (pdf) "PDF" else "image"} viewer, zoom ${"%.1f".format(scale)}"
+                customActions = listOf(androidx.compose.ui.semantics.CustomAccessibilityAction("Reset zoom") { scale = 1f; offset = Offset.Zero; true })
+            }
             .transformable(state = transform, canPan = { scale > 1f })) {
             Image(bitmap.asImageBitmap(), contentDescription = if (pdf) "Block reference PDF page" else "Block reference image", contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize().graphicsLayer {
                     scaleX = scale; scaleY = scale; translationX = offset.x; translationY = offset.y
                 })
-            if (scale > 1f && (fitAvailableHeight || maxHeight < 640.dp)) {
+            if (scale > 1f && !fitAvailableHeight && maxHeight < 640.dp) {
                 // Keep reset inside a compact viewport: enlarged-image pans must not
                 // trap the only reset control below its scrolling parent's boundary.
                 Surface(modifier = Modifier.align(androidx.compose.ui.Alignment.TopEnd).padding(4.dp), shape = MaterialTheme.shapes.small) {

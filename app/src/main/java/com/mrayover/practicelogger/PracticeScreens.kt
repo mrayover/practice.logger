@@ -270,10 +270,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
             Button(onClick = { requestPracticeAction("COMPLETED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp)) { Text("Complete") }
-            OutlinedButton(onClick = { transportPanel = if (recordings.reviewTake == null && transportPanel == "notes") null else "notes" },
+            Button(onClick = { transportPanel = if (recordings.reviewTake == null && transportPanel == "notes") null else "notes" },
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)
                     .testTag("practice-notes-toggle").semantics { stateDescription = if (recordings.reviewTake == null && transportPanel == "notes") "Expanded" else "Collapsed" }) { Text("Notes") }
-            OutlinedButton(onClick = { requestPracticeAction("SKIPPED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
+            Button(onClick = { requestPracticeAction("SKIPPED") }, enabled = !vm.busy && !notes.busy && !audioBusy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(.7f).heightIn(min = 48.dp)) { Text("Skip") }
         }
         }
@@ -336,37 +336,45 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             Column {
                 Text("Metronome",style=MaterialTheme.typography.labelSmall)
                 Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-                    Text("${vm.workingBpm} BPM",style=MaterialTheme.typography.bodySmall)
+                    Text("${vm.workingBpm} BPM",style=MaterialTheme.typography.labelSmall)
+                    Text(vm.metronomeConfig.meter.label,style=MaterialTheme.typography.labelSmall)
                 }
             }
         }
     }
     val controls: @Composable () -> Unit = {
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
-            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
+            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
-            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).width(48.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
+            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
         OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
             colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
-            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
+            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.width(104.dp).heightIn(min = 48.dp)
                 .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
     }
         val expand: @Composable () -> Unit = {
-            TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.sizeIn(minWidth=48.dp,minHeight=48.dp)
+            TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(32.dp).heightIn(min=48.dp)
                 .testTag("practice-metronome-expand").semantics { contentDescription=if(expanded) "Collapse metronome" else "Expand metronome" }) {
-                Column(horizontalAlignment=androidx.compose.ui.Alignment.CenterHorizontally) {
-                    if(vm.clicking) Text((if(vm.metronomePulse.sequence>0) vm.metronomePulse.config else vm.metronomeConfig).meter.label,
-                        style=MaterialTheme.typography.labelSmall,modifier=Modifier.testTag("practice-metronome-meter"))
-                    Text(if(expanded) "▴" else "▾")
-                }
+                Text(if(expanded) "▴" else "▾")
             }
         }
-    if (largeText) FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        bpmControl(Modifier.fillMaxWidth())
-        controls(); expand()
-    } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-        bpmControl(Modifier.weight(1f))
-        controls(); expand()
+    val accent: @Composable () -> Unit = {
+        Column(Modifier.width(56.dp), horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+            Text("Accent", style = MaterialTheme.typography.labelSmall)
+            Checkbox(checked = vm.metronomeConfig.accent,
+                onCheckedChange = { vm.configureMetronome(vm.metronomeConfig.copy(accent = it)) }, enabled = !vm.busy,
+                modifier = Modifier.height(32.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (largeText || maxWidth < 350.dp) Column {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                bpmControl(Modifier.weight(1f)); accent(); expand()
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { controls() }
+        } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            bpmControl(Modifier.weight(1f)); accent(); expand(); controls()
+        }
     }
     vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
     if (editing) AlertDialog(onDismissRequest = { editing = false; onEditingChanged(false) }, title = { Text("Working BPM") }, text = {
