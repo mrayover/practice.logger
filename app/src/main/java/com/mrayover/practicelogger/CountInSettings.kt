@@ -68,16 +68,16 @@ class CountInPreferences(context: Context) {
         Text("Audio Settings", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
         Text("Metronome sound", style = MaterialTheme.typography.titleMedium)
         ClickSound.entries.forEach { choice ->
-            FilterChip(selected=sound == choice, onClick={ save { preferences.saveSound(choice); sound=choice } }, label={ Text(choice.label) })
+            OutlinedSelectionChip(selected=sound == choice, onClick={ save { preferences.saveSound(choice); sound=choice } }, label={ Text(choice.label) })
         }
         Button(onClick={ startPreview { preview.configure(MetronomeConfig(mode=MetronomeMode.SOUND_ONLY,sound=sound)); preview.start(120) } }) { Text("Preview metronome sound") }
         Text("Default output mode", style = MaterialTheme.typography.titleMedium)
         MetronomeMode.entries.forEach { choice ->
-            FilterChip(selected=mode == choice, onClick={ save { preferences.saveMode(choice); mode=choice } }, label={ Text(choice.label) })
+            OutlinedSelectionChip(selected=mode == choice, onClick={ save { preferences.saveMode(choice); mode=choice } }, label={ Text(choice.label) })
         }
         Text("Completion alarm", style = MaterialTheme.typography.titleMedium)
         AlarmSound.entries.forEach { choice ->
-            FilterChip(selected=alarm == choice, onClick={ save { preferences.saveAlarm(choice); alarm=choice } }, label={ Text(choice.label) })
+            OutlinedSelectionChip(selected=alarm == choice, onClick={ save { preferences.saveAlarm(choice); alarm=choice } }, label={ Text(choice.label) })
         }
         Button(onClick={ startPreview { preview.playCompletion(alarm) } }) { Text("Preview completion alarm") }
         TextButton(onClick={ preview.stop() }) { Text("Stop preview") }

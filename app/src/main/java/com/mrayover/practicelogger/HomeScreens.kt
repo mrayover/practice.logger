@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onSettings: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(MaterialTheme.colorScheme.background)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.sp
                         HomeButton("Tools", onTools)
                         HomeButton("Recording", onRecording)
                         HomeButton("Log", onLog)
-                        HomeButton("Settings", onSettings)
+                        HomeButton("Library", onLibrary)
                     }
                 }
                 Text("Data usage", modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
@@ -118,12 +118,20 @@ import androidx.compose.ui.unit.sp
     }
 }
 
-@Composable fun PracticeBanner(onHome: () -> Unit = {}, enabled: Boolean = true) {
+@Composable fun PracticeBanner(onHome: () -> Unit = {}, enabled: Boolean = true, onSettings: (() -> Unit)? = null) {
     Column {
-        Box(Modifier.fillMaxWidth().background(PracticeTheme.colors.banner).statusBarsPadding().clickable(enabled = enabled, role = Role.Button, onClickLabel = "Back to Home", onClick = onHome).heightIn(min = 48.dp).padding(horizontal = 20.dp, vertical = 16.dp)) {
-            Text("practice.logger", modifier = Modifier.fillMaxWidth().testTag("home-brand").semantics { heading() },
-                fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 34.sp,
-                textAlign = TextAlign.Center, color = PracticeTheme.colors.onBanner)
+        Row(Modifier.fillMaxWidth().background(PracticeTheme.colors.banner).statusBarsPadding(), verticalAlignment = Alignment.CenterVertically) {
+            Spacer(Modifier.width(48.dp))
+            Box(Modifier.weight(1f).clickable(enabled = enabled, role = Role.Button, onClickLabel = "Back to Home", onClick = onHome)
+                .heightIn(min = 48.dp).padding(vertical = 16.dp)) {
+                Text("practice.logger", modifier = Modifier.fillMaxWidth().testTag("home-brand").semantics { heading() },
+                    fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 34.sp,
+                    textAlign = TextAlign.Center, color = PracticeTheme.colors.onBanner)
+            }
+            IconButton(onClick = { onSettings?.invoke() }, enabled = enabled && onSettings != null,
+                modifier = Modifier.size(48.dp).testTag("header-settings").semantics { contentDescription = "Settings" }) {
+                Text("⚙", color = PracticeTheme.colors.onBanner, fontSize = 26.sp)
+            }
         }
         HorizontalDivider(thickness = 2.dp, color = PracticeTheme.colors.bannerEdge)
     }

@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
         Button(onClick = onNew, enabled = !vm.busy && active.size < 5, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Goal") }
         if (active.size == 5) Text("Complete an active Goal before adding or reopening another.")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FilterChip(!completed, { completed = false }, label = { Text("Active Goals") })
-            FilterChip(completed, { completed = true }, label = { Text("Completed Goals") })
+            OutlinedSelectionChip(!completed, { completed = false }, label = { Text("Active Goals") })
+            OutlinedSelectionChip(completed, { completed = true }, label = { Text("Completed Goals") })
         }
         val visible = if (completed) rows.filter { it.goal.completed } else active
         if (visible.isEmpty()) Text(if (completed) "No completed Goals yet." else "Create a Goal to describe what you want to accomplish.")

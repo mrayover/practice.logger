@@ -119,6 +119,7 @@ class MainActivity : ComponentActivity() {
     var page by rememberSaveable { mutableStateOf("home") }
     var settingsReturn by rememberSaveable { mutableStateOf("tools") }
     var headerHomeRequested by remember { mutableStateOf(false) }
+    var headerDestination by rememberSaveable { mutableStateOf("home") }
     val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     LaunchedEffect(page) { headerHomeRequested = false }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
@@ -137,7 +138,7 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(practice.destination) {
         practice.destination?.let { destination ->
             if (destination == "summary") summaryId = practice.completedId
-            page = destination; practice.navigationHandled()
+            page = if (destination == "home" && headerHomeRequested) headerDestination else destination; practice.navigationHandled()
         }
     }
     LaunchedEffect(routines.editorSaved) {
@@ -154,13 +155,17 @@ class MainActivity : ComponentActivity() {
     BackHandler(page == "library") { page = "home" }
     Surface(Modifier.fillMaxSize().testTag("app-surface")) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
-        PracticeBanner(onHome = {
+        fun openFromHeader(destination: String) {
+            headerDestination = destination
+            if (destination == "audio-settings" && page != "audio-settings") settingsReturn = page
             if (page == "log") {
-                focus.clearFocus(force = true); keyboard?.hide(); log.leave { page = "home" }
+                focus.clearFocus(force = true); keyboard?.hide(); log.leave { page = destination }
             } else if (page in setOf("focus", "editor", "routine-editor", "goal-editor", "summary")) {
                 headerHomeRequested = true; backDispatcher?.onBackPressed()
-            } else { focus.clearFocus(force = true); keyboard?.hide(); page = "home" }
-        }, enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
+            } else { focus.clearFocus(force = true); keyboard?.hide(); page = destination }
+        }
+        PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
+            enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
         Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
@@ -169,7 +174,11 @@ class MainActivity : ComponentActivity() {
         } else when (page) {
             "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
-                onLog = { log.open(); page = "log" }, onSettings = { settingsReturn = "home"; page = "audio-settings" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+                onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+            "media-library" -> {
+                BackHandler { page = "home" }
+                Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Coming soon.") }
+            }
             "log" -> LogScreen(log, onHome = { page = "home" })
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
@@ -180,13 +189,13 @@ class MainActivity : ComponentActivity() {
                 onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") })
             }
             "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
-                onCancel = { page = if (headerHomeRequested) "home" else if (goalEditorId == null) "goals" else "goal-detail" }) }
+                onCancel = { page = if (headerHomeRequested) headerDestination else if (goalEditorId == null) "goals" else "goal-detail" }) }
             "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,
                 onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
             "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
-            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) "home" else "routines" })
+            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) headerDestination else "routines" })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { settingsReturn = "tools"; page = it })
             "audio-settings" -> CountInSettings(recordings, onTools = { page = settingsReturn }, fromHome = settingsReturn == "home")
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
@@ -196,7 +205,7 @@ class MainActivity : ComponentActivity() {
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings)
-            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = "home" }, goalName = goalName(summaryId))
+            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId))
             "library" -> {
                 val libraryScroll = rememberLazyListState()
                 var searchFocused by remember { mutableStateOf(false) }
@@ -211,17 +220,16 @@ class MainActivity : ComponentActivity() {
                     item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,
                         modifier = Modifier.fillMaxWidth().onFocusChanged { searchFocused = it.isFocused }) }
                     item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        FilterChip(selected = !archived, onClick = { archived = false }, label = { Text("Active") })
-                        FilterChip(selected = archived, onClick = { archived = true }, label = { Text("Archived") })
+                        OutlinedSelectionChip(selected = !archived, onClick = { archived = false }, label = { Text("Active") })
+                        OutlinedSelectionChip(selected = archived, onClick = { archived = true }, label = { Text("Archived") })
                     } }
                     if (matches.isEmpty()) item { Text(if (query.isNotBlank()) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
                     items(matches, key = { it.id }) { block ->
-                        Column(Modifier.fillMaxWidth().clickable(onClickLabel = "Edit " + block.name) { openEditor(block.id) }.heightIn(min = 64.dp).padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        CatalogPill(onClick = { openEditor(block.id) }) {
                             Text(block.name, style = MaterialTheme.typography.titleLarge)
                             Text(block.action)
                             Text(block.durationMinutes.toString() + " min" + (block.tempo?.let { " · " + it + " BPM reference" } ?: ""), style = MaterialTheme.typography.bodyMedium)
                         }
-                        HorizontalDivider()
                     }
                 }
             }
@@ -233,7 +241,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorId) {
-                    BlockEditor(block, vm.busy || images.busy, images, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) "home" else editorReturn },
+                    BlockEditor(block, vm.busy || images.busy, images, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) headerDestination else editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }

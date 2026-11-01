@@ -39,11 +39,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         Text("Recent Practice", style = MaterialTheme.typography.titleLarge)
         if (sessions.history.isEmpty()) Text("Completed sessions will appear here.")
         sessions.history.forEach { bundle ->
-            Column(Modifier.fillMaxWidth().clickable(onClickLabel = "Open session summary") { onSummary(bundle.session.id) }.heightIn(min = 64.dp).padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            CatalogPill(onClick = { onSummary(bundle.session.id) }) {
                 Text(sessionDate(bundle.session.startedAt), style = MaterialTheme.typography.titleMedium)
                 Text(bundle.ordered.count { it.outcome == "COMPLETED" }.toString() + " completed · " + bundle.ordered.count { it.outcome == "SKIPPED" } + " skipped · " + practiceTime(bundle.activeMs) + " active")
             }
-            HorizontalDivider()
         }
     }
 }

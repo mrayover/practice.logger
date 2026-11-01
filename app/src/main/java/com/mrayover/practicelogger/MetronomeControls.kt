@@ -66,7 +66,7 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
             }
         } else FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             MetronomeMeter.entries.forEach { meter ->
-                FilterChip(selected=config.meter==meter,onClick={ onConfig(config.copy(meter=meter)) },enabled=enabled,
+                OutlinedSelectionChip(selected=config.meter==meter,onClick={ onConfig(config.copy(meter=meter)) },enabled=enabled,
                     label={ Text(meter.label) },modifier=Modifier.testTag("meter-${meter.label}"))
             }
         }
@@ -91,7 +91,7 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
             }
         } else FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             MetronomeMode.entries.forEach { mode ->
-                FilterChip(selected=config.mode==mode,onClick={ onConfig(config.copy(mode=mode)) },enabled=enabled,
+                OutlinedSelectionChip(selected=config.mode==mode,onClick={ onConfig(config.copy(mode=mode)) },enabled=enabled,
                     label={ Text(mode.label) },modifier=Modifier.testTag("mode-${mode.name}"))
             }
         }
