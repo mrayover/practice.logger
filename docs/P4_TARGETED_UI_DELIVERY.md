@@ -1,6 +1,6 @@
 # P4 targeted UI refinement delivery
 
-Historical increment throughbuild60; latest imported-audio delivery is in [CURRENT_STATE](../CURRENT_STATE.md).
+Historical increment through build60; the current delivery is in [CURRENT_STATE](../CURRENT_STATE.md).
 
 This record covers only the assigned visual/navigation/transport refinement and historical Notes fix. App source969855f is signed as0.16.0/build60; delivery paths/hashes and the exact next phone task are authoritative in [CURRENT_STATE](../CURRENT_STATE.md). No V1 roadmap or P5/P6/P7 implementation.
 

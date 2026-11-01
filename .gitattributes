@@ -1,5 +1,12 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
+# Shell runners must also execute directly from a Windows checkout.
+*.sh text eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf
+*.ttf binary
+*.jar binary
+
 # Preserve PDF fixture bytes and cross-reference offsets on every checkout.
 *.pdf binary

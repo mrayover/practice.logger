@@ -2,6 +2,8 @@ package com.mrayover.practicelogger
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 
 /** Explicit home-menu routes shared by the existing end-to-end workflows. */
 fun openHomeRoutines(compose: AndroidComposeTestRule<*, MainActivity>) {
@@ -20,4 +22,15 @@ fun openHomePractice(compose: AndroidComposeTestRule<*, MainActivity>) {
     compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
     compose.onNodeWithText("Practice Now").scrollIfNeeded().performClick()
     compose.waitUntil(15000) { compose.onAllNodesWithText("Build a Session").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+}
+
+/** Compact references expose reset through accessibility while preserving real zoom state. */
+fun assertPracticeReferenceZoomed(compose: AndroidComposeTestRule<*, MainActivity>) {
+    compose.waitUntil(10000) {
+        val viewer = compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes(atLeastOneRootRequired = false).singleOrNull()
+        val description = viewer?.config?.get(SemanticsProperties.ContentDescription)?.singleOrNull().orEmpty()
+        (description.substringAfterLast("zoom ").replace(',', '.').toFloatOrNull() ?: 0f) > 1f
+    }
+    val config = compose.onNodeWithTag("reference-viewer").assertIsDisplayed().fetchSemanticsNode().config
+    org.junit.Assert.assertTrue("Zoom reset must remain accessible", config[SemanticsActions.CustomActions].any { it.label == "Reset zoom" })
 }

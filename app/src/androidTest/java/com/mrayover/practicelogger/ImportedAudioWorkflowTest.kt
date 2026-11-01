@@ -28,8 +28,20 @@ class ImportedAudioWorkflowTest {
     private fun tag(name:String)=compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
     private fun click(text:String){shown(text);compose.onNodeWithText(text).scrollIfNeeded().performClick()}
     private fun media(name:String,mime:String,bytes:ByteArray):Uri {
-        val uri=app.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI,ContentValues().apply {
+        val modern = android.os.Build.VERSION.SDK_INT >= 29
+        if (!modern) {
+            device.executeShellCommand("pm grant ${app.packageName} android.permission.READ_EXTERNAL_STORAGE")
+            device.executeShellCommand("pm grant ${app.packageName} android.permission.WRITE_EXTERNAL_STORAGE")
+        }
+        val collection = if (modern) MediaStore.Downloads.EXTERNAL_CONTENT_URI else MediaStore.Files.getContentUri("external")
+        val uri=app.contentResolver.insert(collection,ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME,name);put(MediaStore.MediaColumns.MIME_TYPE,mime)
+            if (!modern) {
+                val downloads = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+                check(downloads.isDirectory || downloads.mkdirs())
+                @Suppress("DEPRECATION")
+                put(MediaStore.MediaColumns.DATA,File(downloads,name).absolutePath)
+            }
         })!!
         app.contentResolver.openOutputStream(uri)!!.use{it.write(bytes)};return uri
     }

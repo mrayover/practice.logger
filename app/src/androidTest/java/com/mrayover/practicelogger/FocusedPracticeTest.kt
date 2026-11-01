@@ -63,15 +63,13 @@ fun leavePracticeForLater(compose: AndroidComposeTestRule<ActivityScenarioRule<M
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.waitUntil(5000) { !keyboardVisible() }
     }
-    scrollPracticeWorkspace(compose,hasText("Save for later"))
-    compose.waitUntil(15000) { compose.onAllNodes(hasText("Save for later") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
-    compose.onNodeWithText("Save for later").assertIsDisplayed().performClick()
+    compose.onNodeWithTag("home-brand", useUnmergedTree = true).assertIsDisplayed().performClick()
     compose.waitUntil(15000) { compose.onAllNodes(hasText("Back to Main") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
     compose.onNodeWithText("Back to Main").assertIsDisplayed().performClick()
 }
 
 fun revealPracticeNotes(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
-    if (compose.onAllNodesWithText("Quick note (optional)").fetchSemanticsNodes().isEmpty())
+    if (compose.onAllNodesWithTag("practice-new-note").fetchSemanticsNodes().isEmpty())
         compose.onNodeWithText("Notes").scrollIfNeeded().performClick()
 }
 
@@ -174,7 +172,7 @@ class FocusedPracticeTest {
             compose.waitUntil(5000) { !practice.running && !practice.busy }; assertEquals(2,practice.completionSignals)
             screenshot("paused")
             // Header protects an unrelated dirty Block editor.
-            click("Save for later"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
+            leavePracticeForLater(compose); shown("Practice Now")
             click("Blocks"); click("New Block"); compose.onNodeWithTag("Name").performScrollTo().performTextInput("Unsaved draft")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Discard unsaved changes?")
             screenshot("editor-guard")

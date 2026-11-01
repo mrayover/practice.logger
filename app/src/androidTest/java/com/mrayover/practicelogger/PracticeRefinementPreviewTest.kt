@@ -84,7 +84,7 @@ class PracticeRefinementPreviewTest {
             tag("reference-viewer").performTouchInput {
                 pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f))
             }
-            shown("Reset PDF zoom");click("Start");click("Start click")
+            assertPracticeReferenceZoomed(compose);click("Start");click("Start click")
             compose.waitUntil(10000) { practice.metronomePulse.sequence>=2 }
             val sequence=practice.metronomePulse.sequence
             val elapsed=practice.catalog.value.active!!.current!!.activeMs
@@ -97,7 +97,7 @@ class PracticeRefinementPreviewTest {
             tag("practice-metronome-pulse").assertIsDisplayed();shot("compact-portrait")
             tag("practice-reference-toggle").assertIsEnabled().performClick()
             compose.onNodeWithTag("practice-metronome-panel").assertDoesNotExist()
-            shown("Page 2 of 2");shown("Reset PDF zoom")
+            shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             tag("practice-metronome-expand").performClick()
             tag("practice-description-toggle").performClick();shown("Keep the phrase relaxed.")
             compose.runOnIdle { assertTrue(practice.clicking);assertTrue(practice.running);assertEquals(90,practice.workingBpm) }
@@ -105,7 +105,7 @@ class PracticeRefinementPreviewTest {
             // Repeated explicit close still restores the selected workspace.
             tag("practice-metronome-expand").performClick();tag("practice-metronome-expand").performClick();shown("Keep the phrase relaxed.")
             click("Loop Setup");tag("practice-reference-toggle").performClick()
-            compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist();shown("Page 2 of 2");shown("Reset PDF zoom")
+            compose.onNodeWithTag("practice-loop-panel").assertDoesNotExist();shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             tag("practice-free-record").performClick()
             compose.waitUntil(15000) { audio.recording && audio.elapsedMs>=1200 }
             val captured=audio.elapsedMs
@@ -120,7 +120,7 @@ class PracticeRefinementPreviewTest {
             compose.runOnIdle { assertEquals(pending,audio.reviewTake!!.id);assertTrue(audio.takes.value.none { it.id==pending }) }
             tag("review-save").assertIsDisplayed();tag("practice-review-expand").performClick()
             tag("review-preview").assertIsDisplayed()
-            tag("practice-reference-toggle").performClick();shown("Page 2 of 2");shown("Reset PDF zoom")
+            tag("practice-reference-toggle").performClick();shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             tag("review-save").performClick()
             compose.waitUntil(15000) { audio.reviewTake==null && audio.takes.value.any { it.id==pending } }
             compose.runOnIdle { assertTrue(practice.running);assertTrue(practice.clicking);assertEquals(90,practice.workingBpm) }

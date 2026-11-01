@@ -32,7 +32,7 @@ Build55 originally placed Settings below Log on Home; the current owner refineme
 
 ## Home gear removal — owner-requested bounded follow-up
 
-Build48 removes only the duplicate Goal gear; existing Edit opens Manage Goals. No global Settings screen is introduced; Tools Audio Settings remains. Existing preview workflow checks compile/launch/Home navigation and Log saving; exact delivery and pending P4/P5 gates in CURRENT_STATE.
+Build48 removes only the duplicate Goal gear; existing Edit opens Manage Goals. This historical increment introduced no global Settings screen; the current shared-header Settings gear was added later. Existing preview workflow checks compile/launch/Home navigation and Log saving; exact delivery and pending P4/P5 gates in CURRENT_STATE.
 
 ## P4 automatic completed-loop audition
 
@@ -56,7 +56,7 @@ Build49 replaces both metronome dots with full Stop click button background puls
 
 ## P4 audio Settings and bounded UI polish — scoped candidate delivered
 
-Build47 persists four click timbres, shared output default and completion alarms (two-tone/bell/rising chime/short beep/Off), with previews in Tools Audio Settings. Block and foreground countdown alarms share one-shot/capture/Off safeguards without clock changes. Existing count-in/recording-click and compact retained Notes/reference/transport behaviors remain; Settings adds overflow/large-text/landscape checks. Cream/green/Lato retained; conditional dark theme explicitly deferred to avoid a broad hard-coded-color refactor. No storage/Library/analytics features. P1–P3 generally accepted; P4 phone checklist pending. Exact scoped results/delivery in CURRENT_STATE. Next engineering gate is P5 full regression; it requires the next assignment and has not started.
+Build47 persists four click timbres, shared output default and completion alarms (two-tone/bell/rising chime/short beep/Off), with previews in Tools Audio Settings. Block and foreground countdown alarms share one-shot/capture/Off safeguards without clock changes. Existing count-in/recording-click and compact retained Notes/reference/transport behaviors remain; Settings adds overflow/large-text/landscape checks. At that historical checkpoint cream/green/Lato remained; centralized themes subsequently shipped in build55 and expanded through build65. No storage/Library/analytics features. P1–P3 generally accepted; P4 phone checklist pending. Exact scoped results/delivery in CURRENT_STATE. Next engineering gate is P5 full regression; it requires the next assignment and has not started.
 
 ## P3 metronome — scoped candidate delivered
 
@@ -84,14 +84,14 @@ Build40 adds multiple timestamped Block/session practice notes, immediate collap
 
 ## Product and implemented scope
 
-A small offline Android practice tool for one musician: reusable concrete Blocks, ordered practice, accurate foreground time, notes and truthful history. Keep Kotlin/Compose/Room/Lifecycle, bundled Lato Regular/Bold, cream/green styling and the current navigation. Every visible action must work; Home Goals are functional, not placeholders.
+A small offline Android practice tool for one musician: reusable concrete Blocks, ordered practice, accurate foreground time, notes and truthful history. Keep Kotlin/Compose/Room/Lifecycle, bundled Lato Regular/Bold, central Light/Dark/System/Smooth/Sunny/Orchid styling and the current navigation. Every visible action must work; Home Goals are functional, not placeholders.
 
 | Area | Approved, implemented behavior |
 |---|---|
 | Blocks | Required Name/Action, validated positive duration/optional BPM, notes, literal search, Active/Archived, confirmed reversible Archive/Restore. |
 | Permanent deletion | Saved editor action below Archive/Restore, both active/archived; inspect persistent Goal links, distinct saved Routines, takes and every session sourceBlockId placement. Explicit confirmation; atomic fresh recheck/delete; real blocker counts; protected completed history; navigation only on actual success. An image or PDF attachment also blocks deletion until confirmed removal. No automatic detachment, media removal or history rewriting. |
 | Practice | One builder draft plus multiple independent unfinished sessions under Practice Now; order/duration overrides; Start/Pause/Resume, Complete/Skip, explicit overtime, saved notes and paused recovery; completed summaries/Recent Practice under Routines. |
-| Click and audio | Shared practice/Tools metronome with six meters, optional accent and sound/flash modes, per-Block free takes and 1–64-beat fixed-tempo loops, configurable positive whole-beat count-in and default-on optional capture guide, playback/rename/delete/export. Standalone free recordings reuse recording infrastructure without synthetic Blocks. Foreground lifecycle cleanup and no automatic audio restart. |
+| Click and audio | Shared practice/Tools metronome with six meters, optional accent and sound/flash modes, per-Block free takes and 1–64-beat fixed-tempo loops, configurable positive whole-beat count-in and always-enabled loop recording click, playback/rename/delete/export. Standalone free recordings reuse recording infrastructure without synthetic Blocks. Foreground lifecycle cleanup and no automatic audio restart. |
 | Tools | Standalone metronome, actual chromatic tuner (single notes, A4=440), stopwatch and rolled whole-minute countdown; no background alarm or persistent tool log. |
 | Saved Routines | Stable ordered Block references, independent duration overrides, management/confirmed deletion, builder save and fresh independent practice. Archived/unavailable links prevent the entire start; no silent skipping. |
 | Goals | Five active Goals maximum, manual 0–100% progress/outcome/notes, ordering/top-two Home bars, completed/reopen, shared existing Blocks, fresh Goal practice and explicit session attribution of actual committed time. |

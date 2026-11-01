@@ -27,7 +27,11 @@ class LegacyReferenceSeedTest {
             db.goals().insert(Goal("legacy-goal","Legacy goal",progress=35,notes="Goal notes",createdAt=1,updatedAt=2))
             db.goals().insert(GoalBlock("legacy-goal",id,0)); db.goals().insert(GoalSession("legacy-session","legacy-goal"))
             db.logs().save(DailyLog("2026-10-29","Legacy daily Log"))
-            val repo=TakeRepository(db,app); val spec=PhraseSpec(120,4); val pending=repo.prepare(id,spec)
+            // This test executes inside build27, whose PhraseSpec has a two-Int
+            // constructor. The current default count-in constructor has a different
+            // JVM signature; calling it directly would fail before seeding audio.
+            val spec=PhraseSpec::class.java.getConstructor(Int::class.javaPrimitiveType!!,Int::class.javaPrimitiveType!!).newInstance(120,4)
+            val repo=TakeRepository(db,app); val pending=repo.prepare(id,spec)
             PhraseWave.write(pending.file,ShortArray(spec.frames)); val take=repo.save(pending); repo.rename(take.id,"Legacy take")
             BlockRepository(db).setArchived(id,true)
             File(app.filesDir,"legacy-structured.json").writeBytes(BackupCodec.encode(BackupRepository(db).snapshot()))

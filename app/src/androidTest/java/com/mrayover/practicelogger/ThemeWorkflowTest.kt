@@ -107,12 +107,11 @@ class ThemeWorkflowTest {
         compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick()
         shown("Practice Now"); background(OrchidPalette); shot("home-orchid")
     }
-    @Test fun homeSettingsBelowLogPersistsAndSystemFollowsDevice() {
+    @Test fun headerSettingsPersistsAndSystemFollowsDevice() {
         shown("Practice Now");choose(ThemeChoice.LIGHT);background(LightPalette)
-        val settings=compose.onNodeWithText("Settings").scrollIfNeeded().assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-        val log=compose.onNodeWithText("Log").fetchSemanticsNode().boundsInRoot
-        assertTrue("Settings must follow Log",settings.top>=log.bottom)
-        shot("home-light");click("Settings")
+        compose.onNodeWithTag("header-settings").assertIsDisplayed()
+        compose.onNodeWithText("Library").scrollIfNeeded().assertIsDisplayed()
+        shot("home-light");compose.onNodeWithTag("header-settings").performClick()
         tag("theme-dark").performClick()
         compose.waitUntil(10000) { compose.activity.themePreferences.choice.value==ThemeChoice.DARK }
         tag("theme-dark").assertIsSelected();background(DarkPalette);shot("settings-dark")
@@ -152,7 +151,7 @@ class ThemeWorkflowTest {
             assertEquals(page,compose.onNodeWithTag("reference-page").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.Text])
             tag("reference-viewer").performTouchInput { pinch(androidx.compose.ui.geometry.Offset(width*.4f,height*.4f),androidx.compose.ui.geometry.Offset(width*.6f,height*.6f),androidx.compose.ui.geometry.Offset(width*.15f,height*.15f),androidx.compose.ui.geometry.Offset(width*.85f,height*.85f)) }
             choose(ThemeChoice.LIGHT)
-            compose.onNodeWithText("Reset PDF zoom").assertExists()
+            assertPracticeReferenceZoomed(compose)
             compose.runOnIdle { audio.startCapture(block) };compose.waitUntil(10000) { audio.recording && audio.elapsedMs>500 }
             val elapsed=audio.elapsedMs
             choose(ThemeChoice.DARK)
@@ -175,7 +174,7 @@ class ThemeWorkflowTest {
         compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Discard unsaved Goal changes?");shot("dialog-dark")
         click("Discard");shown("Practice Now")
         click("Log");click("Choose date");shot("date-picker-dark");click("Cancel")
-        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Practice Now");click("Settings")
+        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Practice Now");compose.onNodeWithTag("header-settings").performClick()
         device.executeShellCommand("settings put system font_scale 2.0")
         compose.activityRule.scenario.recreate();compose.waitForIdle();tag("theme-dark").assertIsSelected();shot("settings-large-dark")
         compose.runOnIdle { compose.activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }

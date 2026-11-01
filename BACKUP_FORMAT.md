@@ -1,6 +1,6 @@
 # Backup format and safety — current implementation
 
-Updated for Notes history/editing (0.16.0/build40) on 2026-10-30. Actual release verification is recorded in CURRENT_STATE.md.
+Format7 / Room11 remains current in build65, including imported audio and appearance additions. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
@@ -55,7 +55,7 @@ Missing/corrupt references report an inline error with Retry reference; metadata
 
 ## Audio exclusion and storage
 
-**No JSON version includes recordings, take metadata or labels.** JSON restore creates no missing-media take references. Export desired takes individually: FREE as AAC/M4A; LOOP as one normal WAV phrase. Failed/canceled export preserves the source but can leave a partial destination. No audio-inclusive bulk restore/import is implemented. Clearing/uninstalling/device loss destroys unexported audio/labels; platform backup/device transfer is explicitly excluded.
+**No JSON version includes recordings, imported backing tracks, take metadata or labels.** JSON restore creates no missing-media take references. Export desired takes individually: FREE as AAC/M4A; LOOP as one normal WAV phrase; IMPORTED_LOOP in its original MP3, AAC/M4A or PCM16 WAV format, with unchanged bytes. Individual backing-track import is implemented; media-inclusive bulk restore is not. Failed/canceled export preserves the source but can leave a partial destination. Clearing/uninstalling/device loss destroys unexported audio/labels; platform backup/device transfer is explicitly excluded.
 
 Private audio uses generated UUID names under `files/recordings`, with validated duration/frame data, file sync and rename before metadata commit. Interrupted/unreferenced generated files are recovered/removed after metadata is successfully read, retaining saved/current capture files. Missing/corrupt files report errors rather than fabricate playback. A very short/failed unsaved capture may be discarded. Per-take deletion removes its metadata/file; interrupted cleanup is retried at startup. Archive/Restore retains takes by Block ID. Standalone FREE takes have null Block ownership; LOOP captures retain immutable recorded BPM/beats and PCM16 mono 48 kHz WAV frames rounded from 60×48000×beats/BPM.
 

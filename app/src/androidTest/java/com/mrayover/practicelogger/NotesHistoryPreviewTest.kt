@@ -67,7 +67,7 @@ class NotesHistoryPreviewTest {
             tag("reference-viewer").performTouchInput {
                 pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f))
             }
-            shown("Reset PDF zoom")
+            assertPracticeReferenceZoomed(compose)
             click("Start");click("Start click");click("Notes");collapsedHeaders()
             compose.runOnIdle { assertTrue(practice.running);assertTrue(practice.clicking) }
             compose.waitUntil(10000) { notes.history.value.any { it.blockId == block && it.legacy } }
@@ -98,7 +98,7 @@ class NotesHistoryPreviewTest {
             compose.waitUntil(15000) { !audio.recording && !audio.busy && audio.takes.value.any { it.blockId == block && it.mode == "FREE" } }
             compose.onNodeWithTag("practice-notes-content-scrollbar").assertExists();screenshot("notes-history")
             click("Loop Setup");collapsedHeaders();compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
-            click("Cancel");shown("Page 2 of 2");shown("Reset PDF zoom")
+            click("Cancel");shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             tag("practice-free-selector").performClick();collapsedHeaders();click("Close");shown("Page 2 of 2")
             tag("practice-loop-selector").performClick();collapsedHeaders();click("Close");shown("Page 2 of 2")
             tag("practice-description-toggle").performClick();shown("Practice slowly")

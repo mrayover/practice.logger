@@ -3,6 +3,9 @@ set -euo pipefail
 [[ "$TARGET_TEST_CLASS" =~ ^com\.mrayover\.practicelogger\.[A-Za-z0-9_,.]+$ ]] || exit 2
 adb shell locksettings set-disabled true
 adb shell wm dismiss-keyguard
+if [[ "$TARGET_TEST_CLASS" == *ImportedAudioWorkflowTest* ]]; then
+  bash scripts/Prepare-AudioFixtures.sh
+fi
 bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
 if [[ "$TARGET_TEST_CLASS" == *LegacyReferenceSeedTest* ]]; then
   bash scripts/Prepare-ReferenceUpgrade.sh
@@ -16,7 +19,9 @@ adb shell settings put system font_scale "${TARGET_FONT_SCALE:-1.0}"
 for test_class in ${TARGET_TEST_CLASS//,/ }; do
   if [[ "$test_class" == *LegacyReferenceUpgradeTest ]]; then adb install -r app/build/outputs/apk/debug/app-debug.apk; fi
   adb shell am force-stop com.mrayover.practicelogger.app
-  adb shell am instrument -w -r -e timeout_msec 120000 -e class "$test_class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/targeted-${test_class##*.}.txt"
+  per_test_ms=120000
+  if [[ "$test_class" == *LongPhrasePlaybackTest ]]; then per_test_ms=360000; fi
+  timeout 480s adb shell am instrument -w -r -e timeout_msec "$per_test_ms" -e class "$test_class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/targeted-${test_class##*.}.txt"
   adb logcat -d > app/build/targeted-log.txt
   adb shell screencap -p /sdcard/targeted-screen.png
   adb pull /sdcard/targeted-screen.png app/build/targeted-screen.png

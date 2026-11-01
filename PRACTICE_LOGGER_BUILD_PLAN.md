@@ -1,4 +1,4 @@
-> **Historical reference only — reviewed 2026-10-28.** This original first-build plan is retained for its planning rationale and unresolved future references. Its Stage 0/1 next action, feature deferrals, navigation and continuity instructions are superseded. The app is delivered as 0.12.0/build 23; use [BUILD_PLAN.md](BUILD_PLAN.md), [AGENTS.md](AGENTS.md) and [CURRENT_STATE.md](CURRENT_STATE.md) for current authority. Features listed below as excluded may already be implemented; this historical text does not reverse later owner approvals.
+> **Historical reference only.** This original first-build plan is retained for its planning rationale and unresolved future references. Its Stage 0/1 next action, feature deferrals, navigation and continuity instructions are superseded. The 2026-10-28 review concerned build23; use [BUILD_PLAN.md](BUILD_PLAN.md), [AGENTS.md](AGENTS.md) and [CURRENT_STATE.md](CURRENT_STATE.md) for current authority. Features listed below as excluded may already be implemented; this historical text does not reverse later owner approvals.
 
 # practice.logger — First Usable Android Build Plan
 

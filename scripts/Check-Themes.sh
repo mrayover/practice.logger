@@ -7,10 +7,10 @@ mkdir -p "$out"
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 classes=com.mrayover.practicelogger.ThemeWorkflowTest
-expected=3
+expected=6
 if [ "$api" = 35 ] && [ "${2:-all}" = all ]; then
   classes="$classes,com.mrayover.practicelogger.MetronomeButtonPulseTest,com.mrayover.practicelogger.AudioSettingsWorkflowTest,com.mrayover.practicelogger.LoopRecorderPreviewTest"
-  expected=9
+  expected=12
 fi
 collect() {
   timeout 20s adb logcat -d > "$out/logcat.txt" || true
@@ -22,5 +22,5 @@ collect() {
 }
 trap collect EXIT
 adb logcat -c || true
-timeout 180s adb shell am instrument -w -r -e class "$classes" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
+timeout 420s adb shell am instrument -w -r -e timeout_msec 120000 -e class "$classes" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
 grep -q "OK ($expected tests)" "$out/results.txt"

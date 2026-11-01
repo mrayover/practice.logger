@@ -1,5 +1,12 @@
 # Current state — Orchid theme /0.17.0/build65
 
+## Pre-regression normalization — 2026-11-01
+
+Repository-wide Git/provenance/static review is complete; [review and inventory](docs/PRE_REGRESSION_REVIEW.md) records runner/documentation corrections and the remaining legacy native-selector blocker. Current application source and signed build65 are unchanged. No new build, Android test, lint/full regression or phone acceptance is claimed. Changes are local and uncommitted; remote main was verified at `d0b8db0fc3e2472e9deccbe3a865a43da5f257d1` before maintenance. The primary workflow now includes the later increment coverage, but has not run.
+
+
+Second deep check on2026-11-01 corrected stale backup unit expectations, generated import fixtures, API26 debug test fixture access, maximum-loop timeouts and additional exit/zoom checks. [Detailed findings](docs/PRE_REGRESSION_REVIEW.md) distinguish GitHub diagnostic-only successes from a full pass. Static/mocked validation passes; compilation and remaining legacy UI-test alignment are pending. Owner requested wrap-up at5% usage. All changes remain local/uncommitted; signed65/main-source/schema/package bytes remain unchanged.
+
 ## Delivery
 
 Signed **0.17.0/build65**, source `a6c095c02fc2363bcdf04cd2c4b168ce7f55569f`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b65-a6c095c/practice.logger-0.17.0-b65-a6c095c.apk) · [ZIP](dist/practice.logger-0.17.0-b65-a6c095c.zip) · [Build info](dist/practice.logger-0.17.0-b65-a6c095c/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b65-a6c095c/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling/clearing data. Earlier signed packages remain preserved and ignored.
@@ -20,4 +27,4 @@ Prior Light/Dark are owner accepted. Detailed System/audio/accessibility and P4/
 
 ## Exact next task
 
-Install build65 and perform its Orchid phone checklist, especially Practice control colors/flash/disabled states, reopening and device-appearance override. No automatic later phase/full regression.
+Follow the prepared [P5 regression handoff](docs/P5_REGRESSION_HANDOFF.md): align the legacy UI scenarios identified in [the review](docs/PRE_REGRESSION_REVIEW.md), compile instrumentation and run the affected targeted cases before the assigned complete P5 pre-Library regression. Preserve original safety assertions. Build65's Orchid/imported-audio phone checks remain pending and carry forward into that gate. Preparing the handoff did not start regression or a later feature phase.

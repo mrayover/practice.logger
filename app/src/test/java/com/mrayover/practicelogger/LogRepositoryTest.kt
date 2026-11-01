@@ -82,7 +82,7 @@ class LogRepositoryTest {
         try {
             source.logs().save(DailyLog("2026-10-28", "  Ideas\n🎵\n")); source.logs().save(DailyLog("2026-10-29", ""))
             val data = BackupRepository(source).snapshot(); val bytes = BackupCodec.encode(data)
-            assertEquals(6, JSONObject(String(bytes)).getInt("version"))
+            assertEquals(7, JSONObject(String(bytes)).getInt("version"))
             BackupRepository(target).restore(BackupCodec.decode(bytes))
             assertEquals(data, BackupRepository(target).snapshot())
             for (v in 1..5) {

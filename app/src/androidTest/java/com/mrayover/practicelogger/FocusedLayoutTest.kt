@@ -49,7 +49,7 @@ class FocusedLayoutTest {
             compose.onNodeWithContentDescription("Stop latest loop").scrollIfNeeded().performClick()
             compose.onNodeWithContentDescription("Play latest loop").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId!=null };compose.runOnIdle { recordings.stopPlayback() }
-            click("Save for later");compose.onNodeWithText("Back to Main").performClick();shown("Practice Now")
+            leavePracticeForLater(compose);shown("Practice Now")
         } catch(failure:Throwable) { screenshot("layout-failure");throw failure } finally { db.close() }
     }
 }

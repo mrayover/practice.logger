@@ -114,4 +114,3 @@ class MetronomePersistenceTest {
         } finally { db.close(); context.deleteDatabase(name) }
     }
 }
-

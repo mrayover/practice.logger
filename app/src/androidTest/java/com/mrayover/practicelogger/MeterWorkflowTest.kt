@@ -39,7 +39,7 @@ class MeterWorkflowTest {
         try {
             focus(db,"P3 retained workspace",true)
             tag("practice-reference-toggle").performClick();shown("Page 1 of 2");click("Next page");shown("Page 2 of 2")
-            tag("reference-viewer").performTouchInput { pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f)) };shown("Reset PDF zoom")
+            tag("reference-viewer").performTouchInput { pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f)) };assertPracticeReferenceZoomed(compose)
             click("Notes");tag("practice-new-note").performTextReplacement("Keep P3 draft");keyboard();click("Return to Practice")
             click("Start");click("Start click");compose.waitUntil(10000) { practice.metronomePulse.sequence>=2 }
             val sequence=practice.metronomePulse.sequence
@@ -49,7 +49,7 @@ class MeterWorkflowTest {
             tag("metronome-panel-bpm").performTextReplacement("180");keyboard();tag("metronome-apply-bpm").performClick()
             compose.waitUntil(10000) { practice.workingBpm==180 && practice.metronomePulse.config.meter==MetronomeMeter.THREE_FOUR && practice.metronomePulse.sequence>sequence }
             compose.runOnIdle { assertTrue(practice.running);assertTrue(practice.clicking) };shot("expanded-three-four")
-            tag("practice-metronome-expand").performClick();shown("Page 2 of 2");shown("Reset PDF zoom")
+            tag("practice-metronome-expand").performClick();shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             compose.waitUntil(10000) { practice.metronomePulse.lit }
             compose.onNodeWithTag("practice-metronome-pulse",useUnmergedTree=true).assertIsDisplayed()
             compose.onNodeWithTag("practice-metronome-meter",useUnmergedTree=true).assertTextContains("3/4")
