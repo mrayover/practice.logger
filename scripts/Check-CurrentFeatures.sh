@@ -62,6 +62,7 @@ case "$suite" in
     fresh; run_class TargetedP4PreviewTest 3
     fresh; run_class PracticeRefinementPreviewTest 2
     fresh; run_class TransportPreviewTest 1
+    fresh; run_class NestedReferenceDiagnosticTest 1
     ;;
   appearance-import)
     fresh; run_class ThemeWorkflowTest 6

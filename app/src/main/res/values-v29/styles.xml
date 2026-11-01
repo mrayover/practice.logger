@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.PracticeLogger" parent="Theme.PracticeLogger.Base">
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    <style name="Theme.PracticeLogger.Light" parent="Theme.PracticeLogger.Light.Base">
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    <style name="Theme.PracticeLogger.Dark" parent="Theme.PracticeLogger.Dark.Base">
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>

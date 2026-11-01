@@ -34,9 +34,11 @@ class NestedReferenceDiagnosticTest {
                 pinch(androidx.compose.ui.geometry.Offset(width*.4f,height*.4f),androidx.compose.ui.geometry.Offset(width*.6f,height*.6f),
                     androidx.compose.ui.geometry.Offset(width*.15f,height*.15f),androidx.compose.ui.geometry.Offset(width*.85f,height*.85f))
             }
-            compose.onNodeWithText("Reset PDF zoom").assertIsDisplayed().performClick()
-            compose.onNodeWithText("Reset PDF zoom").assertDoesNotExist()
-            assertEquals("A saved note",runBlocking { db.sessions().find(sid)!!.current!!.note })
+            assertPracticeReferenceZoomed(compose)
+            compose.onNodeWithTag("reference-viewer").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions -> actions.single { it.label == "Reset zoom" }.action() }
+            val description = compose.onNodeWithTag("reference-viewer").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription].single()
+            assertEquals(1f, description.substringAfterLast("zoom ").replace(',', '.').toFloat(), .001f)
+            assertEquals("A saved note",runBlocking { db.practiceNotes().readAll().single { it.sessionId == sid }.text })
         } finally { db.close() }
     }
 }
