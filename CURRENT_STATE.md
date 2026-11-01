@@ -1,4 +1,8 @@
-# Current state — Smooth theme /0.17.0/build63
+# Current state — Sunny verification pending; signed baseline0.17.0/build63
+
+## Sunny increment in progress
+
+Sunny is implemented for build64: pale yellow surfaces, orange/amber actions and banner, golden selection/transport and dark warm text. Native styles and persistent Settings selector are included. Local palette contrast/XML and diff checks pass. Focused theme unit/native checks are prepared; no compilation, signed build64 or phone acceptance yet. Owner authorized Git publication, scoped checks and packaging. Existing signed build63 remains the installable baseline below.
 
 ## Delivery
 
@@ -20,4 +24,4 @@ Prior Light/Dark implementation is owner accepted. Detailed System/audio/accessi
 
 ## Exact next task
 
-Install build63 and perform its Smooth phone checklist, especially Focused Practice colors/flash/disabled controls and persistence. No automatic later phase/full regression.
+Run the Sunny focused theme workflow and package build64 after it passes. No automatic later phase/full regression.

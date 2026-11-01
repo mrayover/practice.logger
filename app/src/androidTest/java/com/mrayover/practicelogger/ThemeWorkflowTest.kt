@@ -40,7 +40,7 @@ class ThemeWorkflowTest {
         }
         assertTrue("${palette.id} background not rendered ($count/$total)", count>total*.15)
         compose.runOnIdle {
-            assertEquals(palette.id==LightPalette.id,WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightNavigationBars)
+            assertEquals(palette.scheme.background.luminance() > .5f,WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightNavigationBars)
             assertFalse(WindowCompat.getInsetsController(compose.activity.window,compose.activity.window.decorView).isAppearanceLightStatusBars)
             // XML attribute exists from API27; API26 is covered by the compat flag assertions.
             if (android.os.Build.VERSION.SDK_INT >= 27) {
@@ -72,6 +72,23 @@ class ThemeWorkflowTest {
         }
         compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick()
         shown("Practice Now"); background(SmoothPalette); shot("home-smooth")
+    }
+    @Test fun sunnySelectionPersistsAndRendersNativeChrome() {
+        shown("Practice Now")
+        compose.onNodeWithTag("header-settings").performClick()
+        tag("theme-sunny").performClick()
+        compose.waitUntil(10000) { compose.activity.themePreferences.choice.value == ThemeChoice.SUNNY }
+        tag("theme-sunny").assertIsSelected(); background(SunnyPalette); shot("settings-sunny")
+        assertEquals(ThemeChoice.SUNNY, ThemePreferences(compose.activity.application).choice.value)
+        compose.activityRule.scenario.recreate(); compose.waitForIdle()
+        tag("theme-sunny").assertIsSelected(); background(SunnyPalette)
+        compose.runOnIdle {
+            val native = android.util.TypedValue()
+            assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.colorAccent, native, true))
+            assertEquals(SunnyPalette.scheme.primary, Color(native.data))
+        }
+        compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick()
+        shown("Practice Now"); background(SunnyPalette); shot("home-sunny")
     }
     @Test fun homeSettingsBelowLogPersistsAndSystemFollowsDevice() {
         shown("Practice Now");choose(ThemeChoice.LIGHT);background(LightPalette)

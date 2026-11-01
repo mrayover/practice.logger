@@ -31,4 +31,9 @@
         <item name="android:colorBackground">@color/practice_smooth_background</item>
         <item name="android:colorAccent">@color/practice_smooth_accent</item>
     </style>
+    <style name="Theme.PracticeLogger.Sunny" parent="Theme.PracticeLogger.Light">
+        <item name="android:windowBackground">@color/practice_sunny_background</item>
+        <item name="android:colorBackground">@color/practice_sunny_background</item>
+        <item name="android:colorAccent">@color/practice_sunny_accent</item>
+    </style>
 </resources>

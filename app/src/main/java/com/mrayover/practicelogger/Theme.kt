@@ -112,11 +112,38 @@ val SmoothPalette = PracticePalette("smooth", smoothScheme, PracticeColors(
     goals = listOf(GoalColors(smoothScheme.primary, smoothScheme.primaryContainer, smoothScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
     unassignedGoalAccent = Color(0xFFC0D3D0)
 ))
+// Sunny uses warm light surfaces with amber/orange actions and readable dark text.
+private val sunnyScheme = lightScheme.copy(
+    primary = Color(0xFF8C4300), onPrimary = Color(0xFFFFF8E8),
+    primaryContainer = Color(0xFFFFD875), onPrimaryContainer = Color(0xFF482200), inversePrimary = Color(0xFFFFB86B),
+    secondary = Color(0xFF715500), onSecondary = Color(0xFFFFF8E8),
+    secondaryContainer = Color(0xFFFFE699), onSecondaryContainer = Color(0xFF3B2C00),
+    tertiary = Color(0xFF8A3D24), onTertiary = Color(0xFFFFF8F0),
+    tertiaryContainer = Color(0xFFFFD9BC), onTertiaryContainer = Color(0xFF48200D),
+    background = Color(0xFFFFF4CD), onBackground = Color(0xFF332413),
+    surface = Color(0xFFFFF4CD), onSurface = Color(0xFF332413),
+    surfaceVariant = Color(0xFFF8E4AC), onSurfaceVariant = Color(0xFF604C2E),
+    surfaceDim = Color(0xFFECD9A6), surfaceBright = Color(0xFFFFF8E3),
+    surfaceContainerLowest = Color(0xFFFFFBED), surfaceContainerLow = Color(0xFFFFF0C0),
+    surfaceContainer = Color(0xFFFFEAB0), surfaceContainerHigh = Color(0xFFFFE39B), surfaceContainerHighest = Color(0xFFF6D78F),
+    inverseSurface = Color(0xFF3D2E1C), inverseOnSurface = Color(0xFFFFEFCC),
+    outline = Color(0xFF80643A), outlineVariant = Color(0xFFD6BB7B), surfaceTint = Color(0xFF8C4300)
+)
+val SunnyPalette = PracticePalette("sunny", sunnyScheme, PracticeColors(
+    banner = Color(0xFF994800), onBanner = Color(0xFFFFF8E8), bannerEdge = Color(0xFF733500),
+    transportSurface = Color(0xFFFFE5A3),
+    selectionContainer = Color(0xFFFFD875), onSelectionContainer = Color(0xFF482200),
+    recording = sunnyScheme.error, onRecording = sunnyScheme.onError,
+    scrollThumb = sunnyScheme.primary, scrollTrack = Color(0xFFE9C981),
+    goals = listOf(GoalColors(sunnyScheme.primary, sunnyScheme.primaryContainer, sunnyScheme.onPrimaryContainer)) + LightPalette.colors.goals.drop(1),
+    unassignedGoalAccent = Color(0xFF5C4930)
+))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {
     ThemeChoice.LIGHT -> LightPalette
     ThemeChoice.DARK -> DarkPalette
     ThemeChoice.SMOOTH -> SmoothPalette
+    ThemeChoice.SUNNY -> SunnyPalette
     ThemeChoice.SYSTEM -> if (systemDark) DarkPalette else LightPalette
 }
 private val LocalPracticeColors = staticCompositionLocalOf { LightPalette.colors }
