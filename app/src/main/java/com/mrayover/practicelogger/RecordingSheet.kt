@@ -303,10 +303,10 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 .testTag("practice-$type-selector").semantics { contentDescription = "Select $type recording" },
                 verticalArrangement = Arrangement.Center) {
                 Text(if (loop) "Loop Recording" else "Free Recording", style = MaterialTheme.typography.labelSmall, color = action)
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Row(Modifier.padding(end = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
                         maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = action)
-                    Text(" ▾", color = action)
+                    Text("▾", Modifier.width(24.dp).testTag("practice-$type-chevron"), textAlign = androidx.compose.ui.text.style.TextAlign.Center, color = action)
                 }
             }
         }

@@ -160,32 +160,32 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun SavedPracticeNotes(entries: List<PracticeNoteEntry>, busy: Boolean, editModel: BlockNotesViewModel) {
     val editingIds by editModel.editingIds.collectAsStateWithLifecycle()
-            entries.forEach { entry -> key(entry.id) {
-                var expanded by rememberSaveable(entry.id) { mutableStateOf(false) }
-                val editing = entry.id in editingIds
-                val editText by editModel.editDraft(entry).collectAsStateWithLifecycle()
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = Role.Button) { if (!editing) expanded = !expanded }
-                    .testTag("practice-note-${entry.id}").semantics { stateDescription = if (expanded || editing) "Expanded" else "Collapsed" },
-                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val date = java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm:ss a")
-                        .withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.ofEpochMilli(entry.createdAt))
-                    Text(date + if (entry.legacy) " · Earlier session" else "", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                    Text(if (expanded || editing) "Collapse" else "Expand", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                }
-                if (editing) {
-                    OutlinedTextField(editText, { editModel.changeEdit(entry, it) }, label = { Text("Edit note") }, enabled = !busy,
-                        minLines = 2, maxLines = 5, modifier = Modifier.fillMaxWidth().testTag("practice-note-editor-${entry.id}"))
-                    FlowRow {
-                        TextButton(onClick = { editModel.saveEdit(entry); expanded = true }, enabled = !busy && editText.isNotBlank(),
-                            modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-save-${entry.id}")) { Text("Save Changes") }
-                        TextButton(onClick = { editModel.cancelEdit(entry); expanded = true }, enabled = !busy,
-                            modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-cancel-${entry.id}")) { Text("Cancel Changes") }
-                    }
-                } else if (expanded) {
-                    Text(entry.text, Modifier.fillMaxWidth().testTag("practice-note-text-${entry.id}"), style = MaterialTheme.typography.bodyMedium)
-                    TextButton(onClick = { editModel.startEdit(entry) }, enabled = !busy,
-                        modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-edit-${entry.id}")) { Text("Edit") }
-                }
-            } }
+    entries.forEach { entry -> key(entry.id) {
+        var expanded by rememberSaveable(entry.id) { mutableStateOf(false) }
+        val editing = entry.id in editingIds
+        val editText by editModel.editDraft(entry).collectAsStateWithLifecycle()
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = Role.Button) { if (!editing) expanded = !expanded }
+            .testTag("practice-note-${entry.id}").semantics { stateDescription = if (expanded || editing) "Expanded" else "Collapsed" },
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val date = java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm:ss a")
+                .withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.ofEpochMilli(entry.createdAt))
+            Text(date + if (entry.legacy) " · Earlier session" else "", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+            Text(if (expanded || editing) "Collapse" else "Expand", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+        }
+        if (editing) {
+            OutlinedTextField(editText, { editModel.changeEdit(entry, it) }, label = { Text("Edit note") }, enabled = !busy,
+                minLines = 2, maxLines = 5, modifier = Modifier.fillMaxWidth().testTag("practice-note-editor-${entry.id}"))
+            FlowRow {
+                TextButton(onClick = { editModel.saveEdit(entry); expanded = true }, enabled = !busy && editText.isNotBlank(),
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-save-${entry.id}")) { Text("Save Changes") }
+                TextButton(onClick = { editModel.cancelEdit(entry); expanded = true }, enabled = !busy,
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-cancel-${entry.id}")) { Text("Cancel Changes") }
+            }
+        } else if (expanded) {
+            Text(entry.text, Modifier.fillMaxWidth().testTag("practice-note-text-${entry.id}"), style = MaterialTheme.typography.bodyMedium)
+            TextButton(onClick = { editModel.startEdit(entry) }, enabled = !busy,
+                modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-edit-${entry.id}")) { Text("Edit") }
+        }
+    } }
 }

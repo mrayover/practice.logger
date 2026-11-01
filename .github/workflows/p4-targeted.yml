@@ -19,7 +19,7 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile and run scoped persistence and metronome tests
-        run: timeout 420s bash ./gradlew testDebugUnitTest --tests '*PracticeNoteRepositoryTest' --tests '*MetronomeTest' --tests '*MeterPcmTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+        run: timeout 420s bash ./gradlew testDebugUnitTest --tests '*PracticeNoteRepositoryTest' --tests '*BeatPcmTest' --tests '*MetronomePersistenceTest' --tests '*MeterPcmTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: p4-targeted-apks

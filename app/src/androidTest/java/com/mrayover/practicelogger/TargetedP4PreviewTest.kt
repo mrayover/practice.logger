@@ -48,6 +48,11 @@ class TargetedP4PreviewTest {
             val buttons = listOf("Start", "Complete", "Notes", "Skip").map { compose.onNodeWithText(it).assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
             assertTrue(buttons.all { kotlin.math.abs(it.top-buttons.first().top) <= 1f })
             compose.onNodeWithTag("practice-transport-scrollbar").assertDoesNotExist()
+            val chevron = compose.onNodeWithTag("practice-metronome-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
+            for (type in listOf("free", "loop")) {
+                val x = compose.onNodeWithTag("practice-$type-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
+                assertTrue("Aligned transport chevrons: $chevron / $x", kotlin.math.abs(chevron-x) <= 1f)
+            }
             screenshot("transport")
             compose.onNodeWithTag("practice-metronome-expand").performClick(); shown("BPM (30–300)")
             compose.onNodeWithTag("practice-metronome-expand").performClick()

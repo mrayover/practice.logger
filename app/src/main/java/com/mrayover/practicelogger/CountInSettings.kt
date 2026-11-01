@@ -35,7 +35,7 @@ class CountInPreferences(context: Context) {
     fun save(value: Long) { PhraseSpec(300,1,value); check(preferences.edit().putLong("count-in-beats",value).commit()) { "Default count-in could not be saved." } }
 }
 
-@Composable fun CountInSettings(vm: RecordingViewModel, onTools: () -> Unit, fromHome: Boolean = false) {
+@Composable fun CountInSettings(vm: RecordingViewModel, onTools: () -> Unit, fromHome: Boolean = false, backLabel: String = "Back to Tools") {
     BackHandler(onBack = onTools)
     var value by rememberSaveable(vm.defaultCountIn) { mutableStateOf(vm.defaultCountIn.toString()) }
     val parsed = value.toLongOrNull()
@@ -91,7 +91,7 @@ class CountInPreferences(context: Context) {
         Text("Positive whole beats. Each loop can override this default. Count-ins must fit a 15-minute execution budget at the selected BPM.")
         Button(onClick = { vm.saveDefaultCountIn(value) }, enabled = !vm.busy && parsed != null && parsed > 0) { Text("Save default count-in") }
         vm.message?.let { Text(it) }
-        if (!fromHome) TextButton(onClick = onTools) { Text("Back to Tools") }
+        if (!fromHome) TextButton(onClick = onTools) { Text(backLabel) }
     }
     }
 }

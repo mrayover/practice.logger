@@ -355,17 +355,17 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
     }
         val expand: @Composable () -> Unit = {
-            TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(32.dp).heightIn(min=48.dp)
+            TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(24.dp).heightIn(min=48.dp)
                 .testTag("practice-metronome-expand").semantics { contentDescription=if(expanded) "Collapse metronome" else "Expand metronome" }) {
-                Text(if(expanded) "▴" else "▾")
+                Text(if(expanded) "▴" else "▾", Modifier.testTag("practice-metronome-chevron"))
             }
         }
     val accent: @Composable () -> Unit = {
-        Column(Modifier.width(56.dp), horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+        Row(Modifier.width(80.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Text("Accent", style = MaterialTheme.typography.labelSmall)
             Checkbox(checked = vm.metronomeConfig.accent,
                 onCheckedChange = { vm.configureMetronome(vm.metronomeConfig.copy(accent = it)) }, enabled = !vm.busy,
-                modifier = Modifier.height(32.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
+                modifier = Modifier.width(32.dp).height(48.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
         }
     }
     BoxWithConstraints(Modifier.fillMaxWidth()) {
