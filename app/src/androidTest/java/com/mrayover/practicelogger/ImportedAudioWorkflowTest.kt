@@ -104,7 +104,7 @@ class ImportedAudioWorkflowTest {
             compose.runOnIdle{manager.requestAudioFocus(focus)};compose.waitUntil(10000){audio.playingId==null};compose.runOnIdle{manager.abandonAudioFocusRequest(focus)}
             compose.runOnIdle{audio.play(saved)};compose.waitUntil(10000){audio.importedRepeatActive()};device.pressHome()
             compose.waitUntil(10000){audio.playingId==null}
-            app.startActivity(app.packageManager.getLaunchIntentForPackage(app.packageName)!!.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+            device.executeShellCommand("am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n ${app.packageName}/com.mrayover.practicelogger.MainActivity")
             shown("Practice Description");compose.runOnIdle{assertNull(audio.playingId)}
             for(extension in listOf("mp3","m4a")) {
                 if (extension=="mp3") { compose.runOnIdle{audio.play(saved)};compose.waitUntil(10000){audio.importedRepeatActive()} }
