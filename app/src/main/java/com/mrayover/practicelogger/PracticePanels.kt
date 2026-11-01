@@ -23,10 +23,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** Standard touch/keyboard scrolling with an always-visible thumb when content overflows. */
 @Composable fun PracticeScrollPanel(modifier: Modifier = Modifier, state: ScrollState = rememberScrollState(),
-    tag: String, content: @Composable ColumnScope.() -> Unit) {
+    tag: String, reserveScrollbarSpace: Boolean = true, content: @Composable ColumnScope.() -> Unit) {
     val colors = PracticeTheme.colors
     Box(modifier.testTag(tag)) {
-        Column(Modifier.fillMaxWidth().verticalScroll(state).padding(end = 12.dp), content = content)
+        Column(Modifier.fillMaxWidth().verticalScroll(state).padding(end = if (reserveScrollbarSpace) 12.dp else 0.dp), content = content)
         if (state.maxValue > 0 && state.maxValue != Int.MAX_VALUE) Canvas(Modifier.matchParentSize()
             .testTag("$tag-scrollbar").semantics { contentDescription = "Vertical scroll indicator" }) {
             val width = 4.dp.toPx()
@@ -80,7 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
             if (suppressed || expanded != "reference") Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
             if (attached) BoxWithConstraints(Modifier.fillMaxSize().testTag("practice-reference-area")) {
                 val available = maxHeight.coerceAtLeast(1.dp)
-                PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-reference-panel") {
+                PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-reference-panel", reserveScrollbarSpace = false) {
                     PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = available,
                         embeddedExpanded = true, fitAvailableHeight = true)
                     if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium)

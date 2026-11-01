@@ -53,7 +53,12 @@ class TransportPreviewTest {
                 ImageReferenceRepository(db, File(app.filesDir, "block-images")).import(id) {
                     InstrumentationRegistry.getInstrumentation().context.assets.open("references/score.pdf")
                 }
-                val repo = SessionRepository(db); repo.addBlock(id); repo.start()
+                val repo = SessionRepository(db); repo.addBlock(id); val sid = repo.start()
+                val placement = db.sessions().find(sid)!!.current!!.id
+                // A capped multiline editor scrolls internally; real saved history supplies
+                // outer overflow so both containers remain exercised by this scenario.
+                repeat(8) { index -> PracticeNoteRepository(db).append(id, sid, placement, "Earlier scroll note $index") }
+                sid
             }
             shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }
             shown("Practice Description")
@@ -148,7 +153,7 @@ class TransportPreviewTest {
             click("Notes")
             compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()
             assertEquals(4, runBlocking { db.takes().readAll().count { it.blockId == block } })
-            assertEquals(noteText.trim(), runBlocking { db.practiceNotes().readAll().single { it.placementId == placement }.text })
+            assertEquals(noteText.trim(), runBlocking { db.practiceNotes().readAll().single { it.placementId == placement && it.text == noteText.trim() }.text })
             tagged("practice-bottom-actions")
             compose.onAllNodesWithText("Looping ·", substring = true).assertCountEquals(0)
             screenshot("refinement-final-reference")
