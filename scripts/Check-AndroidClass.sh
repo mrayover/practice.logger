@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
-[[ "$TARGET_TEST_CLASS" =~ ^com\.mrayover\.practicelogger\.[A-Za-z0-9_,.]+$ ]] || exit 2
+suite=${TARGET_FEATURE_SUITE:-}
+if [ -n "$suite" ]; then
+  case "$suite" in review|transport|appearance-import) ;; *) exit 2 ;; esac
+  [ -z "${TARGET_TEST_CLASS:-}" ] || exit 2
+else
+  [[ "$TARGET_TEST_CLASS" =~ ^com\.mrayover\.practicelogger\.[A-Za-z0-9_,.#]+$ ]] || exit 2
+fi
 adb shell locksettings set-disabled true
 adb shell wm dismiss-keyguard
-if [[ "$TARGET_TEST_CLASS" == *ImportedAudioWorkflowTest* ]]; then
+if [[ "${TARGET_TEST_CLASS:-}" == *ImportedAudioWorkflowTest* || "$suite" == appearance-import ]]; then
   bash scripts/Prepare-AudioFixtures.sh
 fi
 bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+if [ -n "$suite" ]; then
+  bash scripts/Check-CurrentFeatures.sh "$suite" "$TARGET_API"
+  exit 0
+fi
 if [[ "$TARGET_TEST_CLASS" == *LegacyReferenceSeedTest* ]]; then
   bash scripts/Prepare-ReferenceUpgrade.sh
   adb install -r baseline-apk/upgrade-baseline.apk

@@ -24,7 +24,7 @@ class ImportedAudioWorkflowTest {
     private val app get()=compose.activity.application
     private val device get()=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private val audio get()=ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
-    private fun shown(text:String)=compose.waitUntil(15000){compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()}
+    private fun shown(text:String)=compose.waitUntil(15000){compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()}
     private fun tag(name:String)=compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
     private fun click(text:String){shown(text);compose.onNodeWithText(text).scrollIfNeeded().performClick()}
     private fun media(name:String,mime:String,bytes:ByteArray):Uri {

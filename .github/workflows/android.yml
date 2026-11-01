@@ -12,6 +12,12 @@ on:
         description: "Build/unit/lint candidate before native release gates"
         type: boolean
         default: false
+      feature_suite:
+        description: 'Optional isolated current-feature group; empty uses normal class/full gate'
+        required: false
+        type: choice
+        default: ''
+        options: ['', 'review', 'transport', 'appearance-import']
       test_class:
         description: 'Optional diagnostic class (full package); empty runs full release gates'
         required: false
@@ -32,11 +38,11 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: android-${{ github.ref }}-${{ inputs.test_class || 'release' }}-${{ inputs.api || 'all' }}
+  group: android-${{ github.ref }}-${{ inputs.test_class || inputs.feature_suite || 'release' }}-${{ inputs.api || 'all' }}
   cancel-in-progress: true
 jobs:
   build:
-    if: ${{ !inputs.test_class }}
+    if: ${{ !inputs.test_class && !inputs.feature_suite }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -402,7 +408,7 @@ jobs:
           retention-days: 30
 
   diagnostic:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_class != '' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.test_class != '' || inputs.feature_suite != '') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -435,6 +441,8 @@ jobs:
           script: bash scripts/Check-AndroidClass.sh
         env:
           TARGET_TEST_CLASS: ${{ inputs.test_class }}
+          TARGET_FEATURE_SUITE: ${{ inputs.feature_suite }}
+          TARGET_API: ${{ inputs.api }}
           TARGET_FONT_SCALE: ${{ inputs.font_scale }}
       - uses: actions/upload-artifact@v4
         if: always()
@@ -442,4 +450,5 @@ jobs:
           name: targeted-device-${{ inputs.api }}
           path: |
             app/build/targeted-*
+            app/build/current-*
           retention-days: 30

@@ -20,7 +20,11 @@ class MeterWorkflowTest {
     private val audio get()=ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
     private fun shown(text:String)=compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
     private fun click(text:String) { shown(text);compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick() }
-    private fun tag(value:String)=compose.onNodeWithTag(value).scrollIfNeeded().assertIsDisplayed()
+    private fun tag(value:String): SemanticsNodeInteraction {
+        val node = compose.onNodeWithTag(value)
+        if (!node.isDisplayed()) node.scrollIfNeeded()
+        return node.assertIsDisplayed()
+    }
     private fun keyboard()=compose.runOnIdle { compose.activity.currentFocus?.clearFocus();compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) }
     private fun shot(name:String) { compose.waitForIdle();val dir=File(compose.activity.getExternalFilesDir(null),"p3-meter");dir.mkdirs();device.takeScreenshot(File(dir,"$name.png")) }
     private fun focus(db:BlockDatabase,name:String,reference:Boolean=false):String {
@@ -52,11 +56,12 @@ class MeterWorkflowTest {
             tag("practice-metronome-expand").performClick();shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             compose.waitUntil(10000) { practice.metronomePulse.lit }
             compose.onNodeWithTag("practice-metronome-pulse",useUnmergedTree=true).assertIsDisplayed()
-            compose.onNodeWithTag("practice-metronome-meter",useUnmergedTree=true).assertTextContains("3/4")
+            compose.onNodeWithTag("metronome-bpm").assertTextContains("3/4")
             shot("collapsed-pulse-pdf")
             click("Notes");tag("practice-new-note").assertTextContains("Keep P3 draft")
             compose.runOnIdle { notes.edit(practice.catalog.value.active!!.current!!.id,"") };click("Return to Practice")
-            click("Stop click");compose.onNodeWithTag("practice-metronome-meter",useUnmergedTree=true).assertDoesNotExist()
+            click("Stop click");compose.onNodeWithTag("metronome-bpm").assertTextContains("3/4")
+            compose.runOnIdle { assertFalse(practice.clicking); assertFalse(practice.metronomePulse.lit) }
             device.pressBack();click("Back to Main")
         } finally { compose.runOnIdle { practice.stopClick();audio.stopPlayback() };db.close() }
     }
