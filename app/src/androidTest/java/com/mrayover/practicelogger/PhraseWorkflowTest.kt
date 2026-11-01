@@ -36,20 +36,21 @@ class PhraseWorkflowTest {
             val previous = runBlocking { db.takes().readAll() }
             assertTrue(previous.count { it.mode == "FREE" } >= 2)
             val block = runBlocking { BlockRepository(db).save(null, BlockDraft("Loop fixture", "Play along", "5", "120")) }
-            shown("Practice Now"); click("Practice Now"); click("Add Loop fixture"); click("Start Session"); shown("Ready when you are")
-            click("Start"); click("Start click"); click("Recordings"); shown("Block recordings")
+            shown("Practice Now"); click("Practice Now"); click("Add Loop fixture"); click("Start Session"); shown("Start")
+            click("Start"); click("Start click")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }
-            sheet("Record phrase"); shown("Record one phrase")
+            click("Loop Setup"); shown("Loop setup")
             compose.onNodeWithTag("phrase-recording-click").assertDoesNotExist()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("0")
-            compose.onNodeWithText("Start count-in").assertIsNotEnabled()
+            compose.onNodeWithText("Record Loop").assertIsNotEnabled()
             compose.onNodeWithText("Phrase BPM").performTextReplacement("120")
+            compose.onNodeWithTag("phrase-beats").performTextReplacement("8")
             compose.onNodeWithText("One phrase: 4.00 seconds").assertExists()
             compose.onNodeWithText("Phrase BPM").performImeAction()
             captureStage3("30-phrase-setup")
-            click("Start count-in")
+            click("Record Loop")
             compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }
             compose.runOnIdle { assertFalse(practice.clicking); assertTrue(practice.running) }
             captureStage3("31-phrase-count-in")
@@ -68,7 +69,7 @@ class PhraseWorkflowTest {
             compose.waitUntil(20000) { vm.loopFramesPlayed() > 2L * PhraseSpec(120, 8).frames }
             compose.runOnIdle { assertEquals(first.id, vm.playingId); practice.changeWorkingBpm(180) }
             assertEquals(120, runBlocking { db.takes().find(first.id) }!!.recordedBpm)
-            sheet("Stop loop"); compose.runOnIdle { assertNull(vm.playingId); assertEquals(0L, vm.loopFramesPlayed()) }
+            compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick(); compose.runOnIdle { assertNull(vm.playingId); assertEquals(0L, vm.loopFramesPlayed()) }
             // Exercise count-in/capture at 60 and 180 BPM through the production native path.
             for (bpm in listOf(60, 180)) {
                 compose.runOnIdle { vm.startPhrase(block, PhraseSpec(bpm, 4)) }
@@ -95,8 +96,8 @@ class PhraseWorkflowTest {
             // The first saved take above still verifies the required 8 beats / 120 BPM exactly.
             compose.runOnIdle { vm.startPhrase(block, PhraseSpec(30, 32)) }
             compose.waitUntil(15000) { vm.recording && vm.countInBeat == 0 && vm.elapsedMs > 250 }
-            sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
-            sheet("Resume timer")
+            click("Pause"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
+            click("Resume")
             compose.waitUntil(5000) { vm.recording && practice.running }
             compose.runOnIdle {
                 println("Background cancellation precondition: elapsed=${vm.elapsedMs}, duration=${vm.phraseDurationMs}")
@@ -112,6 +113,8 @@ class PhraseWorkflowTest {
             compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
             compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
             compose.runOnIdle { assertNull(vm.playingId) }
+            leavePracticeForLater(compose); shown("Practice Now")
+            click("Blocks"); click("Loop fixture"); click("Recordings"); shown("Block recordings")
             // Actual WAV picker export; full bytes match, not merely an exported filename.
             compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("export-" + first.id))
             compose.onNodeWithTag("export-" + first.id).performClick()
@@ -139,7 +142,7 @@ class PhraseWorkflowTest {
             compose.waitUntil(10000) { !vm.busy && vm.takes.value.none { it.id == disposable.id } }
             assertFalse(java.io.File(compose.activity.filesDir, "recordings/" + disposable.fileName).exists())
             assertTrue(runBlocking { db.takes().readAll() }.containsAll(previous))
-            sheet("Close recordings"); leavePracticeForLater(compose); shown("Practice Now")
+            sheet("Close recordings"); click("Cancel"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
             runBlocking { BlockRepository(db).setArchived(block, true) }
         } catch (failure: Throwable) { captureStage3("phrase-failure"); throw failure }
         finally { db.close() }

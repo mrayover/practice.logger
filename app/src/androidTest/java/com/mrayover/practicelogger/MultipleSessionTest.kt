@@ -21,23 +21,23 @@ class MultipleSessionWorkflowTest {
             shown("Practice Now"); click("Practice Now"); shown("Add Parallel A"); click("Add Parallel A")
             click("Start Session"); shown("Parallel A")
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Keep A")
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Keep A"); savePracticeNote(compose)
             leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
             shown("Add Parallel B"); click("Add Parallel B")
             click("Start Session"); shown("Parallel B")
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Keep B")
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Keep B"); savePracticeNote(compose)
             leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
             assertEquals(2, runBlocking { db.sessions().readAll().count { it.session.status == "IN_PROGRESS" } })
             compose.onNodeWithTag("continue-session-" + first.session.id).scrollIfNeeded().performClick()
             shown("Parallel A")
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
-            compose.onNodeWithText("Ready when you are").assertExists()
+            assertSavedPracticeNote(compose, "Keep A")
+            compose.onNodeWithText("Start").assertExists()
             compose.activityRule.scenario.recreate(); shown("Parallel A")
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
+            assertSavedPracticeNote(compose, "Keep A")
             leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
         } finally { db.close() }
     }
@@ -56,18 +56,18 @@ class MultipleSessionReopenTest {
             val firstControl = compose.onAllNodesWithTag("continue-session-" + first.session.id)
             if (firstControl.fetchSemanticsNodes().isNotEmpty()) firstControl[0].scrollIfNeeded().performClick()
             else click("Continue Session")
-            shown("Parallel A"); revealPracticeNotes(compose); compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep A")
+            shown("Parallel A"); revealPracticeNotes(compose); assertSavedPracticeNote(compose, "Keep A")
             click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomePractice(compose); shown("Continue Session")
             click("Continue Session"); shown("Parallel B")
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Keep B")
-            compose.onNodeWithText("Ready when you are").assertExists()
+            assertSavedPracticeNote(compose, "Keep B")
+            compose.onNodeWithText("Start").assertExists()
             click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
             runBlocking {
                 val pair = db.sessions().readAll().filter { it.ordered.firstOrNull()?.name in setOf("Parallel A", "Parallel B") }
                 assertEquals(2, pair.size)
                 assertTrue(pair.all { it.session.status == "COMPLETED" && it.activeMs == 0L })
-                assertEquals(setOf("Keep A", "Keep B"), pair.map { it.current!!.note }.toSet())
+                assertEquals(setOf("Keep A", "Keep B"), db.practiceNotes().readAll().filter { note -> pair.any { it.session.id == note.sessionId } }.map { it.text }.toSet())
             }
         } finally { db.close() }
     }

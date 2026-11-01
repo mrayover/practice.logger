@@ -35,19 +35,19 @@ class FocusedLayoutTest {
             shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("Goal: Sketch layout Goal")
             compose.onNodeWithTag("practice-description").performTouchInput { swipeUp() }
             compose.onNodeWithText("Complete").assertIsDisplayed();compose.onNodeWithText("Skip").assertIsDisplayed();screenshot("long-goal")
-            click("Start");click("Start click");click("Show reference")
+            click("Start");click("Start click");compose.onNodeWithTag("practice-reference-toggle").performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             click("Next page");shown("Page 2 of 2")
             assertTrue(practice.running);assertTrue(practice.clicking);screenshot("bounded-pdf")
-            click("Hide reference");click("Loop Setup");shown("Record one phrase")
+            compose.onNodeWithTag("practice-description-toggle").performClick();click("Loop Setup");shown("Loop setup")
             compose.onNodeWithText("Phrase BPM").performTextReplacement("240")
-            click("4 beats");click("Start count-in")
+            click("4 beats");click("Record Loop")
             acceptTemporaryTake(compose, recordings, playAfterSave = true)
             compose.waitUntil(12000) { !recordings.recording && recordings.takes.value.any { it.mode=="LOOP" } }
             compose.waitUntil(10000) { recordings.playingId!=null }
             assertTrue(practice.running);screenshot("direct-loop")
-            compose.onNodeWithContentDescription("Stop latest loop").scrollIfNeeded().performClick()
-            compose.onNodeWithContentDescription("Play latest loop").scrollIfNeeded().performClick()
+            compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()
+            compose.onNodeWithContentDescription("Play selected loop recording").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId!=null };compose.runOnIdle { recordings.stopPlayback() }
             leavePracticeForLater(compose);shown("Practice Now")
         } catch(failure:Throwable) { screenshot("layout-failure");throw failure } finally { db.close() }

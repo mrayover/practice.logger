@@ -24,10 +24,10 @@ class NestedReferenceDiagnosticTest {
             compose.waitUntil(15000) { practice.catalog.value.ready };compose.runOnIdle { practice.openSession(sid) }
             compose.waitUntil(15000) { compose.onAllNodesWithText("Notes").fetchSemanticsNodes().isNotEmpty() }
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("A saved note")
-            compose.onNodeWithText("Save Block note").scrollIfNeeded().performClick();compose.waitUntil(15000) { !practice.busy }
-            scrollPracticeWorkspace(compose,hasText("Show reference"))
-            compose.onNodeWithText("Show reference").assertIsDisplayed().performClick()
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("A saved note")
+            savePracticeNote(compose); compose.onNodeWithText("Return to Practice").scrollIfNeeded().performClick()
+            scrollPracticeWorkspace(compose,hasTestTag("practice-reference-toggle"))
+            compose.onNodeWithTag("practice-reference-toggle").assertIsDisplayed().performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             revealPracticeReference(compose);compose.onNodeWithTag("reference-viewer").assertIsDisplayed()
             compose.onNodeWithTag("reference-viewer").performTouchInput {

@@ -54,6 +54,30 @@ fun revealPracticeReference(compose: AndroidComposeTestRule<ActivityScenarioRule
     }
 }
 
+fun savePracticeNote(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
+    val notes = ViewModelProvider(compose.activity)[BlockNotesViewModel::class.java]
+    val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+    val placement = checkNotNull(practice.catalog.value.active?.current).id
+    val text = notes.draft(placement).value.trim()
+    org.junit.Assert.assertTrue("A nonempty draft must be saved", text.isNotEmpty())
+    compose.runOnIdle {
+        compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+            .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken, 0)
+    }
+    compose.onNodeWithText("Save Note").scrollIfNeeded().assertIsDisplayed().performClick()
+    compose.waitUntil(15000) { !notes.busy && notes.draft(placement).value.isEmpty() && notes.history.value.any { it.placementId == placement && it.text == text } }
+}
+
+fun assertSavedPracticeNote(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>, text: String) {
+    val notes = ViewModelProvider(compose.activity)[BlockNotesViewModel::class.java]
+    compose.waitUntil(15000) { notes.history.value.any { it.text == text } }
+    val entry = notes.history.value.first { it.text == text }
+    val header = compose.onNodeWithTag("practice-note-${entry.id}").scrollIfNeeded().assertIsDisplayed()
+    if (header.fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.StateDescription] == "Collapsed") header.performClick()
+    compose.onNodeWithTag("practice-note-text-${entry.id}").scrollIfNeeded().assertIsDisplayed().assertTextEquals(text)
+    compose.onNodeWithTag("practice-new-note").assertTextEquals("New note", "")
+}
+
 fun leavePracticeForLater(compose: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
     fun keyboardVisible()=compose.runOnIdle {
         androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
@@ -107,7 +131,7 @@ class FocusedPracticeTest {
 
             // At normal font scale this verifies real visibility without scrolling first.
             if (app.resources.configuration.fontScale < 1.5f) {
-                listOf("Practice Description","Free recording","Loop recording","Recordings","Start","Complete","Skip").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
+                listOf("Practice Description","Free Recording","Loop Recording","Start","Complete","Skip").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
                 compose.onNodeWithTag("metronome-bpm").assertIsDisplayed()
             }
             screenshot("collapsed")
@@ -117,11 +141,11 @@ class FocusedPracticeTest {
             assertEquals("PENDING",runBlocking { db.sessions().find(session)!!.current!!.outcome })
             screenshot("zero")
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Preserve this note")
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Preserve this note")
             compose.runOnIdle {
                 (app.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0)
             }
-            click("Save Block note"); compose.waitUntil(15000) { !practice.busy }
+            savePracticeNote(compose)
             compose.activityRule.scenario.recreate(); shown("Practice Description")
             assertEquals(1,practice.completionSignals)
             compose.runOnIdle { practice.openSession(session) }; compose.waitUntil(15000) { !practice.busy }
@@ -138,19 +162,25 @@ class FocusedPracticeTest {
             compose.onNode(hasText("Continue") and hasAnyAncestor(isDialog())).performClick(); assertTrue(practice.clicking)
             // Force a real SQLite note-write failure and prove navigation waits for success.
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("retry note")
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("retry note")
             compose.runOnIdle { (app.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) }
-            runBlocking { db.openHelper.writableDatabase.execSQL("CREATE TRIGGER focused_save_failure BEFORE UPDATE OF note ON placements BEGIN SELECT RAISE(FAIL, 'injected note failure'); END") }
-            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); compose.onNodeWithText("Back to Main").performClick()
-            shown("Practice paused"); compose.onNodeWithTag("practice-timer").assertExists(); assertFalse(practice.running)
+            runBlocking { db.openHelper.writableDatabase.execSQL("CREATE TRIGGER focused_save_failure BEFORE INSERT ON practice_notes BEGIN SELECT RAISE(FAIL, 'injected note failure'); END") }
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Unsaved note text")
+            compose.onNodeWithText("Keep editing").performClick()
+            click("Save Note"); shown("Note could not be saved. Your draft is kept; check storage and retry.")
+            compose.onNodeWithTag("practice-new-note").assertTextContains("retry note")
+            compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Unsaved note text")
+            compose.onNodeWithText("Back to Main").assertDoesNotExist()
+            compose.onNodeWithTag("practice-timer").assertExists()
+            compose.onNodeWithText("Keep editing").performClick()
             runBlocking { db.openHelper.writableDatabase.execSQL("DROP TRIGGER focused_save_failure") }
-            compose.onNodeWithText("OK").performClick(); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")
+            savePracticeNote(compose); leavePracticeForLater(compose); shown("Practice Now")
             assertFalse(practice.clicking)
-            assertEquals("retry note",runBlocking { db.sessions().find(session)!!.current!!.note })
+            assertEquals("retry note",runBlocking { db.practiceNotes().readAll().single { it.sessionId == session && it.text == "retry note" }.text })
             compose.runOnIdle { practice.openSession(session) }; shown("Practice Description"); assertEquals(2,practice.completionSignals)
             click("Continue"); compose.waitUntil(5000) { practice.running }
             // The direct free take uses the existing engine; exit/Complete cannot lose it.
-            click("Record"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs>=1000 }
+            compose.onNodeWithTag("practice-free-record").scrollIfNeeded().performClick(); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs>=1000 }
             compose.onNodeWithText("Complete").assertIsNotEnabled(); compose.onNodeWithTag("practice-recording-stop").assertIsDisplayed()
             compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick(); shown("Leave current session?")
             compose.onNodeWithText("Back to Main").assertIsNotEnabled()
@@ -159,7 +189,7 @@ class FocusedPracticeTest {
             screenshot("free-recording"); compose.onNodeWithTag("practice-recording-stop").performClick()
             acceptTemporaryTake(compose, recordings)
             compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId==db.sessions().let { runBlocking { it.find(session)!!.current!!.sourceBlockId } } } }
-            compose.onNodeWithContentDescription("Play latest free take").scrollIfNeeded().performClick()
+            compose.onNodeWithContentDescription("Play selected free recording").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId!=null }; compose.runOnIdle { recordings.stopPlayback() }
             // Android Back shares the same confirmation and saves the unfinished session.
             device.pressBack(); shown("Leave current session?"); compose.onNodeWithText("Back to Main").performClick(); shown("Practice Now")

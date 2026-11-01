@@ -101,11 +101,11 @@ class TransportPreviewTest {
                 compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1300 }
                 if (index == 0) {
                     click("Notes")
-                    compose.onNodeWithText("Quick note (optional)").performTextReplacement(noteText)
+                    compose.onNodeWithTag("practice-new-note").performTextReplacement(noteText)
                     clearKeyboard()
                     compose.waitUntil(10000) { compose.onAllNodesWithTag("practice-notes-content-scrollbar").fetchSemanticsNodes().isNotEmpty() }
                     screenshot("refinement-notes-scrollbar")
-                    click("Save and return")
+                    savePracticeNote(compose); click("Return to Practice")
                     compose.waitUntil(10000) { compose.onAllNodesWithTag("practice-notes-panel").fetchSemanticsNodes().isEmpty() }
                     compose.runOnIdle { assertTrue(recordings.recording); assertTrue(practice.clicking) }
                 }
@@ -122,7 +122,7 @@ class TransportPreviewTest {
             compose.onNodeWithContentDescription("Play selected free recording").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId == free.first().id }
             compose.onNodeWithContentDescription("Stop selected free recording").scrollIfNeeded().performClick()
-            click("Notes"); compose.onNodeWithText("Saved during free capture", substring = true).assertExists(); click("Notes")
+            click("Notes"); assertSavedPracticeNote(compose, noteText.trim()); click("Notes")
             repeat(2) { index ->
                 click("Loop Setup")
                 compose.onNodeWithText("Phrase BPM").scrollIfNeeded().performTextReplacement("240")
@@ -147,7 +147,7 @@ class TransportPreviewTest {
             click("Notes")
             compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()
             assertEquals(4, runBlocking { db.takes().readAll().count { it.blockId == block } })
-            assertEquals(noteText.trim(), practice.catalog.value.active!!.current!!.note)
+            assertEquals(noteText.trim(), runBlocking { db.practiceNotes().readAll().single { it.placementId == placement }.text })
             tagged("practice-bottom-actions")
             compose.onAllNodesWithText("Looping ·", substring = true).assertCountEquals(0)
             screenshot("refinement-final-reference")

@@ -93,32 +93,34 @@ class ImageReferenceWorkflowTest {
             compose.waitUntil(15000) { practice.clicking }
             val before = runBlocking { db.sessions().find(session)!!.current!!.activeMs }
             repeat(3) {
-                click("Show reference")
+                compose.onNodeWithTag("practice-reference-toggle").performClick()
                 compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
                 revealPracticeReference(compose)
                 val viewer = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
                 val page = compose.onRoot().getUnclippedBoundsInRoot()
                 assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)
-                assertEquals("Focused viewer stays at its 220dp bound (one physical pixel tolerance)", 220f, (viewer.bottom - viewer.top).value, 1f / compose.activity.resources.displayMetrics.density + .01f)
+                val area = compose.onNodeWithTag("practice-reference-area").getUnclippedBoundsInRoot()
+                val tolerance = 1f / compose.activity.resources.displayMetrics.density + .01f
+                assertTrue("Focused viewer must have positive height within available workspace", viewer.height.value > 0f && viewer.top.value >= area.top.value - tolerance && viewer.bottom.value <= area.bottom.value + tolerance)
                 if (it == 0) { compose.onNodeWithTag("reference-viewer").performScrollTo(); captureStage3("image-focus-portrait-fit") }
                 compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
                     pinch(Offset(width * .4f, height * .4f), Offset(width * .6f, height * .6f),
                         Offset(width * .15f, height * .15f), Offset(width * .85f, height * .85f))
                 }
-                shown("Reset image zoom")
+                assertPracticeReferenceZoomed(compose)
                 compose.onNodeWithTag("reference-viewer").performTouchInput { swipe(center, center + Offset(50f, 30f)) }
                 if (it == 0) captureStage3("image-focus-zoom")
-                click("Reset image zoom"); click("Hide reference")
+                compose.onNodeWithTag("reference-viewer").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions -> actions.single { it.label == "Reset zoom" }.action() }; compose.onNodeWithTag("practice-description-toggle").performClick()
                 compose.onNodeWithTag("reference-viewer").assertDoesNotExist()
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111, practice.workingBpm)
             }
             assertTrue(runBlocking { db.sessions().find(session)!!.current!!.activeMs } > before)
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Reference practice note")
-            click("Save Block note"); compose.waitUntil(15000) { !practice.busy }
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Reference practice note")
+            savePracticeNote(compose); click("Return to Practice")
             click("Complete"); shown("Without image")
             compose.onNodeWithText("Show reference").assertDoesNotExist(); assertFalse(practice.clicking)
-            assertEquals("Reference practice note", runBlocking { db.sessions().find(session)!!.ordered.first().note })
+            assertEquals("Reference practice note", runBlocking { db.practiceNotes().readAll().single { it.sessionId == session }.text })
             leavePracticeForLater(compose); click("Blocks"); editor("Image reference fixture")
             click("Remove reference image"); shown("Remove reference image?")
             compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
@@ -153,7 +155,7 @@ class ImageReferenceReopenTest {
             val image = db.images().find(block.id)!!
             ImageReferenceRepository(db, File(compose.activity.filesDir, "block-images")).decode(image).recycle()
             val entry = db.sessions().readAll().flatMap { it.ordered }.single { it.sourceBlockId == block.id }
-            assertEquals("Reference practice note", entry.note); assertEquals(111, entry.lastUsedBpm); assertTrue(entry.activeMs > 0)
+            assertEquals("Reference practice note", db.practiceNotes().readAll().single { it.placementId == entry.id }.text); assertEquals(111, entry.lastUsedBpm); assertTrue(entry.activeMs > 0)
             val data = BackupRepository(db).snapshot(); val encoded = BackupCodec.encode(data)
             assertEquals(data, BackupCodec.decode(encoded)); assertFalse(String(encoded).contains(image.fileName))
         } finally { db.close() }

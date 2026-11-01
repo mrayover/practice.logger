@@ -67,20 +67,20 @@ class RoutineWorkflowTest {
             runBlocking { BlockRepository(db).setArchived(ids[1], false) }
             compose.waitUntil(15000) { !compose.onNodeWithTag("start-routine-$routineId").fetchSemanticsNode().config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled) }
             compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick()
-            shown("Ready when you are"); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
+            shown("Start"); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
             val first = runBlocking { db.sessions().readAll().single { it.current?.name == "Routine B" && it.session.status == "IN_PROGRESS" }.session.id }
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("Routine recovery note")
-            click("Save Block note"); shown("Block note saved")
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Routine recovery note")
+            savePracticeNote(compose); click("Return to Practice")
             click("Start"); shown("Pause"); click("Pause"); shown("Resume")
             leavePracticeForLater(compose); openHomeRoutines(compose)
             runBlocking { BlockRepository(db).save(ids[1], BlockDraft("Routine B updated", "Current action", "9", "140", "Current notes")) }
-            compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick(); shown("Ready when you are")
+            compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick(); shown("Start")
             shown("Routine B updated"); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
             runBlocking {
                 val all = db.sessions().readAll(); val one = db.sessions().find(first)!!
                 val two = all.single { it.current?.name == "Routine B updated" && it.session.status == "IN_PROGRESS" }
-                assertNotEquals(first, two.session.id); assertEquals("Routine recovery note", one.current!!.note)
+                assertNotEquals(first, two.session.id); assertEquals("Routine recovery note", db.practiceNotes().readAll().single { it.sessionId == first }.text)
                 assertEquals("Routine B", one.current!!.name); assertEquals("", two.current!!.note); assertEquals(0L, two.activeMs)
                 assertEquals(template, db.routines().find(routineId)); assertEquals(draft, db.sessions().find(draft.session.id))
                 assertEquals("Current notes", two.current!!.referenceNotes)
@@ -105,7 +105,7 @@ class RoutineReopenTest {
                 val routine = db.routines().readAll().single { it.routine.name == "Daily routine" }
                 assertEquals(3, routine.placements.size); assertEquals(180_000L, routine.ordered.first().configuredMs)
                 assertNotNull(db.sessions().withStatus("DRAFT"))
-                val recovery = db.sessions().readAll().single { it.current?.note == "Routine recovery note" }
+                val recovery = db.sessions().find(db.practiceNotes().readAll().single { it.text == "Routine recovery note" }.sessionId)!!
                 assertEquals("IN_PROGRESS", recovery.session.status); assertEquals("Routine B", recovery.current!!.name)
             }
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick(); openHomePractice(compose)
@@ -113,7 +113,7 @@ class RoutineReopenTest {
             compose.waitUntil(15000) { compose.onAllNodesWithText("Routine B").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Resume").assertExists(); compose.onNodeWithText("Pause").assertDoesNotExist()
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().assertTextContains("Routine recovery note")
+            assertSavedPracticeNote(compose, "Routine recovery note")
             compose.waitForIdle(); captureStage3("routine-05-cold-recovery")
             leavePracticeForLater(compose)
             runBlocking { SessionRepository(db).discardDraft() }

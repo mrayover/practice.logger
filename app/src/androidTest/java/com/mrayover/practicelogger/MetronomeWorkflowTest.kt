@@ -27,12 +27,12 @@ class MetronomeWorkflowTest {
             shown("90 BPM")
             repeat(3) { click("Start click"); shown("Stop click"); click("Stop click"); shown("Start click") }
             click("Start click"); shown("Stop click")
-            compose.onNodeWithText("Ready when you are").assertExists()
+            compose.onNodeWithText("Start").assertExists()
             compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().performClick(); compose.onNodeWithText("BPM (30–300)").performTextReplacement("301")
             compose.onNodeWithText("Apply BPM").assertIsNotEnabled()
             compose.onNodeWithText("BPM (30–300)").performTextReplacement("126"); compose.onNodeWithText("Apply BPM").performClick()
             shown("126 BPM"); shown("Stop click")
-            click("Start"); shown("Practicing"); click("Stop click"); shown("Practicing")
+            click("Start"); shown("Pause"); click("Stop click"); shown("Pause")
             click("Pause"); click("Start click"); shown("Stop click")
             val vm = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.runOnIdle { assertTrue(vm.clicking); assertFalse(vm.running) }

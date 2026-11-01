@@ -36,7 +36,10 @@ class PdfReferenceWorkflowTest {
     private fun zoom() {
         revealPracticeReference(compose)
         viewer().performScrollTo().performTouchInput { pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f)) }
-        shown("Reset PDF zoom"); viewer().performTouchInput { swipe(center,center+Offset(40f,25f)) }; click("Reset PDF zoom")
+        val compact = compose.onAllNodesWithTag("practice-workspace").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isEmpty()
+        if (compact) assertPracticeReferenceZoomed(compose) else shown("Reset PDF zoom")
+        viewer().performTouchInput { swipe(center,center+Offset(40f,25f)) }
+        if (compact) viewer().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions -> actions.single { it.label == "Reset zoom" }.action() } else click("Reset PDF zoom")
     }
     @Test fun actualPickerPdfPracticeAndRecordingContinuity() {
         val app = compose.activity.application
@@ -83,49 +86,54 @@ class PdfReferenceWorkflowTest {
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }
             revealPracticeNotes(compose)
-            compose.onNodeWithText("Quick note (optional)").performScrollTo().performTextInput("PDF recording practice note")
+            compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("PDF recording practice note")
             clearKeyboard()
-            click("Save Block note"); compose.waitUntil(15000) { !practice.busy }
-            click("Show reference"); rendered(); zoom(); click("Next page"); shown("Page 2 of 2"); click("Hide reference")
+            savePracticeNote(compose); click("Return to Practice")
+            compose.onNodeWithTag("practice-reference-toggle").performClick(); rendered(); zoom(); click("Next page"); shown("Page 2 of 2")
             assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111,practice.workingBpm)
-            click("Recordings"); shown("Block recordings")
             compose.waitUntil(15000) { recordings.ready && !recordings.busy }
-            click("Record take"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1000 }
+            compose.onNodeWithTag("practice-free-record").scrollIfNeeded().performClick()
+            compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1000 }
             val before = recordings.elapsedMs
             repeat(2) {
-                click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2"); rendered(); zoom()
-                compose.onAllNodesWithText("Stop and review take").onLast().assertIsDisplayed()
+                // Current workspace toggles preserve page, zoom, timer and recorder ownership.
+                compose.onNodeWithTag("practice-description-toggle").performClick()
+                compose.onNodeWithTag("practice-reference-toggle").performClick(); rendered(); shown("Page 2 of 2"); zoom()
+                compose.onNodeWithTag("practice-recording-stop").assertIsDisplayed()
                 assertTrue(recordings.recording); assertFalse(recordings.phrasing)
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111,practice.workingBpm)
                 if (it == 0) captureStage3("pdf-active-page")
-                click("Previous page"); shown("Page 1 of 2"); click("Hide reference")
+                click("Previous page"); shown("Page 1 of 2"); click("Next page"); shown("Page 2 of 2")
             }
             assertTrue(recordings.elapsedMs > before); captureStage3("pdf-active-recording")
-            click("Stop and review take"); acceptTemporaryTake(compose, recordings); compose.waitUntil(15000) { !recordings.busy && recordings.takes.value.any { it.blockId == id } }
+            compose.onNodeWithTag("practice-recording-stop").performClick(); acceptTemporaryTake(compose, recordings)
             val free = recordings.takes.value.single { it.blockId == id }
             assertTrue(free.durationMs >= before); assertTrue(runBlocking { db.sessions().find(session)!!.current!!.activeMs } > 0)
-            compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("play-${free.id}"))
-            compose.onNodeWithTag("play-${free.id}").assertIsDisplayed().performClick()
+            compose.onNodeWithContentDescription("Play selected free recording").scrollIfNeeded().performClick()
             compose.waitUntil(15000) { recordings.playingId == free.id }; compose.runOnIdle { recordings.stopPlayback() }
-            click("Close recordings"); shown("Recordings"); assertTrue(practice.running)
-            click("Recordings"); shown("Block recordings")
-            // Real phrase capture/count-in shares the same sheet and viewer; existing phrase tests cover setup UI.
+            // A complete loop retains the compact viewer through count-in, capture and review.
             compose.runOnIdle { practice.stopClick(); recordings.startPhrase(id,PhraseSpec(240,32)) }
             compose.waitUntil(5000) { recordings.phrasing && recordings.countInBeat > 0 }
-            click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2")
+            compose.onNodeWithTag("practice-description-toggle").performClick()
+            compose.onNodeWithTag("practice-reference-toggle").performClick(); rendered(); shown("Page 2 of 2")
             assertTrue(recordings.recording); assertTrue(recordings.phrasing); assertTrue(practice.running)
             acceptTemporaryTake(compose, recordings, playAfterSave = true)
             compose.waitUntil(20000) { recordings.takes.value.any { it.blockId == id && it.mode == "LOOP" } && !recordings.recording }
             compose.waitUntil(10000) { recordings.playingId != null }; captureStage3("pdf-phrase-loop")
-            compose.runOnIdle { recordings.stopPlayback() }; click("Hide reference")
-            // Deliberate dismissal stops capture for review; only explicit Save accepts it.
-            click("Record take"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1500 }
-            click("Close recordings"); acceptTemporaryTake(compose, recordings); click("Close recordings")
-            compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
-            assertEquals("PDF recording practice note",runBlocking { db.sessions().find(session)!!.current!!.note })
-            clearKeyboard()
+            compose.runOnIdle { recordings.stopPlayback() }
             leavePracticeForLater(compose); click("Blocks")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); click("PDF reference fixture")
+            click("Recordings"); shown("Block recordings")
+            // The full management sheet retains its own viewer during capture.
+            click("Record take"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1500 }
+            click("Show reference"); rendered(); click("Next page"); shown("Page 2 of 2"); zoom()
+            compose.onAllNodesWithText("Stop and review take").onLast().assertIsDisplayed()
+            assertTrue(recordings.recording); click("Hide reference")
+            // Deliberate dismissal stops capture for review; only explicit Save accepts it.
+            click("Close recordings"); acceptTemporaryTake(compose, recordings); click("Close recordings")
+            compose.waitUntil(15000) { !recordings.recording && !recordings.busy && recordings.takes.value.count { it.blockId == id && it.mode == "FREE" } == 2 }
+            assertEquals("PDF recording practice note",runBlocking { db.practiceNotes().readAll().single { it.sessionId == session }.text })
+            clearKeyboard()
             click("Archive Block"); click("Archive"); shown("Block Library")
             assertTrue(runBlocking { db.blocks().find(id)!!.archived }); assertEquals(pdf,runBlocking { db.images().find(id) })
         } catch (failure: Throwable) {
@@ -144,7 +152,7 @@ class PdfReferenceReopenTest {
             val pdf=db.images().find(block.id)!!; val repo=ImageReferenceRepository(db,File(app.filesDir,"block-images"))
             val page=repo.loadPage(pdf,1); assertEquals(2,page.pageCount); page.bitmap.recycle()
             val entry=db.sessions().readAll().flatMap { it.ordered }.single { it.sourceBlockId == block.id }
-            assertEquals("PDF recording practice note",entry.note); assertEquals(111,entry.lastUsedBpm); assertTrue(entry.activeMs>0)
+            assertEquals("PDF recording practice note",db.practiceNotes().readAll().single { it.placementId == entry.id }.text); assertEquals(111,entry.lastUsedBpm); assertTrue(entry.activeMs>0)
             val takes=db.takes().readAll().filter { it.blockId == block.id }; assertEquals(3,takes.size)
             val takeRepo=TakeRepository(db,app)
             takes.forEach { takeRepo.audioFile(it) }

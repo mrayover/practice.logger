@@ -46,14 +46,14 @@ class GoalWorkflowTest {
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("1. Second Goal · 0%"); shown("2. Goal workflow edited · 37%")
             captureStage3("goal-03-home")
             click("2. Goal workflow edited · 37%")
-            click("Practice Goal"); shown("Ready when you are"); shown("Goal: Goal workflow edited")
-            click("Start"); shown("Practicing")
+            click("Practice Goal"); shown("Start"); shown("Goal: Goal workflow edited")
+            click("Start"); shown("Pause")
             compose.waitUntil(15000) { runBlocking { db.goals().readSessions().any { it.goalId == id && (db.sessions().find(it.sessionId)?.activeMs ?: 0) > 500 } } }
             click("Pause"); leavePracticeForLater(compose); shown("Practice Now")
             val first = runBlocking { db.goals().readSessions().single { it.goalId == id }.sessionId }
             val committed = runBlocking { db.sessions().find(first)!! }
             assertTrue(committed.activeMs > 0)
-            click("2. Goal workflow edited · 37%"); click("Practice Goal"); shown("Ready when you are")
+            click("2. Goal workflow edited · 37%"); click("Practice Goal"); shown("Start")
             click("Complete"); shown("Session Summary"); shown("Goal: Goal workflow edited")
             captureStage3("goal-04-summary")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); click("2. Goal workflow edited · 37%")

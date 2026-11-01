@@ -36,12 +36,12 @@ class RecordingWorkflowTest {
             val block = runBlocking { BlockRepository(db).save(null, BlockDraft("Recorder fixture", "Play and listen", "5", "120")) }
             shown("Practice Now"); click("Practice Now"); shown("Add Recorder fixture"); click("Add Recorder fixture")
             compose.waitUntil(15000) { compose.onAllNodes(hasText("Start Session") and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired=false).size == 1 }
-            click("Start Session"); shown("Ready when you are"); click("Recordings"); shown("Block recordings")
+            click("Start Session"); shown("Start")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }
             assertEquals(PackageManager.PERMISSION_DENIED, compose.activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO))
-            sheet("Record take")
+            compose.onNodeWithTag("practice-free-record").scrollIfNeeded().performClick()
             var deny = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/permission_deny_button"))), 10000)
                 ?: device.findObject(By.text(Pattern.compile("(?i).*don.t allow.*|.*deny.*")))
             // Some API26 emulator images crash System UI during a permission transition.
@@ -67,15 +67,14 @@ class RecordingWorkflowTest {
             compose.runOnIdle { assertFalse(vm.recording) }
             assertTrue(runBlocking { db.takes().readAll() }.isEmpty())
             device.executeShellCommand("pm grant com.mrayover.practicelogger.app android.permission.RECORD_AUDIO")
-            sheet("Close recordings"); click("Start"); shown("Practicing"); click("Start click"); shown("Stop click")
-            click("Recordings"); shown("Block recordings")
+            click("Start"); shown("Pause"); click("Start click"); shown("Stop click")
             // Emulator capture exercises the real encoder/container path, not perceived microphone quality.
             repeat(3) { index ->
-                sheet("Record take"); shown("Stop and review take")
+                compose.onNodeWithTag("practice-free-record").scrollIfNeeded().performClick(); shown("Stop and review take")
                 compose.waitUntil(10000) { vm.elapsedMs >= 1500L }
                 if (index == 0) {
-                    sheet("Pause timer"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
-                    sheet("Resume timer"); compose.waitUntil(10000) { practice.running }
+                    click("Pause"); compose.runOnIdle { assertTrue(vm.recording); assertFalse(practice.running) }
+                    click("Resume"); compose.waitUntil(10000) { practice.running }
                     compose.runOnIdle { assertTrue(vm.recording); assertTrue(practice.running) }
                 }
                 if (index == 2) {
@@ -87,6 +86,9 @@ class RecordingWorkflowTest {
                 compose.runOnIdle { assertFalse(vm.recording) }
                 if (index < 2) compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
             }
+            // Management is reached from the saved Block editor in the current app.
+            leavePracticeForLater(compose); shown("Practice Now")
+            click("Blocks"); click("Recorder fixture"); click("Recordings"); shown("Block recordings")
             val takes = runBlocking { db.takes().readAll().filter { it.blockId == block }.sortedBy { it.createdAt } }
             assertEquals(3, takes.size); assertTrue(takes.all { it.durationMs >= 1000 && it.mode == "FREE" })
             val repository = TakeRepository(db, compose.activity.applicationContext)
@@ -118,10 +120,10 @@ class RecordingWorkflowTest {
             compose.runOnIdle { vm.export(takes[0], android.net.Uri.parse("content://not.a.provider/missing")) }
             shown("Export failed."); assertTrue(repository.audioFile(takes[0]).exists())
             compose.runOnIdle { assertFalse(practice.running) } // Explicit backgrounding paused the timer, not recording controls.
-            sheet("Close recordings"); click("Resume"); shown("Practicing"); click("Recordings")
+            sheet("Close recordings"); click("Recordings")
             takeAction("play", takes[0]); compose.waitUntil(10000) { vm.playingId == takes[0].id }
-            sheet("Close recordings"); compose.runOnIdle { assertNull(vm.playingId); assertTrue(practice.running) }
-            leavePracticeForLater(compose); shown("Practice Now")
+            sheet("Close recordings"); compose.runOnIdle { assertNull(vm.playingId); assertFalse(practice.running) }
+            click("Cancel"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
             runBlocking {
                 BlockRepository(db).save(block, BlockDraft("Recorder renamed", "Still the same Block"))
                 BlockRepository(db).setArchived(block, true)
