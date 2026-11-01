@@ -1,5 +1,7 @@
 # Pre-regression repository review
 
+**Historical preparation audit:** its held/uncommitted/next-task statements describe the pre-P5 snapshot. P5 is now assigned and this maintenance is published; current execution and resolved/outstanding findings are in [P5 report](P5_REGRESSION_REPORT.md) and [CURRENT_STATE](../CURRENT_STATE.md).
+
 ## Second deep check — 2026-11-01
 
 Owner requested an additional file/GitHub review, then requested wrap-up at5% remaining usage. Current GitHub main remains `d0b8db0fc3e2472e9deccbe3a865a43da5f257d1`; local maintenance is uncommitted. Read-only GitHub branch/run/issue snapshots, commit metadata and job logs were checked. The repository has no open issues/PRs in the returned snapshot. Recent successful Android APK runs [41007781246](https://github.com/mrayover/practice.logger/actions/runs/41007781246) and [41007778661](https://github.com/mrayover/practice.logger/actions/runs/41007778661) were diagnostic-only with build/device jobs skipped. They establish no current full regression pass. Orchid41281008402 remains scoped evidence. Imported-audio41269123574 logs confirm two import cases passed before a separate geometry assertion failed; its overall result remains failure, as previously recorded.

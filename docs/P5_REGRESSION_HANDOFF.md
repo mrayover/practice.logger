@@ -2,6 +2,10 @@
 
 Prepared 2026-11-01 (America/Los_Angeles). Run on **Medium**; use High selectively for difficult audio timing, concurrency, migration or data-preservation failures.
 
+## Execution pointer
+
+This assignment is now active. The owner explicitly authorized Git command commit/push in the P5 chat, and initial maintenance has been published. Baseline/uncommitted wording below preserves the starting snapshot; follow [CURRENT_STATE](../CURRENT_STATE.md) and [P5 report](P5_REGRESSION_REPORT.md) for actual current source, results, candidates and next action. Owner acceptance is still required; this pointer does not certify a pass.
+
 ## Assignment and exit gate
 
 Perform **P5 — First full regression and pre-Library release gate**, defined in [the V1 master plan, section7](../PRACTICE_LOGGER_V1_MASTER_PLAN.md#7-p5--first-full-regression-and-pre-library-release-gate). Begin with the unfinished test preparation below. Freeze feature scope, fix demonstrated failures, complete the full automated checks, deliver a permanent-key signed pre-Library candidate and a short owner-phone checklist. Record actual evidence and obtain owner acceptance. **Stop at P5; do not start Media Library L1 or any later phase.** This handoff does not claim P5 has already run or passed.

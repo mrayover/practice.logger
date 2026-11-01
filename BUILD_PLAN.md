@@ -1,6 +1,10 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+Updated 2026-11-01 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+
+## P5 — active assignment
+
+Full pre-Library regression and normalization are assigned. Working build67 fixes native-theme API qualification and restores the full-width reference workspace and enlarged-text control readability; current legacy tests follow the shipped Notes/transport/management UI. Actual source-specific checks, candidates, failures and remaining gates are in [CURRENT_STATE](CURRENT_STATE.md) and [P5 report](docs/P5_REGRESSION_REPORT.md). Full automated evidence and owner acceptance remain separate. Stop at P5; no Library implementation.
 
 ## Owner-assigned Orchid theme
 
@@ -56,7 +60,7 @@ Build49 replaces both metronome dots with full Stop click button background puls
 
 ## P4 audio Settings and bounded UI polish — scoped candidate delivered
 
-Build47 persists four click timbres, shared output default and completion alarms (two-tone/bell/rising chime/short beep/Off), with previews in Tools Audio Settings. Block and foreground countdown alarms share one-shot/capture/Off safeguards without clock changes. Existing count-in/recording-click and compact retained Notes/reference/transport behaviors remain; Settings adds overflow/large-text/landscape checks. At that historical checkpoint cream/green/Lato remained; centralized themes subsequently shipped in build55 and expanded through build65. No storage/Library/analytics features. P1–P3 generally accepted; P4 phone checklist pending. Exact scoped results/delivery in CURRENT_STATE. Next engineering gate is P5 full regression; it requires the next assignment and has not started.
+Build47 persists four click timbres, shared output default and completion alarms (two-tone/bell/rising chime/short beep/Off), with previews in Tools Audio Settings. Block and foreground countdown alarms share one-shot/capture/Off safeguards without clock changes. Existing count-in/recording-click and compact retained Notes/reference/transport behaviors remain; Settings adds overflow/large-text/landscape checks. At that historical checkpoint cream/green/Lato remained; centralized themes subsequently shipped in build55 and expanded through build65. No storage/Library/analytics features. P1–P3 generally accepted; P4 phone checklist pending. Exact scoped results/delivery in CURRENT_STATE. P5 full regression is now assigned and active; CURRENT_STATE records its execution.
 
 ## P3 metronome — scoped candidate delivered
 
@@ -143,7 +147,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Owner-phone-check the signed build46 P3 candidate using its PHONE_CHECKLIST.txt. P1/P2 are generally owner-accepted; P3 scoped engineering checks pass, while detailed phone acceptance and full regression remain pending. P4 is the next roadmap phase but is unassigned and must not begin automatically. P1–P4 use scoped delivery, with full gates at P5 and final V1. See CURRENT_STATE.md for exact source/packages/checks.
+Complete the assigned P5 gate and permanent-key pre-Library candidate, then obtain owner phone acceptance. Follow the one exact next task in CURRENT_STATE.md. P4 is already delivered; no later phase starts automatically.
 
 ## Increment 3 — delivered 2026-10-29
 

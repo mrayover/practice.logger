@@ -1,9 +1,7 @@
-# practice.logger — Pre-regression normalization
+# practice.logger — Active P5 regression
 
-For the next regression assignment, use [P5_REGRESSION_HANDOFF.md](docs/P5_REGRESSION_HANDOFF.md). It covers unfinished preparation, full automated gates, signed candidate delivery and owner-phone acceptance. Preparing this handoff did not start P5.
+P5 is explicitly assigned and in progress. Read [CURRENT_STATE](CURRENT_STATE.md) and [P5 regression report](docs/P5_REGRESSION_REPORT.md) for actual source, candidate, checks, failures/cancellations and exact next task. The original [P5 assignment](docs/P5_REGRESSION_HANDOFF.md) defines the required full gate and owner acceptance.
 
-Current signed delivery remains0.17.0/build65, app sourcea6c095c. [CURRENT_STATE](CURRENT_STATE.md) owns package paths, hashes, actual scoped evidence and phone limitations. [Pre-regression review](docs/PRE_REGRESSION_REVIEW.md) includes the complete baseline inventory, fixed workflow/version/baseline/theme-count problems and remaining legacy UI-test drift.
+Use the existing checkout and current app files. Existing preparation was preserved/published; the owner explicitly authorized Git command commit/push for this P5 increment. Review the mandatory efficiency procedure before continuing. Do not restore old source to match Git history or discard current changes.
 
-Next: align the identified legacy UI scenarios, compile instrumentation and run targeted affected cases before the assigned complete P5 pre-Library regression. Preserve assertions, data/audio, Room11/JSON7, all packages and permanent signing material. Orchid/imported-audio physical checks remain pending. No full regression, new APK or later feature phase ran during this review.
-
-Maintenance changes are local/uncommitted. GitHub Desktop remains the default Git workflow unless the owner explicitly authorizes command-line publication. Use the [mandatory efficiency procedure](WORK_LOG.md#2026-10-28--mandatory-efficiency-procedure-for-all-future-work) and report actual publication/test outcomes.
+Working build67 includes version-qualified native-theme resources and full-width practice references, plus enlarged-text control sizing. Test alignment preserves explicit Notes, audio/data/geometry assertions and ordered seed/reopen/install-over fixtures. Candidate66 and all older packages remain preserved. Full P5 execution and owner-phone acceptance must be recorded separately; a scoped pass is insufficient. Room11/JSON7/media exclusions/permanent identity remain unchanged. Do not start Library L1 or any later phase.
