@@ -1,16 +1,16 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.17.0/build65 Orchid dark purple theme**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current signed candidate: **0.17.1/build67 P5 pre-Library baseline**, with automated regression passed and owner-phone acceptance pending. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
-[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 is generally owner-accepted. P4 audio Settings is delivered with scoped checks; P4 phone acceptance remains pending. P5 regression is assigned and in progress; later phases have not started. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
+[PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 is generally owner-accepted. P4 audio Settings is delivered with scoped checks; P4 phone acceptance remains pending. P5 full automated regression has passed; its signed candidate awaits owner-phone acceptance. Later phases have not started. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Appearance and Settings
 
 Home → **Library** currently displays Coming soon. Media Library remains L1–L3, behind P5. Block Library and Recent Practice entries use shared pills. Selected chips retain visible outlines.
 
-The far-right shared-header **Settings** gear offers Light, Dark, System Default, **Smooth** (teal), **Sunny** (yellow/orange), and **Orchid** (dark purple), with the same control states. Existing installs stay Light until changed. Choices persist locally; System Default follows the device. Lato, screen layout, recording ownership and original image/PDF pixels remain. The existing Tools → Audio Settings shortcut reaches the same settings page. Central palette definitions and semantic app roles live in Theme.kt; Goal identity allocation remains G1. Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; P5 is checking it across supported APIs. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred. Exact evidence and limits are in CURRENT_STATE.
+The far-right shared-header **Settings** gear offers Light, Dark, System Default, **Smooth** (teal), **Sunny** (yellow/orange), and **Orchid** (dark purple), with the same control states. Existing installs stay Light until changed. Choices persist locally; System Default follows the device. Lato, screen layout, recording ownership and original image/PDF pixels remain. The existing Tools → Audio Settings shortcut reaches the same settings page. Central palette definitions and semantic app roles live in Theme.kt; Goal identity allocation remains G1. Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; P5 automated appearance checks pass on API26/API35. Detailed physical/System/audio/TalkBack acceptance remains pending. Exact evidence and limits are in CURRENT_STATE.
 
 ## Metronome
 
@@ -61,7 +61,7 @@ Only committed foreground practice time is recovered. Abrupt death/storage failu
 
 ## Current verification
 
-P5 regression is in progress. Current unit/build/lint and targeted native results, preserved candidates, failure records and exact next action are in [CURRENT_STATE.md](CURRENT_STATE.md) and [the P5 report](docs/P5_REGRESSION_REPORT.md). No complete full-gate pass or owner-phone acceptance is claimed until recorded there. Media Library remains gated; Stage4 is0/10 documented real sessions.
+P5 full CI41329443572 passes all nine required jobs: 111 unit tests, 168 native executions on API26/API35, lint zero errors/18 documented advisories and debug/release/instrumentation compilation. Signed build67, source provenance, all attempt outcomes and the exact phone-acceptance next action are in [CURRENT_STATE.md](CURRENT_STATE.md), [the P5 report](docs/P5_REGRESSION_REPORT.md) and [machine-readable baseline](docs/P5_REGRESSION_BASELINE.json). Owner-phone acceptance is pending. Media Library remains gated; Stage4 remains 0/10 documented real sessions.
 
 ## Development
 

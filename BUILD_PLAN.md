@@ -2,9 +2,11 @@
 
 Updated 2026-11-01 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
-## P5 — active assignment
+## P5 — automated baseline passed; owner acceptance pending
 
-Full pre-Library regression and normalization are assigned. Working build67 fixes native-theme API qualification and restores the full-width reference workspace and enlarged-text control readability; current legacy tests follow the shipped Notes/transport/management UI. Actual source-specific checks, candidates, failures and remaining gates are in [CURRENT_STATE](CURRENT_STATE.md) and [P5 report](docs/P5_REGRESSION_REPORT.md). Full automated evidence and owner acceptance remain separate. Stop at P5; no Library implementation.
+Full pre-Library automated regression and normalization are complete: all nine required CI41329443572 jobs pass, with 111 unit tests and 168 native executions on API26/API35. Signed build67 fixes native-theme API qualification, full-width references and enlarged-text controls; tests follow current Notes/transport/management behavior. Exact source, package, attempt history, 18 lint advisories and physical limitations are in [CURRENT_STATE](CURRENT_STATE.md) and [P5 report](docs/P5_REGRESSION_REPORT.md). Next: the owner installs build67 in place and records phone acceptance. Stop at P5; L1 requires acceptance and a separate assignment.
+
+The bounded-delivery verification statements below describe each earlier increment at its delivery time. The current P5 evidence supersedes those earlier scoped-test limits; it does not imply phone acceptance.
 
 ## Owner-assigned Orchid theme
 

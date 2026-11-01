@@ -1,66 +1,115 @@
-# P5 pre-Library regression report
+# P5 regression report — automated gate passed; phone acceptance pending
 
-Prepared 2026-11-01 (America/Los_Angeles). **Execution in progress; P5 has not passed its exit gate.** The app files in the existing Windows checkout are authoritative. No Media Library implementation has started.
+Verified November 1, 2026 (America/Los_Angeles). **All nine required jobs passed on one final source: 111/111 unit tests, 168/168 native executions, zero lint errors, and debug/release/instrumentation compilation.** Signed 0.17.1/build67 is ready for owner acceptance. P5 remains PARTIAL until the owner completes phone acceptance. No Library or later milestone started.
 
-## Baseline and preservation
+## Final source and release
 
-- Initial local/remote main: `d0b8db0fc3e2472e9deccbe3a865a43da5f257d1`; existing unpublished maintenance preserved in `e90e540b84ccc2be88d7fd5e964a3003d0643e78`.
-- Owner explicitly authorized Git command commit/push for P5 in this chat. Mandatory efficiency procedure and required phase/current/review/manual records reviewed.
-- Previous permanent-key delivery: 0.17.0/build65, app source `a6c095c02fc2363bcdf04cd2c4b168ce7f55569f`. All previous packages retained. Initial filesystem inventory captured 905 original app-source/schema/distribution files under ignored `.tools/p5`.
-- Initial signed candidate:0.17.1/build66; preserved after a reference-width issue was demonstrated. Working replacement:build67. Largest pre-P5 distributed code was65. Stable app ID, permanent certificate, Room11, JSON7/readers1–7 and media exclusions remain.
+- Application and test source: `bf999b9678039dbf669560cd10649b340c11e217`, branch `main`.
+- [Final full workflow](https://github.com/mrayover/practice.logger/actions/runs/41329443572), dispatched with build_only=false and empty test_class/feature_suite.
+- [Signed APK](C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9/practice.logger-0.17.1-b67-bf999b9.apk) and [five-member ZIP](C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9.zip). Both are local, ignored distribution artifacts.
+- APK SHA256: `460a2e16f52e4aeec9988abe96bc8f82c247dffceccff8ba280406c548f9b496`.
+- ZIP SHA256: `9b43b40f6612f7efdf3e12b8950a2fd6e956390dc28245af308cb0c495940c95`.
+- Permanent certificate SHA256: `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`; package `com.mrayover.practicelogger.app`.
 
-## Reconciliation
+Later documentation commits do not change the application or test source above. The [machine-readable baseline](P5_REGRESSION_BASELINE.json) retains job IDs, unit names, native declarations/result checksums, schema hashes and package provenance.
 
-Legacy UI tests now follow explicit independent Notes, save/navigation barriers, workspace reference headers, inline capture/review and saved-Block management. Assertions on PCM, capture timing, permissions, foreground safety, original bytes, geometry, database rows and reopen ordering are retained. The old fixed220dp reference assertion now checks the viewer against the actual available workspace with the original physical-pixel tolerance. Saved notes are checked in independent rows and expanded history, rather than incorrectly expecting them to overwrite legacy placements.
+## Required gates
 
-All57 native classes/77 declared scenarios are included in the full gate, including the nested reference diagnostic. The full unit suite has111 tests in30 runtime suites (27 source files). Shell syntax and source XML/schema parsing pass locally. Static inventory establishes wiring, not execution success.
+| Native gate | API 26 | API 35 |
+|---|---:|---:|
+| Ordered device workflows, migration/install-over/reopen | 49/49 | 49/49 |
+| Review, flexible phrases, maximum-loop playback | 7/7 | 7/7 |
+| Transport, meter, Settings, alarms, Notes, references | 20/20 | 20/20 |
+| Appearance and imported audio/reopen | 8/8 | 8/8 |
+| **Total executions** | **84/84** | **84/84** |
 
-Lint exposed six unsupported native-theme attribute declarations in unqualified API26 resources. Theme bases retain the existing palettes/fonts; navigation-icon attributes now use API27 resources and force-dark uses API29 resources. No lint suppression or dependency upgrades were used.
+The ninth required job passes all 111 JVM/Robolectric tests in 30 suites, with zero failures/errors/skips; lint has zero errors and 18 advisories. Debug, release and instrumentation compile successfully. All required jobs ran. Only the optional diagnostic job is intentionally skipped in a full dispatch. No required test is recorded as skipped or unresolved.
 
-## Execution evidence
+Native counts come from raw instrumentation output and the connected LaunchTest XML: 77 declared scenarios plus seven ordered upgrade/enlarged-text repeats per API. They are 168 executions, not 168 unique tests. All 57 native classes are included.
+
+Coverage retains Blocks/archive/deletion safeguards; Goals/Routines; independent sessions/timing/checkpoints/history; new and legacy Notes/editing/failed-save barriers; dated Log/Weekly View; free/phrase/imported audio/review/Save/export; original audio bytes; flexible loops/count-in including 128-second capture/playback; metronome meter/accent/sound/flash and one-shot alarms; image/PDF originals/page/zoom; six themes; JSON7/readers1–7/atomic empty-target restore; migration/install-over, recreation/cold reopen, normal/200% text, keyboard and portrait/landscape. Emulated install-over uses disposable debug installations.
+
+## Failures, changes and classification
+
+- **A — Obsolete/mismatched tests:** old Notes writes/buttons, in-practice management, reference routes, meter representation, removed Loop Setup Cancel, and off-screen virtualized Block rows. Tests now use the current interface, scroll the real lists and retain underlying data/audio/safety assertions. Real overflowing history/take fixtures preserve scrollbar checks; four actual captures and 16 valid existing-audio fixtures remain asserted.
+- **B — Harness/synchronization:** review Save readiness, IME dismissal, foreground relaunch and configuration cleanup. Logs proved old import flags created another Activity; standard launcher flags resume the task. ActivityScenario callbacks avoid stale Compose idling during font/orientation resets. Assertions, geometry tolerances and test budgets were retained.
+- **C — Demonstrated product/build defects earlier in P5:** six lint errors from unsupported theme attributes moved to API27/API29 resources; a reserved 12dp gutter reduced reference width; enlarged Accent/checkbox and recording labels overlapped/clipped. Narrow fixes and strengthened assertions passed. No engine, schema or backup redesign occurred.
+- **D — Inconclusive:** none remains unresolved. Earlier compilation mistakes, failures, unreached checks and the one superseded cancellation are retained in the attempt history.
+
+This completion assignment began at local/remote `ad1f3ed`, version0.17.1/build67, preserving three existing record edits. Full run41327674374 passed all nine required jobs on that source. A diagnostic already active at session entry (41327577586) separately exposed AudioSettingsWorkflowTest cleanup timing out at line49 after all large-text/landscape assertions and screenshots. Logs and stack identify stale Compose idling after configuration reset. Test-only `bf999b9` changes cleanup to the live activity callback; isolated run41328228247 passes 2/2 and full transport35 diagnostic41328303806 passes 20/20. The final coherent full run41329443572 then passes all nine jobs on that corrected source. **No product code changed in the completion assignment.** No tests were removed, ignored or weakened.
+
+Initial full run41289654339 failed six required jobs: off-screen recording selection, outdated meter/scroll assertions, import foreground relaunch and appearance teardown. Build and both review groups passed; later unreached gates were not counted. A late cancellation request returned409 because it had completed, so no cancellation was registered. Causes were isolated before subsequent complete gates. Diagnostic successes never counted as full release passes.
+
+## Attempt history
 
 | Run | Source | Scope | Actual outcome |
 |---|---|---|---|
-| [41286865140](https://github.com/mrayover/practice.logger/actions/runs/41286865140) | e90e540 | Initial build/unit/lint | 111 tests passed, zero failures/errors/skips. Lint failed:6 errors/18 advisory warnings. Later build steps not completed. |
-| [41287071761](https://github.com/mrayover/practice.logger/actions/runs/41287071761) | 67cb91a | Focused API35 | Instrumentation compilation failed in revised test zoom helpers; no native scenarios executed. |
-| [41287161976](https://github.com/mrayover/practice.logger/actions/runs/41287161976) | dae7ec1 | PDF/image API26 | Same test compilation errors; no native scenarios executed. |
-| [41287317517](https://github.com/mrayover/practice.logger/actions/runs/41287317517) | ad8e7d0 | Candidate build | Cancelled as superseded after the test compilation cause was known. No passing build claimed. |
-| [41287370953](https://github.com/mrayover/practice.logger/actions/runs/41287370953) | 328025e | Corrected candidate build/unit/lint | Passed:111/111 units;lint0 errors/18 warnings;debug/release/instrumentation compilation. |
-| [41287372990](https://github.com/mrayover/practice.logger/actions/runs/41287372990) | 328025e | Corrected Focused API35 | Passed:2 native scenarios. |
+| [41286865140](https://github.com/mrayover/practice.logger/actions/runs/41286865140) | `e90e540` | Initial build/unit/lint | failure: 111 units passed;lint failed6 API-resource errors/18 warnings. |
+| [41287071761](https://github.com/mrayover/practice.logger/actions/runs/41287071761) | `67cb91a` | Focused35 | failure: Test zoom-helper compilation failed;no native execution. |
+| [41287161976](https://github.com/mrayover/practice.logger/actions/runs/41287161976) | `dae7ec1` | PDF/image26 | failure: Same zoom-helper compilation failure;no native execution. |
+| [41287317517](https://github.com/mrayover/practice.logger/actions/runs/41287317517) | `ad8e7d0` | Superseded build | cancelled: Cancelled after known compilation cause;no pass claimed. |
+| [41287370953](https://github.com/mrayover/practice.logger/actions/runs/41287370953) | `328025e` | Candidate build | success: 111 units,lint0 errors/18 warnings,debug/release/instrumentation passed. |
+| [41287372990](https://github.com/mrayover/practice.logger/actions/runs/41287372990) | `328025e` | Focused35 | success: 2 cases passed. |
+| [41287685179](https://github.com/mrayover/practice.logger/actions/runs/41287685179) | `328025e` | PDF/image26 | failure: PDF2 passed;image width failed12dp inset;later reopen not reached. |
+| [41287687286](https://github.com/mrayover/practice.logger/actions/runs/41287687286) | `328025e` | Recording/phrase26 | failure: Recording2 passed;phrase Save transition failed;reopen not reached. |
+| [41287742759](https://github.com/mrayover/practice.logger/actions/runs/41287742759) | `328025e` | Sessions/routines35 | success: 7 cases passed. |
+| [41287896686](https://github.com/mrayover/practice.logger/actions/runs/41287896686) | `328025e` | Transport/nested35 | failure: Outer Notes scrollbar failed with nonoverflowing fixture;nested not reached. |
+| [41288227315](https://github.com/mrayover/practice.logger/actions/runs/41288227315) | `5d57e68` | PDF/image26 | success: 4 cases passed after reference-width fix. |
+| [41288229156](https://github.com/mrayover/practice.logger/actions/runs/41288229156) | `5d57e68` | Recording/phrase26 | success: 4 cases passed after enabled-Save synchronization. |
+| [41288231437](https://github.com/mrayover/practice.logger/actions/runs/41288231437) | `5d57e68` | Transport/nested35 | failure: Notes check passed;short take-list scrollbar fixture failed. |
+| [41288420584](https://github.com/mrayover/practice.logger/actions/runs/41288420584) | `5d57e68` | Appearance26 | success: 6 cases passed. |
+| [41288422927](https://github.com/mrayover/practice.logger/actions/runs/41288422927) | `5d57e68` | Accessibility35 at200% | success: 1 case passed;visual review still exposed Accent overlap/Play clipping. |
+| [41288671701](https://github.com/mrayover/practice.logger/actions/runs/41288671701) | `c173da0` | Transport/nested35 | success: 2 cases passed with real overflowing history/take fixtures. |
+| [41288895114](https://github.com/mrayover/practice.logger/actions/runs/41288895114) | `c173da0` | Legacy migration26 | success: 2 seed/install-over cases passed against rebuilt immutable build27. |
+| [41289104452](https://github.com/mrayover/practice.logger/actions/runs/41289104452) | `15c1a31` | Strengthened accessibility35 at200% | success: 1 case passed;corrected layout screenshots inspected. |
+| [41289336396](https://github.com/mrayover/practice.logger/actions/runs/41289336396) | `1a71fc8` | Focused35 at200% | success: 2 active-capture/exit/layout cases passed. |
+| [41289654339](https://github.com/mrayover/practice.logger/actions/runs/41289654339) | `d3d5c63` | First complete gate | failure: Failed:3 required jobs passed,6 failed;see diagnosis below. |
+| [41290650042](https://github.com/mrayover/practice.logger/actions/runs/41290650042) | `83fbb69` | Meter35 capture/count-in method | success: 1 case passed. |
+| [41290652434](https://github.com/mrayover/practice.logger/actions/runs/41290652434) | `83fbb69` | Appearance/import26 | failure: Import foreground relaunch failed again;wait-only fix insufficient. |
+| [41290831506](https://github.com/mrayover/practice.logger/actions/runs/41290831506) | `bbdec37` | Recording/phrase26,populated catalog | success: 4 cases passed with virtualized-list selection. |
+| [41290974650](https://github.com/mrayover/practice.logger/actions/runs/41290974650) | `bbdec37` | Transport26 | failure: First10 cases passed;Notes expected removed Cancel modal. |
+| [41290976740](https://github.com/mrayover/practice.logger/actions/runs/41290976740) | `bbdec37` | Transport35 | failure: Meter visibility/keyboard transition failed;later cases not reached. |
+| [41291081751](https://github.com/mrayover/practice.logger/actions/runs/41291081751) | `65f1c0d` | Appearance/import26 | success: 8 cases passed after standard launcher-task flags. |
+| [41291266435](https://github.com/mrayover/practice.logger/actions/runs/41291266435) | `65f1c0d` | Theme35 final dark/landscape method | success: 1 case passed in isolation;did not by itself disprove teardown race. |
+| [41291481321](https://github.com/mrayover/practice.logger/actions/runs/41291481321) | `b72b541` | Transport35 | failure: First10 cases passed;Notes expected removed Cancel modal. |
+| [41291483192](https://github.com/mrayover/practice.logger/actions/runs/41291483192) | `b72b541` | Appearance/import35 | success: 8 cases passed after lifecycle-safe teardown. |
+| [41291771091](https://github.com/mrayover/practice.logger/actions/runs/41291771091) | `ad1f3ed` | Notes/history reopen26 | success: 2 cases passed after inline Loop Setup toggle alignment. |
+| [41327574923](https://github.com/mrayover/practice.logger/actions/runs/41327574923) | `ad1f3ed` | Transport26 | success: 20 cases passed. |
+| [41327577586](https://github.com/mrayover/practice.logger/actions/runs/41327577586) | `ad1f3ed` | Transport35 | failure: AudioSettings cleanup stalled after font reset;later cases not reached. |
+| [41327674374](https://github.com/mrayover/practice.logger/actions/runs/41327674374) | `ad1f3ed` | Second complete gate | success: All9 required jobs passed;111 units and168 native executions. |
+| [41328228247](https://github.com/mrayover/practice.logger/actions/runs/41328228247) | `bf999b9` | AudioSettings35,successor harness | success: 2 cases passed using live ActivityScenario cleanup. |
+| [41328303806](https://github.com/mrayover/practice.logger/actions/runs/41328303806) | `bf999b9` | Transport35,successor harness | success: All20 cases passed. |
+| [41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) | `bf999b9` | Final complete corrected-source gate | success: All 9 required jobs passed; 111 units and 168 native executions. |
 
-Further targeted evidence on328025e:
+## Lint advisories
 
-- [41287687286](https://github.com/mrayover/practice.logger/actions/runs/41287687286), API26: RecordingWorkflow and RecordingReopen passed; PhraseWorkflow failed after Save input during automatic-audition transition; PhraseReopen was not reached. Screenshot retained temporary review/Keep, with no saved row.
-- [41287685179](https://github.com/mrayover/practice.logger/actions/runs/41287685179), API26: PDFWorkflow/PDFReopen passed. ImageWorkflow failed its unchanged full-width assertion (411.43dp workspace vs399.24dp viewer); ImageReopen was not reached. Shared reference scroll content reserved12dp. Product fix removes only this reference content inset, preserving scrollbar and controls.
-- [41287742759](https://github.com/mrayover/practice.logger/actions/runs/41287742759), API35:7/7 PracticeWorkflow/Recovery/History, MultipleSessionWorkflow/Reopen and RoutineWorkflow/Reopen passed.
-- [41287896686](https://github.com/mrayover/practice.logger/actions/runs/41287896686), API35: TransportPreview failed its outer-scrollbar expectation. The current note editor caps itself at5lines and scrolls internally; a real saved-history fixture now creates outer overflow while retaining the outer-scroll assertion. NestedReference was not reached.
+| Category | Count | Disposition |
+|---|---:|---|
+| Dependency/Gradle version suggestions | 7 | Frozen versions retained; no unrelated toolchain upgrade. |
+| OldTargetApi | 1 | Existing target36 retained; newer Android versions are not certified by this matrix. |
+| ApplySharedPref | 1 | Existing synchronous theme commit/rollback and failure handling retained. |
+| ModifierParameter | 1 | Optional parameter ordering; no behavioral defect. |
+| ObsoleteSdkInt | 1 | Redundant v26 launcher qualifier at min26. |
+| UsableSpace | 2 | Existing bounded-copy/free-space safeguards retained. |
+| UseKtx | 5 | Equivalent convenience API suggestions. |
 
-Source5d57e68 includes the reference-width fix, an enabled-control wait before the explicit review Save input, the history overflow fixture and build67. Targeted retests41288227315 (PDF/image26),41288229156 (recording/phrase26),41288231437 (transport/nested35) completed: PDF/image26 and recording/phrase26 each passed4 cases; transport35 progressed through Notes and failed its next short-list scrollbar expectation. The overflow fixture now supplies8 valid saved free and8 loop copies, retaining the4 real-capture and16 fixture counts; retest41288671701 passes TransportPreview and NestedReference (2/2). No full gate has been dispatched.
+All 18 remain visible in lint output; no new suppressions were added.
 
-Initial signed build66: permanent certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`; APK SHA256 `bc6f1901dd6d4cbfd87a3eb0d69357a632639a4d0106d5839eadb59fcae643fd`; ZIP SHA256 `e4e5aa24d9904f3a1e9a0f11a6cf14a2754a1ed08a02f767126717cc8ea5742d`. Publisher signature/package/version checks,140 unsigned/signed payload-entry equality and5-member ZIP CRC/uniqueness/exact-byte checks passed. This earlier candidate is retained; use the eventual replacement for phone acceptance.
+## Preservation and signing
 
-All278 pre-P5 APK/ZIP hashes remain unchanged. All11 compiler-exported schemas equal the preserved originals. Current source inventory:203 tracked files (55 app source/resources,47 native tests/fixtures,27 unit-test files,11 schemas,13 workflows,18 scripts/certificate files,21 records and11 configuration/other files), before adding this report.
+Room remains11 with explicit migrations; all 11 compiler schemas match source and original snapshots. JSON writer7/readers1–7 remains; it excludes takes/audio and image/PDF metadata/bytes. Stable IDs, history, original media, audio engine, signing identity and app ID are preserved. Synced project sources were read-only; no owner phone was accessed, uninstalled or cleared. Mandatory efficiency procedure is preserved verbatim after newline normalization.
 
-Custom accessibility actions are lists of callbacks, not ordinary semantics actions. Corrected invocation runs the real exposed reset callback on the UI thread; bounds use the actual DpRect edges. These preparation errors do not establish runtime application failures.
+All 278 pre-P5 APK/ZIP hashes and all 282 packages present at completion-session entry remain unchanged, including build66. The intermediate ad1f3ed build67 folder/archive remains preserved; its original ZIP was not finalized to include later folder additions and is not the delivery. No owner distribution of that intermediate was recorded. Final build67 uses identical application code and the final verified test source; no version bump is needed for unchanged application code before owner distribution.
 
-## Remaining gate
+The established Publish-LocalApk.ps1 publisher used the existing permanent key and verified package, versionCode67, version0.17.1, signature and pinned certificate. All 140 original unsigned CI APK entries match the signed APK byte-for-byte. APK/ZIP CRC, unique members, five exact delivery members and archive-to-folder bytes pass. Same package/certificate as build65 and a higher code support in-place updating. Actual signed installation over the owner's phone remains pending; certificate compatibility is not reported as a performed phone installation.
 
-Complete targeted checks, then one coherent full build/unit/lint/debug/release/instrumentation/API26/API35 gate for the final candidate source. Sign/package with the existing publisher, verify package/certificate/hashes/archive/provenance, and obtain owner phone acceptance. Until actual results are recorded, this report grants no Library readiness.
+## Exact next action — owner phone acceptance
 
-## Owner-phone checklist
+Install the final build67 APK over the permanent-key app without uninstalling/clearing. Complete PHONE_CHECKLIST.txt and record phone, Android version, installed build, results and any explicitly accepted limitation:
 
-1. Install the new permanent-key candidate over the existing app, without uninstalling or clearing data. Confirm Blocks, Goals, Routines, unfinished/completed sessions, new/legacy Notes, dated Logs, references and all recorded/imported takes remain.
-2. Check speaker/microphone, free Stop→Review→Save, successful-loop audition, count-in and loop edges (including a long loop), click/alarm audibility and flash latency. Imported repeat has no certified seamless-join guarantee.
-3. Check six appearances, Settings/banner/Back save barriers, portrait/landscape, keyboard and enlarged text. Verify document colors/page/zoom and recording continuity.
-4. Import/export through actual phone/Drive document providers; verify original audio bytes remain. Current JSON excludes all audio/takes and reference metadata/bytes; preserve originals separately.
-5. Background/foreground, audio-focus loss and headphone/noisy-route changes must stop microphone/output and avoid automatic restart/save. Confirm update/data retention on the actual phone.
+1. Confirm Blocks, Goals, Routines, Logs, new/legacy Notes, sessions/history, references and all recorded/imported takes persist.
+2. Check microphone/speaker, free Stop→Review→Save, loop count-in/audition/Save, saved-take playback, metronome audio/flash, completion sound and timing/loop edges.
+3. Check image/PDF colors/page/zoom, all six themes, keyboard/enlarged text/portrait/landscape and TalkBack.
+4. Background/reopen and interrupt audio safely; no automatic recording/playback restart or save. Test real phone/Drive providers and exported originals.
 
-Record phone/Android/build, results and any explicitly accepted limitations. Emulator tests cannot establish physical acoustic/display/provider acceptance. P5 exits only after owner acceptance; L1 needs a separate assignment.
-
-## Final targeted preparation
-
-All6 appearance API26 scenarios passed in41288420584. The200%-text scenario passed in41288422927, but screenshot inspection exposed coverage gaps: Accent text overlapped its checkbox and fixed-width Play clipped its label. Source15c1a31 changes only enlarged-text sizing and adds explicit overlap/Record/Play assertions; retest41289104452 passed1/1. This is visual evidence of app layout defects, distinct from test-fixture corrections. The normal-size layout remains shared. Legacy build27 install-over probe41288895114 passed2/2 for the rebuilt immutable seed/migration route.
-
-Active README/BUILD_PLAN/CURRENT_STATE/handoff records have been reconciled; old build46/P4-next-task and unpublished-maintenance claims are removed from current instructions. Historical audits are clearly marked as starting snapshots. Local Markdown file links resolve, and the mandatory efficiency procedure is preserved verbatim.
-
-All targeted preparation is now passing. FocusedPractice/FocusedLayout at200% text passed2/2 in41289336396, source1a71fc8 (same app/test code as15c1a31). The complete device workflow now includes these enlarged active-capture/protected-exit/layout cases on both APIs, preserving ordered seed/reopen fixtures. Candidate source is frozen for the first coherent full P5 gate. No full pass or phone acceptance is implied by these scoped runs.
+Physical acoustics/display latency/providers/TalkBack cannot be certified by emulators. Imported repeat has no certified seamless-join guarantee. Keep originals separately because JSON excludes media. Stage4 remains0/10 documented real sessions. **P5 exits only after owner acceptance. Stop at P5; L1 requires a separate assignment.**

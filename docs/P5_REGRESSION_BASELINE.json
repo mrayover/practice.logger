@@ -1,0 +1,1672 @@
+{
+  "recordVersion": 1,
+  "date": "2026-11-01",
+  "status": "Automated baseline passed; owner-phone acceptance pending",
+  "version": "0.17.1",
+  "versionCode": 67,
+  "sourceCommit": "bf999b9678039dbf669560cd10649b340c11e217",
+  "ciRun": "https://github.com/mrayover/practice.logger/actions/runs/41329443572",
+  "jobs": [
+    {
+      "name": "build",
+      "jobId": 124916249929,
+      "conclusion": "success"
+    },
+    {
+      "name": "device (35)",
+      "jobId": 124917575236,
+      "conclusion": "success"
+    },
+    {
+      "name": "device (26)",
+      "jobId": 124917575239,
+      "conclusion": "success"
+    },
+    {
+      "name": "current_features (35, review)",
+      "jobId": 124917575252,
+      "conclusion": "success"
+    },
+    {
+      "name": "current_features (35, appearance-import)",
+      "jobId": 124917575263,
+      "conclusion": "success"
+    },
+    {
+      "name": "current_features (35, transport)",
+      "jobId": 124917575264,
+      "conclusion": "success"
+    },
+    {
+      "name": "current_features (26, transport)",
+      "jobId": 124917575287,
+      "conclusion": "success"
+    },
+    {
+      "name": "current_features (26, review)",
+      "jobId": 124917575346,
+      "conclusion": "success"
+    },
+    {
+      "name": "current_features (26, appearance-import)",
+      "jobId": 124917575479,
+      "conclusion": "success"
+    }
+  ],
+  "intentionalSkippedJob": "diagnostic (only selected by isolated dispatch inputs)",
+  "build": {
+    "source": "bf999b9678039dbf669560cd10649b340c11e217",
+    "buildRun": 41329443572,
+    "unit": {
+      "tests": 111,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "unitSuites": 30,
+    "lint": {
+      "ApplySharedPref": 1,
+      "OldTargetApi": 1,
+      "AndroidGradlePluginVersion": 1,
+      "GradleDependency": 5,
+      "NewerVersionAvailable": 1,
+      "ModifierParameter": 1,
+      "ObsoleteSdkInt": 1,
+      "UsableSpace": 2,
+      "UseKtx": 5
+    },
+    "schemas": [
+      {
+        "version": "1",
+        "sha256": "72f72d0b05ea4e2211ade2e2b34dcf92f8a05a9274d14001d903e06e67142a47"
+      },
+      {
+        "version": "10",
+        "sha256": "080cf0e189d214711b3158144947d11c223cdf613ab9bf9d2dd8d67c1c9b561a"
+      },
+      {
+        "version": "11",
+        "sha256": "cce368551d1c7aa56a97b465e4de6999c80398919242a961fdc67c83e44bb5f9"
+      },
+      {
+        "version": "2",
+        "sha256": "82a65a33d30dec3d9aa71a645393f2f0ad90cf8afd4952d4b24a8ab78035aa21"
+      },
+      {
+        "version": "3",
+        "sha256": "8312042ddfbe8caae8cafa0b4b7eb482da21517ec5d212d1dc2fe4720ab3a907"
+      },
+      {
+        "version": "4",
+        "sha256": "fecf9495c9bb0e8dc8d22ec8e635b894da5fc35a6a7fba4e0785ee58aecb9013"
+      },
+      {
+        "version": "5",
+        "sha256": "08a55ea5e7dc05030e2ce1edfe43985c34d55c13f94b251a8cd0e743428ad787"
+      },
+      {
+        "version": "6",
+        "sha256": "5f2e8eb1032d15af407961e52f44d2e6aeb47e5dc7d4ac252aef1516751f7159"
+      },
+      {
+        "version": "7",
+        "sha256": "f8ad15d40aaf5999964eba8f2ef5f12146d4c4ffd4df60f7b1c08f1813dbe458"
+      },
+      {
+        "version": "8",
+        "sha256": "cb753b98b4fa2a101b59831282b1bc2eb2fb794333c924669c823ca7a7c9e8c4"
+      },
+      {
+        "version": "9",
+        "sha256": "30033cae6fad4a6e484d581e0ecf029c19a4616cc837bbd836df74b5b3808a5b"
+      }
+    ]
+  },
+  "unitCases": [
+    {
+      "class": "com.mrayover.practicelogger.AudioImportTest",
+      "method": "failedCommitIsRetryableAndRecoveryProtectsActiveImport"
+    },
+    {
+      "class": "com.mrayover.practicelogger.AudioImportTest",
+      "method": "badAudioCopyFailureAndCancellationLeaveNoStagedFilesAndPreserveSavedAudio"
+    },
+    {
+      "class": "com.mrayover.practicelogger.AudioImportTest",
+      "method": "byteLimitAndFormatsAreExplicit"
+    },
+    {
+      "class": "com.mrayover.practicelogger.AudioImportTest",
+      "method": "importedIdentityPersistsReopensRenamesExportsDeletesWithoutChangingEarlierTakes"
+    },
+    {
+      "class": "com.mrayover.practicelogger.AudioSettingsPcmTest",
+      "method": "everyClickSoundIsDistinctAccentedAndSilentModeRemainsZero"
+    },
+    {
+      "class": "com.mrayover.practicelogger.AudioSettingsPcmTest",
+      "method": "alarmChoicesAreDistinctBoundedAndOffLeavesClickUntouched"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BackupFailureTest",
+      "method": "unavailableProviderExportAndImportLeaveDataAndAllowRetry"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BackupFailureTest",
+      "method": "interruptedReadRejectsTruncatedData"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BackupRepositoryTest",
+      "method": "activeOvertimeRecoveryPreservesTimeAndCurrentPosition"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BackupRepositoryTest",
+      "method": "invalidFilesAndNonemptyTargetsNeverModifyExistingData"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BackupRepositoryTest",
+      "method": "fullRoundTripToEmptyDatabasePreservesHistoryDraftAndArchivedBlocks"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BeatPcmTest",
+      "method": "sampleClockProducesSteadyBeatsAndRespondsToTempoChanges"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BeatPcmTest",
+      "method": "inputRangeAndSavedReferenceFallback"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "activeAndCompletedGoalAssociationsRefuseDeletion"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "everySessionStateProtectsSourceBlockEvenWithoutForeignKey"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "combinedCountsAndCompletedHistoryMessageAreAccurate"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "routineCountIsDistinctRoutinesNotDuplicatePlacements"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "confirmationRechecksReferencesAddedAfterEligibleReview"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "databaseFailureAndMissingBlockNeverReturnDeleted"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "recordingsRefuseDeletionIncludingMissingFileMetadataAndPreserveAudio"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockDeletionTest",
+      "method": "activeAndArchivedDeletionSurviveFileReopenAndJsonRestore"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockRepositoryTest",
+      "method": "createEditArchiveRestoreSurviveDatabaseReopen"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockRepositoryTest",
+      "method": "invalidCreateDoesNotWrite"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockValidationTest",
+      "method": "searchIsLiteralCaseInsensitiveAndArchiveAware"
+    },
+    {
+      "class": "com.mrayover.practicelogger.BlockValidationTest",
+      "method": "requiredFieldsAndNumericBoundaries"
+    },
+    {
+      "class": "com.mrayover.practicelogger.CompletionPcmTest",
+      "method": "shortCueIsNonSilentBoundedAndDucksWithoutChangingBeatPhase"
+    },
+    {
+      "class": "com.mrayover.practicelogger.FlexiblePhraseStorageTest",
+      "method": "sharedCountInDefaultPersistsAndRejectsInvalidResourceRequests"
+    },
+    {
+      "class": "com.mrayover.practicelogger.FlexiblePhraseStorageTest",
+      "method": "storageBudgetAccountsForMaximumPcmAndKeepsReserve"
+    },
+    {
+      "class": "com.mrayover.practicelogger.FoundationTest",
+      "method": "fileDatabaseSurvivesCloseAndReopen"
+    },
+    {
+      "class": "com.mrayover.practicelogger.FoundationTest",
+      "method": "everyMaterialTextStyleUsesBundledLato"
+    },
+    {
+      "class": "com.mrayover.practicelogger.GoalRepositoryTest",
+      "method": "migrationSevenPreservesEveryExistingTableAndPermitsGoals"
+    },
+    {
+      "class": "com.mrayover.practicelogger.GoalRepositoryTest",
+      "method": "sharedArchivedBlocksAndActualTimeDoNotDoubleCountOrMutateDrafts"
+    },
+    {
+      "class": "com.mrayover.practicelogger.GoalRepositoryTest",
+      "method": "backupRoundTripReopenIncludesHistoryAndLegacyOneThroughFour"
+    },
+    {
+      "class": "com.mrayover.practicelogger.GoalRepositoryTest",
+      "method": "invalidGoalBackupsAndNonemptyGoalsOnlyTargetAreProtected"
+    },
+    {
+      "class": "com.mrayover.practicelogger.GoalRepositoryTest",
+      "method": "lifecycleLimitOrderingAndHomeTopTwoPreserveIdentity"
+    },
+    {
+      "class": "com.mrayover.practicelogger.GoalRepositoryTest",
+      "method": "lateGoalLinkFailureRollsBackAllTables"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageMigrationTest",
+      "method": "migrationNinePreservesAllTablesAndAddsOnlyImages"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageMigrationTest",
+      "method": "schemaTenReopensAllTablesAndLegacyImageRowsWithoutMigration"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "recoveryDeletesOnlyGeneratedUnreferencedFiles"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "supportedFormatsMissingCorruptAndUnsafePaths"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "cameraOrientationsApplyToExistingPrivateBytesWithoutChangingOriginals"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "malformedOversizeLowStorageInterruptedAndFailedCommitPreserveOld"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "dependencyRecheckAndForeignKeyPreventSilentDeletion"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "originalPersistedAndReplacementRemovalAreSafe"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ImageReferenceTest",
+      "method": "backupExcludesImagesAndRestoreCreatesNoMissingMedia"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "rapidEditsStayOnOriginalDatesAndSurviveReopen"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "migrationEightPreservesAllOldTablesAndRecordings"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "formatSixRoundTripsAndReadersOneThroughFiveRemainCompatible"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "invalidLogsOversizeAndLateRestoreFailureAreSafe"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "flushWaitsForInflightSaveAndRetainsNewerEdits"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "failedSaveCanRetryWithoutLosingDraft"
+    },
+    {
+      "class": "com.mrayover.practicelogger.LogRepositoryTest",
+      "method": "weeksCrossYearLeapDayAndLocalBoundaries"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MeterPcmTest",
+      "method": "accentOnlyChangesFirstBeatAndOffClicksAreIdentical"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MeterPcmTest",
+      "method": "chunkingAndCompletionMixNeverAlterBarOrBeatClock"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MeterPcmTest",
+      "method": "meterAccentAndModeApplyAtNextBeatWithoutResettingPhase"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MeterPcmTest",
+      "method": "allOutputModesShareClockAndSilentModeContainsNoHiddenClick"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MeterPcmTest",
+      "method": "bpmChangesKeepFractionalBeatPhaseAndDoNotCreateExtraBeat"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MeterPcmTest",
+      "method": "allMetersCountEveryBeatAndWrapWithAccentOff"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MetronomePersistenceTest",
+      "method": "bpmHistoryBackupAndLegacyReadersPreserveTimerAndBlockDefault"
+    },
+    {
+      "class": "com.mrayover.practicelogger.MetronomePersistenceTest",
+      "method": "realSchemaTwoUpgradeRetainsAllRecords"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseAudioTest",
+      "method": "chunkBoundariesAgreeAndLongCountInNeverNeedsALongArray"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseAudioTest",
+      "method": "everyWholeLoopLengthUsesOneRoundedBoundaryAtAllSupportedTempos"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseAudioTest",
+      "method": "maximumWavRoundTripIsExactAndRejectsCorruptionOrTruncation"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseAudioTest",
+      "method": "invalidAndOverflowingSelectionsExplainTheExecutionLimit"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseAudioTest",
+      "method": "chunkedGuideHasExactCountInAndCaptureOnsetsWithoutBeatRoundingDrift"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseRepositoryTest",
+      "method": "schemaFourUpgradeRetainsFreeTakeAndPracticeWithNullPhraseFields"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PhraseRepositoryTest",
+      "method": "loopsAndFreeTakesStayIndependentAndOnlyExactCompleteWavCommits"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PracticeClockTest",
+      "method": "displayRoundingAndOverflowStayTruthful"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PracticeClockTest",
+      "method": "activeDeltasStopAtZeroUntilExplicitContinue"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PracticeNoteRepositoryTest",
+      "method": "backupSevenRoundTripLegacyImportsAndRejectedRestoreAreSafe"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PracticeNoteRepositoryTest",
+      "method": "independentEntriesValidateOwnershipAndKeepFailuresAtomic"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PracticeNoteRepositoryTest",
+      "method": "migrateTenPreservesEveryOldTableAndNotesSurviveReopen"
+    },
+    {
+      "class": "com.mrayover.practicelogger.PracticeNoteRepositoryTest",
+      "method": "completedSummaryIncludesSavedAndLegacyNotesAfterReopenAndEdit"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RecordingRepositoryTest",
+      "method": "schemaThreeMigrationPreservesPracticeAndStartsWithNoTakes"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RecordingRepositoryTest",
+      "method": "confirmedDeleteAndRenameAffectOnlyChosenTake"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RecordingRepositoryTest",
+      "method": "interruptedFilesFailedSavesAndFailedExportsNeverDestroyEarlierTakes"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RecordingRepositoryTest",
+      "method": "multipleTakesRemainWithStableBlockAcrossArchiveReopenAndJsonRestore"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineBackupTest",
+      "method": "versionFourFileRoundTripRestoresRoutinePlacementsAndReopens"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineBackupTest",
+      "method": "malformedRoutineReferencesOrderNamesDurationsAndRequiredArraysReject"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineBackupTest",
+      "method": "existingRoutineOrStandaloneTakeMakesRestoreNonempty"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineBackupTest",
+      "method": "lateRoutinePlacementFailureRollsBackEveryRestoredTable"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineBackupTest",
+      "method": "legacyOneTwoAndThreeReadWithoutInventingRoutines"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineRepositoryTest",
+      "method": "createEditMultipleRoutinesPersistOrderDurationsAndStableBlockReferences"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineRepositoryTest",
+      "method": "repeatedStartsUseCurrentBlocksAndIndependentPlacementsWithoutConsumingDraft"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineRepositoryTest",
+      "method": "saveBuilderSelectionLeavesDraftAndOriginalBlocksUnchanged"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineRepositoryTest",
+      "method": "invalidEditorWritesLeaveExistingRoutineAndOtherDataIntact"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineRepositoryTest",
+      "method": "migrationSixRetainsBlocksPracticeAndAllAudioOwnershipAndFiles"
+    },
+    {
+      "class": "com.mrayover.practicelogger.RoutineRepositoryTest",
+      "method": "archivedUnavailableAndDeletedReferencesAreExplicitAndNeverPartiallyStart"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "zeroWaitOvertimeAndLargeDurationsAreSafe"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "emptySessionsAndBadOverridesAreRejected"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "versionOneMigrationPreservesExistingBlocks"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "multipleUnfinishedSessionsAndDraftSurviveBackupAndReopen"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "orderedPlacementsOverridesAndSnapshotsStayIndependent"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "threeBlockSessionRecoveryOutcomesAndHistoryAfterReopen"
+    },
+    {
+      "class": "com.mrayover.practicelogger.SessionRepositoryTest",
+      "method": "unfinishedBlockNotesSurviveReopenAndCannotChangeOtherPlacementsOrHistory"
+    },
+    {
+      "class": "com.mrayover.practicelogger.StandaloneRecordingTest",
+      "method": "schemaFiveUpgradePreservesBlockFreeAndLoopTakesAndPractice"
+    },
+    {
+      "class": "com.mrayover.practicelogger.StandaloneRecordingTest",
+      "method": "standaloneTakesShareFileSafetyWithoutCreatingOrChangingBlocks"
+    },
+    {
+      "class": "com.mrayover.practicelogger.TakeReviewTest",
+      "method": "incompleteLoopCannotBeReviewedOrSavedAndCompleteLoopRequiresExplicitSave"
+    },
+    {
+      "class": "com.mrayover.practicelogger.TakeReviewTest",
+      "method": "failedDatabaseCommitRollsBackToSameTemporaryBytesThenSaveCanRetry"
+    },
+    {
+      "class": "com.mrayover.practicelogger.TakeReviewTest",
+      "method": "rejectedEmptyTakeAndRerecordLeaveExistingRowsAndStableIdsUntouched"
+    },
+    {
+      "class": "com.mrayover.practicelogger.TakeReviewTest",
+      "method": "inspectionRecoveryAndDiscardNeverPublishOrChangeSavedAudio"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ThemePaletteTest",
+      "method": "goalSlotsStayDistinctAndReadableWithoutAllocatingGoalIdentity"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ThemePaletteTest",
+      "method": "textAndControlPairsRemainReadableAcrossAllPalettes"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ThemePaletteTest",
+      "method": "systemChoiceFollowsDeviceWhileExplicitChoicesOverrideIt"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ThemePreferencesTest",
+      "method": "existingInstallsStayLightAndEveryChoiceSurvivesNewReader"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ThemePreferencesTest",
+      "method": "failedCommitKeepsCommittedChoiceAndAllowsRetry"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ToolLogicTest",
+      "method": "chromaticPitchAcrossInstrumentRangeAndSampleRates"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ToolLogicTest",
+      "method": "stopwatchCountsOnlyStartedIntervalsAndResetStopsIt"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ToolLogicTest",
+      "method": "silenceQuietNoiseAndInvalidInputDoNotInventNotes"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ToolLogicTest",
+      "method": "dominantHarmonicDoesNotReplaceFundamental"
+    },
+    {
+      "class": "com.mrayover.practicelogger.ToolLogicTest",
+      "method": "concertPitchAndCentsHaveCorrectDirection"
+    }
+  ],
+  "nativeGroups": [
+    {
+      "api": 26,
+      "suite": "device",
+      "tests": 49,
+      "passed": 49,
+      "failed": 0,
+      "results": [
+        {
+          "file": "accessibility-workflow.txt",
+          "tests": 1,
+          "sha256": "537d1cf319d7ea7037aa84315812d308adbaec31aba015165bfaf35e714333c9"
+        },
+        {
+          "file": "backup-workflow.txt",
+          "tests": 1,
+          "sha256": "fcc6db377b817547bad462c4da8a0781015abf48814661c79d30ce81c4179ee1"
+        },
+        {
+          "file": "deletion-large.txt",
+          "tests": 1,
+          "sha256": "4b0eccb814e79f58611af0dd4f10df77351ea2f21e631f317abbf4d07b6d555f"
+        },
+        {
+          "file": "deletion-reopen.txt",
+          "tests": 1,
+          "sha256": "b7dfbf2437d971759052271c2bde66e79d838fb523fcbaefa0ed70777aeeda45"
+        },
+        {
+          "file": "deletion-workflow.txt",
+          "tests": 1,
+          "sha256": "c4f93b54316dd89bd99009c544772d0045e61fd1f012d4dadfb0baf00e11155c"
+        },
+        {
+          "file": "focused-expired-reopen.txt",
+          "tests": 1,
+          "sha256": "b6aed0967504856b4cc8dfc53ec01b74f231f393ba5135d5f335bca7ca3cb32f"
+        },
+        {
+          "file": "focused-large-layout.txt",
+          "tests": 1,
+          "sha256": "4c39609f11a406ee5bea0866fdcf05ca258dacf14d494879da31e3eaca47c0b3"
+        },
+        {
+          "file": "focused-large-workflow.txt",
+          "tests": 1,
+          "sha256": "df46196b772cec783315bf64d93d417716f30fc2bfc52bfdd9d735c93e948d97"
+        },
+        {
+          "file": "focused-layout.txt",
+          "tests": 1,
+          "sha256": "f4ee862a50806df74412339f869d4a63c0c0cac67c67c150da0ef0d8ac67d82b"
+        },
+        {
+          "file": "focused-workflow.txt",
+          "tests": 1,
+          "sha256": "6fbaae6d67c1e58db072ca5bd890391b68d9b1f982551a8e4641e3fd98664ab0"
+        },
+        {
+          "file": "free-recording-reopen.txt",
+          "tests": 1,
+          "sha256": "2aa96ea6a4814fff2fa299d6bdfaf7edf1575234a850c0de614b2971b4621b3d"
+        },
+        {
+          "file": "free-recording-workflow.txt",
+          "tests": 1,
+          "sha256": "33b52191284ef77c881d115dbd55303209a43d0c1384b5ac2ba5e9d7f7960385"
+        },
+        {
+          "file": "goal-accessibility.txt",
+          "tests": 1,
+          "sha256": "46cb3df081770ce79f28977945fd4ed3611501dce8cfd41ea7a1521554e3efd8"
+        },
+        {
+          "file": "goal-reopen.txt",
+          "tests": 1,
+          "sha256": "bfcd998040b5198e1ac8adc0edc47f121a0c71c349b4aa0159ca034295f38f49"
+        },
+        {
+          "file": "goal-workflow.txt",
+          "tests": 1,
+          "sha256": "b89a95f41ab5660753895d0bf8b6283efd1546f0006fb82bf06e8a9125d3a0ee"
+        },
+        {
+          "file": "history-reopen.txt",
+          "tests": 1,
+          "sha256": "e5365a179abb014e4ca6fd4e8f6b7b051fae934c0318a5c1e3222334e8fc8dd3"
+        },
+        {
+          "file": "image-reopen.txt",
+          "tests": 1,
+          "sha256": "f3cd2efb7149244e33810d262c743529eac487e29c7d7bdf21a9426a493d3110"
+        },
+        {
+          "file": "image-upgrade.txt",
+          "tests": 1,
+          "sha256": "a85e6d102a772fc93f5d32681eb56b7986d1cc6adb40ad16f1a9086ec48ef5ea"
+        },
+        {
+          "file": "image-workflow.txt",
+          "tests": 1,
+          "sha256": "7e8bec0b199679ba62d45f737fe6cccfd1804695f524424ca4b1988cd59eef8b"
+        },
+        {
+          "file": "log-reopen.txt",
+          "tests": 1,
+          "sha256": "c49eac26b5ed42521e38e62a86065bf4040e8971b1b14c085e410455ea67efc0"
+        },
+        {
+          "file": "log-upgrade.txt",
+          "tests": 1,
+          "sha256": "bfb670e565e2a958621388c7a43990b57f9b4f913665bc206bba2c54db9e13e2"
+        },
+        {
+          "file": "log-workflow.txt",
+          "tests": 1,
+          "sha256": "988b98c88515cc844cebee16bbb592c53ea19867c4db183a561deaeb690a63d9"
+        },
+        {
+          "file": "metronome-workflow.txt",
+          "tests": 1,
+          "sha256": "b1dbe81b454cacbe9c00b6d39339627ed128cdbbcd457e52defec36aaf347636"
+        },
+        {
+          "file": "multi-reopen.txt",
+          "tests": 1,
+          "sha256": "3763a1bed7b5ef9273eb3f7166a8d3f05af5ecbefd4c836b302cba68ecf84b79"
+        },
+        {
+          "file": "multi-workflow.txt",
+          "tests": 1,
+          "sha256": "153465156a0f5a0796e40a4725c60df44c8c02f187f21a9b38a8e9f6b4f9a265"
+        },
+        {
+          "file": "pdf-legacy-seed.txt",
+          "tests": 1,
+          "sha256": "d3cc80afce9e2f305b76cf748dba2536a834faa0b8c3575254d58eb4a41adb69"
+        },
+        {
+          "file": "pdf-legacy-upgrade.txt",
+          "tests": 1,
+          "sha256": "a03a24999160b7d647d2c2e105cca47925e6e1a260a23ebdfc464d92f21fc95b"
+        },
+        {
+          "file": "pdf-reopen.txt",
+          "tests": 1,
+          "sha256": "caa750e11b199f6db907542f467dc5231f66bbabcb06fea6abff04705082265d"
+        },
+        {
+          "file": "pdf-storage.txt",
+          "tests": 3,
+          "sha256": "48e136ea668e79bbdd41193dea046b7471052bda55e58db9066119046325b732"
+        },
+        {
+          "file": "pdf-upgrade.txt",
+          "tests": 1,
+          "sha256": "8a88c73c30cc092796d7eec40cc50692170bf87e29c339a6c405a4147bfdfc0d"
+        },
+        {
+          "file": "pdf-validation.txt",
+          "tests": 1,
+          "sha256": "d20ac7065c741a2d28703853760ec0f94e38bd755139bfe08cf65c4d587b8af5"
+        },
+        {
+          "file": "pdf-workflow.txt",
+          "tests": 1,
+          "sha256": "89b0a416a73fd9c94f68e5429f95bdde5eb863293774f07a7e78d84d4d5c9565"
+        },
+        {
+          "file": "phrase-reopen.txt",
+          "tests": 1,
+          "sha256": "4ccb77a2e78e886e6e1d6c59f1f1de1bac6209d9009b45121e570f4f3b44c25d"
+        },
+        {
+          "file": "phrase-workflow.txt",
+          "tests": 1,
+          "sha256": "1c27a8f1bd14f5518d07dbba3d4acd2316044cfbd6609db2c14d571a40f2b330"
+        },
+        {
+          "file": "picker-export.txt",
+          "tests": 1,
+          "sha256": "00c80ad0a475fdd0dcd027557f04f0fa6001c3589c0fe65134a4237efda2d9ed"
+        },
+        {
+          "file": "picker-reopen.txt",
+          "tests": 1,
+          "sha256": "401025c829b61f0aca2dbd28f050c907c25f5281bf760c6e59d50dc69b881635"
+        },
+        {
+          "file": "picker-restore.txt",
+          "tests": 1,
+          "sha256": "021139f1c13ca3b6b6a3194e316d9ff77aece3a372c745620b7196555bdec2cf"
+        },
+        {
+          "file": "practice-recovery.txt",
+          "tests": 1,
+          "sha256": "e553ba59f3abc3a6e01ad744b5591e56aa87292b49e56b542feb17dd6c3fa8d7"
+        },
+        {
+          "file": "practice-workflow.txt",
+          "tests": 1,
+          "sha256": "0737fce7a938a81547d4f747b08a932549480e640126d96a36cfb57e6b64088c"
+        },
+        {
+          "file": "process-reopen.txt",
+          "tests": 1,
+          "sha256": "df65847fa9ce32032d36b0656bb06d3fb00ce9792c0521d6af6bf6ca7c3e6174"
+        },
+        {
+          "file": "recording-reopen.txt",
+          "tests": 1,
+          "sha256": "b337d7eac451b25b8a05d88651f3e89781ae5f05fa81bb915b4a63886875ac6f"
+        },
+        {
+          "file": "recording-workflow.txt",
+          "tests": 1,
+          "sha256": "8ecdc2905d719d91ddf704393ae967472a54aa2aae19c01bb4a9580ac71a8cbb"
+        },
+        {
+          "file": "routine-reopen.txt",
+          "tests": 1,
+          "sha256": "3636a74cb80f46dae4521ca58c86699e4a2ac65d83e103c091216db55a015c6e"
+        },
+        {
+          "file": "routine-workflow.txt",
+          "tests": 1,
+          "sha256": "9518680c273ec10107f138d1b2859720c779563220e819eb0b34059ec88dc4b9"
+        },
+        {
+          "file": "tools-workflow.txt",
+          "tests": 1,
+          "sha256": "8f3472d6d954ed922687f1c42b203f7749b0a6afab29b64cbf0ea7e63f5c06b2"
+        },
+        {
+          "file": "upgrade-reopen.txt",
+          "tests": 1,
+          "sha256": "6c801c4f694cc231985baff171f5d09c4121893b9e7030c0ebf8ce03b215f140"
+        },
+        {
+          "file": "outputs/androidTest-results/connected/debug/TEST-emulator-5554 - 8.0.0-_app-.xml",
+          "tests": 1,
+          "sha256": "5bf43dc6020f0e9d1966ee6b5797f9a1bd15864378b6c7567116568f31de5ff7"
+        }
+      ]
+    },
+    {
+      "api": 26,
+      "suite": "review",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "results": [
+        {
+          "file": "FlexiblePhraseWorkflowTest.txt",
+          "tests": 3,
+          "sha256": "5698a16f16027479d875783f50c6169fab62a98c08fe748b4a144d0ab972e640"
+        },
+        {
+          "file": "LongPhrasePlaybackTest.txt",
+          "tests": 1,
+          "sha256": "a88f99c25e55aba5dd544256b03def3225eaef8b2ed9290a3bab7987681868b1"
+        },
+        {
+          "file": "TakeReviewWorkflowTest.txt",
+          "tests": 3,
+          "sha256": "76b887d36e2ca6af413e867948defb5eeae4b461301d1a5966940cf434024147"
+        }
+      ]
+    },
+    {
+      "api": 26,
+      "suite": "transport",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "results": [
+        {
+          "file": "AudioSettingsWorkflowTest.txt",
+          "tests": 2,
+          "sha256": "db81c8611daa6e69ec1538722af2c5c24a26576cf3c810853706d922f8492075"
+        },
+        {
+          "file": "HomeNavigationPreviewTest.txt",
+          "tests": 1,
+          "sha256": "b17206b613c0a12b4ef5ea81ecdce708b554c2d78be79448effefe13edaa3392"
+        },
+        {
+          "file": "LoopRecorderPreviewTest.txt",
+          "tests": 2,
+          "sha256": "964dbe2eb9ef51dda0e574142c5645138b2b0ef6e03e7a9e12d1e43722e477fc"
+        },
+        {
+          "file": "MeterWorkflowTest.txt",
+          "tests": 3,
+          "sha256": "aae407497b7d1a1fda3b08ae9e1ec0d9986a41246d5fffe0167f7477946cdf35"
+        },
+        {
+          "file": "MetronomeButtonPulseTest.txt",
+          "tests": 2,
+          "sha256": "56e00df8db0ed8cd6b4069c2129eb427325a25d3b3fe6cb6e559dade9aaf5710"
+        },
+        {
+          "file": "MetronomeOutputTest.txt",
+          "tests": 1,
+          "sha256": "866d464a912cb9ba536b33d6397b531f64af984d558f0a166a506e8c05f1c60b"
+        },
+        {
+          "file": "NestedReferenceDiagnosticTest.txt",
+          "tests": 1,
+          "sha256": "45aa5dd596b87a0174e85919b145736ec04f59325e0c4f7db3e2bde97ff7c3ed"
+        },
+        {
+          "file": "NotesHistoryPreviewTest.txt",
+          "tests": 1,
+          "sha256": "2f04beb5cc85251a9f1fcb0e2265aa49e763c56e762c9dcd0e4087f8c6171314"
+        },
+        {
+          "file": "NotesHistoryReopenTest.txt",
+          "tests": 1,
+          "sha256": "1d89f882b5f036976a42b700e7763d3a0b2ad09f38ec5f3ec5048f3c028cfa05"
+        },
+        {
+          "file": "PracticeRefinementPreviewTest.txt",
+          "tests": 2,
+          "sha256": "7505cc7de1be0e8e61167ce3af636748f6b64c8e89823b8b7df80a72106b82e2"
+        },
+        {
+          "file": "TargetedP4PreviewTest.txt",
+          "tests": 3,
+          "sha256": "54f7e3b87eb4890bc0067c33fdb91970bfadaf6e9e02e1ba0544c7111233fc27"
+        },
+        {
+          "file": "TransportPreviewTest.txt",
+          "tests": 1,
+          "sha256": "0b5b5c070dd7b0dc485ef64b4c388138311fe9a22d272d60823200daec3a7b43"
+        }
+      ]
+    },
+    {
+      "api": 26,
+      "suite": "appearance-import",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "results": [
+        {
+          "file": "ImportedAudioWorkflowTest-importSelectRepeatInterruptAndKeepExistingTakes.txt",
+          "tests": 1,
+          "sha256": "78d3ef2da88b902b4c987ef10a63c18fe8adefa8b26b7b4f2468af1722014e8e"
+        },
+        {
+          "file": "ImportedAudioWorkflowTest-reopenAndManageImportedAndEarlierRecordings.txt",
+          "tests": 1,
+          "sha256": "ae5b7961ba36de45df7274341b4c224c7135e63dca9934be381108187a34c68a"
+        },
+        {
+          "file": "ThemeWorkflowTest.txt",
+          "tests": 6,
+          "sha256": "5504378f3907c1b878f18b4e7455695eaa2f055aef010e199610a4f34baa27bf"
+        }
+      ]
+    },
+    {
+      "api": 35,
+      "suite": "device",
+      "tests": 49,
+      "passed": 49,
+      "failed": 0,
+      "results": [
+        {
+          "file": "accessibility-workflow.txt",
+          "tests": 1,
+          "sha256": "6f95d51b6cdcb9daf4f864327d8d68fe538c203c3099da6f6a8aefbb8dedbe31"
+        },
+        {
+          "file": "backup-workflow.txt",
+          "tests": 1,
+          "sha256": "727ae93af4f8226eede45d3333fe044f860a3a09235dc485f93fe96ef1d6ac6d"
+        },
+        {
+          "file": "deletion-large.txt",
+          "tests": 1,
+          "sha256": "002bf4ee41521a5ac106bf5b491b3417959eb92adea949cf37fc647f72a979b2"
+        },
+        {
+          "file": "deletion-reopen.txt",
+          "tests": 1,
+          "sha256": "bd5252a814c2c60296b4093255d5b6f5695d22cfb09ecce9240c2d9df80e8f57"
+        },
+        {
+          "file": "deletion-workflow.txt",
+          "tests": 1,
+          "sha256": "e309f636ed22d0ffbaa05f1f085228d05b1ebff3eb785a2d56922dc95e153a49"
+        },
+        {
+          "file": "focused-expired-reopen.txt",
+          "tests": 1,
+          "sha256": "39f05d900526f0f61936247af5137a50316a727864c085763bf18736fbefe8e3"
+        },
+        {
+          "file": "focused-large-layout.txt",
+          "tests": 1,
+          "sha256": "28f7a4b44f273bb707b1dc7a95469c07355c2a9ee2b7180a935d41985ecbfe2e"
+        },
+        {
+          "file": "focused-large-workflow.txt",
+          "tests": 1,
+          "sha256": "3ef04ccb7d81c4835966cb07b05953951c21ea9236604e3285e5eab00bbc97c9"
+        },
+        {
+          "file": "focused-layout.txt",
+          "tests": 1,
+          "sha256": "1541aef23d4cd0776f58c0350c09907eff290701a10d095ad84357a2f477cb3b"
+        },
+        {
+          "file": "focused-workflow.txt",
+          "tests": 1,
+          "sha256": "4619290d2f22f03a14ba6548a649a491dfeed82aae1d5d96150a204352fd5de4"
+        },
+        {
+          "file": "free-recording-reopen.txt",
+          "tests": 1,
+          "sha256": "4d552e70b3d3f8cabb30caf3399d73e836f85a6cbaa99e728da60b805fb2a57c"
+        },
+        {
+          "file": "free-recording-workflow.txt",
+          "tests": 1,
+          "sha256": "1bf00f08b1a451f6581a8c0bfed3ab15b8dbbe4f4bee58890fb3170ea2cd41b4"
+        },
+        {
+          "file": "goal-accessibility.txt",
+          "tests": 1,
+          "sha256": "71789999ad488fa9f6586b1d325d6698030715916f35e13e8c30f36a5a21f2e2"
+        },
+        {
+          "file": "goal-reopen.txt",
+          "tests": 1,
+          "sha256": "12aecb734b2acd5adfbf4daf8b6d3566be9fc0e210c8a399329474dcd99032d5"
+        },
+        {
+          "file": "goal-workflow.txt",
+          "tests": 1,
+          "sha256": "fc7260080128024f9a101c3c398d49a21d65747dd1442d3ee12a79233ca61d4d"
+        },
+        {
+          "file": "history-reopen.txt",
+          "tests": 1,
+          "sha256": "d0db01489cf7edc3bb6bc45262a1bf457cffb6d8ce61384a9ab9ecb8b5fa5f88"
+        },
+        {
+          "file": "image-reopen.txt",
+          "tests": 1,
+          "sha256": "a348195320bf66f0ef2f9447d9b7ca3929c356323ec5203055e597648ddc0aa9"
+        },
+        {
+          "file": "image-upgrade.txt",
+          "tests": 1,
+          "sha256": "7cacdd7b18868e641bcb694e04e5ef82116f5cdd104417c8ac02b1820bf1fd9f"
+        },
+        {
+          "file": "image-workflow.txt",
+          "tests": 1,
+          "sha256": "5eba2df5088678b2ab128e24f20b2abbb864e5f4df694bbe1972a0d915cf3507"
+        },
+        {
+          "file": "log-reopen.txt",
+          "tests": 1,
+          "sha256": "cfa229e0564503d3387c60df7f335361351786fa72c0cfb78ec1aafa2ef8cac0"
+        },
+        {
+          "file": "log-upgrade.txt",
+          "tests": 1,
+          "sha256": "55e48e7243bf8c1a4fe5a73e52dddf890f8e32dd105c4759288bb8428cc5dbb2"
+        },
+        {
+          "file": "log-workflow.txt",
+          "tests": 1,
+          "sha256": "4d1c7e4a96823752e8a6490839df2d22174ced7a797aa5eb0c6fa158b4c225b2"
+        },
+        {
+          "file": "metronome-workflow.txt",
+          "tests": 1,
+          "sha256": "3d29170b2d53c0ef667426e068f39e4e0720fd7e396ff60a962ad978631bb6c0"
+        },
+        {
+          "file": "multi-reopen.txt",
+          "tests": 1,
+          "sha256": "8cb44dd78892bb09cd1169be678ba3e82024ba0c49a2e7850cb212aa56553ffb"
+        },
+        {
+          "file": "multi-workflow.txt",
+          "tests": 1,
+          "sha256": "1f89a6ee27cfd08c2f3f844dbbd0c077aaa7fd4c8a8a55899e7ac83f6ab7c1bd"
+        },
+        {
+          "file": "pdf-legacy-seed.txt",
+          "tests": 1,
+          "sha256": "e49407a09b6e7c8262b83c3f3e35903ff714ae6b450028d7bbac0403023e3ec9"
+        },
+        {
+          "file": "pdf-legacy-upgrade.txt",
+          "tests": 1,
+          "sha256": "73a3235709104e0d5e85cef929140fd4dccff39479190ec8761df439cc46e868"
+        },
+        {
+          "file": "pdf-reopen.txt",
+          "tests": 1,
+          "sha256": "1032fc6a9f111c736a39db00b6b7115159bf08e7f65b99df2ec367085165ac34"
+        },
+        {
+          "file": "pdf-storage.txt",
+          "tests": 3,
+          "sha256": "41bcd874db73e87791b1ad2c21ac3b0638874342b170ebeb92d80bc646039e91"
+        },
+        {
+          "file": "pdf-upgrade.txt",
+          "tests": 1,
+          "sha256": "e9340a70c3e29303dd8b45c85511a99476203d8a4a9deff312042a8542a24217"
+        },
+        {
+          "file": "pdf-validation.txt",
+          "tests": 1,
+          "sha256": "b1f820b974221a81f145a1456d447363e32e1cb8e94cc4e97360290b4e0ed6b2"
+        },
+        {
+          "file": "pdf-workflow.txt",
+          "tests": 1,
+          "sha256": "fe86c35503471b02b2925771dfe0f70f4e374907413d40b7c0fb8e60b7ed5e63"
+        },
+        {
+          "file": "phrase-reopen.txt",
+          "tests": 1,
+          "sha256": "7e69b6aa8a02b13186c62fe325aeab9152063cf3289bca249010ce896a08673d"
+        },
+        {
+          "file": "phrase-workflow.txt",
+          "tests": 1,
+          "sha256": "02c5a78fbedd58889c822e01bd2b5745d748fe5438b8237f8830be0b0adf1c8e"
+        },
+        {
+          "file": "picker-export.txt",
+          "tests": 1,
+          "sha256": "a7e71e07ae19a7eb5f8cbcc20565a08b9b2a4798772a4fbf6a932aaa00038193"
+        },
+        {
+          "file": "picker-reopen.txt",
+          "tests": 1,
+          "sha256": "df6021dc377fe7622addd4130a68f00681d35d6061b5e9b0224fa2dd728a1d52"
+        },
+        {
+          "file": "picker-restore.txt",
+          "tests": 1,
+          "sha256": "d40d2215eff8cd4ee6218834931c43e66fc69ac91d4a1d060b4a3e9cc2470292"
+        },
+        {
+          "file": "practice-recovery.txt",
+          "tests": 1,
+          "sha256": "0e516754f229fd0873d711d5e398ef2a67856af304f8a22b4f7a23367330f901"
+        },
+        {
+          "file": "practice-workflow.txt",
+          "tests": 1,
+          "sha256": "70cd301ae2b4c1879863992f5cb3ac281b0ef02405bfb3920f005b79f1551e47"
+        },
+        {
+          "file": "process-reopen.txt",
+          "tests": 1,
+          "sha256": "562ab3a6e5d636ebd85e43f7f75ae3e1c715d11d07b41c393264d0cb3178a2c7"
+        },
+        {
+          "file": "recording-reopen.txt",
+          "tests": 1,
+          "sha256": "cfeef72f0771122668d65a85ee8f417848db147f8ce7420891acd0c98a84768a"
+        },
+        {
+          "file": "recording-workflow.txt",
+          "tests": 1,
+          "sha256": "f57eb0d569c581f24ee5643cd42bb981c3aa55f0bf0385a671aa9a38b0db75b7"
+        },
+        {
+          "file": "routine-reopen.txt",
+          "tests": 1,
+          "sha256": "12cc63daf25ee964b724bb23fa767c2fb7ebe3e1700181c00ec531d8de8ef3ea"
+        },
+        {
+          "file": "routine-workflow.txt",
+          "tests": 1,
+          "sha256": "907fc3f403e5ccecb8704b36fdd04147e4dd1fc66af1092fce07106e9be2abd0"
+        },
+        {
+          "file": "tools-workflow.txt",
+          "tests": 1,
+          "sha256": "5f8b9fa5752630e3d378b4e6c15d393c8ccab4e2b91f844912a1a98770b7166c"
+        },
+        {
+          "file": "upgrade-reopen.txt",
+          "tests": 1,
+          "sha256": "a82a41aa698e9473bf5a15b1814b8cdd1988910613185b06eddf39b185f8dd41"
+        },
+        {
+          "file": "outputs/androidTest-results/connected/debug/TEST-emulator-5554 - 15-_app-.xml",
+          "tests": 1,
+          "sha256": "5810ed0da834d11eeb18db64aa98a457c362569a87d57bf9717f65cb769f66b3"
+        }
+      ]
+    },
+    {
+      "api": 35,
+      "suite": "review",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "results": [
+        {
+          "file": "FlexiblePhraseWorkflowTest.txt",
+          "tests": 3,
+          "sha256": "f0f092c0866e087413ed4677b11e1a1d6d8421d58f6a62363791d9f38d522662"
+        },
+        {
+          "file": "LongPhrasePlaybackTest.txt",
+          "tests": 1,
+          "sha256": "9de883b65ce2fa4e0e52b79bb333a2d02d52b5f76301a2b1c25c10416a87dbde"
+        },
+        {
+          "file": "TakeReviewWorkflowTest.txt",
+          "tests": 3,
+          "sha256": "5b47e72e90f30eca4b5283434613ba05d8ab0285de76d36d303764df1ee9b59d"
+        }
+      ]
+    },
+    {
+      "api": 35,
+      "suite": "transport",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "results": [
+        {
+          "file": "AudioSettingsWorkflowTest.txt",
+          "tests": 2,
+          "sha256": "4db22396826a0554fd7bc5de680f4ff53ec770783bd4706acf0d3fae09445f43"
+        },
+        {
+          "file": "HomeNavigationPreviewTest.txt",
+          "tests": 1,
+          "sha256": "38733a83388d4bb70aa06255dbcd8b522bf4a9febd0a5ba65b30255706eb11d0"
+        },
+        {
+          "file": "LoopRecorderPreviewTest.txt",
+          "tests": 2,
+          "sha256": "bc1703766c6ae96bbb8f7623f2af52803791ad43e609f8a3113539edf13cdbdf"
+        },
+        {
+          "file": "MeterWorkflowTest.txt",
+          "tests": 3,
+          "sha256": "c2eef4317cad9bf4676a8412d7d639748c941e3d0e4a9a3c9dd1d49a73cfa633"
+        },
+        {
+          "file": "MetronomeButtonPulseTest.txt",
+          "tests": 2,
+          "sha256": "4dd428deb8f256a4e3c5222de9dc11930417ca24f31c4a2220c68f381ad51b57"
+        },
+        {
+          "file": "MetronomeOutputTest.txt",
+          "tests": 1,
+          "sha256": "99f2d0d76e269a75824532944a2593f87fe9341a21ebe7aed805875de49a249f"
+        },
+        {
+          "file": "NestedReferenceDiagnosticTest.txt",
+          "tests": 1,
+          "sha256": "bc72b737a3cbfdf37bcb13d68e509c2c9993c834f294e417db52f6a84549f71e"
+        },
+        {
+          "file": "NotesHistoryPreviewTest.txt",
+          "tests": 1,
+          "sha256": "9da49f1b817b8d7ad3d04ffc1f29f3605a6d27b188b9ca38dcb1c71765ed75ce"
+        },
+        {
+          "file": "NotesHistoryReopenTest.txt",
+          "tests": 1,
+          "sha256": "49655efcdcd9eb9bd4eaf3291a7d893cc5cea5a9c67fa5b2da493badcfbc7d34"
+        },
+        {
+          "file": "PracticeRefinementPreviewTest.txt",
+          "tests": 2,
+          "sha256": "cbbb92e72d75696b4ae3622e26b127df33685f5ac803e473e5ad5702f61f9cd5"
+        },
+        {
+          "file": "TargetedP4PreviewTest.txt",
+          "tests": 3,
+          "sha256": "f6ff5da65436e16a0fe73f4ab1665378136ea61538a03fbf2d63c9dca5395d0c"
+        },
+        {
+          "file": "TransportPreviewTest.txt",
+          "tests": 1,
+          "sha256": "6a7f02c330a131b9791f06ded4cf491260c4819150b9a7fa808931c45b82755d"
+        }
+      ]
+    },
+    {
+      "api": 35,
+      "suite": "appearance-import",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "results": [
+        {
+          "file": "ImportedAudioWorkflowTest-importSelectRepeatInterruptAndKeepExistingTakes.txt",
+          "tests": 1,
+          "sha256": "a3a0ca7ef26c9d799d0a835bbb016da92b29d33e8e737c14c1902bb40e77b6d9"
+        },
+        {
+          "file": "ImportedAudioWorkflowTest-reopenAndManageImportedAndEarlierRecordings.txt",
+          "tests": 1,
+          "sha256": "7a1b09cc7011a60cc9f50e92b6b83dc58498a90066a997c8cc7beeabb113b903"
+        },
+        {
+          "file": "ThemeWorkflowTest.txt",
+          "tests": 6,
+          "sha256": "62b1d65ba42052aa5cb0a2787e153fad9bef1c4673221a3127acdfbeb5ed6082"
+        }
+      ]
+    }
+  ],
+  "nativeDeclarations": {
+    "AccessibilityWorkflowTest": {
+      "file": "AccessibilityWorkflowTest.kt",
+      "tests": [
+        "largeTextCatalogBuilderFocusSummaryAndBackupRemainUsable"
+      ]
+    },
+    "AudioSettingsWorkflowTest": {
+      "file": "AudioSettingsWorkflowTest.kt",
+      "tests": [
+        "settingsPersistAcrossNewReadersAndRecreationWithSharedPracticeToolsDefaults",
+        "foregroundCountdownAlarmsOnceOffIsSilentAndBackgroundCannotFire"
+      ]
+    },
+    "BackupWorkflowTest": {
+      "file": "BackupWorkflowTest.kt",
+      "tests": [
+        "backupScreenExportPreviewCancelAndProtectedRestore"
+      ]
+    },
+    "BlockDeletionWorkflowTest": {
+      "file": "BlockDeletionWorkflowTest.kt",
+      "tests": [
+        "confirmedAndCancelledDeletionActiveArchivedAndLateDependency"
+      ]
+    },
+    "BlockDeletionReopenTest": {
+      "file": "BlockDeletionWorkflowTest.kt",
+      "tests": [
+        "coldRestartRetainsDeletionAndHistoricalBlock"
+      ]
+    },
+    "FlexiblePhraseWorkflowTest": {
+      "file": "FlexiblePhraseWorkflowTest.kt",
+      "tests": [
+        "customUiDefaultPersistsAndCountInIsExcludedFromReviewedWav",
+        "nonPresetLengthsAndCountInsWorkAtTempoEdges",
+        "countInAndPartialCaptureCancellationNeverPublishIncompleteAudio"
+      ]
+    },
+    "FocusedLayoutTest": {
+      "file": "FocusedLayoutTest.kt",
+      "tests": [
+        "longGoalInstructionsReferenceAndCompactLoop"
+      ]
+    },
+    "FocusedExpiredReopenTest": {
+      "file": "FocusedLayoutTest.kt",
+      "tests": [
+        "savedExpiredPlacementCannotEmitAnAlarmOnOpen"
+      ]
+    },
+    "FocusedPracticeTest": {
+      "file": "FocusedPracticeTest.kt",
+      "tests": [
+        "compactAudioCrossingAndProtectedExit"
+      ]
+    },
+    "FreeRecordingWorkflowTest": {
+      "file": "FreeRecordingWorkflowTest.kt",
+      "tests": [
+        "menuTapStartsCaptureAndKeepsIndependentTakesThroughRecreation"
+      ]
+    },
+    "FreeRecordingReopenTest": {
+      "file": "FreeRecordingWorkflowTest.kt",
+      "tests": [
+        "standaloneCollectionReopensAfterColdRestartWithoutCapturing"
+      ]
+    },
+    "GoalAccessibilityTest": {
+      "file": "GoalAccessibilityTest.kt",
+      "tests": [
+        "goalNavigationFieldsAndActionsRemainReadableAtLargeText"
+      ]
+    },
+    "GoalWorkflowTest": {
+      "file": "GoalWorkflowTest.kt",
+      "tests": [
+        "goalManagementSharedBlocksIndependentPracticeAndRecovery"
+      ]
+    },
+    "GoalReopenTest": {
+      "file": "GoalWorkflowTest.kt",
+      "tests": [
+        "coldRestartKeepsGoalTimeProgressAndExplicitHistory"
+      ]
+    },
+    "HomeNavigationPreviewTest": {
+      "file": "HomeNavigationPreviewTest.kt",
+      "tests": [
+        "sectionsUseBannerAndLogStillSaves"
+      ]
+    },
+    "ImageReferenceWorkflowTest": {
+      "file": "ImageReferenceWorkflowTest.kt",
+      "tests": [
+        "pickerViewerTimerClickReplacementRemovalAndArchive"
+      ]
+    },
+    "ImageReferenceReopenTest": {
+      "file": "ImageReferenceWorkflowTest.kt",
+      "tests": [
+        "coldRestartRetainsReplacementArchivedOwnershipAndUnchangedPracticeData"
+      ]
+    },
+    "ImportedAudioWorkflowTest": {
+      "file": "ImportedAudioWorkflowTest.kt",
+      "tests": [
+        "importSelectRepeatInterruptAndKeepExistingTakes",
+        "reopenAndManageImportedAndEarlierRecordings"
+      ]
+    },
+    "LaunchTest": {
+      "file": "LaunchTest.kt",
+      "tests": [
+        "catalogWorkflowAndDraftRecovery"
+      ]
+    },
+    "LogWorkflowTest": {
+      "file": "LogWorkflowTest.kt",
+      "tests": [
+        "dailyWeeklyRapidNavigationRecreationAndNewDay"
+      ]
+    },
+    "LogReopenTest": {
+      "file": "LogWorkflowTest.kt",
+      "tests": [
+        "coldProcessRetainsBothDatesAndBackup"
+      ]
+    },
+    "LongPhrasePlaybackTest": {
+      "file": "LongPhrasePlaybackTest.kt",
+      "tests": [
+        "maximum128SecondLoopCapturesOrLoadsAndCrossesNativeLoopBoundary"
+      ]
+    },
+    "LoopRecorderPreviewTest": {
+      "file": "LoopRecorderPreviewTest.kt",
+      "tests": [
+        "compactSetupPermanentClickAndInlineReview",
+        "cancelledLoopsNeverAuditionAndBackgroundStopsWithoutRestart"
+      ]
+    },
+    "MeterWorkflowTest": {
+      "file": "MeterWorkflowTest.kt",
+      "tests": [
+        "expansionRestoresPdfZoomNotesAndTimerWhileMeterAndTempoChange",
+        "toolsParityEighthNoteCountingAllModesAndForegroundStop",
+        "changingMetronomePanelPreservesFreeCaptureAndDoesNotChangePhraseCountIn"
+      ]
+    },
+    "MetronomeButtonPulseTest": {
+      "file": "MetronomeButtonPulseTest.kt",
+      "tests": [
+        "standaloneWholeButtonFollowsLiveBeatsAndStops",
+        "practiceWholeButtonFollowsLiveBeatsAndStops"
+      ]
+    },
+    "MetronomeOutputTest": {
+      "file": "MetronomeOutputTest.kt",
+      "tests": [
+        "nativeSilentPcmAndAudibleModeUseOnePlaybackClockAndStopCleanly"
+      ]
+    },
+    "MetronomeWorkflowTest": {
+      "file": "MetronomeWorkflowTest.kt",
+      "tests": [
+        "clickTempoTimerAndLifecycleStayIndependent"
+      ]
+    },
+    "MultipleSessionWorkflowTest": {
+      "file": "MultipleSessionTest.kt",
+      "tests": [
+        "startFreshWhileKeepingOlderPracticeAndSwitchBack"
+      ]
+    },
+    "MultipleSessionReopenTest": {
+      "file": "MultipleSessionTest.kt",
+      "tests": [
+        "bothUnfinishedSessionsSurviveProcessRestartAndFinishIndependently"
+      ]
+    },
+    "NestedReferenceDiagnosticTest": {
+      "file": "NestedReferenceDiagnosticTest.kt",
+      "tests": [
+        "savedNoteCanScrollBackToReferenceWithRealGestures"
+      ]
+    },
+    "NotesHistoryPreviewTest": {
+      "file": "NotesHistoryPreviewTest.kt",
+      "tests": [
+        "appendEditHistoryAndTemporaryWorkspaceCollapse"
+      ]
+    },
+    "NotesHistoryReopenTest": {
+      "file": "NotesHistoryPreviewTest.kt",
+      "tests": [
+        "savedNotesAndEditsSurviveFreshProcess"
+      ]
+    },
+    "PdfReferenceStorageTest": {
+      "file": "PdfReferenceStorageTest.kt",
+      "tests": [
+        "pdfPersistsRendersOnePageAtATimeAndProtectsArchivedOwnership",
+        "invalidEncryptedOversizeCancelledAndFailedCommitRetainOriginalAndCleanPending",
+        "imagePdfImageReplacementAndConservativeCleanup"
+      ]
+    },
+    "PdfReferenceWorkflowTest": {
+      "file": "PdfReferenceWorkflowTest.kt",
+      "tests": [
+        "actualPickerPdfPracticeAndRecordingContinuity"
+      ]
+    },
+    "PdfReferenceReopenTest": {
+      "file": "PdfReferenceWorkflowTest.kt",
+      "tests": [
+        "coldReopenRetainsPdfNotesBpmAndSavedPlayableTakes"
+      ]
+    },
+    "PhraseWorkflowTest": {
+      "file": "PhraseWorkflowTest.kt",
+      "tests": [
+        "nativePhraseCountInExactLengthRepeatCancellationExportAndFreeTakeCoexistence"
+      ]
+    },
+    "PhraseReopenTest": {
+      "file": "PhraseWorkflowTest.kt",
+      "tests": [
+        "nativeLoopsReopenArchivedBlockPlayAndRecreationStops"
+      ]
+    },
+    "PracticeRefinementPreviewTest": {
+      "file": "PracticeRefinementPreviewTest.kt",
+      "tests": [
+        "compactPanelWorkspaceCaptureAndReviewPreserveState",
+        "narrowAndEnlargedModesRemainOneRowWithAccessibleOverflow"
+      ]
+    },
+    "PracticeWorkflowTest": {
+      "file": "PracticeWorkflowTest.kt",
+      "tests": [
+        "buildThreePracticeOutcomesAndLeaveRecoverableOvertime"
+      ]
+    },
+    "PracticeRecoveryTest": {
+      "file": "PracticeWorkflowTest.kt",
+      "tests": [
+        "recoverPausedThenCompleteAndRetainSnapshots"
+      ]
+    },
+    "HistoryReopenTest": {
+      "file": "PracticeWorkflowTest.kt",
+      "tests": [
+        "savedSummaryAndOriginalSnapshotsReopenAfterRestart"
+      ]
+    },
+    "ProcessReopenTest": {
+      "file": "ProcessReopenTest.kt",
+      "tests": [
+        "savedBlockReopensAfterProcessRestart"
+      ]
+    },
+    "RecordingWorkflowTest": {
+      "file": "RecordingWorkflowTest.kt",
+      "tests": [
+        "nativeFreeTakesPermissionLifecyclePlaybackExportAndSafeDelete"
+      ]
+    },
+    "RecordingReopenTest": {
+      "file": "RecordingWorkflowTest.kt",
+      "tests": [
+        "savedTakesSurviveProcessRestartAndArchiveWithNoAutomaticAudio"
+      ]
+    },
+    "LegacyReferenceSeedTest": {
+      "file": "ReferenceUpgradeTest.kt",
+      "tests": [
+        "seedBaselineWithLegacyImageAndEveryStructuredTable"
+      ]
+    },
+    "LegacyReferenceUpgradeTest": {
+      "file": "ReferenceUpgradeTest.kt",
+      "tests": [
+        "installOverBuild27PreservesAllRowsOriginalImageAndAudioBytes"
+      ]
+    },
+    "PdfValidationNativeTest": {
+      "file": "ReferenceUpgradeTest.kt",
+      "tests": [
+        "nativeRendererRejectsLockedCorruptAndTooManyPagesWithoutLosingAttachment"
+      ]
+    },
+    "RoutineWorkflowTest": {
+      "file": "RoutineWorkflowTest.kt",
+      "tests": [
+        "builderSaveManagementIndependentPracticeAndRecovery"
+      ]
+    },
+    "RoutineReopenTest": {
+      "file": "RoutineWorkflowTest.kt",
+      "tests": [
+        "coldReopenRetainsTemplateDraftAndIndependentUnfinishedPractice"
+      ]
+    },
+    "SystemPickerExportTest": {
+      "file": "SystemPickerTest.kt",
+      "tests": [
+        "exportAndCancelThroughAndroidDocumentsUi"
+      ]
+    },
+    "SystemPickerRestoreTest": {
+      "file": "SystemPickerTest.kt",
+      "tests": [
+        "restoreIntoFreshAppThroughAndroidDocumentsUi"
+      ]
+    },
+    "SystemPickerReopenTest": {
+      "file": "SystemPickerTest.kt",
+      "tests": [
+        "restoredPracticeAndHistorySurviveProcessRestart"
+      ]
+    },
+    "TakeReviewWorkflowTest": {
+      "file": "TakeReviewWorkflowTest.kt",
+      "tests": [
+        "focusReviewPreservesNotesReferenceTimerAndExistingTakes",
+        "savedBlockFreeAndCompletedPhraseReviewAndIncompleteCancel",
+        "standaloneFailedSaveRetryBackgroundAndDeliberateDiscard"
+      ]
+    },
+    "TargetedP4PreviewTest": {
+      "file": "TargetedP4PreviewTest.kt",
+      "tests": [
+        "libraryPlaceholderSharedGearAndSelectedOutlines",
+        "compactTransportAccentTempoAndFooter",
+        "completedSessionSummaryDisplaysAndEditsSavedPracticeNotes"
+      ]
+    },
+    "ThemeWorkflowTest": {
+      "file": "ThemeWorkflowTest.kt",
+      "tests": [
+        "smoothSelectionPersistsAndRendersNativeChrome",
+        "sunnySelectionPersistsAndRendersNativeChrome",
+        "orchidSelectionPersistsAndRendersNativeChrome",
+        "headerSettingsPersistsAndSystemFollowsDevice",
+        "paletteRecompositionKeepsPracticeCaptureReviewAndPdfContent",
+        "darkFormsDialogsDatePickerAndLargeSettingsRemainReachable"
+      ]
+    },
+    "ToolsWorkflowTest": {
+      "file": "ToolsWorkflowTest.kt",
+      "tests": [
+        "standaloneToolsRunAndStopOnExitWithoutChangingPractice"
+      ]
+    },
+    "TransportPreviewTest": {
+      "file": "TransportPreviewTest.kt",
+      "tests": [
+        "pinnedWorkspacePanelsNotesAndOlderTakes"
+      ]
+    }
+  },
+  "nativeDeclaredMethods": 77,
+  "nativeExecutions": 168,
+  "phoneAccepted": false,
+  "libraryStarted": false,
+  "package": {
+    "apk": "C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9/practice.logger-0.17.1-b67-bf999b9.apk",
+    "zip": "C:/Users/mrove/Projects/practice.logger/dist/practice.logger-0.17.1-b67-bf999b9.zip",
+    "apkSha256": "460a2e16f52e4aeec9988abe96bc8f82c247dffceccff8ba280406c548f9b496",
+    "zipSha256": "9b43b40f6612f7efdf3e12b8950a2fd6e956390dc28245af308cb0c495940c95",
+    "certificateSha256": "f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830",
+    "unsignedEntriesPreserved": 140,
+    "zipMembers": 5
+  }
+}
