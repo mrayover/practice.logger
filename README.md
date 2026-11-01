@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build57 P4 targeted UI and historical Notes refinement**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.16.0/build59 P4 targeted UI and historical Notes refinement**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 

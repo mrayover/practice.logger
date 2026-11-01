@@ -1,6 +1,10 @@
 # P4 targeted UI refinement delivery
 
-This record covers only the assigned visual/navigation/transport refinement and historical Notes fix. App sourcee5010fe is signed as0.16.0/build57; delivery paths/hashes and the exact next phone task are authoritative in [CURRENT_STATE](../CURRENT_STATE.md). No V1 roadmap or P5/P6/P7 implementation.
+This record covers only the assigned visual/navigation/transport refinement and historical Notes fix. App sourceed8f6a3 is signed as0.16.0/build59; delivery paths/hashes and the exact next phone task are authoritative in [CURRENT_STATE](../CURRENT_STATE.md). No V1 roadmap or P5/P6/P7 implementation.
+
+## Build59 phone follow-up
+
+Only the metronome row changes: full unclipped name, more room before Accent/checkbox, single-line time signatures, tempo pair centered over Record and click-label right edge aligned to Play. Chevron width/anchor and recording-row geometry are preserved. Product file: PracticeScreens.kt; version59; existing test/script updated for130% text. CI41258437458 passes compilation and one targeted native scenario including all six meter labels and text/bounds/alignment assertions. Screenshot inspected. No broader tests; same-phone confirmation pending. Earlier candidate58 CI41257591440 compiled but failed the centering assertion; its missing4dp action gap was corrected. Build59 CI41258024388 then compiled and passed centering but stopped at the aggregate text-overflow flag. The final test-only correction checks actual single-line/no-ellipsis width/height with1physical-pixel rounding. Signed59 comes from the compiled release in41258024388; final passing diagnostic41258437458 has identical app source. Actual package/hash lives in CURRENT_STATE.
 
 ## Changes
 
@@ -20,7 +24,10 @@ This record covers only the assigned visual/navigation/transport refinement and 
 |a089451|Build56 and bounded phase-scoped verification|
 |1676360|Transport alignment and contextual Settings return label; preserved candidate56 source|
 |efbcd19|Test-only geometry allowance and isolated transport diagnostic|
-|e5010fe|Clear cancelled header-navigation intent; signed build57 source|
+|e5010fe|Clear cancelled header-navigation intent; earlier build57 source|
+|0436e88|Preserved build58 candidate; centering assertion exposed the action gap|
+|ed8f6a3|Metronome-only phone alignment follow-up; signed build59 source|
+|26931d8|Test-only rendered-text bounds diagnostic; app unchanged|
 
 ## Verification
 

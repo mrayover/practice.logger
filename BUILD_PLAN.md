@@ -4,7 +4,9 @@ Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and his
 
 ## P4 targeted visual/navigation/transport and historical Notes refinement
 
-Build57 retains selection outlines outside practice, shares Recent Practice/Block Library pills, replaces Home Settings with a Library placeholder and restores the shared-header Settings gear through existing leave/save guards. Filled Notes/Skip and compact BPM/meter/Accent/chevrons reuse existing transport/audio behavior. Historical summaries now read existing timestamped/legacy notes by exact session placement and reuse editing; Room11/JSON7 remain. Scoped evidence, delivery and phone acceptance limits are in CURRENT_STATE; no P5/P6/P7 or roadmap change.
+Build59 retains selection outlines outside practice, shares Recent Practice/Block Library pills, replaces Home Settings with a Library placeholder and restores the shared-header Settings gear through existing leave/save guards. Filled Notes/Skip and compact BPM/meter/Accent/chevrons reuse existing transport/audio behavior. Historical summaries now read existing timestamped/legacy notes by exact session placement and reuse editing; Room11/JSON7 remain. Scoped evidence, delivery and phone acceptance limits are in CURRENT_STATE; no P5/P6/P7 or roadmap change.
+
+Build59's phone follow-up adjusts only metronome name/signature fit and action alignment, preserving the chevron and existing behavior. Focused130%-text geometry/control check and signed delivery are recorded in CURRENT_STATE.
 
 ## Generalized themes — complete; owner accepted
 
