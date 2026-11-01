@@ -31,4 +31,4 @@ Install only over the existing permanent-key app, without uninstalling/clearing 
 
 ## Exact next task
 
-Confirm the legacy install-over probe41288895114 and strengthened200%-text check41289104452, then dispatch one coherent complete build/unit/lint/API26/API35 gate for final build67 source, package/sign it with the permanent key and record actual outcomes. Owner must then accept that candidate using the short phone checklist before P5 exits. **Stop at P5; L1 needs a separate assignment.**
+Legacy seed/install-over41288895114 passed2 cases; strengthened200%-text41289104452 passed1 case, and focused capture/exit/layout at200%41289336396 passed2 cases. Dispatch one coherent complete build/unit/lint/API26/API35 gate for the frozen build67 source, package/sign it with the permanent key and record actual outcomes. Owner must then accept that candidate using the short phone checklist before P5 exits. **Stop at P5; L1 needs a separate assignment.**
