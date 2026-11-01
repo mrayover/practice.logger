@@ -26,12 +26,23 @@ fi
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 adb shell pm clear com.mrayover.practicelogger.app
 adb shell settings put system font_scale "${TARGET_FONT_SCALE:-1.0}"
+collect() {
+  timeout 20s adb logcat -d > app/build/targeted-log.txt || true
+  timeout 15s adb shell uiautomator dump /sdcard/targeted-window.xml || true
+  timeout 15s adb pull /sdcard/targeted-window.xml app/build/targeted-window.xml || true
+  timeout 15s adb shell screencap -p /sdcard/targeted-screen.png || true
+  timeout 15s adb pull /sdcard/targeted-screen.png app/build/targeted-screen.png || true
+  timeout 30s adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files app/build/targeted-files || true
+}
+trap collect EXIT
 for test_class in ${TARGET_TEST_CLASS//,/ }; do
   if [[ "$test_class" == *LegacyReferenceUpgradeTest ]]; then adb install -r app/build/outputs/apk/debug/app-debug.apk; fi
   adb shell am force-stop com.mrayover.practicelogger.app
   per_test_ms=120000
-  if [[ "$test_class" == *LongPhrasePlaybackTest ]]; then per_test_ms=360000; fi
-  timeout 480s adb shell am instrument -w -r -e timeout_msec "$per_test_ms" -e class "$test_class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/targeted-${test_class##*.}.txt"
+  wall_seconds=480
+  if [[ "$test_class" == *'#'* ]]; then wall_seconds=180; fi
+  if [[ "$test_class" == *LongPhrasePlaybackTest* ]]; then per_test_ms=360000; wall_seconds=420; fi
+  timeout --kill-after=10s "${wall_seconds}s" adb shell am instrument -w -r -e timeout_msec "$per_test_ms" -e class "$test_class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/targeted-${test_class##*.}.txt"
   adb logcat -d > app/build/targeted-log.txt
   adb shell screencap -p /sdcard/targeted-screen.png
   adb pull /sdcard/targeted-screen.png app/build/targeted-screen.png

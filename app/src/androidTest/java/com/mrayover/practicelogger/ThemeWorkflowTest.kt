@@ -53,8 +53,12 @@ class ThemeWorkflowTest {
     @After fun resetAppearance() {
         device.executeShellCommand("settings put system font_scale 1.0")
         device.executeShellCommand("cmd uimode night no")
-        compose.runOnIdle { compose.activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED }
-        choose(ThemeChoice.LIGHT)
+        // Font-scale reset recreates the activity. Teardown must not ask Espresso
+        // to idle the old composition while that configuration change is in flight.
+        compose.activityRule.scenario.onActivity { activity ->
+            activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            activity.themePreferences.save(ThemeChoice.LIGHT)
+        }
     }
     @Test fun smoothSelectionPersistsAndRendersNativeChrome() {
         shown("Practice Now")

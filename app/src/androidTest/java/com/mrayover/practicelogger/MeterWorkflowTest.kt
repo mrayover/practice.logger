@@ -25,7 +25,13 @@ class MeterWorkflowTest {
         if (!node.isDisplayed()) node.scrollIfNeeded()
         return node.assertIsDisplayed()
     }
-    private fun keyboard()=compose.runOnIdle { compose.activity.currentFocus?.clearFocus();compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) }
+    private fun keyboard() {
+        compose.runOnIdle { compose.activity.currentFocus?.clearFocus();compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) }
+        compose.waitUntil(5000) { compose.runOnIdle {
+            androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
+        } }
+    }
     private fun shot(name:String) { compose.waitForIdle();val dir=File(compose.activity.getExternalFilesDir(null),"p3-meter");dir.mkdirs();device.takeScreenshot(File(dir,"$name.png")) }
     private fun focus(db:BlockDatabase,name:String,reference:Boolean=false):String {
         val app=compose.activity.application
