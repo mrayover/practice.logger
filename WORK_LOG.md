@@ -637,3 +637,8 @@ Existing publisher verified permanent signature/certificate/app/version59. Signe
 
 
 Final text metrics confirm visible bounds despite the aggregate overflow flag: Metronome186x55px with rendered line184.33916px and paragraph55px; each shown meter58x55px with line56.410957px and paragraph55px, unellipsized/single-line. No specific cause for the aggregate flag is claimed; explicit rendered/panel bounds and screenshots provide the scoped evidence.
+
+
+## 2026-10-31 — Final click bubble nudge / build60
+
+Owner accepts all other build59 layout and requests only centered click text and bubble moved right to the Record/Loop Setup right-edge boundary, with usage kept tight. Reviewed existing efficiency procedure/records in this chat; clean main8cf7ee3 matches remote. Product change confined to PracticeMetronome: symmetric2dp padding/centered text,12dp visual offset into the existing12dp transport scroll gutter; layout allocation/tempo/chevron remain untouched. Version60. Replace the superseded click/Play text-edge assertion with bubble text-center and both recording-action boundary assertions; retain the same single130%-text native scenario. Bounded build/check/signing pending; no full regression or repeated units. Preserve earlier packages.

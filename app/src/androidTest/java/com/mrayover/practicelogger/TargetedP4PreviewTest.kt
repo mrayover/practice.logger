@@ -84,9 +84,14 @@ class TargetedP4PreviewTest {
             }
             compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(meter = MetronomeMeter.THREE_FOUR)) }
             val clickLabel = compose.onNodeWithText("Start click", useUnmergedTree = true)
-            val playLabel = compose.onAllNodesWithText("Play", useUnmergedTree = true)[0]
-            fun textRight(node: SemanticsNodeInteraction): Float = node.fetchSemanticsNode().boundsInRoot.left + textLayout(node).getLineRight(0)
-            assertTrue("Click and Play text share a right edge: ${textRight(clickLabel)} / ${textRight(playLabel)}", kotlin.math.abs(textRight(clickLabel)-textRight(playLabel)) <= density)
+            val clickBubble = compose.onNodeWithTag("practice-metronome-pulse").fetchSemanticsNode().boundsInRoot
+            val clickLayout = textLayout(clickLabel)
+            val clickTextCenter = clickLabel.fetchSemanticsNode().boundsInRoot.left + (clickLayout.getLineLeft(0)+clickLayout.getLineRight(0))/2
+            assertTrue("Click text centered: $clickTextCenter / ${clickBubble.center.x}", kotlin.math.abs(clickTextCenter-clickBubble.center.x) <= density)
+            for (type in listOf("free", "loop")) {
+                val action = compose.onNodeWithTag("practice-$type-record").fetchSemanticsNode().boundsInRoot
+                assertTrue("Bubble left meets $type action right: ${clickBubble.left} / ${action.right}", kotlin.math.abs(clickBubble.left-action.right) <= density)
+            }
             screenshot("transport")
             compose.onNodeWithTag("practice-metronome-expand").performClick(); shown("BPM (30–300)")
             compose.onNodeWithTag("practice-metronome-expand").performClick()
