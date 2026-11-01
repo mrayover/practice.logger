@@ -246,7 +246,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                         ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
                     color = if (!importMode && spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).testTag("phrase-duration"))
-                if (inline) Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                if (inline && review == null) Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
                     Text("Add Backing Track", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     Checkbox(checked = backing, onCheckedChange = { backing = it }, enabled = editable,
                         modifier = Modifier.height(32.dp).testTag("backing-track-toggle").semantics { contentDescription = "Add Backing Track" })

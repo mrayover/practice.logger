@@ -117,7 +117,7 @@ class ImportedAudioWorkflowTest {
             val selected=imported.first{it.fileName.endsWith(".mp3")};compose.onNodeWithText(selected.label).scrollIfNeeded().assertIsDisplayed()
             tag("rename-${selected.id}").performClick();shown("Rename take")
             compose.onNodeWithText("Take label (optional)").performTextReplacement("p61 renamed imported loop")
-            device.pressBack();click("Save take label")
+            compose.runOnIdle { compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) };click("Save take label")
             compose.waitUntil(15000){audio.takes.value.any{it.id==selected.id && it.label=="p61 renamed imported loop"}}
             val output=media("p61-export.mp3","audio/mpeg",byteArrayOf())
             compose.runOnIdle{audio.export(selected,output)};compose.waitUntil(15000){!audio.busy && audio.message?.startsWith("Audio exported")==true}

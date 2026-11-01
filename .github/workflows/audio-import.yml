@@ -26,6 +26,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Generate small known MP3 and AAC codec fixtures
         run: |
+          timeout 90s sudo apt-get update -qq
+          timeout 120s sudo apt-get install -y --no-install-recommends ffmpeg
           mkdir -p app/src/androidTest/assets/audio
           timeout 15s ffmpeg -v error -f lavfi -i 'sine=frequency=440:duration=0.45' -ar 44100 -ac 1 -c:a libmp3lame app/src/androidTest/assets/audio/backing.mp3
           timeout 15s ffmpeg -v error -f lavfi -i 'sine=frequency=330:duration=0.45' -ar 44100 -ac 1 -c:a aac app/src/androidTest/assets/audio/backing.m4a
