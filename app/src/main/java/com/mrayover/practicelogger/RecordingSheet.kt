@@ -341,14 +341,14 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             }, enabled = enabled && (!vm.recording || activeCapture), contentPadding = PaddingValues(horizontal = 6.dp),
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = if (activeCapture) colors.recording else androidx.compose.ui.graphics.Color.Transparent,
                     contentColor = if (activeCapture) colors.onRecording else action),
-                modifier = Modifier.width(104.dp).heightIn(min = 48.dp).testTag("practice-$type-record")) {
+                modifier = Modifier.then(if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) Modifier.widthIn(min = 104.dp) else Modifier.width(104.dp)).heightIn(min = 48.dp).testTag("practice-$type-record")) {
                 Text(if (activeCapture) { if (loop) "Cancel" else "Stop" } else if (loop) "Loop Setup" else "Record")
             }
             TextButton(onClick = { if (playing) vm.stopPlayback() else selected?.let { onBeforePlayback(); vm.play(it) } },
                 enabled = enabled && !vm.recording && selected != null, contentPadding = PaddingValues(horizontal = 6.dp),
                 colors = ButtonDefaults.textButtonColors(containerColor = if (playing) action else androidx.compose.ui.graphics.Color.Transparent,
                     contentColor = if (playing) MaterialTheme.colorScheme.onPrimary else action),
-                modifier = Modifier.width(56.dp).heightIn(min = 48.dp).testTag("practice-$type-play").semantics {
+                modifier = Modifier.then(if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) Modifier.widthIn(min = 56.dp) else Modifier.width(56.dp)).heightIn(min = 48.dp).testTag("practice-$type-play").semantics {
                     contentDescription = (if (playing) "Stop" else "Play") + " selected $type recording"
                     stateDescription = if (playing) "Playing" else "Stopped"
                 }) { Text(if (playing) "Stop" else "Play") }

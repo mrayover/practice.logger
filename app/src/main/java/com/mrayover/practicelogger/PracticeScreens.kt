@@ -381,12 +381,12 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
     val accent: @Composable () -> Unit = {
-        Row(Modifier.width(72.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text("Accent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+        Row(Modifier.widthIn(min = 72.dp).width(IntrinsicSize.Min), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text("Accent", modifier = Modifier.testTag("practice-metronome-accent-label"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             Checkbox(checked = vm.metronomeConfig.accent,
                 colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary, uncheckedColor = MaterialTheme.colorScheme.primary, checkmarkColor = MaterialTheme.colorScheme.onPrimary),
                 onCheckedChange = { vm.configureMetronome(vm.metronomeConfig.copy(accent = it)) }, enabled = !vm.busy,
-                modifier = Modifier.width(32.dp).height(48.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
+                modifier = Modifier.width(if (largeText) 48.dp else 32.dp).height(48.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
         }
     }
     BoxWithConstraints(Modifier.fillMaxWidth().testTag("practice-metronome-row")) {

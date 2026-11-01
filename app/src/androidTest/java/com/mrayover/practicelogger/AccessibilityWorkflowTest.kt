@@ -91,6 +91,10 @@ class AccessibilityWorkflowTest {
             compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().performClick(); readable("Apply BPM")
             compose.onNodeWithText("BPM (30–300)").performTextReplacement("300")
             click("Apply BPM"); readable("300 BPM")
+            val accentLabel = compose.onNodeWithTag("practice-metronome-accent-label").fetchSemanticsNode().boundsInRoot
+            val accentBox = compose.onNodeWithTag("practice-metronome-accent").fetchSemanticsNode().boundsInRoot
+            assertTrue("Enlarged Accent text overlaps checkbox: $accentLabel / $accentBox", accentLabel.right <= accentBox.left + 1f)
+            readable("Record"); readable("Play")
             captureStage3("11-large-metronome")
             compose.onNodeWithTag("practice-free-record").scrollIfNeeded().assertIsDisplayed()
             captureStage3("11-large-recordings")
