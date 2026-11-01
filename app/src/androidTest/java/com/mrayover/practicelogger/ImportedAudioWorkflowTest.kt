@@ -67,7 +67,7 @@ class ImportedAudioWorkflowTest {
             assertTrue(device.wait(Until.hasObject(By.text("Downloads")),10000));device.findObjects(By.text("Downloads")).last().click()
             val file=device.wait(Until.findObject(By.text("p61-backing.wav")),10000) ?: error("Picker audio fixture missing")
             file.click();compose.waitUntil(15000){!audio.busy && audio.backingTrack!=null}
-            tag("backing-track-filename").assertTextContains("p61-backing.wav");tag("backing-track-save").assertIsEnabled();shot("ready-import")
+            compose.onNodeWithTag("backing-track-filename",useUnmergedTree=true).assertIsDisplayed().assertTextContains("p61-backing.wav");tag("backing-track-save").assertIsEnabled();shot("ready-import")
             assertEquals(1250L,audio.backingTrack!!.imported!!.durationMs)
             tag("backing-track-save").performClick()
             compose.waitUntil(15000){!audio.busy && audio.takes.value.any{it.label=="p61-backing.wav"}}

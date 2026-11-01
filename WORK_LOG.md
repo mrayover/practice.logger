@@ -670,3 +670,6 @@ Captured first import screenshot exposes extra scrolling/clipped budget because 
 
 
 Native CI41268604599/74704bb: first imported-audio scenario passes, including actual DocumentsUI selection/cancel, valid/invalid WAV save-selection, strict two observed repeat wraps with1.25s fixture, Stop/audio-focus loss/real Home-return no restart, MP3 and M4A full validation/playback, save-while-prior-loop-active and original-take retention. Force-stop/reopen phase confirms3 imported rows/files and original types; then test lookup fails because a LazyColumn row is not composed yet (scrollIfNeeded requires an existing node). Correct only new management test to performScrollToNode on take-list for the row before full-name/rename/delete interactions. Existing loop class was not reached. Include the screenshot-based compact form correction and rerun native-only scope; preserve passed17 unit checks against unchanged parser/repository code.
+
+
+Moving filename text into Choose changes its test semantics to a button descendant. Query that text in the unmerged tree (same convention as the banner text). Cancel the just-started superseded13f3a4d run before its native check to avoid a known stale-selector failure; final product/layout unchanged, test query only. No pass claimed for cancelled run.
