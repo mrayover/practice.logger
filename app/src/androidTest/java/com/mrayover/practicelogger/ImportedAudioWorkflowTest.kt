@@ -34,7 +34,7 @@ class ImportedAudioWorkflowTest {
         app.contentResolver.openOutputStream(uri)!!.use{it.write(bytes)};return uri
     }
     private fun wave():ByteArray {
-        val frames=3600;return ByteBuffer.allocate(44+frames*2).order(ByteOrder.LITTLE_ENDIAN).apply {
+        val frames=10000;return ByteBuffer.allocate(44+frames*2).order(ByteOrder.LITTLE_ENDIAN).apply {
             put("RIFF".toByteArray());putInt(36+frames*2);put("WAVEfmt ".toByteArray());putInt(16);putShort(1);putShort(1)
             putInt(8000);putInt(16000);putShort(2);putShort(16);put("data".toByteArray());putInt(frames*2)
             repeat(frames){putShort((kotlin.math.sin(it*2*Math.PI*440/8000)*2000).toInt().toShort())}
@@ -68,7 +68,7 @@ class ImportedAudioWorkflowTest {
             val file=device.wait(Until.findObject(By.text("p61-backing.wav")),10000) ?: error("Picker audio fixture missing")
             file.click();compose.waitUntil(15000){!audio.busy && audio.backingTrack!=null}
             tag("backing-track-filename").assertTextContains("p61-backing.wav");tag("backing-track-save").assertIsEnabled();shot("ready-import")
-            assertEquals(450L,audio.backingTrack!!.imported!!.durationMs)
+            assertEquals(1250L,audio.backingTrack!!.imported!!.durationMs)
             tag("backing-track-save").performClick()
             compose.waitUntil(15000){!audio.busy && audio.takes.value.any{it.label=="p61-backing.wav"}}
             val saved=audio.takes.value.single{it.label=="p61-backing.wav"}
@@ -82,7 +82,9 @@ class ImportedAudioWorkflowTest {
             tag("backing-track-toggle").performClick();tag("phrase-start").assertExists();assertTrue(saved.isLoop)
             tag("practice-loop-play").performClick();compose.waitUntil(15000){audio.importedRepeatActive()}
             var last=0;var wraps=0
-            compose.waitUntil(7000){val pos=compose.runOnIdle{audio.importedPlaybackPosition()};if(pos+30<last)wraps++;last=pos;wraps>=2}
+            val positions=mutableListOf<Int>()
+            try { compose.waitUntil(10000){val pos=compose.runOnIdle{audio.importedPlaybackPosition()};positions.add(pos);if(pos+30<last)wraps++;last=pos;wraps>=2} }
+            finally { println("Imported repeat positions: $positions; wraps=$wraps");shot("repeat-observation") }
             tag("practice-loop-play").performClick();compose.runOnIdle{assertNull(audio.playingId)}
             compose.runOnIdle{audio.play(saved)};compose.waitUntil(10000){audio.importedRepeatActive()}
             val manager=app.getSystemService(AudioManager::class.java)
