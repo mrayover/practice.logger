@@ -4,7 +4,7 @@ Updated 2026-11-01 (America/Los_Angeles). This records implemented scope and his
 
 ## Owner-assigned Submarine refinement
 
-One dark red palette through existing semantic/native roles and stable persisted ID; Submarine immediately before System Default at the bottom. Existing palettes, Light default and saved choices remain. Theme units and one debug APK build only; no P5 rerun or new signed release. Verification: CURRENT_STATE.
+One dark red palette through existing semantic/native roles and stable persisted ID; Submarine immediately before System Default at the bottom. Existing palettes, Light default and saved choices remain. Owner clarified delivery requires a new signed install-over release: 0.17.2/build68, using the permanent key. Seven theme tests and release compilation pass; no P5 rerun. Verification: CURRENT_STATE.
 
 ## P5 — complete and owner accepted
 

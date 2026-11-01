@@ -1,15 +1,18 @@
 # Current state — Submarine refinement; P5 remains complete
 
-## Submarine increment — November 1, 2026
+## Submarine release - November 1, 2026
 
-Submarine adds red night lighting through existing Compose semantic roles and native dark window/dialog styling. Settings order: Light, Dark, Smooth, Sunny, Orchid, Submarine, System Default. Existing palettes, stable saved IDs and Light fallback/default remain. No layout, database or audio changes.
+**0.17.2/build68**, source `02585f0f148df34379625d25473a16ba243e9787`; later closeout commits change records only. [APK](dist/practice.logger-0.17.2-b68-02585f0/practice.logger-0.17.2-b68-02585f0.apk) · [ZIP](dist/practice.logger-0.17.2-b68-02585f0.zip) · [Build info](dist/practice.logger-0.17.2-b68-02585f0/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.2-b68-02585f0/PHONE_CHECKLIST.txt).
 
-[Targeted CI41333454953](https://github.com/mrayover/practice.logger/actions/runs/41333454953) passed on source `a039df0814a1adc6cdbcfb87f2112e566be51a0f`: 7/7 tests (4 palette/contrast/resolver, 3 preference/persistence/order) and one debug APK compilation. No P5 regression, native scenarios, lint, release compilation or signing ran. Existing palette definitions are unchanged; diff checks pass.
+Install over the existing permanent-key app without uninstalling/clearing data. Package/version/signature/pinned certificate verified by scripts/Publish-LocalApk.ps1. APK SHA256 `61e4740c10f7d85c153c105d46b5ae3dae5a0dc86903105d2c2cee6ca79a5f23`; ZIP SHA256 `797a9cb473506fbc979e586a20c5fb440bc2cf4bfc2ce320c2f072db51b751c0`. Signed non-signature payload equals CI release; ZIP CRC/exact member bytes and all prior distribution hashes pass. dist/LATEST points to build68. The earlier CI-key debug inspection artifact is superseded by this installable release.
 
-[Inspection debug APK](.tools/submarine-checks-41333454953/outputs/apk/debug/app-debug.apk), SHA256 `4121748443f446c08b5ea9fa14e7835ce70ea265fb1a5e79b3b2afa2bb2b4733`; downloaded artifact/APK ZIP integrity verified. It retains version0.17.1/code67 and uses the CI debug key; it cannot update the permanent-key installation. Do not uninstall the accepted app to inspect it. No version bump or new signed release, per this assignment. Visual/device acceptance remains pending. The permanent-key release below remains the accepted installable update.
+Submarine adds red night lighting through existing Compose/native theme roles. Settings order: Light, Dark, Smooth, Sunny, Orchid, Submarine, System Default. Existing palettes, saved IDs and Light default/fallback remain. No layout, database or audio changes.
 
-**Current next action: inspect Submarine visually on an isolated debug installation, including Settings order, dialogs, practice, metronome, recording, selected/disabled controls and warnings.** The accepted P5 baseline below remains closed.
+[Targeted CI41333893736](https://github.com/mrayover/practice.logger/actions/runs/41333893736) passes 7/7 theme tests and release compilation. No full P5 regression, native suite or lint rerun. Original CI41333454953 also passed 7 tests/debug compilation. User clarified that the requested increment requires a new installable signed release; build68 corrects the initial debug-only delivery. Phone visual/physical acceptance remains pending.
 
+**Next action: install build68 over the current app and inspect its Submarine phone checklist.** P5 remains complete and owner accepted on the baseline below.
+
+## Accepted P5 baseline
 
 Updated November 1, 2026 (America/Los_Angeles). **P5 outcome: PASS — automated verification, signed delivery and owner acceptance complete.** [Full CI41329443572](https://github.com/mrayover/practice.logger/actions/runs/41329443572) passed all nine required jobs on `bf999b9678039dbf669560cd10649b340c11e217`, branch `main`: 111/111 units, 168/168 native executions, lint zero errors/18 advisories, debug/release/instrumentation compilation. Only the optional diagnostic job was skipped.
 

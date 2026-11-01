@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current accepted release: **0.17.1/build67 P5 pre-Library baseline**, with automated regression and owner acceptance complete. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current release: **0.17.2/build68 Submarine theme**, with scoped verification and phone acceptance pending. The **0.17.1/build67 P5 baseline** remains fully verified and owner accepted. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
