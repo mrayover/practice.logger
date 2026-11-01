@@ -114,7 +114,7 @@ class PhraseWorkflowTest {
             compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
             compose.runOnIdle { assertNull(vm.playingId) }
             leavePracticeForLater(compose); shown("Practice Now")
-            click("Blocks"); click("Loop fixture"); click("Recordings"); shown("Block recordings")
+            click("Blocks"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Loop fixture")); click("Loop fixture"); click("Recordings"); shown("Block recordings")
             // Actual WAV picker export; full bytes match, not merely an exported filename.
             compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("export-" + first.id))
             compose.onNodeWithTag("export-" + first.id).performClick()
@@ -168,7 +168,7 @@ class PhraseReopenTest {
             val takes = runBlocking { db.takes().readAll().filter { it.blockId == block.id } }
             assertTrue(block.archived); assertEquals(2, takes.size); assertTrue(takes.all { it.mode == "LOOP" })
             val first = takes.single { it.recordedBpm == 120 }; assertEquals("Eight beats at 120", first.label)
-            click("Blocks"); click("Archived"); click("Loop fixture"); click("Recordings")
+            click("Blocks"); click("Archived"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Loop fixture")); click("Loop fixture"); click("Recordings")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             compose.waitUntil(10000) { vm.ready && vm.takes.value.any { it.id == first.id } }
             compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }
