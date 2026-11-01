@@ -73,7 +73,11 @@ class TargetedP4PreviewTest {
                     val node = compose.onNodeWithText(text, useUnmergedTree = true).assertIsDisplayed()
                     val layout = textLayout(node)
                     assertEquals("Single-line $text", 1, layout.lineCount)
-                    assertFalse("Unclipped $text", layout.hasVisualOverflow)
+                    // Text rounds fractional paragraph height to integer physical pixels.
+                    println("Metronome text $text: size=${layout.size}, paragraphHeight=${layout.multiParagraph.height}, lineWidth=${layout.getLineRight(0)-layout.getLineLeft(0)}, overflow=${layout.hasVisualOverflow}")
+                    assertFalse("Unellipsized $text", layout.isLineEllipsized(0))
+                    assertTrue("Unclipped width $text", layout.getLineRight(0)-layout.getLineLeft(0) <= layout.size.width+1f)
+                    assertTrue("Unclipped height $text", layout.multiParagraph.height <= layout.size.height+1f)
                     val bounds = node.fetchSemanticsNode().boundsInRoot
                     assertTrue("$text stays inside information area", bounds.left >= info.left-1f && bounds.right <= info.right+1f)
                 }

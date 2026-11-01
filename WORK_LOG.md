@@ -626,3 +626,6 @@ Reviewed required records/P4 scope and mandatory efficiency procedure. Clean mai
 
 
 Build58 CI41257591440 compiles both variants/test APK but the new native tempo-pair assertion fails. Source inspection identifies the omitted4dp gap between Record and Play: Record center is112dp from the right, not116dp. Adjust only the distribution after the unchanged chevron to32+40+40+72=184dp; preserve signed58 candidate and increment59. Retain all geometry assertions, add numeric failure coordinates and an early measurement screenshot. Rerun only the same affected130%-text transport scenario; no broad tests/repairs.
+
+
+Build59 CI41258024388 compiles; native fixed-chevron/tempo-centering checks now pass. New text diagnostic stops at hasVisualOverflow for Metronome. Captured130% screenshot shows the complete label and horizontal4/4 plus correctly aligned tempo/click labels. Replace the aggregate overflow flag with explicit one-line/no-ellipsis and rendered line-width/paragraph-height bounds allowing at most1physical-pixel rounding, retaining information-area bounds; log actual layout metrics. This is a test-only diagnostic change, not an app fix. Rerun the single case; signed59 app source remainsed8f6a3 and no broader tests.
