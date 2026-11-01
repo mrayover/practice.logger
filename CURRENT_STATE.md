@@ -1,33 +1,23 @@
-# Smooth theme — build63 verification in progress
-
-Owner-assigned Smooth teal palette is implemented through the existing theme system. Focused build/tests and signed delivery are pending; previous verified delivery follows.
-
-# Current state — imported backing audio /0.17.0/build62
+# Current state — Smooth theme /0.17.0/build63
 
 ## Delivery
 
-Signed **0.17.0/build62**, source `10c3a41b0ef6f186b4bea49810c0498b8c125f12`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b62-10c3a41/practice.logger-0.17.0-b62-10c3a41.apk) · [ZIP](dist/practice.logger-0.17.0-b62-10c3a41.zip) · [Build info](dist/practice.logger-0.17.0-b62-10c3a41/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b62-10c3a41/PHONE_CHECKLIST.txt). Install over the existing permanent-key app without uninstalling/clearing data; previous packages, including candidate61, are preserved and ignored.
+Signed **0.17.0/build63**, source `bcfd69021a3766b541eef9a502afc2a1a2ac0292`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b63-bcfd690/practice.logger-0.17.0-b63-bcfd690.apk) · [ZIP](dist/practice.logger-0.17.0-b63-bcfd690.zip) · [Build info](dist/practice.logger-0.17.0-b63-bcfd690/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b63-bcfd690/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling/clearing data. Previous signed packages remain preserved and ignored.
 
-APK SHA256 `4f7b8475ae885fbfcb420d351b5815c00bc96583b57ee5aba13eb6c6076c8d3f`; ZIP SHA256 `ac0c51ab7b9fbcf9e0cd32ae61e4b09a2fb7cbece1763067fca139b2b20e8984`. Publisher verifies stable app ID/version/signature/pinned certificate; signed non-signature entries equal the compiled CI release, and exact ZIP file set/CRC/member bytes match the distribution folder.
+APK SHA256 `83067266d586cf3a2b04d84e281b2c0bf78b7910af2ca15c7709d4a8d560c02d`; ZIP SHA256 `c2eb285b050024b56690cbb2cedab651a22abc8b20da144872dc47c8b3f185ce`. Publisher verifies package/version/signature/pinned certificate. Signed non-signature entries equal the actual CI unsigned release. ZIP CRC, unique members and all bytes match the distribution folder.
 
-## Behavior and limits
+## Behavior
 
-Focused Practice → Loop Setup → Add Backing Track switches creation mode only. Unchecked retains Record Loop; checked disables musical fields/shortcuts and shows Choose file/validated filename-duration/explicit Save. Original label ellipsizes in compact controls but appears fully in management. Save adds to the existing collection/picker and explicitly selects that saved ID after the takes flow contains it; never autoplays. Cancellation/failure preserves saved takes and active selection; failed Save is retryable. Temporary import is discarded on Block leave/process loss, saved audio persists.
+Settings gear → Appearance → **Smooth** adds deep teal surfaces/aqua accents through the central palette. Native windows/accent match. Existing selected/disabled/pressed/recording/flash states use shared components; distinct error/recording and Goal category hues remain. Lato and accepted layout stay unchanged. Smooth persists across reopening and overrides OS night mode. Light remains the default/fallback; System Default still follows Light/Dark. [Design/change record](docs/SMOOTH_THEME.md).
 
-MP3, AAC-in-M4A and ordinary PCM16 RIFF WAV, mono/stereo8–96kHz;50MiB/15minutes,51MiB free staging space, filename1–255 characters. Chunked copy and bounded full codec validation/WAV structure checks; long imports never enter PhraseWave's in-memory PCM path. Explicit IMPORTED_LOOP mode has null BPM/beats and uses existing MediaPlayer file repeat/focus/foreground owner. Existing recorded loops retain their exact PhraseSpec/PhraseWave/AudioTrack path. Ordinary file repeat is **not certified seamless**; physical joins/codec padding/routing still need phone listening.
-
-Room11/JSON7 unchanged. JSON still excludes all recordings/labels/audio; keep originals and per-take exports. No Media Library, media backup, practice timing/Notes/reference/metronome-engine changes. Earlier owner-accepted UI remains the baseline.
+Imported backing audio from build62 remains: MP3, AAC-in-M4A, PCM16 WAV, mono/stereo8–96kHz,50MiB/15minutes, explicit staged Save/selection and format-preserving export. [Contract/prior verification](docs/IMPORTED_AUDIO.md). No database/audio-engine change; Room11/JSON7 and media/audio backup exclusions remain. Prior imported-audio phone checklist still applies.
 
 ## Scoped verification
 
-- [CI41267911943/source5a39c64](https://github.com/mrayover/practice.logger/actions/runs/41267911943): compilation and17 unit tests pass (AudioImport4, RecordingRepository4, PhraseRepository2, PhraseAudio5, StandaloneRecording2). Parser/repository persistence/limits/rollback/cancellation logic is unchanged in final source. Native run failed its450ms position-poll observation, though logs show repeated output; no overall pass claimed.
-- [CI41269123574/source945f699](https://github.com/mrayover/practice.logger/actions/runs/41269123574): final import UI/controller/native decoder behavior passes both imported scenarios and the existing cancelled-loop/background scenario. Covers real picker/cancel, invalid audio/selection preservation, all three formats, explicit selection/no autoplay, two real WAV position wraps/Stop/focus loss/Home-return, force-stop/reopen, full filename, rename/export-byte-equality/delete and earlier takes. Overall run failed only the existing tall-spacing assertion because it measured text inside the new shared row.
-- [Final CI41269534069/source10c3a41](https://github.com/mrayover/practice.logger/actions/runs/41269534069): debug/release/test compilation and the isolated remaining existing compact/tall loop scenario pass. All assertions/tolerances retained; marker now measures the duration row. Covers no-scroll/field/footer geometry, range/count-in/guide/exact WAV, auto/manual temporary preview, Keep/Re-record/Discard and free capture/review preservation. Since945f699 only this marker and version changed in app source; imported/native checks were not needlessly repeated.
+[CI41278023116](https://github.com/mrayover/practice.logger/actions/runs/41278023116), exact source above: debug/release/test compilation; **5** ThemePalette/ThemePreferences units; **2** API35 native scenarios pass. Units cover contrast, Goal slots, resolver/system behavior and persistence/failure fallback. Native checks cover Smooth selection/recreation, rendered background/native accent/chrome and practice button lit/decay/Stop pixels plus PCM writes in Light/Dark/Smooth. Home/Settings/live-pulse screenshots inspected. No full regression, lint, API26 or enlarged-text matrix for this bounded addition. Phone/physical acoustic acceptance pending.
 
-Four native scenarios collectively pass across the stated sources, not a single comprehensive final run. Screenshots inspected. Prior missing-ffmpeg setup, position-observation, lazy-list selector and cancelled superseded run are recorded in WORK_LOG. No full regression/lint/API26/enlarged-text matrix for this increment. Physical audio/codec joins, long files/vendor providers and same-phone acceptance remain pending.
+Prior Light/Dark implementation is owner accepted. Detailed System/audio/accessibility and P4/P5/final gates remain. Stage4 remains0/10 documented sessions; no later phase started.
 
 ## Exact next task
 
-Install build62 over the existing app and perform the included short imported-audio phone checklist. No automatic later phase or full regression.
-
-Design/support/complete changed-file and commit list: [Imported audio](docs/IMPORTED_AUDIO.md).
+Install build63 and perform its Smooth phone checklist, especially Focused Practice colors/flash/disabled controls and persistence. No automatic later phase/full regression.

@@ -2,6 +2,10 @@
 
 Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## Owner-assigned Smooth theme
+
+0.17.0/build63 adds a persisted Smooth teal palette through existing semantic roles and Settings, with matching native window/accent defaults. Same Lato, geometry and control states; no data/audio-engine changes. Scoped contrast/persistence/native selector/recreation/practice-flash checks and signed delivery are recorded in CURRENT_STATE. Phone acceptance pending; no later phase/full regression.
+
 ## Owner-assigned imported backing audio
 
 0.17.0/build62 adds per-Block imported MP3/M4A/PCM16 WAV as explicit file-repeat loops in the existing collection, through Focused Practice Loop Setup. Supported format/resource limits, private staged Save/selection, shared management, unchanged recorded sample-loop path and JSON exclusion are documented in docs/IMPORTED_AUDIO.md. This direct owner assignment narrowly supersedes the old P4 no-MP3 exclusion; it does not start Media Library, backup, P5 stabilization or other roadmap work. Exact scoped evidence/delivery/phone next task: CURRENT_STATE.
