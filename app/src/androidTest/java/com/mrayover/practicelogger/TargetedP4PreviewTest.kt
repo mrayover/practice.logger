@@ -53,13 +53,14 @@ class TargetedP4PreviewTest {
                 val x = compose.onNodeWithTag("practice-$type-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
                 assertTrue("Aligned transport chevrons: $chevron / $x", kotlin.math.abs(chevron-x) <= compose.activity.resources.displayMetrics.density)
             }
+            screenshot("transport-measurement")
             val density = compose.activity.resources.displayMetrics.density
             val row = compose.onNodeWithTag("practice-metronome-row").fetchSemanticsNode().boundsInRoot
             assertTrue("Chevron retains its original anchor", kotlin.math.abs(chevron-(row.right-196f*density)) <= density)
             val minus = compose.onNodeWithContentDescription("Decrease click BPM by 1").fetchSemanticsNode().boundsInRoot
             val plus = compose.onNodeWithContentDescription("Increase click BPM by 1").fetchSemanticsNode().boundsInRoot
             val record = compose.onNodeWithTag("practice-free-record").fetchSemanticsNode().boundsInRoot
-            assertTrue("Tempo pair centered above Record", kotlin.math.abs((minus.center.x+plus.center.x)/2-record.center.x) <= density)
+            assertTrue("Tempo pair centered above Record: ${(minus.center.x+plus.center.x)/2} / ${record.center.x}", kotlin.math.abs((minus.center.x+plus.center.x)/2-record.center.x) <= density)
             fun textLayout(node: SemanticsNodeInteraction): androidx.compose.ui.text.TextLayoutResult {
                 val results = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
                 node.performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(results) }
@@ -81,7 +82,7 @@ class TargetedP4PreviewTest {
             val clickLabel = compose.onNodeWithText("Start click", useUnmergedTree = true)
             val playLabel = compose.onAllNodesWithText("Play", useUnmergedTree = true)[0]
             fun textRight(node: SemanticsNodeInteraction): Float = node.fetchSemanticsNode().boundsInRoot.left + textLayout(node).getLineRight(0)
-            assertTrue("Click and Play text share a right edge", kotlin.math.abs(textRight(clickLabel)-textRight(playLabel)) <= density)
+            assertTrue("Click and Play text share a right edge: ${textRight(clickLabel)} / ${textRight(playLabel)}", kotlin.math.abs(textRight(clickLabel)-textRight(playLabel)) <= density)
             screenshot("transport")
             compose.onNodeWithTag("practice-metronome-expand").performClick(); shown("BPM (30–300)")
             compose.onNodeWithTag("practice-metronome-expand").performClick()

@@ -359,12 +359,12 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     val clickEndInset = ((56.dp - playTextWidth) / 2).coerceAtLeast(2.dp)
     val controls: @Composable (Boolean) -> Unit = { compact ->
         // Preserve the 184dp region after the chevron; center the tempo pair above Record.
-        if (compact) Spacer(Modifier.width(28.dp))
+        if (compact) Spacer(Modifier.width(32.dp))
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
-        val clickWidth = if (compact) 76.dp else 104.dp
+        val clickWidth = if (compact) 72.dp else 104.dp
         val label = if (vm.clicking) "Stop click" else "Start click"
         val labelStyle = fittedTransportStyle(label, MaterialTheme.typography.bodyMedium, clickWidth - clickEndInset - 2.dp)
         OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
