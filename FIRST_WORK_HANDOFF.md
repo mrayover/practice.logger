@@ -1,5 +1,5 @@
-# practice.logger — Theme increment complete
+# practice.logger — P4 targeted refinement / build57
 
-Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; recheck this area during the next assigned P5/F1 regression. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred.
+Read [CURRENT_STATE.md](CURRENT_STATE.md) for signed build57/sourcee5010fe, targeted results and exact next task. [Delivery record](docs/P4_TARGETED_UI_DELIVERY.md) lists the changed files and checkpoint commits. Preserve existing data, engines, media, signing key and prior distributions.
 
-Current signed artifact is build55; exact source/results/limits in [CURRENT_STATE.md](CURRENT_STATE.md). Regression checklist in [MANUAL_TESTS.md](MANUAL_TESTS.md). Owner requested logs finalized and work stopped: no automatic testing or later phase. Preserve data, engines, media, packages and keys.
+The final isolated transport/navigation check passed; prior scoped persistence/history/audio results are recorded with their actual source. Next: owner install-over/short phone checklist; no automatic full regression or later phase. Prior theme Light/Dark owner acceptance remains, with broader P5/final gates still pending. The current owner request supersedes the earlier Home Settings placement: Library is now the Home placeholder and Settings uses the far-right shared-header gear.

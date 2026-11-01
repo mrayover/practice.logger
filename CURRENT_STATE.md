@@ -1,21 +1,29 @@
-# Current state — Theme increment complete; owner accepted Light/Dark
-
-Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; recheck this area during the next assigned P5/F1 regression. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred.
+# Current state — P4 targeted UI and historical Notes / build57
 
 ## Delivery
 
-Current signed release:0.16.0/build55. App source `ea059ac6ad809328771603619741efd99c5f1d5a`; later commits change tests/records. Existing publisher verified permanent signature/app/version. [APK](dist/practice.logger-0.16.0-b55-ea059ac/practice.logger-0.16.0-b55-ea059ac.apk) · [ZIP](dist/practice.logger-0.16.0-b55-ea059ac.zip) · [Build info](dist/practice.logger-0.16.0-b55-ea059ac/BUILD_INFO.json). Install over the permanent-key app; never uninstall/clear data. Earlier packages preserved and ignored.
+Signed release **0.16.0/build57**, app source `e5010fec8795b22e37d8fabc9f8344aebe219536`. Later commits change only the targeted diagnostic/records. [APK](dist/practice.logger-0.16.0-b57-e5010fe/practice.logger-0.16.0-b57-e5010fe.apk) · [ZIP](dist/practice.logger-0.16.0-b57-e5010fe.zip) · [Build info](dist/practice.logger-0.16.0-b57-e5010fe/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.16.0-b57-e5010fe/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling or clearing data. Previous distributions remain preserved and ignored.
 
-APK SHA256 `f8e6c58fa15fd973aa490722a43f2933bd2e6bf3a37bd874aa404a47a0e24cbe`; ZIP SHA256 `657843614549a16d55e00d3c7f351e81aa285a6d9957f6ba54ae94b8fd73aff7`.
+APK SHA256 `f4d383a7d9ebaaff0727f758c8562724f110e74f756aba6a2c770dc9afc0ddd0`. ZIP SHA256 `93cf9c51166cd8e18c584b9b2ab96b50e58009f883d0e0a56154caf0fc7fcc3d`. Existing publisher verified application ID, version57 and the pinned permanent certificate/signature; ZIP CRC and every packaged file match the distribution folder.
 
-## Scope and evidence
+## Assigned scope
 
-Settings is below Log on Home. Persistent Light/Dark/System uses central Material/app semantic roles and native window defaults. Existing-install Light, Lato/layout, audio ownership, Room11/JSON7/history and original media remain. Goal identity data remains G1.
+Selected chips retain visible outlines in Blocks/Goals/Tools/Settings; compact practice selection styling remains. Recent Practice and Block Library use shared pills with a separate body suitable for future end caps, without Goal caps. Home Library opens only Coming soon. The shared far-right Settings gear uses the existing settings screen and save/discard/exit guards. Settings remains available from Tools.
 
-12 focused palette/preference/audio unit checks pass on unchanged palette/preference/engine source. Earlier isolated build54 theme checks pass3 each API26/API35, plus7 prior API35 pulse/settings/countdown/loop checks. Build55 compiles both variants/instrumentation; actual capture/preview/PDF palette retention passes on both APIs and enhanced preference/native-window checks pass API35 before cancellation. No complete final55 native-suite pass is claimed.
+Focused Practice fills Notes/Skip, shows BPM/meter, inline Accent checkbox, aligned chevrons, −1/+1 and Start/Stop click. Existing metronome configuration/audio/pulse APIs, recording action columns and timer behavior remain. Compact reference reset overlay is removed; pinch/pan and an accessible Reset zoom action remain. Larger reference viewers retain their prior reset controls.
 
-Earlier runner/query failures, an API27-only attribute assertion on API26, stalled overlay diagnostics and cancelled runs are recorded in WORK_LOG. A test-only correction adds the API guard, removes optional global screenshot idle waiting, bounds instrumentation and collects diagnostics. Optional rerun41248361244 was requested cancelled after owner acceptance; no pass claimed. Owner requested logs finalized and work stopped; no further testing.
+Session Summary previously read only the legacy placement note, although Save Note persists new timestamped entries in practice_notes. It now reads the existing history by exact session/placement/Block and reuses the same expand/edit/save/cancel controls. No schema, migration, backup format or audio engine change.
+
+## Targeted evidence and limits
+
+[Build56 CI41255636933](https://github.com/mrayover/practice.logger/actions/runs/41255636933) passes debug/release/instrumentation compilation and **14 scoped unit tests**: Notes4, BeatPcm2, metronome persistence2 and meter PCM6. Notes tests complete a session, close/reopen the database, exclude another session on the same Block, edit saved text and reopen again; legacy/new entries, timestamps and timing remain intact.
+
+Three build56 API35 native scenarios pass: Library/header Settings/navigation/selection, historical Notes display/edit/recreation and Light/Dark practice whole-button pulse with actual nonzero audio writes and Stop. The added transport geometry check found a2.5physical-pixel text-bound difference, under1dp; the initial1px tolerance failed. [Isolated final build57 CI41256264255](https://github.com/mrayover/practice.logger/actions/runs/41256264255) passes both variants/test compilation and the affected native transport scenario with a1dp geometry allowance, including gear→Continue→ordinary Back→Back to Main→Home. Build57 adds only cancellation callbacks to existing practice/summary/editor guards, clearing the pending header request; Notes persistence/audio engines are unchanged. Superseded diagnostic41256055736 was cancelled without claiming a pass. The earlier source passed all four native scenarios before the final alignment change. Do not report the overall-failed app-source run as an all-four pass.
+
+No comprehensive regression, lint, API26 matrix or enlarged-text/landscape run for this increment. Physical-phone appearance/audio and app restart acceptance remain pending. Existing theme Light/Dark owner acceptance is retained; System/physical/TalkBack and P5/final gates are not inferred. No P5, P6/P7 or roadmap changes.
 
 ## Exact next task
 
-At the next owner-assigned P5/F1 regression, recheck: Home Settings below Log; Light/Dark/System persistence and OS overrides; native chrome/contrast; selected/disabled/error/recording/button and overlay states; normal/200% text/landscape; timer/metronome pulse and Stop; free/loop capture/review/background safety; Notes drafts and reference page/zoom/original image/PDF colors. See [MANUAL_TESTS.md](MANUAL_TESTS.md). No automatic regression or later phase. P5/Library/G1 remain unassigned.
+Install build57 over the existing app and perform the included short phone checklist, especially reference pinch/pan, click sound/flash and saved notes after app restart.
+
+Full changed-file list, checkpoint commits and detailed verification: [P4 delivery record](docs/P4_TARGETED_UI_DELIVERY.md).

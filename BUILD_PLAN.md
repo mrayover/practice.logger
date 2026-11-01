@@ -2,9 +2,13 @@
 
 Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## P4 targeted visual/navigation/transport and historical Notes refinement
+
+Build57 retains selection outlines outside practice, shares Recent Practice/Block Library pills, replaces Home Settings with a Library placeholder and restores the shared-header Settings gear through existing leave/save guards. Filled Notes/Skip and compact BPM/meter/Accent/chevrons reuse existing transport/audio behavior. Historical summaries now read existing timestamped/legacy notes by exact session placement and reuse editing; Room11/JSON7 remain. Scoped evidence, delivery and phone acceptance limits are in CURRENT_STATE; no P5/P6/P7 or roadmap change.
+
 ## Generalized themes — complete; owner accepted
 
-Owner assigned the theme audit's implementation and placed Settings below Log on Home. Light/Dark/System choices, central Material/app semantic roles and platform chrome now share one root resolver; build55 is signed and the owner accepted Light/Dark as complete. Recheck themes at the next assigned P5/F1 regression. Existing cream/green/Lato/transport ownership and original media remain; no G1 identity migration or broader phase starts. Actual results and delivery are maintained in CURRENT_STATE.
+Build55 originally placed Settings below Log on Home; the current owner refinement moves it to the shared-header gear. Light/Dark/System choices, central Material/app semantic roles and platform chrome now share one root resolver; build55 is signed and the owner accepted Light/Dark as complete. Recheck themes at the next assigned P5/F1 regression. Existing cream/green/Lato/transport ownership and original media remain; no G1 identity migration or broader phase starts. Actual results and delivery are maintained in CURRENT_STATE.
 
 ## Home gear removal — owner-requested bounded follow-up
 
