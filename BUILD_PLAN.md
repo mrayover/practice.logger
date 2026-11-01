@@ -2,6 +2,10 @@
 
 Updated 2026-10-31 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## Owner-assigned imported backing audio
+
+0.17.0/build62 adds per-Block imported MP3/M4A/PCM16 WAV as explicit file-repeat loops in the existing collection, through Focused Practice Loop Setup. Supported format/resource limits, private staged Save/selection, shared management, unchanged recorded sample-loop path and JSON exclusion are documented in docs/IMPORTED_AUDIO.md. This direct owner assignment narrowly supersedes the old P4 no-MP3 exclusion; it does not start Media Library, backup, P5 stabilization or other roadmap work. Exact scoped evidence/delivery/phone next task: CURRENT_STATE.
+
 ## P4 targeted visual/navigation/transport and historical Notes refinement
 
 Build60 retains selection outlines outside practice, shares Recent Practice/Block Library pills, replaces Home Settings with a Library placeholder and restores the shared-header Settings gear through existing leave/save guards. Filled Notes/Skip and compact BPM/meter/Accent/chevrons reuse existing transport/audio behavior. Historical summaries now read existing timestamped/legacy notes by exact session placement and reuse editing; Room11/JSON7 remain. Scoped evidence, delivery and phone acceptance limits are in CURRENT_STATE; no P5/P6/P7 or roadmap change.

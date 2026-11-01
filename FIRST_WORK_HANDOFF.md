@@ -1,5 +1,5 @@
-# practice.logger — P4 targeted refinement / build60
+# practice.logger — imported backing audio delivered
 
-Read [CURRENT_STATE.md](CURRENT_STATE.md) for signed build60/source969855f, targeted results and exact next task. [Delivery record](docs/P4_TARGETED_UI_DELIVERY.md) lists the changed files and checkpoint commits. Preserve existing data, engines, media, signing key and prior distributions.
+Current signed0.17.0/build62, source10c3a41. Read [CURRENT_STATE](CURRENT_STATE.md) for artifact paths/hashes, exact scoped results and one next phone task. [Imported audio](docs/IMPORTED_AUDIO.md) records the supported formats/limits, persisted type/streaming-repeat contract, changed files and checkpoint commits.
 
-The final isolated transport/navigation check passed; prior scoped persistence/history/audio results are recorded with their actual source. Next: owner install-over/compare the metronome row against their screenshot; no automatic full regression or later phase. Prior theme Light/Dark owner acceptance remains, with broader P5/final gates still pending. The current owner request supersedes the earlier Home Settings placement: Library is now the Home placeholder and Settings uses the far-right shared-header gear.
+Implementation is complete within the owner assignment. Next: install over the permanent-key app and perform the included imported-audio phone checklist, particularly longer files/codec joins/background behavior/export. No automatic full regression or later phase. Preserve earlier signed packages, existing data/audio, recorded sample-loop engine, Room11/JSON7 and JSON media exclusions.

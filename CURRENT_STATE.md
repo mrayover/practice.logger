@@ -1,41 +1,29 @@
-# Current state — P4 targeted UI and historical Notes / build60
+# Current state — imported backing audio /0.17.0/build62
 
 ## Delivery
 
-Signed release **0.16.0/build60**, app source `969855f69a4ca85272071b25b0bb36e553853869`. Later commits change only the targeted diagnostic/records. [APK](dist/practice.logger-0.16.0-b60-969855f/practice.logger-0.16.0-b60-969855f.apk) · [ZIP](dist/practice.logger-0.16.0-b60-969855f.zip) · [Build info](dist/practice.logger-0.16.0-b60-969855f/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.16.0-b60-969855f/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling or clearing data. Previous distributions remain preserved and ignored.
+Signed **0.17.0/build62**, source `10c3a41b0ef6f186b4bea49810c0498b8c125f12`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b62-10c3a41/practice.logger-0.17.0-b62-10c3a41.apk) · [ZIP](dist/practice.logger-0.17.0-b62-10c3a41.zip) · [Build info](dist/practice.logger-0.17.0-b62-10c3a41/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b62-10c3a41/PHONE_CHECKLIST.txt). Install over the existing permanent-key app without uninstalling/clearing data; previous packages, including candidate61, are preserved and ignored.
 
-APK SHA256 `b3c86bec7ef192bbad93ebc77bcb40a2d86ea685ee74f7d02769c32451efd21a`. ZIP SHA256 `23159647fd3fda9f09da0360995384ebb32db56d812c687e8a1d22ec39ad6a0f`. Existing publisher verified application ID, version60 and the pinned permanent certificate/signature; ZIP CRC and every packaged file match the distribution folder.
+APK SHA256 `4f7b8475ae885fbfcb420d351b5815c00bc96583b57ee5aba13eb6c6076c8d3f`; ZIP SHA256 `ac0c51ab7b9fbcf9e0cd32ae61e4b09a2fb7cbece1763067fca139b2b20e8984`. Publisher verifies stable app ID/version/signature/pinned certificate; signed non-signature entries equal the compiled CI release, and exact ZIP file set/CRC/member bytes match the distribution folder.
 
-## Final click/Accent follow-up
+## Behavior and limits
 
-Owner accepts the remaining build59 layout. Build60 only centers Start/Stop click text with symmetric padding, offsets its bubble12dp into the existing scroll gutter so its left edge meets Record/Loop Setup's right edge, and makes Accent/checked/unchecked box use primary green. Tempo, chevron, timing/audio/Notes and recording rows are unchanged.
+Focused Practice → Loop Setup → Add Backing Track switches creation mode only. Unchecked retains Record Loop; checked disables musical fields/shortcuts and shows Choose file/validated filename-duration/explicit Save. Original label ellipsizes in compact controls but appears fully in management. Save adds to the existing collection/picker and explicitly selects that saved ID after the takes flow contains it; never autoplays. Cancellation/failure preserves saved takes and active selection; failed Save is retryable. Temporary import is discarded on Block leave/process loss, saved audio persists.
 
-[CI41265135190](https://github.com/mrayover/practice.logger/actions/runs/41265135190) passes debug/release/test compilation and the same single130%-text transport case, including text-center/both-boundary checks and existing meter/chevron/tempo safeguards. Captured Light screenshots inspected; the nominal dark capture still shows Light, so no Dark screenshot verification is claimed. Superseded pre-color run41265093635 was cancelled, no pass claimed. No full regression or repeated units. Signed APK/certificate/version and ZIP CRC/member bytes verified; phone confirmation pending.
+MP3, AAC-in-M4A and ordinary PCM16 RIFF WAV, mono/stereo8–96kHz;50MiB/15minutes,51MiB free staging space, filename1–255 characters. Chunked copy and bounded full codec validation/WAV structure checks; long imports never enter PhraseWave's in-memory PCM path. Explicit IMPORTED_LOOP mode has null BPM/beats and uses existing MediaPlayer file repeat/focus/foreground owner. Existing recorded loops retain their exact PhraseSpec/PhraseWave/AudioTrack path. Ordinary file repeat is **not certified seamless**; physical joins/codec padding/routing still need phone listening.
 
-## Build59 accepted layout baseline
+Room11/JSON7 unchanged. JSON still excludes all recordings/labels/audio; keep originals and per-take exports. No Media Library, media backup, practice timing/Notes/reference/metronome-engine changes. Earlier owner-accepted UI remains the baseline.
 
-Build59 changes only PracticeScreens.kt plus versioning: remove rounded clipping around the BPM/name area, give it8dp more room, fit single-line labels/signatures when needed, and shift the tempo pair32dp to center over Record. The click action/text moves right with its final letter aligned to Play. The chevron's24dp width and184dp right-hand region remain unchanged; recording rows/audio/state/Notes are unchanged.
+## Scoped verification
 
-[Focused CI41258437458](https://github.com/mrayover/practice.logger/actions/runs/41258437458) passes debug/release/test compilation and the single API35 transport scenario at130% text size. All six signatures/name remain single-line and inside their bounds, the fixed chevron and tempo/Record/text-right-edge assertions pass, and existing accent/tempo/configuration/exit controls remain reachable. Screenshot inspected. Signed APK was compiled in41258024388; final passing test-only source has identical app/version files. No unit/full regression/lint/API matrix repeated; same-phone visual acceptance remains pending.
+- [CI41267911943/source5a39c64](https://github.com/mrayover/practice.logger/actions/runs/41267911943): compilation and17 unit tests pass (AudioImport4, RecordingRepository4, PhraseRepository2, PhraseAudio5, StandaloneRecording2). Parser/repository persistence/limits/rollback/cancellation logic is unchanged in final source. Native run failed its450ms position-poll observation, though logs show repeated output; no overall pass claimed.
+- [CI41269123574/source945f699](https://github.com/mrayover/practice.logger/actions/runs/41269123574): final import UI/controller/native decoder behavior passes both imported scenarios and the existing cancelled-loop/background scenario. Covers real picker/cancel, invalid audio/selection preservation, all three formats, explicit selection/no autoplay, two real WAV position wraps/Stop/focus loss/Home-return, force-stop/reopen, full filename, rename/export-byte-equality/delete and earlier takes. Overall run failed only the existing tall-spacing assertion because it measured text inside the new shared row.
+- [Final CI41269534069/source10c3a41](https://github.com/mrayover/practice.logger/actions/runs/41269534069): debug/release/test compilation and the isolated remaining existing compact/tall loop scenario pass. All assertions/tolerances retained; marker now measures the duration row. Covers no-scroll/field/footer geometry, range/count-in/guide/exact WAV, auto/manual temporary preview, Keep/Re-record/Discard and free capture/review preservation. Since945f699 only this marker and version changed in app source; imported/native checks were not needlessly repeated.
 
-## Assigned scope
-
-Selected chips retain visible outlines in Blocks/Goals/Tools/Settings; compact practice selection styling remains. Recent Practice and Block Library use shared pills with a separate body suitable for future end caps, without Goal caps. Home Library opens only Coming soon. The shared far-right Settings gear uses the existing settings screen and save/discard/exit guards. Settings remains available from Tools.
-
-Focused Practice fills Notes/Skip, shows BPM/meter, inline Accent checkbox, aligned chevrons, −1/+1 and Start/Stop click. Existing metronome configuration/audio/pulse APIs, recording action columns and timer behavior remain. Compact reference reset overlay is removed; pinch/pan and an accessible Reset zoom action remain. Larger reference viewers retain their prior reset controls.
-
-Session Summary previously read only the legacy placement note, although Save Note persists new timestamped entries in practice_notes. It now reads the existing history by exact session/placement/Block and reuses the same expand/edit/save/cancel controls. No schema, migration, backup format or audio engine change.
-
-## Targeted evidence and limits
-
-[Build56 CI41255636933](https://github.com/mrayover/practice.logger/actions/runs/41255636933) passes debug/release/instrumentation compilation and **14 scoped unit tests**: Notes4, BeatPcm2, metronome persistence2 and meter PCM6. Notes tests complete a session, close/reopen the database, exclude another session on the same Block, edit saved text and reopen again; legacy/new entries, timestamps and timing remain intact.
-
-Three build56 API35 native scenarios pass: Library/header Settings/navigation/selection, historical Notes display/edit/recreation and Light/Dark practice whole-button pulse with actual nonzero audio writes and Stop. The added transport geometry check found a2.5physical-pixel text-bound difference, under1dp; the initial1px tolerance failed. [Isolated final build57 CI41256264255](https://github.com/mrayover/practice.logger/actions/runs/41256264255) passes both variants/test compilation and the affected native transport scenario with a1dp geometry allowance, including gear→Continue→ordinary Back→Back to Main→Home. Build57 adds only cancellation callbacks to existing practice/summary/editor guards, clearing the pending header request; Notes persistence/audio engines are unchanged. Superseded diagnostic41256055736 was cancelled without claiming a pass. The earlier source passed all four native scenarios before the final alignment change. Do not report the overall-failed app-source run as an all-four pass.
-
-No comprehensive regression, lint, API26 matrix or enlarged-text/landscape run for this increment. Physical-phone appearance/audio and app restart acceptance remain pending. Existing theme Light/Dark owner acceptance is retained; System/physical/TalkBack and P5/final gates are not inferred. No P5, P6/P7 or roadmap changes.
+Four native scenarios collectively pass across the stated sources, not a single comprehensive final run. Screenshots inspected. Prior missing-ffmpeg setup, position-observation, lazy-list selector and cancelled superseded run are recorded in WORK_LOG. No full regression/lint/API26/enlarged-text matrix for this increment. Physical audio/codec joins, long files/vendor providers and same-phone acceptance remain pending.
 
 ## Exact next task
 
-Install build60 over the existing app and confirm centered click text/bubble boundary and green Accent against the owner's phone screenshot.
+Install build62 over the existing app and perform the included short imported-audio phone checklist. No automatic later phase or full regression.
 
-Full changed-file list, checkpoint commits and detailed verification: [P4 delivery record](docs/P4_TARGETED_UI_DELIVERY.md).
+Design/support/complete changed-file and commit list: [Imported audio](docs/IMPORTED_AUDIO.md).
