@@ -33,16 +33,15 @@ class ReferencePhotoCaptureTest {
     }
 
     @Test fun cameraContractUsesFullResolutionOutputAndReportsCancellation() {
-        val capture = ReferencePhotoCapture(context)
-        val name = capture.create()
-        try {
-            val contract = ActivityResultContracts.TakePicture()
-            val intent = contract.createIntent(context, capture.uri(name))
-            assertEquals(MediaStore.ACTION_IMAGE_CAPTURE, intent.action)
-            assertEquals(capture.uri(name), intent.getParcelableExtra<android.net.Uri>(MediaStore.EXTRA_OUTPUT))
-            assertFalse(contract.parseResult(android.app.Activity.RESULT_CANCELED, Intent()))
-            assertTrue(contract.parseResult(android.app.Activity.RESULT_OK, Intent()))
-        } finally { capture.discard(name) }
+        // Contract behavior needs only an input URI. Provider/file behavior is tested
+        // separately so FileProvider's static root cache cannot span Robolectric temp apps.
+        val uri = android.net.Uri.parse("content://${context.packageName}.reference-camera/reference_camera/test.jpg")
+        val contract = ActivityResultContracts.TakePicture()
+        val intent = contract.createIntent(context, uri)
+        assertEquals(MediaStore.ACTION_IMAGE_CAPTURE, intent.action)
+        assertEquals(uri, intent.getParcelableExtra<android.net.Uri>(MediaStore.EXTRA_OUTPUT))
+        assertFalse(contract.parseResult(android.app.Activity.RESULT_CANCELED, Intent()))
+        assertTrue(contract.parseResult(android.app.Activity.RESULT_OK, Intent()))
     }
 
     @Test fun providerIsPrivateAndCanGrantOnlySelectedFiles() {
