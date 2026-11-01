@@ -35,7 +35,7 @@ class NestedReferenceDiagnosticTest {
                     androidx.compose.ui.geometry.Offset(width*.15f,height*.15f),androidx.compose.ui.geometry.Offset(width*.85f,height*.85f))
             }
             assertPracticeReferenceZoomed(compose)
-            compose.onNodeWithTag("reference-viewer").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions -> actions.single { it.label == "Reset zoom" }.action() }
+            resetPracticeReferenceZoom(compose)
             val description = compose.onNodeWithTag("reference-viewer").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription].single()
             assertEquals(1f, description.substringAfterLast("zoom ").replace(',', '.').toFloat(), .001f)
             assertEquals("A saved note",runBlocking { db.practiceNotes().readAll().single { it.sessionId == sid }.text })

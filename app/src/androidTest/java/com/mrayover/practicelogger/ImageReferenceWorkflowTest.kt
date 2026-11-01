@@ -101,7 +101,7 @@ class ImageReferenceWorkflowTest {
                 assertEquals(page.left.value, viewer.left.value, 1f); assertEquals(page.right.value, viewer.right.value, 1f)
                 val area = compose.onNodeWithTag("practice-reference-area").getUnclippedBoundsInRoot()
                 val tolerance = 1f / compose.activity.resources.displayMetrics.density + .01f
-                assertTrue("Focused viewer must have positive height within available workspace", viewer.height.value > 0f && viewer.top.value >= area.top.value - tolerance && viewer.bottom.value <= area.bottom.value + tolerance)
+                assertTrue("Focused viewer must have positive height within available workspace", (viewer.bottom - viewer.top).value > 0f && viewer.top.value >= area.top.value - tolerance && viewer.bottom.value <= area.bottom.value + tolerance)
                 if (it == 0) { compose.onNodeWithTag("reference-viewer").performScrollTo(); captureStage3("image-focus-portrait-fit") }
                 compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
                     pinch(Offset(width * .4f, height * .4f), Offset(width * .6f, height * .6f),
@@ -110,7 +110,7 @@ class ImageReferenceWorkflowTest {
                 assertPracticeReferenceZoomed(compose)
                 compose.onNodeWithTag("reference-viewer").performTouchInput { swipe(center, center + Offset(50f, 30f)) }
                 if (it == 0) captureStage3("image-focus-zoom")
-                compose.onNodeWithTag("reference-viewer").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions -> actions.single { it.label == "Reset zoom" }.action() }; compose.onNodeWithTag("practice-description-toggle").performClick()
+                resetPracticeReferenceZoom(compose); compose.onNodeWithTag("practice-description-toggle").performClick()
                 compose.onNodeWithTag("reference-viewer").assertDoesNotExist()
                 assertTrue(practice.running); assertTrue(practice.clicking); assertEquals(111, practice.workingBpm)
             }

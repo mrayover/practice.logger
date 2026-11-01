@@ -39,7 +39,7 @@ class PdfReferenceWorkflowTest {
         val compact = compose.onAllNodesWithTag("practice-workspace").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithTag("take-list").fetchSemanticsNodes().isEmpty()
         if (compact) assertPracticeReferenceZoomed(compose) else shown("Reset PDF zoom")
         viewer().performTouchInput { swipe(center,center+Offset(40f,25f)) }
-        if (compact) viewer().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions -> actions.single { it.label == "Reset zoom" }.action() } else click("Reset PDF zoom")
+        if (compact) resetPracticeReferenceZoom(compose) else click("Reset PDF zoom")
     }
     @Test fun actualPickerPdfPracticeAndRecordingContinuity() {
         val app = compose.activity.application

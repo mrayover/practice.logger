@@ -34,3 +34,10 @@ fun assertPracticeReferenceZoomed(compose: AndroidComposeTestRule<*, MainActivit
     val config = compose.onNodeWithTag("reference-viewer").assertIsDisplayed().fetchSemanticsNode().config
     org.junit.Assert.assertTrue("Zoom reset must remain accessible", config[SemanticsActions.CustomActions].any { it.label == "Reset zoom" })
 }
+
+fun resetPracticeReferenceZoom(compose: AndroidComposeTestRule<*, MainActivity>) {
+    val action = compose.onNodeWithTag("reference-viewer").assertIsDisplayed().fetchSemanticsNode()
+        .config[SemanticsActions.CustomActions].single { it.label == "Reset zoom" }
+    compose.runOnIdle { org.junit.Assert.assertTrue("Reset zoom accessibility action must succeed", action.action()) }
+    compose.waitForIdle()
+}
