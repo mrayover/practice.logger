@@ -98,7 +98,7 @@ class NotesHistoryPreviewTest {
             compose.waitUntil(15000) { !audio.recording && !audio.busy && audio.takes.value.any { it.blockId == block && it.mode == "FREE" } }
             compose.onNodeWithTag("practice-notes-content-scrollbar").assertExists();screenshot("notes-history")
             click("Loop Setup");collapsedHeaders();compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
-            click("Cancel");shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
+            click("Loop Setup");shown("Page 2 of 2");assertPracticeReferenceZoomed(compose)
             tag("practice-free-selector").performClick();collapsedHeaders();click("Close");shown("Page 2 of 2")
             tag("practice-loop-selector").performClick();collapsedHeaders();click("Close");shown("Page 2 of 2")
             tag("practice-description-toggle").performClick();shown("Practice slowly")
