@@ -673,3 +673,6 @@ Native CI41268604599/74704bb: first imported-audio scenario passes, including ac
 
 
 Moving filename text into Choose changes its test semantics to a button descendant. Query that text in the unmerged tree (same convention as the banner text). Cancel the just-started superseded13f3a4d run before its native check to avoid a known stale-selector failure; final product/layout unchanged, test query only. No pass claimed for cancelled run.
+
+
+CI41269123574/945f699: final compact import scenario passes; force-stop/reopen/full-name/rename/export byte equality/delete/original-take retention scenario passes; existing cancelled-loop/background/no-restart scenario passes. Existing compact/tall loop case passes visibility/no-scroll/footer geometry but stops at proportional gaps:106,105,109,110px. Its duration marker still sits on the20dp text inside the new24dp row, so it measures internal centering as spacing. Move the test marker to the shared row; keep every assertion/tolerance unchanged. No audio/feature behavior changes. Preserve signed61 candidate; increment62 and run only the affected existing compact/tall/mic-loop/free-review case, without repeating passed import or units.

@@ -5,7 +5,7 @@ on:
       scope:
         description: Complete scoped checks or imported-audio scenarios only
         type: choice
-        options: [all, native, import]
+        options: [all, native, import, loop-geometry]
         default: all
 permissions:
   contents: read

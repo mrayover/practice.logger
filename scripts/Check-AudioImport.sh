@@ -14,6 +14,11 @@ trap collect EXIT
 timeout 30s adb install -r app/build/outputs/apk/debug/app-debug.apk
 timeout 30s adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 adb logcat -c || true
+if [ "${1:-all}" = loop-geometry ]; then
+  timeout 180s adb shell am instrument -w -r -e class 'com.mrayover.practicelogger.LoopRecorderPreviewTest#compactSetupPermanentClickAndInlineReview' "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/existing-loop-geometry.txt"
+  grep -q 'OK (1 test)' "$out/existing-loop-geometry.txt"
+  exit 0
+fi
 for method in importSelectRepeatInterruptAndKeepExistingTakes reopenAndManageImportedAndEarlierRecordings; do
   timeout 180s adb shell am instrument -w -r -e class "com.mrayover.practicelogger.ImportedAudioWorkflowTest#$method" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/$method.txt"
   grep -q 'OK (1 test)' "$out/$method.txt"

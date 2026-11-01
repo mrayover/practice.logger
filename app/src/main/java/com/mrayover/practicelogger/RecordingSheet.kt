@@ -240,12 +240,12 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     }
                 }
             }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().testTag("phrase-duration"), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text(if (importMode) vm.backingTrack?.imported?.let { "Duration: " + importedDuration(it.durationMs) } ?: "Choose audio to validate its duration."
                     else spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) }
                         ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
                     color = if (!importMode && spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).testTag("phrase-duration"))
+                    style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                 if (inline && review == null) Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text("Add Backing Track", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     Checkbox(checked = backing, onCheckedChange = { backing = it }, enabled = editable,
