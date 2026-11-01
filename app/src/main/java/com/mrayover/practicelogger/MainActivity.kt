@@ -189,13 +189,13 @@ class MainActivity : ComponentActivity() {
                 onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") })
             }
             "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
-                onCancel = { page = if (headerHomeRequested) headerDestination else if (goalEditorId == null) "goals" else "goal-detail" }) }
+                onCancel = { page = if (headerHomeRequested) headerDestination else if (goalEditorId == null) "goals" else "goal-detail" }, onNavigationCancelled = { headerHomeRequested = false }) }
             "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,
                 onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
             "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
-            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) headerDestination else "routines" })
+            "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) headerDestination else "routines" }, onNavigationCancelled = { headerHomeRequested = false })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { settingsReturn = "tools"; page = it })
             "audio-settings" -> CountInSettings(recordings, onTools = { page = settingsReturn }, fromHome = settingsReturn == "home", backLabel = if (settingsReturn == "tools") "Back to Tools" else "Back")
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
@@ -204,8 +204,8 @@ class MainActivity : ComponentActivity() {
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
-            "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings)
-            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId))
+            "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings, onNavigationCancelled = { headerHomeRequested = false })
+            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId), onNavigationCancelled = { headerHomeRequested = false })
             "library" -> {
                 val libraryScroll = rememberLazyListState()
                 var searchFocused by remember { mutableStateOf(false) }
@@ -241,7 +241,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorId) {
-                    BlockEditor(block, vm.busy || images.busy, images, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) headerDestination else editorReturn },
+                    BlockEditor(block, vm.busy || images.busy, images, onNavigationCancelled = { headerHomeRequested = false }, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) headerDestination else editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }
@@ -288,7 +288,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -319,9 +319,9 @@ class MainActivity : ComponentActivity() {
         if (block != null) OutlinedButton(onClick = onDelete, enabled = !busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("block-delete-action")) { Text("Delete Permanently") }
     }
-    if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard unsaved changes?") }, text = { Text("Your saved Block will stay unchanged.") },
+    if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved changes?") }, text = { Text("Your saved Block will stay unchanged.") },
         confirmButton = { TextButton(onClick = { discard = false; onCancel() }) { Text("Discard") } },
-        dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep editing") } })
+        dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
     if (archiveConfirm && block != null) AlertDialog(onDismissRequest = { archiveConfirm = false },
         title = { Text(if (block.archived) "Restore this Block?" else "Archive this Block?") },
         text = { Text(if (draft != initial) "Unsaved edits will be discarded. The saved Block is retained and can be restored; no history is deleted." else "The saved Block is retained and can be restored; no history is deleted.") },

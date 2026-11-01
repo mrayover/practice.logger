@@ -53,7 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
     }
 }
 
-@Composable fun RoutineEditor(blocks: List<Block>, vm: RoutineViewModel, onRoutines: () -> Unit) {
+@Composable fun RoutineEditor(blocks: List<Block>, vm: RoutineViewModel, onRoutines: () -> Unit, onNavigationCancelled: () -> Unit = {}) {
     var query by rememberSaveable { mutableStateOf("") }
     var changing by rememberSaveable { mutableStateOf<Int?>(null) }
     var minutes by rememberSaveable { mutableStateOf("") }
@@ -109,10 +109,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
             confirmButton = { TextButton(onClick = { vm.duration(index, minutes); changing = null }, enabled = valid && !vm.busy) { Text("Apply duration") } },
             dismissButton = { TextButton(onClick = { changing = null }) { Text("Cancel") } })
     }
-    if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard Routine edits?") },
+    if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard Routine edits?") },
         text = { Text("Your saved Routine and Blocks stay unchanged.") },
         confirmButton = { TextButton(onClick = { discard = false; onRoutines() }) { Text("Discard edits") } },
-        dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep editing") } })
+        dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
 }
 
 @Composable fun SaveAsRoutine(draft: SessionBundle?, practiceBusy: Boolean, vm: RoutineViewModel) {

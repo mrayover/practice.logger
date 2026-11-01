@@ -88,7 +88,7 @@ import androidx.compose.ui.unit.dp
     }
 }
 
-@Composable fun GoalEditor(goal: Goal?, vm: GoalViewModel, onCancel: () -> Unit) {
+@Composable fun GoalEditor(goal: Goal?, vm: GoalViewModel, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}) {
     var title by rememberSaveable { mutableStateOf(goal?.title ?: "") }
     var description by rememberSaveable { mutableStateOf(goal?.description ?: "") }
     var progress by rememberSaveable { mutableStateOf((goal?.progress ?: 0).toString()) }
@@ -110,9 +110,9 @@ import androidx.compose.ui.unit.dp
         Button(onClick = { vm.save(goal?.id, title, description, progress, notes) }, enabled = !vm.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Goal") }
     }
-    if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard unsaved Goal changes?") },
+    if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved Goal changes?") },
         confirmButton = { TextButton(onClick = { discard = false; onCancel() }) { Text("Discard") } },
-        dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep editing") } })
+        dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
 }
 
 @Composable fun GoalBlocks(bundle: GoalBundle?, blocks: List<Block>, vm: GoalViewModel, onBack: () -> Unit, onLibrary: () -> Unit) {

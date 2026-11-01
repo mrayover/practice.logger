@@ -58,6 +58,9 @@ class TargetedP4PreviewTest {
             compose.onNodeWithTag("practice-metronome-expand").performClick()
             compose.onNodeWithTag("header-settings").performClick(); shown("Leave current session?")
             click("Continue"); shown("Practice Description")
+            compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
+            shown("Leave current session?"); click("Back to Main"); shown("Practice Now")
+            compose.onNodeWithText("Settings").assertDoesNotExist()
         } finally { compose.runOnIdle { vm.stopClick() }; db.close() }
     }
     @Test fun completedSessionSummaryDisplaysAndEditsSavedPracticeNotes() {

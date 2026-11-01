@@ -121,7 +121,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+@Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), onNavigationCancelled: () -> Unit = {}) {
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved.") }
         return
@@ -280,20 +280,20 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         }
     }
     }
-    if (pendingNoteAction != null) AlertDialog(onDismissRequest = { pendingNoteAction = null }, title = { Text("Unsaved note text") },
+    if (pendingNoteAction != null) AlertDialog(onDismissRequest = { pendingNoteAction = null; onNavigationCancelled() }, title = { Text("Unsaved note text") },
         text = { Text("Return to Notes to save your new note or edits, or discard unsaved text before continuing. Saved notes stay kept.") },
         confirmButton = { TextButton(onClick = {
             val action = pendingNoteAction!!; pendingNoteAction = null; notes.edit(current.id, ""); notes.discardEdits(current.sourceBlockId); performPracticeAction(action)
         }) { Text("Discard draft and continue") } },
-        dismissButton = { TextButton(onClick = { pendingNoteAction = null; transportPanel = "notes" }) { Text("Keep editing") } })
-    if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) leaving = false }, title = { Text("Leave current session?") }, text = {
+        dismissButton = { TextButton(onClick = { pendingNoteAction = null; transportPanel = "notes"; onNavigationCancelled() }) { Text("Keep editing") } })
+    if (leaving) AlertDialog(onDismissRequest = { if (!vm.busy) { leaving = false; onNavigationCancelled() } }, title = { Text("Leave current session?") }, text = {
         Text(if (audioBusy) "Stop your recording, then Save or Discard the temporary take, or cancel an incomplete phrase, before leaving. Your current practice note is kept here."
             else "Your current session and note will be saved for later, and practice will pause.")
     }, confirmButton = { TextButton(onClick = { vm.saveForLater(bundle.session.id, current.id, note, preserveNote = true) }, enabled = !vm.busy && !audioBusy) { Text("Back to Main") } },
-        dismissButton = { TextButton(onClick = { leaving = false }, enabled = !vm.busy) { Text("Continue") } })
+        dismissButton = { TextButton(onClick = { leaving = false; onNavigationCancelled() }, enabled = !vm.busy) { Text("Continue") } })
 }
 
-@Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+@Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), onNavigationCancelled: () -> Unit = {}) {
     val history by notes.history.collectAsStateWithLifecycle()
     if (bundle == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available.") }
@@ -303,10 +303,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     var discard by rememberSaveable(bundle.session.id) { mutableStateOf(false) }
     fun leave() { if (!vm.busy && !notes.busy) { if (note.trim() != bundle.session.note || bundle.ordered.any { notes.hasUnsavedEdits(it.sourceBlockId) }) discard = true else onHome() } }
     BackHandler { leave() }
-    if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard unsaved session note?") },
+    if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved session note?") },
         text = { Text("Save your session note and practice note edits first to keep these changes.") },
         confirmButton = { TextButton(onClick = { bundle.ordered.forEach { notes.discardEdits(it.sourceBlockId) }; discard = false; onHome() }) { Text("Discard") } },
-        dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep editing") } })
+        dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         goalName?.let { Text("Goal: " + it) }
