@@ -30,6 +30,18 @@ class TransportPreviewTest {
         }
         compose.waitForIdle()
     }
+    private fun addOverflowFixtures(db: BlockDatabase, source: BlockTake): Set<String> = runBlocking {
+        val repository = TakeRepository(db, compose.activity.application)
+        val bytes = repository.audioFile(source).readBytes()
+        (0 until 8).map { index ->
+            val spec = if (source.mode == "LOOP") PhraseSpec(checkNotNull(source.recordedBpm), checkNotNull(source.beatCount)) else null
+            val pending = repository.prepare(source.blockId, spec)
+            pending.file.writeBytes(bytes)
+            val saved = repository.save(pending)
+            repository.rename(saved.id, "Earlier ${source.mode} fixture $index")
+            saved.id
+        }.toSet()
+    }
     private fun select(type: String, id: String) {
         tagged("practice-$type-selector").performClick()
         compose.onNodeWithTag("practice-$type-list-scrollbar").assertExists()
@@ -45,6 +57,7 @@ class TransportPreviewTest {
         val db = BlockDatabase.open(app)
         val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
         val recordings = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
+        val overflowFixtureIds = mutableSetOf<String>()
         val noteText = "Saved during free capture\n" + "A longer practice note for scrolling.\n".repeat(18)
         try {
             device.executeShellCommand("pm grant ${app.packageName} ${Manifest.permission.RECORD_AUDIO}")
@@ -124,6 +137,8 @@ class TransportPreviewTest {
             val buttonBounds = tagged("practice-free-record").fetchSemanticsNode().boundsInRoot
             assertTrue("Recording selector overlaps Record", selectorBounds.right <= buttonBounds.left + 1f)
             val free = recordings.takes.value.filter { it.blockId == block && it.mode == "FREE" }.sortedBy { it.createdAt }
+            overflowFixtureIds += addOverflowFixtures(db, free.first())
+            compose.waitUntil(15000) { recordings.takes.value.count { it.id in overflowFixtureIds } == 8 }
             select("free", free.last().id); select("free", free.first().id)
             compose.onNodeWithContentDescription("Play selected free recording").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId == free.first().id }
@@ -145,6 +160,8 @@ class TransportPreviewTest {
                 click("Loop Setup")
             }
             val loops = recordings.takes.value.filter { it.blockId == block && it.mode == "LOOP" }.sortedBy { it.createdAt }
+            overflowFixtureIds += addOverflowFixtures(db, loops.first())
+            compose.waitUntil(15000) { recordings.takes.value.count { it.id in overflowFixtureIds } == 16 }
             select("loop", loops.last().id); select("loop", loops.first().id)
             compose.onNodeWithContentDescription("Play selected loop recording").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { recordings.playingId == loops.first().id }
@@ -152,7 +169,8 @@ class TransportPreviewTest {
             compose.runOnIdle { assertEquals(loops.first().id, recordings.playingId); assertEquals(placement, practice.catalog.value.active!!.current!!.id) }
             click("Notes")
             compose.onNodeWithContentDescription("Stop selected loop recording").scrollIfNeeded().performClick()
-            assertEquals(4, runBlocking { db.takes().readAll().count { it.blockId == block } })
+            assertEquals(4, runBlocking { db.takes().readAll().count { it.blockId == block && it.id !in overflowFixtureIds } })
+            assertEquals(16, runBlocking { db.takes().readAll().count { it.id in overflowFixtureIds } })
             assertEquals(noteText.trim(), runBlocking { db.practiceNotes().readAll().single { it.placementId == placement && it.text == noteText.trim() }.text })
             tagged("practice-bottom-actions")
             compose.onAllNodesWithText("Looping ·", substring = true).assertCountEquals(0)
