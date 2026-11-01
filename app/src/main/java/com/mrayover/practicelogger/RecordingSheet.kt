@@ -137,7 +137,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 Column(Modifier.fillMaxWidth().testTag("take-" + take.id), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     val title = takeTitle(take)
                     Text(title, style = MaterialTheme.typography.titleMedium)
-                    Text((takeDescription(take) + " · ") + practiceTime(take.durationMs) + " · " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
+                    Text((takeDescription(take) + " · ") + takeDuration(take) + " · " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
                     val playing = vm.playingId == take.id || vm.preparingId == take.id
                     if (vm.preparingId == take.id) Text("Preparing playback…")
                     OutlinedButton(onClick = {
@@ -199,7 +199,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         PhraseSpec(bpm, length, intro)
     }
     val spec = result.getOrNull()
-    val review = vm.reviewTake?.takeIf { it.mode == "LOOP" }
+    val review = vm.reviewTake?.takeIf { it.kind == TakeKind.RECORDED_LOOP }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
     var headingHeight by remember { mutableIntStateOf(0) }
     LaunchedEffect(review?.id) {
@@ -241,7 +241,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 }
             }
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text(if (importMode) vm.backingTrack?.imported?.let { "Duration: " + practiceTime(it.durationMs) } ?: "Choose audio to validate its duration."
+                Text(if (importMode) vm.backingTrack?.imported?.let { "Duration: " + importedDuration(it.durationMs) } ?: "Choose audio to validate its duration."
                     else spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) }
                         ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
                     color = if (!importMode && spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
@@ -289,7 +289,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 } else if (inline) "Record Loop" else "Start count-in")
             }
             Row(Modifier.fillMaxWidth().heightIn(min = 24.dp).testTag("phrase-budget-row"), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text("Execution budget: 15 minutes.", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+                Text(if (importMode) "MP3 / M4A / PCM16 WAV · 50 MiB / 15 min" else "Execution budget: 15 minutes.", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
                 if (inline && review != null) {
                     val playing = vm.playingId == review.id || vm.preparingId == review.id
                     TextButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,

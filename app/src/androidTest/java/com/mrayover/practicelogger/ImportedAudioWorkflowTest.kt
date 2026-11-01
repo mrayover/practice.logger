@@ -93,11 +93,13 @@ class ImportedAudioWorkflowTest {
             app.startActivity(app.packageManager.getLaunchIntentForPackage(app.packageName)!!.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
             shown("Practice Description");compose.runOnIdle{assertNull(audio.playingId)}
             for(extension in listOf("mp3","m4a")) {
+                if (extension=="mp3") { compose.runOnIdle{audio.play(saved)};compose.waitUntil(10000){audio.importedRepeatActive()} }
                 val name="p61 backing with a long original filename.$extension"
                 val source=media(name,if(extension=="mp3")"audio/mpeg" else "audio/mp4",InstrumentationRegistry.getInstrumentation().context.assets.open("audio/backing.$extension").use{it.readBytes()})
                 compose.runOnIdle{audio.chooseBackingTrack(block,source)};compose.waitUntil(20000){!audio.busy}
                 assertNotNull("$extension validation: ${audio.message}",audio.backingTrack)
                 compose.runOnIdle{audio.saveBackingTrack(block)};compose.waitUntil(15000){!audio.busy && audio.takes.value.any{it.label==name}}
+                assertNull("Saving must stop earlier playback without starting the import",audio.playingId)
                 val row=audio.takes.value.single{it.label==name};tag("practice-loop-selector").assertTextContains(name)
                 compose.runOnIdle{audio.play(row)};compose.waitUntil(15000){audio.importedRepeatActive()};compose.runOnIdle{audio.stopPlayback()}
                 app.contentResolver.delete(source,null,null)

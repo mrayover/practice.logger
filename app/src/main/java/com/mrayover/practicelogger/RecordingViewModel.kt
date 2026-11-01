@@ -82,7 +82,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         val draft = backingTrack?.takeIf { it.blockId == blockId } ?: return@work
         if (reviewTake != null) return@work
         val saved = withContext(NonCancellable + Dispatchers.IO) { repository.save(draft) }
-        backingTrack = null; importedSelection = saved; message = "Backing track saved."
+        stopPlayback(); backingTrack = null; importedSelection = saved; message = "Backing track saved."
     }
     private fun clearImport() {
         importGeneration++; importJob?.cancel()
@@ -343,7 +343,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             audio.isLooping = take.kind == TakeKind.IMPORTED_LOOP
             audio.setOnPreparedListener {
                 if (player === it && foreground && recordingScreenOpen && visibleBlockId == take.blockId) {
-                    try { it.start(); preparingId = null; playingId = take.id; if (take.kind == TakeKind.IMPORTED_LOOP) message = "Looping imported audio · " + practiceTime(take.durationMs) }
+                    try { it.start(); preparingId = null; playingId = take.id; if (take.kind == TakeKind.IMPORTED_LOOP) message = "Looping imported audio · " + takeDuration(take) }
                     catch (_: Exception) { stopPlayback(); message = "Playback could not start. Try again." }
                 }
             }

@@ -181,7 +181,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
-    val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.mode == "LOOP" && !reviewCollapsed)
+    val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.kind == TakeKind.RECORDED_LOOP && !reviewCollapsed)
     val transportMaxHeight = if (panelOpen) minOf(maxHeight * .42f,
         (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
@@ -232,7 +232,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             Modifier.weight(1f).fillMaxWidth().padding(horizontal=16.dp),tag="practice-metronome-panel") {
             MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.workingBpm,vm::configureMetronome,vm::changeWorkingBpm,!vm.busy,compact=true)
         }
-        if (recordings.reviewTake != null && recordings.reviewTake?.mode != "LOOP" && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
+        if (recordings.reviewTake != null && recordings.reviewTake?.kind == TakeKind.FREE && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
         PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
@@ -247,7 +247,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         }
         if (recordings.reviewTake != null && reviewCollapsed) Row(Modifier.fillMaxWidth().padding(horizontal=16.dp),
             verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
-            TextButton(onClick={ reviewCollapsed=false; transportPanel=if(recordings.reviewTake?.mode=="LOOP") "loop" else null }, modifier=Modifier.weight(1f).heightIn(min=48.dp)
+            TextButton(onClick={ reviewCollapsed=false; transportPanel=if(recordings.reviewTake?.kind==TakeKind.RECORDED_LOOP) "loop" else null }, modifier=Modifier.weight(1f).heightIn(min=48.dp)
                 .testTag("practice-review-expand")) { Text("Review Take · Not saved") }
             Button(onClick=recordings::saveReview,enabled=!recordings.busy,
                 modifier=Modifier.heightIn(min=48.dp).testTag("review-save")) { Text("Save") }

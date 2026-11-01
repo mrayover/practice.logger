@@ -658,3 +658,6 @@ Added inline Add Backing Track mode, disabled musical controls, Choose file/vali
 
 
 First CI41267797760/c058949 failed before app compilation: ffmpeg absent on runner (exit127). Added explicit bounded package installation for deterministic short generated codec fixtures. Also keep the creation checkbox out of temporary review (preserves original review height) and dismiss rename IME directly rather than sending Back, which could close its dialog. No results from the unstarted app/tests claimed; rerun same scoped workflow.
+
+
+Implementation review before native delivery: after a successful import commit, stop any prior take playback before selecting the new item (never on failed import/save). Show sub-second imported durations with two-decimal seconds instead of truncating to0:00. Centralize remaining review/category conditions through TakeKind; suppress redundant successful import/playback messages in the compact transport. Import footer shows supported formats/limits in the existing line. Native scenario adds save-while-an-earlier-loop-plays coverage. These are localized completion details; data/file validation and schema remain unchanged. Design/limits recorded in docs/IMPORTED_AUDIO.md.

@@ -24,6 +24,9 @@ fun takeDescription(take: BlockTake): String = when (take.kind) {
     TakeKind.RECORDED_LOOP -> "Loop · ${take.recordedBpm} BPM · ${take.beatCount} beats"
     TakeKind.IMPORTED_LOOP -> "Imported loop"
 }
+fun importedDuration(ms: Long): String = String.format(java.util.Locale.getDefault(), "%.2f seconds", ms/1000.0)
+fun takeDuration(take: BlockTake): String = if (take.kind == TakeKind.IMPORTED_LOOP) importedDuration(take.durationMs) else practiceTime(take.durationMs)
+
 data class ImportedAudioInfo(val name: String, val durationMs: Long)
 
 /** Private bounded staging; original bytes remain compressed/on disk, never a whole decoded PCM array. */

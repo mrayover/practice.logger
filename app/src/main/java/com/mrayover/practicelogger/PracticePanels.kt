@@ -125,12 +125,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 }
 
 fun compactPracticeTakeTitle(take: BlockTake): String = take.label.ifBlank { java.time.format.DateTimeFormatter.ofPattern("MMM d, h:mm:ss a").withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.ofEpochMilli(take.createdAt)) }
-private fun practiceTakeDetails(take: BlockTake): String = practiceTime(take.durationMs) +
+private fun practiceTakeDetails(take: BlockTake): String = takeDuration(take) +
     (if (take.label.isNotBlank()) " · " + sessionDate(take.createdAt) else "") +
     when (take.kind) { TakeKind.RECORDED_LOOP -> " · ${take.recordedBpm} BPM · ${take.beatCount} beats"; TakeKind.IMPORTED_LOOP -> " · Imported loop"; TakeKind.FREE -> "" }
 
 fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
-    it == "Take saved." || it.startsWith("Looping ·") || it.startsWith("Phrase saved. Looping") || it == "Complete phrase saved. Playback stopped."
+    it == "Take saved." || it == "Backing track saved." || it.startsWith("Looping imported audio") || it.startsWith("Looping ·") || it.startsWith("Phrase saved. Looping") || it == "Complete phrase saved. Playback stopped."
 }
 
 
