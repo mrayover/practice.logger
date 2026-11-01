@@ -1,18 +1,22 @@
-# Current state — Reference photo increment in progress
+# Current state — Reference camera/gallery actions delivered; P5 remains complete
 
-Owner assigned split Files / camera-gallery reference actions before Media Library. Version0.17.3/build69 implemented; focused release compilation and reference safety checks pending. Current installable delivery remains build68 below until signing completes. Next action: complete targeted build, sign build69 and record exact evidence.
+Updated November 1, 2026 (America/Los_Angeles).
 
-## Submarine release - November 1, 2026
+## Current delivery
 
-**0.17.2/build68**, source `02585f0f148df34379625d25473a16ba243e9787`; later closeout commits change records only. [APK](dist/practice.logger-0.17.2-b68-02585f0/practice.logger-0.17.2-b68-02585f0.apk) · [ZIP](dist/practice.logger-0.17.2-b68-02585f0.zip) · [Build info](dist/practice.logger-0.17.2-b68-02585f0/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.2-b68-02585f0/PHONE_CHECKLIST.txt).
+**0.17.3/build69**, application/test source `9c723442d8f3eb1dd8c2d23cc76dd3af4de7e1d3`; later closeout commits change records only. [APK](dist/practice.logger-0.17.3-b69-9c72344/practice.logger-0.17.3-b69-9c72344.apk) · [ZIP](dist/practice.logger-0.17.3-b69-9c72344.zip) · [Build info](dist/practice.logger-0.17.3-b69-9c72344/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.3-b69-9c72344/PHONE_CHECKLIST.txt).
 
-Install over the existing permanent-key app without uninstalling/clearing data. Package/version/signature/pinned certificate verified by scripts/Publish-LocalApk.ps1. APK SHA256 `61e4740c10f7d85c153c105d46b5ae3dae5a0dc86903105d2c2cee6ca79a5f23`; ZIP SHA256 `797a9cb473506fbc979e586a20c5fb440bc2cf4bfc2ce320c2f072db51b751c0`. Signed non-signature payload equals CI release; ZIP CRC/exact member bytes and all prior distribution hashes pass. dist/LATEST points to build68. The earlier CI-key debug inspection artifact is superseded by this installable release.
+Install over the current permanent-key app without uninstalling/clearing data. Existing publisher verifies app ID, version, signature and pinned certificate. APK SHA256 `5eb33857e214490dfc196482c85c49e587df86ecfa21d59505fc4fbcafb31385`; ZIP SHA256 `1ec2120c694d0baae4d8077c57bb5145543ef5caf1fdabd74e7d00f076cd5b0d`. Signed non-signature payload matches the CI release; ZIP integrity/member bytes and all 294 prior APK/ZIP hashes pass. dist/LATEST points here. Previous build68/Submarine packages remain preserved; Submarine is included unchanged.
 
-Submarine adds red night lighting through existing Compose/native theme roles. Settings order: Light, Dark, Smooth, Sunny, Orchid, Submarine, System Default. Existing palettes, saved IDs and Light default/fallback remain. No layout, database or audio changes.
+## Scope and focused verification
 
-[Targeted CI41333893736](https://github.com/mrayover/practice.logger/actions/runs/41333893736) passes 7/7 theme tests and release compilation. No full P5 regression, native suite or lint rerun. Original CI41333454953 also passed 7 tests/debug compilation. User clarified that the requested increment requires a new installable signed release; build68 corrects the initial debug-only delivery. Phone visual/physical acceptance remains pending.
+Saved Block reference controls now show files on the left, Or, and Take or Add a photo on the right. Matching outlined buttons have centered text, equal height and minimum48dp targets; enlarged text/narrow windows stack the actions. The photo chooser offers Take photo / Choose from gallery / Cancel. Full-resolution capture uses a private FileProvider; selected-photo access uses Android PickVisualMedia with older-device fallback. Delegating capture to the installed camera app requires no new broad app camera/gallery permission. Missing camera or launch failures show a recoverable message.
 
-**Next action: install build68 over the current app and inspect its Submarine phone checklist.** P5 remains complete and owner accepted on the baseline below.
+All sources reuse bounded image/PDF validation and safe replacement. Cancelling keeps the existing attachment. Capture filename survives activity recreation; consumed/cancelled capture staging is removed, while abandoned process-loss staging is OS-managed cache. Photos captured here are private app copies, not automatically saved to the shared gallery. Original image orientation and one-reference ownership remain; Room11, JSON7/media exclusions, practice/audio and themes remain unchanged. Media Library has not started.
+
+[Targeted CI41363227308](https://github.com/mrayover/practice.logger/actions/runs/41363227308) passes release compilation and **11/11** tests across ReferencePhotoCaptureTest, ImageReferenceTest and PdfReferenceTest. Coverage includes provider scope/full-byte output/cancel contract/path rejection plus existing validation/rollback/orientation/PDF safety. No full P5 regression, native workflow, lint or physical camera/gallery/phone visual acceptance rerun. Accepted P5 evidence below applies to build67, not newly certified build69 behavior.
+
+**Exact next action: install build69 over the current app and perform its short camera/gallery phone checklist.**
 
 ## Accepted P5 baseline
 
@@ -40,4 +44,4 @@ Room11, explicit migrations, JSON7/readers1–7, stable IDs, original references
 
 Owner confirmed on November 1, 2026: “Confirmed complete and running correctly”. This accepts the delivered 0.17.1/build67 in the context of the P5 handoff and closes P5. Phone model, Android version and itemized checklist observations were not supplied; no additional measurements or individual check results are inferred.
 
-No additional P5 work is pending. The current Submarine next action is listed above. Media Library L1 has not started and is not authorized by acceptance alone. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.
+No additional P5 work is pending. The current reference-photo next action is listed above. Media Library L1 has not started and is not authorized by acceptance alone. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.

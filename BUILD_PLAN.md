@@ -2,6 +2,10 @@
 
 Updated 2026-11-01 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## Owner-assigned reference photo refinement
+
+Delivered0.17.3/build69 before Media Library: split files / Or / camera-gallery actions in the saved Block editor, private full-resolution camera output and selected gallery image through existing validation. Targeted release build and 11 reference/capture tests pass; full P5 is not rerun. Signed delivery, evidence and phone checklist: [CURRENT_STATE](CURRENT_STATE.md).
+
 ## Owner-assigned Submarine refinement
 
 One dark red palette through existing semantic/native roles and stable persisted ID; Submarine immediately before System Default at the bottom. Existing palettes, Light default and saved choices remain. Owner clarified delivery requires a new signed install-over release: 0.17.2/build68, using the permanent key. Seven theme tests and release compilation pass; no P5 rerun. Verification: CURRENT_STATE.

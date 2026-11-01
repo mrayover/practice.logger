@@ -78,3 +78,8 @@ Reviewed 2026-11-01 (America/Los_Angeles) for signed P5 build67. The full automa
 Run the assigned full build/unit/lint and API26/API35 native gates only after preflight review. Include P1 review, P2 extremes, P3 pulse/meter, P4 Settings/completion/Notes, all appearance choices and imported-audio checks; the historical primary workflow alone does not cover every later increment. Keep seed/reopen/install-over ordering and original safety assertions. Isolate failures with logs/screenshots before repeating a full matrix.
 
 Record exact source, commands/workflows, actual counts/failures/cancellations and limitations. Compilation, emulator passes, signed artifact integrity and physical acceptance are separate. Stage3 detailed phone acceptance remains pending. [EVALUATION.md](EVALUATION.md) remains0/10 documented real sessions; synthetic tests do not count. Future Media Library/recovery/Goal phases require their own assignments and dependency gates.
+
+
+## Build69 reference camera/gallery phone checks
+
+Use the short PHONE_CHECKLIST in the current delivery linked from [CURRENT_STATE](CURRENT_STATE.md): files/image/PDF, capture/orientation, gallery, cancellation/replacement, recreation, unavailable camera and enlarged-text layout. Automated focused checks pass; phone/vendor acceptance is pending.
