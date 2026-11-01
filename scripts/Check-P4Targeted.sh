@@ -13,6 +13,9 @@ collect() {
 trap collect EXIT
 timeout 30s adb install -r app/build/outputs/apk/debug/app-debug.apk
 timeout 30s adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+if [ "${1:-all}" = transport ]; then
+  timeout 10s adb shell settings put system font_scale 1.3
+fi
 adb logcat -c || true
 classes='com.mrayover.practicelogger.TargetedP4PreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest#practiceWholeButtonFollowsLiveBeatsAndStops'
 expected='OK (4 tests)'

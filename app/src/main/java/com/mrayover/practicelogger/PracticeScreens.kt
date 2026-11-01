@@ -14,6 +14,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.*
 import java.time.Instant
 import java.time.ZoneId
@@ -333,26 +338,41 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     var entered by rememberSaveable { mutableStateOf("") }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
     val bpmControl: @Composable (Modifier) -> Unit = { modifier ->
-        TextButton(onClick = { entered = vm.workingBpm.toString(); editing = true; onEditingChanged(true) }, enabled = !vm.busy,
-            contentPadding = PaddingValues(horizontal = 2.dp), modifier = modifier.heightIn(min = 48.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" }) {
-            Column {
-                Text("Metronome",style=MaterialTheme.typography.labelSmall)
-                Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-                    Text("${vm.workingBpm} BPM",style=MaterialTheme.typography.labelSmall)
-                    Text(vm.metronomeConfig.meter.label,style=MaterialTheme.typography.labelSmall)
+        BoxWithConstraints(modifier.heightIn(min = 48.dp).clickable(enabled = !vm.busy, role = Role.Button) {
+            entered = vm.workingBpm.toString(); editing = true; onEditingChanged(true)
+        }.padding(horizontal = 2.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" }) {
+            val infoStyle = fittedTransportStyle("Metronome\n${vm.workingBpm} BPM  ${vm.metronomeConfig.meter.label}",
+                MaterialTheme.typography.labelSmall, maxWidth)
+            Column(Modifier.align(androidx.compose.ui.Alignment.CenterStart)) {
+                Text("Metronome", style = infoStyle, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("${vm.workingBpm} BPM", style = infoStyle, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
+                    Text(vm.metronomeConfig.meter.label, style = infoStyle, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
                 }
             }
         }
     }
-    val controls: @Composable () -> Unit = {
+    val textMeasurer = rememberTextMeasurer()
+    val playTextWidth = with(LocalDensity.current) {
+        textMeasurer.measure("Play", MaterialTheme.typography.labelLarge).size.width.toDp()
+    }
+    val clickEndInset = ((56.dp - playTextWidth) / 2).coerceAtLeast(2.dp)
+    val controls: @Composable (Boolean) -> Unit = { compact ->
+        // Preserve the 184dp region after the chevron; center the tempo pair above Record.
+        if (compact) Spacer(Modifier.width(28.dp))
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
+        val clickWidth = if (compact) 76.dp else 104.dp
+        val label = if (vm.clicking) "Stop click" else "Start click"
+        val labelStyle = fittedTransportStyle(label, MaterialTheme.typography.bodyMedium, clickWidth - clickEndInset - 2.dp)
         OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
             colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
-            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.width(104.dp).heightIn(min = 48.dp)
-                .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) { Text(if (vm.clicking) "Stop click" else "Start click", style = MaterialTheme.typography.bodyMedium) }
+            contentPadding = PaddingValues(start = 2.dp, end = clickEndInset), modifier = Modifier.width(clickWidth).heightIn(min = 48.dp)
+                .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
+            Text(label, Modifier.fillMaxWidth(), style = labelStyle, textAlign = TextAlign.End, maxLines = 1, softWrap = false)
+        }
     }
         val expand: @Composable () -> Unit = {
             TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(24.dp).heightIn(min=48.dp)
@@ -361,21 +381,21 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
     val accent: @Composable () -> Unit = {
-        Row(Modifier.width(80.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        Row(Modifier.width(72.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Text("Accent", style = MaterialTheme.typography.labelSmall)
             Checkbox(checked = vm.metronomeConfig.accent,
                 onCheckedChange = { vm.configureMetronome(vm.metronomeConfig.copy(accent = it)) }, enabled = !vm.busy,
                 modifier = Modifier.width(32.dp).height(48.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
         }
     }
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    BoxWithConstraints(Modifier.fillMaxWidth().testTag("practice-metronome-row")) {
         if (largeText || maxWidth < 350.dp) Column {
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 bpmControl(Modifier.weight(1f)); accent(); expand()
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { controls() }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { controls(false) }
         } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            bpmControl(Modifier.weight(1f)); accent(); expand(); controls()
+            bpmControl(Modifier.weight(1f)); accent(); expand(); controls(true)
         }
     }
     vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
@@ -386,6 +406,13 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }, confirmButton = { TextButton(onClick = { parseWorkingBpm(entered)?.let { vm.changeWorkingBpm(it); editing = false; onEditingChanged(false) } },
         enabled = parseWorkingBpm(entered) != null && !vm.busy) { Text("Apply BPM") } },
         dismissButton = { TextButton(onClick = { editing = false; onEditingChanged(false) }) { Text("Cancel") } })
+}
+
+// Fit only when a user's text scale would otherwise clip the compact row; keep Lato and one line.
+@Composable private fun fittedTransportStyle(text: String, style: TextStyle, width: Dp): TextStyle {
+    val measured = rememberTextMeasurer().measure(text, style, softWrap = false).size.width.coerceAtLeast(1)
+    val available = with(LocalDensity.current) { width.toPx() }.coerceAtLeast(1f)
+    return style.copy(fontSize = style.fontSize * minOf(1f, available / measured))
 }
 
 @Composable private fun ActionButton(label: String, click: () -> Unit, enabled: Boolean = true) {
