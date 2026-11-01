@@ -293,18 +293,19 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         dismissButton = { TextButton(onClick = { leaving = false }, enabled = !vm.busy) { Text("Continue") } })
 }
 
-@Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null) {
+@Composable fun SessionSummary(bundle: SessionBundle?, vm: PracticeViewModel, onHome: () -> Unit, goalName: String? = null, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    val history by notes.history.collectAsStateWithLifecycle()
     if (bundle == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available.") }
         return
     }
     var note by rememberSaveable(bundle.session.id) { mutableStateOf(bundle.session.note) }
     var discard by rememberSaveable(bundle.session.id) { mutableStateOf(false) }
-    fun leave() { if (!vm.busy) { if (note.trim() != bundle.session.note) discard = true else onHome() } }
+    fun leave() { if (!vm.busy && !notes.busy) { if (note.trim() != bundle.session.note || bundle.ordered.any { notes.hasUnsavedEdits(it.sourceBlockId) }) discard = true else onHome() } }
     BackHandler { leave() }
     if (discard) AlertDialog(onDismissRequest = { discard = false }, title = { Text("Discard unsaved session note?") },
-        text = { Text("Save note first to keep these changes.") },
-        confirmButton = { TextButton(onClick = { discard = false; onHome() }) { Text("Discard") } },
+        text = { Text("Save your session note and practice note edits first to keep these changes.") },
+        confirmButton = { TextButton(onClick = { bundle.ordered.forEach { notes.discardEdits(it.sourceBlockId) }; discard = false; onHome() }) { Text("Discard") } },
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep editing") } })
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
@@ -316,9 +317,10 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             Text(placement.action)
             Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
             placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
-            if (placement.note.isNotBlank()) Text(placement.note)
+            SavedPracticeNotes(sessionPlacementNotes(history, bundle.session.id, placement), notes.busy, notes)
             HorizontalDivider()
         }
+        notes.message?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
         OutlinedTextField(note, { note = it; vm.noteChanged() }, label = { Text("Session note (optional)") }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.saveNote(bundle.session.id, note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save note") }
         if (vm.noteSaved && note.trim() == bundle.session.note) Text("Note saved")

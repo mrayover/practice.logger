@@ -84,6 +84,30 @@ class PracticeNoteRepositoryTest {
             db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
     }
+    @Test fun completedSummaryIncludesSavedAndLegacyNotesAfterReopenAndEdit(): Unit = runBlocking {
+        val name = "completed-summary-notes.db"; context.deleteDatabase(name)
+        var db = BlockDatabase.open(context, name)
+        try {
+            val (block, bundle) = fixture(db)
+            val placement = bundle.current!!
+            val saved = PracticeNoteRepository(db).append(block, bundle.session.id, placement.id, "Session practice note")
+            SessionRepository(db).finishBlock(bundle.session.id, "COMPLETED", "", preserveNote = true)
+            // A second session on the same Block must not leak into the first summary.
+            val repo = SessionRepository(db); repo.addBlock(block); val other = repo.start()
+            PracticeNoteRepository(db).append(block, other, db.sessions().find(other)!!.current!!.id, "Other session")
+            db.close(); db = BlockDatabase.open(context, name)
+            val completed = db.sessions().find(bundle.session.id)!!
+            assertEquals("COMPLETED", completed.session.status)
+            val entries = sessionPlacementNotes(db.practiceNotes().history().first(), completed.session.id, completed.ordered.single())
+            assertEquals(setOf("Session practice note", "Legacy placement note"), entries.map { it.text }.toSet())
+            PracticeNoteRepository(db).update(entries.single { !it.legacy }, "Edited from summary")
+            db.close(); db = BlockDatabase.open(context, name)
+            val reopened = sessionPlacementNotes(db.practiceNotes().history().first(), completed.session.id, completed.ordered.single())
+            assertEquals("Edited from summary", reopened.single { !it.legacy }.text)
+            assertEquals(saved.createdAt, reopened.single { !it.legacy }.createdAt)
+            assertEquals(placement.activeMs, db.sessions().find(bundle.session.id)!!.ordered.single().activeMs)
+        } finally { db.close(); context.deleteDatabase(name) }
+    }
     @Test fun independentEntriesValidateOwnershipAndKeepFailuresAtomic(): Unit = runBlocking {
         val db = memory()
         try {

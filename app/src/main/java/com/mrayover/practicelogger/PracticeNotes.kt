@@ -50,6 +50,10 @@ val NOTES_MIGRATION_10_11 = object : Migration(10, 11) {
     }
 }
 
+// Historical summaries must include both timestamped and legacy notes for this exact placement.
+fun sessionPlacementNotes(history: List<PracticeNoteEntry>, sessionId: String, placement: Placement) =
+    history.filter { it.sessionId == sessionId && it.placementId == placement.id && it.blockId == placement.sourceBlockId }
+
 class PracticeNoteRepository(private val db: BlockDatabase, private val now: () -> Long = System::currentTimeMillis) {
     val history = db.practiceNotes().history()
     suspend fun update(entry: PracticeNoteEntry, text: String) = db.withTransaction {

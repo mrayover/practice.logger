@@ -138,7 +138,6 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun BlockNotesPanel(entries: List<PracticeNoteEntry>, draft: String, onDraft: (String) -> Unit,
     busy: Boolean, message: String?, onSave: () -> Unit, onReturn: () -> Unit, editModel: BlockNotesViewModel, modifier: Modifier = Modifier) {
-    val editingIds by editModel.editingIds.collectAsStateWithLifecycle()
     Column(modifier.testTag("practice-notes-panel")) {
         PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "practice-notes-content") {
             Text("Add New Note", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
@@ -146,6 +145,21 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
                 modifier = Modifier.fillMaxWidth().testTag("practice-new-note"))
             message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             if (entries.isEmpty()) Text("No saved practice notes for this Block.", style = MaterialTheme.typography.bodySmall)
+            SavedPracticeNotes(entries, busy, editModel)
+        }
+        // Pinned note actions stay reachable even when the editor/history scrolls or IME opens.
+        androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            TextButton(onClick = onSave, enabled = !busy && draft.isNotBlank(), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Note") }
+            TextButton(onClick = onReturn, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Return to Practice") }
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable fun SavedPracticeNotes(entries: List<PracticeNoteEntry>, busy: Boolean, editModel: BlockNotesViewModel) {
+    val editingIds by editModel.editingIds.collectAsStateWithLifecycle()
             entries.forEach { entry -> key(entry.id) {
                 var expanded by rememberSaveable(entry.id) { mutableStateOf(false) }
                 val editing = entry.id in editingIds
@@ -174,12 +188,4 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
                         modifier = Modifier.heightIn(min = 48.dp).testTag("practice-note-edit-${entry.id}")) { Text("Edit") }
                 }
             } }
-        }
-        // Pinned note actions stay reachable even when the editor/history scrolls or IME opens.
-        androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            TextButton(onClick = onSave, enabled = !busy && draft.isNotBlank(), modifier = Modifier.heightIn(min = 48.dp)) { Text("Save Note") }
-            TextButton(onClick = onReturn, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("Return to Practice") }
-        }
-    }
 }
-
