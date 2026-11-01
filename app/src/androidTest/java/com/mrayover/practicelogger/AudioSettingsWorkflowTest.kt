@@ -45,8 +45,12 @@ class AudioSettingsWorkflowTest {
             device.takeScreenshot(File(dir,"settings-landscape.png"))
         } finally {
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).executeShellCommand("settings put system font_scale 1.0")
-            compose.runOnIdle { compose.activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
-            compose.runOnIdle { prefs.saveSound(ClickSound.CLASSIC);prefs.saveMode(MetronomeMode.SOUND_FLASH);prefs.saveAlarm(AlarmSound.TWO_TONE) } }
+            // Configuration reset can replace the composition before cleanup runs.
+            // Use the lifecycle callback without waiting on the disposed Compose root.
+            compose.activityRule.scenario.onActivity { activity ->
+                prefs.saveSound(ClickSound.CLASSIC);prefs.saveMode(MetronomeMode.SOUND_FLASH);prefs.saveAlarm(AlarmSound.TWO_TONE)
+                activity.requestedOrientation=android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            } }
     }
     @Test fun foregroundCountdownAlarmsOnceOffIsSilentAndBackgroundCannotFire() {
         val app=compose.activity.application;val prefs=AudioPreferences(app)
