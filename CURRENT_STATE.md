@@ -1,12 +1,18 @@
-# Current state — P4 targeted UI and historical Notes / build59
+# Current state — P4 targeted UI and historical Notes / build60
 
 ## Delivery
 
-Signed release **0.16.0/build59**, app source `ed8f6a382ef751066c0caa86428f94c605e6c15c`. Later commits change only the targeted diagnostic/records. [APK](dist/practice.logger-0.16.0-b59-ed8f6a3/practice.logger-0.16.0-b59-ed8f6a3.apk) · [ZIP](dist/practice.logger-0.16.0-b59-ed8f6a3.zip) · [Build info](dist/practice.logger-0.16.0-b59-ed8f6a3/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.16.0-b59-ed8f6a3/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling or clearing data. Previous distributions remain preserved and ignored.
+Signed release **0.16.0/build60**, app source `969855f69a4ca85272071b25b0bb36e553853869`. Later commits change only the targeted diagnostic/records. [APK](dist/practice.logger-0.16.0-b60-969855f/practice.logger-0.16.0-b60-969855f.apk) · [ZIP](dist/practice.logger-0.16.0-b60-969855f.zip) · [Build info](dist/practice.logger-0.16.0-b60-969855f/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.16.0-b60-969855f/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling or clearing data. Previous distributions remain preserved and ignored.
 
-APK SHA256 `e80ffa490db73d5f7bfda6cf9e301ba246a9f7b84f8693534fe4f221d044bce3`. ZIP SHA256 `5d51ea2750ce5ea5931d3c940c160ccd39022fa4f5e1fce1bbe5701e4b9f41e1`. Existing publisher verified application ID, version59 and the pinned permanent certificate/signature; ZIP CRC and every packaged file match the distribution folder.
+APK SHA256 `b3c86bec7ef192bbad93ebc77bcb40a2d86ea685ee74f7d02769c32451efd21a`. ZIP SHA256 `23159647fd3fda9f09da0360995384ebb32db56d812c687e8a1d22ec39ad6a0f`. Existing publisher verified application ID, version60 and the pinned permanent certificate/signature; ZIP CRC and every packaged file match the distribution folder.
 
-## Metronome-only phone follow-up
+## Final click/Accent follow-up
+
+Owner accepts the remaining build59 layout. Build60 only centers Start/Stop click text with symmetric padding, offsets its bubble12dp into the existing scroll gutter so its left edge meets Record/Loop Setup's right edge, and makes Accent/checked/unchecked box use primary green. Tempo, chevron, timing/audio/Notes and recording rows are unchanged.
+
+[CI41265135190](https://github.com/mrayover/practice.logger/actions/runs/41265135190) passes debug/release/test compilation and the same single130%-text transport case, including text-center/both-boundary checks and existing meter/chevron/tempo safeguards. Captured Light screenshots inspected; the nominal dark capture still shows Light, so no Dark screenshot verification is claimed. Superseded pre-color run41265093635 was cancelled, no pass claimed. No full regression or repeated units. Signed APK/certificate/version and ZIP CRC/member bytes verified; phone confirmation pending.
+
+## Build59 accepted layout baseline
 
 Build59 changes only PracticeScreens.kt plus versioning: remove rounded clipping around the BPM/name area, give it8dp more room, fit single-line labels/signatures when needed, and shift the tempo pair32dp to center over Record. The click action/text moves right with its final letter aligned to Play. The chevron's24dp width and184dp right-hand region remain unchanged; recording rows/audio/state/Notes are unchanged.
 
@@ -30,6 +36,6 @@ No comprehensive regression, lint, API26 matrix or enlarged-text/landscape run f
 
 ## Exact next task
 
-Install build59 over the existing app and compare only the metronome row with the owner's phone screenshot using the included short checklist.
+Install build60 over the existing app and confirm centered click text/bubble boundary and green Accent against the owner's phone screenshot.
 
 Full changed-file list, checkpoint commits and detailed verification: [P4 delivery record](docs/P4_TARGETED_UI_DELIVERY.md).

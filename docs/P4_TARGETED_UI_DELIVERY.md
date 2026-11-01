@@ -1,6 +1,10 @@
 # P4 targeted UI refinement delivery
 
-This record covers only the assigned visual/navigation/transport refinement and historical Notes fix. App sourceed8f6a3 is signed as0.16.0/build59; delivery paths/hashes and the exact next phone task are authoritative in [CURRENT_STATE](../CURRENT_STATE.md). No V1 roadmap or P5/P6/P7 implementation.
+This record covers only the assigned visual/navigation/transport refinement and historical Notes fix. App source969855f is signed as0.16.0/build60; delivery paths/hashes and the exact next phone task are authoritative in [CURRENT_STATE](../CURRENT_STATE.md). No V1 roadmap or P5/P6/P7 implementation.
+
+## Build60 final click/Accent follow-up
+
+Owner accepts the rest of59. Only PracticeScreens.kt/version changes: centered click label,12dp bubble offset to recording-action boundary, green Accent/box. Same one130%-text native scenario passes text-center and both-edge assertions with existing safeguards; Captured Light screenshots inspected; the nominal dark capture still shows Light, so no Dark screenshot verification is claimed. CI41265135190. Prior pre-color41265093635 cancelled as superseded. No broad tests. Source969855f; delivery/hashes in CURRENT_STATE.
 
 ## Build59 phone follow-up
 
@@ -28,6 +32,8 @@ Only the metronome row changes: full unclipped name, more room before Accent/che
 |0436e88|Preserved build58 candidate; centering assertion exposed the action gap|
 |ed8f6a3|Metronome-only phone alignment follow-up; signed build59 source|
 |26931d8|Test-only rendered-text bounds diagnostic; app unchanged|
+|bcc742b|Centered/nudged click bubble|
+|969855f|Green Accent label/box; signed60 source|
 
 ## Verification
 
