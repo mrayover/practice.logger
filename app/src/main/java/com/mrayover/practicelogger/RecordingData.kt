@@ -65,7 +65,7 @@ val FREE_RECORDING_MIGRATION_5_6 = object : Migration(5, 6) {
     }
 }
 
-data class PendingTake(val id: String, val blockId: String?, val createdAt: Long, val file: File, val phrase: PhraseSpec? = null)
+data class PendingTake(val id: String, val blockId: String?, val createdAt: Long, val file: File, val phrase: PhraseSpec? = null, val imported: ImportedAudioInfo? = null)
 
 /** Only generated UUID names are ever resolved inside this private directory. No user paths. */
 class TakeRepository(private val db: BlockDatabase, private val directory: File,
@@ -77,7 +77,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
         private val activeFiles = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     }
     val takes = db.takes().observeAll()
-    private val ownedName = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\\.pending)?\\.(m4a|wav)")
+    private val ownedName = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\\.pending)?\\.(m4a|wav|mp3)")
     private fun resolve(name: String): File {
         require(ownedName.matches(name)) { "Invalid recording file name." }
         return File(directory, name).also { check(it.canonicalFile.parentFile == directory.canonicalFile) }
@@ -85,11 +85,16 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     // Capture needs space immediately, without relying on the system reclaiming cache mid-write.
     @android.annotation.SuppressLint("UsableSpace")
     fun availableBytes(): Long = directory.usableSpace
-    fun prepare(blockId: String?, phrase: PhraseSpec? = null): PendingTake {
+    fun prepare(blockId: String?, phrase: PhraseSpec? = null): PendingTake = prepareFile(blockId, if (phrase == null) "m4a" else "wav", phrase)
+    fun prepareImport(blockId: String, extension: String): PendingTake {
+        require(extension in setOf("m4a", "wav", "mp3"))
+        return prepareFile(blockId, extension, null, AudioImport.MAX_BYTES+512*1024)
+    }
+    private fun prepareFile(blockId: String?, extension: String, phrase: PhraseSpec?, minimumSpace: Long = 0): PendingTake {
         check(directory.isDirectory || directory.mkdirs()) { "Recording storage is unavailable." }
         requireRecordingSpace(availableBytes(), phrase)
-        val id = UUID.randomUUID().toString()
-        val file = resolve("$id.pending." + if (phrase == null) "m4a" else "wav")
+        check(availableBytes() >= minimumSpace) { "Free at least 51 MiB before importing audio." }
+        val id = UUID.randomUUID().toString(); val file = resolve("$id.pending.$extension")
         activeFiles.add(file.absolutePath)
         try { check(file.createNewFile()) } catch (failure: Exception) { activeFiles.remove(file.absolutePath); throw failure }
         return PendingTake(id, blockId, System.currentTimeMillis(), file, phrase)
@@ -97,11 +102,15 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     fun abandon(pending: PendingTake) { pending.file.delete(); activeFiles.remove(pending.file.absolutePath) }
     /** Validates temporary audio without creating a permanent row or renaming its file. */
     fun inspect(pending: PendingTake): BlockTake {
-        val duration = pending.phrase?.let { spec ->
+        val duration = pending.imported?.let {
+            require(it.durationMs in 1..AudioImport.MAX_DURATION_MS && pending.file.length() in 1..AudioImport.MAX_BYTES)
+            it.durationMs
+        } ?: pending.phrase?.let { spec ->
             require(PhraseWave.frames(pending.file) == spec.frames) { "Incomplete phrase." }; spec.durationMs
         } ?: inspectDuration(pending.file)
         require(duration > 0 && pending.file.length() > 0) { "No usable audio was recorded." }
-        return BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.phrase == null) "FREE" else "LOOP",
+        return BlockTake(pending.id, pending.blockId, pending.createdAt, mode = if (pending.imported != null) TakeKind.IMPORTED_LOOP.stored else if (pending.phrase == null) "FREE" else "LOOP",
+            label = pending.imported?.name ?: "",
             durationMs = duration, fileName = pending.file.name, recordedBpm = pending.phrase?.bpm, beatCount = pending.phrase?.beats)
     }
     suspend fun save(pending: PendingTake): BlockTake = filesMutex.withLock {

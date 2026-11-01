@@ -115,7 +115,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
             choices.forEach { take ->
                 Column(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = Role.Button) { onSelect(take) }
                     .padding(vertical = 6.dp).testTag("practice-select-${take.id}").semantics { selected = take.id == selectedId }) {
-                    Text(compactPracticeTakeTitle(take), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
+                    Text(compactPracticeTakeTitle(take), maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
                     Text(practiceTakeDetails(take), style = MaterialTheme.typography.bodySmall)
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -127,7 +127,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun compactPracticeTakeTitle(take: BlockTake): String = take.label.ifBlank { java.time.format.DateTimeFormatter.ofPattern("MMM d, h:mm:ss a").withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.ofEpochMilli(take.createdAt)) }
 private fun practiceTakeDetails(take: BlockTake): String = practiceTime(take.durationMs) +
     (if (take.label.isNotBlank()) " · " + sessionDate(take.createdAt) else "") +
-    if (take.mode == "LOOP") " · ${take.recordedBpm} BPM · ${take.beatCount} beats" else ""
+    when (take.kind) { TakeKind.RECORDED_LOOP -> " · ${take.recordedBpm} BPM · ${take.beatCount} beats"; TakeKind.IMPORTED_LOOP -> " · Imported loop"; TakeKind.FREE -> "" }
 
 fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
     it == "Take saved." || it.startsWith("Looping ·") || it.startsWith("Phrase saved. Looping") || it == "Complete phrase saved. Playback stopped."

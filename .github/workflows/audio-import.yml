@@ -1,0 +1,62 @@
+name: Imported backing audio scoped verification
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Complete scoped checks or imported-audio scenarios only
+        type: choice
+        options: [all, import]
+        default: all
+permissions:
+  contents: read
+jobs:
+  imported-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Generate small known MP3 and AAC codec fixtures
+        run: |
+          mkdir -p app/src/androidTest/assets/audio
+          timeout 15s ffmpeg -v error -f lavfi -i 'sine=frequency=440:duration=0.45' -ar 44100 -ac 1 -c:a libmp3lame app/src/androidTest/assets/audio/backing.mp3
+          timeout 15s ffmpeg -v error -f lavfi -i 'sine=frequency=330:duration=0.45' -ar 44100 -ac 1 -c:a aac app/src/androidTest/assets/audio/backing.m4a
+      - name: Compile and verify scoped file ownership and existing recording boundaries
+        run: |
+          if [ "${{ inputs.scope }}" = all ]; then
+            timeout 480s bash ./gradlew testDebugUnitTest --tests '*AudioImportTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*PhraseAudioTest' --tests '*StandaloneRecordingTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+          else
+            timeout 300s bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio-import-apks
+          path: app/build/outputs/apk
+          if-no-files-found: error
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash scripts/Check-AudioImport.sh ${{ inputs.scope }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audio-import-evidence
+          path: |
+            app/build/audio-import
+            app/build/test-results/testDebugUnitTest

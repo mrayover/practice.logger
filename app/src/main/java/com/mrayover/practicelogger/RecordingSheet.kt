@@ -61,6 +61,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         exportId = null
     }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mp4"), exportResult)
+    val exportMp3 = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mpeg"), exportResult)
     val exportWave = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/wav"), exportResult)
     if (manageLifecycle) DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
     LaunchedEffect(pendingStart, vm.ready, vm.busy, lifecycleState) {
@@ -118,7 +119,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Record phrase") }
                 Text("Your selected count-in, then one fixed-tempo phrase. A complete phrase opens Review Take before saving. Leaving cancels an incomplete phrase.", style = MaterialTheme.typography.bodySmall)
                 }
-                if (takes.any { it.id == vm.playingId && it.mode == "LOOP" }) {
+                if (takes.any { it.id == vm.playingId && it.isLoop }) {
                     Button(onClick = vm::stopPlayback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Stop loop") }
                 }
                 if (vm.busy) Text("Working…")
@@ -136,19 +137,19 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 Column(Modifier.fillMaxWidth().testTag("take-" + take.id), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     val title = takeTitle(take)
                     Text(title, style = MaterialTheme.typography.titleMedium)
-                    Text((if (take.mode == "LOOP") "Loop · ${take.recordedBpm} BPM · ${take.beatCount} beats · " else "Free · ") + practiceTime(take.durationMs) + " · " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
+                    Text((takeDescription(take) + " · ") + practiceTime(take.durationMs) + " · " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
                     val playing = vm.playingId == take.id || vm.preparingId == take.id
                     if (vm.preparingId == take.id) Text("Preparing playback…")
                     OutlinedButton(onClick = {
                         if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.play(take) }
                     }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                         .testTag("play-" + take.id).semantics { contentDescription = (if (playing) "Stop " else "Play ") + title }) {
-                        Text(if (playing) "Stop playback" else if (take.mode == "LOOP") "Play loop" else "Play take")
+                        Text(if (playing) "Stop playback" else if (take.isLoop) "Play loop" else "Play take")
                     }
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         TextButton(onClick = { renameId = take.id; label = take.label }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("rename-" + take.id).semantics { contentDescription = "Rename $title" }) { Text("Rename") }
-                        TextButton(onClick = { exportId = take.id; if (take.mode == "LOOP") exportWave.launch("practice-loop-${take.id}.wav") else export.launch("practice-take-${take.id}.m4a") }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
+                        TextButton(onClick = { exportId = take.id; when (take.audioMime) { "audio/wav" -> exportWave.launch("practice-loop-${take.id}.wav"); "audio/mpeg" -> exportMp3.launch("practice-loop-${take.id}.mp3"); else -> export.launch("practice-take-${take.id}.m4a") } }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("export-" + take.id).semantics { contentDescription = "Export $title" }) { Text("Export audio") }
                         TextButton(onClick = { deleteId = take.id }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("delete-" + take.id).semantics { contentDescription = "Delete $title" }) { Text("Delete") }
@@ -207,7 +208,11 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             countIn = vm.countInTotal.toString()
         }
     }
+    var backing by rememberSaveable(blockId) { mutableStateOf(false) }
+    val importMode = inline && backing && review == null
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> vm.chooseBackingTrack(blockId, uri) }
     val editable = !vm.recording && review == null && !vm.busy
+    val musicalEditable = editable && !importMode
     val form: @Composable () -> Unit = {
         Column(if (inline) Modifier.heightIn(min = (minimumHeight - with(androidx.compose.ui.platform.LocalDensity.current) {
             headingHeight.toDp()
@@ -216,7 +221,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             Row(Modifier.fillMaxWidth().testTag("phrase-fields"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 val field: @Composable RowScope.(String, (String) -> Unit, String, String, Boolean) -> Unit = { value, change, label, tag, error ->
                     OutlinedTextField(value, change, label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                        enabled = editable, singleLine = true, isError = error,
+                        enabled = musicalEditable, singleLine = true, isError = error,
                         textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
@@ -229,19 +234,38 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             listOf(listOf(4, 8, 16, 32), listOf(6, 12, 24, 48)).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     row.forEach { beats ->
-                        FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() }, enabled = editable,
+                        FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() }, enabled = musicalEditable,
                             label = { Text("$beats beats", style = MaterialTheme.typography.labelSmall) },
                             modifier = Modifier.weight(1f).then(if (largeText) Modifier.heightIn(min = 56.dp) else Modifier.height(34.dp)).testTag("phrase-shortcut-$beats"))
                     }
                 }
             }
-            Text(spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) }
-                ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
-                color = if (spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("phrase-duration"))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text(if (importMode) vm.backingTrack?.imported?.let { "Duration: " + practiceTime(it.durationMs) } ?: "Choose audio to validate its duration."
+                    else spec?.let { "One phrase: " + String.format(java.util.Locale.getDefault(), "%.2f seconds", it.durationMs / 1000.0) }
+                        ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
+                    color = if (!importMode && spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).testTag("phrase-duration"))
+                if (inline) Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                    Text("Add Backing Track", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    Checkbox(checked = backing, onCheckedChange = { backing = it }, enabled = editable,
+                        modifier = Modifier.height(32.dp).testTag("backing-track-toggle").semantics { contentDescription = "Add Backing Track" })
+                }
+            }
             // Keep recording/review and its metadata together against the transport boundary.
             Column(Modifier.fillMaxWidth().testTag("phrase-footer")) {
-            if (inline && review != null) {
+            if (importMode) {
+                Column(Modifier.fillMaxWidth()) {
+                    vm.backingTrack?.imported?.let { Text(it.name, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth().testTag("backing-track-filename").semantics { contentDescription = it.name }) }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(onClick = { keyboard?.hide(); picker.launch(arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")) },
+                            enabled = editable && vm.ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("backing-track-choose")) { Text("Choose file…") }
+                        Button(onClick = { vm.saveBackingTrack(blockId) }, enabled = editable && vm.ready && vm.backingTrack?.blockId == blockId,
+                            modifier = Modifier.heightIn(min = 48.dp).testTag("backing-track-save")) { Text("Save") }
+                    }
+                }
+            } else if (inline && review != null) {
                 Row(Modifier.fillMaxWidth().testTag("phrase-primary-actions"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = vm::saveReview, enabled = !vm.busy,
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("review-save")) { Text("Keep") }
@@ -295,7 +319,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         val selected = if (loop) loopTake else freeTake
         val type = if (loop) "loop" else "free"
         val activeCapture = vm.recording && vm.phrasing == loop
-        val playing = takes.any { (it.mode == "LOOP") == loop && (it.id == vm.playingId || it.id == vm.preparingId) }
+        val playing = takes.any { it.isLoop == loop && (it.id == vm.playingId || it.id == vm.preparingId) }
         val enabled = vm.ready && !vm.busy && vm.reviewTake == null
         val selector: @Composable (Modifier) -> Unit = { modifier ->
             Column(modifier.heightIn(min = 48.dp).clickable(enabled = enabled && !vm.recording && selected != null,
@@ -346,7 +370,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val playing = vm.playingId == take.id || vm.preparingId == take.id
     Column(Modifier.fillMaxWidth().testTag("take-review"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Review Take", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-        Text((if (take.mode == "LOOP") "Loop" else "Free") + " · " + practiceTime(take.durationMs) + " · Not saved", style = MaterialTheme.typography.bodySmall)
+        Text(takeDescription(take) + " · " + practiceTime(take.durationMs) + " · Not saved", style = MaterialTheme.typography.bodySmall)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
                 modifier = Modifier.heightIn(min = 48.dp).testTag("review-preview")) { Text(if (playing) "Stop Preview" else "Play Preview") }

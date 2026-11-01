@@ -48,6 +48,46 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var playingId by mutableStateOf<String?>(null); private set
     var preparingId by mutableStateOf<String?>(null); private set
     var message by mutableStateOf<String?>(null); private set
+    var backingTrack by mutableStateOf<PendingTake?>(null); private set
+    var importedSelection by mutableStateOf<BlockTake?>(null); private set
+    private var importJob: Job? = null
+    private var importGeneration = 0
+    fun importedSelectionHandled(id: String) { if (importedSelection?.id == id) importedSelection = null }
+    fun chooseBackingTrack(blockId: String, uri: Uri?) {
+        if (uri == null || !ready || busy || recording || reviewTake != null || !recordingScreenOpen || visibleBlockId != blockId) return
+        val generation = ++importGeneration
+        busy = true; message = "Validating audio…"
+        importJob = viewModelScope.launch {
+            var staged: PendingTake? = null
+            try {
+                withContext(Dispatchers.IO) {
+                    val name = app.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                    } ?: error("The selected file has no filename.")
+                    staged = AudioImport(repository).prepare(blockId, name) { checkNotNull(app.contentResolver.openInputStream(uri)) }
+                }
+                if (generation == importGeneration && recordingScreenOpen && visibleBlockId == blockId) {
+                    backingTrack?.let(repository::abandon); backingTrack = staged; staged = null
+                    message = null
+                }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { message = "Audio not imported. ${failure.message ?: "Check the file and retry."} Saved takes and selection were kept." }
+            finally {
+                withContext(NonCancellable + Dispatchers.IO) { staged?.let(repository::abandon) }
+                busy = false; importJob = null
+            }
+        }
+    }
+    fun saveBackingTrack(blockId: String) = work {
+        val draft = backingTrack?.takeIf { it.blockId == blockId } ?: return@work
+        if (reviewTake != null) return@work
+        val saved = withContext(NonCancellable + Dispatchers.IO) { repository.save(draft) }
+        backingTrack = null; importedSelection = saved; message = "Backing track saved."
+    }
+    private fun clearImport() {
+        importGeneration++; importJob?.cancel()
+        backingTrack?.let(repository::abandon); backingTrack = null
+    }
     private var visibleBlockId: String? = null
     private var recordingScreenOpen = false
     private var foreground = false
@@ -106,10 +146,11 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun enterBlock(id: String?) {
+        if (visibleBlockId != id) clearImport()
         if (reviewTake != null && reviewTake?.blockId != id) clearReview()
         if (!recordingScreenOpen || visibleBlockId != id) { stopPlayback(); finishCapture(); visibleBlockId = id }; recordingScreenOpen = true
     }
-    fun leaveBlock() { recordingScreenOpen = false; visibleBlockId = null; stopPlayback(); finishCapture("Recording interrupted before review. Temporary audio discarded.", discard = true) }
+    fun leaveBlock() { clearImport(); recordingScreenOpen = false; visibleBlockId = null; stopPlayback(); finishCapture("Recording interrupted before review. Temporary audio discarded.", discard = true) }
     fun setForeground(value: Boolean) {
         foreground = value
         if (!value) { stopPlayback(); finishCapture("Recording stopped when the app left the foreground.") }
@@ -282,7 +323,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         stopPlayback()
         val generation = audioGeneration
         val file = withContext(Dispatchers.IO) { repository.audioFile(take) }
-        val samples = if (take.mode == "LOOP") withContext(Dispatchers.IO) {
+        val samples = if (take.kind == TakeKind.RECORDED_LOOP) withContext(Dispatchers.IO) {
             val spec = PhraseSpec(checkNotNull(take.recordedBpm), checkNotNull(take.beatCount))
             PhraseWave.read(file).also { check(it.size == spec.frames) }
         } else null
@@ -299,9 +340,10 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             val audio = MediaPlayer()
             player = audio; preparingId = take.id; message = null
             audio.setAudioAttributes(attributes); audio.setDataSource(file.absolutePath)
+            audio.isLooping = take.kind == TakeKind.IMPORTED_LOOP
             audio.setOnPreparedListener {
                 if (player === it && foreground && recordingScreenOpen && visibleBlockId == take.blockId) {
-                    try { it.start(); preparingId = null; playingId = take.id }
+                    try { it.start(); preparingId = null; playingId = take.id; if (take.kind == TakeKind.IMPORTED_LOOP) message = "Looping imported audio · " + practiceTime(take.durationMs) }
                     catch (_: Exception) { stopPlayback(); message = "Playback could not start. Try again." }
                 }
             }
@@ -319,6 +361,8 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         val audio = player; player = null; playingId = null; preparingId = null
         runCatching { audio?.release() }; runCatching { manager.abandonAudioFocusRequest(focus) }
     }
+    internal fun importedRepeatActive(): Boolean = player?.let { it.isLooping && it.isPlaying } == true
+    internal fun importedPlaybackPosition(): Int = runCatching { player?.currentPosition ?: 0 }.getOrDefault(0)
     internal fun loopFramesPlayed(): Long = loopTrack?.let { it.playbackHeadPosition.toLong() and 0xffffffffL } ?: 0L
     internal fun phraseGuideFramesPlayed(): Long = phraseCapture?.outputFramesPlayed() ?: 0L
     fun rename(take: BlockTake, label: String) = work {
@@ -347,7 +391,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         audioGeneration++; phraseCapture?.cancel(); phraseJob?.cancel()
         runCatching { recorder?.release() }; recorder = null // Pending capture is recovered on next cold start.
         pending?.let(repository::abandon); pending = null
-        clearReview()
+        clearImport(); clearReview()
         if (captureOwner === this) captureOwner = null
         stopPlayback(); runCatching { app.unregisterReceiver(noisy) }; super.onCleared()
     }

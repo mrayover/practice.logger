@@ -152,13 +152,18 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     LaunchedEffect(transportPanel) { transportScroll.scrollTo(0) }
     val allTakes by recordings.takes.collectAsStateWithLifecycle()
     val takes = allTakes.filter { it.blockId == current.sourceBlockId }.sortedWith(compareByDescending<BlockTake> { it.createdAt }.thenBy { it.id })
-    val freeTakes = takes.filter { it.mode != "LOOP" }
-    val loopTakes = takes.filter { it.mode == "LOOP" }
+    val freeTakes = takes.filter { it.kind == TakeKind.FREE }
+    val loopTakes = takes.filter { it.isLoop }
     var freeId by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
     var loopId by rememberSaveable(current.id) { mutableStateOf<String?>(null) }
     LaunchedEffect(freeTakes.map { it.id }, loopTakes.map { it.id }) {
         if (freeTakes.none { it.id == freeId }) freeId = freeTakes.firstOrNull()?.id
         if (loopTakes.none { it.id == loopId }) loopId = loopTakes.firstOrNull()?.id
+    }
+    LaunchedEffect(recordings.importedSelection?.id, loopTakes.map { it.id }) {
+        recordings.importedSelection?.takeIf { it.blockId == current.sourceBlockId && loopTakes.any { row -> row.id == it.id } }?.let {
+            loopId = it.id; recordings.importedSelectionHandled(it.id)
+        }
     }
     val freeTake = freeTakes.find { it.id == freeId } ?: freeTakes.firstOrNull()
     val loopTake = loopTakes.find { it.id == loopId } ?: loopTakes.firstOrNull()
