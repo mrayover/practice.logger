@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.17.0/build63 Smooth teal theme**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current delivery: **0.17.0/build64 Sunny yellow/orange theme**. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
@@ -10,7 +10,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Cu
 
 Home → **Library** currently displays Coming soon.; Media Library remains P6. Block Library and Recent Practice entries use shared pills. Selected chips retain visible outlines.
 
-The far-right shared-header **Settings** gear offers Light, Dark, System Default and **Smooth**, a teal palette with the same control states. Existing installs stay Light until changed. Choices persist locally; System Default follows the device. Lato, screen layout, recording ownership and original image/PDF pixels remain. The existing Tools → Audio Settings shortcut reaches the same settings page. Central palette definitions and semantic app roles live in Theme.kt; Goal identity allocation remains G1. Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; recheck this area during the next assigned P5/F1 regression. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred. Exact evidence and limits are in CURRENT_STATE.
+The far-right shared-header **Settings** gear offers Light, Dark, System Default **Smooth** (teal), and **Sunny** (yellow/orange), with the same control states. Existing installs stay Light until changed. Choices persist locally; System Default follows the device. Lato, screen layout, recording ownership and original image/PDF pixels remain. The existing Tools → Audio Settings shortcut reaches the same settings page. Central palette definitions and semantic app roles live in Theme.kt; Goal identity allocation remains G1. Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; recheck this area during the next assigned P5/F1 regression. No full regression or detailed System/physical/audio/TalkBack acceptance is inferred. Exact evidence and limits are in CURRENT_STATE.
 
 ## Metronome
 

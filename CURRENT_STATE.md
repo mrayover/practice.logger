@@ -1,27 +1,23 @@
-# Current state — Sunny verification pending; signed baseline0.17.0/build63
-
-## Sunny increment in progress
-
-Sunny is implemented for build64: pale yellow surfaces, orange/amber actions and banner, golden selection/transport and dark warm text. Native styles and persistent Settings selector are included. Local palette contrast/XML and diff checks pass. Focused theme unit/native checks are prepared; no compilation, signed build64 or phone acceptance yet. Owner authorized Git publication, scoped checks and packaging. Existing signed build63 remains the installable baseline below.
+# Current state — Sunny theme /0.17.0/build64
 
 ## Delivery
 
-Signed **0.17.0/build63**, source `bcfd69021a3766b541eef9a502afc2a1a2ac0292`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b63-bcfd690/practice.logger-0.17.0-b63-bcfd690.apk) · [ZIP](dist/practice.logger-0.17.0-b63-bcfd690.zip) · [Build info](dist/practice.logger-0.17.0-b63-bcfd690/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b63-bcfd690/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling/clearing data. Previous signed packages remain preserved and ignored.
+Signed **0.17.0/build64**, source `4d71c1e05b2d3f5b4725f68d566e00d5aa346880`. Later closeout commits change records only. [APK](dist/practice.logger-0.17.0-b64-4d71c1e/practice.logger-0.17.0-b64-4d71c1e.apk) · [ZIP](dist/practice.logger-0.17.0-b64-4d71c1e.zip) · [Build info](dist/practice.logger-0.17.0-b64-4d71c1e/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.0-b64-4d71c1e/PHONE_CHECKLIST.txt). Install over the permanent-key app without uninstalling/clearing data. Earlier signed packages remain preserved and ignored.
 
-APK SHA256 `83067266d586cf3a2b04d84e281b2c0bf78b7910af2ca15c7709d4a8d560c02d`; ZIP SHA256 `c2eb285b050024b56690cbb2cedab651a22abc8b20da144872dc47c8b3f185ce`. Publisher verifies package/version/signature/pinned certificate. Signed non-signature entries equal the actual CI unsigned release. ZIP CRC, unique members and all bytes match the distribution folder.
+APK SHA256 `49c5b28846edd34b9948a12fd0ba9a90bed9c28d1be9191b99d3d9d268ef8ad4`; ZIP SHA256 `30607b9d2456216ad23652d718fe42da60f0d07f4d67b8fb6e38741f084dbdc2`. Publisher verifies package/version/signature/pinned certificate. Signed non-signature entries equal the CI unsigned release; ZIP CRC, unique/exact members and all bytes match the distribution folder.
 
 ## Behavior
 
-Settings gear → Appearance → **Smooth** adds deep teal surfaces/aqua accents through the central palette. Native windows/accent match. Existing selected/disabled/pressed/recording/flash states use shared components; distinct error/recording and Goal category hues remain. Lato and accepted layout stay unchanged. Smooth persists across reopening and overrides OS night mode. Light remains the default/fallback; System Default still follows Light/Dark. [Design/change record](docs/SMOOTH_THEME.md).
+Settings gear → Appearance → **Sunny** adds pale yellow surfaces, warm orange/amber actions and banner, golden selected/transport roles and dark warm text through the central theme. Native window/accent colors match. Shared selected/disabled/pressed/recording/flash behavior, Lato and accepted layout remain. Sunny persists and explicitly overrides OS appearance; Light is the default/fallback and System Default follows Light/Dark. Light/Dark/Smooth remain selectable. [Change record](docs/SUNNY_THEME.md).
 
-Imported backing audio from build62 remains: MP3, AAC-in-M4A, PCM16 WAV, mono/stereo8–96kHz,50MiB/15minutes, explicit staged Save/selection and format-preserving export. [Contract/prior verification](docs/IMPORTED_AUDIO.md). No database/audio-engine change; Room11/JSON7 and media/audio backup exclusions remain. Prior imported-audio phone checklist still applies.
+Imported audio remains MP3, AAC-in-M4A and PCM16 WAV, mono/stereo8–96kHz,50MiB/15minutes with explicit Save and format-preserving export. [Contract/prior evidence](docs/IMPORTED_AUDIO.md). No data/audio-engine change; Room11/JSON7 and media/audio backup exclusions remain. Earlier imported-audio physical/provider checks still apply.
 
 ## Scoped verification
 
-[CI41278023116](https://github.com/mrayover/practice.logger/actions/runs/41278023116), exact source above: debug/release/test compilation; **5** ThemePalette/ThemePreferences units; **2** API35 native scenarios pass. Units cover contrast, Goal slots, resolver/system behavior and persistence/failure fallback. Native checks cover Smooth selection/recreation, rendered background/native accent/chrome and practice button lit/decay/Stop pixels plus PCM writes in Light/Dark/Smooth. Home/Settings/live-pulse screenshots inspected. No full regression, lint, API26 or enlarged-text matrix for this bounded addition. Phone/physical acoustic acceptance pending.
+[CI41279928548](https://github.com/mrayover/practice.logger/actions/runs/41279928548), exact source above: debug/release/test compilation, **5** ThemePalette/ThemePreferences unit tests and **2** API35 native scenarios pass. Units cover color contrast/Goal slots, explicit/System resolution and persistence/failure fallback. Native checks cover Sunny selection/recreation, rendered background/native accent/navigation icons, and practice button lit/decay/Stop surface pixels plus nonzero PCM across Light/Dark/Smooth/Sunny. Home/Settings/live-pulse screenshots inspected. Local palette contrast/XML and diff checks also pass. No full regression, lint, API26 or enlarged-text matrix for this addition. Phone/physical audio/display acceptance pending.
 
-Prior Light/Dark implementation is owner accepted. Detailed System/audio/accessibility and P4/P5/final gates remain. Stage4 remains0/10 documented sessions; no later phase started.
+Prior Light/Dark are owner accepted. Detailed System/audio/accessibility and P4/P5/final gates remain. Stage4 remains0/10 documented sessions; no later phase started.
 
 ## Exact next task
 
-Run the Sunny focused theme workflow and package build64 after it passes. No automatic later phase/full regression.
+Install build64 and perform its Sunny phone checklist, especially Practice control colors/flash/disabled states, reopening and device-appearance override. No automatic later phase/full regression.
