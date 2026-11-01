@@ -93,6 +93,8 @@ class TargetedP4PreviewTest {
                 assertTrue("Bubble left meets $type action right: ${clickBubble.left} / ${action.right}", kotlin.math.abs(clickBubble.left-action.right) <= density)
             }
             screenshot("transport")
+            compose.runOnIdle { compose.activity.themePreferences.save(ThemeChoice.DARK) }
+            screenshot("transport-dark")
             compose.onNodeWithTag("practice-metronome-expand").performClick(); shown("BPM (30–300)")
             compose.onNodeWithTag("practice-metronome-expand").performClick()
             compose.onNodeWithTag("header-settings").performClick(); shown("Leave current session?")

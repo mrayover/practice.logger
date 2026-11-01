@@ -642,3 +642,6 @@ Final text metrics confirm visible bounds despite the aggregate overflow flag: M
 ## 2026-10-31 — Final click bubble nudge / build60
 
 Owner accepts all other build59 layout and requests only centered click text and bubble moved right to the Record/Loop Setup right-edge boundary, with usage kept tight. Reviewed existing efficiency procedure/records in this chat; clean main8cf7ee3 matches remote. Product change confined to PracticeMetronome: symmetric2dp padding/centered text,12dp visual offset into the existing12dp transport scroll gutter; layout allocation/tempo/chevron remain untouched. Version60. Replace the superseded click/Play text-edge assertion with bubble text-center and both recording-action boundary assertions; retain the same single130%-text native scenario. Bounded build/check/signing pending; no full regression or repeated units. Preserve earlier packages.
+
+
+Owner additionally requests green Accent text/checkbox. Set only this row's label and checked/unchecked box to the existing primary green (onPrimary tick). Cancel the just-dispatched pre-color60 run as superseded to avoid duplicate work;60 has not been signed/distributed. Add a dark screenshot to the same one-case check; no extra suite. Continue with the combined final60 source.
