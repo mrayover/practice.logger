@@ -14,5 +14,11 @@ trap collect EXIT
 timeout 30s adb install -r app/build/outputs/apk/debug/app-debug.apk
 timeout 30s adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 adb logcat -c || true
-timeout 180s adb shell am instrument -w -r -e class 'com.mrayover.practicelogger.TargetedP4PreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest#practiceWholeButtonFollowsLiveBeatsAndStops' "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
-grep -q 'OK (4 tests)' "$out/results.txt"
+classes='com.mrayover.practicelogger.TargetedP4PreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest#practiceWholeButtonFollowsLiveBeatsAndStops'
+expected='OK (4 tests)'
+if [ "${1:-all}" = transport ]; then
+  classes='com.mrayover.practicelogger.TargetedP4PreviewTest#compactTransportAccentTempoAndFooter'
+  expected='OK (1 test)'
+fi
+timeout 180s adb shell am instrument -w -r -e class "$classes" "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/results.txt"
+grep -q "$expected" "$out/results.txt"

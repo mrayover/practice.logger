@@ -1,6 +1,12 @@
 name: P4 targeted UI and historical Notes
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: All scoped checks or only the affected transport diagnostic
+        type: choice
+        options: [all, transport]
+        default: all
 permissions:
   contents: read
 jobs:
@@ -19,7 +25,12 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile and run scoped persistence and metronome tests
-        run: timeout 420s bash ./gradlew testDebugUnitTest --tests '*PracticeNoteRepositoryTest' --tests '*BeatPcmTest' --tests '*MetronomePersistenceTest' --tests '*MeterPcmTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+        run: |
+          if [ "${{ inputs.scope }}" = all ]; then
+            timeout 420s bash ./gradlew testDebugUnitTest --tests '*PracticeNoteRepositoryTest' --tests '*BeatPcmTest' --tests '*MetronomePersistenceTest' --tests '*MeterPcmTest' assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+          else
+            timeout 300s bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: p4-targeted-apks
@@ -35,7 +46,7 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          script: bash scripts/Check-P4Targeted.sh
+          script: bash scripts/Check-P4Targeted.sh ${{ inputs.scope }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

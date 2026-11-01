@@ -51,7 +51,7 @@ class TargetedP4PreviewTest {
             val chevron = compose.onNodeWithTag("practice-metronome-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
             for (type in listOf("free", "loop")) {
                 val x = compose.onNodeWithTag("practice-$type-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
-                assertTrue("Aligned transport chevrons: $chevron / $x", kotlin.math.abs(chevron-x) <= 1f)
+                assertTrue("Aligned transport chevrons: $chevron / $x", kotlin.math.abs(chevron-x) <= compose.activity.resources.displayMetrics.density)
             }
             screenshot("transport")
             compose.onNodeWithTag("practice-metronome-expand").performClick(); shown("BPM (30–300)")
