@@ -1,5 +1,9 @@
 # Current state — Orchid theme /0.17.0/build65
 
+## P5 in progress — 2026-11-01
+
+The owner assigned P5 and explicitly authorized Git command publication. Preparation e90e540 and legacy native alignment67cb91a are published. Initial build/unit/lint CI41286865140 and targeted API35 CI41287071761 are running. No full-regression pass or owner-phone acceptance is claimed. Existing signed65 remains current until a pre-Library candidate is packaged.
+
 ## Pre-regression normalization — 2026-11-01
 
 Repository-wide Git/provenance/static review is complete; [review and inventory](docs/PRE_REGRESSION_REVIEW.md) records runner/documentation corrections and the remaining legacy native-selector blocker. Current application source and signed build65 are unchanged. No new build, Android test, lint/full regression or phone acceptance is claimed. Changes are local and uncommitted; remote main was verified at `d0b8db0fc3e2472e9deccbe3a865a43da5f257d1` before maintenance. The primary workflow now includes the later increment coverage, but has not run.

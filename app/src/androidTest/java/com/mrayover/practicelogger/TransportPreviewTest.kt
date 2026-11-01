@@ -62,14 +62,15 @@ class TransportPreviewTest {
             compose.waitUntil(10000) { recordings.ready }
             compose.onNodeWithText("Recordings").assertDoesNotExist()
             click("Start"); click("Start click")
+            compose.onNodeWithTag("practice-description").assertExists()
+            tagged("practice-reference-toggle").performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithTag("practice-description").assertDoesNotExist()
             tagged("practice-description-toggle").performClick()
             compose.onNodeWithTag("practice-description").assertExists()
             compose.onNodeWithTag("reference-viewer").assertDoesNotExist()
-            tagged("practice-description-toggle").performClick()
-            compose.onNodeWithTag("practice-description").assertDoesNotExist()
             tagged("practice-reference-toggle").performClick()
+            compose.onNodeWithTag("practice-description").assertDoesNotExist()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
             screenshot("refinement-reference")

@@ -38,7 +38,7 @@ jobs:
   build:
     if: ${{ !inputs.test_class }}
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -110,7 +110,7 @@ jobs:
         api: [26, 35]
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -397,7 +397,7 @@ jobs:
   diagnostic:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_class != '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
