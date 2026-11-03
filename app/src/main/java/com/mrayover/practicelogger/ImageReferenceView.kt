@@ -79,13 +79,14 @@ import kotlin.coroutines.coroutineContext
                 // One displayed bitmap per viewer. Dropped pages are left to Android GC rather
                 // than recycling a bitmap that the Compose render thread may still be drawing.
                 ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf",
-                    if (fitAvailableHeight) (viewerMaxHeight - controlsHeight).coerceAtLeast(1.dp) else viewerMaxHeight, fitAvailableHeight)
+                    if (fitAvailableHeight) (viewerMaxHeight - controlsHeight).coerceAtLeast(1.dp) else viewerMaxHeight, fitAvailableHeight,
+                    minimumHeight = if (fitAvailableHeight) 180.dp else 1.dp)
             }
         }
     }
 }
 
-@Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0) {
+@Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0, minimumHeight: androidx.compose.ui.unit.Dp = 1.dp) {
     var scale by remember(bitmap) { mutableFloatStateOf(1f) }
     var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
     LaunchedEffect(resetKey) { scale = 1f; offset = Offset.Zero }
@@ -109,7 +110,7 @@ import kotlin.coroutines.coroutineContext
         BoxWithConstraints(Modifier.fillMaxWidth()) {
         // PDF controls can exceed a large-text workspace. Keep a usable image inside
         // the existing scroll panel instead of collapsing the bitmap to one pixel.
-        val cap = if (fitAvailableHeight) (maxHeight - guideHeight - 4.dp).coerceAtLeast(180.dp) else maxHeight
+        val cap = if (fitAvailableHeight) (maxHeight - guideHeight - 4.dp).coerceAtLeast(minimumHeight) else maxHeight
         val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(minOf(180.dp, cap), cap)
         Box(Modifier.fillMaxWidth().height(viewerHeight).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
             .onSizeChanged { size = it }.testTag("reference-viewer")
