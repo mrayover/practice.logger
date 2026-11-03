@@ -122,11 +122,11 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MediaFilter.entries.forEach { filter -> FilterChip(selected = filterName == filter.name, onClick = { filterName = filter.name }, label = { Text(filter.label) }) }
+                MediaFilter.entries.forEach { filter -> OutlinedSelectionChip(selected = filterName == filter.name, onClick = { filterName = filter.name }, label = { Text(filter.label) }) }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = !byName, onClick = { byName = false }, label = { Text("Most recent") })
-                FilterChip(selected = byName, onClick = { byName = true }, label = { Text("Name") })
+                OutlinedSelectionChip(selected = !byName, onClick = { byName = false }, label = { Text("Most recent") })
+                OutlinedSelectionChip(selected = byName, onClick = { byName = true }, label = { Text("Name") })
             }
         }
         if (vm.busy) item {

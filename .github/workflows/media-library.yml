@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [build, native, all]
+        options: [build, package, native, all]
         default: build
       api:
         type: choice
@@ -43,6 +43,8 @@ jobs:
         run: |
           if [ '${{ inputs.scope }}' = native ]; then
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+          elif [ '${{ inputs.scope }}' = package ]; then
+            bash ./gradlew assembleRelease --stacktrace
           else
             bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*MediaLibraryTest' --tests '*MediaMigrationTest' --tests '*ImageReferenceTest' --tests '*ImageMigrationTest' --tests '*PdfReferenceTest' --tests '*AudioImportTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --tests '*BackupRepositoryTest' --tests '*BackupFailureTest' --stacktrace
           fi
@@ -55,22 +57,22 @@ jobs:
             app/build/test-results/testDebugUnitTest
             app/schemas
       - name: Enable emulator acceleration
-        if: ${{ inputs.scope != 'build' }}
+        if: ${{ inputs.scope == 'native' || inputs.scope == 'all' }}
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: actions/checkout@v4
-        if: ${{ inputs.scope != 'build' }}
+        if: ${{ inputs.scope == 'native' || inputs.scope == 'all' }}
         with:
           ref: 9c723442d8f3eb1dd8c2d23cc76dd3af4de7e1d3
           path: baseline-source
           persist-credentials: false
       - name: Rebuild immutable build69 install-over baseline
-        if: ${{ inputs.scope != 'build' }}
+        if: ${{ inputs.scope == 'native' || inputs.scope == 'all' }}
         run: bash scripts/Build-ReferenceBaseline.sh
       - uses: reactivecircus/android-emulator-runner@v2
-        if: ${{ inputs.scope != 'build' }}
+        if: ${{ inputs.scope == 'native' || inputs.scope == 'all' }}
         with:
           api-level: ${{ inputs.api }}
           arch: x86_64
