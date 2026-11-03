@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel()) {
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -185,7 +185,7 @@ class MainActivity : ComponentActivity() {
                 onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
             "media-library" -> {
                 BackHandler { page = "home" }
-                Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Coming soon.") }
+                MediaLibraryScreen(media, onBack = { page = "home" })
             }
             "log" -> LogScreen(log, onHome = { page = "home" })
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },

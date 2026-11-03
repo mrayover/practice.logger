@@ -40,6 +40,7 @@ val IMAGE_MIGRATION_9_10 = object : Migration(9, 10) {
 
 // Historical table/type names are retained: MIME distinguishes images from PDFs without a schema change.
 data class ReferencePage(val bitmap: Bitmap, val pageCount: Int)
+data class VisualOriginalInfo(val mimeType: String, val width: Int, val height: Int, val pageCount: Int?)
 
 /** One private original per stable Block. Never persist picker URIs or put media into JSON. */
 class ImageReferenceRepository(private val db: BlockDatabase, private val directory: File,
@@ -152,7 +153,7 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
             return bitmap
         } catch (failure: Throwable) { bitmap.recycle(); throw failure }
     }
-    private suspend fun inspectPdf(file: File): Pair<Int, Int> {
+    private suspend fun inspectPdf(file: File): VisualOriginalInfo {
         val context = currentCoroutineContext()
         return withPdf(file) { renderer ->
         var first = 0 to 0
@@ -164,8 +165,19 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
                 renderPage(page, 256).recycle()
             }
         }
-        first
+        VisualOriginalInfo("application/pdf", first.first, first.second, renderer.pageCount)
         }
+    }
+    /** Validate existing private staged bytes; no metadata/file ownership changes. Call on IO. */
+    internal suspend fun inspectOriginal(file: File): VisualOriginalInfo {
+        if (isPdf(file)) {
+            try { return inspectPdf(file) }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { throw IllegalArgumentException("Choose a readable, unencrypted PDF with 1–100 supported pages. Your existing reference was kept.", failure) }
+        }
+        val bounds = inspect(file)
+        decodeFile(file).recycle()
+        return VisualOriginalInfo(bounds.outMimeType!!, bounds.outWidth, bounds.outHeight, null)
     }
     suspend fun loadPage(image: BlockImage, index: Int = 0): ReferencePage = withContext(Dispatchers.IO) {
         filesMutex.withLock {
@@ -194,22 +206,12 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
                     }
                     output.fd.sync()
                 } }
-                val pdf = isPdf(pending)
-                val dimensions: Pair<Int, Int>
-                val mime: String
-                if (pdf) {
-                    try { dimensions = inspectPdf(pending) }
-                    catch (cancelled: CancellationException) { throw cancelled }
-                    catch (failure: Exception) { throw IllegalArgumentException("Choose a readable, unencrypted PDF with 1–100 supported pages. Your existing reference was kept.", failure) }
-                    mime = "application/pdf"
-                } else {
-                    val bounds = inspect(pending)
-                    decodeFile(pending).recycle()
-                    dimensions = bounds.outWidth to bounds.outHeight; mime = bounds.outMimeType!!
-                }
+                val info = inspectOriginal(pending)
+                val pdf = info.mimeType == "application/pdf"
+                val mime = info.mimeType
                 currentCoroutineContext().ensureActive()
                 val target = resolve("$id." + if (pdf) "pdf" else "img")
-                val image = BlockImage(blockId, target.name, mime, dimensions.first, dimensions.second, pending.length())
+                val image = BlockImage(blockId, target.name, mime, info.width, info.height, pending.length())
                 // Once the file is finalized, cancellation cannot split commit and cleanup.
                 withContext(NonCancellable) {
                     check(!target.exists() && pending.renameTo(target)) { "Could not finish the reference file." }

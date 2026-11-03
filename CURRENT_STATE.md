@@ -16,7 +16,9 @@ All sources reuse bounded image/PDF validation and safe replacement. Cancelling 
 
 [Targeted CI41363227308](https://github.com/mrayover/practice.logger/actions/runs/41363227308) passes release compilation and **11/11** tests across ReferencePhotoCaptureTest, ImageReferenceTest and PdfReferenceTest. Coverage includes provider scope/full-byte output/cancel contract/path rejection plus existing validation/rollback/orientation/PDF safety. No full P5 regression, native workflow, lint or physical camera/gallery/phone visual acceptance rerun. Accepted P5 evidence below applies to build67, not newly certified build69 behavior.
 
-**Exact next action: install build69 over the current app and perform its short camera/gallery phone checklist.**
+**Build69 owner acceptance:** On November 3, 2026, the owner confirmed that camera/gallery functionality works correctly on their phone. This closes the outstanding owner-phone action; no device details or individual edge-case observations were supplied.
+
+**Exact next action: implement and verify the explicitly assigned L1 canonical Media Library/storage, then deliver its signed update.**
 
 ## Documentation amendment — November 3, 2026
 

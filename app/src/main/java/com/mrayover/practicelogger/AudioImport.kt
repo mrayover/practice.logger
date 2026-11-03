@@ -59,7 +59,7 @@ class AudioImport(private val repository: TakeRepository) {
         try {
             open().use { input -> pending.file.outputStream().use { copy(input, it) } }
             currentCoroutineContext().ensureActive()
-            val duration = if (extension == "wav") waveDuration(pending.file) else decodedDuration(pending.file, extension)
+            val duration = inspectImportedAudio(pending.file, extension)
             require(duration in 1..MAX_DURATION_MS) { "Audio must last between 1 ms and 15 minutes." }
             currentCoroutineContext().ensureActive()
             return pending.copy(imported = ImportedAudioInfo(name, duration)).also { retained = true }
@@ -94,7 +94,7 @@ internal fun waveDuration(file: File): Long = RandomAccessFile(file, "r").use { 
 }
 
 /** Drain the decoder to EOS with bounded buffers, frame/duration caps and a 90-second validation budget. */
-private suspend fun decodedDuration(file: File, extension: String): Long {
+internal suspend fun decodedDuration(file: File, extension: String): Long {
     val extractor = MediaExtractor(); var codec: MediaCodec? = null
     val deadline = SystemClock.elapsedRealtime()+90_000
     try {
@@ -141,4 +141,13 @@ private suspend fun decodedDuration(file: File, extension: String): Long {
         require(frames > 0) { "No decodable audio found." }
         return frames*1000/rate
     } finally { runCatching { codec?.stop() }; runCatching { codec?.release() }; extractor.release() }
+}
+
+/** Shared validation for legacy take imports and independent canonical Library assets. */
+internal suspend fun inspectImportedAudio(file: File, extension: String): Long {
+    require(extension in setOf("wav", "mp3", "m4a"))
+    require(file.length() in 1..AudioImport.MAX_BYTES) { "Audio must be no larger than 50 MiB." }
+    val duration = if (extension == "wav") waveDuration(file) else decodedDuration(file, extension)
+    require(duration in 1..AudioImport.MAX_DURATION_MS) { "Audio must last between 1 ms and 15 minutes." }
+    return duration
 }

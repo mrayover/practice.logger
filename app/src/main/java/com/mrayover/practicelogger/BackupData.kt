@@ -148,7 +148,7 @@ class BackupRepository(private val db: BlockDatabase) {
     }
     suspend fun restore(data: BackupData) = db.withTransaction {
         BackupCodec.validate(data)
-        if (db.practiceNotes().readAll().isNotEmpty() || db.logs().hasEntries() || db.goals().readAll().isNotEmpty() || db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty() || db.routines().readAll().isNotEmpty() || db.takes().readAll().isNotEmpty()) throw NonEmptyRestoreException()
+        if (db.media().hasEntries() || db.practiceNotes().readAll().isNotEmpty() || db.logs().hasEntries() || db.goals().readAll().isNotEmpty() || db.blocks().readAll().isNotEmpty() || db.sessions().readAll().isNotEmpty() || db.routines().readAll().isNotEmpty() || db.takes().readAll().isNotEmpty()) throw NonEmptyRestoreException()
         data.blocks.forEach { db.blocks().insert(it) }
         data.sessions.forEach { db.sessions().insert(it) }
         data.placements.forEach { db.sessions().insert(it) }
