@@ -166,7 +166,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
         filesMutex.withLock {
             val asset = checkNotNull(db.media().find(id)) { "This Library item is no longer available." }
             val file = resolve(asset.fileName)
-            try { db.withTransaction { check(db.media().remove(id) == 1) } }
+            try { db.withTransaction { db.markers().removeOwned(id); check(db.media().remove(id) == 1) } }
             catch (protected: android.database.sqlite.SQLiteConstraintException) {
                 throw IllegalStateException("This Library item is still referenced. Remove its links before deleting it.", protected)
             }

@@ -19,11 +19,13 @@ import kotlinx.coroutines.*
             TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp)) { Text("Back to Library") }
             Text(asset.title, modifier = Modifier.weight(1f).padding(8.dp), maxLines = 2, style = MaterialTheme.typography.titleMedium)
         }
-        Row {
+        Column {
             if (asset.category == "PDF") {
-                TextButton(onClick = { page-- }, enabled = page > 0) { Text("Previous page") }
-                Text("${page + 1} / ${asset.pageCount}", Modifier.padding(12.dp))
-                TextButton(onClick = { page++ }, enabled = page + 1 < (asset.pageCount ?: 1)) { Text("Next page") }
+                Text("Page ${page + 1} of ${asset.pageCount}")
+                Row(Modifier.fillMaxWidth()) {
+                    TextButton(onClick = { page-- }, enabled = page > 0, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous page") }
+                    TextButton(onClick = { page++ }, enabled = page + 1 < (asset.pageCount ?: 1), modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next page") }
+                }
             }
         }
         TextButton(onClick = { reset++ }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Reset zoom") }

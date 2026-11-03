@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -93,6 +94,8 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     var renameId by rememberSaveable { mutableStateOf<String?>(null) }
     var renameText by rememberSaveable { mutableStateOf("") }
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
+    var previewId by rememberSaveable { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.import(uri) }
     val importAction = {
         try { picker.launch(arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf", "audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")) }
@@ -106,8 +109,13 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
     val enabled = vm.ready && !vm.busy
     val filtered = libraryItems(assets, query, MediaFilter.valueOf(filterName), byName)
+    val preview = assets.find { it.id == previewId }
+    if (preview != null && preview.category != "AUDIO") {
+        LibraryVisualPreview(preview, vm.repository) { previewId = null }
+        return
+    }
     LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp).testTag("media-library-list"),
-        verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 12.dp)) {
+        state = listState, verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 12.dp)) {
         item {
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onBack) { Text("Back") }
@@ -155,8 +163,8 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
                         else -> importedDuration(asset.durationMs ?: 0)
                     }, style = MaterialTheme.typography.bodySmall)
                     if (asset.id in vm.unavailable) Text("File missing or changed. Delete this item and import your original again.", color = MaterialTheme.colorScheme.error)
-                    Text("Preview will be available in a later update.", style = MaterialTheme.typography.bodySmall)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (asset.category != "AUDIO") TextButton(onClick = { previewId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-open-${asset.id}")) { Text("Open") }
                         TextButton(onClick = { renameId = asset.id; renameText = asset.title }, enabled = enabled, modifier = Modifier.testTag("media-rename-${asset.id}")) { Text("Rename") }
                         TextButton(onClick = { deleteId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-delete-${asset.id}")) { Text("Delete") }
                     }
