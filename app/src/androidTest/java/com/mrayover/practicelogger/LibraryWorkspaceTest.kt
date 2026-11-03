@@ -83,6 +83,12 @@ class LibraryWorkspaceTest {
         compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         compose.onNodeWithText("Library").scrollIfNeeded().performClick()
         libraryTag("media-search").performTextInput("L2")
+        compose.runOnIdle {
+            compose.activity.currentFocus?.clearFocus()
+            compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+                .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken, 0)
+        }
+        UiDevice.getInstance(inst).waitForIdle()
         libraryTag("media-open-${pdf.id}").performClick()
         compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         compose.onNodeWithText("Page 1 of 2").assertIsDisplayed()
