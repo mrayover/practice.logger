@@ -20,7 +20,7 @@ run_test() {
   grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/$1.txt"
 }
 if [ "$1" = native ]; then
-  adb install -r baseline76/test-signed.apk
+  adb install -r baseline76/build/outputs/apk/debug/app-debug.apk
   adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
   run_test BlockMediaSeedTest
 fi

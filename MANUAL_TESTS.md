@@ -110,3 +110,17 @@ Install the final L2 permanent-key APK over build72 without uninstalling or clea
 7. Confirm existing Block recordings and image/PDF references still work.
 
 L1 phone acceptance remains separately pending. JSON7 excludes Library media and master annotations; keep originals separately until S2. No phone result is inferred from automated tests.
+
+## L3 owner-phone acceptance — pending
+
+L1 and L2 phone acceptance remain separately pending. Emulator checks do not close these items. Use the final L3 APK linked by CURRENT_STATE; K1/T1 features are not part of this checklist.
+
+- [ ] Install over build76 without uninstalling or clearing data.
+- [ ] Attach the same Library PDF to two different saved Blocks.
+- [ ] Attach the same Library audio file to both Blocks alongside the PDF.
+- [ ] Replace and unlink one reference; verify the other Block and Library original remain intact. Confirm referenced Library deletion is refused.
+- [ ] Open the PDF during Focused Practice and recording; change pages/zoom, then use pinned Stop and review actions.
+- [ ] Confirm existing imported backing tracks and camera/gallery references still display/play/export. Try new camera/gallery import; deliberately confirm any legacy visual replacement.
+- [ ] Reopen the app and confirm links remain intact. Check portrait/landscape and enlarged text.
+
+JSON7 does not include Library originals, associations or master annotations. Keep originals separately until S2. The old Loop Setup importer remains available during L3; its convergence with canonical audio selection belongs to T1 after K1.

@@ -18,6 +18,10 @@ on:
         description: 'Optional successful L2 build run whose identical generated test audio should be reused'
         type: string
         default: '41721617835'
+      compiled_run:
+        description: 'Successful L3 build to reuse after verifying identical app and test source'
+        type: string
+        default: ''
 permissions:
   contents: read
   actions: read
@@ -57,12 +61,27 @@ jobs:
             ffmpeg -y -v error -f lavfi -i 'sine=frequency=440:duration=4' -ar 44100 -ac 1 -c:a pcm_s16le app/src/androidTest/assets/audio/backing.wav
           fi
       - name: Compile and focused units
+        if: ${{ inputs.compiled_run == '' }}
         run: |
           if [ '${{ inputs.scope }}' = build ]; then
             bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*BlockMedia*Test' --tests '*BlockRepositoryTest' --tests '*BlockDeletionTest' --tests '*Media*Test' --tests '*Library*Test' --tests '*ImageReferenceTest' --tests '*ImageMigrationTest' --tests '*PdfReferenceTest' --tests '*AudioImportTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --tests '*BackupRepositoryTest' --tests '*BackupFailureTest' --stacktrace
           else
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
           fi
+      - name: Reuse verified compilation
+        if: ${{ inputs.compiled_run != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPILED_RUN: ${{ inputs.compiled_run }}
+        run: |
+          [[ "$COMPILED_RUN" =~ ^[0-9]+$ ]]
+          test "$(gh api "repos/${{ github.repository }}/actions/runs/$COMPILED_RUN" --jq .conclusion)" = success
+          compiled_sha=$(gh api "repos/${{ github.repository }}/actions/runs/$COMPILED_RUN" --jq .head_sha)
+          git fetch origin "$compiled_sha" --depth=1
+          git diff --exit-code "$compiled_sha" HEAD -- app/src app/build.gradle.kts app/schemas
+          gh run download "$COMPILED_RUN" --repo '${{ github.repository }}' -n l3-build --dir compiled
+          mkdir -p app/build
+          cp -R compiled/build/outputs app/build/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -84,15 +103,24 @@ jobs:
         run: |
           gh run download 41721617835 --repo '${{ github.repository }}' -n l2-build --dir baseline76
           test -s baseline76/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --out baseline76/test-signed.apk baseline76/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify baseline76/test-signed.apk
-          python3 - <<'PY'
-          import zipfile
-          with zipfile.ZipFile('baseline76/build/outputs/apk/debug/app-debug.apk') as old, zipfile.ZipFile('baseline76/test-signed.apk') as new:
+      - name: Disposable emulator signatures with exact payload verification
+        if: ${{ inputs.scope != 'build' }}
+        run: |
+          test_key="$RUNNER_TEMP/l3-emulator.p12"
+          keytool -genkeypair -keystore "$test_key" -storepass android -keypass android -storetype PKCS12 -alias androiddebugkey -keyalg RSA -validity 3 -dname CN=L3Emulator
+          for apk in app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk baseline76/build/outputs/apk/debug/app-debug.apk; do
+            if [ ! -f "$apk" ]; then continue; fi
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$test_key" --ks-pass pass:android --key-pass pass:android --out "$apk.resigned" "$apk"
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk.resigned"
+            python3 - "$apk" "$apk.resigned" <<'PY'
+          import sys, zipfile
+          with zipfile.ZipFile(sys.argv[1]) as old, zipfile.ZipFile(sys.argv[2]) as new:
               names = {n for n in old.namelist() if not n.startswith('META-INF/')}
               assert names == {n for n in new.namelist() if not n.startswith('META-INF/')}
               assert all(old.read(n) == new.read(n) for n in names)
           PY
+            mv "$apk.resigned" "$apk"
+          done
       - uses: reactivecircus/android-emulator-runner@v2
         if: ${{ inputs.scope != 'build' }}
         with:
