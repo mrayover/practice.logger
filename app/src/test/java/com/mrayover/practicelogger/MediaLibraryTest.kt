@@ -9,12 +9,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID
 
 @RunWith(RobolectricTestRunner::class) @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MediaLibraryTest {
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
     private fun memory() = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
