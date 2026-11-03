@@ -161,9 +161,10 @@ import kotlin.coroutines.coroutineContext
     }
 }
 
-@Composable private fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false) {
+@Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0) {
     var scale by remember(bitmap) { mutableFloatStateOf(1f) }
     var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
+    LaunchedEffect(resetKey) { scale = 1f; offset = Offset.Zero }
     var size by remember { mutableStateOf(IntSize.Zero) }
     fun bounded(value: Offset, zoom: Float): Offset {
         val fit = minOf(size.width.toFloat() / bitmap.width, size.height.toFloat() / bitmap.height)

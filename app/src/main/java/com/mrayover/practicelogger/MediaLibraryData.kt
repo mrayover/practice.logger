@@ -63,6 +63,20 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
         }
     }
     val assets = db.media().observeAll()
+    /** Callers provide only canonical IDs. File paths stay inside repository/engine code. */
+    internal suspend fun original(id: String, category: String? = null): Pair<MediaAsset, File> = withContext(Dispatchers.IO) {
+        val asset = checkNotNull(db.media().find(id)) { "This Library item is no longer available." }
+        require(category == null || asset.category == category)
+        check(available(asset)) { "The original is missing or changed. Import your original again." }
+        asset to resolve(asset.fileName)
+    }
+    suspend fun visualPage(id: String, page: Int): ReferencePage = withContext(Dispatchers.IO) {
+        filesMutex.withLock {
+            val (asset, file) = original(id)
+            require(asset.category in setOf("IMAGE", "PDF"))
+            ImageReferenceRepository(db, directory).loadOriginalPage(file, asset.mimeType, page)
+        }
+    }
     private data class Integrity(val modified: Long, val size: Long, val expected: String, val valid: Boolean)
     private val integrity = java.util.concurrent.ConcurrentHashMap<String, Integrity>()
     private fun resolve(name: String): File {

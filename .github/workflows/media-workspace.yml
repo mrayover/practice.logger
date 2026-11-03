@@ -1,0 +1,73 @@
+name: L2 media workspace focused checks
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        type: choice
+        options: [gate, build, native]
+        default: gate
+      api:
+        type: choice
+        options: ['35', '26']
+        default: '35'
+      font_scale:
+        type: choice
+        options: ['1.0', '2.0']
+        default: '1.0'
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Codec fixtures
+        env:
+          AUDIO_FIXTURE_DURATION: '4.0'
+        run: |
+          bash scripts/Prepare-AudioFixtures.sh
+          ffmpeg -y -v error -f lavfi -i 'sine=frequency=440:duration=4' -ar 44100 -ac 1 -c:a pcm_s16le app/src/androidTest/assets/audio/backing.wav
+      - name: Compile and focused units
+        run: |
+          if [ '${{ inputs.scope }}' = build ]; then
+            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*Media*Test' --tests '*Library*Test' --tests '*ImageReferenceTest' --tests '*PdfReferenceTest' --stacktrace
+          else
+            bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l2-build
+          path: |
+            app/build/outputs/apk
+            app/build/test-results/testDebugUnitTest
+            app/schemas
+      - name: Emulator acceleration
+        if: ${{ inputs.scope != 'build' }}
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        if: ${{ inputs.scope != 'build' }}
+        with:
+          api-level: ${{ inputs.api }}
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash scripts/Check-MediaWorkspace.sh '${{ inputs.scope }}' '${{ inputs.font_scale }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l2-native-${{ inputs.api }}
+          path: app/build/l2-native

@@ -181,11 +181,14 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
     }
     suspend fun loadPage(image: BlockImage, index: Int = 0): ReferencePage = withContext(Dispatchers.IO) {
         filesMutex.withLock {
-            if (image.mimeType == "application/pdf") withPdf(resolve(image.fileName)) { renderer ->
+            loadOriginalPage(resolve(image.fileName), image.mimeType, index)
+        }
+    }
+    internal fun loadOriginalPage(file: File, mimeType: String, index: Int): ReferencePage {
+            return if (mimeType == "application/pdf") withPdf(file) { renderer ->
                 require(index in 0 until renderer.pageCount) { "PDF page is unavailable." }
                 renderer.openPage(index).use { ReferencePage(renderPage(it, 2048), renderer.pageCount) }
-            } else ReferencePage(decodeFile(resolve(image.fileName)), 1)
-        }
+            } else ReferencePage(decodeFile(file), 1)
     }
     suspend fun decode(image: BlockImage): Bitmap = loadPage(image).bitmap
     suspend fun import(blockId: String, input: () -> InputStream): BlockImage = withContext(Dispatchers.IO) {
