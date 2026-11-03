@@ -1,12 +1,12 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. L1 candidate: **0.18.0/build71 canonical Media Library/storage**, with scoped verification in progress. Build69 camera/gallery functionality is owner accepted. The **0.17.1/build67 P5 baseline** remains fully verified and owner accepted. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Current release: **0.18.0/build72 canonical Media Library/storage**, with scoped automated verification complete and L1 owner-phone checks pending. Build69 camera/gallery functionality is owner accepted. The **0.17.1/build67 P5 baseline** remains fully verified and owner accepted. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 
 [PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 is generally owner-accepted. P4 audio Settings is delivered with scoped checks; P4 phone acceptance remains pending. P5 full automated regression and owner acceptance are complete. L1 is now assigned and implements canonical imports/storage/management; L2 onward remains unstarted. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. L1 Media Library storage/management is implemented; previews/annotations, complete media-inclusive recovery and Goal/statistics extensions remain planned. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
 
-The [Media Library, Reference Keyboard & Transcribe specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) details planned L1–L3 → K1 → T1–T3 before storage/recovery. Canonical audio, independent visual/audio Block links, manual phrase practice and master/local audio markers are approved future scope; none shipped in this amendment.
+The [Media Library, Reference Keyboard & Transcribe specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) details L1–L3 → K1 → T1–T3 before storage/recovery. Canonical visual/audio storage and management is delivered in L1; independent Block links, manual phrase practice and master/local markers remain future scope.
 
 ## Appearance and Settings
 

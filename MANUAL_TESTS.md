@@ -82,9 +82,9 @@ Record exact source, commands/workflows, actual counts/failures/cancellations an
 
 ## Build69 reference camera/gallery phone checks
 
-Use the short PHONE_CHECKLIST in the current delivery linked from [CURRENT_STATE](CURRENT_STATE.md): files/image/PDF, capture/orientation, gallery, cancellation/replacement, recreation, unavailable camera and enlarged-text layout. Automated focused checks pass; phone/vendor acceptance is pending.
+Use the short PHONE_CHECKLIST in the current delivery linked from [CURRENT_STATE](CURRENT_STATE.md): files/image/PDF, capture/orientation, gallery, cancellation/replacement, recreation, unavailable camera and enlarged-text layout. Owner confirmed build69 camera/gallery works correctly on November3,2026; no itemized device/edge-case observations were supplied.
 
-## L1 owner-phone checklist — 0.18.0/build71
+## L1 owner-phone checklist — 0.18.0/build72
 
 Build69 camera/gallery functionality was owner confirmed on November3,2026. P5 remains complete; do not repeat its full checklist for L1. These L1 checks are pending owner verification, independent of automated results.
 

@@ -1,10 +1,10 @@
 # practice.logger — Media Library, Reference Keyboard & Transcribe Integration
 
-**Status:** Approved design; L1 implementation/verification is active under the explicit owner handoff. L2–L3, K1 and T1–T3 remain planned. See [L1 ownership decision](MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for delivered evidence.
+**Status:** Approved design; L1 storage/management is delivered under the explicit owner handoff, with owner-phone verification pending. L2–L3, K1 and T1–T3 remain planned. See [L1 ownership decision](MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for delivered evidence.
 **Amended:** November 3, 2026 (America/Los_Angeles).
 **Verified repository baseline:** `main`, `aa3e755638bfbb14e039cf8764d40a5ad76df042`.
 
-This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The amendment authorizes documentation, commit and push only; it starts no implementation, build, APK or regression work. Reinspect live code before each assigned phase.
+This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The original amendment authorized documentation only; the later explicit owner handoff authorized L1 implementation, now delivered with scoped verification and signed packaging. Reinspect live code before each separately assigned phase.
 
 **Order:** accepted P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2. Build69 camera/gallery owner acceptance is recorded; L1 is explicitly assigned. After L1 owner verification, the next separately assigned phase is L2.
 
@@ -122,7 +122,7 @@ Before coding the transition, inspect whether existing owned audio files can be 
 
 Do not blindly delete existing takes, rewrite their histories, or duplicate imported files during migration.
 
-Existing user attachments must be audited before applying the previous test-only disposal exception.
+The L1 owner handoff supersedes the previous test-only disposal exception: preserve all existing visual attachments and imported takes. L1 uses safe coexistence; adoption waits for L3 ownership/resolution/deletion/recovery changes documented in MEDIA_LIBRARY_STORAGE.md.
 
 **Exit:** Canonical storage and legacy ownership are validated with targeted persistence, migration, deletion and failure tests.
 

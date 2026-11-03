@@ -8,7 +8,7 @@ Owner explicitly assigned L1 and confirmed build69 camera/gallery works on their
 
 ## Approved roadmap amendment — planned only, November 3, 2026
 
-Sequence: accepted **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2**. L1 canonical visual/audio storage and legacy ownership; L2 previews/shared waveform/master markers; L3 independent visual/audio Block links; K1 Reference Piano; T1 Record Loop/Transcribe modes; T2 local overrides/promotion/persistence; T3 concurrent reference playback/Free Record and practice integration. S2 includes shared assets once, global/local annotations and relationships; final acceptance covers audio/keyboard/restore and physical devices. All new milestones remain planned. See the [detailed integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) under the authoritative master roadmap. This assignment implements no features.
+Sequence: accepted **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2**. L1 canonical visual/audio storage and legacy ownership; L2 previews/shared waveform/master markers; L3 independent visual/audio Block links; K1 Reference Piano; T1 Record Loop/Transcribe modes; T2 local overrides/promotion/persistence; T3 concurrent reference playback/Free Record and practice integration. S2 includes shared assets once, global/local annotations and relationships; final acceptance covers audio/keyboard/restore and physical devices. This amendment was planning-only at that checkpoint; L1 has since been delivered, with L2 onward remaining planned. See the [detailed integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) under the authoritative master roadmap. The original amendment implemented no features; the later explicit L1 assignment is recorded above.
 
 ## Owner-assigned reference photo refinement
 
@@ -123,7 +123,7 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 
 ## Data and release acceptance rules
 
-- Preserve app ID, permanent certificate, existing data/audio/IDs, all prior migrations and distribution packages. Current Room schema is 11; explicit 10→11 adds only practice_notes, after 9→10 block_images with restrictive Block ownership. Migrations/schemas 1–9 retained. Never use destructive fallback.
+- Preserve app ID, permanent certificate, existing data/audio/IDs, all prior migrations and distribution packages. Current Room schema is12; explicit11→12 adds only canonical media_assets, after10→11 practice_notes and9→10 block_images. Migrations/schemas1–11 retained. Never use destructive fallback.
 - Session placements deliberately lack a Block foreign key; safe deletion must check their saved sourceBlockId explicitly. Completed history remains protected even after Goal/Routine links are removed. Keep original FK restrictions and strict JSON references.
 - Never report a failed database operation as success. Cancellation changes no persistent data. Restore never clears, merges or overwrites a nonempty installation, including an app containing only Logs, Goals or standalone takes.
 - Keep the practice timer independent of audio; count only committed foreground active time. Saved snapshots/notes/history must survive Block edits/archive and app updates. Do not promise lossless abrupt-kill recovery or seamless/latency-free acoustic loops without evidence.
@@ -165,7 +165,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Complete focused L1 verification and signed delivery, then owner verification of L1. Build69 camera/gallery owner acceptance is recorded. The next implementation phase is separately assigned **L2 — Media Preview and Master Audio Annotation Workspace**; P5 remains complete.
+Owner verification of delivered L1 using its six-item phone checklist. Build69 camera/gallery owner acceptance is recorded. The next implementation phase is separately assigned **L2 — Media Preview and Master Audio Annotation Workspace**; P5 remains complete.
 
 ## Increment 3 — delivered 2026-10-29
 

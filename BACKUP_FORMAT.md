@@ -1,6 +1,6 @@
 # Backup format and safety — current implementation
 
-Format7 / Room12 is current for L1 build71. Canonical media_assets are independent of the unchanged JSON format. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Format7 / Room12 is current for L1 build72. Canonical media_assets are independent of the unchanged JSON format. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
