@@ -87,12 +87,14 @@ class MediaLibraryWorkflowTest {
             val bad = media("l1-bad.png", "image/png", "invalid".toByteArray()); compose.runOnIdle { vm.import(bad) }
             compose.waitUntil(15000) { !vm.busy }; assertEquals(ids, vm.assets.value.map { it.id }.toSet()); app.contentResolver.delete(bad, null, null)
             assertNotNull(vm.message)
-            click("PDFs"); assertTrue(compose.onAllNodesWithText("l1-score.pdf").fetchSemanticsNodes().isNotEmpty())
+            val pdf = vm.assets.value.single { it.category == "PDF" }
+            click("PDFs")
+            tag("media-item-${pdf.id}").assertIsDisplayed()
+            assertTrue(compose.onAllNodesWithText("l1-score.pdf").fetchSemanticsNodes().isNotEmpty())
             assertEquals(0, compose.onAllNodesWithText("l1-image.png").fetchSemanticsNodes().size)
             click("Audio"); click("Name"); shot("audio-filter")
             click("All")
             tag("media-search").performTextInput("SCORE")
-            val pdf = vm.assets.value.single { it.category == "PDF" }
             tag("media-rename-${pdf.id}").performClick()
             compose.onNodeWithTag("media-rename-title").performTextReplacement("Renamed score")
             click("Save title"); compose.waitUntil(15000) { !vm.busy && vm.assets.value.any { it.title == "Renamed score" } }
