@@ -155,6 +155,7 @@ class LibraryWorkspaceTest {
             compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
         compose.waitUntil(15000) { compose.activity.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE }
+        Thread.sleep(300) // allow the replacement window/compositor frame to settle, without Compose idling on a live ticker
         val rotatedVm = ViewModelProvider(compose.activity)[LibraryAudioViewModel::class.java]
         assertTrue("Rotation must retain active phrase playback", rotatedVm.controller.state.value.playing)
         shot("audio-landscape-playing")
@@ -168,8 +169,21 @@ class LibraryWorkspaceTest {
         try {
             device.executeShellCommand("wm size 800x1500")
             compose.waitUntil(15000) { compose.activity.resources.configuration.screenWidthDp <= 320 }
+            compose.waitUntil(15000) {
+                runCatching {
+                    val root = compose.onRoot().getUnclippedBoundsInRoot()
+                    (root.right - root.left).value <= 320f
+                }.getOrDefault(false)
+            }
             compose.onNodeWithTag("audio-play").assertIsDisplayed()
-            compose.onNodeWithTag("audio-edit-range").assertIsDisplayed(); shot("audio-narrow")
+            compose.onNodeWithTag("audio-edit-range").assertIsDisplayed()
+            val root = compose.onRoot().getUnclippedBoundsInRoot()
+            for (tag in listOf("audio-play", "audio-edit-range")) {
+                val control = compose.onNodeWithTag(tag).getUnclippedBoundsInRoot()
+                assertTrue("$tag fully inside narrow width", control.left.value >= root.left.value - 1f && control.right.value <= root.right.value + 1f)
+                assertTrue("$tag fully inside narrow height", control.top.value >= root.top.value - 1f && control.bottom.value <= root.bottom.value + 1f)
+            }
+            Thread.sleep(300); shot("audio-narrow")
         } finally { device.executeShellCommand("wm size reset") }
         compose.onNodeWithText("Back to Library").performClick()
         assertFalse(rotatedVm.controller.state.value.playing)
