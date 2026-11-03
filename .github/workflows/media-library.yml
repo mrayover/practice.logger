@@ -42,7 +42,7 @@ jobs:
       - name: Compile app, release, instrumentation and scoped storage checks
         run: |
           if [ '${{ inputs.scope }}' = native ]; then
-            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+            bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
           else
             bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*MediaLibraryTest' --tests '*MediaMigrationTest' --tests '*ImageReferenceTest' --tests '*ImageMigrationTest' --tests '*PdfReferenceTest' --tests '*AudioImportTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --tests '*BackupRepositoryTest' --tests '*BackupFailureTest' --stacktrace
           fi

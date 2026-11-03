@@ -28,6 +28,14 @@ class MediaLibraryWorkflowTest {
     }
     private fun tag(name: String) = node(hasTestTag(name))
     private fun click(text: String) = node(hasText(text)).performClick()
+    private fun orient(requested: Int, expected: Int) {
+        compose.runOnIdle { compose.activity.requestedOrientation = requested }
+        compose.waitUntil(15000) {
+            compose.activity.resources.configuration.orientation == expected &&
+                compose.onAllNodesWithTag("media-library-list").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+        }
+        compose.waitForIdle()
+    }
     private fun shot(name: String) {
         val dir = File(app.getExternalFilesDir(null), "l1-native").apply { mkdirs() }
         device.takeScreenshot(File(dir, "$name.png"))
@@ -105,15 +113,15 @@ class MediaLibraryWorkflowTest {
             tag("media-delete-${pdf.id}").performClick(); click("Cancel")
             assertTrue(file.exists())
             compose.activityRule.scenario.recreate()
-            compose.waitUntil(15000) { compose.onAllNodesWithTag("media-search").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+            compose.waitUntil(15000) { compose.onAllNodesWithTag("media-library-list").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
             tag("media-search").assertTextContains("Renamed score")
             tag("media-delete-${pdf.id}").performClick(); click("Delete item")
             compose.waitUntil(15000) { !vm.busy && vm.assets.value.size == 4 }; assertFalse(file.exists())
             tag("media-search").performTextClearance()
-            compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            compose.waitForIdle(); tag("media-import").assertIsDisplayed(); shot("landscape")
-            compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            compose.waitForIdle(); shot("managed")
+            orient(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE, android.content.res.Configuration.ORIENTATION_LANDSCAPE)
+            tag("media-import").assertIsDisplayed(); shot("landscape")
+            orient(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, android.content.res.Configuration.ORIENTATION_PORTRAIT)
+            shot("managed")
             val hashes = org.json.JSONObject()
             runBlocking { db.media().readAll() }.forEach { asset ->
                 val source = originals[asset.originalName]!!
