@@ -1,16 +1,26 @@
-# Current state — L1 canonical Media Library/storage in scoped verification
+# Current state — L1 signed candidate; Library interaction verification in progress
 
 Updated November 3, 2026 (America/Los_Angeles).
 
-## L1 implementation and delivery status
+## Current L1 candidate
 
-Candidate version **0.18.0/build71**, Room **12**, JSON writer **7** / readers **1–7**. L1 implements independent canonical visual/audio metadata and one private original per asset in files/media-library, validated bounded imports through shared existing validators, persistent Home → Library with search/type filters/stable sorting/title-only rename/confirmed deletion and conservative startup cleanup. Library-only installs now block JSON restore transactionally. L2 previews/annotations, L3 Block links and S2 complete ZIP recovery remain unimplemented. [Storage/legacy decision](docs/MEDIA_LIBRARY_STORAGE.md).
+**0.18.0/build71**, application/release source `5da4f17b3bf382b49c227accc47bc5e219673c89`. [APK](dist/practice.logger-0.18.0-b71-5da4f17/practice.logger-0.18.0-b71-5da4f17.apk) · [ZIP](dist/practice.logger-0.18.0-b71-5da4f17.zip) · [Build info](dist/practice.logger-0.18.0-b71-5da4f17/BUILD_INFO.json) · [L1 phone checklist](dist/practice.logger-0.18.0-b71-5da4f17/PHONE_CHECKLIST.txt). Install over accepted build69 without uninstalling/clearing data. This is a signed candidate with remaining UI/reopen checks, not owner-accepted L1.
 
-Existing block_images/files/block-images and takes/files/recordings remain under original ownership. No legacy bytes/IDs/labels/Block relationships are migrated, copied or disposed. In-place adoption requires L3 to change resolution, deletion and recovery safely together. Legacy media remains in existing Blocks/Recording rather than appearing automatically in the new Library. JSON excludes canonical and legacy media metadata/bytes; Library and Backup screens disclose this, and originals must be kept separately.
+Permanent publisher verifies app ID, version, signature and pinned certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA256 `e796cd2bac780d495733744bc32423af3dfbf34d62da8e3897967f0a963b83e4`; ZIP SHA256 `57b014c427cc2b8079f2dde13f014b6492946043f2c1bd4cc28054a5317dc3bf`. All 67 non-signature CI payload entries, ZIP CRC/exact member bytes and 298 prior distribution hashes pass. Previous packages and signing material remain. Internal70 was prepared before integrity hardening and is not the current installation target. dist/LATEST remains on accepted69 until closeout.
 
-First focused CI41704030107 compiled debug/release/instrumentation and ran34 unit tests:27 passed,7 failed in new fixture/schema setup. Logs establish missing native graphics mode and absent optional index arrays; those test setups are corrected without changing validators/assertions. Focused rerun and native build69 install-over/codec/UI/restart verification are in progress. Schema12 was retrieved from KSP output; earlier schemas/migrations remain. No full P5 or F1/F2 gate is rerun. No signed L1 delivery or owner-phone acceptance claimed yet.
+## Implemented ownership and boundaries
 
-**Exact next action: finish scoped L1 verification and permanent-key signed delivery for owner verification.** The next separately assigned implementation phase is **L2 — Media Preview and Master Audio Annotation Workspace**.
+Room12 adds only indexed media_assets through explicit11→12; KSP export12 matches the implementation and schemas/migrations1–11 remain unchanged. One canonical original per UUID in files/media-library, streaming SHA256 integrity checks, shared existing image/PDF/audio validators, bounded IO import/recovery, searchable/filterable/stably sorted Home Library, title-only rename and confirmed deletion. [Storage and legacy audit](docs/MEDIA_LIBRARY_STORAGE.md).
+
+Legacy block_images/files/block-images and takes/files/recordings remain under original ownership, with IDs, labels, Blocks and original bytes preserved. No legacy adoption, disposal or duplicated migration bytes. Safe adoption requires L3 to update durable links, resolution, deletion and recovery together; old media stays in existing Blocks/Recording. JSON7/readers1–7 still exclude canonical/legacy media metadata and bytes; Library-only targets now reject restore transactionally. Library/Backup screens disclose the exclusion. L2 previews/annotations, L3 linking and S2 complete ZIP recovery are not implemented.
+
+## Actual scoped verification so far
+
+- CI41705910512 / `5da4f17b3bf382b49c227accc47bc5e219673c89`: debug/release/instrumentation compilation and **34/34** units pass, including1→12 and11→12, all legacy rows/FKs, import failures/cancellation/commit recovery, original integrity/rename/delete and Library-only restore across readers1–7. Compiler schema12 retrieved and committed; exports1–11 match prior originals.
+- API35/200% CI41705910512 and API26/100% CI41706664910: build69 seed, actual install-over, raw legacy metadata/byte hashes, imported playback/rename/export, Block protection and native canonical format/failure/dependency checks pass. Both runs later stop at new-test offscreen-row lookups in the Library UI. No product workaround or weakened assertion was introduced.
+- UI diagnostics now explicitly compose lazy rows and wait for the list across recreation; API26/35 Library/reopen checks are active. Full P5/F1/F2, broad lint and owner-phone/vendor/acoustic acceptance are not rerun or claimed. P5 remains complete. Earlier failed/canceled attempts and evidence are in WORK_LOG.
+
+**Exact next action: finish the isolated Library/reopen checks and close out L1 for owner verification.** The next separately assigned implementation phase is **L2 — Media Preview and Master Audio Annotation Workspace**.
 
 ## Build69 camera/gallery owner acceptance
 
