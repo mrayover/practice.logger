@@ -1,10 +1,10 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved product direction; implementation pending. **One authoritative, self-contained plan for all remaining V1 work.**  
+**Status:** Owner-approved authoritative forward roadmap; P5 complete and owner accepted. L1 onward remains planned. Detailed approved audio/keyboard scope is in the [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
-**Important:** The existing signed build 42 is a **limited owner preview**. It has **not passed full regression**. No new work, phone acceptance, or feature described below should be marked complete without evidence.
+**Current amendment — November 3, 2026:** The build42 starting reference above is historical. Current release is **0.17.3/build69**, source `9c723442`; its camera/gallery owner-phone checklist remains pending. P5 passed and the owner accepted build67 on November 1. See [CURRENT_STATE](CURRENT_STATE.md). This documentation amendment ships no new capabilities and authorizes no implementation.
 
 > **Purpose.** Finish practice.logger as a dependable, offline-first Android application for daily music practice. V1 integrates reusable Blocks, sessions, recordings, reference materials, Goals and measured practice time, with export and full recovery. This document *supersedes the prior uncommitted separate pre-Library and Goal/Statistics proposals as the unified forward roadmap*. It does not erase verified implementation history in Git.
 
@@ -12,13 +12,13 @@
 
 ## 1. Rules for every Work instance
 
-This document is meant to be committed to the **root of the existing repository**, at this exact path: `PRACTICE_LOGGER_V1_MASTER_PLAN.md`. The owner has not yet added earlier proposal documents to Git. **Do not require any of those drafts. This file contains the complete future scope.**
+This document is meant to be committed to the **root of the existing repository**, at this exact path: `PRACTICE_LOGGER_V1_MASTER_PLAN.md`. The owner has not yet added earlier proposal documents to Git. **Do not require any of those drafts. This roadmap governs phase order; the linked integration specification details the approved L/K/T scope.**
 
 1. **Inspect first:** read `README.md`, `AGENTS.md`, `CURRENT_STATE.md`, `BUILD_PLAN.md`, the mandatory efficiency section in `WORK_LOG.md`, the source affected by the assigned task, current local changes, branch and latest CI. The live repository wins over the starting reference above. Do not restart already completed features.
 2. **Integrate this plan into the repo:** link it from `BUILD_PLAN.md` and `README.md` as the V1 forward roadmap, and reconcile obsolete future-scope exclusions in `BUILD_PLAN.md`/`AGENTS.md` without rewriting historical facts. Keep `CURRENT_STATE.md` as the authority for **what is actually implemented, packaged and verified**; use `WORK_LOG.md` for factual session notes. Update those after each increment. Never replace them with optimistic plan checkboxes.
 3. **One bounded increment at a time:** a handoff explicitly assigns a phase or subphase. Read the phase dependencies; implement only its described deliverable. **Do not automatically move to the next phase.** Early focused tests and a build are preferable to spending an entire usage window debugging unrelated suites.
-4. **Use existing architecture:** Kotlin, Jetpack Compose, Room, Lifecycle, existing PCM/metronome, recording repositories, session accounting and SAF document pickers. Use bundled **Lato**. No second audio engine, database, account system, network backend, or gratuitous UI rewrite.
-5. **Data safety:** preserve app ID `com.mrayover.practicelogger.app`, permanent release signing certificate, existing stable IDs, existing recordings, sessions, Goals, Routines, Logs, Notes and old migration paths. Use explicit non-destructive Room/backup migrations. Never uninstall or clear app data as part of an update. **Exception:** the owner's *existing test-only Block image/PDF references* need not be migrated into the new Media Library; see Library phase. This is not permission to delete other data.
+4. **Use existing architecture:** Kotlin, Jetpack Compose, Room, Lifecycle, existing PCM/metronome, recording repositories, session accounting and SAF document pickers. Use bundled **Lato**. No duplicate recording repository, independently owned waveform/annotation system, database, account system, network backend, or gratuitous UI rewrite. L2 starts with platform playback parameters; an alternative engine requires the feasibility evidence and owner approval in the integration specification.
+5. **Data safety:** preserve app ID `com.mrayover.practicelogger.app`, permanent release signing certificate, existing stable IDs, existing recordings, sessions, Goals, Routines, Logs, Notes and old migration paths. Use explicit non-destructive Room/backup migrations. Never uninstall or clear app data as part of an update. **Narrow exception:** audit existing attachments before applying the previous test-only visual-reference disposal policy in L1; preserve non-test attachments and all imported audio histories, and confirm any proposed non-test disposal. This is not permission to delete other data.
 6. **Delivery per implementation increment:** produce a usable **permanent-key signed installable APK and ZIP**, increment `versionCode`, verify identity/certificate/signature/hash and preserve earlier distributions. Include a short owner-phone test checklist, exact source commit SHA, actual tests, failures, deferrals and a confirmed pushed remote SHA/branch. Do not claim the owner's Windows checkout was changed unless verified; GitHub Desktop is the normal local workflow. Never commit APKs, build outputs, private keys or signing materials.
 7. **Documentation-only increment:** verify links/content and commit/push; **do not compile or run emulator regression** merely for documentation changes. If GitHub write permission fails, provide the files and state clearly that nothing was committed.
 8. **Tests are proportionate:** focused unit/instrumentation checks and one build per increment; run the full suite at the **pre-Library** and **final V1** gates (and any narrower storage safety gate described below). Do not silently dismiss failures; isolate an actual failure with logs before retesting the whole matrix. Physical phone checks are separate from emulator evidence.
@@ -40,17 +40,23 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **P2** | Flexible phrase loops and count-ins | Signed candidate + audio boundary/memory tests | **High** |
 | **P3** | Expandable metronome, meter, optional accent, visual pulse | Signed candidate + clock/UI tests | **High** |
 | **P4** | Audio Settings and bounded UI polish | Signed candidate + settings/transport tests | **Medium** (High only for engine problems) |
-| **P5** | **Full pre-Library regression** | Freeze pre-Library work; full suite, signed candidate and phone checks | **Medium** |
-| **L1–L3** | **Media Library**: storage, full-screen viewer, Block picker | Independently usable library + signed owner-tested APK | **High** for storage; **Medium** for UI |
+| **P5** | **Full pre-Library regression** | Complete: build67 full gate and owner acceptance November 1, 2026 | **Medium** |
+| **L1** | Canonical visual/audio Library storage; legacy import ownership migration | After accepted P5 and outstanding build69 phone checks; targeted persistence/migration/deletion tests | **High** |
+| **L2** | Visual preview, shared audio waveform/player and master annotations | After L1; platform speed/seek/A–B feasibility and reusable functional tests | **High** for audio; **Medium** for UI |
+| **L3** | Independent visual/audio Block links and legacy picker transition | After L2; two-Block reuse/restart without copied bytes | **Medium–High** |
+| **K1** | Reference Piano Tool and reusable polyphonic keyboard | After L3; range/pitch/touch/lifecycle and audio coexistence checks | **High** for audio; **Medium** for UI |
+| **T1** | Record Loop / Transcribe modes in existing transport | After K1; ordinary Block phrase practice without Loop Recorder regression | **Medium–High** |
+| **T2** | Block-local annotations, overrides, promotion and playback state | After T1; inheritance/deletion/multi-Block/restart tests | **High** |
+| **T3** | Practice audio ownership and concurrent Free Record integration | After T2; physical Android audio/lifecycle acceptance | **High** |
 | **S0–S2** | **Storage & recovery**: feasibility gate, organized exports, complete backup/restore | Verify real Drive-provider behavior + round-trip restore before proceeding | **High** for backup; **Medium** for export UI |
 | **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
-**Gating rule:** P5 precedes L1. L3 precedes S0. S2 precedes G1 (because backups must already preserve the new Goal attribution schema). F1 follows G3. An individual Work task may only span adjacent subphases if the owner explicitly authorizes doing so. The phase sequence is the planned scope, **not** authorization to start everything at once.
+**Gating rule:** P5 is complete and precedes L1. L1 → L2 → L3 → K1 → T1 → T2 → T3 precedes S0. S2 precedes G1 (because backups must already preserve the new Goal attribution schema). F1 follows G3. An individual Work task may only span adjacent subphases if the owner explicitly authorizes doing so. The phase sequence is the planned scope, **not** authorization to start everything at once.
 
 ### What is already implemented — do not rebuild it
 
-Current Git baseline includes Block creation/editing/archive/safe delete, independent sessions and builder, foreground timers, metronome, tuner, stopwatch/countdown, free M4A recording, WAV phrase loops at preset beat counts, take management/export, saved Routines, up to five Goals with existing links and manual progress, Daily Log/Weekly View, Block practice Notes/history, Block-owned single image/PDF viewer, JSON backup **without media**, and permanent-key APK publishing. It also includes the compact Focused Practice transport. Preserve these and extend only the gaps below.
+Current Git baseline includes Block creation/editing/archive/safe delete, independent sessions and builder, foreground timers, metronome, tuner, stopwatch/countdown, free M4A recording, WAV phrase loops with custom 1–64 beat counts, take management/export, saved Routines, up to five Goals with existing links and manual progress, Daily Log/Weekly View, Block practice Notes/history, Block-owned single image/PDF viewer, JSON backup **without media**, and permanent-key APK publishing. It also includes temporary take review, MP3/M4A/PCM16 WAV imported backing takes using MediaPlayer, camera/gallery references, centralized themes and the compact Focused Practice transport. Room11 and JSON7/readers1–7 remain current; no canonical shared Media Library exists yet. Preserve these and extend only the gaps below.
 
 ---
 
@@ -66,7 +72,7 @@ Current Git baseline includes Block creation/editing/archive/safe delete, indepe
 - A fully completed foreground phrase loop automatically previews its temporary take before the explicit Keep/Re-record/Discard choice (owner follow-up 2026-10-31). Playback never saves, and never starts from incomplete/cancelled/background capture or restarts on return/recomposition. Free review remains manual; **an incomplete phrase remains invalid** and must be rejected/discarded with understandable feedback, never silently padded or saved as complete.
 - Temporary recording can be previewed without creating a fake session, Block, or Goal entry. Keep active Stop/Cancel controls and status reachable when references or notes are open.
 - Preserve existing recovery/orphan handling, foreground interruption safety, media focus and playback ownership. A background/mic/storage/audio error may invalidate a pending file but must never corrupt a saved file or pretend a failed save succeeded.
-- Keep V1 free audio **AAC/M4A** and phrase-loop audio **PCM16 WAV**. No MP3 encoder, multitrack, overdub, effects, trimming or simultaneous capture/mixing.
+- Keep V1 free audio **AAC/M4A** and phrase-loop audio **PCM16 WAV**. No MP3 encoder, multitrack, overdub, effects, trimming or source-audio mixing. T3 later permits imported reference playback during Free Record microphone capture; it does not change beat-based loop capture.
 
 **Acceptance:** Record → stop → preview → save; stop → re-record → save; stop → discard; repeated attempts; failed file save; background/interruption; playback stops correctly; saved history unaffected. Check the four entry contexts (Focused Practice, Block recording, standalone Free Recording, completed loop). Deliver versioned signed APK and scoped tests.
 
@@ -155,34 +161,58 @@ Freeze P1–P4 features. Run and record:
 
 ---
 
-## 8. L1–L3 — Media Library (separate from the existing Block list)
+## 8. L1–L3 — Canonical Media Library and Block references
 
-### Product goal
+The Library is the global, offline-first media preparation workspace, separate from the Block catalog and practice sessions. The [approved integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) defines detailed requirements, exclusions and acceptance for L1–L3, K1 and T1–T3. These phases are planned, not delivered.
 
-A **top-level Media Library** on Home: a reusable, persistent repository for scanned tunes, PDFs, snippets, photographs of written music, chord diagrams and reference images. The user may populate it **before** creating Blocks. Media Library is not the Block catalog; name navigation clearly so the two are not confused.
+### L1 — Canonical Media Library and storage (High)
 
-### L1 — Canonical local storage and metadata (High)
+- Extend existing SAF validation/importers for PDF, JPEG/PNG/WebP and MP3/M4A/supported WAV. Store one managed canonical original per asset, stable media ID, title, metadata and validated storage reference; ownership is independent of Blocks.
+- Deliver bounded import/failure recovery, search, rename, sorting, type filtering and safe deletion. No session or recording subsystem belongs in the Library.
+- Audit existing visual attachments before applying the narrow previous test-only disposal exception; preserve unrelated data and confirm non-test disposal. Inspect whether owned `IMPORTED_LOOP` files can be adopted in place without copying bytes. Preserve all take IDs/history, Block associations, playback and byte-preserving export; no blind deletion or duplication.
 
-- Import **PDF, JPEG, PNG and WebP** through Android's Storage Access Framework picker. The picker may include **Google Drive** where installed/available, but the selected document is copied into the app's local Library; the app remains offline-first.
-- One canonical private original per Library item, stable **media ID**, human-readable editable title, MIME/type, original filename/provenance where useful, size and import date. No external-provider URI dependency after successful import. Validate size, image/PDF structure, permissions and free storage using existing safe loaders where applicable.
-- Implement rename, search, sort (name/recent), import, confirm deletion, and empty/missing-file handling. **Library item identity is independent of Blocks.** No collection/folder/tag hierarchy required for V1.
-- **The owner's existing test-only Block image/PDF attachments are disposable.** No legacy reference data migration is required. Still write a safe database migration that explicitly accounts for the old attachment table/files and leaves unrelated Block, recording, session and note data untouched. Do not wipe whole app data. Confirm if an actual non-test attachment appears before discarding it.
-- Keep reference media and recording data separate, with bounded file operations and cleanup on failed imports.
+**Exit:** targeted persistence, migration, deletion and failure tests validate canonical storage and legacy ownership.
 
-### L2 — Full-screen Library preview (Medium)
+### L2 — Media preview and master annotation workspace (High/Medium)
 
-- Tapping a Library item opens a **full-screen reading view**: document title, close/back, image pinch-to-zoom/pan/reset; PDF page navigation + current/total page and zoom/pan. Preserve image orientation. Reading must work **without** starting a practice timer/session or any recorder.
-- Reuse existing Android PDF/image rendering code where safe. Render only bounded PDF pages instead of decoding an entire document at once; close native descriptors on leaving. Support portrait/landscape, safe insets and larger text.
+- Reuse full-screen bounded PDF/image renderers, orientation, zoom/pan/reset and page navigation without practice side effects.
+- Add one reusable audio waveform/player: play/pause/seek, zoom/scroll, A–B repeat, pitch-preserving speed and global named point/range markers with optional notes and add/rename/move/resize/delete controls.
+- Generate bounded cached waveforms without whole-recording PCM allocation. Preview/annotation does not start Free Record, Goals or session-time tracking.
+- Gate engine selection on platform playback-parameter, seek and A–B tests. Document unacceptable device gaps/short-loop behavior and seek owner approval for the smallest justified alternative. No sample-perfect compressed-loop promise or metronome alignment.
 
-### L3 — Reusable Block references (Medium–High)
+**Exit:** shared player/waveform and master markers are functionally verified and reusable by Blocks.
 
-- Block create/edit offers **Choose from Library** and **Import New** (the latter imports to Library first, then links the media item).
-- A Block links to **at most one** Library item in V1, preserving the current simple practice reference panel. **One Library item may be referenced by any number of Blocks**, with no byte duplication. Changing/removing a Block reference unlinks; it does not delete the Library item.
-- During Focused Practice and existing recording sheet, reference expands/collapses within the same workspace; page/zoom/navigation do not stop timer or capture. Archived Blocks may keep links and saved session instruction snapshots remain stable.
-- Deletion safety must account for shared ownership: deleting a Block must not remove a shared media original; deleting a Library item still referenced by Blocks must either be blocked with a clear list/count or require an explicit deliberate unlink confirmation. Prefer **block deletion of referenced media** for V1. Update old safe Block-delete checks to avoid treating a shared Library item as an owned file.
-- Maintain existing one-reference Block interaction, while enabling reusable media elsewhere. No annotations, OCR, scanner/camera capture pipeline, multiple references per Block or PDF editing.
+### L3 — Block Media Library associations (Medium–High)
 
-**L3 exit:** signed APK + tested import/search/rename/full-screen preview/link/unlink/shared reuse; clear old-test attachment policy; no file leaks or unrelated data loss; owner can import a PDF from Drive/phone, view it full screen, link it into two Blocks, practice and delete one Block without losing the media.
+- Extend existing Block editing with Choose from Library / Import into Library and link, separately for **one visual** and **one active audio** reference. Store stable media IDs, not per-Block original copies.
+- Preserve compact visual panels and retained practice/recording viewers; score and audio coexist. Unlink retains originals; block accidental deletion of referenced Library assets and retain current Block/history deletion protections until safely migrated.
+- Transition Loop Setup's imported-backing control into the future Library/Transcribe picker without a competing duplicate import path or loss of legacy saved content.
+
+**Exit:** two Blocks reuse the same audio bytes with independent visual links, survive restart and unlink safely.
+
+### K1 — Reference Keyboard (High/Medium)
+
+Add **Reference Piano** as the fourth reusable Tool: approximately 12–18 visible semitones, adjustable register, correct audible frequencies, simultaneous notes, phone-usable touch layout/expanded fallback and lifecycle/output cleanup. Reuse the component as a collapsible Transcribe keyboard without interrupting reference playback. No MIDI, recording, synth editing, detection, accompaniment or notation generation.
+
+**Exit:** standalone range/pitch/polyphony works and the keyboard is reusable in active practice.
+
+### T1 — Block Transcribe mode (Medium–High)
+
+Extend the existing compact Loop transport with selectable **Record Loop** and **Transcribe** modes. Record Loop retains BPM, beats, count-in and review without inherited speed/marker controls. Transcribe uses the Block's canonical audio, Library picker and shared waveform/seek/zoom/speed/pitch/A–B controls, marker jumps, local phrase refinement and keyboard. No special Block type. Expansion temporarily collapses Description/Reference and restores their prior state on close without changing session ownership.
+
+**Exit:** an ordinary Block selects, isolates and slows a phrase for practice without changing the original Loop Recorder.
+
+### T2 — Local annotation and persistence model (High)
+
+Use stable master marker identity with Block-local overrides/hiding, independent local markers and persisted selected media/speed/position/A–B state. Unmodified markers follow master revisions; local edits never silently change other Blocks. Explicit per-marker **Add to Master**, **Update Master** and **Reset to Master** preserve other Blocks' overrides. Master deletion preserves valid independent local work and safely removes invalid inherited display state. Exact Room entities remain implementation decisions; no automatic bidirectional sync or whole-Block bulk publishing.
+
+**Exit:** inheritance, promotion, edits/deletion, multiple Blocks and process restart satisfy the detailed specification's rules.
+
+### T3 — Audio and practice integration (High)
+
+Keep Free Record independently accessible and allow Transcribe playback plus microphone capture and keyboard output. Refactor the current `RecordingViewModel.startCapture()` → `stopPlayback()` conflict only as necessary. Do not force beat-based loop recording to run with Transcribe; no overdub, source mixing, beat grid, tempo detection or metronome sync. Keep Notes/visual references accessible, correct Block/session take review/save, foreground/background/focus/interruption safety and no unexpected resume. Count practice time once through existing sessions.
+
+**Exit:** physical Android speaker/headphone/microphone practice verifies coexistence, acoustic bleed limitations, persisted state and unchanged recording workflows. Then resume S0–S2; do not auto-start the next assignment.
 
 ---
 
@@ -221,14 +251,14 @@ practice.logger/
 
 ### S2 — Complete portable ZIP backup and verified restore (High; V1 release-critical)
 
-- A true **complete** backup contains *all* durable V1 user data: Blocks, Goal/Block links/Goal history and snapshot attribution, Routines, sessions/placements, practice time, Daily Logs, practice and session Notes, Media Library metadata and original PDFs/images, recording/take metadata/labels and **actual M4A/WAV bytes**, settings where appropriate and stable IDs/relationships. Exclude temporary in-progress audio, caches and private secrets.
+- A true **complete** backup contains *all* durable V1 user data: Blocks, Goal/Block links/Goal history and snapshot attribution, Routines, sessions/placements, practice time, Daily Logs, practice and session Notes, Media Library metadata and canonical PDFs/images/audio (each original once), global markers/notes, Block-local markers/overrides, A–B selections, speed/position and stable media links, persisted keyboard settings if any, imported backing-track histories, recording/take metadata/labels and **actual MP3/M4A/WAV bytes**, settings where appropriate and stable IDs/relationships. Exclude temporary in-progress audio, caches and private secrets.
 - ZIP contains a **versioned manifest**, explicit item IDs/paths, counts, types/sizes, cryptographic hashes (e.g. SHA-256), schema/format version and app version. Sanitize archive paths against traversal/duplicate entries and reject or safely handle malformed, oversized or inconsistent archives. Bound memory/storage; stream large file bytes rather than building one giant array.
 - Build a complete archive to a temporary destination, verify integrity, then publish/rename the final copy where supported. Handle out-of-space, missing file, interruption and provider errors without pretending backup succeeded. The target folder may be SAF/Google Drive where supported; provide an explicit alternate Save As flow.
 - Restore must validate the archive, media hashes, IDs, references, bounds and available disk space **before destructive operations**. Follow the existing conservative **empty-installation restore** contract (or a separately approved safe staging/rollback approach); **never overwrite or merge a populated installation without an explicit new owner decision**. Prevent partial database/media restoration or supply a verified rollback mechanism; report failures accurately.
 - Continue supporting existing JSON backup **readers 1–7** as appropriate, clearly labeling JSON as **data-only legacy backup**. Update writing format/schema/migrations for the new data while preserving compatibility; never represent JSON as media-inclusive backup.
-- Test complete round-trip restore on a clean target, plus recording playback, PDF viewing, Goal references, same stable IDs and actual practice time after restore. Test corruption, missing entries, duplicates, malicious paths, empty/partial archives, low storage, interruption and legacy JSON restore.
+- Test complete round-trip restore on a clean target, reconstructing shared references and master/local inheritance without per-Block byte duplication, plus recording playback, PDF viewing, Goal references, same stable IDs and actual practice time after restore. Test corruption, missing entries, duplicates, malicious paths, empty/partial archives, low storage, interruption and legacy JSON restore.
 
-**S2 exit is a hard V1 gate:** demonstrate a complete backup/restore round trip including at least one PDF, one image, one Block-linked media item used by two Blocks, one free M4A take, one WAV loop, a Daily Log, a Goal, and nonzero committed practice time. A successful ZIP export alone is insufficient.
+**S2 exit is a hard V1 gate:** demonstrate a complete backup/restore round trip including at least one PDF, one image, one audio asset used by two Blocks with independent local markers/overrides and playback settings, preserved legacy imported history, one free M4A take, one WAV loop, a Daily Log, a Goal, and nonzero committed practice time. A successful ZIP export alone is insufficient.
 
 ---
 
@@ -252,6 +282,8 @@ Up to five active Goals, Goal ordering/completion, manual percentages, existing 
 - Combine with existing name/action/notes text search and active/archived eligibility. **If actual tag data/features exist by implementation time**, compose tag filtering in the same predicate. If absent, do not invent a tag filter or add tag infrastructure to V1 as a side effect.
 - Retain caps in results, clear filter easily, show meaningful empty states and preserve session-builder ordering/history.
 
+Transcribe remains ordinary Block practice: no separate transcription statistics or practice-time counter.
+
 ### G3 — Accurate time attribution and concise statistics (High for correctness)
 
 - Replace the Home **`Data usage`** placeholder with compact **total actual practice time**; tap opens one simple statistics view (no large dashboard). Include cumulative total, recent/weekly time where valid from stored timestamps, per-Block practice time and optionally top-practiced Blocks. Provide Goal detail with Goal total and relevant practice history.
@@ -272,11 +304,12 @@ Up to five active Goals, Goal ordering/completion, manual percentages, existing 
 - No new V1 features after G3. Remove confirmed dead UI/placeholder labels, verify navigation, spacing, Lato, palette, clear error messages and accessibility. Cleanup is **not** an excuse to redesign already accepted screens.
 - Run full unit suite + lint + debug/release compilation + complete available **API26/API35** instrumentation matrix, including updated media, SAF, backup and Goal attribution tests. Compare screenshots and verify 200% font, portrait/landscape, overflow/scroll indicators, accessible colors, TalkBack/semantic labels, keyboard transitions and process recreation where feasible.
 - Verify old-to-new Room migrations and **supported backup format compatibility**. Test install-over from current permanent-key build, data/media persistence, deletion guards, self-contained backup/restore, file-provider failure, audio-focus/microphone, recording review, 64-beat looping, custom count-in, meter/flash, alarms, Logs/Notes, Goals filters/totals and independent session accounting.
+- Extend acceptance to original Loop Recorder/Free Record regression, 100% and slower pitch-accurate playback, short A–B repeat, long waveform navigation, master/local inheritance/promotion, shared storage/deletion, concurrent imported playback/Free Record, keyboard during playback and complete media/legacy restore. Keep phase-scoped checks during development; full regression belongs here after integration.
 - Keep a tracked list of failures with reproducible evidence; isolate failed tests and retest after targeted fixes. Run broad suites again at the release gate, not after each cosmetic change. No ungrounded blanket "all tests passed" assertion.
 
 ### F2 — Physical phone signoff and permanent-key release
 
-Owner completes and records actual phone checks for: install-over and saved data; foreground/background safety; free and loop recording with the phone's microphone or connected interface; actual speaker/headphone click/alarm, silent flash and visual timing; long loop memory/playback; Library large PDFs/rotated photos; provider import/export; complete ZIP backup and **clean restore**; Goal time/color/filter correctness; navigation, large text and common practice tasks.
+Owner completes and records actual phone checks for: Transcribe speed/pitch/short-loop quality, long waveform navigation, marker inheritance/promotion, keyboard during imported playback, concurrent microphone Free Record with speaker/headphone behavior and acoustic bleed, audio focus/lifecycle without unexpected resume; install-over and saved data; foreground/background safety; free and loop recording with the phone's microphone or connected interface; actual speaker/headphone click/alarm, silent flash and visual timing; long loop memory/playback; Library large PDFs/rotated photos; provider import/export; complete ZIP backup and **clean restore**; Goal time/color/filter correctness; navigation, large text and common practice tasks.
 
 **V1 release artifact:** permanent-key signed installable Android APK and ZIP, `versionName`/increased `versionCode`, matching source SHA/commit, certificate/hash/ZIP validation, explicit CI matrix results, current delivery link/phone checklist and a concise CHANGELOG/readme. Preserve older APKs and signing key. The phone's real tests must be marked completed by the owner—not invented by Work. If critical tests are blocked, ship only an accurately labeled candidate, not a verified V1 release.
 
@@ -286,9 +319,11 @@ Owner completes and records actual phone checks for: install-over and saved data
 
 ## 12. Explicit V1 non-goals and boundaries
 
-These are **not** part of V1 unless the owner separately changes this document: in-app scanning/OCR/markup, multiple Library references per Block, Library folder/tag taxonomy, an entirely new tagging system, importing online scores, notation editing, 128-beat loops, meter-aware loop bar selection, grouped 6/8/subdivision tempo maps, MIDI sync, MP3 encoding, converting every free capture to WAV, multitrack/overdub/mixer/effects, always-on recording, background countdown notifications, user-defined imported sound packs, automated music-learning prescriptions, advanced analytics, streaks, cloud accounts, Google Drive OAuth/sync/background upload, teacher/student/publisher products, band collaboration, desktop companion, marketplace or subscription services. These remain future ideas, not V1 acceptance blockers.
+These are **not** part of V1 unless the owner separately changes this document: in-app scanning/OCR/document markup, unlimited references beyond one visual plus one active audio per Block, Library folder/tag taxonomy, an entirely new tagging system, importing online scores, notation editing, 128-beat loops, meter-aware loop bar selection, grouped 6/8/subdivision tempo maps, MIDI sync, MP3 encoding, converting every free capture to WAV, multitrack/overdub/mixer/effects, always-on recording, background countdown notifications, user-defined imported sound packs, automated music-learning prescriptions, advanced analytics, streaks, cloud accounts, Google Drive OAuth/sync/background upload, teacher/student/publisher products, band collaboration, desktop companion, marketplace or subscription services. These remain future ideas, not V1 acceptance blockers.
 
-**Visual theme:** Full dark mode is explicitly **optional** at V1; deliberate palette/contrast polish is required. Do not misrepresent dark mode as already delivered. The app remains useful offline; no backend is needed.
+**Transcribe boundary:** Manual listening/phrase practice and audio markers are approved; automatic audio-to-MIDI/transcription, AI note/solo identification, BPM/time-signature analysis, pitch shifting/transposition, video/streaming/YouTube, general PDF/image editing, notation rewriting/generation and PDF pencil/highlight annotations remain excluded. Non-destructive visual markup is deferred until core audio and complete backup are reliable.
+
+**Visual theme:** Centralized themes are delivered; exact verification remains in CURRENT_STATE. Deliberate palette/contrast polish remains required. The app remains useful offline; no backend is needed.
 
 **Storage release boundary:** Local recording files plus legacy JSON data-only export are **not** enough to call V1 completely backed up. The complete ZIP round-trip is required, even if Drive's nested-folder support proves unavailable and the user must choose an explicit destination manually.
 
@@ -298,15 +333,19 @@ These are **not** part of V1 unless the owner separately changes this document: 
 
 Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work log:
 
-- [ ] This master plan is committed in the existing repo and referenced from BUILD_PLAN/README; baseline/actual next phase correctly recorded.
-- [ ] P1 recording review accepted; temporary takes handled safely.
-- [ ] P2 arbitrary 1–64 loop beats and user-entered positive count-in; WAV/replay validated.
-- [ ] P3 expandable metronome with meter, optional accent, silent visual flash; Tools/Focused Practice parity.
-- [ ] P4 persistent global audio Settings, Block/Tools alarm, compact transport/Notes/UI polish.
-- [ ] P5 complete **pre-Library regression** and signed owner-reviewed candidate.
-- [ ] L1 local Media Library import/search/rename/delete, safe storage and disposal of only old test attachments.
-- [ ] L2 full-screen image/PDF viewer, zoom/page controls and no accidental session side effects.
-- [ ] L3 shared media picker/linking in Blocks, including reference viewer during practice/recording.
+- [x] This master plan is committed in the existing repo and referenced from BUILD_PLAN/README; baseline/actual next phase correctly recorded.
+- [x] P1 recording review delivered and generally owner-accepted; P5 verifies temporary-take safeguards.
+- [x] P2 custom 1–64 beats/count-in delivered and generally owner-accepted; WAV/replay covered by P5.
+- [x] P3 meter/accent/flash and Tools/practice parity delivered and generally owner-accepted; P5 passed.
+- [x] P4 Settings/alarm/transport/Notes delivered and included in accepted P5; no separate itemized phone results inferred.
+- [x] P5 complete **pre-Library regression** and signed owner-accepted build67 (November 1, 2026); build69 phone checks remain separate.
+- [ ] L1 canonical visual/audio Library, validated legacy imported ownership and audited visual attachment policy.
+- [ ] L2 full-screen visual preview, shared audio/waveform/master markers and platform playback feasibility.
+- [ ] L3 independent visual/audio links, shared originals and safe legacy picker transition.
+- [ ] K1 reusable Reference Piano with correct pitch/polyphony and playback coexistence.
+- [ ] T1 compact Record Loop / Transcribe modes and phrase practice without recorder regression.
+- [ ] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state.
+- [ ] T3 physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
 - [ ] S0 documented SAF/Google Drive provider capabilities and fallback decision.
 - [ ] S1 organized non-destructive audio export and user-selectable destination.
 - [ ] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.

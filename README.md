@@ -6,6 +6,8 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Cu
 
 [PRACTICE_LOGGER_V1_MASTER_PLAN.md](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the owner-approved forward V1 roadmap. P0 integration is complete. P1 temporary take review is generally owner-accepted. P2 flexible loops/count-ins are generally owner-accepted. P3 is generally owner-accepted. P4 audio Settings is delivered with scoped checks; P4 phone acceptance remains pending. P5 full automated regression and owner acceptance are complete. Later phases have not started. P1–P4 use scoped checks and signed delivery; P5 and final V1 retain full-regression gates. Media Library, complete media-inclusive recovery and Goal/statistics extensions are planned, not implemented. Current delivery and verification remain authoritative in [CURRENT_STATE.md](CURRENT_STATE.md).
 
+The [Media Library, Reference Keyboard & Transcribe specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) details planned L1–L3 → K1 → T1–T3 before storage/recovery. Canonical audio, independent visual/audio Block links, manual phrase practice and master/local audio markers are approved future scope; none shipped in this amendment.
+
 ## Appearance and Settings
 
 Home → **Library** currently displays Coming soon. Media Library remains L1–L3, behind P5. Block Library and Recent Practice entries use shared pills. Selected chips retain visible outlines.

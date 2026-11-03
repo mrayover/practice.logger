@@ -1,6 +1,6 @@
 # Backup format and safety — current implementation
 
-Format7 / Room11 remains current in build65, including imported audio and appearance additions. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Format7 / Room11 remains current in build69, including imported audio and appearance additions. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
@@ -45,7 +45,7 @@ Canceling picker/confirmation changes nothing. Rotation retains an in-memory pre
 
 ## Image/PDF exclusion and private storage
 
-**JSON versions 1–6 include no image/PDF bytes, Block reference metadata, private filenames or picker URIs.** Restoring JSON retains all structured data and Logs but creates no attachment rows or broken media references. Keep every original image and PDF separately, then attach it again to its restored Block. There is no media-inclusive ZIP backup or per-reference export in this increment. Clearing/uninstalling/device loss destroys app-owned copies; Android cloud/device-transfer backup remains excluded.
+**JSON versions 1–7 include no image/PDF bytes, Block reference metadata, private filenames or picker URIs.** Restoring JSON retains all structured data and Logs but creates no attachment rows or broken media references. Keep every original image and PDF separately, then attach it again to its restored Block. There is no media-inclusive ZIP backup or per-reference export in this increment. Clearing/uninstalling/device loss destroys app-owned copies; Android cloud/device-transfer backup remains excluded.
 
 One `block_images` row per stable Block ID points to a generated UUID `.img` (image) or `.pdf` file under `files/block-images`. Historical table/type names are retained; the existing mimeType and dimension fields support either format, so that PDF increment did not add a migration. The current10→11 notes migration leaves all reference rows and originals unchanged. For PDFs, width/height record the first page’s dimensions; live page count comes from PdfRenderer. The system picker’s source is read only and never deleted. Import copies at most 20 MiB to a generated pending file, checks decoded JPEG/PNG/WebP content, at most 40 million pixels/16384 per side, and verifies sampled decoding at about 2048 pixels per side. File copy/decode run on IO. The original bytes are retained. Display decoding reads rotation/flip metadata through AndroidX ExifInterface and orients the sampled bitmap; it does not rewrite originals, change attachment rows or require reattaching existing images. The file is synced/renamed before the transactional metadata upsert; old attachment/file remain until that commit succeeds. Failed/canceled imports preserve the old image. Confirmed removal deletes metadata, then the private file. A shared media mutex serializes replacement/removal/recovery; known unreferenced generated files (including interrupted pending files) are retried at startup only after successfully reading metadata. Unknown files and other media directories are untouched.
 
@@ -74,3 +74,8 @@ PDF support requires a complete standard startxref/EOF trailer and a cross-refer
 ## Room10→11 note-history migration
 
 Only practice_notes is created: six non-null fields listed above, primary ID and indices on blockId/sessionId/placementId, restrictive foreign keys to blocks/sessions/placements. No legacy rows are copied or rewritten. Combined history reads existing nonblank placements.note once per placement, with an internal legacy key and session ended/start timestamp marked Earlier session; an exact old note-creation time is unavailable. New note rows have true save timestamps and independent IDs. Every new/edit operation updates the intended note text only; original descriptions, logs, session notes and active metrics stay separate. Compiler schema11 is retained beside1–10. Focused verification/limitations are authoritative in CURRENT_STATE.md.
+
+
+## Planned complete recovery (not implemented)
+
+S2 in the [authoritative roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) will include canonical visual/audio originals once, global markers/notes, Block-local overrides/markers/playback state, stable links, legacy imported histories and recorded takes, plus persisted keyboard settings if any. Complete restore must reconstruct shared ownership and inheritance. This is future versioned ZIP scope, not a change to the JSON7 writer/readers1–7 or current empty-target atomic restore contract.

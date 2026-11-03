@@ -1,6 +1,6 @@
 # Current state — Reference camera/gallery actions delivered; P5 remains complete
 
-Updated November 1, 2026 (America/Los_Angeles).
+Updated November 3, 2026 (America/Los_Angeles).
 
 ## Current delivery
 
@@ -17,6 +17,10 @@ All sources reuse bounded image/PDF validation and safe replacement. Cancelling 
 [Targeted CI41363227308](https://github.com/mrayover/practice.logger/actions/runs/41363227308) passes release compilation and **11/11** tests across ReferencePhotoCaptureTest, ImageReferenceTest and PdfReferenceTest. Coverage includes provider scope/full-byte output/cancel contract/path rejection plus existing validation/rollback/orientation/PDF safety. No full P5 regression, native workflow, lint or physical camera/gallery/phone visual acceptance rerun. Accepted P5 evidence below applies to build67, not newly certified build69 behavior.
 
 **Exact next action: install build69 over the current app and perform its short camera/gallery phone checklist.**
+
+## Documentation amendment — November 3, 2026
+
+Integrated the approved [Media Library / Reference Piano / Transcribe specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) into the authoritative [V1 roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md): L1–L3 → K1 → T1–T3 → S0–S2 → G1–G3 → F1–F2 after accepted P5. Canonical audio ownership, two independent reference roles, master/local markers and complete recovery are planned only. Current release, Room11, JSON7/readers1–7 and media exclusions remain unchanged. No app implementation, new APK, build or regression run. Next implementation phase is L1, separately assigned after the outstanding build69 owner-phone checklist; the exact next action above is unchanged.
 
 ## Accepted P5 baseline
 
