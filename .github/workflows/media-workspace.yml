@@ -14,8 +14,13 @@ on:
         type: choice
         options: ['1.0', '2.0']
         default: '1.0'
+      fixture_run:
+        description: 'Optional successful L2 build run whose identical generated test audio should be reused'
+        type: string
+        default: ''
 permissions:
   contents: read
+  actions: read
 jobs:
   workspace:
     runs-on: ubuntu-latest
@@ -34,9 +39,23 @@ jobs:
       - name: Codec fixtures
         env:
           AUDIO_FIXTURE_DURATION: '4.0'
+          FIXTURE_RUN: ${{ inputs.fixture_run }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          bash scripts/Prepare-AudioFixtures.sh
-          ffmpeg -y -v error -f lavfi -i 'sine=frequency=440:duration=4' -ar 44100 -ac 1 -c:a pcm_s16le app/src/androidTest/assets/audio/backing.wav
+          if [ -n "$FIXTURE_RUN" ]; then
+            [[ "$FIXTURE_RUN" =~ ^[0-9]+$ ]]
+            gh run download "$FIXTURE_RUN" --repo '${{ github.repository }}' -n l2-build --dir "$RUNNER_TEMP/l2-fixtures"
+            test_apk=$(find "$RUNNER_TEMP/l2-fixtures" -name app-debug-androidTest.apk -print -quit)
+            test -n "$test_apk"
+            mkdir -p app/src/androidTest/assets/audio
+            for ext in mp3 m4a wav; do
+              unzip -p "$test_apk" "assets/audio/backing.$ext" > "app/src/androidTest/assets/audio/backing.$ext"
+              test -s "app/src/androidTest/assets/audio/backing.$ext"
+            done
+          else
+            bash scripts/Prepare-AudioFixtures.sh
+            ffmpeg -y -v error -f lavfi -i 'sine=frequency=440:duration=4' -ar 44100 -ac 1 -c:a pcm_s16le app/src/androidTest/assets/audio/backing.wav
+          fi
       - name: Compile and focused units
         run: |
           if [ '${{ inputs.scope }}' = build ]; then
