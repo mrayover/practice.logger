@@ -13,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val activity = LocalContext.current as? Activity
-    val compactHeight = LocalConfiguration.current.screenHeightDp < 480
+    val compactHeight = LocalConfiguration.current.screenHeightDp / LocalDensity.current.fontScale < 480
     LaunchedEffect(asset.id) { vm.open(asset.id) }
     DisposableEffect(lifecycle, asset.id) {
         val observer = LifecycleEventObserver { _, event ->
@@ -59,7 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     BackHandler(onBack = close)
     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 8.dp)) {
         Row(Modifier.fillMaxWidth()) {
-            TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp)) { Text("Back to Library") }
+            TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) { Text(if (compactHeight) "Back" else "Back to Library") }
             Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
         }
         // Transport and source-time/range readouts remain independent of the long marker list.
@@ -110,8 +111,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             val annotationPanel: @Composable (Modifier) -> Unit = { modifier ->
                 Column(modifier) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        TextButton(onClick = { newType = "POINT" }, enabled = state.durationMs > 0, modifier = Modifier.testTag("audio-add-point")) { Text("Add point") }
-                        TextButton(onClick = { newType = "SECTION" }, enabled = validAudioRange(state.aMs, state.bMs, duration), modifier = Modifier.testTag("audio-add-section")) { Text("Add section") }
+                        TextButton(onClick = { newType = "POINT" }, enabled = state.durationMs > 0, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.testTag("audio-add-point")) { Text("+ Point") }
+                        TextButton(onClick = { newType = "SECTION" }, enabled = validAudioRange(state.aMs, state.bMs, duration), contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.testTag("audio-add-section")) { Text("+ Section") }
                     }
                     vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                     LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("master-markers"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -143,7 +144,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             if (maxWidth > 600.dp && maxWidth > maxHeight * 1.4f) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 details(Modifier.weight(1f).fillMaxHeight()); annotationPanel(Modifier.weight(1f).fillMaxHeight())
             } else Column {
-                details(Modifier.weight(.6f).fillMaxWidth()); HorizontalDivider(); annotationPanel(Modifier.weight(.4f).fillMaxWidth())
+                details(Modifier.weight(.55f).fillMaxWidth()); HorizontalDivider(); annotationPanel(Modifier.weight(.45f).fillMaxWidth())
             }
         }
     }

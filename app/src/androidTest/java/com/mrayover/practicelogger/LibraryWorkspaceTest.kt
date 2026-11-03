@@ -189,9 +189,14 @@ class LibraryWorkspaceTest {
                 assertTrue("$tag fully inside narrow width", control.left.value >= root.left.value - 1f && control.right.value <= root.right.value + 1f)
                 assertTrue("$tag fully inside narrow height", control.top.value >= root.top.value - 1f && control.bottom.value <= root.bottom.value + 1f)
             }
+            val markerArea = compose.onNodeWithTag("master-markers").getUnclippedBoundsInRoot()
+            assertTrue("Markers retain usable vertical space", (markerArea.bottom - markerArea.top).value >= 48f)
+            compose.onNodeWithTag("master-markers").performScrollToNode(hasTestTag("master-jump-${section.id}"))
+            compose.onNodeWithTag("master-jump-${section.id}").assertIsDisplayed()
+            compose.onNodeWithTag("audio-waveform").performScrollTo().assertIsDisplayed()
             Thread.sleep(300); shot("audio-narrow")
         } finally { device.executeShellCommand("wm size reset") }
-        compose.onNodeWithText("Back to Library").performClick()
+        compose.onNodeWithTag("audio-close").performClick()
         assertFalse(rotatedVm.controller.state.value.playing)
         libraryTag("media-search").assertTextContains("L2")
         for (asset in assets) assertEquals(originals[asset.id], digest(File(context.filesDir, "media-library/${asset.fileName}")))

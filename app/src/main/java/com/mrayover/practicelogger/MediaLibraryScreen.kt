@@ -88,7 +88,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit) {
+@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}) {
     val assets by vm.assets.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var filterName by rememberSaveable { mutableStateOf(MediaFilter.ALL.name) }
@@ -112,6 +112,10 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     val enabled = vm.ready && !vm.busy
     val filtered = libraryItems(assets, query, MediaFilter.valueOf(filterName), byName)
     val preview = assets.find { it.id == previewId }
+    DisposableEffect(preview?.id) {
+        onWorkspaceChanged(preview != null)
+        onDispose { onWorkspaceChanged(false) }
+    }
     if (preview != null) {
         if (preview.category == "AUDIO") LibraryAudioScreen(preview, { previewId = null })
         else LibraryVisualPreview(preview, vm.repository) { previewId = null }

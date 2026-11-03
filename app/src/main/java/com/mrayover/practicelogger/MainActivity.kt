@@ -125,6 +125,7 @@ class MainActivity : ComponentActivity() {
     DisposableEffect(practice.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
+    var mediaWorkspace by remember { mutableStateOf(false) }
     var settingsReturn by rememberSaveable { mutableStateOf("tools") }
     var headerHomeRequested by remember { mutableStateOf(false) }
     var headerDestination by rememberSaveable { mutableStateOf("home") }
@@ -172,7 +173,7 @@ class MainActivity : ComponentActivity() {
                 headerHomeRequested = true; backDispatcher?.onBackPressed()
             } else { focus.clearFocus(force = true); keyboard?.hide(); page = destination }
         }
-        PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
+        if (page != "media-library" || !mediaWorkspace) PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
             enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
         Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         if (catalog.error != null || sessions.error != null) {
@@ -185,7 +186,7 @@ class MainActivity : ComponentActivity() {
                 onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
             "media-library" -> {
                 BackHandler { page = "home" }
-                MediaLibraryScreen(media, onBack = { page = "home" })
+                MediaLibraryScreen(media, onBack = { page = "home" }, onWorkspaceChanged = { mediaWorkspace = it })
             }
             "log" -> LogScreen(log, onHome = { page = "home" })
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
