@@ -12,13 +12,14 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.Locale
 import java.util.UUID
+import java.security.MessageDigest
 
 /** Independent ownership. Future restrictive foreign keys target id; never copy originals per Block. */
 @Entity(tableName = "media_assets", indices = [Index(value = ["fileName"], unique = true), Index("category"), Index("importedAt"), Index("title")])
 data class MediaAsset(@PrimaryKey val id: String, val title: String, val originalName: String,
     val mimeType: String, val category: String, val fileName: String, val byteCount: Long,
     val importedAt: Long, val width: Int? = null, val height: Int? = null,
-    val pageCount: Int? = null, val durationMs: Long? = null)
+    val pageCount: Int? = null, val durationMs: Long? = null, val sha256: String = "")
 
 @Dao interface MediaAssetDao {
     @Query("SELECT * FROM media_assets ORDER BY importedAt DESC, id") fun observeAll(): Flow<List<MediaAsset>>
@@ -32,7 +33,7 @@ data class MediaAsset(@PrimaryKey val id: String, val title: String, val origina
 
 val MEDIA_MIGRATION_11_12 = object : Migration(11, 12) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `media_assets` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `originalName` TEXT NOT NULL, `mimeType` TEXT NOT NULL, `category` TEXT NOT NULL, `fileName` TEXT NOT NULL, `byteCount` INTEGER NOT NULL, `importedAt` INTEGER NOT NULL, `width` INTEGER, `height` INTEGER, `pageCount` INTEGER, `durationMs` INTEGER, PRIMARY KEY(`id`))")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `media_assets` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `originalName` TEXT NOT NULL, `mimeType` TEXT NOT NULL, `category` TEXT NOT NULL, `fileName` TEXT NOT NULL, `byteCount` INTEGER NOT NULL, `importedAt` INTEGER NOT NULL, `width` INTEGER, `height` INTEGER, `pageCount` INTEGER, `durationMs` INTEGER, `sha256` TEXT NOT NULL, PRIMARY KEY(`id`))")
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_media_assets_fileName` ON `media_assets` (`fileName`)")
         for (column in listOf("category", "importedAt", "title")) db.execSQL("CREATE INDEX IF NOT EXISTS `index_media_assets_$column` ON `media_assets` (`$column`)")
     }
@@ -62,12 +63,28 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
         }
     }
     val assets = db.media().observeAll()
+    private data class Integrity(val modified: Long, val size: Long, val expected: String, val valid: Boolean)
+    private val integrity = java.util.concurrent.ConcurrentHashMap<String, Integrity>()
     private fun resolve(name: String): File {
         require(ownedName.matches(name)) { "Invalid Library storage name." }
         return File(directory, name).also { check(it.canonicalFile.parentFile == directory.canonicalFile) }
     }
     fun available(asset: MediaAsset): Boolean = runCatching {
-        resolve(asset.fileName).let { it.isFile && it.length() == asset.byteCount && it.canRead() }
+        val file = resolve(asset.fileName)
+        if (!file.isFile || file.length() != asset.byteCount || !file.canRead()) return@runCatching false
+        val modified = file.lastModified()
+        val cached = integrity[asset.fileName]
+        if (cached != null && cached.modified == modified && cached.size == asset.byteCount && cached.expected == asset.sha256) cached.valid
+        else {
+            val digest = MessageDigest.getInstance("SHA-256")
+            file.inputStream().use { input ->
+                val bytes = ByteArray(32 * 1024)
+                while (true) { val count = input.read(bytes); if (count < 0) break; digest.update(bytes, 0, count) }
+            }
+            val valid = digest.digest().joinToString("") { "%02x".format(it) } == asset.sha256
+            integrity[asset.fileName] = Integrity(modified, asset.byteCount, asset.sha256, valid)
+            valid
+        }
     }.getOrDefault(false)
 
     suspend fun import(name: String, declaredMime: String?, open: () -> InputStream): MediaAsset = withContext(Dispatchers.IO) {
@@ -90,6 +107,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
             if (audio) check(freeBytes() >= AudioImport.MAX_BYTES + 1024 * 1024) { "Free at least 51 MiB before importing audio." }
             val id = UUID.randomUUID().toString()
             val pending = resolve("$id.pending")
+            val digest = MessageDigest.getInstance("SHA-256")
             try {
                 open().use { input -> FileOutputStream(pending).use { output ->
                     val buffer = ByteArray(32 * 1024); var total = 0L
@@ -101,6 +119,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                         require(total <= limit) { "Choose visual files up to 20 MiB or audio up to 50 MiB." }
                         check(freeBytes() >= count + 1024L * 1024) { "Free some storage before importing." }
                         output.write(buffer, 0, count)
+                        digest.update(buffer, 0, count)
                     }
                     require(total > 0) { "The file is empty." }
                     output.fd.sync()
@@ -111,7 +130,8 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                 currentCoroutineContext().ensureActive()
                 val target = resolve("$id.${if (extension == "jpeg") "jpg" else extension}")
                 val asset = MediaAsset(id, title(name), name, mime, if (audio) "AUDIO" else if (mime == "application/pdf") "PDF" else "IMAGE",
-                    target.name, pending.length(), System.currentTimeMillis(), visual?.width, visual?.height, visual?.pageCount, duration)
+                    target.name, pending.length(), System.currentTimeMillis(), visual?.width, visual?.height, visual?.pageCount, duration,
+                    digest.digest().joinToString("") { "%02x".format(it) })
                 withContext(NonCancellable) {
                     check(!target.exists() && pending.renameTo(target)) { "Could not finish the Library file." }
                     try { db.withTransaction { db.media().insert(asset) } }
@@ -136,6 +156,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
             catch (protected: android.database.sqlite.SQLiteConstraintException) {
                 throw IllegalStateException("This Library item is still referenced. Remove its links before deleting it.", protected)
             }
+            integrity.remove(asset.fileName)
             !file.exists() || file.delete()
         }
     }

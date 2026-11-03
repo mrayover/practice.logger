@@ -32,6 +32,8 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Generate existing codec fixtures
+        env:
+          AUDIO_FIXTURE_DURATION: '2.5'
         run: bash scripts/Prepare-AudioFixtures.sh
       - name: Compile app, release, instrumentation and scoped storage checks
         run: |

@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. L1 candidate: **0.18.0/build70 canonical Media Library/storage**, with scoped verification in progress. Build69 camera/gallery functionality is owner accepted. The **0.17.1/build67 P5 baseline** remains fully verified and owner accepted. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. L1 candidate: **0.18.0/build71 canonical Media Library/storage**, with scoped verification in progress. Build69 camera/gallery functionality is owner accepted. The **0.17.1/build67 P5 baseline** remains fully verified and owner accepted. Practice and Tools share meter, optional accent and sound/flash modes; P1 review and P2 custom loops remain. See [CURRENT_STATE.md](CURRENT_STATE.md) for package and verification.
 
 ## Forward V1 roadmap
 

@@ -88,6 +88,10 @@ class MediaLibraryTest {
             File(dir, "${UUID.randomUUID()}.mp3").writeText("finalized before commit")
             File(dir, "unrelated.txt").writeText("keep")
             assertEquals(2, repo.recover()); assertTrue(repo.available(kept)); assertTrue(File(dir, "unrelated.txt").exists())
+            val original = File(dir, kept.fileName).readBytes()
+            File(dir, kept.fileName).writeBytes(original.copyOf().also { it[it.lastIndex] = (it.last() + 1).toByte() })
+            // A fresh process/repository checks the entire original, including same-size corruption.
+            assertFalse(MediaLibraryRepository(db, dir).available(kept))
             File(dir, kept.fileName).writeText("corrupt")
             assertFalse(repo.available(kept)); assertEquals(0, repo.recover()); assertTrue(File(dir, kept.fileName).exists())
             File(dir, kept.fileName).delete(); assertFalse(repo.available(kept)); assertNotNull(db.media().find(kept.id))
