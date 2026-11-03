@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap; P5 complete and owner accepted. L1 onward remains planned. Detailed approved audio/keyboard scope is in the [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md).
+**Status:** Owner-approved authoritative forward roadmap; P5 complete and owner accepted. L1 is explicitly assigned and implemented with focused verification in progress; L2 onward remains planned. Detailed approved audio/keyboard scope is in the [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -157,7 +157,7 @@ Freeze P1–P4 features. Run and record:
 
 **Exit:** Owner accepts the pre-Library candidate (with explicitly documented phone-only limitations if any). **Do not begin L1 until this gate is recorded.**
 
-**Recorded status — November 1, 2026: P5 complete.** Final full CI41329443572 passed all required jobs; permanent-key 0.17.1/build67 was delivered. Owner confirmed: “Confirmed complete and running correctly”. See [CURRENT_STATE](CURRENT_STATE.md) for exact provenance and acceptance limits. L1 remains unstarted and requires a separate assignment.
+**Recorded status — November 1, 2026: P5 complete.** Final full CI41329443572 passed all required jobs; permanent-key 0.17.1/build67 was delivered. Owner confirmed: “Confirmed complete and running correctly”. See [CURRENT_STATE](CURRENT_STATE.md) for exact provenance and acceptance limits. L1 has since been explicitly assigned; see CURRENT_STATE for actual scope/verification and the L1 storage document for safe legacy coexistence.
 
 ---
 

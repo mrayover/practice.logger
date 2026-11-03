@@ -1,12 +1,12 @@
 # practice.logger — Media Library, Reference Keyboard & Transcribe Integration
 
-**Status:** Approved design; all L1–L3, K1 and T1–T3 implementation remains planned.
+**Status:** Approved design; L1 implementation/verification is active under the explicit owner handoff. L2–L3, K1 and T1–T3 remain planned. See [L1 ownership decision](MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for delivered evidence.
 **Amended:** November 3, 2026 (America/Los_Angeles).
 **Verified repository baseline:** `main`, `aa3e755638bfbb14e039cf8764d40a5ad76df042`.
 
 This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The amendment authorizes documentation, commit and push only; it starts no implementation, build, APK or regression work. Reinspect live code before each assigned phase.
 
-**Order:** accepted P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2. First complete any outstanding build69 owner-phone camera/gallery checklist; the next separately assigned implementation phase is L1.
+**Order:** accepted P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2. Build69 camera/gallery owner acceptance is recorded; L1 is explicitly assigned. After L1 owner verification, the next separately assigned phase is L2.
 
 ## 1. Verified existing implementation
 
@@ -22,7 +22,7 @@ The repository already contains:
 - Room schema 11, JSON backup format 7, and existing explicit migrations.
 - Existing metronome, tuner and timer Tools.
 
-**No canonical shared Media Library is implemented yet.**
+The list above records the pre-L1 baseline. L1 now adds independent canonical media storage/management with Room12; preview/linking remains L2/L3. Legacy adoption is deferred until L3 can change resolution, deletion and recovery safely together; existing bytes/IDs/associations stay intact. See [storage implementation](MEDIA_LIBRARY_STORAGE.md).
 
 Relevant source locations:
 

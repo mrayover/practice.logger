@@ -10,7 +10,7 @@ Reviewed 2026-11-01 (America/Los_Angeles) for signed P5 build67. The full automa
 
 ## Navigation, appearance and accessibility
 
-1. Open Blocks, Practice Now, Routines/Recent Practice, Recording, Goals, Tools, Log/Weekly View, summaries and the shared-header Settings gear. Home Library is Coming soon; Media Library L1–L3 is not implemented. Settings is in the header, not below Log. Tools → Audio Settings opens the same Settings screen.
+1. Open Blocks, Practice Now, Routines/Recent Practice, Recording, Goals, Tools, Log/Weekly View, summaries and the shared-header Settings gear. Home Library now provides L1 import/management; use the focused L1 checklist below. Preview/annotation/Block links remain later phases. Settings is in the header, not below Log. Tools → Audio Settings opens the same Settings screen.
 2. Use the banner and Android Back. Unsaved Block/Goal/Routine edits require discard protection; Log must save before navigation. During practice, Continue preserves the session; Back to Main saves/checkpoints before navigation, with recoverable failure and rapid-tap protection. Separate Back to Home/Home buttons remain removed.
 3. Test Light, Dark, System Default, Smooth, Sunny and Orchid. Check persistence after cold reopen/recreation, explicit override of OS appearance, System following both OS modes, native bars/icons/dialogs, contrast and selected/disabled/pressed/error/recording states. Existing installs and unknown preferences fall back to Light. Failed preference writes must retain the committed choice and offer retry.
 4. Verify original image/PDF colors and reference page/zoom, Notes drafts, active practice timing, capture and temporary playback survive appearance changes. Light/Dark are generally owner accepted; detailed physical/System/accessibility checks and new palette phone acceptance are still pending.
@@ -83,3 +83,16 @@ Record exact source, commands/workflows, actual counts/failures/cancellations an
 ## Build69 reference camera/gallery phone checks
 
 Use the short PHONE_CHECKLIST in the current delivery linked from [CURRENT_STATE](CURRENT_STATE.md): files/image/PDF, capture/orientation, gallery, cancellation/replacement, recreation, unavailable camera and enlarged-text layout. Automated focused checks pass; phone/vendor acceptance is pending.
+
+## L1 owner-phone checklist — 0.18.0/build70
+
+Build69 camera/gallery functionality was owner confirmed on November3,2026. P5 remains complete; do not repeat its full checklist for L1. These L1 checks are pending owner verification, independent of automated results.
+
+1. Install the permanent-key L1 APK over build69 without uninstalling/clearing; confirm existing Blocks, references and recordings remain.
+2. Home → Library: import one image, one PDF and representative MP3/M4A/PCM16 WAV audio files. Check a failed/canceled import leaves saved items intact.
+3. Search, filter, sort and rename Library assets.
+4. Force-close/reopen and confirm files remain.
+5. Confirm deletion of one Library item leaves unrelated originals/legacy media intact.
+6. Recheck a previously saved imported backing track (play/rename/export) and camera/gallery reference.
+
+Library previews/annotations are L2; Block links are L3. JSON backups exclude Library media: keep originals separately until S2. Next implementation phase, only when separately assigned: **L2 — Media Preview and Master Audio Annotation Workspace**.

@@ -1,28 +1,22 @@
-# Current state — Reference camera/gallery actions delivered; P5 remains complete
+# Current state — L1 canonical Media Library/storage in scoped verification
 
 Updated November 3, 2026 (America/Los_Angeles).
 
-## Current delivery
+## L1 implementation and delivery status
 
-**0.17.3/build69**, application/test source `9c723442d8f3eb1dd8c2d23cc76dd3af4de7e1d3`; later closeout commits change records only. [APK](dist/practice.logger-0.17.3-b69-9c72344/practice.logger-0.17.3-b69-9c72344.apk) · [ZIP](dist/practice.logger-0.17.3-b69-9c72344.zip) · [Build info](dist/practice.logger-0.17.3-b69-9c72344/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.17.3-b69-9c72344/PHONE_CHECKLIST.txt).
+Candidate version **0.18.0/build70**, Room **12**, JSON writer **7** / readers **1–7**. L1 implements independent canonical visual/audio metadata and one private original per asset in files/media-library, validated bounded imports through shared existing validators, persistent Home → Library with search/type filters/stable sorting/title-only rename/confirmed deletion and conservative startup cleanup. Library-only installs now block JSON restore transactionally. L2 previews/annotations, L3 Block links and S2 complete ZIP recovery remain unimplemented. [Storage/legacy decision](docs/MEDIA_LIBRARY_STORAGE.md).
 
-Install over the current permanent-key app without uninstalling/clearing data. Existing publisher verifies app ID, version, signature and pinned certificate. APK SHA256 `5eb33857e214490dfc196482c85c49e587df86ecfa21d59505fc4fbcafb31385`; ZIP SHA256 `1ec2120c694d0baae4d8077c57bb5145543ef5caf1fdabd74e7d00f076cd5b0d`. Signed non-signature payload matches the CI release; ZIP integrity/member bytes and all 294 prior APK/ZIP hashes pass. dist/LATEST points here. Previous build68/Submarine packages remain preserved; Submarine is included unchanged.
+Existing block_images/files/block-images and takes/files/recordings remain under original ownership. No legacy bytes/IDs/labels/Block relationships are migrated, copied or disposed. In-place adoption requires L3 to change resolution, deletion and recovery safely together. Legacy media remains in existing Blocks/Recording rather than appearing automatically in the new Library. JSON excludes canonical and legacy media metadata/bytes; Library and Backup screens disclose this, and originals must be kept separately.
 
-## Scope and focused verification
+First focused CI41704030107 compiled debug/release/instrumentation and ran34 unit tests:27 passed,7 failed in new fixture/schema setup. Logs establish missing native graphics mode and absent optional index arrays; those test setups are corrected without changing validators/assertions. Focused rerun and native build69 install-over/codec/UI/restart verification are in progress. Schema12 was retrieved from KSP output; earlier schemas/migrations remain. No full P5 or F1/F2 gate is rerun. No signed L1 delivery or owner-phone acceptance claimed yet.
 
-Saved Block reference controls now show files on the left, Or, and Take or Add a photo on the right. Matching outlined buttons have centered text, equal height and minimum48dp targets; enlarged text/narrow windows stack the actions. The photo chooser offers Take photo / Choose from gallery / Cancel. Full-resolution capture uses a private FileProvider; selected-photo access uses Android PickVisualMedia with older-device fallback. Delegating capture to the installed camera app requires no new broad app camera/gallery permission. Missing camera or launch failures show a recoverable message.
+**Exact next action: finish scoped L1 verification and permanent-key signed delivery for owner verification.** The next separately assigned implementation phase is **L2 — Media Preview and Master Audio Annotation Workspace**.
 
-All sources reuse bounded image/PDF validation and safe replacement. Cancelling keeps the existing attachment. Capture filename survives activity recreation; consumed/cancelled capture staging is removed, while abandoned process-loss staging is OS-managed cache. Photos captured here are private app copies, not automatically saved to the shared gallery. Original image orientation and one-reference ownership remain; Room11, JSON7/media exclusions, practice/audio and themes remain unchanged. Media Library has not started.
+## Build69 camera/gallery owner acceptance
 
-[Targeted CI41363227308](https://github.com/mrayover/practice.logger/actions/runs/41363227308) passes release compilation and **11/11** tests across ReferencePhotoCaptureTest, ImageReferenceTest and PdfReferenceTest. Coverage includes provider scope/full-byte output/cancel contract/path rejection plus existing validation/rollback/orientation/PDF safety. No full P5 regression, native workflow, lint or physical camera/gallery/phone visual acceptance rerun. Accepted P5 evidence below applies to build67, not newly certified build69 behavior.
+On November3,2026 the owner confirmed build69 camera/gallery functionality works correctly on their phone. This closes its outstanding owner-phone action. Device specifications and individual edge-case observations were not supplied or inferred. P5 remains completed and owner accepted.
 
-**Build69 owner acceptance:** On November 3, 2026, the owner confirmed that camera/gallery functionality works correctly on their phone. This closes the outstanding owner-phone action; no device details or individual edge-case observations were supplied.
-
-**Exact next action: implement and verify the explicitly assigned L1 canonical Media Library/storage, then deliver its signed update.**
-
-## Documentation amendment — November 3, 2026
-
-Integrated the approved [Media Library / Reference Piano / Transcribe specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) into the authoritative [V1 roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md): L1–L3 → K1 → T1–T3 → S0–S2 → G1–G3 → F1–F2 after accepted P5. Canonical audio ownership, two independent reference roles, master/local markers and complete recovery are planned only. Current release, Room11, JSON7/readers1–7 and media exclusions remain unchanged. No app implementation, new APK, build or regression run. Next implementation phase is L1, separately assigned after the outstanding build69 owner-phone checklist; the exact next action above is unchanged.
+Prior signed **0.17.3/build69**, application/test source `9c723442d8f3eb1dd8c2d23cc76dd3af4de7e1d3`: [APK](dist/practice.logger-0.17.3-b69-9c72344/practice.logger-0.17.3-b69-9c72344.apk) · [ZIP](dist/practice.logger-0.17.3-b69-9c72344.zip). APK SHA256 `5eb33857e214490dfc196482c85c49e587df86ecfa21d59505fc4fbcafb31385`; ZIP SHA256 `1ec2120c694d0baae4d8077c57bb5145543ef5caf1fdabd74e7d00f076cd5b0d`. Targeted CI41363227308 passed release compilation and11/11 reference-photo/image/PDF checks. Package identity/signature/pinned certificate/CI payload/ZIP/prior-package checks were verified at delivery. Earlier source/records remain in Git history.
 
 ## Accepted P5 baseline
 
@@ -50,4 +44,4 @@ Room11, explicit migrations, JSON7/readers1–7, stable IDs, original references
 
 Owner confirmed on November 1, 2026: “Confirmed complete and running correctly”. This accepts the delivered 0.17.1/build67 in the context of the P5 handoff and closes P5. Phone model, Android version and itemized checklist observations were not supplied; no additional measurements or individual check results are inferred.
 
-No additional P5 work is pending. The current reference-photo next action is listed above. Media Library L1 has not started and is not authorized by acceptance alone. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.
+No additional P5 work is pending. Build69 camera/gallery is now owner accepted; L1 is explicitly assigned. Its current status and exact next action are above. Imported repeat retains its documented lack of a certified seamless-join guarantee; JSON media exclusions remain. Stage4 remains 0/10 documented real sessions.

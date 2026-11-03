@@ -1,10 +1,10 @@
 # Backup format and safety — current implementation
 
-Format7 / Room11 remains current in build69, including imported audio and appearance additions. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Format7 / Room12 is current for L1 build70. Canonical media_assets are independent of the unchanged JSON format. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **11**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **12**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -39,7 +39,7 @@ Limits: 8 MiB, 20,000 records per type, nesting 32. Oversize export fails explic
 
 Goals require a nonblank title, manual 0–100% progress and ordered nonnegative timestamps. At most five active Goals have contiguous zero-based priority; completed priority is -1. Goal/Block pairs are unique with contiguous link order and valid references. One Goal attribution is allowed per existing non-draft session; per-Goal time totals cannot overflow.
 
-The UI parses/validates the entire file and shows counts before confirmation. The repository validates again and, in the same transaction, requires an empty target across **practice notes, Logs, Goals, Blocks, sessions, Routines and all take metadata (including standalone takes)** before inserting everything. Failures roll back all inserts. Restore never clears, replaces or merges data. Use a spare empty installation; never clear/uninstall the main app to test it.
+The UI parses/validates the entire file and shows counts before confirmation. The repository validates again and, in the same transaction, requires an empty target across **canonical Media Library assets, practice notes, Logs, Goals, Blocks, sessions, Routines and all take metadata (including standalone takes)** before inserting everything. Failures roll back all inserts. Restore never clears, replaces or merges data. Use a spare empty installation; never clear/uninstall the main app to test it.
 
 Canceling picker/confirmation changes nothing. Rotation retains an in-memory preview/operation; process death loses an unconfirmed preview, requiring reselection. Export does not mutate database contents. Android owns the system picker and chooses a distinct document name rather than replacing a same-name document. Failed exports may leave partial documents; retry to a new file and wait for success. Plain text provides no encryption/authentication: keep it private and use trusted files. Provider/full-disk/TalkBack behavior still needs phone checks.
 
@@ -61,7 +61,7 @@ Private audio uses generated UUID names under `files/recordings`, with validated
 
 ## Database compatibility and safe Block deletion
 
-All explicit Room migrations1→11 and compiler schemas are retained: sessions(2), used BPM(3), takes(4), phrase metadata(5), nullable standalone take ownership(6), Routines(7), Goals(8), independent daily_logs(9), Block images(10), independent practice notes(11). The 10→11 migration only creates the new note table; legacy rows read through unchanged. The 9→10 migration only adds the restrictive image table. The 8→9 migration only adds the date-keyed table; all prior tables and recordings remain intact. Existing data/audio are preserved; no destructive fallback.
+All explicit Room migrations1→12 and compiler schemas are retained. L1 adds only indexed media_assets through11→12; all prior tables/rows/files remain. Earlier migrations: sessions(2), used BPM(3), takes(4), phrase metadata(5), nullable standalone take ownership(6), Routines(7), Goals(8), independent daily_logs(9), Block images(10), independent practice notes(11). The 10→11 migration only creates the new note table; legacy rows read through unchanged. The 9→10 migration only adds the restrictive image table. The 8→9 migration only adds the date-keyed table; all prior tables and recordings remain intact. Existing data/audio are preserved; no destructive fallback.
 
 Safe permanent Block deletion originally shipped with Room 8/JSON 5 and preserves those protections with Room 11/JSON 7 and includes image/PDF references as one attachment blocker. It refuses attached images/PDFs, Goal links, saved Routine references, takes and **all** session placements in a transaction, preserving strict backup integrity. A successfully deleted eligible Block is absent from subsequent snapshots; remaining data restore normally. Completed-history references are not detached or weakened.
 
@@ -79,3 +79,7 @@ Only practice_notes is created: six non-null fields listed above, primary ID and
 ## Planned complete recovery (not implemented)
 
 S2 in the [authoritative roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) will include canonical visual/audio originals once, global markers/notes, Block-local overrides/markers/playback state, stable links, legacy imported histories and recorded takes, plus persisted keyboard settings if any. Complete restore must reconstruct shared ownership and inheritance. This is future versioned ZIP scope, not a change to the JSON7 writer/readers1–7 or current empty-target atomic restore contract.
+
+## L1 canonical media exclusion and restore guard
+
+JSON7 and readers1–7 exclude all media_assets metadata/UUIDs/titles and all canonical originals. files/media-library owns one generated original per asset, independently of legacy block-images/recordings. A Library-only installation is nonempty and rejects legacy JSON restore in the same transaction, with existing assets retained. The Library and Backup UI disclose local-only media and the exclusion; keep originals separately. No ZIP backup is added before S2. See [L1 storage/legacy ownership](docs/MEDIA_LIBRARY_STORAGE.md).

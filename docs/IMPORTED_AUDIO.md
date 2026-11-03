@@ -26,7 +26,7 @@ Ordinary file repeat is provided, **not certified seamless looping**. Codec dela
 
 ## Boundaries
 
-Room11/JSON7 and old audio remain. JSON backup still excludes every recording, label and audio file; per-take export remains the way to retain external audio copies. This is not the future Media Library or media-inclusive backup. No practice timing, Notes, reference ownership or metronome engine changes.
+L1 advances Room to12 with independent media_assets while JSON7 and old audio remain. The take-specific import contract in this document remains unchanged. See [canonical ownership/legacy coexistence](MEDIA_LIBRARY_STORAGE.md): existing IMPORTED_LOOP histories/files stay owned by their original Blocks/takes; safe adoption is deferred to L3 without file duplication. JSON backup still excludes every recording, label and audio file; per-take export remains the way to retain external audio copies. This is not the future Media Library or media-inclusive backup. No practice timing, Notes, reference ownership or metronome engine changes.
 
 ## Verification and delivery
 
