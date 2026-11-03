@@ -28,6 +28,14 @@ class BlockMediaWorkflowTest {
     }
     private fun choose(role: MediaRole, id: String) {
         tag("block-${role.name}-choose").performClick(); shown("media-library-list")
+        compose.onNodeWithTag("media-library-list").performScrollToNode(hasTestTag("media-search"))
+        compose.onNodeWithTag("media-search").performTextInput(runBlocking { db.media().find(id)!!.title })
+        compose.runOnIdle {
+            compose.activity.currentFocus?.clearFocus()
+            compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken, 0)
+        }
+        device.waitForIdle()
+        compose.onNodeWithTag("media-library-list").performScrollToNode(hasText("Name")); click("Name")
         compose.onNodeWithTag("media-library-list").performScrollToNode(hasTestTag("media-choose-$id"))
         compose.onNodeWithTag("media-choose-$id").assertIsDisplayed().performClick()
     }
