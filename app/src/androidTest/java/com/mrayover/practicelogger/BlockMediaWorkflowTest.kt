@@ -91,11 +91,20 @@ class BlockMediaWorkflowTest {
         device.executeShellCommand("cp ${source.absolutePath} /sdcard/Download/l3-picker.pdf")
         tag("block-VISUAL-import").performClick()
         checkNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)).click()
-        checkNotNull(device.wait(Until.findObject(By.text("Downloads")), 10000)).click(); device.waitForIdle()
+        assertTrue(device.wait(Until.hasObject(By.text("Downloads")), 10000)); device.findObjects(By.text("Downloads")).last().click(); device.waitForIdle()
         checkNotNull(device.wait(Until.findObject(By.descStartsWith("l3-picker.pdf")), 10000) ?: device.wait(Until.findObject(By.text("l3-picker.pdf")), 3000)).click()
         compose.waitUntil(25000) { !vm.busy && runBlocking { db.blockMedia().find(a, "VISUAL")?.mediaId?.let { it != image && it != pdf } == true } }
         val imported = runBlocking { db.media().find(db.blockMedia().find(a, "VISUAL")!!.mediaId)!! }
         assertArrayEquals(source.readBytes(), File(app.filesDir, "media-library/${imported.fileName}").readBytes()); waitLink(a, MediaRole.AUDIO, audio)
+        val audioSource = File(app.getExternalFilesDir(null), "l3-picker.wav").apply { writeBytes(l1Fixture("audio/backing.wav")) }
+        device.executeShellCommand("cp ${audioSource.absolutePath} /sdcard/Download/l3-picker.wav")
+        tag("block-AUDIO-import").performClick()
+        checkNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)).click()
+        assertTrue(device.wait(Until.hasObject(By.text("Downloads")), 10000)); device.findObjects(By.text("Downloads")).last().click(); device.waitForIdle()
+        checkNotNull(device.wait(Until.findObject(By.descStartsWith("l3-picker.wav")), 10000) ?: device.wait(Until.findObject(By.text("l3-picker.wav")), 3000)).click()
+        compose.waitUntil(25000) { !vm.busy && runBlocking { db.blockMedia().find(a, "AUDIO")?.mediaId?.let { it != audio } == true } }
+        val importedAudio = runBlocking { db.media().find(db.blockMedia().find(a, "AUDIO")!!.mediaId)!! }
+        assertArrayEquals(audioSource.readBytes(), File(app.filesDir, "media-library/${importedAudio.fileName}").readBytes())
         choose(MediaRole.VISUAL, pdf); waitLink(a, MediaRole.VISUAL, pdf)
         tag("block-AUDIO-remove").performClick(); click("Remove reference"); waitLink(a, MediaRole.AUDIO, null); waitLink(a, MediaRole.VISUAL, pdf)
         choose(MediaRole.AUDIO, audio); waitLink(a, MediaRole.AUDIO, audio)

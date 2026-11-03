@@ -84,6 +84,15 @@ jobs:
         run: |
           gh run download 41721617835 --repo '${{ github.repository }}' -n l2-build --dir baseline76
           test -s baseline76/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --out baseline76/test-signed.apk baseline76/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify baseline76/test-signed.apk
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('baseline76/build/outputs/apk/debug/app-debug.apk') as old, zipfile.ZipFile('baseline76/test-signed.apk') as new:
+              names = {n for n in old.namelist() if not n.startswith('META-INF/')}
+              assert names == {n for n in new.namelist() if not n.startswith('META-INF/')}
+              assert all(old.read(n) == new.read(n) for n in names)
+          PY
       - uses: reactivecircus/android-emulator-runner@v2
         if: ${{ inputs.scope != 'build' }}
         with:

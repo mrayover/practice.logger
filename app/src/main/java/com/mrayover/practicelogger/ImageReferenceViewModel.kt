@@ -35,7 +35,13 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
     fun confirmReplacement() {
         val block = pendingBlock ?: return; val media = pendingVisualMedia ?: return
         cancelReplacement()
-        work { associations.link(block, MediaRole.VISUAL, media, replaceLegacy = true); message = "Library visual attached. The old Block-owned reference was retired." }
+        work {
+            try {
+                associations.link(block, MediaRole.VISUAL, media, replaceLegacy = true)
+                message = "Library visual attached. The old Block-owned reference was retired."
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { message = "Could not attach the Library item. The old Block-owned reference and Library original were kept. Choose from Library to retry." }
+        }
     }
     fun unlink(blockId: String, role: MediaRole) = work {
         associations.unlink(blockId, role); message = "${roleLabel(role)} removed from this Block. The Library original was kept."
@@ -83,7 +89,8 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
             try { operation() }
             catch (e: CancellationException) { throw e }
             catch (e: IllegalArgumentException) { message = e.message ?: "Choose a valid JPEG, PNG, WebP or unencrypted PDF." }
-            catch (e: Exception) { message = e.message ?: "Could not update the reference. Your existing attachment was kept. Check the file, access and free storage, then retry." }
+            catch (e: IllegalStateException) { message = e.message ?: "Could not update the reference. Your existing attachment was kept." }
+            catch (_: Exception) { message = "Could not update the reference. Your existing attachment was kept. Check the file, access and free storage, then retry." }
             finally { busy = false }
         }
     }
