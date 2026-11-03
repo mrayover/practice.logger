@@ -77,6 +77,13 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Immutable build76 baseline
+        if: ${{ inputs.scope == 'native' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 41721617835 --repo '${{ github.repository }}' -n l2-build --dir baseline76
+          test -s baseline76/build/outputs/apk/debug/app-debug.apk
       - uses: reactivecircus/android-emulator-runner@v2
         if: ${{ inputs.scope != 'build' }}
         with:

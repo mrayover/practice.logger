@@ -116,4 +116,21 @@ class BlockMediaTest {
             db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
     }
+    @Test fun jsonSevenRestoresDataWithoutDanglingMediaLinks(): Unit = runBlocking {
+        val name = "backup-links-${UUID.randomUUID()}.db"; val db = BlockDatabase.open(context, name)
+        val targetName = "backup-target-${UUID.randomUUID()}.db"; val target = BlockDatabase.open(context, targetName)
+        val dir = File(context.cacheDir, UUID.randomUUID().toString())
+        try {
+            val block = BlockRepository(db).save(null, BlockDraft("Keep data", "Read"))
+            val library = MediaLibraryRepository(db, dir); val asset = library.import("Excluded.png", null) { image().inputStream() }
+            BlockMediaRepository(db, library, ImageReferenceRepository(db, File(dir, "old"))).link(block, MediaRole.VISUAL, asset.id)
+            val bytes = BackupCodec.encode(BackupRepository(db).snapshot())
+            assertFalse(String(bytes).contains(asset.id)); assertFalse(String(bytes).contains(asset.fileName))
+            BackupRepository(target).restore(BackupCodec.decode(bytes))
+            assertNotNull(target.blocks().find(block)); assertTrue(target.blockMedia().readAll().isEmpty()); assertTrue(target.media().readAll().isEmpty())
+            rejected { BackupRepository(db).restore(BackupCodec.decode(bytes)) }
+            assertEquals(asset.id, db.blockMedia().find(block, "VISUAL")!!.mediaId); assertTrue(library.available(asset))
+        } finally { db.close(); target.close(); context.deleteDatabase(name); context.deleteDatabase(targetName); dir.deleteRecursively() }
+    }
+
 }
