@@ -144,7 +144,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             if (maxWidth > 600.dp && maxWidth > maxHeight * 1.4f) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 details(Modifier.weight(1f).fillMaxHeight()); annotationPanel(Modifier.weight(1f).fillMaxHeight())
             } else Column {
-                details(Modifier.weight(.55f).fillMaxWidth()); HorizontalDivider(); annotationPanel(Modifier.weight(.45f).fillMaxWidth())
+                details(Modifier.weight(.5f).fillMaxWidth()); HorizontalDivider(); annotationPanel(Modifier.weight(.5f).fillMaxWidth())
             }
         }
     }

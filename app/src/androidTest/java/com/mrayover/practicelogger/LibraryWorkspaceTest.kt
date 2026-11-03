@@ -184,6 +184,10 @@ class LibraryWorkspaceTest {
             compose.onNodeWithTag("audio-play").assertIsDisplayed()
             compose.onNodeWithTag("audio-edit-range").assertIsDisplayed()
             val root = compose.onRoot().getUnclippedBoundsInRoot()
+            val statusTop = androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                ?.getInsets(androidx.core.view.WindowInsetsCompat.Type.statusBars())?.top ?: 0
+            val closeBounds = compose.onNodeWithTag("audio-close").getUnclippedBoundsInRoot()
+            assertTrue("Preview Back clears the status bar", closeBounds.top.value >= statusTop / compose.activity.resources.displayMetrics.density - 1f)
             for (tag in listOf("audio-play", "audio-edit-range")) {
                 val control = compose.onNodeWithTag(tag).getUnclippedBoundsInRoot()
                 assertTrue("$tag fully inside narrow width", control.left.value >= root.left.value - 1f && control.right.value <= root.right.value + 1f)

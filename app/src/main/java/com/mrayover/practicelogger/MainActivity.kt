@@ -175,7 +175,9 @@ class MainActivity : ComponentActivity() {
         }
         if (page != "media-library" || !mediaWorkspace) PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
             enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
-        Box(Modifier.weight(1f).fillMaxWidth().consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
+        Box(Modifier.weight(1f).fillMaxWidth().then(
+            if (page == "media-library" && mediaWorkspace) Modifier
+            else Modifier.consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
         } else if (!catalog.ready || !sessions.ready || !goals.ready) {
