@@ -818,3 +818,6 @@ L2 checkpoint A now opens dedicated Library visual previews with retained list/q
 
 L2 platform gate passes on API26, CI41713276728 attempt2/source76f0d69: all MP3/M4A/WAV speed100/75/50/95%, independent pitch1.0, running source-position advances, four repeated500ms closest seeks and pause pass (one native test,8.543s). Attempt1 was a runner apt timeout. API35 gate remains running. This establishes platform feasibility, not acoustic pitch/seamless-loop certification. Shared controller and focused actual-signal/15minute/cache/transport tests are added. Audio UI/master CRUD integration is drafted for focused compilation; no final native or signed-release claim. Candidate0.19.0/build73, Room13/JSON7. See docs/MEDIA_AUDIO_WORKSPACE.md.
 
+
+Prototype compile succeeds in CI41714288353/source db847a3. Scoped units17/18 pass; new MediaMarkerTest fails in fixture schema reconstruction because Room omits indices for unindexed tables (JSONException: No value for indices), before opening migrated DB. Corrected fixture to use optional indices, retaining all migration/CRUD/FK assertions. Generated schema13 retrieved from KSP; schemas1–12 are retained. Full UI native compilation is pending on8c97ed0.
+

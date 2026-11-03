@@ -40,7 +40,7 @@ jobs:
       - name: Compile and focused units
         run: |
           if [ '${{ inputs.scope }}' = build ]; then
-            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*Media*Test' --tests '*Library*Test' --tests '*ImageReferenceTest' --tests '*PdfReferenceTest' --stacktrace
+            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*Media*Test' --tests '*Library*Test' --tests '*ImageReferenceTest' --tests '*ImageMigrationTest' --tests '*PdfReferenceTest' --tests '*AudioImportTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --tests '*BackupRepositoryTest' --tests '*BackupFailureTest' --stacktrace
           else
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
           fi

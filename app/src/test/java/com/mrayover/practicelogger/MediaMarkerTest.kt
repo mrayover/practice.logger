@@ -23,7 +23,7 @@ class MediaMarkerTest {
             repeat(entities.length()) { i ->
                 val entity = entities.getJSONObject(i); val table = entity.getString("tableName")
                 sql.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
-                val indices = entity.getJSONArray("indices")
+                val indices = entity.optJSONArray("indices") ?: org.json.JSONArray()
                 repeat(indices.length()) { sql.execSQL(indices.getJSONObject(it).getString("createSql").replace("\${TABLE_NAME}", table)) }
             }
             val queries = oldSchema.getJSONArray("setupQueries"); repeat(queries.length()) { sql.execSQL(queries.getString(it)) }
