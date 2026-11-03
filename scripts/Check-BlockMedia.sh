@@ -28,4 +28,6 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 if [ "$1" = native ]; then run_test BlockMediaUpgradeTest; run_test BlockMediaNativeTest; fi
 run_test BlockMediaWorkflowTest
+# Reinstall with populated L3 links before the independent cold-process read.
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 run_test BlockMediaReopenTest
