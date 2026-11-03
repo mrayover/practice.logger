@@ -29,6 +29,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     private var seekPending = false
     private var queuedSeek: Long? = null
     private var resumeAfterSeek = false
+    private var selectedOnce = false
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN).setAudioAttributes(attributes)
         .setWillPauseWhenDucked(true).setOnAudioFocusChangeListener({ change ->
             if (change != AudioManager.AUDIOFOCUS_GAIN) suspendPlayback("Audio interrupted. Press Play to continue.")
@@ -42,15 +43,17 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
             if (audio != null && mutable.value.playing && !seekPending) guarded {
                 val position = audio.currentPosition.toLong().coerceIn(0, mutable.value.durationMs)
                 mutable.value = mutable.value.copy(positionMs = position)
-                if (mutable.value.repeatRange && position >= mutable.value.bMs) seek(mutable.value.aMs)
+                if (position >= mutable.value.bMs) {
+                    if (mutable.value.repeatRange) seek(mutable.value.aMs)
+                    else if (selectedOnce) { selectedOnce = false; pause(); seek(mutable.value.bMs) }
+                }
             }
-            handler.postDelayed(this, 15)
+            if (mutable.value.playing) handler.postDelayed(this, 15)
         }
     }
     init {
         if (Build.VERSION.SDK_INT >= 33) app.registerReceiver(noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY), Context.RECEIVER_NOT_EXPORTED)
         else app.registerReceiver(noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
-        handler.post(ticker)
     }
     private fun guarded(action: () -> Unit) {
         try { action() } catch (_: Exception) { suspendPlayback("Playback failed. Retry the original.") }
@@ -123,14 +126,17 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         val audio = checkNotNull(player)
         audio.playbackParams = PlaybackParams().setPitch(1f).setSpeed(mutable.value.speedPercent / 100f)
         audio.start(); mutable.value = mutable.value.copy(playing = true)
+        handler.removeCallbacks(ticker); handler.post(ticker)
     }
     fun pause() = guarded {
         resumeAfterSeek = false
         if (mutable.value.playing) player?.pause()
         mutable.value = mutable.value.copy(playing = false)
+        handler.removeCallbacks(ticker)
         manager.abandonAudioFocusRequest(focus)
     }
-    fun stop() { pause(); seek(if (mutable.value.repeatRange) mutable.value.aMs else 0) }
+    fun stop() { selectedOnce = false; pause(); seek(if (mutable.value.repeatRange) mutable.value.aMs else 0) }
+    fun playSelection() { selectedOnce = true; seek(mutable.value.aMs); play() }
     fun seek(positionMs: Long) {
         val target = positionMs.coerceIn(0, mutable.value.durationMs)
         mutable.value = mutable.value.copy(positionMs = target)
@@ -153,9 +159,10 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     fun repeatRange(enabled: Boolean) {
         if (enabled && !validAudioRange(mutable.value.aMs, mutable.value.bMs, mutable.value.durationMs)) return
         mutable.value = mutable.value.copy(repeatRange = enabled, repeatFile = if (enabled) false else mutable.value.repeatFile)
+        selectedOnce = false
         if (enabled && mutable.value.positionMs !in mutable.value.aMs until mutable.value.bMs) seek(mutable.value.aMs)
     }
-    fun repeatFile(enabled: Boolean) { mutable.value = mutable.value.copy(repeatFile = enabled, repeatRange = if (enabled) false else mutable.value.repeatRange) }
+    fun repeatFile(enabled: Boolean) { selectedOnce = false; mutable.value = mutable.value.copy(repeatFile = enabled, repeatRange = if (enabled) false else mutable.value.repeatRange) }
     fun setForeground(value: Boolean) { foreground = value; if (!value) suspendPlayback(null) }
     private fun suspendPlayback(error: String?) {
         // Keep source position/range/speed, but release decoder and never auto-resume.
@@ -163,10 +170,11 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         releasePlayer(); mutable.value = mutable.value.copy(preparing = false, playing = false, error = error)
     }
     private fun releasePlayer() {
+        handler.removeCallbacks(ticker)
         generation++; opening?.cancel(); opening = null
         val old = player; player = null; seekPending = false; queuedSeek = null; resumeAfterSeek = false
         runCatching { old?.release() }; runCatching { manager.abandonAudioFocusRequest(focus) }
     }
-    fun close() { releasePlayer(); mutable.value = LibraryAudioState() }
+    fun close() { selectedOnce = false; releasePlayer(); mutable.value = LibraryAudioState() }
     fun dispose() { close(); handler.removeCallbacks(ticker); runCatching { app.unregisterReceiver(noisy) } }
 }

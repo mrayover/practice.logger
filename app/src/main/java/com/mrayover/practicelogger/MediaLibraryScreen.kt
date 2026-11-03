@@ -80,7 +80,9 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun pickerUnavailable() { message = "Could not open the file picker. Try again." }
     fun rename(id: String, value: String) = work { repository.rename(id, value); "Library item renamed." }
     fun delete(id: String) = work {
-        if (repository.delete(id)) "Library item deleted."
+        val cleaned = repository.delete(id)
+        runCatching { AudioWaveformCache(repository, File(getApplication<Application>().cacheDir, "audio-waveforms")).remove(id) }
+        if (cleaned) "Library item deleted."
         else "Library item deleted. Private file cleanup will retry after reopening."
     }
 }
@@ -110,8 +112,9 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     val enabled = vm.ready && !vm.busy
     val filtered = libraryItems(assets, query, MediaFilter.valueOf(filterName), byName)
     val preview = assets.find { it.id == previewId }
-    if (preview != null && preview.category != "AUDIO") {
-        LibraryVisualPreview(preview, vm.repository) { previewId = null }
+    if (preview != null) {
+        if (preview.category == "AUDIO") LibraryAudioScreen(preview, { previewId = null })
+        else LibraryVisualPreview(preview, vm.repository) { previewId = null }
         return
     }
     LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp).testTag("media-library-list"),
@@ -164,7 +167,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
                     }, style = MaterialTheme.typography.bodySmall)
                     if (asset.id in vm.unavailable) Text("File missing or changed. Delete this item and import your original again.", color = MaterialTheme.colorScheme.error)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (asset.category != "AUDIO") TextButton(onClick = { previewId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-open-${asset.id}")) { Text("Open") }
+                        TextButton(onClick = { previewId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-open-${asset.id}")) { Text("Open") }
                         TextButton(onClick = { renameId = asset.id; renameText = asset.title }, enabled = enabled, modifier = Modifier.testTag("media-rename-${asset.id}")) { Text("Rename") }
                         TextButton(onClick = { deleteId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-delete-${asset.id}")) { Text("Delete") }
                     }

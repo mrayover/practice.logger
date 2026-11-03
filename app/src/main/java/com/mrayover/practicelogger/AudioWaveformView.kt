@@ -62,6 +62,10 @@ fun parseAudioSeconds(text: String): Long? = text.toDoubleOrNull()?.takeIf { it.
             markers.forEach { marker ->
                 val x = timeline.fraction(marker.startMs) * size.width
                 if (x in 0f..size.width) drawLine(tertiary, Offset(x, 0f), Offset(x, size.height), 2f)
+                marker.endMs?.let { end ->
+                    val endX = timeline.fraction(end) * size.width
+                    if (endX in 0f..size.width) drawLine(tertiary, Offset(endX, 0f), Offset(endX, size.height), 1f)
+                }
             }
             for (x in listOf(a, b)) if (x in 0f..size.width) drawLine(primary, Offset(x, 0f), Offset(x, size.height), 3f)
             val x = timeline.fraction(state.positionMs) * size.width

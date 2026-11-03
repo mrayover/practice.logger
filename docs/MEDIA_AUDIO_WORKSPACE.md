@@ -1,0 +1,31 @@
+# L2 media preview and master audio workspace
+
+L2 adds dedicated Library image/PDF previews and a reusable canonical-audio preparation workspace. Actual verification, signed delivery and phone acceptance are recorded in [CURRENT_STATE](../CURRENT_STATE.md). L1 phone acceptance remains separately pending. No L3 Block associations or Transcribe UI are implemented.
+
+## Shared visual rendering
+
+`MediaLibraryRepository.visualPage` resolves a canonical ID with existing integrity checks on IO. `ImageReferenceRepository.loadOriginalPage` shares the existing sampled EXIF-oriented decoder and bounded 2048px PdfRenderer page rendering. `ZoomableReference` shares fit, pinch/pan and reset behavior with existing Block references. Each page/document/descriptor closes on IO; only the displayed bitmap is retained. Originals, import validation and existing Block ownership remain unchanged. Library list query/filter/sort/scroll survive closing a preview. Missing originals show retry.
+
+## Engine and source-time controls
+
+`LibraryAudioController` uses the existing Android MediaPlayer infrastructure, without a Compose, Block, take or practice-session dependency. Its public inputs are validated canonical IDs and source milliseconds. A repository resolves the private original; no arbitrary external paths enter UI models. `LibraryAudioState` publishes transport state. `AudioWaveformView` and `AudioTimeline` can be consumed later by T1 using the same controller.
+
+Speed is 50–100% in 5% steps. PlaybackParams sets pitch independently to 1.0. Speed changes while playing update the same player; paused changes store the speed without starting playback. Display/ranges/markers use original source milliseconds, independent of speed. Seek requests serialize and coalesce until platform seek completion. A 15ms foreground cursor check requests a closest seek at B for continuous A–B repeat. Play selection plays once to B unless range repeat is enabled. Full-file and A–B repeat are mutually exclusive; loading a named section does not enable repeat.
+
+This is asynchronous platform playback, not a sample-clock loop engine. Codec seek granularity, seek completion, scheduling and output buffering can produce audible gaps/overshoot, especially for very short compressed phrases. No sample-accurate or perfectly seamless join is promised. Numeric A/B seconds with three decimals and ±10ms adjustments are accessible alternatives to separate 48dp drag handles. Actual practical short-loop results belong in the verification record; audible pitch and vendor/headphone behavior still need owner-phone checks.
+
+Backgrounding or leaving releases the player and abandons focus. Interruption/ducking and disconnected-output broadcasts stop playback; it never auto-resumes. Configuration recreation retains the ViewModel, cursor, range, speed and viewport; process recreation begins paused. There is no media service, microphone capture, metronome, practice timer or statistics side effect.
+
+## Derived waveform cache
+
+WAV analysis streams PCM16 chunks; MP3/AAC analysis drains MediaExtractor/MediaCodec into bounded output buffers. It never accumulates full decoded audio. The envelope stores actual absolute signal peaks in fixed 5ms source-time bins: at most 180001 floats (~704KiB) for fifteen minutes. Rendering aggregates visible bins per pixel; viewport math maps source time to pixels independently of speed. Channel peaks preserve stereo events. Codec output presentation timestamps locate decoded buffers on the source timeline.
+
+Cache files live in `cache/audio-waveforms/<mediaId>-<originalSHA256>.wave`, with a versioned header, duration/count validation and finite bounded peaks. A corrupt/missing cache regenerates; writes use unique pending files and close resources even on cancellation. Original identity/integrity is checked before cache reuse. At most twelve completed recording caches are retained (under 9MiB); UI-confirmed media deletion also removes that recording's cache. These are expendable derived data, excluded from backup. Originals are never rewritten, trimmed, converted or copied by playback/analysis.
+
+## Master annotations and Room13
+
+Explicit migration12→13 adds only `media_markers`, retaining all prior exported schemas/migrations. A stable UUID identifies each master point or section; fields are mediaId, type, source start/end milliseconds, label and optional note. Composite mediaId/startMs indexing supports ordered observation. Repository transactions validate audio ownership, source duration, label and note bounds; editing retains marker identity. Sections must be nonempty and inside duration. Marker positions are independent of current A–B selection.
+
+The parent foreign key is RESTRICT. Confirmed canonical deletion explicitly removes owned markers and then the asset within one transaction. A future restrictive asset link rejecting deletion rolls back marker removal too; existing original-file cleanup/recovery remains unchanged. Direct asset deletion cannot orphan annotations. There is no Block-local override/inheritance state in L2.
+
+JSON7/readers1–7 stay unchanged: canonical metadata, originals and master annotations are not portable through this data-only backup. Retain originals separately. S2 must include canonical originals once and master/local annotation identity in its later complete ZIP recovery. Legacy `block_images`, `takes`, `IMPORTED_LOOP`, their files and export/recovery ownership remain untouched.
