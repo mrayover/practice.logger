@@ -1,0 +1,33 @@
+# L1 canonical Media Library storage
+
+L1 adds an independent offline collection, not a practice environment. Home → Library supports importing, searching titles/original filenames, All/Images/PDFs/Audio filters, stable Name/Most recent sorting, title-only renaming and confirmed deletion. Previews and audio annotation remain L2. Block links remain L3. See [CURRENT_STATE](../CURRENT_STATE.md) for actual release/testing status.
+
+## Metadata and ownership
+
+Room12 adds only `media_assets` through explicit 11→12. UUID `id` is the canonical identity. Fields are title, originalName, validated MIME/category, generated fileName, byteCount, importedAt and nullable width/height/pageCount/durationMs. Unique fileName and category/importedAt/title indices are exported by KSP in schema12. All previous schemas/migrations remain. No destructive fallback, Block link table or reference-count system is introduced.
+
+Every asset owns exactly one original in `files/media-library/<UUID>.<validated-extension>`. Titles never enter storage paths. Rename changes only title. Independently importing the same source creates a separate identity/original; content-hash deduplication is not required. Later links will target media ID with restrictive foreign keys and resolve this single file, rather than copying bytes for each Block. Actual multi-Block associations and their reuse tests belong to L3 and are not claimed as delivered.
+
+## Imports, interruption and cleanup
+
+OpenDocument supplies temporary read access; its URI is never persisted. A bounded 32KiB streaming copy writes `<UUID>.pending` on IO, with cancellation, size and free-space checks, then syncs the file. Images/PDFs retain the 20MiB limit, 40MP/16384px image bounds, sampled decode/orientation validation and 1–100-page bounded PDF validation. Shared `inspectOriginal` reuses the existing reference implementation, including complete trailer/encryption checks and every-page rendering. It returns PDF page count without a second scan.
+
+Audio retains 50MiB/15minutes and at least51MiB initial free space. `inspectImportedAudio` is the same validator used by legacy imports: ordinary PCM16 WAV mono/stereo8–96kHz, MP3 and AAC-in-M4A through bounded decoder drain. No new decoder or conversion. Supported suffix, provider MIME (including ordinary aliases/generic binary) and validated content must agree. Unsupported/empty/corrupt/incomplete files fail before insertion.
+
+A shared mutex covers staging, validation, finalization, metadata commit, deletion and startup recovery across repository instances. Recovery therefore waits for active imports. After validation/cancellation checks, final rename and Room insertion resolve within a noncancelable section. Failed metadata insertion removes the finalized file only after a successful read establishes it has no persisted owner. Uncertain database outcomes keep bytes for later recovery. Picker cancellation creates nothing; cancellation during copy/validation removes staging. Provider-owned blocking reads can delay cancellation; instantaneous interruption of a wedged provider is not promised. A request arriving after final commit may find a completed item in the list.
+
+Deletion targets a stable ID, is confirmed in the UI and removes metadata transactionally before its original. Restrictive foreign keys protect future durable links; a rejection retains both metadata/file and reports the dependency. L1 itself has no canonical dependents. Failed physical cleanup is reported and retried at startup. Recovery first reads all metadata successfully, then removes only recognized generated unowned files in this directory; unknown names, owned files, legacy directories and source-provider documents are untouched. Missing/unreadable/size-changed originals are shown as unavailable, retaining metadata until deliberate deletion. This availability check is not a complete on-disk corruption scan; full content validation occurs at import, with viewer/playback failure handling remaining L2.
+
+## Legacy ownership audit and decision
+
+`block_images` and `files/block-images` remain unchanged, including accepted camera/gallery material. `TakeRepository` continues owning `takes` and `files/recordings`. `IMPORTED_LOOP` IDs, labels, Block associations, format-correct playback/export and independent deletion stay in place. Recorded WAV loops and free M4A takes are not reclassified.
+
+In-place canonical adoption is not safe with the current independent deletion/recovery contracts: `TakeRepository.delete` removes its file after removing the take, and `recover` retains only take rows/active captures; image recovery similarly trusts only block_images. A canonical reference into either directory could therefore lose its original through legacy deletion. Conversely, moving a file would break existing playback/export path validation. A safe adoption requires L3 to update resolution, deletion guards, startup retention and the durable ownership/link model together. L1 does not fake completion by duplicating bytes or sharing deletion ownership. Legacy media remains accessible through existing Blocks/recording controls, not automatically listed in the new Library. No user attachment disposal is performed.
+
+## Backup boundary
+
+JSON7 writer/readers1–7 remain unchanged and exclude canonical metadata/IDs/original bytes as well as legacy media. The restore transaction now checks `media_assets` so even a Library-only install is nonempty. The Library and Backup screens explicitly disclose media exclusions. Keep originals separately until S2 implements versioned complete ZIP recovery; L1 creates no partial ZIP backup format. Stable IDs and one original per asset allow S2 to archive originals once independently of Block links.
+
+## Focused evidence
+
+MediaLibraryTest covers supported images/WAV, persistence/reopen, unique ownership, rename byte preservation, targeted deletion, search/sort/filter stability, provider/MIME/content/space/size/duration/cancel failures, commit failure, interrupted staging/finalization recovery, active import exclusion and Library-only restore across readers1–7. MediaMigrationTest covers11→12 with all old rows/FKs and1→12; existing image/recording/backup classes are reused. Native tests use real image/PDF/codec validation, actual build69 install-over, legacy playback/export/rename, file hashes, document picker, collection management, rotation/enlarged controls and process restart. Actual passes/failures and API/text scale are recorded in CURRENT_STATE, never inferred from coverage names.
