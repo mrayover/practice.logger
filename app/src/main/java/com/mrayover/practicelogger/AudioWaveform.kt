@@ -24,6 +24,7 @@ class AudioWaveformCache(private val repository: MediaLibraryRepository, private
             val count = (duration / AudioWaveform.BIN_MS + 1).toInt()
             require(count in 1..AudioWaveform.MAX_BINS)
             check(directory.isDirectory || directory.mkdirs())
+            directory.listFiles()?.filter { it.isFile && Regex("wave-[0-9]+\\.pending").matches(it.name) }?.forEach { it.delete() }
             val cache = File(directory, "${asset.id}-${asset.sha256}.wave")
             val cached = runCatching {
                 DataInputStream(cache.inputStream().buffered()).use { input ->

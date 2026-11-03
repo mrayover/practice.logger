@@ -821,3 +821,6 @@ L2 platform gate passes on API26, CI41713276728 attempt2/source76f0d69: all MP3/
 
 Prototype compile succeeds in CI41714288353/source db847a3. Scoped units17/18 pass; new MediaMarkerTest fails in fixture schema reconstruction because Room omits indices for unindexed tables (JSONException: No value for indices), before opening migrated DB. Corrected fixture to use optional indices, retaining all migration/CRUD/FK assertions. Generated schema13 retrieved from KSP; schemas1–12 are retained. Full UI native compilation is pending on8c97ed0.
 
+
+Integrated build8c97ed0 CI41715256136 fails compile at LibraryAudioController.kt135: Kotlin return-type inference recurses through ticker→pause→release→ticker. Added explicit Runnable/Unit types; transport behavior unchanged. Canceled redundant known-failing integrated API35/build jobs41715261032/41715412898 rather than rerunning speculative native suites. Added safe recognition/cleanup of interrupted waveform cache pending files. Next gate is one corrected build/unit compile before restarting natives.
+

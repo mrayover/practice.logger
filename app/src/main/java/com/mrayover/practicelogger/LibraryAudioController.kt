@@ -37,7 +37,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     private val noisy = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) { suspendPlayback("Audio route changed. Press Play to continue.") }
     }
-    private val ticker = object : Runnable {
+    private val ticker: Runnable = object : Runnable {
         override fun run() {
             val audio = player
             if (audio != null && mutable.value.playing && !seekPending) guarded {
@@ -118,7 +118,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
             resumeAfterSeek = true; seek(if (mutable.value.repeatRange) mutable.value.aMs else 0)
         } else if (seekPending) resumeAfterSeek = true else playPrepared()
     }
-    private fun playPrepared() = guarded {
+    private fun playPrepared(): Unit = guarded {
         if (!foreground) return@guarded
         if (manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             mutable.value = mutable.value.copy(error = "Audio output is in use. Try Play again."); return@guarded
@@ -128,7 +128,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         audio.start(); mutable.value = mutable.value.copy(playing = true)
         handler.removeCallbacks(ticker); handler.post(ticker)
     }
-    fun pause() = guarded {
+    fun pause(): Unit = guarded {
         resumeAfterSeek = false
         if (mutable.value.playing) player?.pause()
         mutable.value = mutable.value.copy(playing = false)
