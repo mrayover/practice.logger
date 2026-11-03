@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.*
 import java.time.Instant
 import java.time.ZoneId
@@ -182,10 +183,19 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
     val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.kind == TakeKind.RECORDED_LOOP && !reviewCollapsed)
-    val transportMaxHeight = if (panelOpen) minOf(maxHeight * .42f,
+    val density = LocalDensity.current
+    var headingHeight by remember(current.id) { mutableStateOf(0.dp) }
+    var captureActionsHeight by remember(current.id) { mutableStateOf(0.dp) }
+    var bottomActionsHeight by remember(current.id) { mutableStateOf(0.dp) }
+    val baseTransportHeight = if (panelOpen) minOf(maxHeight * .42f,
         (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
+    // At enlarged text the pinned rows must not consume the entire Reference area.
+    // Keep the same scrollable transport and controls, budgeting their measured siblings.
+    val transportMaxHeight = if (!panelOpen && density.fontScale >= 1.5f) minOf(baseTransportHeight,
+        (maxHeight - headingHeight - bottomActionsHeight -
+            (if (recordings.recording) captureActionsHeight else 0.dp) - 200.dp).coerceAtLeast(48.dp)) else baseTransportHeight
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading"), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading").onSizeChanged { headingHeight = with(density) { it.height.toDp() } }, horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
                 goalName?.let { Text("Goal: " + it, style = MaterialTheme.typography.bodySmall) }
@@ -262,16 +272,16 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                     modifier = modifier.heightIn(min = 48.dp).testTag("practice-recording-stop")) { Text(if (recordings.phrasing) "Cancel phrase" else "Stop and review take") }
             }
             if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).onSizeChanged { captureActionsHeight = with(density) { it.height.toDp() } }, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     status(Modifier.fillMaxWidth()); stop(Modifier.fillMaxWidth())
                 }
-            } else Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            } else Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).onSizeChanged { captureActionsHeight = with(density) { it.height.toDp() } }, verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 status(Modifier.weight(1f)); stop(Modifier)
             }
         }
         if (awaiting && !loopPanelOpen) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
-        FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions"),
+        FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions").onSizeChanged { bottomActionsHeight = with(density) { it.height.toDp() } },
             maxItemsInEachRow = if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) 2 else 4,
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,

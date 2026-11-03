@@ -155,7 +155,10 @@ class BlockMediaWorkflowTest {
         tag("practice-free-record").performClick(); compose.waitUntil(15000) { recordings.recording && recordings.elapsedMs >= 1500 }
         val elapsed = recordings.elapsedMs
         compose.onNodeWithTag("practice-description-toggle").performClick(); compose.onNodeWithTag("practice-reference-toggle").performClick()
-        shown("reference-viewer"); page("Page 2 of 2"); assertTrue(recordings.recording); assertTrue(practice.running)
+        shown("reference-viewer")
+        val activeReference = compose.onNodeWithTag("practice-reference-area").getUnclippedBoundsInRoot()
+        assertTrue("Reference stays reachable during enlarged-text capture", (activeReference.bottom - activeReference.top).value >= 48f)
+        page("Page 2 of 2"); assertTrue(recordings.recording); assertTrue(practice.running)
         compose.onNodeWithText("Previous page").scrollIfNeeded().performClick(); assertTrue(recordings.recording)
         tag("practice-recording-stop").performClick(); compose.waitUntil(15000) { recordings.reviewTake != null && !recordings.busy }
         assertTrue(recordings.reviewTake!!.durationMs >= elapsed); shot("practice-review")
