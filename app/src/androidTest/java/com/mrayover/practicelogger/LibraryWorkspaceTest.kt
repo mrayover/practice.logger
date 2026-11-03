@@ -148,12 +148,29 @@ class LibraryWorkspaceTest {
         compose.onNodeWithTag("audio-play").performClick()
         compose.waitUntil(10000) { audioVm.controller.state.value.playing }
         shot("audio-portrait")
-        compose.runOnIdle { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
+        // A real-time position ticker can keep Compose busy until a short file ends. Rotate
+        // directly while repeating, rather than accidentally testing an already completed file.
+        inst.runOnMainSync {
+            audioVm.controller.repeatRange(true); audioVm.controller.play()
+            compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
         compose.waitUntil(15000) { compose.activity.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE }
-        compose.onNodeWithTag("audio-play").assertIsDisplayed(); shot("audio-landscape")
         val rotatedVm = ViewModelProvider(compose.activity)[LibraryAudioViewModel::class.java]
+        assertTrue("Rotation must retain active phrase playback", rotatedVm.controller.state.value.playing)
+        shot("audio-landscape-playing")
+        inst.runOnMainSync { rotatedVm.controller.pause() }
+        compose.onNodeWithTag("audio-play").assertIsDisplayed(); shot("audio-landscape")
         assertEquals(75, rotatedVm.controller.state.value.speedPercent)
         assertEquals(500L, rotatedVm.controller.state.value.aMs)
+        val device = UiDevice.getInstance(inst)
+        inst.runOnMainSync { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
+        compose.waitUntil(15000) { compose.activity.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT }
+        try {
+            device.executeShellCommand("wm size 800x1500")
+            compose.waitUntil(15000) { compose.activity.resources.configuration.screenWidthDp <= 320 }
+            compose.onNodeWithTag("audio-play").assertIsDisplayed()
+            compose.onNodeWithTag("audio-edit-range").assertIsDisplayed(); shot("audio-narrow")
+        } finally { device.executeShellCommand("wm size reset") }
         compose.onNodeWithText("Back to Library").performClick()
         assertFalse(rotatedVm.controller.state.value.playing)
         libraryTag("media-search").assertTextContains("L2")

@@ -16,9 +16,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 classes=LibraryPlatformGateTest
 if [ "$1" = native ]; then classes=LibraryWorkspaceTest; fi
+if [ "$1" = ui ]; then classes='LibraryWorkspaceTest#libraryVisualAudioMarkersRotationAndListState'; fi
 timeout --kill-after=10s 300s adb shell am instrument -w -r -e timeout_msec 240000 -e class "com.mrayover.practicelogger.$classes" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "$out/results.txt"
 grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/results.txt"
-if [ "$1" = native ]; then
+if [ "$1" = native ] || [ "$1" = ui ]; then
   adb shell am force-stop com.mrayover.practicelogger.app
   timeout --kill-after=10s 60s adb shell am instrument -w -r -e class com.mrayover.practicelogger.LibraryWorkspaceReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "$out/reopen.txt"
   grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/reopen.txt"

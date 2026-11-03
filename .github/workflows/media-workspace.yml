@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [gate, build, native]
+        options: [gate, build, native, ui]
         default: gate
       api:
         type: choice

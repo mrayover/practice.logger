@@ -48,7 +48,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             if (event == Lifecycle.Event.ON_STOP && activity?.isChangingConfigurations != true) player.setForeground(false)
         }
         lifecycle.addObserver(observer)
-        player.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
+        // A replacement Activity can compose before STARTED during rotation. Only an actual
+        // non-configuration ON_STOP marks background; attachment must not stop a retained player.
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) player.setForeground(true)
         onDispose {
             lifecycle.removeObserver(observer)
             if (activity?.isChangingConfigurations != true) vm.close()
