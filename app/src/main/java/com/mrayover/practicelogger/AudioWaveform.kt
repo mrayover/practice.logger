@@ -64,9 +64,10 @@ class AudioWaveformCache(private val repository: MediaLibraryRepository, private
 
 private suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
     RandomAccessFile(file, "r").use { input ->
-        input.seek(12); var rate = 0; var channels = 0
+        input.seek(12); var rate = 0; var channels = 0; var dataStart = 0L; var dataLength = 0L; var chunks = 0
         while (input.filePointer + 8 <= input.length()) {
             currentCoroutineContext().ensureActive()
+            require(++chunks <= 4096)
             val tag = ByteArray(4).also(input::readFully).toString(Charsets.US_ASCII)
             val length = Integer.reverseBytes(input.readInt()).toLong() and 0xffffffffL
             val start = input.filePointer
@@ -76,8 +77,13 @@ private suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
                 rate = Integer.reverseBytes(input.readInt())
             }
             if (tag == "data") {
-                require(rate in 8000..96000 && channels in 1..2)
-                val bytes = ByteArray(32768); var left = length; var sample = 0L
+                dataStart = start; dataLength = length
+            }
+            input.seek(start + length + (length and 1))
+        }
+        require(rate in 8000..96000 && channels in 1..2 && dataLength > 0)
+        input.seek(dataStart)
+                val bytes = ByteArray(32768); var left = dataLength; var sample = 0L
                 while (left > 0) {
                     currentCoroutineContext().ensureActive()
                     val n = minOf(left, bytes.size.toLong()).toInt(); input.readFully(bytes, 0, n)
@@ -87,11 +93,6 @@ private suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
                     }
                     left -= n
                 }
-                return
-            }
-            input.seek(start + length + (length and 1))
-        }
-        error("No WAV signal")
     }
 }
 

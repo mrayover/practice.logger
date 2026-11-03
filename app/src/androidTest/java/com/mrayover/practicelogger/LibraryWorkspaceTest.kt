@@ -42,6 +42,34 @@ class LibraryWorkspaceTest {
         val directory = File(context.getExternalFilesDir(null), "l2-native").apply { mkdirs() }
         UiDevice.getInstance(inst).takeScreenshot(File(directory, "$name.png"))
     }
+    @Test fun existingBlockPdfViewerRetainsPageZoomAndDoesNotCreatePracticeData() {
+        val db = BlockDatabase.appInstance(context)
+        val id = runBlocking {
+            BlockRepository(db).save(null, BlockDraft("L2 existing Block viewer", "Read the original"))
+        }
+        val repository = ImageReferenceRepository(db, File(context.filesDir, "block-images"))
+        val reference = runBlocking { repository.import(id) { fixture("references/score.pdf") } }
+        val file = File(context.filesDir, "block-images/${reference.fileName}"); val before = digest(file)
+        fun counts() = listOf("sessions", "placements", "takes", "goals").associateWith { table ->
+            db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM $table").use { it.moveToFirst(); it.getInt(0) }
+        }
+        val originalCounts = counts()
+        compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+        compose.onNodeWithText("Blocks").scrollIfNeeded().performClick()
+        compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("L2 existing Block viewer"))
+        compose.onNodeWithText("L2 existing Block viewer").performClick()
+        compose.onNodeWithText("Show reference").performScrollTo().performClick()
+        compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+        compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {
+            pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f))
+        }
+        compose.onNodeWithText("Reset PDF zoom").performScrollTo().performClick()
+        compose.onNodeWithText("Next page").performScrollTo().performClick()
+        compose.onNodeWithText("Page 2 of 2").assertExists()
+        compose.onNodeWithText("Previous page").performScrollTo().performClick()
+        compose.onNodeWithText("Page 1 of 2").assertExists()
+        assertEquals(before, digest(file)); assertEquals(originalCounts, counts())
+    }
     @Test fun libraryVisualAudioMarkersRotationAndListState() {
         val vm = ViewModelProvider(compose.activity)[MediaLibraryViewModel::class.java]
         compose.waitUntil(15000) { vm.ready }
@@ -103,6 +131,17 @@ class LibraryWorkspaceTest {
         val db = BlockDatabase.appInstance(context)
         compose.waitUntil(10000) { runBlocking { db.markers().read(audio.id).size == 2 } }
         val section = runBlocking { db.markers().read(audio.id).single { it.type == "SECTION" } }
+        val dense = runBlocking {
+            (0 until 30).map { audioVm.markers.save(audio.id, null, 500L + it, null, "Dense marker $it", "") }
+        }
+        compose.onNodeWithText("Zoom in").performScrollTo().performClick()
+        compose.onNodeWithTag("audio-waveform").performScrollTo().performTouchInput { swipe(center, center + Offset(-40f, 0f)) }
+        compose.onNodeWithText("Fit track").performScrollTo().performClick()
+        compose.onNodeWithTag("master-markers").performScrollToNode(hasTestTag("master-jump-${dense.last().id}"))
+        compose.onNodeWithTag("audio-play").assertIsDisplayed()
+        compose.onNodeWithTag("audio-edit-range").assertIsDisplayed()
+        shot("dense-markers")
+        runBlocking { dense.forEach { audioVm.markers.delete(audio.id, it.id) } }
         compose.onNodeWithTag("master-markers").performScrollToNode(hasTestTag("master-jump-${section.id}"))
         compose.onNodeWithTag("master-jump-${section.id}").performClick()
         assertFalse(audioVm.controller.state.value.repeatRange)
@@ -145,10 +184,13 @@ class LibraryWorkspaceTest {
                     previous = now; Thread.sleep(25)
                 }
                 assertTrue("$ext only $wraps short-loop wraps", wraps >= 3)
+                inst.runOnMainSync { controller.repeatRange(false); controller.playSelection() }
+                await("$ext selected range stops without repeat") { !controller.state.value.playing }
+                assertTrue(controller.state.value.positionMs in 800..1100)
                 inst.runOnMainSync {
                     assertFalse(controller.range(900, 500)); assertEquals(500L, controller.state.value.aMs)
                     controller.speed(75); assertEquals(500L, controller.state.value.aMs)
-                    controller.repeatRange(false); controller.seek(1500)
+                    controller.seek(1500); controller.play()
                 }
                 await("$ext seek while playing") { controller.state.value.positionMs in 1400..2200 }
                 inst.runOnMainSync { controller.pause() }
@@ -163,6 +205,18 @@ class LibraryWorkspaceTest {
                 await("$ext foreground retry") { controller.state.value.playing }
                 inst.runOnMainSync { controller.speed(100); controller.seek(controller.state.value.durationMs - 250) }
                 await("$ext end of file") { !controller.state.value.playing }
+                inst.runOnMainSync { controller.repeatFile(true); controller.seek(controller.state.value.durationMs - 200); controller.play() }
+                await("$ext full-file repeat") { controller.state.value.playing && controller.state.value.positionMs < 600 }
+                inst.runOnMainSync { controller.repeatFile(false) }
+                if (ext == "wav") {
+                    val manager = context.getSystemService(android.media.AudioManager::class.java)
+                    val competing = android.media.AudioFocusRequest.Builder(android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                        .setOnAudioFocusChangeListener { }.build()
+                    inst.runOnMainSync { assertEquals(android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED, manager.requestAudioFocus(competing)) }
+                    await("focus loss stops Library playback") { !controller.state.value.playing }
+                    inst.runOnMainSync { manager.abandonAudioFocusRequest(competing) }
+                    Thread.sleep(150); assertFalse(controller.state.value.playing)
+                }
                 inst.runOnMainSync { controller.stop() }
                 await("$ext stop position") { controller.state.value.positionMs < 200 }
                 inst.runOnMainSync { controller.close() }

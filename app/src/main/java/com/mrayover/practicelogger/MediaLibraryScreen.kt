@@ -126,7 +126,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
                 Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
             }
         }
-        item { Text("Library media is stored locally and is not yet included in JSON backups. Keep your originals separately.", style = MaterialTheme.typography.bodySmall) }
+        item { Text("Library media and master annotations are stored locally and are not yet included in JSON backups. Keep your originals separately.", style = MaterialTheme.typography.bodySmall) }
         item {
             OutlinedTextField(query, { query = it }, label = { Text("Search title or filename") }, singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag("media-search"))
@@ -184,7 +184,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
     deleteId?.let { id ->
         AlertDialog(onDismissRequest = { deleteId = null }, title = { Text("Delete Library item?") },
-            text = { Text("Delete “${assets.find { it.id == id }?.title.orEmpty()}” and its local original? This cannot be undone. Your source outside the app is kept.") },
+            text = { Text("Delete “${assets.find { it.id == id }?.title.orEmpty()}”, its local original and any master audio markers? This cannot be undone. Your source outside the app is kept.") },
             confirmButton = { TextButton(onClick = { vm.delete(id); deleteId = null }, enabled = enabled) { Text("Delete item") } },
             dismissButton = { TextButton(onClick = { deleteId = null }) { Text("Cancel") } })
     }

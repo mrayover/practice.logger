@@ -96,3 +96,17 @@ Build69 camera/gallery functionality was owner confirmed on November3,2026. P5 r
 6. Recheck a previously saved imported backing track (play/rename/export) and camera/gallery reference.
 
 Library previews/annotations are L2; Block links are L3. JSON backups exclude Library media: keep originals separately until S2. Next implementation phase, only when separately assigned: **L2 — Media Preview and Master Audio Annotation Workspace**.
+
+## L2 owner-phone checklist (pending)
+
+Install the final L2 permanent-key APK over build72 without uninstalling or clearing data. Actual automated verification and package source are authoritative in CURRENT_STATE.
+
+1. Open a Library image/PDF, zoom/reset, and navigate PDF pages.
+2. Open MP3/M4A/WAV; play, pause, stop and seek while playing.
+3. Slow to75% and50%; confirm pitch stays unchanged on the phone.
+4. Zoom to a short phrase, set/fine-tune A/B and repeat; check useful phrase joins at slower speed. Very short compressed loops can have codec/output gaps; seamless/sample-accurate joins are not certified.
+5. Add a point marker and named section, edit their labels/notes/positions and try marker navigation. Loading a section does not enable repeat automatically.
+6. Close/reopen (including app restart) and verify media and master markers; check rotation, landscape, enlarged text, speaker/headphones, interruption and background stop without automatic resume.
+7. Confirm existing Block recordings and image/PDF references still work.
+
+L1 phone acceptance remains separately pending. JSON7 excludes Library media and master annotations; keep originals separately until S2. No phone result is inferred from automated tests.

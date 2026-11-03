@@ -1,8 +1,16 @@
-# Current state — L1 canonical Media Library/storage delivered
+# Current state — L2 implementation under focused verification
 
 Updated November 3, 2026 (America/Los_Angeles).
 
-## Current delivery
+## Assigned L2 status
+
+L2 only is explicitly assigned: shared full-screen visual previews, canonical audio player/waveform, pitch-preserving speed, A–B phrases and persistent master point/section markers. Source implementation is in the original Windows checkout; candidate **0.19.0/build73**, Room13 through explicit12→13, JSON7 unchanged. No signed L2 package is delivered yet. [Architecture and limits](docs/MEDIA_AUDIO_WORKSPACE.md).
+
+Platform feasibility passes on API26 in CI41713276728 attempt2; its first attempt timed out downloading codec-fixture dependencies. API35 gate is pending. Prototype compilation passed; initial scoped units17/18 passed with one new migration-fixture failure (missing optional indices field), corrected without changing assertions. Integrated compile found recursive Kotlin callback type inference; explicit types correct it. Corrected integrated build/unit verification is pending. These are development results, not completed L2 acceptance. P5 was not rerun; an unintended broad push workflow41713272964 was canceled. L1 engineering remains closed and its phone acceptance separately pending.
+
+**Exact next task: finish L2 focused build/native verification, resolve evidenced failures, then deliver the permanent-key signed APK/ZIP and record the remote SHA. Stop after L2; L3 requires a separate assignment.**
+
+## Current delivery — retained L1 release
 
 **0.18.0/build72**, application/release source `ef83bd8ae3e34804dd436cbbdcdf3ac023530e19`. [APK](dist/practice.logger-0.18.0-b72-ef83bd8/practice.logger-0.18.0-b72-ef83bd8.apk) · [ZIP](dist/practice.logger-0.18.0-b72-ef83bd8.zip) · [Build info](dist/practice.logger-0.18.0-b72-ef83bd8/BUILD_INFO.json) · [L1 phone checklist](dist/practice.logger-0.18.0-b72-ef83bd8/PHONE_CHECKLIST.txt). Install over accepted build69 or candidate71 without uninstalling or clearing data. L1 owner-phone verification remains pending; P5 stays complete and accepted.
 
@@ -27,7 +35,7 @@ JSON writer **7** / readers **1–7** remain unchanged and exclude canonical/leg
 
 No P5/F1/F2 full regression, broad lint rerun or owner-phone/provider/vendor/acoustic acceptance is claimed. Stage4 remains0/10 documented real sessions. Physical phone checks are separate from automated evidence.
 
-**Exact next action: owner verification of L1 using the six-item phone checklist.** Then, only when separately assigned: **L2 — Media Preview and Master Audio Annotation Workspace**. Stop after L1; do not reopen P5 or automatically begin later scope.
+L1 owner verification using its six-item phone checklist remains pending. L2 has since been explicitly assigned; its active status and exact next task are above. P5 remains complete and accepted.
 
 ## Build69 camera/gallery owner acceptance
 

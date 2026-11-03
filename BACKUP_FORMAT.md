@@ -83,3 +83,7 @@ S2 in the [authoritative roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [integr
 ## L1 canonical media exclusion and restore guard
 
 JSON7 and readers1–7 exclude all media_assets metadata/UUIDs/titles and all canonical originals. files/media-library owns one generated original per asset, independently of legacy block-images/recordings. A Library-only installation is nonempty and rejects legacy JSON restore in the same transaction, with existing assets retained. The Library and Backup UI disclose local-only media and the exclusion; keep originals separately. No ZIP backup is added before S2. See [L1 storage/legacy ownership](docs/MEDIA_LIBRARY_STORAGE.md).
+
+## L2 master audio annotations
+
+Room13 master point/section markers are canonical Library metadata and remain excluded from unchanged JSON7 (readers1–7), together with canonical originals/metadata. The current JSON backup is data-only and cannot transport Library annotations. Derived waveform caches are expendable and are not backup content. S2 must preserve stable media/marker identities and shared originals once in its separately assigned complete ZIP recovery. Current Library-only nonempty restore protection remains.

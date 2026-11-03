@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val activity = LocalContext.current as? Activity
+    val compactHeight = LocalConfiguration.current.screenHeightDp < 480
     LaunchedEffect(asset.id) { vm.open(asset.id) }
     DisposableEffect(lifecycle, asset.id) {
         val observer = LifecycleEventObserver { _, event ->
@@ -56,7 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 8.dp)) {
         Row(Modifier.fillMaxWidth()) {
             TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp)) { Text("Back to Library") }
-            Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = 2, style = MaterialTheme.typography.titleMedium)
+            Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
         }
         // Transport and source-time/range readouts remain independent of the long marker list.
         FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -68,10 +70,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         }
         Row(Modifier.fillMaxWidth()) {
             TextButton(onClick = { seekDialog = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-position")) {
-                Text("${audioTimestamp(state.positionMs)} / ${audioTimestamp(duration)}")
+                Text(if (compactHeight) "${audioTimestamp(state.positionMs).substringBeforeLast('.')} / ${audioTimestamp(duration).substringBeforeLast('.')}" else "${audioTimestamp(state.positionMs)} / ${audioTimestamp(duration)}")
             }
             TextButton(onClick = { rangeDialog = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-edit-range")) {
-                Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}")
+                Text(if (compactHeight) "Edit A–B" else "A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}")
             }
         }
         if (state.preparing) Text("Preparing audio…")
@@ -79,6 +81,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
             val details: @Composable (Modifier) -> Unit = { modifier ->
                 Column(modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}", style = MaterialTheme.typography.bodySmall)
                     AudioWaveformView(vm.waveform, state, markers, timeline, ::viewport, player::seek, { a, b -> player.range(a, b) })
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(audioTimestamp(timeline.timeAt(0f)), style = MaterialTheme.typography.bodySmall)
@@ -105,8 +108,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             val annotationPanel: @Composable (Modifier) -> Unit = { modifier ->
                 Column(modifier) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        TextButton(onClick = { newType = "POINT" }, enabled = state.durationMs > 0, modifier = Modifier.testTag("audio-add-point")) { Text("Add marker") }
-                        TextButton(onClick = { newType = "SECTION" }, enabled = validAudioRange(state.aMs, state.bMs, duration), modifier = Modifier.testTag("audio-add-section")) { Text("Name A–B section") }
+                        TextButton(onClick = { newType = "POINT" }, enabled = state.durationMs > 0, modifier = Modifier.testTag("audio-add-point")) { Text("Add point") }
+                        TextButton(onClick = { newType = "SECTION" }, enabled = validAudioRange(state.aMs, state.bMs, duration), modifier = Modifier.testTag("audio-add-section")) { Text("Add section") }
                     }
                     vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                     LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("master-markers"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
