@@ -38,6 +38,11 @@ class BlockMediaWorkflowTest {
             val matcher = hasText(text) and hasAnyAncestor(hasTestTag("media-library-list"))
             compose.onNodeWithTag("media-library-list").performScrollToNode(matcher)
             compose.onNode(matcher).scrollIfNeeded().assertIsDisplayed().performClick()
+        } else if (text in setOf("Record take", "Show reference", "Hide reference", "Next page", "Previous page", "Reset PDF zoom", "Close recordings") &&
+            compose.onAllNodesWithTag("take-list").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()) {
+            val matcher = hasText(text) and hasAnyAncestor(hasTestTag("take-list"))
+            compose.onNodeWithTag("take-list").performScrollToNode(matcher)
+            compose.onNode(matcher).scrollIfNeeded().assertIsDisplayed().performClick()
         } else compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
     }
     private fun waitLink(id: String, role: MediaRole, media: String?) {
