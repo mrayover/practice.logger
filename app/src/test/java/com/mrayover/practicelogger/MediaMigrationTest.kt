@@ -70,7 +70,7 @@ class MediaMigrationTest {
         val db = BlockDatabase.open(context, name)
         try {
             assertEquals("Original", db.blocks().find("b")!!.name); assertTrue(db.media().readAll().isEmpty())
-            assertEquals(13, db.openHelper.readableDatabase.version)
+            assertEquals(14, db.openHelper.readableDatabase.version)
             db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
     }

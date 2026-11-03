@@ -88,7 +88,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}) {
+@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, onChoose: ((String) -> Unit)? = null) {
     val assets by vm.assets.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var filterName by rememberSaveable { mutableStateOf(MediaFilter.ALL.name) }
@@ -110,7 +110,8 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         onDispose { lifecycle.lifecycle.removeObserver(observer) }
     }
     val enabled = vm.ready && !vm.busy
-    val filtered = libraryItems(assets, query, MediaFilter.valueOf(filterName), byName)
+    val compatible = if (selectionRole == null) assets else assets.filter { selectionRole.accepts(it.category) }
+    val filtered = libraryItems(compatible, query, MediaFilter.valueOf(filterName), byName)
     val preview = assets.find { it.id == previewId }
     DisposableEffect(preview?.id) {
         onWorkspaceChanged(preview != null)
@@ -125,9 +126,9 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         state = listState, verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 12.dp)) {
         item {
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(onClick = onBack) { Text("Back") }
-                Text("Media Library", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(vertical = 8.dp))
-                Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
+                TextButton(onClick = onBack) { Text(if (selectionRole == null) "Back" else "Cancel selection") }
+                Text(if (selectionRole == null) "Media Library" else if (selectionRole == MediaRole.VISUAL) "Choose visual reference" else "Choose audio reference", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(vertical = 8.dp))
+                if (selectionRole == null) Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
             }
         }
         item { Text("Library media and master annotations are stored locally and are not yet included in JSON backups. Keep your originals separately.", style = MaterialTheme.typography.bodySmall) }
@@ -137,7 +138,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MediaFilter.entries.forEach { filter -> OutlinedSelectionChip(selected = filterName == filter.name, onClick = { filterName = filter.name }, label = { Text(filter.label) }) }
+                MediaFilter.entries.filter { selectionRole == null || it == MediaFilter.ALL || (it.category != null && selectionRole.accepts(it.category)) }.forEach { filter -> OutlinedSelectionChip(selected = filterName == filter.name, onClick = { filterName = filter.name }, label = { Text(filter.label) }) }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedSelectionChip(selected = !byName, onClick = { byName = false }, label = { Text("Most recent") })
@@ -154,26 +155,21 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
             Button(onClick = vm::retryRead) { Text("Retry Library") }
         } else if (!vm.ready) item { Text("Loading Library…") }
         else if (filtered.isEmpty()) item {
-            Text(if (assets.isEmpty()) "No files imported yet. Import an image, PDF or audio file to organize it here." else "No files match your search and filter.")
-            if (assets.isEmpty()) OutlinedButton(onClick = importAction, enabled = enabled) { Text("Import a file") }
+            Text(if (compatible.isEmpty()) "No compatible files imported yet. Import an image, PDF or audio file to organize it here." else "No files match your search and filter.")
+            if (selectionRole == null && assets.isEmpty()) OutlinedButton(onClick = importAction, enabled = enabled) { Text("Import a file") }
         }
         items(filtered, key = { it.id }) { asset ->
             OutlinedCard(Modifier.fillMaxWidth().testTag("media-item-${asset.id}")) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(asset.title, style = MaterialTheme.typography.titleMedium)
-                    Text(asset.originalName, style = MaterialTheme.typography.bodySmall)
-                    val type = when (asset.category) { "IMAGE" -> "Image"; "PDF" -> "PDF"; else -> "Audio" }
-                    Text("$type · ${asset.mimeType} · ${android.text.format.Formatter.formatShortFileSize(androidx.compose.ui.platform.LocalContext.current, asset.byteCount)}", style = MaterialTheme.typography.bodySmall)
-                    Text(when (asset.category) {
-                        "IMAGE" -> "${asset.width} × ${asset.height} pixels"
-                        "PDF" -> "${asset.pageCount} pages"
-                        else -> importedDuration(asset.durationMs ?: 0)
-                    }, style = MaterialTheme.typography.bodySmall)
+                    LibraryMediaMetadata(asset)
+                    if (selectionRole != null && selectedId == asset.id) Text("Currently selected", modifier = Modifier.testTag("media-selected-${asset.id}"))
                     if (asset.id in vm.unavailable) Text("File missing or changed. Delete this item and import your original again.", color = MaterialTheme.colorScheme.error)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(onClick = { previewId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-open-${asset.id}")) { Text("Open") }
-                        TextButton(onClick = { renameId = asset.id; renameText = asset.title }, enabled = enabled, modifier = Modifier.testTag("media-rename-${asset.id}")) { Text("Rename") }
-                        TextButton(onClick = { deleteId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-delete-${asset.id}")) { Text("Delete") }
+                        if (onChoose != null) TextButton(onClick = { onChoose(asset.id) }, enabled = enabled && asset.id !in vm.unavailable, modifier = Modifier.testTag("media-choose-${asset.id}")) { Text(if (selectedId == asset.id) "Keep selected" else "Choose") }
+                        if (selectionRole == null) TextButton(onClick = { previewId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-open-${asset.id}")) { Text("Open") }
+                        if (selectionRole == null) TextButton(onClick = { renameId = asset.id; renameText = asset.title }, enabled = enabled, modifier = Modifier.testTag("media-rename-${asset.id}")) { Text("Rename") }
+                        if (selectionRole == null) TextButton(onClick = { deleteId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-delete-${asset.id}")) { Text("Delete") }
                     }
                 }
             }
@@ -184,12 +180,23 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         AlertDialog(onDismissRequest = { renameId = null }, title = { Text("Rename Library item") },
             text = { OutlinedTextField(renameText, { renameText = it }, label = { Text("Title") }, isError = !valid, supportingText = { Text("1–255 characters") }, modifier = Modifier.testTag("media-rename-title")) },
             confirmButton = { TextButton(onClick = { vm.rename(id, renameText); renameId = null }, enabled = enabled && valid) { Text("Save title") } },
-            dismissButton = { TextButton(onClick = { renameId = null }) { Text("Cancel") } })
+            dismissButton = { if (selectionRole == null) TextButton(onClick = { renameId = null }) { Text("Cancel") } })
     }
     deleteId?.let { id ->
         AlertDialog(onDismissRequest = { deleteId = null }, title = { Text("Delete Library item?") },
             text = { Text("Delete “${assets.find { it.id == id }?.title.orEmpty()}”, its local original and any master audio markers? This cannot be undone. Your source outside the app is kept.") },
             confirmButton = { TextButton(onClick = { vm.delete(id); deleteId = null }, enabled = enabled) { Text("Delete item") } },
-            dismissButton = { TextButton(onClick = { deleteId = null }) { Text("Cancel") } })
+            dismissButton = { if (selectionRole == null) TextButton(onClick = { deleteId = null }) { Text("Cancel") } })
     }
+}
+
+@Composable internal fun LibraryMediaMetadata(asset: MediaAsset) {
+    Text(asset.originalName, style = MaterialTheme.typography.bodySmall)
+    val type = when (asset.category) { "IMAGE" -> "Image"; "PDF" -> "PDF"; else -> "Audio" }
+    Text("$type · ${asset.mimeType} · ${android.text.format.Formatter.formatShortFileSize(androidx.compose.ui.platform.LocalContext.current, asset.byteCount)}", style = MaterialTheme.typography.bodySmall)
+    Text(when (asset.category) {
+        "IMAGE" -> "${asset.width} × ${asset.height} pixels"
+        "PDF" -> "${asset.pageCount} pages"
+        else -> importedDuration(asset.durationMs ?: 0)
+    }, style = MaterialTheme.typography.bodySmall)
 }

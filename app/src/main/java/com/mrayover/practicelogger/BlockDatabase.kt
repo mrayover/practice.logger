@@ -31,17 +31,19 @@ data class Block(
         (SELECT COUNT(*) FROM placements WHERE sourceBlockId = :id) AS sessionEntries,
         (SELECT COUNT(*) FROM placements p JOIN sessions s ON s.id = p.sessionId
             WHERE p.sourceBlockId = :id AND s.status = 'COMPLETED') AS completedEntries,
-        (SELECT COUNT(*) FROM block_images WHERE blockId = :id) AS images""")
+        (SELECT COUNT(*) FROM block_images WHERE blockId = :id) AS images,
+        (SELECT COUNT(*) FROM block_media_links WHERE blockId = :id) AS mediaLinks""")
     suspend fun dependencies(id: String): BlockDependencies
     @Query("DELETE FROM blocks WHERE id = :id") suspend fun delete(id: String): Int
     @Insert suspend fun insert(block: Block)
     @Update suspend fun update(block: Block): Int
 }
-@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class, SavedRoutine::class, RoutinePlacement::class, Goal::class, GoalBlock::class, GoalSession::class, DailyLog::class, BlockImage::class, PracticeNote::class, MediaAsset::class, MasterAudioMarker::class], version = 13, exportSchema = true)
+@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class, SavedRoutine::class, RoutinePlacement::class, Goal::class, GoalBlock::class, GoalSession::class, DailyLog::class, BlockImage::class, PracticeNote::class, MediaAsset::class, MasterAudioMarker::class, BlockMediaLink::class], version = 14, exportSchema = true)
 abstract class BlockDatabase : RoomDatabase() {
     abstract fun practiceNotes(): PracticeNoteDao
     abstract fun media(): MediaAssetDao
     abstract fun markers(): MasterAudioMarkerDao
+    abstract fun blockMedia(): BlockMediaLinkDao
     abstract fun images(): BlockImageDao
     abstract fun logs(): LogDao
     abstract fun blocks(): BlockDao
@@ -56,6 +58,8 @@ abstract class BlockDatabase : RoomDatabase() {
             applicationDatabase ?: open(context.applicationContext).also { applicationDatabase = it }
         }
         fun open(context: Context, name: String = "practice.logger.db") =
-            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6, ROUTINE_MIGRATION_6_7, GOAL_MIGRATION_7_8, LOG_MIGRATION_8_9, IMAGE_MIGRATION_9_10, NOTES_MIGRATION_10_11, MEDIA_MIGRATION_11_12, MARKER_MIGRATION_12_13).enableMultiInstanceInvalidation().build()
+            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6, ROUTINE_MIGRATION_6_7, GOAL_MIGRATION_7_8, LOG_MIGRATION_8_9, IMAGE_MIGRATION_9_10, NOTES_MIGRATION_10_11, MEDIA_MIGRATION_11_12, MARKER_MIGRATION_12_13, BLOCK_MEDIA_MIGRATION_13_14).addCallback(object : Callback() {
+                override fun onCreate(db: androidx.sqlite.db.SupportSQLiteDatabase) { installBlockMediaConstraints(db) }
+            }).enableMultiInstanceInvalidation().build()
     }
 }

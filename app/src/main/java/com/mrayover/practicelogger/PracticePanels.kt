@@ -53,7 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 }
 
 @Composable fun FocusedWorkspace(current: Placement, images: ImageReferenceViewModel, modifier: Modifier = Modifier, suppressed: Boolean = false, onReveal: () -> Unit = {}) {
-    val attachments by images.images.collectAsStateWithLifecycle()
+    val attachments by images.visuals.collectAsStateWithLifecycle()
     val attached = attachments.any { it.blockId == current.sourceBlockId }
     // Description is the default; outside transport panels one workspace always stays open.
     var choice by rememberSaveable(current.id) { mutableStateOf<String?>(null) }

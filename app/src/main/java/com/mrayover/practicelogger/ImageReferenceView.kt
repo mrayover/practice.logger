@@ -29,96 +29,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.*
 import kotlin.coroutines.coroutineContext
 
-@Composable fun BlockImageEditor(blockId: String?, vm: ImageReferenceViewModel, busy: Boolean) {
-    Text("Reference image or PDF", style = MaterialTheme.typography.titleMedium)
-    Text("One image (JPEG, PNG, WebP; up to 40 megapixels) or PDF (1–100 pages), up to 20 MiB. Stored only in this app. Keep originals separately: JSON backups exclude images and PDFs.", style = MaterialTheme.typography.bodySmall)
-    if (blockId == null) { Text("Save this Block first, then reopen it to add a reference."); return }
-    val all by vm.images.collectAsStateWithLifecycle()
-    val image = all.find { it.blockId == blockId }
-    val kind = if (image?.mimeType == "application/pdf") "PDF" else "image"
-    var confirmRemoval by rememberSaveable(blockId) { mutableStateOf(false) }
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) vm.import(blockId, uri)
-    }
-    var photoOptions by rememberSaveable(blockId) { mutableStateOf(false) }
-    // Save the private filename across camera activity recreation, never a bitmap in saved state.
-    var pendingPhoto by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
-    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
-        pendingPhoto?.let { name ->
-            if (saved) vm.importPhoto(blockId, name) else vm.photoCapture.discard(name)
-        }
-        pendingPhoto = null
-    }
-    val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) vm.import(blockId, uri)
-    }
-    val enabled = !busy && !vm.busy && pendingPhoto == null
-    val fontScale = LocalDensity.current.fontScale
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val stacked = maxWidth / fontScale < 250.dp
-        val files: @Composable (Modifier) -> Unit = { modifier ->
-            OutlinedButton(onClick = { picker.launch(arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf")) }, enabled = enabled,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 12.dp), modifier = modifier.heightIn(min = 48.dp)) {
-                Text(if (image == null) "Add image or PDF" else "Replace reference $kind", textAlign = TextAlign.Center)
-            }
-        }
-        val photos: @Composable (Modifier) -> Unit = { modifier ->
-            OutlinedButton(onClick = { photoOptions = true }, enabled = enabled,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 12.dp), modifier = modifier.heightIn(min = 48.dp)) {
-                Text("Take or Add a photo", textAlign = TextAlign.Center)
-            }
-        }
-        if (stacked) Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            files(Modifier.fillMaxWidth()); Text("Or", style = MaterialTheme.typography.bodySmall); photos(Modifier.fillMaxWidth())
-        } else Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            files(Modifier.weight(1f).fillMaxHeight()); Text("Or", style = MaterialTheme.typography.bodySmall); photos(Modifier.weight(1f).fillMaxHeight())
-        }
-    }
-    if (photoOptions) AlertDialog(onDismissRequest = { photoOptions = false }, title = { Text("Take or Add a photo") },
-        text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = {
-                photoOptions = false
-                try {
-                    val name = vm.photoCapture.create()
-                    pendingPhoto = name
-                    camera.launch(vm.photoCapture.uri(name))
-                } catch (_: Exception) {
-                    pendingPhoto?.let { vm.photoCapture.discard(it) }; pendingPhoto = null; vm.photoUnavailable()
-                }
-            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Take photo") }
-            OutlinedButton(onClick = {
-                photoOptions = false
-                try { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
-                catch (_: Exception) { vm.photoUnavailable() }
-            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Choose from gallery") }
-        } }, confirmButton = { TextButton(onClick = { photoOptions = false }) { Text("Cancel") } })
-    if (image != null) {
-        key(blockId) { CollapsibleImageReference(image, vm.repository) }
-        OutlinedButton(onClick = { confirmRemoval = true }, enabled = !busy && !vm.busy,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Remove reference $kind") }
-    }
-    if (vm.busy) Text("Saving reference…")
-    vm.message?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-    if (confirmRemoval) AlertDialog(onDismissRequest = { confirmRemoval = false }, title = { Text("Remove reference $kind?") },
-        text = { Text("This deletes the app's copy. Keep the original separately; images and PDFs are not in JSON backups.") },
-        confirmButton = { TextButton(onClick = { confirmRemoval = false; vm.remove(blockId) }, enabled = !busy && !vm.busy) { Text("Remove $kind") } },
-        dismissButton = { TextButton(onClick = { confirmRemoval = false }) { Text("Cancel") } })
-}
-
 @Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false) {
-    val all by vm.images.collectAsStateWithLifecycle()
-    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm.repository, edgeToEdge, viewerMaxHeight, embeddedExpanded, fitAvailableHeight) } }
+    val all by vm.visuals.collectAsStateWithLifecycle()
+    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm, edgeToEdge, viewerMaxHeight, embeddedExpanded, fitAvailableHeight) } }
 }
 
-@Composable private fun CollapsibleImageReference(image: BlockImage, repository: ImageReferenceRepository, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false) {
+@Composable internal fun CollapsibleImageReference(image: BlockVisualReference, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false) {
     val inset = if (edgeToEdge) 16.dp else 0.dp
     // These states never enter/leave the sheet or touch any practice/audio model.
-    var expanded by rememberSaveable(image.fileName) { mutableStateOf(false) }
-    var page by rememberSaveable(image.fileName) { mutableIntStateOf(0) }
-    var retry by remember(image.fileName) { mutableIntStateOf(0) }
+    var expanded by rememberSaveable(image.identity) { mutableStateOf(false) }
+    var page by rememberSaveable(image.identity) { mutableIntStateOf(0) }
+    var retry by remember(image.identity) { mutableIntStateOf(0) }
     if (!embeddedExpanded) OutlinedButton(onClick = { expanded = !expanded },
         modifier = Modifier.fillMaxWidth().padding(horizontal = inset).heightIn(min = 48.dp).testTag("reference-toggle")) { Text(if (expanded) "Hide reference" else "Show reference") }
-    if (embeddedExpanded || expanded) key(image.fileName, page, retry) {
+    if (embeddedExpanded || expanded) key(image.identity, page, retry) {
         var result by remember { mutableStateOf<ReferencePage?>(null) }
         var failure by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
@@ -127,7 +51,7 @@ import kotlin.coroutines.coroutineContext
             // recycle a result that no longer has a UI owner instead of publishing stale pages.
             withContext(NonCancellable) {
                 try {
-                    val loaded = repository.loadPage(image, page)
+                    val loaded = vm.loadPage(image, page)
                     if (owner.isActive) result = loaded else loaded.bitmap.recycle()
                 } catch (_: Exception) { if (owner.isActive) failure = true }
             }

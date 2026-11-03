@@ -232,6 +232,20 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
             } finally { pending.delete() }
         }
     }
+    internal suspend fun commitCanonicalLink(blockId: String, visual: Boolean, replaceLegacy: Boolean, commit: suspend () -> Unit) =
+        withContext(Dispatchers.IO + NonCancellable) {
+            filesMutex.withLock {
+                db.withTransaction {
+                    if (visual && db.images().find(blockId) != null) {
+                        check(replaceLegacy) { "Confirm replacement of the existing Block-owned reference first." }
+                    }
+                    commit()
+                    // The new link and legacy retirement commit atomically; any failure retains the old attachment.
+                    if (visual) db.images().remove(blockId)
+                }
+                if (visual) runCatching { cleanUnreferenced() }
+            }
+        }
     suspend fun remove(blockId: String): Boolean = withContext(Dispatchers.IO + NonCancellable) {
         filesMutex.withLock {
             db.withTransaction { db.images().remove(blockId) }

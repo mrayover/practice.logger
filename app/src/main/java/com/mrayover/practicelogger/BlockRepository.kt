@@ -22,10 +22,11 @@ fun matchingBlocks(blocks: List<Block>, query: String, archived: Boolean): List<
 }
 
 data class BlockDependencies(val goals: Int, val routines: Int, val recordings: Int,
-    val sessionEntries: Int, val completedEntries: Int, val images: Int = 0) {
-    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0
+    val sessionEntries: Int, val completedEntries: Int, val images: Int = 0, val mediaLinks: Int = 0) {
+    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0 && mediaLinks == 0
     fun explanation(): String = buildList {
         add("It is associated with:")
+        if (mediaLinks > 0) add("• $mediaLinks Library media links. Remove the visual/audio associations in this Block editor first. Library originals are retained.")
         if (images > 0) add("• $images reference attachment (image or PDF). Remove the reference first in this Block editor (confirmation required).")
         if (goals > 0) add("• $goals Goal associations")
         if (routines > 0) add("• $routines saved Routines")
