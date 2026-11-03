@@ -107,7 +107,9 @@ import kotlin.coroutines.coroutineContext
         Text("Pinch to zoom; drag while enlarged.", style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = inset).onSizeChanged { guideHeight = with(density) { it.height.toDp() } })
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val cap = if (fitAvailableHeight) (maxHeight - guideHeight - 4.dp).coerceAtLeast(1.dp) else maxHeight
+        // PDF controls can exceed a large-text workspace. Keep a usable image inside
+        // the existing scroll panel instead of collapsing the bitmap to one pixel.
+        val cap = if (fitAvailableHeight) (maxHeight - guideHeight - 4.dp).coerceAtLeast(180.dp) else maxHeight
         val viewerHeight = (maxWidth * (bitmap.height.toFloat() / bitmap.width)).coerceIn(minOf(180.dp, cap), cap)
         Box(Modifier.fillMaxWidth().height(viewerHeight).clipToBounds().background(MaterialTheme.colorScheme.surfaceVariant)
             .onSizeChanged { size = it }.testTag("reference-viewer")

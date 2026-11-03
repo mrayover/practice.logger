@@ -45,6 +45,10 @@ class BlockMediaWorkflowTest {
             compose.onNode(matcher).scrollIfNeeded().assertIsDisplayed().performClick()
         } else compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
     }
+    private fun page(expected: String) {
+        compose.waitUntil(15000) { compose.onAllNodes(hasTestTag("reference-page") and hasText(expected)).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+        compose.onNode(hasTestTag("reference-page") and hasText(expected)).scrollIfNeeded().assertIsDisplayed().assertTextEquals(expected)
+    }
     private fun waitLink(id: String, role: MediaRole, media: String?) {
         compose.waitUntil(20000) { !vm.busy && runBlocking { db.blockMedia().find(id, role.name)?.mediaId == media } }
     }
@@ -144,11 +148,14 @@ class BlockMediaWorkflowTest {
         compose.waitUntil(15000) { !practice.busy && compose.onAllNodesWithText("Start").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         click("Start"); compose.waitUntil(15000) { practice.running && !practice.busy }
         compose.onNodeWithTag("practice-reference-toggle").performClick(); shown("reference-viewer")
-        compose.onNodeWithText("Next page").scrollIfNeeded().performClick(); compose.onNodeWithText("Page 2 of 2").assertExists()
+        compose.onNodeWithText("Next page").scrollIfNeeded().performClick(); page("Page 2 of 2")
+        shown("reference-viewer")
+        val referenceBounds = compose.onNodeWithTag("reference-viewer").getUnclippedBoundsInRoot()
+        assertTrue("PDF retains a usable bitmap viewport at enlarged text", (referenceBounds.bottom - referenceBounds.top).value >= 179f)
         tag("practice-free-record").performClick(); compose.waitUntil(15000) { recordings.recording && recordings.elapsedMs >= 1500 }
         val elapsed = recordings.elapsedMs
         compose.onNodeWithTag("practice-description-toggle").performClick(); compose.onNodeWithTag("practice-reference-toggle").performClick()
-        shown("reference-viewer"); compose.onNodeWithText("Page 2 of 2").assertExists(); assertTrue(recordings.recording); assertTrue(practice.running)
+        shown("reference-viewer"); page("Page 2 of 2"); assertTrue(recordings.recording); assertTrue(practice.running)
         compose.onNodeWithText("Previous page").scrollIfNeeded().performClick(); assertTrue(recordings.recording)
         tag("practice-recording-stop").performClick(); compose.waitUntil(15000) { recordings.reviewTake != null && !recordings.busy }
         assertTrue(recordings.reviewTake!!.durationMs >= elapsed); shot("practice-review")
