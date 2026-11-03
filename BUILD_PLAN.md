@@ -127,7 +127,7 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 
 ## Data and release acceptance rules
 
-- Preserve app ID, permanent certificate, existing data/audio/IDs, all prior migrations and distribution packages. Current Room schema is12; explicit11→12 adds only canonical media_assets, after10→11 practice_notes and9→10 block_images. Migrations/schemas1–11 retained. Never use destructive fallback.
+- Preserve app ID, permanent certificate, existing data/audio/IDs, all prior migrations and distribution packages. Current Room schema is14; explicit13→14 adds restrictive Block media links after12→13 master markers; explicit11→12 adds canonical media_assets, after10→11 practice_notes and9→10 block_images. Migrations/schemas1–11 retained. Never use destructive fallback.
 - Session placements deliberately lack a Block foreign key; safe deletion must check their saved sourceBlockId explicitly. Completed history remains protected even after Goal/Routine links are removed. Keep original FK restrictions and strict JSON references.
 - Never report a failed database operation as success. Cancellation changes no persistent data. Restore never clears, merges or overwrites a nonempty installation, including an app containing only Logs, Goals or standalone takes.
 - Keep the practice timer independent of audio; count only committed foreground active time. Saved snapshots/notes/history must survive Block edits/archive and app updates. Do not promise lossless abrupt-kill recovery or seamless/latency-free acoustic loops without evidence.
@@ -153,7 +153,7 @@ The owner explicitly approved later features while Stage 3 phone acceptance and 
 
 ## Forward V1 scope and retained boundaries
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) supersedes older future exclusions only for its explicitly described phases: P1 temporary take review; P2 custom 1–64-beat loops and positive whole-beat count-ins; P3 metronome meter/accent/flash; P4 persistent audio Settings and bounded UI polish; P5 full pre-Library regression; L1–L3 canonical visual/audio Media Library; K1 Reference Piano; T1–T3 manual Transcribe, local annotations and practice audio coexistence; S0–S2 provider feasibility, organized copies and complete ZIP backup/restore; G1–G3 Goal identity/filtering/historical time attribution; F1–F2 final verification and phone signoff. Centralized themes are delivered; verification is in CURRENT_STATE. P0 implemented none of these extensions; P1 temporary take review, P2 flexible loops/count-ins and P3 metronome have since been delivered, with evidence in CURRENT_STATE.md. P4 and P5 are also delivered. L1 now implements canonical storage and Library management; L2/L3 and K/T/S/G/F extensions remain planned.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) supersedes older future exclusions only for its explicitly described phases: P1 temporary take review; P2 custom 1–64-beat loops and positive whole-beat count-ins; P3 metronome meter/accent/flash; P4 persistent audio Settings and bounded UI polish; P5 full pre-Library regression; L1–L3 canonical visual/audio Media Library; K1 Reference Piano; T1–T3 manual Transcribe, local annotations and practice audio coexistence; S0–S2 provider feasibility, organized copies and complete ZIP backup/restore; G1–G3 Goal identity/filtering/historical time attribution; F1–F2 final verification and phone signoff. Centralized themes are delivered; verification is in CURRENT_STATE. P0 implemented none of these extensions; P1 temporary take review, P2 flexible loops/count-ins and P3 metronome have since been delivered, with evidence in CURRENT_STATE.md. P4 and P5 are also delivered. L1 canonical storage, L2 previews/master annotations and L3 independent Block associations are implemented; L3 verification/delivery is tracked in CURRENT_STATE. K/T/S/G/F extensions remain planned.
 
 L1 adds canonical independent Media Library imports/management with Room12; legacy single Block-owned image/PDF references, P1 review/P2 custom loops/count-ins, existing Goal links/manual progress and JSON7 data-only backup remain intact. Media-inclusive backup is required for completed V1 but does not exist yet. Current JSON excludes media bytes and metadata; keep originals separately and retain per-take export until the later phases deliver verified recovery.
 
@@ -169,7 +169,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Owner verification of delivered L1 using its six-item phone checklist. Build69 camera/gallery owner acceptance is recorded. The next implementation phase is separately assigned **L2 — Media Preview and Master Audio Annotation Workspace**; P5 remains complete.
+Complete the explicitly assigned L3 scoped verification and signed delivery in CURRENT_STATE. L1/L2 phone acceptance remains pending separately; build69 camera/gallery and P5 remain owner accepted. Stop after L3. K1 Reference Piano is the next separately assigned milestone; T1 follows K1.
 
 ## Increment 3 — delivered 2026-10-29
 

@@ -186,7 +186,7 @@ The Library is the global, offline-first media preparation workspace, separate f
 
 - Extend existing Block editing with Choose from Library / Import into Library and link, separately for **one visual** and **one active audio** reference. Store stable media IDs, not per-Block original copies.
 - Preserve compact visual panels and retained practice/recording viewers; score and audio coexist. Unlink retains originals; block accidental deletion of referenced Library assets and retain current Block/history deletion protections until safely migrated.
-- Transition Loop Setup's imported-backing control into the future Library/Transcribe picker without a competing duplicate import path or loss of legacy saved content.
+- Establish canonical audio selection in the Block editor while preserving existing Loop Setup imports and saved take ownership during L3. Converge those controls in T1 after K1; do not break legacy content or duplicate bytes for adoption. This bounded coexistence follows the explicit L3 implementation handoff.
 
 **Exit:** two Blocks reuse the same audio bytes with independent visual links, survive restart and unlink safely.
 

@@ -1,3 +1,15 @@
+# Current state — L3 scoped verification in progress
+
+November 3, 2026. Explicit owner assignment: L3 only, including permanent-key delivery and Git publication. L1/L2 owner-phone acceptance remains separately pending; P5/build69 acceptance remains recorded below.
+
+First build CI41734468616/source988641b passes50/50 scoped unit tests and debug/release/instrumentation compilation. Room14 adds restrictive independent VISUAL/AUDIO Block links through13→14; schema14 is retrieved, schemas1–13 retained. Internal signed candidate0.20.0/build77 is prepared at dist/practice.logger-0.20.0-b77-988641b; signature/package/pinned certificate pass, native verification incomplete. Final candidate78 includes explicit Backup association disclosure and final scoped tests. No L3 completion or phone acceptance is claimed yet.
+
+[Architecture, shared file ownership and deliberate legacy transition](docs/BLOCK_MEDIA_ASSOCIATIONS.md). New canonical links share one original; legacy visual references/takes retain existing ownership. Loop Setup convergence remains T1 after K1. No K1/T1–T3/S0–S2 implementation begins.
+
+**Exact next task: complete candidate78 scoped build,76 install-over and API26/API35 native workflows, then verify/sign/package and publish L3 records.** The last completed release remains build76 below.
+
+---
+
 # Current state — L2 media preparation workspace delivered
 
 Updated November 3, 2026 (America/Los_Angeles).

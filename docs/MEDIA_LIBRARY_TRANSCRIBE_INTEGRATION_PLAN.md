@@ -175,7 +175,7 @@ The audio association is separate from the visual reference association.
 
 A Block should be able to display a score and use an audio reference during the same practice session.
 
-Transition the existing Loop Setup imported-backing workflow without breaking its saved legacy content. The eventual Transcribe picker should reuse Library imports, not create new Block-owned audio duplicates.
+L3 establishes canonical selection in the Block editor and preserves the existing Loop Setup importer and take-owned history. Convergence belongs to T1 after K1, per the explicit L3 handoff. The eventual Transcribe picker reuses Library imports without creating new Block-owned audio duplicates.
 
 **Exit:** Two Blocks can reference the same audio file, use independent visual references, and survive restart without multiplying the stored audio bytes.
 

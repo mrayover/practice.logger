@@ -1,6 +1,6 @@
 # L2 media preview and master audio workspace
 
-L2 adds dedicated Library image/PDF previews and a reusable canonical-audio preparation workspace. Actual verification, signed delivery and phone acceptance are recorded in [CURRENT_STATE](../CURRENT_STATE.md). L1 phone acceptance remains separately pending. No L3 Block associations or Transcribe UI are implemented.
+L2 adds dedicated Library image/PDF previews and a reusable canonical-audio preparation workspace. Actual verification, signed delivery and phone acceptance are recorded in [CURRENT_STATE](../CURRENT_STATE.md). L1 phone acceptance remains separately pending. L3 now adds independent Block associations using the same canonical originals; see [Block media ownership](BLOCK_MEDIA_ASSOCIATIONS.md). Transcribe UI remains outside L3.
 
 ## Shared visual rendering
 
@@ -26,6 +26,6 @@ Cache files live in `cache/audio-waveforms/<mediaId>-<originalSHA256>.wave`, wit
 
 Explicit migration12→13 adds only `media_markers`, retaining all prior exported schemas/migrations. A stable UUID identifies each master point or section; fields are mediaId, type, source start/end milliseconds, label and optional note. Composite mediaId/startMs indexing supports ordered observation. Repository transactions validate audio ownership, source duration, label and note bounds; editing retains marker identity. Sections must be nonempty and inside duration. Marker positions are independent of current A–B selection.
 
-The parent foreign key is RESTRICT. Confirmed canonical deletion explicitly removes owned markers and then the asset within one transaction. A future restrictive asset link rejecting deletion rolls back marker removal too; existing original-file cleanup/recovery remains unchanged. Direct asset deletion cannot orphan annotations. There is no Block-local override/inheritance state in L2.
+The parent foreign key is RESTRICT. Confirmed canonical deletion explicitly removes owned markers and then the asset within one transaction. A restrictive L3 Block asset link rejecting deletion rolls back marker removal too; existing original-file cleanup/recovery remains unchanged. Direct asset deletion cannot orphan annotations. There is no Block-local override/inheritance state in L2.
 
 JSON7/readers1–7 stay unchanged: canonical metadata, originals and master annotations are not portable through this data-only backup. Retain originals separately. S2 must include canonical originals once and master/local annotation identity in its later complete ZIP recovery. Legacy `block_images`, `takes`, `IMPORTED_LOOP`, their files and export/recovery ownership remain untouched.

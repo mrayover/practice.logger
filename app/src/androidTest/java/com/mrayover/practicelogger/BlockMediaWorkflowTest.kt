@@ -22,7 +22,14 @@ class BlockMediaWorkflowTest {
     private val db get() = BlockDatabase.appInstance(app)
     private fun shown(tag: String) = compose.waitUntil(20000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
     private fun tag(tag: String) = compose.onNodeWithTag(tag).scrollIfNeeded().assertIsDisplayed()
-    private fun click(text: String) = compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
+    private fun click(text: String) {
+        val inLibrary = compose.onAllNodesWithTag("media-library-list").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+        if (inLibrary) {
+            val matcher = hasText(text) and hasAnyAncestor(hasTestTag("media-library-list"))
+            compose.onNodeWithTag("media-library-list").performScrollToNode(matcher)
+            compose.onNode(matcher).assertIsDisplayed().performClick()
+        } else compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
+    }
     private fun waitLink(id: String, role: MediaRole, media: String?) {
         compose.waitUntil(20000) { !vm.busy && runBlocking { db.blockMedia().find(id, role.name)?.mediaId == media } }
     }

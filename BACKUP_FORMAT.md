@@ -87,3 +87,7 @@ JSON7 and readers1–7 exclude all media_assets metadata/UUIDs/titles and all ca
 ## L2 master audio annotations
 
 Room13 master point/section markers are canonical Library metadata and remain excluded from unchanged JSON7 (readers1–7), together with canonical originals/metadata. The current JSON backup is data-only and cannot transport Library annotations. Derived waveform caches are expendable and are not backup content. S2 must preserve stable media/marker identities and shared originals once in its separately assigned complete ZIP recovery. Current Library-only nonempty restore protection remains.
+
+## L3 Block associations remain excluded
+
+Room14 adds restrictive Block VISUAL/AUDIO media links; JSON writer7/readers1–7 do not serialize them or canonical assets. Restoring a legacy JSON backup into an empty installation creates no media links or dangling references. The existing transactional nonempty guard includes media_assets (and Blocks), so a linked or Library-only installation cannot be overwritten. Editor/Library/Backup UI disclose that originals, Block associations and master annotations are not complete recovery content. Future S2 must preserve stable asset/link/annotation IDs and each original once. Legacy visual/take ownership and current per-take export remain intact. See [L3 ownership](docs/BLOCK_MEDIA_ASSOCIATIONS.md).
