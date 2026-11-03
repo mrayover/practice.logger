@@ -1,7 +1,7 @@
-# practice.logger — L2 media preparation workspace
+# practice.logger — L3 delivered; stop after this increment
 
-L2 is delivered as permanent-key0.19.0/build76 with focused API26/API35 verification, including large text, narrow viewport and active playback rotation. Owner-phone verification is pending; L1 phone acceptance remains separately pending. See [CURRENT_STATE](CURRENT_STATE.md) for exact source/packages/results and next action. P5 remains complete and owner accepted. Read AGENTS and the mandatory WORK_LOG efficiency procedure before continuing.
+L3 independent shared Block visual/audio associations are implemented, scoped verified and delivered as permanent-key0.20.0/build80. Exact app source/package hashes, API26/API35 results, earlier failures and limits: [CURRENT_STATE](CURRENT_STATE.md). [Ownership/legacy transition](docs/BLOCK_MEDIA_ASSOCIATIONS.md). [Phone checks](MANUAL_TESTS.md).
 
-Room13 adds master audio markers through explicit12→13; all prior schemas/migrations remain. JSON7/readers1–7 exclude canonical media and master annotations. Library previews/player/waveform share existing rendering/platform audio, with no practice/take ownership. Original canonical/legacy bytes remain; waveform caches are derived. [Architecture/limits](docs/MEDIA_AUDIO_WORKSPACE.md).
+Exact next action: owner L3 phone checklist. L1/L2 phone acceptance remains separately pending. Stop after L3; K1 Reference Piano is the next separately assigned milestone and T1 follows K1. Do not start later phases automatically.
 
-Exact next action: owner verification of L2 using the seven-item phone checklist. Stop after L2. The next separately assigned milestone is **L3 — Block Media Library Associations**. No L3/K1/Transcribe/local overrides/complete ZIP backup was started. Do not reopen L1 engineering or P5 without defect evidence.
+Retain stable canonical media IDs, restrictive links, one original per asset, deliberate atomic legacy visual replacement and exclusive legacy take ownership. JSON7 remains media/association-excluding. Preserve all data, keys, packages, migrations and the mandatory efficiency procedure. Use the original Windows checkout; synced sources are read-only.

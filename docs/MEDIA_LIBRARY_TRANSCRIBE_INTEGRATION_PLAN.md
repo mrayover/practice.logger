@@ -1,12 +1,12 @@
 # practice.logger — Media Library, Reference Keyboard & Transcribe Integration
 
-**Status:** Approved design; L1 storage/management is delivered under the explicit owner handoff, with owner-phone verification pending. L2–L3, K1 and T1–T3 remain planned. See [L1 ownership decision](MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for delivered evidence.
+**Status:** Approved design; L1–L3 are implemented under explicit owner handoffs. Actual scoped verification, signed delivery and separately pending phone acceptance are in CURRENT_STATE. K1 and T1–T3 remain planned. See [L1 ownership decision](MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for delivered evidence.
 **Amended:** November 3, 2026 (America/Los_Angeles).
 **Verified repository baseline:** `main`, `aa3e755638bfbb14e039cf8764d40a5ad76df042`.
 
 This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The original amendment authorized documentation only; the later explicit owner handoff authorized L1 implementation, now delivered with scoped verification and signed packaging. Reinspect live code before each separately assigned phase.
 
-**Order:** accepted P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2. Build69 camera/gallery owner acceptance is recorded; L1 is explicitly assigned. After L1 owner verification, the next separately assigned phase is L2.
+**Order:** accepted P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2. Build69 camera/gallery owner acceptance is recorded; L1–L3 have explicit implementation handoffs. Phone acceptance remains distinct from engineering verification. After the assigned L3 delivery, K1 Reference Piano is next by separate assignment; T1 follows K1. L1/L2 phone acceptance remains separately pending.
 
 ## 1. Verified existing implementation
 

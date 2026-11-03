@@ -163,7 +163,7 @@ Freeze P1–P4 features. Run and record:
 
 ## 8. L1–L3 — Canonical Media Library and Block references
 
-The Library is the global, offline-first media preparation workspace, separate from the Block catalog and practice sessions. The [approved integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) defines detailed requirements, exclusions and acceptance for L1–L3, K1 and T1–T3. L1 storage/management is delivered; L2 onward remains planned. CURRENT_STATE records actual verification and owner acceptance.
+The Library is the global, offline-first media preparation workspace, separate from the Block catalog and practice sessions. The [approved integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) defines detailed requirements, exclusions and acceptance for L1–L3, K1 and T1–T3. CURRENT_STATE records current implementation, actual verification and owner acceptance; this section defines the approved phase scope.
 
 ### L1 — Canonical Media Library and storage (High)
 
