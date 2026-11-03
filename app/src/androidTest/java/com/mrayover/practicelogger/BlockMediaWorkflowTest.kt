@@ -15,7 +15,17 @@ import org.junit.Test
 import java.io.File
 
 class BlockMediaWorkflowTest {
-    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule val rules: org.junit.rules.TestRule = org.junit.rules.RuleChain.outerRule(compose).around(object : org.junit.rules.TestWatcher() {
+        override fun failed(error: Throwable, description: org.junit.runner.Description) {
+            runCatching {
+                val directory = File(app.getExternalFilesDir(null), "l3-native").apply { mkdirs() }
+                device.takeScreenshot(File(directory, "failure.png"))
+                device.dumpWindowHierarchy(File(directory, "failure.xml"))
+                File(directory, "semantics.txt").writeText(compose.onAllNodes(isRoot(), useUnmergedTree = true).onLast().printToString())
+            }
+        }
+    })
     private val app get() = compose.activity.application
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private val vm get() = ViewModelProvider(compose.activity)[ImageReferenceViewModel::class.java]
@@ -27,7 +37,7 @@ class BlockMediaWorkflowTest {
         if (inLibrary) {
             val matcher = hasText(text) and hasAnyAncestor(hasTestTag("media-library-list"))
             compose.onNodeWithTag("media-library-list").performScrollToNode(matcher)
-            compose.onNode(matcher).assertIsDisplayed().performClick()
+            compose.onNode(matcher).scrollIfNeeded().assertIsDisplayed().performClick()
         } else compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
     }
     private fun waitLink(id: String, role: MediaRole, media: String?) {
@@ -42,7 +52,7 @@ class BlockMediaWorkflowTest {
             compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken, 0)
         }
         device.waitForIdle()
-        compose.onNodeWithTag("media-library-list").performScrollToNode(hasText("Name")); click("Name")
+        click("Name")
         compose.onNodeWithTag("media-library-list").performScrollToNode(hasTestTag("media-choose-$id"))
         compose.onNodeWithTag("media-choose-$id").assertIsDisplayed().performClick()
     }

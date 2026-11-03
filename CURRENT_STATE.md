@@ -1,12 +1,14 @@
-# Current state — L3 scoped verification in progress
+# Current state — L3 signed candidate78; native verification pending
 
-November 3, 2026. Explicit owner assignment: L3 only, including permanent-key delivery and Git publication. L1/L2 owner-phone acceptance remains separately pending; P5/build69 acceptance remains recorded below.
+November 3, 2026. L3 only is explicitly assigned, including signing/commit/push. **L1/L2 owner-phone acceptance remains separately pending.** P5 and build69 camera/gallery acceptance remain recorded below.
 
-First build CI41734468616/source988641b passes50/50 scoped unit tests and debug/release/instrumentation compilation. Room14 adds restrictive independent VISUAL/AUDIO Block links through13→14; schema14 is retrieved, schemas1–13 retained. Internal signed candidate0.20.0/build77 is prepared at dist/practice.logger-0.20.0-b77-988641b; signature/package/pinned certificate pass, native verification incomplete. Final candidate78 includes explicit Backup association disclosure and final scoped tests. No L3 completion or phone acceptance is claimed yet.
+Permanent-key **0.20.0/build78**, app source `5c6b8135861b4adb8d9a3c3c2b4d40e0d8a54062`: [APK](dist/practice.logger-0.20.0-b78-5c6b813/practice.logger-0.20.0-b78-5c6b813.apk) · [ZIP](dist/practice.logger-0.20.0-b78-5c6b813.zip). Install over build76 without clearing data. Signature, stable appID/version, pinned certificate, all67 unsigned payload entries, ZIP CRC/exact members and338 pre-session package hashes pass. Internal77 and all earlier distributions remain. APK SHA256 `9fdf802cb54cceb986720b9bc5205f1ffd5e43a8932f5f2c4479b9af36722b65`; ZIP SHA256 `7238d4d9adc418f1533fc6826395a678346ab6ac5e745ea02489faf12449275c`.
 
-[Architecture, shared file ownership and deliberate legacy transition](docs/BLOCK_MEDIA_ASSOCIATIONS.md). New canonical links share one original; legacy visual references/takes retain existing ownership. Loop Setup convergence remains T1 after K1. No K1/T1–T3/S0–S2 implementation begins.
+CI41735971595 passes51/51 focused units and debug/release/instrumentation compilation. Room14/schema14 and explicit13→14 are present; schemas1–13 retained. JSON7/readers1–7 remain data-only. [L3 architecture and legacy transition](docs/BLOCK_MEDIA_ASSOCIATIONS.md). Canonical visual/audio associations share Library originals; legacy visual references and take-owned audio remain safe. No K1/Transcribe/S2 implementation begins.
 
-**Exact next task: complete candidate78 scoped build,76 install-over and API26/API35 native workflows, then verify/sign/package and publish L3 records.** The last completed release remains build76 below.
+Initial native setup was blocked before assertions by mismatched temporary debug signatures, then missing runner debug key. Test setup now explicitly signs all emulator packages with one disposable key and verifies exact non-signature payloads; production signing is separate. One superseded API26 run was canceled. One unit run failed class setup fetching the Android runtime from repo1.maven.org; the canonical Maven endpoint resolves it and final51 tests pass. Detailed attempts remain in WORK_LOG.
+
+**Exact next task: complete targeted API26/API35 native ownership/UI/reopen checks and final L3 records/publication.** Signed78 is an installable candidate, not a completed native/phone acceptance claim. Stop after L3; K1 Reference Piano is the next milestone and T1 follows K1.
 
 ---
 
