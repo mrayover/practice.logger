@@ -4,7 +4,7 @@ L2 adds dedicated Library image/PDF previews and a reusable canonical-audio prep
 
 ## Shared visual rendering
 
-`MediaLibraryRepository.visualPage` resolves a canonical ID with existing integrity checks on IO. `ImageReferenceRepository.loadOriginalPage` shares the existing sampled EXIF-oriented decoder and bounded 2048px PdfRenderer page rendering. `ZoomableReference` shares fit, pinch/pan and reset behavior with existing Block references. Each page/document/descriptor closes on IO; only the displayed bitmap is retained. Originals, import validation and existing Block ownership remain unchanged. Library list query/filter/sort/scroll survive closing a preview. Missing originals show retry.
+`MediaLibraryRepository.visualPage` resolves a canonical ID with existing integrity checks on IO. `ImageReferenceRepository.loadOriginalPage` shares the existing sampled EXIF-oriented decoder and bounded 2048px PdfRenderer page rendering. `ZoomableReference` shares fit, pinch/pan and reset behavior with existing Block references. Each page/document/descriptor closes on IO; only the displayed bitmap is retained. Originals, import validation and existing Block ownership remain unchanged. Dedicated previews hide the shared banner and retain their own Back below system bars. Enlarged text uses compact source readouts with full numeric precision in edit dialogs, preserving independent waveform/marker scrolling. Library list query/filter/sort/scroll survive closing a preview. Missing originals show retry.
 
 ## Engine and source-time controls
 

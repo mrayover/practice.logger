@@ -1,20 +1,41 @@
-# Current state — L2 implementation under focused verification
+# Current state — L2 media preparation workspace delivered
 
 Updated November 3, 2026 (America/Los_Angeles).
 
-## Assigned L2 status
+## Current L2 delivery
 
-L2 only is explicitly assigned: shared full-screen visual previews, canonical audio player/waveform, pitch-preserving speed, A–B phrases and persistent master point/section markers. Source implementation is in the original Windows checkout; candidate **0.19.0/build73**, Room13 through explicit12→13, JSON7 unchanged. No signed L2 package is delivered yet. [Architecture and limits](docs/MEDIA_AUDIO_WORKSPACE.md).
+**0.19.0/build76**, application/release source `e12b53f16e42fad98e6aa1a878fd05f70f9e5e75`. [APK](dist/practice.logger-0.19.0-b76-e12b53f/practice.logger-0.19.0-b76-e12b53f.apk) · [ZIP](dist/practice.logger-0.19.0-b76-e12b53f.zip) · [Build info](dist/practice.logger-0.19.0-b76-e12b53f/BUILD_INFO.json) · [L2 phone checklist](dist/practice.logger-0.19.0-b76-e12b53f/PHONE_CHECKLIST.txt). Install over build72 without uninstalling or clearing data. Permanent-key candidates73/74/75 and every earlier distribution are preserved. **L2 owner-phone acceptance is pending; L1 phone acceptance remains separately pending.** P5 remains complete and owner accepted.
 
-Platform feasibility passes on API26 in CI41713276728 attempt2; its first attempt timed out downloading codec-fixture dependencies. API35 gate is pending. Prototype compilation passed; initial scoped units17/18 passed with one new migration-fixture failure (missing optional indices field), corrected without changing assertions. Integrated compile found recursive Kotlin callback type inference; explicit types correct it. Corrected integrated build/unit verification is pending. These are development results, not completed L2 acceptance. P5 was not rerun; an unintended broad push workflow41713272964 was canceled. L1 engineering remains closed and its phone acceptance separately pending.
+App ID `com.mrayover.practicelogger.app`; unchanged permanent certificate SHA256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. Publisher verifies package/version/signature/pinned identity. APK SHA256 `73fd502be5fd2b7d515a4391fdb02bc16f2aa7b5c4d192e1504e2e4bbaea243f`; ZIP SHA256 `3472bf45b917e5a4ace436a9d2c29d056a7c543024fe990de84eb3e372a08f97`. All67 non-signature CI payload entries match; APK/ZIP CRC and exact ZIP member bytes pass. All314 session-entry APK/ZIP hashes remain unchanged; candidates73/74/75 are also retained. Higher versionCode, stable package/key and explicit12→13 migration support install-over; physical permanent-key phone installation is not inferred from automated checks.
 
-**Exact next task: finish L2 focused build/native verification, resolve evidenced failures, then deliver the permanent-key signed APK/ZIP and record the remote SHA. Stop after L2; L3 requires a separate assignment.**
+## Features and ownership
 
-## Current delivery — retained L1 release
+Library images/PDFs open in dedicated previews, sharing existing EXIF-oriented bounded decoding, PdfRenderer pages, zoom/pan/reset and retry. Query/filter/sort/list scroll are retained on return; original bytes and Block reference behavior remain.
+
+The reusable Android MediaPlayer controller provides play/pause/stop, source-time seeking/cursor/duration, independent pitch1.0 with50–100% speed in5% steps, whole-file repeat, one-shot selected phrases and A–B repeat. Shared waveform/viewports support real-signal peaks, zoom/pan, separate draggable A/B handles, numeric source-second edits and10ms adjustments. Transport/range readouts stay independent of the scrollable marker list. Foreground/focus/headphone-error handling releases resources without automatic background/process resume; configuration recreation retains active playback. No session, metronome, microphone, take selection or statistics ownership is introduced.
+
+Room **13** adds only indexed `media_markers` through explicit **12→13**; schemas/migrations1–12 are retained. Stable master point/section IDs, labels, optional notes and source-time bounds support add/edit/move/resize/confirmed-delete, seek and section selection. Loading a section does not enable repeat. Restrictive FKs plus transactional owned-marker removal preserve deletion safety and roll back annotations when another asset link blocks deletion.
+
+Waveform analysis streams PCM chunks/codec buffers into5ms peak bins (at most180001floats, ~704KiB/15minutes). Expendable `cache/audio-waveforms` files use mediaID/originalSHA256, validate headers/count/peaks, regenerate on corruption and cap completed caches at12. Originals, L1 formats/limits/integrity, legacy references/takes and byte-preserving export remain under existing ownership. [Architecture and limitations](docs/MEDIA_AUDIO_WORKSPACE.md).
+
+JSON **7** / readers **1–7** remain unchanged and exclude canonical originals/metadata/master annotations and legacy media. UI discloses this boundary. Keep originals separately until S2 complete ZIP recovery; waveform caches are not backup content. No L3 links/adoption, K1, T1–T3 or S2 backup is implemented.
+
+## Actual focused verification
+
+- Platform gate, source76f0d69: [API26 CI41713276728 attempt2](https://github.com/mrayover/practice.logger/actions/runs/41713276728) and [API35 CI41713272359](https://github.com/mrayover/practice.logger/actions/runs/41713272359), one native scenario each, pass MP3/M4A/PCM16 WAV speed100/75/50/95%, independent pitch parameter1.0, source-position advances, repeated closest seeks and pause. First API26 attempt timed out downloading fixture dependencies before compilation.
+- Final build [CI41721617835](https://github.com/mrayover/practice.logger/actions/runs/41721617835), source`e12b53f16e42fad98e6aa1a878fd05f70f9e5e75`: **37/37 scoped units**, zero failures/errors/skips; debug/release/instrumentation compilation pass. Includes explicit1→13/11→13/12→13 preservation, master CRUD/reopen/FK/deletion rollback,15minute coordinate math/range validation and existing Library/import/image/recording/phrase/backup safeguards. KSP13 matches the retained exported schema. No broad lint/P5/F1/F2 rerun.
+- Source37a9234: [API26/100% CI41716550157](https://github.com/mrayover/practice.logger/actions/runs/41716550157) and [API35/200% CI41716555437](https://github.com/mrayover/practice.logger/actions/runs/41716555437), **four workspace tests plus one cold-reopen per API** all pass. Actual three-format transport/50–75% phrase-repeat/one-shot/full-repeat/EOF/focus/background/error, faithful alternating-signal fifteen-minute waveform/cache regeneration/original hashes, existing Block PDF viewer/no practice-row change, Library image/PDF error/retry/list state and master creation/many dense markers/cold persistence are covered.
+- Final UI/inset checks, source`e12b53f16e42fad98e6aa1a878fd05f70f9e5e75`: isolated UI/reopen [API26/100% CI41723099027](https://github.com/mrayover/practice.logger/actions/runs/41723099027) and [API35/200% CI41721633323](https://github.com/mrayover/practice.logger/actions/runs/41721633323) pass. They explicitly assert settled rotation during active A–B playback, retained speed/range, fully bounded narrow(~305dp) transport controls, status-bar-safe Back, at least48dp of marker list and reachable waveform/marker navigation. Screenshots reviewed. Dedicated previews hide the banner and use compact readouts for enlarged text. API26 workflow source d08d721 only adds exact successful-build fixture reuse; its app/test assertions match signed source e12b53f. Earlier controller/waveform/storage/Block code is unchanged. Evidence is scoped across these runs, not a new full regression claim.
+
+Development outcomes retained in WORK_LOG: one fixture JSON error, two runs with the same Kotlin callback-inference compile error, superseded canceled build, one canceled unintended broad push run, search/IME row-lookup failure, and two final API26 fixture-install timeouts before compilation. Keyboard settlement corrected the lookup failure. Settled screenshot review exposed combined large-text/narrow panel starvation and preview top-inset overlap; build76 corrects both and adds marker-area/status-bar-clearance assertions. Final API26 reuses the identical synthetic audio fixtures from successful build41721617835. No assertions were weakened. The independent platform and integrated targeted runs pass; acoustic pitch, very short compressed-loop gap/overshoot, vendor headphones/providers/TalkBack and permanent-key owner-phone install-over remain physical checks. No sample-accurate or perfectly seamless compressed playback is claimed. Stage4 remains0/10 documented sessions.
+
+**Exact next action: owner verification of L2 using its seven-item phone checklist. Stop after L2. The next separately assigned phase is L3 — Block Media Library Associations.** L1 phone acceptance remains separately pending; do not reopen L1 engineering or P5 without defect evidence.
+
+## Previous L1 delivery — retained build72
 
 **0.18.0/build72**, application/release source `ef83bd8ae3e34804dd436cbbdcdf3ac023530e19`. [APK](dist/practice.logger-0.18.0-b72-ef83bd8/practice.logger-0.18.0-b72-ef83bd8.apk) · [ZIP](dist/practice.logger-0.18.0-b72-ef83bd8.zip) · [Build info](dist/practice.logger-0.18.0-b72-ef83bd8/BUILD_INFO.json) · [L1 phone checklist](dist/practice.logger-0.18.0-b72-ef83bd8/PHONE_CHECKLIST.txt). Install over accepted build69 or candidate71 without uninstalling or clearing data. L1 owner-phone verification remains pending; P5 stays complete and accepted.
 
-App ID `com.mrayover.practicelogger.app`; permanent certificate SHA256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. Existing publisher verifies package/version/signature/pinned identity. APK SHA256 `7ee01ca7bca9e96608e019f27ac991e5cb249f07ad1454a7fa024340dbf3db78`; ZIP SHA256 `a93aca60b1ad338441ae93dcc10160be6b454cf019b41fec484ebf9d1cae4edd`. All67 non-signature CI payload entries, APK/ZIP CRC/exact member bytes and298 prior APK/ZIP hashes pass. Existing packages/signing material are preserved; dist/LATEST points here. Internal70 predates integrity hardening and is not the current installation target.
+App ID `com.mrayover.practicelogger.app`; permanent certificate SHA256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. Existing publisher verifies package/version/signature/pinned identity. APK SHA256 `7ee01ca7bca9e96608e019f27ac991e5cb249f07ad1454a7fa024340dbf3db78`; ZIP SHA256 `a93aca60b1ad338441ae93dcc10160be6b454cf019b41fec484ebf9d1cae4edd`. All67 non-signature CI payload entries, APK/ZIP CRC/exact member bytes and298 prior APK/ZIP hashes pass. Existing packages/signing material are preserved; dist/LATEST now points to the L2 delivery above. Internal70 predates integrity hardening and is not the current installation target.
 
 ## L1 implementation and ownership
 
@@ -24,7 +45,7 @@ Home → Library now provides imports, search over title/original filename, All/
 
 All legacy block_images/files/block-images and takes/files/recordings retain existing ownership, IDs, labels, Block associations and original bytes. Imported tracks remain playable/renameable/exportable through existing controls; recorded WAV/free M4A are not reclassified. Nothing is disposed or physically copied for migration. In-place adoption requires L3 to update ownership/links, resolution, deletion and recovery together; legacy media is not automatically listed in the new Library.
 
-JSON writer **7** / readers **1–7** remain unchanged and exclude canonical/legacy media metadata and bytes. Library-only installs now block JSON restore transactionally. Library/Backup UI disclose the exclusion; keep originals separately until S2. No ZIP backup, L2 viewer/player/annotation, L3 Block linking, K1 or Transcribe is implemented.
+JSON writer **7** / readers **1–7** remain unchanged and exclude canonical/legacy media metadata and bytes. Library-only installs now block JSON restore transactionally. Library/Backup UI disclose the exclusion; keep originals separately until S2. At L1 delivery, no L2 viewer/player/annotation was implemented; L2 is now delivered above. Complete ZIP backup, L3 Block linking, K1 and Transcribe remain unimplemented.
 
 ## Actual focused verification
 
@@ -35,7 +56,7 @@ JSON writer **7** / readers **1–7** remain unchanged and exclude canonical/leg
 
 No P5/F1/F2 full regression, broad lint rerun or owner-phone/provider/vendor/acoustic acceptance is claimed. Stage4 remains0/10 documented real sessions. Physical phone checks are separate from automated evidence.
 
-L1 owner verification using its six-item phone checklist remains pending. L2 has since been explicitly assigned; its active status and exact next task are above. P5 remains complete and accepted.
+L1 owner verification using its six-item phone checklist remains pending. L2 has since been delivered; its actual verification and exact next phone task are above. P5 remains complete and accepted.
 
 ## Build69 camera/gallery owner acceptance
 

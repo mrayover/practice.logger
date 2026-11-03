@@ -1,7 +1,7 @@
-# practice.logger — L1 canonical Media Library/storage
+# practice.logger — L2 media preparation workspace
 
-L1 is delivered as permanent-key0.18.0/build72, with focused verification complete and owner-phone verification pending. See [CURRENT_STATE](CURRENT_STATE.md) for authoritative actual results, source, packages and one exact next task. Build69 camera/gallery owner acceptance is recorded; P5 remains complete. Review AGENTS and the mandatory efficiency procedure before continuing.
+L2 is delivered as permanent-key0.19.0/build76 with focused API26/API35 verification, including large text, narrow viewport and active playback rotation. Owner-phone verification is pending; L1 phone acceptance remains separately pending. See [CURRENT_STATE](CURRENT_STATE.md) for exact source/packages/results and next action. P5 remains complete and owner accepted. Read AGENTS and the mandatory WORK_LOG efficiency procedure before continuing.
 
-Room12 adds only canonical media_assets; JSON7/readers1–7 remain media-excluding. New originals live in files/media-library; all legacy references/takes remain under existing ownership with preserved IDs/bytes/playback/export. Safe adoption requires L3 ownership/deletion/recovery changes; see [storage implementation](docs/MEDIA_LIBRARY_STORAGE.md). Do not dispose attachments or duplicate legacy audio.
+Room13 adds master audio markers through explicit12→13; all prior schemas/migrations remain. JSON7/readers1–7 exclude canonical media and master annotations. Library previews/player/waveform share existing rendering/platform audio, with no practice/take ownership. Original canonical/legacy bytes remain; waveform caches are derived. [Architecture/limits](docs/MEDIA_AUDIO_WORKSPACE.md).
 
-Stop after L1. Exact next action: owner verification of L1 using its six-item phone checklist; the next separately assigned phase is **L2 — Media Preview and Master Audio Annotation Workspace**. Do not reopen P5 or start later scope automatically.
+Exact next action: owner verification of L2 using the seven-item phone checklist. Stop after L2. The next separately assigned milestone is **L3 — Block Media Library Associations**. No L3/K1/Transcribe/local overrides/complete ZIP backup was started. Do not reopen L1 engineering or P5 without defect evidence.
