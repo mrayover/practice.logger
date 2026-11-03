@@ -14,6 +14,10 @@ on:
         type: choice
         options: ['1.0', '2.0']
         default: '1.0'
+      scenario:
+        type: choice
+        options: [all, ownership, storage, library]
+        default: all
 permissions:
   contents: read
 jobs:
@@ -72,7 +76,7 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          script: bash scripts/Check-MediaLibrary.sh '${{ inputs.font_scale }}'
+          script: bash scripts/Check-MediaLibrary.sh '${{ inputs.font_scale }}' '${{ inputs.scenario }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -20,7 +20,14 @@ class MediaLibraryWorkflowTest {
     private val app get() = compose.activity.application
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private val vm get() = ViewModelProvider(compose.activity)[MediaLibraryViewModel::class.java]
-    private fun click(text: String) = compose.onNodeWithText(text).scrollIfNeeded().performClick()
+    private fun node(matcher: SemanticsMatcher): SemanticsNodeInteraction {
+        val target = compose.onNode(matcher)
+        try { return target.assertIsDisplayed() } catch (_: AssertionError) { }
+        compose.onNodeWithTag("media-library-list").performScrollToNode(matcher)
+        return target.assertIsDisplayed()
+    }
+    private fun tag(name: String) = node(hasTestTag(name))
+    private fun click(text: String) = node(hasText(text)).performClick()
     private fun shot(name: String) {
         val dir = File(app.getExternalFilesDir(null), "l1-native").apply { mkdirs() }
         device.takeScreenshot(File(dir, "$name.png"))
@@ -46,15 +53,16 @@ class MediaLibraryWorkflowTest {
     }
     @Test fun importSearchFilterSortRenameCancelDeleteRotationAndDurableFiles() {
         compose.waitUntil(15000) { vm.ready }
+        compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         compose.onNodeWithText("Library").scrollIfNeeded().performClick()
-        compose.onNodeWithText("No files imported yet.", substring = true).scrollIfNeeded().assertIsDisplayed()
+        node(hasText("No files imported yet.", substring = true)).assertIsDisplayed()
         shot("empty")
         // Real document picker cancellation and success.
-        compose.onNodeWithTag("media-import").scrollIfNeeded().performClick()
+        tag("media-import").performClick()
         assertNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)); device.pressBack()
         assertTrue(vm.assets.value.isEmpty())
         val png = media("l1-image.png", "image/png", l1Png())
-        compose.onNodeWithTag("media-import").scrollIfNeeded().performClick()
+        tag("media-import").performClick()
         device.wait(Until.findObject(By.desc("Show roots")), 10000)!!.click()
         assertTrue(device.wait(Until.hasObject(By.text("Downloads")), 10000))
         device.findObjects(By.text("Downloads")).last().click()
@@ -83,25 +91,25 @@ class MediaLibraryWorkflowTest {
             assertEquals(0, compose.onAllNodesWithText("l1-image.png").fetchSemanticsNodes().size)
             click("Audio"); click("Name"); shot("audio-filter")
             click("All")
-            compose.onNodeWithTag("media-search").scrollIfNeeded().performTextInput("SCORE")
+            tag("media-search").performTextInput("SCORE")
             val pdf = vm.assets.value.single { it.category == "PDF" }
-            compose.onNodeWithTag("media-rename-${pdf.id}").scrollIfNeeded().performClick()
+            tag("media-rename-${pdf.id}").performClick()
             compose.onNodeWithTag("media-rename-title").performTextReplacement("Renamed score")
             click("Save title"); compose.waitUntil(15000) { !vm.busy && vm.assets.value.any { it.title == "Renamed score" } }
             val file = File(app.filesDir, "media-library/${pdf.fileName}")
             assertArrayEquals(originals["l1-score.pdf"], file.readBytes())
-            compose.onNodeWithTag("media-search").scrollIfNeeded().performTextClearance()
+            tag("media-search").performTextClearance()
             compose.onNodeWithTag("media-search").performTextInput("Renamed score")
-            compose.onNodeWithTag("media-delete-${pdf.id}").scrollIfNeeded().performClick(); click("Cancel")
+            tag("media-delete-${pdf.id}").performClick(); click("Cancel")
             assertTrue(file.exists())
             compose.activityRule.scenario.recreate()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("media-search").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
-            compose.onNodeWithTag("media-search").scrollIfNeeded().assertTextContains("Renamed score")
-            compose.onNodeWithTag("media-delete-${pdf.id}").scrollIfNeeded().performClick(); click("Delete item")
+            tag("media-search").assertTextContains("Renamed score")
+            tag("media-delete-${pdf.id}").performClick(); click("Delete item")
             compose.waitUntil(15000) { !vm.busy && vm.assets.value.size == 4 }; assertFalse(file.exists())
-            compose.onNodeWithTag("media-search").scrollIfNeeded().performTextClearance()
+            tag("media-search").performTextClearance()
             compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            compose.waitForIdle(); compose.onNodeWithTag("media-import").scrollIfNeeded().assertIsDisplayed(); shot("landscape")
+            compose.waitForIdle(); tag("media-import").assertIsDisplayed(); shot("landscape")
             compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             compose.waitForIdle(); shot("managed")
             val hashes = org.json.JSONObject()

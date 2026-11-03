@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 out=app/build/l1-native
+scenario=${2:-all}
+case "$scenario" in all|ownership|storage|library) ;; *) exit 2 ;; esac
 mkdir -p "$out"
 adb shell locksettings set-disabled true
 adb shell wm dismiss-keyguard
@@ -24,7 +26,9 @@ adb install -r baseline-apk/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 run_test MediaLegacySeedTest
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-run_test MediaLegacyUpgradeTest
-run_test MediaLibraryStorageTest
-run_test MediaLibraryWorkflowTest
-run_test MediaLibraryReopenTest
+if [[ "$scenario" == all || "$scenario" == ownership ]]; then run_test MediaLegacyUpgradeTest; fi
+if [[ "$scenario" == all || "$scenario" == storage ]]; then run_test MediaLibraryStorageTest; fi
+if [[ "$scenario" == all || "$scenario" == library ]]; then
+  run_test MediaLibraryWorkflowTest
+  run_test MediaLibraryReopenTest
+fi
