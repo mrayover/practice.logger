@@ -1,12 +1,12 @@
 # practice.logger — Media Library, Reference Keyboard & Transcribe Integration
 
-**Status:** L1–L3, K1 and T1–T2 are delivered. See [CURRENT_STATE](../CURRENT_STATE.md) for verification, signed delivery and physical acceptance status. The [Standalone Transcribe plan](T3_STANDALONE_TRANSCRIBE_PLAN.md) governs T3-0 and T3A–T3D.
+**Status:** L1–L3, K1, T1–T2 and T3A–T3D are implemented. See [CURRENT_STATE](../CURRENT_STATE.md) for verification, signed delivery and physical acceptance status. The [Standalone Transcribe plan](T3_STANDALONE_TRANSCRIBE_PLAN.md) governs T3-0 and T3A–T3D.
 **Amended:** November 3, 2026 (America/Los_Angeles).
 **Verified repository baseline:** `main`, `aa3e755638bfbb14e039cf8764d40a5ad76df042`.
 
 This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The original amendment authorized documentation only; the later explicit owner handoff authorized L1 implementation, now delivered with scoped verification and signed packaging. Reinspect live code before each separately assigned phase.
 
-**Order:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. T3B is the next separately assigned engineering milestone.
+**Order:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. S0 is the next separate assignment.
 
 ## 1. Verified existing implementation
 
@@ -44,7 +44,7 @@ Relevant source locations:
 1. The pre-amendment V1 master plan allowed only one Library reference per Block. The new design requires one visual reference and one independently selectable audio reference.
 2. Imported backing tracks currently belong to a Block's take collection. New imported references must instead support shared canonical ownership.
 3. The existing `Add Backing Track` control appears within Loop Setup. The future interface should use separate Record Loop and Transcribe modes rather than maintain two competing imported-audio workflows.
-4. `RecordingViewModel.startCapture()` currently calls `stopPlayback()`. Concurrent Transcribe playback and Free Record therefore require a deliberate audio-ownership change.
+4. `RecordingViewModel.startCapture()` stops its own take output. T3D keeps the independently owned Library player mounted while Free Record captures microphone input.
 5. The pre-amendment roadmap excluded transcription and markup. Only the manual audio Transcribe scope below is approved; unrelated document editing remains excluded.
 6. Existing JSON backup excludes media. New shared assets, local annotations and audio associations must be included in the later complete-backup phase.
 
@@ -343,7 +343,7 @@ Potential later enhancement: non-destructive image/PDF highlights, pencil marks 
 
 ## 6. Implementation decisions and compatibility gates
 
-The exact Room entities and schema versions remain implementation decisions. L1 must audit real attachments and legacy imported-file ownership before choosing adoption/migration and deletion rules. Imported histories, IDs, playback and byte-preserving export must survive. L2 must establish real-device platform speed/seek/A–B quality before selecting an engine; any justified alternative needs owner approval. T3D must resolve playback/capture focus and lifecycle ownership, verify microphone/speaker/headphone behavior and document acoustic bleed. S2 must version and validate complete recovery without changing the current JSON7 contract prematurely.
+The exact Room entities and schema versions remain implementation decisions. L1 must audit real attachments and legacy imported-file ownership before choosing adoption/migration and deletion rules. Imported histories, IDs, playback and byte-preserving export must survive. L2 must establish real-device platform speed/seek/A–B quality before selecting an engine; any justified alternative needs owner approval. T3D coordinates playback and capture lifecycle as described in [Media audio workspace](MEDIA_AUDIO_WORKSPACE.md#record-take-in-block-transcribe). Physical speaker and headphone acceptance is tracked separately. S2 must version and validate complete recovery without changing the current JSON7 contract prematurely.
 
 Reuse [existing audio import](IMPORTED_AUDIO.md), visual renderers, recording repository, practice accounting and [current backup safeguards](../BACKUP_FORMAT.md). No new feature in this specification is delivered by this documentation amendment. Keep targeted checks per assigned increment and the full regression at the final F1/F2 gate.
 

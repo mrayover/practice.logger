@@ -51,7 +51,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **T3A** | Standalone Transcribe Workspace | After T3-0. Scoped navigation, lifecycle and signed install-over | **Medium–High** |
 | **T3B** | Standalone Timer and Goal Attribution | After T3A. Durable clock, aggregation, migration and restore checks | **High** |
 | **T3C** | Record Reference Directly in Transcribe | After T3B. Shared recorder, canonical save and safe Block replacement | **High** |
-| **T3D** | Concurrent Transcribe Playback and Free Record | After T3C. Physical Android microphone and playback verification | **High** |
+| **T3D** | Concurrent Transcribe Playback and Free Record | Implemented. Physical Android microphone and playback verification pending | **High** |
 | **S0–S2** | **Storage & recovery**: feasibility gate, organized exports, complete backup/restore | Verify real Drive-provider behavior + round-trip restore before proceeding | **High** for backup; **Medium** for export UI |
 | **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
@@ -76,7 +76,7 @@ Current Git baseline includes Block creation/editing/archive/safe delete, indepe
 - A fully completed foreground phrase loop automatically previews its temporary take before the explicit Keep/Re-record/Discard choice (owner follow-up 2026-10-31). Playback never saves, and never starts from incomplete/cancelled/background capture or restarts on return/recomposition. Free review remains manual; **an incomplete phrase remains invalid** and must be rejected/discarded with understandable feedback, never silently padded or saved as complete.
 - Temporary recording can be previewed without creating a fake session, Block, or Goal entry. Keep active Stop/Cancel controls and status reachable when references or notes are open.
 - Preserve existing recovery/orphan handling, foreground interruption safety, media focus and playback ownership. A background/mic/storage/audio error may invalidate a pending file but must never corrupt a saved file or pretend a failed save succeeded.
-- Keep V1 free audio **AAC/M4A** and phrase-loop audio **PCM16 WAV**. No MP3 encoder, multitrack, overdub, effects, trimming or source-audio mixing. T3D later permits imported reference playback during Free Record microphone capture; it does not change beat-based loop capture.
+- Keep V1 free audio **AAC/M4A** and phrase-loop audio **PCM16 WAV**. No MP3 encoder, multitrack, overdub, effects, trimming or source-audio mixing. T3D permits canonical reference playback during ordinary Free Record microphone capture. Beat-based loop capture follows its existing workflow.
 
 **Acceptance:** Record → stop → preview → save; stop → re-record → save; stop → discard; repeated attempts; failed file save; background/interruption; playback stops correctly; saved history unaffected. Check the four entry contexts (Focused Practice, Block recording, standalone Free Recording, completed loop). Deliver versioned signed APK and scoped tests.
 

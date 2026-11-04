@@ -1,7 +1,7 @@
 # practice.logger — Next assignment
 
-**T3D — Concurrent Transcribe Playback and Free Record** follows T3C and requires a separate explicit owner assignment. Use the existing Windows checkout and verify live Git before editing.
+**S0 — Storage/Recovery Feasibility Gate** is next, pending a separate owner assignment. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md#s0--storage-implementation-decision-gate-highmedium-bounded) defines the bounded Android document-provider feasibility work.
 
-T3C adds reviewed microphone references in standalone and Block Transcribe. See [current state](CURRENT_STATE.md) for signed delivery and verification and the [T3C phone checklist](MANUAL_TESTS.md#t3c--record-reference-directly-in-transcribe).
+T3D adds Record Take while a canonical reference plays in Block Transcribe. See [CURRENT_STATE](CURRENT_STATE.md) for signed delivery and automated evidence. Physical acceptance remains pending for the [T3D phone checklist](MANUAL_TESTS.md#t3d--concurrent-transcribe-playback-and-free-record), [T3C Record Reference](MANUAL_TESTS.md#t3c--record-reference-directly-in-transcribe) and the build90 keyboard Done BPM check.
 
-Read the [T3D plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md#t3d--concurrent-transcribe-playback-and-free-record), [AGENTS](AGENTS.md) and the mandatory efficiency procedure in [WORK_LOG](WORK_LOG.md). T3D concerns ordinary Free Record with reference playback and requires physical-phone checks with headphones and speaker output.
+Read [AGENTS](AGENTS.md) and the mandatory efficiency procedure in [WORK_LOG](WORK_LOG.md). Use the existing Windows checkout and verify live Git before editing.

@@ -14,7 +14,7 @@ Speed is 50–100% in 5% steps. PlaybackParams sets pitch independently to 1.0. 
 
 This is asynchronous platform playback, not a sample-clock loop engine. Codec seek granularity, seek completion, scheduling and output buffering can produce audible gaps/overshoot, especially for very short compressed phrases. No sample-accurate or perfectly seamless join is promised. Numeric A/B seconds with three decimals and ±10ms adjustments are accessible alternatives to separate 48dp drag handles. Actual practical short-loop results belong in the verification record; audible pitch and vendor/headphone behavior still need owner-phone checks.
 
-Backgrounding or leaving releases the player and abandons focus. Interruption/ducking and disconnected-output broadcasts stop playback; it never auto-resumes. Configuration recreation retains the ViewModel, cursor, range, speed and viewport; process recreation begins paused. There is no media service, microphone capture, metronome, practice timer or statistics side effect.
+Backgrounding or leaving releases the player and abandons focus. Interruption/ducking and disconnected-output broadcasts stop playback; it never auto-resumes. Configuration recreation retains the ViewModel, cursor, range, speed and viewport; process recreation begins paused. The Library player owns foreground audio output. Block Transcribe coordinates it with the existing microphone recorder. Audio playback has no practice timer or statistics side effect.
 
 ## Derived waveform cache
 
@@ -62,3 +62,12 @@ JSON 7 excludes Block audio settings and local annotations along with existing m
 Practice Now opens a full-screen activity with a scrollable waveform, transport, piano and master annotations. The AUDIO-only picker lists canonical Library recordings and imports supported files through Android's document picker and existing validation. Selection is a saveable media ID for the current visit. Library and standalone share transport, waveform and master annotation controls. Block and standalone share the embedded piano, which borrows the reference controller's focus.
 
 Changing source or leaving releases playback and piano output. Backgrounding releases output and returning prepares the selected source paused. Rotation restores the selected ID and opens it paused. Master edits apply to the original recording, so inheriting Blocks follow the shared markers and customized markers keep their local values. Standalone uses the global audio context and carries no practice-time attribution.
+
+
+## Record Take in Block Transcribe
+
+**Record Take** uses the Focused Practice Free Record owner and microphone AAC/M4A recorder. The Transcribe panel and its Library player remain mounted through capture, temporary review, and Save/Discard. The reference retains its source cursor, pitch-preserving speed, A–B, repeat, and local marker state. Play/Pause, Stop, seek and range controls still operate during capture. Source replacement and workspace switching wait while the take is unresolved. The recording status and mic Stop are pinned outside the scrolling reference.
+
+The Library controller retains output focus while the reference or piano plays. Free Record requests no focus for microphone input and stops only its own take output when it starts. A loss of the reference controller's focus stops concurrent capture and makes valid audio available for review. **Play Preview** pauses the reference and releases held piano notes before the take player requests output focus. Dismissing or stopping preview leaves the reference paused. Wired-output disconnection uses Android's noisy-route broadcast. The recorder also checks for connected audio device changes during T3D capture. Android selects the actual input and output routes.
+
+Backgrounding releases reference playback and finalizes capture under the existing rules. Rotation uses the same foreground interruption path and keeps a valid review in the retained ViewModel. Process-loss cleanup removes unfinished temporary recordings. Save writes one existing Block-owned take and leaves the Library original and annotations intact. The existing session placement owns practice time and Goal attribution. Room 16 and JSON 7 keep their formats. Headphones reduce acoustic bleed. The phone speaker can be picked up by the microphone.

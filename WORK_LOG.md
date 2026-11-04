@@ -1007,3 +1007,13 @@ Delivered permanent-key 0.26.0/build89 from 1c8724b293d90489ec984803595037a0c0e8
 ## 2026-11-04 — Metronome Done fix
 
 The shared metronome field now applies a valid BPM on keyboard Done through the existing Apply BPM callback. Package-only CI 41901998805 passed for build90. Signed install-over APK and ZIP verified. Phone check pending. T3D remains next.
+
+## 2026-11-04 — T3D concurrent reference playback and Free Record
+
+Reviewed the mandatory efficiency procedure and current project records. Verified clean local and remote main `eec8d0f1995bc1c1cd501ca05d26e5f619e26a08`, build90, and actual successful baseline CI for build90, T3C and T3B. The T3C and BPM Done phone checks remain pending.
+
+Added Record Take in Block Transcribe using the existing foreground AAC/M4A capture, single capture owner, temporary review and Block take repository. Retained the mounted Library player during capture and review. The source retains output focus until paused for preview or interrupted. Capture uses the existing Block practice clock and adds no activity rows. Code review caught the Notes switch during capture. Guarded it and cancelled superseded compile run 41934038169 before testing that source.
+
+Final source `1b842504cb04b8b19f44eeb40867332a7e54f9f6` passed debug/release/test compilation and 50 scoped unit tests (41934161097). Room 16 export matched byte for byte. Both new T3D tests passed on API 26 at 100% (41934795571) and API 35 at 200% (41934795818). Adjacent checks passed for Library and pitch (41934795580), Block Transcribe and piano (41934795568), T3C (41934795557), and normal Free Record and phrase review (41934413158). No completed test run failed. The CI artifact transfer was slow and eventually completed from the original request.
+
+Published local permanent-key 0.27.0/build91. Verified build90 certificate continuity, app ID/version, matching 67 APK payload entries, APK/ZIP hashes, ZIP integrity and all 1,689 earlier distribution files. [Current state](CURRENT_STATE.md) records artifact provenance. [Owner-phone routing and acoustic checks](MANUAL_TESTS.md#t3d--concurrent-transcribe-playback-and-free-record) remain pending. S0 is the next separately assigned increment.

@@ -99,7 +99,7 @@ No source-stream capture, microphone overdubbing, trimming or automatic audio en
 
 ### Concurrent microphone recording
 
-A separately scoped later increment allows reference audio playback while Free Record captures the musician's performance.
+T3D allows reference audio playback while Free Record captures the musician's performance in Block Transcribe.
 
 That workflow is distinct from Record Reference.
 
@@ -315,4 +315,4 @@ Standalone and Block Transcribe remain two contexts using the same underlying co
 
 - Reuse the canonical Library import, shared waveform and Library audio controller. Block Transcribe retains T2’s master inheritance, local overrides, explicit publication and confirmed audio replacement. Standalone uses the same Reference Piano keyboard and embedded focus grant. [Audio workspace](MEDIA_AUDIO_WORKSPACE.md) · [Reference Piano](REFERENCE_PIANO.md)
 - Existing Goal totals sum committed placement time joined through session Goal links. T3B adds committed standalone activity time to the same accumulation path. The standalone stopwatch and the existing practice clock must share an exclusive accounting boundary.
-- Free Record already owns microphone capture, temporary files and take review. Its capture entry point stops its own playback and existing audio-focus handling must be reconciled with the reference controller for T3D. T3C reuses capture and review behavior with Library ownership on Keep. The recording and any required Block association must succeed before the previous Block link or local work is retired.
+- Free Record already owns microphone capture, temporary files and take review. Its capture entry point stops its own playback. T3D keeps the reference controller active and pauses its output for take preview. See [Record Take in Block Transcribe](MEDIA_AUDIO_WORKSPACE.md#record-take-in-block-transcribe). T3C reuses capture and review behavior with Library ownership on Keep. The recording and any required Block association must succeed before the previous Block link or local work is retired.

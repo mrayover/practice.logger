@@ -1,10 +1,37 @@
-# Current state — Metronome BPM fix
+# Current state — T3D Concurrent Transcribe Playback and Free Record
+
+Updated November 4, 2026 (America/Los_Angeles).
+
+## Signed delivery
+
+**0.27.0/build91**, app source `1b842504cb04b8b19f44eeb40867332a7e54f9f6`. Install over build90 without uninstalling or clearing data. [APK](dist/practice.logger-0.27.0-b91-1b84250/practice.logger-0.27.0-b91-1b84250.apk) · [ZIP](dist/practice.logger-0.27.0-b91-1b84250.zip) · [Build info](dist/practice.logger-0.27.0-b91-1b84250/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.27.0-b91-1b84250/PHONE_CHECKLIST.txt)
+
+App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `b358be1e7b9f9f7ff25dec9b832dea8c51e0f1fbf7309c036a62d53b7a24aff6`. ZIP SHA-256 `fbd9ca56bcf0cb03c07a28b08d294cc5af8421b3f2150ac3e31a62de73d3600b`. Verified the build90 signing identity, package and version, ZIP round trip, all 67 unsigned APK payload entries, and all 1,689 prior distribution file hashes.
+
+## Implemented
+
+**Record Take** uses the existing Free Record capture and review in Block Transcribe. The reference player stays mounted and retains output focus while the reference or piano plays. The mic records a separate AAC/M4A take. Reference transport stays available during capture, with the mic status and Stop pinned. Play Preview pauses reference and piano output before the take player requests focus. The user can resume the reference explicitly after review.
+
+Saving retains normal Block take ownership in the active practice session. The existing Block placement remains the only practice clock and Goal attribution source in this flow. Room 16 and JSON 7 keep their formats. See [audio ownership and lifecycle](docs/MEDIA_AUDIO_WORKSPACE.md#record-take-in-block-transcribe).
+
+## Focused verification
+
+- Debug, release and instrumentation APKs compiled, all 50 scoped unit tests passed, and the generated Room 16 export matched byte for byte. The tests include existing standalone activity and Goal accounting, recording file recovery, and migration and backup safeguards. [Build](https://github.com/mrayover/practice.logger/actions/runs/41934161097)
+- Two T3D tests passed on each API. They exercise capture alongside 75% reference playback and A–B repeat, independent pause/seek/stop and speed, preview, Re-record, Save and Discard, original bytes and annotations, single-counted Block time, backgrounding, Activity recreation, and competing output focus. [API 26 at 100%](https://github.com/mrayover/practice.logger/actions/runs/41934795571) · [API 35 at 200%](https://github.com/mrayover/practice.logger/actions/runs/41934795818)
+- Adjacent checks passed for platform pitch/speed, seek and waveform integrity on API 26. API 35 checks passed for existing Block Transcribe and piano, T3C reference capture and protected replacement, and ordinary Free Record and phrase review. [Library](https://github.com/mrayover/practice.logger/actions/runs/41934795580) · [Block Transcribe and piano](https://github.com/mrayover/practice.logger/actions/runs/41934795568) · [T3C](https://github.com/mrayover/practice.logger/actions/runs/41934795557) · [Free Record and phrase review](https://github.com/mrayover/practice.logger/actions/runs/41934413158)
+- No completed scoped test run failed. The initial build run was cancelled after a review found a Notes switch that could unmount Transcribe during capture. The replacement build includes the guard. [Superseded run](https://github.com/mrayover/practice.logger/actions/runs/41934038169)
+
+Physical headphones, speaker, Bluetooth routing, microphone denial and acoustic quality remain pending. Speaker playback can be picked up by the mic. Android selects the physical routes. Valid review audio can survive foreground loss or rotation within the app process. A cold restart cleans up unsaved interrupted takes.
+
+**Next action:** Run the [T3D owner-phone checklist](MANUAL_TESTS.md#t3d--concurrent-transcribe-playback-and-free-record). The T3C and build90 BPM Done phone checks also remain open. **S0 — Storage/Recovery Feasibility Gate** awaits a separate assignment.
+
+## Retained build90 — Metronome BPM fix
 
 **0.26.1/build90** applies a valid typed BPM when the Android keyboard's Done action is pressed. The shared field covers the standalone and Focused Practice metronomes.
 
 [Signed APK](dist/practice.logger-0.26.1-b90-7f9124a/practice.logger-0.26.1-b90-7f9124a.apk) · [ZIP](dist/practice.logger-0.26.1-b90-7f9124a.zip) · [Build info](dist/practice.logger-0.26.1-b90-7f9124a/BUILD_INFO.json). Install over build89 without uninstalling or clearing data. Source 7f9124a09a8890da488838ac5653559eb2eee061. APK SHA-256 1f6660d8a0678de2cd4f325982f3eaa4c68d5d82ed9ba6ce781afd851d1d8a08. ZIP SHA-256 81037b63679445d144a1fa55bf187856ec55d7ceaa434f4cdd49cb644c7cc600.
 
-[Package-only CI](https://github.com/mrayover/practice.logger/actions/runs/41901998805) passed. Verified permanent signing identity, package/version, APK payload and ZIP integrity. Phone check pending. Enter a different BPM and press Done. T3D remains the next separate assignment.
+[Package-only CI](https://github.com/mrayover/practice.logger/actions/runs/41901998805) passed. Verified permanent signing identity, package/version, APK payload and ZIP integrity. Phone check pending. Enter a different BPM and press Done.
 
 ## Retained T3C signed delivery
 
@@ -26,7 +53,7 @@ Record Reference opens in standalone and Block Transcribe and pauses reference p
 - Both new tests passed on API 26 at 100% text and API 35 at 200% text. They cover standalone microphone capture, canonical Keep and selection without a take, plus transactional rollback and confirmed Block replacement. [API 26](https://github.com/mrayover/practice.logger/actions/runs/41898002203) · [API 35](https://github.com/mrayover/practice.logger/actions/runs/41898002856)
 - The existing Block Transcribe and standalone regression checks passed. [Block Transcribe](https://github.com/mrayover/practice.logger/actions/runs/41898736659) · [Standalone Transcribe](https://github.com/mrayover/practice.logger/actions/runs/41898736586)
 
-**Next action:** Run the [T3C owner-phone checklist](MANUAL_TESTS.md#t3c--record-reference-directly-in-transcribe) on build89. Physical-phone microphone permission and interrupted capture checks are pending. **T3D — Concurrent Transcribe Playback and Free Record** is the next separate assignment.
+The [T3C owner-phone checklist](MANUAL_TESTS.md#t3c--record-reference-directly-in-transcribe), including permission and interrupted capture, remains pending.
 
 ## Retained T3B signed delivery
 
@@ -101,7 +128,7 @@ The T3-0 handoff reports general working status. The owner also confirmed the bu
 
 ## T3-0 roadmap lock
 
-The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the owner’s Practice Now navigation, standalone stopwatch and optional Goal attribution, and separate Record Reference and concurrent Free Record workflows. T3-0 is a documentation checkpoint. T3A–T3D are planned.
+The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the owner’s Practice Now navigation, standalone stopwatch and optional Goal attribution, and separate Record Reference and concurrent Free Record workflows. T3-0 was the documentation checkpoint for the subsequently delivered T3A–T3D increments.
 
 **Next executable task:** **T3A — Standalone Transcribe Workspace**, after T3-0 is committed and the owner explicitly assigns T3A.
 

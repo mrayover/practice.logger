@@ -194,6 +194,11 @@ Run each checklist on its separately assigned signed install-over build. The own
 
 ### T3D — Concurrent Transcribe Playback and Free Record
 
-- [ ] On a physical phone with headphones and then speaker output, record during reference playback. Check independent controls, preserved speed/A–B/markers and possible speaker bleed.
-- [ ] Check Keep, Rerecord and Discard, correct take ownership and single-counted practice time. Verify normal Free Record, Record Loop and Transcribe.
-- [ ] Check interruption, microphone failure, rotation and backgrounding. Verify safe recovery and retained saved audio.
+Physical owner-phone acceptance is pending. Record the Android version, device and route for each check.
+
+- [ ] Install the signed T3D APK over build90. Open a Block's Transcribe panel, choose a canonical reference, start the Block timer, set 75% speed and repeat a short A–B range. With headphones connected, tap **Record Take** while the reference plays. Check that it keeps playing through a loop boundary and the pitch stays steady. Verify the recording status and **Stop and review take** remain reachable, including at enlarged text.
+- [ ] While recording, pause and resume the reference, seek, change speed, and press the reference's **Stop**. The mic should continue. Resume playback, then stop the mic. Opening **Review Take** should let the reference continue from its current position with speed and range intact. **Play Preview** pauses the reference. Check that preview completion or Stop Preview leaves the reference paused until you press Play.
+- [ ] Try **Re-record**, **Discard**, and **Save**. Re-record creates a replacement temporary take. Confirm one saved Free Record take under the Block, playable and exportable, with the original Library audio and its master/local markers intact. Check the existing Block timer and Goal totals count practice once. Repeat with the reference paused when starting capture.
+- [ ] Repeat with the phone speaker. The microphone may pick up sound from the speaker. Listen to the take to verify usable capture for that setup.
+- [ ] During capture, background the app, rotate, unplug headphones, connect or disconnect Bluetooth, and trigger an audio interruption. Check that capture stops on foreground loss, device connection changes or playback focus loss. Valid temporary audio should remain available for review where possible. Neither stream should restart automatically on returning to the app. Check microphone denial and recovery, rapid Record/Stop, and that leaving the session requires resolving the pending take.
+- [ ] Check **Record Reference** separately in Block and standalone Transcribe, ordinary Free Record, Record Loop, Reference Piano and metronome. The build90 keyboard **Done** BPM check and the T3C phone checklist also remain pending.
