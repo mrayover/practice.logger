@@ -197,9 +197,11 @@ class MainActivity : ComponentActivity() {
         } else when (page) {
             "home" -> {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()
-                PracticeHome(practiceMs = time?.sumOf { it.activeMs }, onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
-                onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
-                onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+                PracticeHome(practiceMs = time?.sumOf { it.activeMs },
+                    onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
+                    onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
+                    onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" },
+                    onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
             }
             "media-library" -> {
                 BackHandler { page = "home" }

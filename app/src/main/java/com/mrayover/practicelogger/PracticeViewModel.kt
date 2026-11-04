@@ -30,8 +30,8 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     var running: Boolean
         get() = timerRunning
         private set(value) {
+            if (timerRunning && !value) PracticeTimingOwner.release(this)
             timerRunning = value
-            if (!value) PracticeTimingOwner.release(this)
         }
     var busy by mutableStateOf(false)
         private set
@@ -46,6 +46,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     var blockNoteSavedFor by mutableStateOf<String?>(null)
         private set
     private var foreground = false
+    private var pauseGeneration = 0
     private var focusedPlacementId: String? = null
     var clicking by mutableStateOf(false)
         private set
@@ -154,6 +155,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         if (!value) { stopClick(); pause() }
     }
     fun pause() {
+        pauseGeneration++
         val until = SystemClock.elapsedRealtime()
         running = false
         viewModelScope.launch {
@@ -165,18 +167,25 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         }
     }
     fun resume(overtime: Boolean = false) = operation {
+        if (running) return@operation
         check(foreground)
+        val generation = pauseGeneration
         val id = checkNotNull(catalog.value.active).session.id
         val current = checkNotNull(db.sessions().find(id)?.current)
-        if (overtime) repository.continueOvertime(id)
-        else check(current.overtimeAccepted || current.activeMs < current.configuredMs)
-        completionArmedFor = current.id.takeIf { !overtime && !current.overtimeAccepted && current.activeMs < current.configuredMs }
-        check(foreground)
+        if (!foreground || generation != pauseGeneration) return@operation
         if (!PracticeTimingOwner.acquire(this)) {
             error = "Pause the Transcribe timer before resuming Block practice."
             return@operation
         }
-        timingSessionId = id; anchor = SystemClock.elapsedRealtime(); running = true
+        try {
+            if (overtime) repository.continueOvertime(id)
+            else check(current.overtimeAccepted || current.activeMs < current.configuredMs)
+            if (!foreground || generation != pauseGeneration) return@operation
+            completionArmedFor = current.id.takeIf { !overtime && !current.overtimeAccepted && current.activeMs < current.configuredMs }
+            timingSessionId = id; anchor = SystemClock.elapsedRealtime(); running = true
+        } finally {
+            if (!running) PracticeTimingOwner.release(this)
+        }
     }
     fun addBlock(id: String) = operation { repository.addBlock(id) }
     fun move(id: String, direction: Int) = operation { repository.move(id, direction) }

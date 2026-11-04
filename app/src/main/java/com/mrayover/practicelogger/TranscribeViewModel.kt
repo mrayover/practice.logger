@@ -29,7 +29,7 @@ class TranscribeViewModel(application: Application) : AndroidViewModel(applicati
     private var foreground = false
     private var contextVersion = 0
 
-    val goalId get() = draft?.goalId ?: selectedGoalId
+    val goalId get() = if (hasActivity) draft?.goalId else selectedGoalId
     val hasActivity get() = draft != null
     val finishing get() = completionTime != null
     var ready by mutableStateOf(false); private set
@@ -55,6 +55,7 @@ class TranscribeViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun reload() = command {
+        if (ready) return@command
         draft = dao.unfinished()
         committedMs = draft?.activeMs ?: 0
         clock = ToolClock(committedMs, SystemClock::elapsedRealtime)

@@ -57,8 +57,10 @@ class StandaloneTranscribeTest {
         click("Transcribe study")
         compose.waitUntil(15_000) { runBlocking { db.transcribeActivities().unfinished()?.goalId == goalId } }
         val id = runBlocking { db.transcribeActivities().unfinished()!!.id }
+        val checkpoint = runBlocking { db.transcribeActivities().find(id)!!.activeMs }
         device.pressBack()
         tag("practice-now-title").assertIsDisplayed()
+        compose.waitUntil(15_000) { runBlocking { db.transcribeActivities().find(id)!!.activeMs > checkpoint } }
         click("Transcribe")
         shown("Resume")
         val paused = runBlocking { db.transcribeActivities().find(id)!! }
@@ -66,6 +68,18 @@ class StandaloneTranscribeTest {
         compose.activityRule.scenario.recreate()
         shown("Resume")
         assertEquals(paused, runBlocking { db.transcribeActivities().find(id) })
+        val sql = db.openHelper.writableDatabase
+        sql.execSQL("""
+            CREATE TRIGGER fail_transcribe_finish BEFORE UPDATE ON transcribe_activities
+            WHEN NEW.completedAt IS NOT NULL BEGIN SELECT RAISE(ABORT, 'test save failure'); END
+        """.trimIndent())
+        try {
+            click("Stop & Save")
+            shown("Could not save this activity. Check storage and tap Stop & Save to retry.")
+            assertEquals(paused, runBlocking { db.transcribeActivities().find(id) })
+        } finally {
+            sql.execSQL("DROP TRIGGER fail_transcribe_finish")
+        }
         click("Stop & Save")
         shown("Activity saved.")
         assertNull(runBlocking { db.transcribeActivities().unfinished() })
@@ -129,6 +143,7 @@ class StandaloneTranscribeTest {
         val player = vm.controller
         compose.waitUntil(15000) { player.state.value.durationMs > 0 && !player.state.value.preparing && vm.waveform != null }
         assertEquals(source.id, player.state.value.mediaId)
+        val timer = ViewModelProvider(compose.activity)[TranscribeViewModel::class.java]
         repeat(5) { tag("audio-slower").performClick() }
         tag("audio-speed").assertTextEquals("75%")
         repeat(5) { tag("audio-slower").performClick() }
@@ -140,6 +155,8 @@ class StandaloneTranscribeTest {
         tag("audio-repeat-range").performClick()
         tag("audio-play").performClick()
         compose.waitUntil(10000) { player.state.value.playing && player.state.value.repeatRange }
+        assertEquals(0L, timer.elapsedMs)
+        assertFalse(timer.hasActivity)
         scroll(1)
         tag("transcribe-piano").performClick()
         val keys = tag("piano-keyboard")
