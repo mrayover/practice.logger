@@ -37,11 +37,14 @@ interface BlockAudioDao {
     @Delete suspend fun remove(marker: BlockAudioMarker)
 }
 
+// A pure hide has no independent version to keep if the master is removed.
+private const val HIDE_ONLY = "hidden"
+
 internal fun installBlockAudioConstraints(db: SupportSQLiteDatabase) {
     // A customized version keeps its ID and becomes local-only when the master is deleted.
     db.execSQL("""CREATE TRIGGER IF NOT EXISTS retire_block_master AFTER DELETE ON media_markers BEGIN
-        DELETE FROM block_audio_markers WHERE mediaId = OLD.mediaId AND id = OLD.id AND hidden = 1 AND originalMaster IS NOT NULL;
-        UPDATE block_audio_markers SET originalMaster = NULL
+        DELETE FROM block_audio_markers WHERE mediaId = OLD.mediaId AND id = OLD.id AND originalMaster = '$HIDE_ONLY';
+        UPDATE block_audio_markers SET originalMaster = NULL, hidden = 0
             WHERE mediaId = OLD.mediaId AND id = OLD.id AND originalMaster IS NOT NULL;
     END""")
 }
@@ -122,7 +125,7 @@ class BlockAudioRepository(private val db: BlockDatabase) {
         check(local == existing?.local) { "This Block’s marker changed. Open it again to edit." }
         val origin = if (local != null) local.originalMaster else if (existing != null) {
             check(masters.find(id)?.mediaId == media) { "The master marker was removed." }
-            existing.marker.snapshot()
+            if (hide) HIDE_ONLY else existing.marker.snapshot()
         } else null
         val marker = draft.copy(id = id, mediaId = media, label = MediaLibraryRepository.title(draft.label), note = draft.note.trim())
         validateMasterMarker(marker, checkNotNull(db.media().find(media)?.durationMs))
