@@ -124,3 +124,16 @@ L1 and L2 phone acceptance remain separately pending. Emulator checks do not clo
 - [ ] Reopen the app and confirm links remain intact. Check portrait/landscape and enlarged text.
 
 JSON7 does not include Library originals, associations or master annotations. Keep originals separately until S2. The old Loop Setup importer remains available during L3; its convergence with canonical audio selection belongs to T1 after K1.
+
+
+## K1 — Reference Piano owner-phone checks
+
+1. Install the current permanent-key update over build80 without clearing data.
+2. Home → Tools → Reference Piano: no microphone permission prompt; confirm readable compact keyboard.
+3. Play/release single white/black notes, intervals, unisons and triads; rapidly repeat and slide between keys. Check accurate pitch, sustained sound, clean releases and comfortable volume.
+4. Shift down/up by an octave; check C1/lower guitar and upper registers, plus C4–C5 reference pitches.
+5. Rotate and try enlarged text; keep keys and Back reachable. Leave/reopen/background while holding notes and confirm silence with no automatic restart.
+6. Check Tuner and Metronome, Timer and Audio Settings.
+7. Embedded audio coexistence is checked by the K1 harness; owner acoustic headphone/speaker/vendor interruption acceptance remains separate. T1 will expose it in the product.
+
+Do not infer these individual checks from the owner's general report that the latest functionality works. Actual K1 automated results and signed package: CURRENT_STATE.md.

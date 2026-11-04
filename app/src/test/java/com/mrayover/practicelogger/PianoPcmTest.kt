@@ -35,6 +35,8 @@ class PianoPcmTest {
         synth.stopAll(); synth.render(ShortArray(3000)); assertEquals(0, synth.voiceCount())
         assertTrue(synth.noteOn(1,60)); assertTrue(synth.noteOn(2,60)); synth.noteOff(1)
         synth.render(ShortArray(3000)); assertEquals(1,synth.voiceCount())
+        synth.noteOff(2); assertTrue("glissando reuses a finger before its old release ends",synth.noteOn(2,62))
+        synth.render(ShortArray(3000)); assertEquals(1,synth.voiceCount())
     }
     @Test fun blackWhiteGeometryAndOutsideCancellation() {
         val keys = PianoGeometry(60,72)

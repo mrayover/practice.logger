@@ -70,8 +70,9 @@ import kotlinx.coroutines.launch
                         true
                     }.onSizeChanged { eventWidth = it.width.toFloat(); eventHeight = it.height.toFloat() }) {
                     val unit = maxWidth / geometry.whites.size
+                    val pressedColor = MaterialTheme.colorScheme.primary
                     fun keyModifier(note: Int, black: Boolean): Modifier = Modifier
-                        .background(if (held.values.contains(note)) MaterialTheme.colorScheme.primary else if (black) Color(0xFF242424) else Color(0xFFFFFDF6))
+                        .background(if (held.values.contains(note)) pressedColor else if (black) Color(0xFF242424) else Color(0xFFFFFDF6))
                         .border(1.dp, Color(0xFF555555)).testTag("piano-key-$note")
                         .semantics {
                             contentDescription = pianoNoteName(note); role = Role.Button
