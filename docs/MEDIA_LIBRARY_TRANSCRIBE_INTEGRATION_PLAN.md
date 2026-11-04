@@ -203,6 +203,8 @@ The keyboard is a pitch reference, not another recording subsystem.
 
 ### T1 — Block Transcribe mode
 
+The Focused Practice transport now consumes the canonical AUDIO link and reuses the Library player, waveform and master markers with an expandable K1 keyboard. See the [implemented architecture](MEDIA_AUDIO_WORKSPACE.md#t1-in-focused-practice) and [current delivery status](../CURRENT_STATE.md).
+
 Modify the existing Loop transport presentation to support two selectable modes:
 
 **Record Loop**

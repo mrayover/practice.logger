@@ -1,6 +1,14 @@
-# Current state — K1 Reference Piano delivered
+# Current state — T1 Transcribe verification
 
-Updated November 3, 2026 (America/Los_Angeles). K1 implementation, targeted engineering verification and permanent-key signed delivery are complete. **The owner confirms the K1 Reference Piano works on their phone.** This accepts the reported keyboard functionality. Individual acoustic measurements and checklist results were not supplied. The owner reports the latest pre-K1 functionality works; no individual L1/L2/L3 phone-check results are invented. Stop after K1; T1 is separately assigned next.
+T1 source adds Record Loop and Transcribe modes to the existing Focused Practice transport. Build 82 is in scoped verification. The signed install target remains build 81 below. Room 14 and JSON 7 remain in use.
+
+**Exact next task:** finish scoped T1 Android verification and permanent-key build 82 delivery. T2 is the next separately assigned milestone after T1.
+
+---
+
+## Retained K1 release — Reference Piano
+
+Updated November 3, 2026 (America/Los_Angeles). K1 implementation, targeted engineering verification and permanent-key signed delivery are complete. **The owner confirms the K1 Reference Piano works on their phone.** This accepts the reported keyboard functionality. Individual acoustic measurements and checklist results were not supplied. The owner reports the latest pre-K1 functionality works; no individual L1/L2/L3 phone-check results are invented.
 
 ## Current signed delivery
 
@@ -25,9 +33,9 @@ Initial build41745587125 failed a new local theme lookup and was corrected. Nati
 
 ## Limits and exact next action
 
-Simple synthesized piano-like timbre; no acoustic samples. Sixteen voices include45ms tails; extra presses are ignored until capacity frees. Embedded notes currently require a playing reference controller; paused-reference solo audition needs explicit owner focus support during T1. Native active outputs/source progression do not certify phone speaker/headphone audibility, tuning/timbre, latency, route/vendor interruptions or TalkBack usability. Those remain physical checks. Existing media-inclusive backup limits remain; keep originals separately until S2.
+Simple synthesized piano-like timbre; no acoustic samples. Sixteen voices include45ms tails; extra presses are ignored until capacity frees. In build 81, embedded notes required a playing reference controller. Native active outputs/source progression do not certify phone speaker/headphone audibility, tuning/timbre, latency, route/vendor interruptions or TalkBack usability. Those remain physical checks. Existing media-inclusive backup limits remain; keep originals separately until S2.
 
-**Exact next task: verify the separately assigned T1 Record Loop / Transcribe integration for signed delivery.** P5 acceptance remains closed; Stage4 remains0/10 documented real sessions.
+P5 acceptance remains closed; Stage4 remains0/10 documented real sessions.
 
 ---
 

@@ -19,7 +19,7 @@ adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 tests='PianoNativeTest PianoWorkflowTest'
 case "${2:-native}" in
   ui) tests=TranscribeWorkflowTest ;;
-  library) tests=LibraryPlatformGateTest ;;
+  library) tests="LibraryPlatformGateTest LibraryWorkspaceTest#realFormatsControllerLoopSpeedSeekEndAndForeground LibraryWorkspaceTest#waveformFaithfulnessLongDurationCacheRecoveryAndOriginalIntegrity" ;;
 esac
 for test in $tests; do
   adb shell am force-stop com.mrayover.practicelogger.app

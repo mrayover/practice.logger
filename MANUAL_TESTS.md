@@ -1,5 +1,18 @@
 # Current phone and P5 regression checklist
 
+## T1 — Block Transcribe owner-phone checklist
+
+1. Install the signed build 82 APK over build 81 without clearing data.
+2. Open a practice Block and switch between Record Loop and Transcribe.
+3. Choose or change its Library audio and play it.
+4. Slow to 75%, isolate a phrase and repeat A–B.
+5. Jump between existing master markers and load a named section.
+6. Expand Piano and play while the reference runs, then while paused. Resume the reference and collapse Piano.
+7. Close Transcribe and confirm Record Loop, Notes, the timer and ordinary practice controls still work.
+
+Owner acceptance for T1 is pending. The owner reports that the K1 Reference Piano works on their phone. This confirms the reported keyboard functionality.
+
+
 Reviewed 2026-11-01 (America/Los_Angeles) for signed P5 build67. The full automated gate passes; the owner accepted build67 on November 1, 2026 as complete and running correctly. Itemized physical observations were not supplied. Use [CURRENT_STATE.md](CURRENT_STATE.md) for the signed package, exact source and verification limits; record the installed build, phone, Android version, text scale and observations. This checklist remains the acceptance reference; it does not assert independently observed results for every item. See [pre-regression review](docs/PRE_REGRESSION_REVIEW.md) for runner corrections and legacy test risks. P5 and final F1/F2 retain full automated and physical-device gates; do not dispatch them automatically from this document.
 
 ## Install, preserve and identify

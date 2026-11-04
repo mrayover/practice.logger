@@ -1,6 +1,6 @@
 # L3 — shared Library references in Blocks
 
-L3 adds independent **one visual (IMAGE/PDF)** and **one audio (AUDIO)** associations in the saved Block editor. Exact signed delivery, test outcomes and phone acceptance are recorded in [CURRENT_STATE](../CURRENT_STATE.md). L1/L2 owner-phone acceptance remains separately pending. K1 Reference Piano is the next milestone; T1 follows K1.
+L3 adds independent **one visual (IMAGE/PDF)** and **one audio (AUDIO)** associations in the saved Block editor. Exact signed delivery, test outcomes and phone acceptance are recorded in [CURRENT_STATE](../CURRENT_STATE.md). L1/L2 owner-phone acceptance remains separately pending. T1 uses these same links in Focused Practice.
 
 ## Durable associations
 
@@ -12,7 +12,7 @@ Block deletion dependency counts include canonical links alongside legacy images
 
 ## Editor, imports and legacy transition
 
-The existing saved editor offers Choose from Library / Import New into Library for each role. Selection reuses Library search, metadata, stable sorting and compatible filters, shows the current selection and changes nothing on cancel. Canonical replacement/unlinking operate independently by role. Audio displays title/metadata; playback inside Blocks remains T1 scope.
+The existing saved editor offers Choose from Library / Import New into Library for each role. Selection reuses Library search, metadata, stable sorting and compatible filters, shows the current selection and changes nothing on cancel. Canonical replacement/unlinking operate independently by role. The editor displays title and metadata. T1 playback uses the same AUDIO link through the shared Library repository.
 
 Files, gallery photos and staged camera photos import through the existing canonical importer and original validation. Camera/gallery contracts, private provider and staging are reused. A successful import commits its canonical original before attachment; failed attachment retains that asset and the prior reference and reports the incomplete attachment. Choose from Library can retry. No persistent Block-specific copy is created.
 
@@ -22,7 +22,7 @@ Selecting a canonical replacement for a legacy visual requires a dedicated confi
 
 Historical IMPORTED_LOOP takes retain their IDs, labels, Block links, playback, format-correct export and exclusive ownership in files/recordings. TakeRepository.delete/recover/audioFile still reason only about take-owned files; no canonical asset points into this directory. Recorded WAV loops and free M4A takes remain unchanged. Automatic imported-take adoption is deferred because safe coexistence preserves every owner without copying bytes or weakening cleanup.
 
-The old Loop Setup Add Backing Track importer remains available for saved imported takes. New canonical audio selection is established in the Block editor. Their convergence into Record Loop / Transcribe belongs to T1 after K1, as expressly allowed by the L3 implementation handoff. L3 adds no local markers, A–B, speed persistence, waveform, keyboard or simultaneous playback/capture mode.
+The old Loop Setup Add Backing Track importer remains available for saved imported takes. New canonical audio selection is established in the Block editor. The T1 Transcribe chooser uses canonical Library audio. Saved backing tracks continue to appear in the existing loop selection and retain their ownership and exports.
 
 ## Shared visual workspace and recovery boundary
 
