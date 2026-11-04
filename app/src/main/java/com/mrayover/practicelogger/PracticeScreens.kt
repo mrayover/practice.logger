@@ -153,6 +153,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     DisposableEffect(current.id, transcribeVm) {
         onDispose { transcribeVm.close() }
     }
+    val modeState = key(current.id) { androidx.compose.runtime.saveable.rememberSaveableStateHolder() }
     val transportScroll = rememberScrollState()
     LaunchedEffect(transportPanel) { transportScroll.scrollTo(0) }
     val allTakes by recordings.takes.collectAsStateWithLifecycle()
@@ -229,20 +230,27 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
                 { notes.save(current.sourceBlockId, bundle.session.id, current.id) },
                 { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
-            if (transcribing) TranscribePanel(current.sourceBlockId, images, transcribeVm,
-                onRecordLoop = { transportPanel = "loop" }, onClose = { transportPanel = null },
-                modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp))
-            if (loopPanelOpen) BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp)) {
-                val loopHeight = maxHeight
-                PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-loop-setup-content") {
-                    if (!audioBusy) PracticeTransportModes(transcribing = false, onRecordLoop = {}, onTranscribe = {
-                        recordings.stopPlayback()
-                        vm.stopClick()
-                        transportPanel = "transcribe"
-                    })
-                    PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
-                        { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null },
-                        inline = true, minimumHeight = loopHeight)
+            if (transcribing) modeState.SaveableStateProvider("transcribe") {
+                TranscribePanel(current.sourceBlockId, images, transcribeVm,
+                    onRecordLoop = { transportPanel = "loop" }, onClose = { transportPanel = null },
+                    modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp))
+            }
+            if (loopPanelOpen) modeState.SaveableStateProvider("loop") {
+                BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp)) {
+                    var selectorHeight by remember { mutableStateOf(0.dp) }
+                    val loopHeight = (maxHeight - if (audioBusy) 0.dp else selectorHeight).coerceAtLeast(0.dp)
+                    PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-loop-setup-content") {
+                        if (!audioBusy) PracticeTransportModes(transcribing = false, onRecordLoop = {}, onTranscribe = {
+                            if (!recordings.recording && !recordings.busy && recordings.reviewTake == null) {
+                                recordings.stopPlayback()
+                                vm.stopClick()
+                                transportPanel = "transcribe"
+                            }
+                        }, modifier = Modifier.onSizeChanged { selectorHeight = with(density) { it.height.toDp() } })
+                        PhraseSetupDialog(current.sourceBlockId, recordings, vm.workingBpm, vm::stopClick,
+                            { loopPermission.launch(android.Manifest.permission.RECORD_AUDIO) }, { transportPanel = null },
+                            inline = true, minimumHeight = loopHeight)
+                    }
                 }
             }
             if (recordings.reviewTake == null && (transportPanel == "free-list" || transportPanel == "loop-list")) Box(Modifier.fillMaxWidth()

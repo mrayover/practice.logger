@@ -93,9 +93,9 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         val previous = mutable.value.takeIf { it.mediaId == id }
         releasePlayer()
         mutable.value = previous?.copy(playing = false, preparing = true, error = null) ?: LibraryAudioState(mediaId = id, preparing = true)
-        prepare(id, false)
+        if (foreground) prepare(id) else mutable.value = mutable.value.copy(preparing = false)
     }
-    private fun prepare(id: String, start: Boolean) {
+    private fun prepare(id: String) {
         val token = generation
         opening = scope.launch {
             try {
@@ -109,8 +109,8 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
                 audio.setOnPreparedListener {
                     if (player === it && generation == token && foreground) guarded {
                         mutable.value = mutable.value.copy(preparing = false)
-                        resumeAfterSeek = start
-                        if (mutable.value.positionMs > 0) seek(mutable.value.positionMs) else if (start) playPrepared()
+                        if (mutable.value.positionMs > 0) seek(mutable.value.positionMs)
+                        else if (resumeAfterSeek) { resumeAfterSeek = false; playPrepared() }
                     }
                 }
                 audio.setOnSeekCompleteListener {
@@ -142,7 +142,8 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         mutable.value = mutable.value.copy(error = null)
         if (player == null) {
             mutable.value = mutable.value.copy(preparing = true)
-            prepare(mutable.value.mediaId!!, true)
+            resumeAfterSeek = true
+            prepare(mutable.value.mediaId!!)
         } else if (mutable.value.positionMs >= mutable.value.durationMs ||
             (mutable.value.repeatRange && mutable.value.positionMs !in mutable.value.aMs until mutable.value.bMs)) {
             resumeAfterSeek = true; seek(if (mutable.value.repeatRange) mutable.value.aMs else 0)
@@ -202,6 +203,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     fun repeatFile(enabled: Boolean) { selectedOnce = false; mutable.value = mutable.value.copy(repeatFile = enabled, repeatRange = if (enabled) false else mutable.value.repeatRange) }
     fun setForeground(value: Boolean) { foreground = value; if (!value) suspendPlayback(null) }
     private fun suspendPlayback(error: String?) {
+        selectedOnce = false
         // Keep source position/range/speed, but release decoder and never auto-resume.
         if (mutable.value.playing && !seekPending) runCatching { mutable.value = mutable.value.copy(positionMs = player?.currentPosition?.toLong() ?: mutable.value.positionMs) }
         releasePlayer(); mutable.value = mutable.value.copy(preparing = false, playing = false, error = error)

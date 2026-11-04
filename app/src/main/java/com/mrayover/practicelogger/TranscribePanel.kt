@@ -21,8 +21,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PracticeTransportModes(transcribing: Boolean, onRecordLoop: () -> Unit, onTranscribe: () -> Unit,
-    onClose: (() -> Unit)? = null) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    onClose: (() -> Unit)? = null, modifier: Modifier = Modifier) {
+    FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         OutlinedSelectionChip(!transcribing, onRecordLoop, modifier = Modifier.testTag("practice-mode-record"),
             label = { Text("Record Loop") })
         OutlinedSelectionChip(transcribing, onTranscribe, modifier = Modifier.testTag("practice-mode-transcribe"),
@@ -50,7 +50,12 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     }
     DisposableEffect(lifecycle, player) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) player.setForeground(true)
+            if (event == Lifecycle.Event.ON_RESUME) {
+                player.setForeground(true)
+                player.state.value.mediaId?.let { id ->
+                    if (player.state.value.error == null) player.open(id)
+                }
+            }
             if (event == Lifecycle.Event.ON_PAUSE) player.setForeground(false)
         }
         lifecycle.addObserver(observer)
@@ -169,7 +174,16 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         }
     }
     BoxWithConstraints(modifier.testTag("transcribe-panel")) {
-        if (maxHeight >= 370.dp && maxWidth >= 350.dp && LocalDensity.current.fontScale < 1.4f) {
+        if (maxWidth >= 560.dp && maxHeight < 370.dp) {
+            Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-controls") {
+                    modes(); title(); controls()
+                }
+                PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-details") {
+                    waveform(); details()
+                }
+            }
+        } else if (maxHeight >= 370.dp && maxWidth >= 350.dp && LocalDensity.current.fontScale < 1.4f) {
             Column(Modifier.fillMaxSize()) {
                 modes(); title(); controls(); waveform()
                 PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "transcribe-details") { details() }
