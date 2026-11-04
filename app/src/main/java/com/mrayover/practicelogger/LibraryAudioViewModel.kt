@@ -39,12 +39,12 @@ class LibraryAudioViewModel(app: Application) : AndroidViewModel(app) {
                 val saved = writes.withLock { blockAudio.state(blockId, mediaId) }
                 lastSaved = saved
                 selectedMarkerId = saved?.selectedMarkerId
-                val range = saved != null && validAudioRange(saved.aMs, saved.bMs, duration)
+                val range = saved?.takeIf { validAudioRange(it.aMs, it.bMs, duration) }
                 open(mediaId, LibraryAudioState(mediaId = mediaId, durationMs = duration,
                     positionMs = saved?.positionMs?.coerceIn(0, duration) ?: 0,
                     speedPercent = saved?.speedPercent ?: 100,
-                    aMs = if (range) saved!!.aMs else 0, bMs = if (range) saved!!.bMs else duration,
-                    repeatRange = range && saved!!.repeat))
+                    aMs = range?.aMs ?: 0, bMs = range?.bMs ?: duration,
+                    repeatRange = range?.repeat ?: false))
                 launch {
                     var previous = controller.state.value
                     controller.state.collect { current ->
@@ -66,7 +66,7 @@ class LibraryAudioViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun selectBlockMarker(id: String) {
+    fun selectBlockMarker(id: String?) {
         selectedMarkerId = id
         checkpoint()
     }

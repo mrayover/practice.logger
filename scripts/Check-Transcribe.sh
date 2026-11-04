@@ -19,6 +19,7 @@ adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 tests='PianoNativeTest PianoWorkflowTest'
 case "${2:-native}" in
   ui) tests=TranscribeWorkflowTest ;;
+  reopen) tests="BlockAudioReopenTest#checkpointBeforeForceStop BlockAudioReopenTest#restoreAfterForceStop" ;;
   transport) tests="TransportPreviewTest ImportedAudioWorkflowTest#importSelectRepeatInterruptAndKeepExistingTakes" ;;
   library) tests="LibraryPlatformGateTest LibraryWorkspaceTest#realFormatsControllerLoopSpeedSeekEndAndForeground LibraryWorkspaceTest#waveformFaithfulnessLongDurationCacheRecoveryAndOriginalIntegrity" ;;
 esac

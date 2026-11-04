@@ -33,3 +33,6 @@ JSON writer7/readers1–7 are data-only and exclude canonical originals/metadata
 ## Verification
 
 BlockMediaTest targets13→14 preservation, repository/raw-write role constraints, atomic replacement, failure rollback, archived links/reopen, shared ownership, marker rollback, deletion protection and JSON exclusions. Existing migration/image/import/recording/backup tests remain part of the scoped unit gate. Native checks use exact build76 install-over, seeded legacy metadata/hashes and playback/export, shared PDF/audio files and markers, editor selection/import/cancel/replace/remove, error/retry, orientation/enlarged text, canonical visual references during practice and recording, and cold reopen. Coverage descriptions do not assert a result: actual runs, failures and verification limits belong in CURRENT_STATE/WORK_LOG.
+
+
+T2 extends the AUDIO association in Room 15. Saved playback settings, overrides, hides and local markers belong to the exact active Block/media link. Replacement or unlink requires confirmation when local work exists, and removes local rows transactionally. The original and its master annotations stay in the Library. See [Block-local audio](MEDIA_AUDIO_WORKSPACE.md#block-local-audio-in-t2).

@@ -60,6 +60,9 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             require(role.accepts(asset.category)) { "Choose a compatible Library item." }
             check(library.available(asset)) { "The original is missing or changed. Import your original again." }
             val previous = db.blockMedia().find(blockId, role.name)
+            if (role == MediaRole.AUDIO) check(confirmedAudioId == null || confirmedAudioId == previous?.mediaId) {
+                "The audio reference changed. Review the current reference and try again."
+            }
             if (role == MediaRole.AUDIO && previous != null && previous.mediaId != mediaId) {
                 removeAudio(blockId, previous.mediaId, confirmedAudioId)
             }
@@ -69,6 +72,9 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
     suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null) = withContext(Dispatchers.IO) {
         db.withTransaction {
             val previous = db.blockMedia().find(blockId, role.name)
+            if (role == MediaRole.AUDIO) check(confirmedAudioId == null || confirmedAudioId == previous?.mediaId) {
+                "The audio reference changed. Review the current reference and try again."
+            }
             if (role == MediaRole.AUDIO && previous != null) removeAudio(blockId, previous.mediaId, confirmedAudioId)
             else db.blockMedia().remove(blockId, role.name)
         }

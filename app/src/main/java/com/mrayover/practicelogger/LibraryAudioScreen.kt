@@ -191,7 +191,14 @@ internal fun AudioMarkerDialog(marker: MasterAudioMarker?, state: LibraryAudioSt
     var end by rememberSaveable { mutableStateOf(audioSeconds(marker?.endMs ?: state.bMs)) }
     val a = parseAudioSeconds(start); val b = if (isSection) parseAudioSeconds(end) else null
     val valid = a != null && a <= state.durationMs && (!isSection || b != null && validAudioRange(a, b, state.durationMs)) && runCatching { MediaLibraryRepository.title(label) }.isSuccess && note.length <= 8000
-    AlertDialog(onDismissRequest = { if (!saving) close() }, title = { Text(if (marker == null) "New ${if (isSection) "section" else "marker"} for $owner" else "Edit marker for $owner") }, text = {
+    val kind = if (isSection) "section" else "marker"
+    val title = when {
+        owner == "Master" && marker == null -> "New master $kind"
+        owner == "Master" -> "Edit master marker"
+        marker?.id.isNullOrEmpty() -> "New $kind for This Block"
+        else -> "Edit marker for This Block"
+    }
+    AlertDialog(onDismissRequest = { if (!saving) close() }, title = { Text(title) }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(label, { label = it }, label = { Text("Label") }, modifier = Modifier.testTag("marker-label"))
             OutlinedTextField(note, { note = it }, label = { Text("Note (optional)") }, modifier = Modifier.testTag("marker-note"))

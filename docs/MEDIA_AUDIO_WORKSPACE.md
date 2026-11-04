@@ -36,4 +36,17 @@ The Record Loop selector opens Transcribe in the bounded practice transport. It 
 
 The expanded keyboard uses the reference controller's focus while playing or paused. Pause leaves held notes sounding. Closing the keyboard releases its own output and leaves the reference transport available. Source changes, panel exit, backgrounding and output interruption release audio. Playback resumes only on explicit Play. Practice timing remains with the session. Record Loop and Free Record use their existing capture path. Saved legacy backing takes stay in the take system.
 
-Playback state is transient during T1. T2 owns durable per-Block position, speed, range and local marker behavior. T3 owns reference playback with Free Record capture. See [Reference Piano](REFERENCE_PIANO.md) and [verification](../CURRENT_STATE.md).
+T1 introduced the shared workspace. T3 owns reference playback with Free Record capture. See [Reference Piano](REFERENCE_PIANO.md) and [verification](../CURRENT_STATE.md).
+
+
+## Block-local audio in T2
+
+Room 15 adds state and marker tables scoped to the active Block/audio link. The three-column foreign key identifies the exact association and cascades on unlink. Replacing an audio link removes its old local rows in the same transaction. The editor asks before removing local work or non-default saved playback state. The Library still owns the canonical original and its master markers.
+
+Transcribe restores source-time cursor, speed, A-B range, repeat and surviving marker selection with playback paused. It checkpoints playback and rapid seeks at bounded intervals and saves control changes and the final foreground state. Writes validate the active association. Library playback keeps its own state.
+
+One repository calculation feeds both waveform and list. A Block can create points and sections, hide inherited items, or store a whole-marker override. Reset removes the local record and resumes inheritance. Deleting a master removes hide records and leaves customized markers as local-only, retaining their IDs.
+
+Add to Master inserts a master and removes the local record in one transaction. Update Master retains the original ID and compares the current master with the override's original content snapshot. If it changed, Transcribe shows the current and proposed versions. A second confirmation compares against the reviewed version again. Other Blocks keep their overrides.
+
+JSON 7 excludes Block audio settings and local annotations along with existing media exclusions. S2 owns their portable backup and restore.

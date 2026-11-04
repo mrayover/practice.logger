@@ -75,6 +75,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         onDispose {
             lifecycle.removeObserver(observer)
             player.setForeground(false)
+            vm.close()
         }
     }
     LaunchedEffect(blockId, asset?.id) {

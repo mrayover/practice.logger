@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [build, piano-build, native, ui, library, transport]
+        options: [build, piano-build, native, ui, reopen, library, transport]
         default: build
       api:
         type: choice
@@ -15,7 +15,7 @@ on:
         options: ['1.0', '2.0']
         default: '1.0'
       compiled_run:
-        description: 'Reuse successful T1 compilation after checking source equivalence'
+        description: 'Reuse successful Transcribe compilation after checking source equivalence'
         type: string
         default: ''
 permissions:

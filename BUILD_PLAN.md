@@ -2,9 +2,13 @@
 
 Updated 2026-11-03 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## T2 - Block-local audio and marker publication
+
+T2 extends Transcribe with Room 15 playback checkpoints and Block-local annotations tied to the active canonical AUDIO link. Blocks inherit Library markers, can customize or hide them, and can publish individual changes with explicit confirmation. See [audio workspace architecture](docs/MEDIA_AUDIO_WORKSPACE.md#block-local-audio-in-t2) and [CURRENT_STATE](CURRENT_STATE.md) for actual verification and delivery.
+
 ## T1 — Record Loop / Transcribe
 
-Implemented in the existing Focused Practice transport. T1 uses the Block's canonical audio association, shared Library playback and waveform, read-only master annotations, and the K1 keyboard. The Library player owns shared audio focus during paused audition and play-along. Room 14 and JSON 7 remain in use. See [CURRENT_STATE](CURRENT_STATE.md) for delivery and verification, and [audio workspace architecture](docs/MEDIA_AUDIO_WORKSPACE.md) for ownership. T2 owns durable local state, marker overrides and master promotion.
+Implemented in the existing Focused Practice transport. T1 uses the Block's canonical audio association, shared Library playback and waveform, read-only master annotations, and the K1 keyboard. The Library player owns shared audio focus during paused audition and play-along. Room 14 and JSON 7 remain in use. See [CURRENT_STATE](CURRENT_STATE.md) for delivery and verification, and [audio workspace architecture](docs/MEDIA_AUDIO_WORKSPACE.md) for ownership. T2 extends this baseline above.
 
 ## K1 — Reference Piano Tool
 
@@ -16,7 +20,7 @@ Delivered permanent-key0.20.0/build80: independent canonical visual/audio links,
 
 ## L2 — Media preview and master audio annotation workspace
 
-Explicitly assigned November3,2026. Implements dedicated Library image/PDF previews through shared bounded renderers/gestures; one reusable canonical-audio controller/waveform with source-time seeking, pitch-preserving 50–100% speed, A–B ranges/repeat and master point/section CRUD. Room13 adds restrictive master-marker ownership via12→13. Streamed signal-derived waveform cache is expendable; JSON7 still excludes media/annotations. Delivered as permanent-key0.19.0/build76 with focused automated verification; phone acceptance remains pending. Actual results and signed-delivery status are in [CURRENT_STATE](CURRENT_STATE.md). [Technical details](docs/MEDIA_AUDIO_WORKSPACE.md). L3 now adds Block links above. K1 is delivered above; T2–T3 and complete ZIP backup remain forward scope.
+Explicitly assigned November3,2026. Implements dedicated Library image/PDF previews through shared bounded renderers/gestures; one reusable canonical-audio controller/waveform with source-time seeking, pitch-preserving 50–100% speed, A–B ranges/repeat and master point/section CRUD. Room13 adds restrictive master-marker ownership via12→13. Streamed signal-derived waveform cache is expendable; JSON7 still excludes media/annotations. Delivered as permanent-key0.19.0/build76 with focused automated verification; phone acceptance remains pending. Actual results and signed-delivery status are in [CURRENT_STATE](CURRENT_STATE.md). [Technical details](docs/MEDIA_AUDIO_WORKSPACE.md). L3 now adds Block links above. K1 is delivered above; T3 and complete ZIP backup remain forward scope.
 
 ## L1 — Canonical Media Library/storage
 
@@ -24,7 +28,7 @@ Owner explicitly assigned L1 and confirmed build69 camera/gallery works on their
 
 ## Approved roadmap amendment — planned only, November 3, 2026
 
-Sequence: accepted **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2**. L1 canonical visual/audio storage and legacy ownership; L2 previews/shared waveform/master markers; L3 independent visual/audio Block links; K1 Reference Piano; T1 Record Loop/Transcribe modes; T2 local overrides/promotion/persistence; T3 concurrent reference playback/Free Record and practice integration. S2 includes shared assets once, global/local annotations and relationships; final acceptance covers audio/keyboard/restore and physical devices. This amendment was planning-only at that checkpoint; L1 has since been delivered, with L2 and L3 now delivered and K1 now delivered and T1 onward remaining planned. See the [detailed integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) under the authoritative master roadmap. The original amendment implemented no features; the later explicit L1 assignment is recorded above.
+Sequence: accepted **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2**. L1 canonical visual/audio storage and legacy ownership; L2 previews/shared waveform/master markers; L3 independent visual/audio Block links; K1 Reference Piano; T1 Record Loop/Transcribe modes; T2 local overrides/promotion/persistence; T3 concurrent reference playback/Free Record and practice integration. S2 includes shared assets once, global/local annotations and relationships; final acceptance covers audio/keyboard/restore and physical devices. This amendment was planning-only at that checkpoint; L1 has since been delivered, with L2 and L3 now delivered and K1 now delivered and T1–T2 implemented. See the [detailed integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) under the authoritative master roadmap. The original amendment implemented no features; the later explicit L1 assignment is recorded above.
 
 ## Owner-assigned reference photo refinement
 

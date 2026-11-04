@@ -45,6 +45,7 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
         val audio = vm.controller.state.value
         editing = null
         error = null
+        vm.controller.pause()
         editor = MasterAudioMarker("", media, if (section) "SECTION" else "POINT",
             if (section) audio.aMs else audio.positionMs, audio.bMs.takeIf { section }, "", "")
     }
@@ -72,16 +73,23 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
                 if (!hidden && selected && marker.note.isNotBlank()) Text(marker.note, style = MaterialTheme.typography.bodySmall)
             }
             Box {
-                TextButton(onClick = { menu = marker.id }, enabled = !saving) { Text("Actions") }
+                TextButton(onClick = { menu = marker.id }, enabled = !saving,
+                    modifier = Modifier.testTag("block-marker-actions-${marker.id}")) { Text("Actions") }
                 DropdownMenu(menu == marker.id, onDismissRequest = { menu = null }) {
                     if (!hidden) {
+                        marker.endMs?.let { end ->
+                            DropdownMenuItem(text = { Text("Load section into A–B") }, enabled = ready, onClick = {
+                                menu = null
+                                if (vm.controller.range(marker.startMs, end)) vm.selectBlockMarker(marker.id)
+                            })
+                        }
                         val editLabel = when (item.ownership) {
                             BlockMarkerOwnership.MASTER -> "Edit for This Block"
                             BlockMarkerOwnership.CUSTOMIZED -> "Edit Local Version"
                             else -> "Edit"
                         }
                         DropdownMenuItem(text = { Text(editLabel) }, onClick = {
-                            menu = null; error = null; editing = item; editor = marker
+                            menu = null; error = null; vm.controller.pause(); editing = item; editor = marker
                         })
                     }
                     if (item.ownership == BlockMarkerOwnership.MASTER || item.ownership == BlockMarkerOwnership.CUSTOMIZED) {
@@ -97,7 +105,7 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
                         BlockMarkerOwnership.HIDDEN -> listOf(MarkerAction.RESET)
                     }
                     for (action in actions) DropdownMenuItem(text = { Text(action.title) }, onClick = {
-                        menu = null; error = null; reviewed = null; confirmation = action to item
+                        menu = null; error = null; vm.controller.pause(); reviewed = null; confirmation = action to item
                     })
                 }
             }
@@ -126,7 +134,7 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(explanation)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                reviewed?.let { Text("Current Master\n${markerSummary(it)}\n${it.note}") }
+                reviewed?.let { Text("Current Master\n${markerSummary(it)}\n${it.note}\n\nProposed Block version") }
                 Text(markerSummary(item.marker))
                 if (item.marker.note.isNotBlank()) Text(item.marker.note)
             }
@@ -134,7 +142,11 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
             TextButton(enabled = !saving, onClick = {
                 runChange {
                     when (action) {
-                        MarkerAction.RESET, MarkerAction.DELETE -> vm.blockAudio.discard(local, reset = action == MarkerAction.RESET)
+                        MarkerAction.RESET -> vm.blockAudio.discard(local, reset = true)
+                        MarkerAction.DELETE -> {
+                            vm.blockAudio.discard(local, reset = false)
+                            if (vm.selectedMarkerId == local.id) vm.selectBlockMarker(null)
+                        }
                         MarkerAction.ADD, MarkerAction.UPDATE -> vm.selectBlockMarker(vm.blockAudio.publish(local, reviewed))
                     }
                     close()

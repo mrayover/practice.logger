@@ -150,3 +150,12 @@ JSON7 does not include Library originals, associations or master annotations. Ke
 7. Embedded audio coexistence is checked by the K1 harness; owner acoustic headphone/speaker/vendor interruption acceptance remains separate. T1 exposes it in Focused Practice.
 
 The owner confirms the K1 keyboard works on their phone. Individual acoustic measurements and itemized checklist results were not supplied. Actual K1 automated results and signed package: CURRENT_STATE.md.
+
+
+## T2 - Owner phone checklist
+
+1. Install the T2 signed update over build84 without uninstalling or clearing data.
+2. Link two Blocks to the same recording. Set different speeds and A-B ranges, then reopen both. Check that each resumes at its own position with playback paused.
+3. Add a local marker and customize a Master marker in one Block. Confirm the other Block and Library retain their original markers.
+4. Publish with Add to Master or Update Master. Check the Library and the other Block. Hide and reset a marker to check inheritance.
+5. Open Piano, switch to Record Loop and complete a normal practice Block.
