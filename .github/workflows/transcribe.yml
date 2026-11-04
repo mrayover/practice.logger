@@ -76,7 +76,7 @@ jobs:
               mv "$local_dir/$stem.$extension.tmp" "$local_dir/$stem.$extension"
             fi
           done
-          bash ./gradlew testDebugUnitTest --tests '*TranscribeActivityTest' --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*MediaMigrationTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
+          bash ./gradlew testDebugUnitTest --tests '*TranscribeActivityTest' --tests '*GoalRepositoryTest' --tests '*BackupRepositoryTest' --tests '*ToolLogicTest' --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*MediaMigrationTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
       - name: Reuse verified compilation
         if: ${{ inputs.compiled_run != '' }}
         env:

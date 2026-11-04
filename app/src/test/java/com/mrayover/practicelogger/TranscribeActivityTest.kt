@@ -17,51 +17,51 @@ import java.time.ZoneId
 @Config(sdk = [35])
 class TranscribeActivityTest {
     @Test fun completedTimeCombinesWithBlockTimeAndSurvivesMediaDeletion(): Unit = runBlocking {
-        Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), BlockDatabase::class.java)
-            .build().use { db ->
-                val dao = db.transcribeActivities()
-                val goal = Goal("g", "Goal", "", 25, "", true, 0, 0, 0)
-                db.goals().insert(goal)
-                val media = MediaAsset("audio", "Audio", "original.wav", "audio/wav", "AUDIO", "audio.wav", 1, 1)
-                db.media().insert(media)
-                db.sessions().insert(PracticeSession("s", 1, status = "IN_PROGRESS"))
-                db.goals().insert(GoalSession("s", goal.id))
-                repeat(2) {
-                    db.sessions().insert(Placement("p$it", "s", "b", "Block", "Play", null, "",
-                        it, 60_000, activeMs = 1000))
-                }
-                dao.insert(TranscribeActivity("a", 1, activeMs = 3000, goalId = goal.id, audioId = media.id))
-                assertEquals(2000L, dao.observePracticeTime().first().sumOf { it.activeMs })
-                assertEquals(1, dao.save("a", 4000, goal.id, media.id, 2))
-                assertEquals(0, dao.save("a", 8000, goal.id, media.id, 3))
-                dao.insert(TranscribeActivity("b", 1, completedAt = 2, activeMs = 5000, goalId = goal.id))
-                dao.insert(TranscribeActivity("c", 1, completedAt = 2, activeMs = 6000))
-                assertEquals(11_000L, db.goals().observeTime().first().single().activeMs)
-                assertEquals(17_000L, dao.observePracticeTime().first().single().activeMs)
-                assertEquals(25, db.goals().find(goal.id)!!.goal.progress)
-                db.openHelper.writableDatabase.execSQL("DELETE FROM media_assets WHERE id = 'audio'")
-                assertNull(dao.find("a")!!.audioId)
-                assertEquals(4000L, dao.find("a")!!.activeMs)
-                db.openHelper.writableDatabase.execSQL("DELETE FROM session_goals")
-                try {
-                    db.openHelper.writableDatabase.execSQL("DELETE FROM goals WHERE id = 'g'")
-                    fail("Removed an attributed Goal")
-                } catch (_: SQLiteConstraintException) { }
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), BlockDatabase::class.java).build()
+        try {
+            val dao = db.transcribeActivities()
+            val goal = Goal("g", "Goal", "", 25, "", true, 0, 0, 0)
+            db.goals().insert(goal)
+            val media = MediaAsset("audio", "Audio", "original.wav", "audio/wav", "AUDIO", "audio.wav", 1, 1)
+            db.media().insert(media)
+            db.sessions().insert(PracticeSession("s", 1, status = "IN_PROGRESS"))
+            db.goals().insert(GoalSession("s", goal.id))
+            repeat(2) {
+                db.sessions().insert(Placement("p$it", "s", "b", "Block", "Play", null, "",
+                    it, 60_000, activeMs = 1000))
             }
+            dao.insert(TranscribeActivity("a", 1, activeMs = 3000, goalId = goal.id, audioId = media.id))
+            assertEquals(2000L, dao.observePracticeTime().first().sumOf { it.activeMs })
+            assertEquals(1, dao.save("a", 4000, goal.id, media.id, 2))
+            assertEquals(0, dao.save("a", 8000, goal.id, media.id, 3))
+            dao.insert(TranscribeActivity("b", 1, completedAt = 2, activeMs = 5000, goalId = goal.id))
+            dao.insert(TranscribeActivity("c", 1, completedAt = 2, activeMs = 6000))
+            assertEquals(11_000L, db.goals().observeTime().first().single().activeMs)
+            assertEquals(17_000L, dao.observePracticeTime().first().single().activeMs)
+            assertEquals(25, db.goals().find(goal.id)!!.goal.progress)
+            db.openHelper.writableDatabase.execSQL("DELETE FROM media_assets WHERE id = 'audio'")
+            assertNull(dao.find("a")!!.audioId)
+            assertEquals(4000L, dao.find("a")!!.activeMs)
+            db.openHelper.writableDatabase.execSQL("DELETE FROM session_goals")
+            try {
+                db.openHelper.writableDatabase.execSQL("DELETE FROM goals WHERE id = 'g'")
+                fail("Removed an attributed Goal")
+            } catch (_: SQLiteConstraintException) { }
+        } finally { db.close() }
     }
 
     @Test fun activityOnlyTargetRefusesJsonRestore(): Unit = runBlocking {
-        Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), BlockDatabase::class.java)
-            .build().use { db ->
-                val backup = BackupRepository(db)
-                val draft = TranscribeActivity("a", 1, activeMs = 3000)
-                db.transcribeActivities().insert(draft)
-                try {
-                    backup.restore(backup.snapshot())
-                    fail("Restore should refuse a target containing only an unfinished Transcribe activity")
-                } catch (_: NonEmptyRestoreException) { }
-                assertEquals(draft, db.transcribeActivities().unfinished())
-            }
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), BlockDatabase::class.java).build()
+        try {
+            val backup = BackupRepository(db)
+            val draft = TranscribeActivity("a", 1, activeMs = 3000)
+            db.transcribeActivities().insert(draft)
+            try {
+                backup.restore(backup.snapshot())
+                fail("Restore should refuse a target containing only an unfinished Transcribe activity")
+            } catch (_: NonEmptyRestoreException) { }
+            assertEquals(draft, db.transcribeActivities().unfinished())
+        } finally { db.close() }
     }
 
     @Test fun localWeekUsesStartDateAndHalfOpenMondayBoundaries() {
