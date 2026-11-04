@@ -1,8 +1,8 @@
 # Current state — T1 Transcribe verification
 
-T1 source adds Record Loop and Transcribe modes to the existing Focused Practice transport. Build 82 is in scoped verification. The signed install target remains build 81 below. Room 14 and JSON 7 remain in use.
+T1 source adds Record Loop and Transcribe modes to the existing Focused Practice transport. Build 83 is in scoped verification. The signed owner install target remains build 81 below. Build 82 was signed as an engineering candidate, and compact-layout follow-up moved to build 83. Room 14 and JSON 7 remain in use.
 
-**Exact next task:** finish scoped T1 Android verification and permanent-key build 82 delivery. T2 is the next separately assigned milestone after T1.
+**Exact next task:** finish scoped T1 Android verification and permanent-key build 83 delivery. T2 is the next separately assigned milestone after T1.
 
 ---
 

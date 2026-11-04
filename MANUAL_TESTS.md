@@ -2,7 +2,7 @@
 
 ## T1 — Block Transcribe owner-phone checklist
 
-1. Install the signed build 82 APK over build 81 without clearing data.
+1. Install the signed build 83 APK over build 81 without clearing data.
 2. Open a practice Block and switch between Record Loop and Transcribe.
 3. Choose or change its Library audio and play it.
 4. Slow to 75%, isolate a phrase and repeat A–B.
