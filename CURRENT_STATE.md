@@ -1,20 +1,45 @@
-# Current state — T1 Record Loop / Transcribe delivered
+# Current state — Reference Piano range refinement delivered
+
+Updated November 3, 2026 (America/Los_Angeles).
+
+## Current signed delivery
+
+**0.22.1/build84**, source `7091421748baa2be79535976acc6af1b1bcc46ee`. [APK](dist/practice.logger-0.22.1-b84-7091421/practice.logger-0.22.1-b84-7091421.apk) · [ZIP](dist/practice.logger-0.22.1-b84-7091421.zip) · [Build info](dist/practice.logger-0.22.1-b84-7091421/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.22.1-b84-7091421/PHONE_CHECKLIST.txt). Install over build83 without uninstalling or clearing data.
+
+App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `cac99ddd839ef56ccccc91a4dfe094d18b0461ce8346f80596533ec9b2112137`. ZIP SHA-256 `8020eb2591bccfb2780770593098ffedf8240674dfe72e11a96a74b5251830a6`. Verified APK signature, app ID and version, 67 matching unsigned payload entries, ZIP contents and CRC, and 380 historical package hashes.
+
+The shared Tools and Block Transcribe keyboard shows 17 pitches in typical portrait layouts, 13 below 300 dp and 18 from 600 dp. The register handle shifts by semitone within MIDI 24–96. Both octave buttons retain the current pitch class and require room for a full 12-semitone move. Sharp-starting and sharp-ending windows display complete black keys. Range changes release existing voices and clear their key feedback. Both screens still use the existing audio engine and focus ownership. Room14 and JSON7 remain in use.
+
+## Focused verification
+
+- Debug, release and Android test APK compilation and all five piano geometry and PCM units passed. [Build 41770969141](https://github.com/mrayover/practice.logger/actions/runs/41770969141)
+- The Transcribe workflow passed on API26 at normal text and API35 at 200% text, including a semitone drag, sharp-key input during reference playback and portrait/landscape navigation. The register and keyboard are reachable within the scrollable panel. [API26](https://github.com/mrayover/practice.logger/actions/runs/41771459836) · [API35](https://github.com/mrayover/practice.logger/actions/runs/41771461747)
+- Two native audio tests per API passed, covering piano output with the reference playing and paused, interruption, release and standalone output. The overall runs stopped in the separate Tools test when the test driver tried to start a second touch using an active pointer ID. [API26](https://github.com/mrayover/practice.logger/actions/runs/41771455590) · [API35](https://github.com/mrayover/practice.logger/actions/runs/41771457973)
+- The Tools-only reruns passed both tests per API after invoking the octave button's accessibility action while the original pointer was held. They verified chord input, glissando, range movement, release and continued-touch suppression, exact octave shifts, both range limits, rotation and both black edges at 260 dp. Portrait, landscape and narrow screenshots were reviewed. At 260 dp with 200% text, the range label can wrap while the handle and both octave buttons remain usable. App source and build configuration match the signed APK source. [API26](https://github.com/mrayover/practice.logger/actions/runs/41771762628) · [API35](https://github.com/mrayover/practice.logger/actions/runs/41771759735)
+
+Verification was limited to the scoped piano and Transcribe checks. Physical install-over and listening checks are pending.
+
+**Next task.** Install signed build84 over the existing permanent-key app and complete its [phone checklist](dist/practice.logger-0.22.1-b84-7091421/PHONE_CHECKLIST.txt).
+
+---
+
+## Retained T1 release — Record Loop / Transcribe
 
 Updated November 3, 2026 (America/Los_Angeles). T1 is implemented and its scoped Android checks passed. T1 owner-phone acceptance is pending. The owner confirms the K1 Reference Piano works on their phone. This accepts the reported keyboard functionality. L1–L3 retain their separately documented acceptance status.
 
-## Current signed delivery
+### Build 83 signed delivery
 
 **0.22.0/build83**, app source `b7e422ab92d019c33ae5fed1b5f71ab31890f31e`. [APK](dist/practice.logger-0.22.0-b83-b7e422a/practice.logger-0.22.0-b83-b7e422a.apk) · [ZIP](dist/practice.logger-0.22.0-b83-b7e422a.zip) · [Build info](dist/practice.logger-0.22.0-b83-b7e422a/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.22.0-b83-b7e422a/PHONE_CHECKLIST.txt). Install over build81 without uninstalling or clearing data.
 
 App ID `com.mrayover.practicelogger.app`, permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `25440f884c24cfe94ec49b183618767c16fbd07f4afec4371e49e118949d7837`. ZIP SHA-256 `893a0b357d657ff521b7107924a00d3628c3e8bc24d45d645a1d4350ff7d3464`. Signature, package/version, 67 matching unsigned payload entries, ZIP contents/CRC, 368 prior package hashes and both build82 candidate hashes were verified.
 
-## Implemented scope
+### Implemented scope
 
 Focused Practice switches between Record Loop and Transcribe. Transcribe uses the source Block's canonical AUDIO link, the existing Library picker/import and role checks, and the shared source-time player, waveform and zoom. The panel supports pitch-preserving 50–100% speed, seek, A–B repeat, one-shot phrase playback and timestamp edits. Master points and sections are read-only. The existing expandable piano can sound while reference audio is playing or paused, using the controller's single focus request. Keyboard collapse releases its output. Leaving the panel, changing the reference or backgrounding releases active Transcribe output.
 
 Record Loop and Free Record use the existing capture and review path. The practice timer remains authoritative. Saved legacy imports retain their original take ownership and playback. Room14 and JSON7 are in use. T1 playback state is transient. Durable local state and annotations belong to T2, and simultaneous Transcribe playback and Free Record belong to T3.
 
-## Actual verification
+### Actual verification
 
 - [Build83 compilation and unit tests](https://github.com/mrayover/practice.logger/actions/runs/41767496452) passed debug, release and instrumentation APK compilation and all **24 scoped units**.
 - [API26 at normal text](https://github.com/mrayover/practice.logger/actions/runs/41767948973) and [API35 at 200% text](https://github.com/mrayover/practice.logger/actions/runs/41767951438) passed the Transcribe workflow in portrait and landscape. Tests cover mode changes, retained Loop setup, canonical association isolation, picker cancellation and replacement, 75% playback with section selection and repeat, piano collapse during playback, rotation and pinned actions. Compact portrait keyboard and enlarged landscape transport screenshots were reviewed. Secondary controls scroll in constrained layouts.
@@ -23,7 +48,7 @@ Record Loop and Free Record use the existing capture and review path. The practi
 
 See [WORK_LOG](WORK_LOG.md) for the early dependency failure and layout retries. Physical install-over, listening and owner phone verification remain pending. No full regression gate was rerun.
 
-**Exact next task:** run the [T1 owner-phone checklist](MANUAL_TESTS.md#t1--block-transcribe-owner-phone-checklist) on signed build83. **Next separately assigned milestone:** T2, Block-local Audio State, Marker Overrides and Master Promotion.
+The original [T1 phone checklist](MANUAL_TESTS.md#t1--block-transcribe-owner-phone-checklist) remains available. T2, Block-local Audio State, Marker Overrides and Master Promotion, remains a separately assigned milestone.
 
 ---
 
