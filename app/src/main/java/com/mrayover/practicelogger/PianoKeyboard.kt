@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable fun PianoKeyboard(onNoteOn: (Long, Int) -> Unit, onNoteOff: (Long) -> Unit,
-    onStopAll: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, resetToken: Int = 0) {
+    onStopAll: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, resetToken: Int = 0, keyHeight: androidx.compose.ui.unit.Dp = 184.dp) {
     var first by rememberSaveable { mutableIntStateOf(60) }
     val latestOn by rememberUpdatedState(onNoteOn)
     val latestOff by rememberUpdatedState(onNoteOff)
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
             Text(held.values.distinct().sorted().joinToString(" · ", transform = ::pianoNoteName).ifEmpty { "—" },
                 Modifier.testTag("piano-notes"), style = MaterialTheme.typography.labelLarge)
             key(first, last, enabled, resetToken) {
-                BoxWithConstraints(Modifier.fillMaxWidth().height(184.dp).testTag("piano-keyboard")
+                BoxWithConstraints(Modifier.fillMaxWidth().height(keyHeight).testTag("piano-keyboard")
                     .pointerInteropFilter(disallowIntercept) { event ->
                         if (event.actionMasked == MotionEvent.ACTION_DOWN) disallowIntercept(true)
                         when (event.actionMasked) {

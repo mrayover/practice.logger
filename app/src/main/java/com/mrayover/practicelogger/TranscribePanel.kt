@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -144,7 +145,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         AudioWaveformView(vm.waveform, state, markers, timeline, ::viewport, player::seek,
             { a, b -> player.range(a, b) })
     }
-    val details: @Composable () -> Unit = {
+    val details: @Composable (Dp, Boolean) -> Unit = { keyHeight, waveformInDetails ->
         messages()
         if (state.preparing) Text("Preparing audio…")
         state.error?.let {
@@ -156,6 +157,10 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             Text(it, color = MaterialTheme.colorScheme.error)
             TextButton(onClick = vm::retryWaveform) { Text("Retry waveform") }
         }
+        OutlinedSelectionChip(pianoExpanded, { pianoExpanded = !pianoExpanded },
+            modifier = Modifier.testTag("transcribe-piano"), label = { Text("Piano") })
+        if (pianoExpanded) EmbeddedReferencePiano(player, keyHeight)
+        if (waveformInDetails) waveform()
         AudioZoomControls(timeline, state.positionMs, duration, ::viewport)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             OutlinedButton(onClick = { player.range(player.state.value.positionMs, state.bMs) }, enabled = ready && state.positionMs < state.bMs) { Text("Set A here") }
@@ -163,9 +168,6 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             OutlinedButton(onClick = { rangeDialog = true }, enabled = ready) { Text("Edit A–B") }
             OutlinedButton(onClick = player::playSelection, enabled = ready) { Text("Play phrase once") }
         }
-        OutlinedSelectionChip(pianoExpanded, { pianoExpanded = !pianoExpanded },
-            modifier = Modifier.testTag("transcribe-piano"), label = { Text("Piano") })
-        if (pianoExpanded) EmbeddedReferencePiano(player)
         Text("Master markers and sections", style = MaterialTheme.typography.titleSmall)
         if (markers.isEmpty()) Text("No master markers yet.", style = MaterialTheme.typography.bodySmall)
         markers.forEach { marker ->
@@ -188,17 +190,20 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
                     modes(); title(); controls()
                 }
                 PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-details") {
-                    waveform(); details()
+                    waveform(); details((maxHeight - 8.dp).coerceIn(72.dp, 184.dp), false)
                 }
             }
         } else if (maxHeight >= 370.dp && maxWidth >= 350.dp && LocalDensity.current.fontScale < 1.4f) {
             Column(Modifier.fillMaxSize()) {
-                modes(); title(); controls(); waveform()
-                PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "transcribe-details") { details() }
+                modes(); title(); controls()
+                if (!pianoExpanded) waveform()
+                PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "transcribe-details") {
+                    details(136.dp, pianoExpanded)
+                }
             }
         } else {
             PracticeScrollPanel(Modifier.fillMaxSize(), tag = "transcribe-details") {
-                modes(); title(); controls(); waveform(); details()
+                modes(); title(); controls(); waveform(); details((maxHeight - 8.dp).coerceIn(72.dp, 184.dp), false)
             }
         }
     }
@@ -207,12 +212,12 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
 }
 
 @Composable
-private fun EmbeddedReferencePiano(player: LibraryAudioController) {
+private fun EmbeddedReferencePiano(player: LibraryAudioController, keyHeight: Dp) {
     val context = LocalContext.current
     var reset by remember { mutableIntStateOf(0) }
     var error by remember { mutableStateOf<String?>(null) }
     val engine = remember(context, player) { PianoAudioEngine(context, player) { error = it; reset++ } }
     DisposableEffect(engine) { onDispose { engine.close() } }
-    PianoKeyboard({ token, note -> engine.noteOn(token, note); Unit }, engine::noteOff, engine::stopAll, resetToken = reset)
+    PianoKeyboard({ token, note -> engine.noteOn(token, note); Unit }, engine::noteOff, engine::stopAll, resetToken = reset, keyHeight = keyHeight)
     error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 }
