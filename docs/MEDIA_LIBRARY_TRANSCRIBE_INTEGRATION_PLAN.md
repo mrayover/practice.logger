@@ -364,3 +364,7 @@ Potential later enhancement: non-destructive image/PDF highlights, pencil marks 
 The exact Room entities and schema versions remain implementation decisions. L1 must audit real attachments and legacy imported-file ownership before choosing adoption/migration and deletion rules. Imported histories, IDs, playback and byte-preserving export must survive. L2 must establish real-device platform speed/seek/A–B quality before selecting an engine; any justified alternative needs owner approval. T3 must resolve playback/capture focus and lifecycle ownership, verify microphone/speaker/headphone behavior and document acoustic bleed. S2 must version and validate complete recovery without changing the current JSON7 contract prematurely.
 
 Reuse [existing audio import](IMPORTED_AUDIO.md), visual renderers, recording repository, practice accounting and [current backup safeguards](../BACKUP_FORMAT.md). No new feature in this specification is delivered by this documentation amendment. Keep targeted checks per assigned increment and the full regression at the final F1/F2 gate.
+
+## K1 implementation checkpoint — November 3, 2026
+
+K1 is delivered as build81 with one reusable PCM engine and Compose keyboard, standalone Tools wrapper and borrowed-focus active-reference coexistence. T1 remains unimplemented and must embed the same instrument. See [architecture and current focus contract](REFERENCE_PIANO.md) and [delivery/actual scoped evidence](../CURRENT_STATE.md). This checkpoint records implementation without expanding later milestone scope.

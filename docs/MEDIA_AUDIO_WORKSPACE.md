@@ -29,3 +29,7 @@ Explicit migration12→13 adds only `media_markers`, retaining all prior exporte
 The parent foreign key is RESTRICT. Confirmed canonical deletion explicitly removes owned markers and then the asset within one transaction. A restrictive L3 Block asset link rejecting deletion rolls back marker removal too; existing original-file cleanup/recovery remains unchanged. Direct asset deletion cannot orphan annotations. There is no Block-local override/inheritance state in L2.
 
 JSON7/readers1–7 stay unchanged: canonical metadata, originals and master annotations are not portable through this data-only backup. Retain originals separately. S2 must include canonical originals once and master/local annotation identity in its later complete ZIP recovery. Legacy `block_images`, `takes`, `IMPORTED_LOOP`, their files and export/recovery ownership remain untouched.
+
+## K1 companion output
+
+LibraryAudioController now provides an internal companion interruption registration for the reusable PianoAudioEngine. The embedded engine requires this controller to be playing and never requests or abandons competing focus. Pause/close/source replacement/errors/background/focus loss stop companion notes; closing only the keyboard removes its registration and releases only its own output. A paused-reference solo-note focus contract remains for T1 if needed. No reference playback/storage logic or global mixer is replaced. See [Reference Piano](REFERENCE_PIANO.md) and [actual verification](../CURRENT_STATE.md).

@@ -1,7 +1,7 @@
-# practice.logger — L3 delivered; stop after this increment
+# practice.logger — K1 delivered; stop after this increment
 
-L3 independent shared Block visual/audio associations are implemented, scoped verified and delivered as permanent-key0.20.0/build80. Exact app source/package hashes, API26/API35 results, earlier failures and limits: [CURRENT_STATE](CURRENT_STATE.md). [Ownership/legacy transition](docs/BLOCK_MEDIA_ASSOCIATIONS.md). [Phone checks](MANUAL_TESTS.md).
+Reference Piano is implemented, scoped verified and delivered as permanent-key0.21.0/build81. Exact source/packages/hashes, unit/native26/35 results, development failures and acoustic limits: [CURRENT_STATE](CURRENT_STATE.md). [Reusable architecture](docs/REFERENCE_PIANO.md). [Phone checks](MANUAL_TESTS.md).
 
-Exact next action: owner L3 phone checklist. L1/L2 phone acceptance remains separately pending. Stop after L3; K1 Reference Piano is the next separately assigned milestone and T1 follows K1. Do not start later phases automatically.
+Exact next action: owner K1 phone/acoustic checklist. The owner reports latest pre-K1 functionality works; do not invent individual L1/L2/L3 phone observations. T1 Record Loop / Transcribe Mode Integration is the next separately assigned milestone. It must embed the same engine/keyboard beside the existing waveform, slowdown and A–B player. No T1 work has begun.
 
-Retain stable canonical media IDs, restrictive links, one original per asset, deliberate atomic legacy visual replacement and exclusive legacy take ownership. JSON7 remains media/association-excluding. Preserve all data, keys, packages, migrations and the mandatory efficiency procedure. Use the original Windows checkout; synced sources are read-only.
+Retain canonical originals/IDs/restrictive links, legacy takes, Room14/JSON7 and all data/keys/releases/migrations. Review AGENTS and the mandatory efficiency procedure. Use the existing Windows checkout; synced sources stay read-only. Do not rerun P5/F1/F2 for routine scoped work.

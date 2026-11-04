@@ -1,10 +1,10 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap; P5 complete and owner accepted. L1 is delivered with focused automated verification; L1 owner-phone verification is pending and L2 onward remains planned. Detailed approved audio/keyboard scope is in the [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md).
+**Status:** Owner-approved authoritative forward roadmap; P5 is closed and owner accepted. L1–L3 and K1 are delivered with scoped engineering verification. K1 physical acoustic/phone checks are next; T1 remains separately assigned. Actual delivery/evidence: [CURRENT_STATE](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
-**Current delivery — November 3, 2026:** The starting references above are historical. L1 is delivered as **0.18.0/build72**, source `ef83bd8`; build69 camera/gallery is owner accepted and P5 remains closed. L1 owner-phone verification is next, followed only by separately assigned L2. See [CURRENT_STATE](CURRENT_STATE.md) for exact artifacts and scoped evidence. The earlier documentation amendment itself shipped no capabilities; the later explicit owner handoff authorized L1 implementation.
+**Current delivery — November 3, 2026:** K1 Reference Piano0.21.0/build81 is delivered; current artifacts, scope, exact source and verification are in [CURRENT_STATE](CURRENT_STATE.md). Earlier starting references are historical. T1 will embed the same keyboard and engine; do not start it automatically.
 
 > **Purpose.** Finish practice.logger as a dependable, offline-first Android application for daily music practice. V1 integrates reusable Blocks, sessions, recordings, reference materials, Goals and measured practice time, with export and full recovery. This document *supersedes the prior uncommitted separate pre-Library and Goal/Statistics proposals as the unified forward roadmap*. It does not erase verified implementation history in Git.
 
@@ -342,7 +342,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [ ] L1 canonical visual/audio Library, validated legacy imported ownership and audited visual attachment policy.
 - [ ] L2 full-screen visual preview, shared audio/waveform/master markers and platform playback feasibility.
 - [ ] L3 independent visual/audio links, shared originals and safe legacy picker transition.
-- [ ] K1 reusable Reference Piano with correct pitch/polyphony and playback coexistence.
+- [x] K1 reusable Reference Piano with scoped pitch/polyphony/playback-coexistence verification and signed delivery; physical acoustic checks remain pending in CURRENT_STATE.
 - [ ] T1 compact Record Loop / Transcribe modes and phrase practice without recorder regression.
 - [ ] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state.
 - [ ] T3 physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
