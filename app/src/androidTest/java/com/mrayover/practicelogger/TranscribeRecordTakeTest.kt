@@ -1,6 +1,9 @@
 package com.mrayover.practicelogger
 
 import android.Manifest
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.Lifecycle
@@ -66,6 +69,9 @@ class TranscribeRecordTakeTest {
 
     @Test fun referenceAndMicrophoneHaveIndependentControlsAndOwnership() {
         val setup = openTranscribe()
+        val local = BlockAudioMarker(setup.block, setup.audio.id, "take-test-local",
+            900, null, "Local cue", "Local note", null)
+        runBlocking { db.blockAudio().save(local) }
         val before = runBlocking { db.takes().readAll() }
         val markers = runBlocking { db.markers().read(setup.audio.id) }
         val hadActivity = runBlocking { db.transcribeActivities().hasEntries() }
@@ -76,6 +82,8 @@ class TranscribeRecordTakeTest {
         clickTag("transcribe-record-take")
         assertTrue(player.state.value.playing)
         waitForAudio()
+        compose.onNodeWithTag("practice-notes-toggle").assertIsNotEnabled()
+        compose.onNodeWithTag("practice-mode-record").assertIsNotEnabled()
         compose.waitUntil(10_000) { player.state.value.positionMs > 1900 }
         compose.waitUntil(10_000) { player.state.value.positionMs < 900 }
         assertTrue(player.state.value.playing)
@@ -137,11 +145,12 @@ class TranscribeRecordTakeTest {
                 .single { it.startedAt == session.session.startedAt }.activeMs)
             assertEquals(setup.audio.id, db.blockMedia().find(setup.block, MediaRole.AUDIO.name)?.mediaId)
             assertEquals(markers, db.markers().read(setup.audio.id))
+            assertEquals(local, db.blockAudio().marker(setup.block, setup.audio.id, local.id))
         }
         assertArrayEquals(setup.original, File(app.filesDir, "media-library/${setup.audio.fileName}").readBytes())
     }
 
-    @Test fun backgroundAndRecreationStopBothStreamsAndKeepReview() {
+    @Test fun interruptionsStopBothStreamsAndKeepReview() {
         openTranscribe()
         val before = runBlocking { db.takes().readAll() }
         clickTag("audio-play")
@@ -163,6 +172,27 @@ class TranscribeRecordTakeTest {
         assertEquals(75, player.state.value.speedPercent)
         assertTrue(player.state.value.repeatRange)
         clickTag("review-discard")
+
+        clickTag("audio-play")
+        compose.waitUntil(10_000) { player.state.value.playing }
+        clickTag("transcribe-record-take")
+        waitForAudio()
+        val manager = app.getSystemService(AudioManager::class.java)
+        val competing = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+            .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).build())
+            .setOnAudioFocusChangeListener { }.build()
+        try {
+            compose.runOnIdle {
+                assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, manager.requestAudioFocus(competing))
+            }
+            waitForReview()
+            assertFalse(player.state.value.playing)
+            assertFalse(recordings.recording)
+        } finally {
+            compose.runOnIdle { manager.abandonAudioFocusRequest(competing) }
+        }
+        clickTag("review-discard")
+        assertFalse(player.state.value.playing)
         assertEquals(before, runBlocking { db.takes().readAll() })
     }
 }
