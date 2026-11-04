@@ -1,8 +1,26 @@
-# Current state — T3B standalone Transcribe timer
+# Current state — T3C Record Reference
 
 Updated November 4, 2026 (America/Los_Angeles).
 
 ## Signed delivery
+
+**0.26.0/build89**, source `1c8724b293d90489ec984803595037a0c0e84245`. [APK](dist/practice.logger-0.26.0-b89-1c8724b/practice.logger-0.26.0-b89-1c8724b.apk) · [ZIP](dist/practice.logger-0.26.0-b89-1c8724b.zip) · [Build info](dist/practice.logger-0.26.0-b89-1c8724b/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.26.0-b89-1c8724b/PHONE_CHECKLIST.txt). Install over build88 without uninstalling or clearing data.
+
+App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `c1f264e7c05ff57aff9e349b3048d7a0993de9e57e592a77bf885ff66ed319a4`. ZIP SHA-256 `9218fd2e95239dfc365685092b4ad66b3ee9147dddf76de5cc93f3c95ded33e7`. Verified APK signature, package/version, ZIP integrity, all 67 unsigned payload entries and 1,622 prior distribution file hashes.
+
+## Implemented
+
+Record Reference opens in standalone and Block Transcribe and pauses reference playback. Capture uses the existing microphone recorder and AAC/M4A review. Keep selects one canonical Library reference in standalone or attaches it in Block Transcribe. A protected Block replacement requires confirmation. The old link and local edits survive failed or cancelled replacement. The previous Library original and master markers survive successful replacement. No ordinary take is created. Room 16 and JSON 7 retain their formats and JSON excludes canonical audio.
+
+## Focused verification
+
+- Debug, release and device-test APKs compiled. All 50 scoped unit tests passed and the generated Room 16 export matched the committed file. [Build](https://github.com/mrayover/practice.logger/actions/runs/41897981515)
+- Both new tests passed on API 26 at 100% text and API 35 at 200% text. They cover standalone microphone capture, canonical Keep and selection without a take, plus transactional rollback and confirmed Block replacement. [API 26](https://github.com/mrayover/practice.logger/actions/runs/41898002203) · [API 35](https://github.com/mrayover/practice.logger/actions/runs/41898002856)
+- The existing Block Transcribe and standalone regression checks passed. [Block Transcribe](https://github.com/mrayover/practice.logger/actions/runs/41898736659) · [Standalone Transcribe](https://github.com/mrayover/practice.logger/actions/runs/41898736586)
+
+**Next action:** Run the [T3C owner-phone checklist](MANUAL_TESTS.md#t3c--record-reference-directly-in-transcribe) on build89. Physical-phone microphone permission and interrupted capture checks are pending. **T3D — Concurrent Transcribe Playback and Free Record** is the next separate assignment.
+
+## Retained T3B signed delivery
 
 **0.25.0/build88**, source `947f636f450e944a8b511cc2efc98cdd09459a9f`. [APK](dist/practice.logger-0.25.0-b88-947f636/practice.logger-0.25.0-b88-947f636.apk) · [ZIP](dist/practice.logger-0.25.0-b88-947f636.zip) · [Build info](dist/practice.logger-0.25.0-b88-947f636/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.25.0-b88-947f636/PHONE_CHECKLIST.txt). Install over build87 without uninstalling or clearing data.
 
@@ -20,9 +38,7 @@ The timer checkpoints every five seconds while active and when paused or its con
 - Three standalone methods passed on each API, covering builder/Routine navigation, timed Goal attribution, pause on leaving, recreation, failed Stop and successful retry, audio playback with an idle timer, and the existing Library, waveform, master-marker and piano flows. The landscape screenshots show the stopwatch and upper playback controls at both text scales. Lower workspace content scrolls. [API 26 at 100%](https://github.com/mrayover/practice.logger/actions/runs/41891820516) · [API 35 at 200%](https://github.com/mrayover/practice.logger/actions/runs/41891820771)
 - The API 35 force-stop and reopen check passed both phases at 200% text using the signed build's verified source. [Cold reopen](https://github.com/mrayover/practice.logger/actions/runs/41892827746)
 
-Physical-phone install-over and T3B owner acceptance are pending. Earlier focused-run failures and their fixes are recorded in [WORK_LOG](WORK_LOG.md).
-
-**Next action:** Run the [T3B owner-phone checklist](MANUAL_TESTS.md#t3b--standalone-timer-and-goal-attribution) on build88. **T3C — Record Reference Directly in Transcribe** is the next separate implementation assignment.
+The owner reported that T3B works. Individual phone checklist observations were not supplied. Earlier focused-run failures and their fixes are recorded in [WORK_LOG](WORK_LOG.md).
 
 ## Retained T3A signed delivery
 

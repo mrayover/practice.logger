@@ -39,6 +39,12 @@ The expanded keyboard uses the reference controller's focus while playing or pau
 T1 introduced the shared workspace. The [Standalone Transcribe plan](T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A reuse of this audio workspace, T3C Record Reference with playback paused, and T3D reference playback with ordinary Free Record capture. See [Reference Piano](REFERENCE_PIANO.md) and [verification](../CURRENT_STATE.md).
 
 
+## Record Reference in T3C
+
+Standalone and Block Transcribe reuse the foreground AAC/M4A recorder, temporary review and cleanup. Opening the recording dialog pauses the reference. The existing Library size and duration limits govern capture and Keep. Review offers preview, Rerecord, Discard and Keep. Only Keep creates a canonical Library asset.
+
+In Block Transcribe, the new asset and its audio link commit together. The transaction rechecks the previous link and applies T2's existing replacement check. Cancelling a protected replacement retains the review audio, the previous link and its local data. A confirmed replacement leaves the previous canonical original and its master markers in the Library. Standalone Keep selects the new asset in place. The flow creates no ordinary take and needs no Room or JSON change.
+
 ## Block-local audio in T2
 
 The Room 15 migration adds state and marker tables scoped to the active Block/audio link. The three-column foreign key identifies the exact association and cascades on unlink. Replacing an audio link removes its old local rows in the same transaction. The editor asks before removing local work or non-default saved playback state. The Library still owns the canonical original and its master markers.

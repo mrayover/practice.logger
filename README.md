@@ -1,10 +1,10 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. The current signed release is **0.24.0/build87**, with standalone Transcribe and Practice Now activity choices. See [CURRENT_STATE.md](CURRENT_STATE.md) for the signed release, focused verification and phone acceptance.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. The current signed release is **0.26.0/build89**, with Record Reference in standalone and Block Transcribe. See [CURRENT_STATE.md](CURRENT_STATE.md) for the signed release, focused verification and phone acceptance.
 
 ## Forward V1 roadmap
 
-P0–P5, L1–L3, K1, T1–T2 and T3A–T3B are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
+P0–P5, L1–L3, K1, T1–T2 and T3A–T3C are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
 The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines the phase order and release gates. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 

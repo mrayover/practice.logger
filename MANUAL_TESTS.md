@@ -163,7 +163,7 @@ The owner confirms the K1 keyboard works on their phone. Individual acoustic mea
 
 ## T3 owner phone checklists
 
-Run each checklist on its separately assigned signed install-over build. The owner reported that T3A works after installing and testing it. Individual T3A checklist observations were not supplied. See the [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) for focused engineering checks.
+Run each checklist on its separately assigned signed install-over build. The owner reported that T3A works after installing and testing it. The owner also reported that T3B works. Individual checklist observations were not supplied for either release. See the [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) for focused engineering checks.
 
 ### T3A — Standalone Transcribe Workspace
 
@@ -186,9 +186,11 @@ Run each checklist on its separately assigned signed install-over build. The own
 
 ### T3C — Record Reference Directly in Transcribe
 
-- [ ] Check permission denial and grant, paused reference playback, Stop, review playback, Rerecord and Discard.
-- [ ] Keep in both contexts. Verify one canonical original per kept capture, immediate selection or Block attachment, slowdown and looping, and no ordinary take created.
-- [ ] Check cancellation, interrupted capture and failed save or association. Verify the old Block link and local annotations survive.
+1. Install over build88 without uninstalling or clearing data.
+2. In **Practice Now → Transcribe**, tap **Record Reference**. Check microphone denial and grant. Start recording, watch the elapsed time, and tap **Stop and Review**.
+3. Play the preview. Try **Rerecord** and **Discard**. Keep a new recording and check that it opens in Transcribe for slowdown and A–B looping. Confirm one new Library original and no ordinary take.
+4. Open a Block in Transcribe and record a replacement. When the old reference has local playback settings or markers, cancel the replacement first and confirm the old link and edits survive. Then confirm the replacement and verify the old original and its master markers are still in the Library.
+5. Start with a reference playing and confirm it pauses before recording. Background during capture and check that the microphone stops. Check ordinary Free Record and Record Loop separately.
 
 ### T3D — Concurrent Transcribe Playback and Free Record
 

@@ -2,6 +2,10 @@
 
 Updated 2026-11-04 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## T3C — Record Reference Directly in Transcribe
+
+Record and review AAC/M4A directly in standalone or Block Transcribe with playback paused. Keep saves one canonical Library original and immediately selects it or attaches it to the Block. Protected replacement uses the existing confirmation. Room 16 and JSON 7 remain in use. See [current state](CURRENT_STATE.md) for delivery and verification.
+
 ## T3B — Standalone Timer and Goal Attribution
 
 Standalone Transcribe records open-ended foreground activity with an optional Goal. The timer shares exclusive clock ownership with Block practice. Completed activities contribute to Home, Weekly View and Goal totals. Room 16 stores activity history. JSON 7 excludes it until S2. See [current state](CURRENT_STATE.md) for verification and delivery.
@@ -198,7 +202,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-See [CURRENT_STATE](CURRENT_STATE.md) for the T3A verification and phone checklist. T3C is the next separate implementation milestone after T3B release verification.
+See [CURRENT_STATE](CURRENT_STATE.md) for the T3A verification and phone checklist. T3D is the next separate implementation milestone after T3C.
 
 ## Increment 3 — delivered 2026-10-29
 
