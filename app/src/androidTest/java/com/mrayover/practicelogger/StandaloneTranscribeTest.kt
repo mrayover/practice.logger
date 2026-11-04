@@ -12,6 +12,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import java.io.File
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -41,6 +42,35 @@ class StandaloneTranscribeTest {
         device.findObjects(By.text("Downloads")).last().click()
         checkNotNull(device.wait(Until.findObject(By.descStartsWith(name)), 10000)
             ?: device.wait(Until.findObject(By.text(name)), 3000)).click()
+    }
+
+    @Test fun stopwatchPausesOnLeaveAndRecreationAndSavesOnce() {
+        val db = BlockDatabase.appInstance(compose.activity.application)
+        val goalId = runBlocking { GoalRepository(db).save(null, "Transcribe study", "", 37, "") }
+        openHomePractice(compose)
+        click("Transcribe")
+        shown("00:00:00")
+        assertNull(runBlocking { db.transcribeActivities().unfinished() })
+        click("Start")
+        shown("Stop & Save")
+        click("No Goal")
+        click("Transcribe study")
+        compose.waitUntil(15_000) { runBlocking { db.transcribeActivities().unfinished()?.goalId == goalId } }
+        val id = runBlocking { db.transcribeActivities().unfinished()!!.id }
+        device.pressBack()
+        tag("practice-now-title").assertIsDisplayed()
+        click("Transcribe")
+        shown("Resume")
+        val paused = runBlocking { db.transcribeActivities().find(id)!! }
+        assertTrue(paused.activeMs > 0)
+        compose.activityRule.scenario.recreate()
+        shown("Resume")
+        assertEquals(paused, runBlocking { db.transcribeActivities().find(id) })
+        click("Stop & Save")
+        shown("Activity saved.")
+        assertNull(runBlocking { db.transcribeActivities().unfinished() })
+        assertEquals(paused.activeMs, runBlocking { db.goals().observeTime().first().single { it.goalId == goalId }.activeMs })
+        assertEquals(37, runBlocking { db.goals().find(goalId)!!.goal.progress })
     }
 
     @Test fun practiceChoicesPreserveDraftAndStartSavedRoutine() {

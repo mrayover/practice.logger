@@ -1,8 +1,8 @@
 package com.mrayover.practicelogger
 
 /** Foreground stopwatch: only intervals explicitly started are counted. */
-internal class ToolClock(private val now: () -> Long) {
-    private var committed = 0L
+internal class ToolClock(initialMs: Long = 0, private val now: () -> Long) {
+    private var committed = initialMs
     private var anchor = 0L
     var running = false
         private set

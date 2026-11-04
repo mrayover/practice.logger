@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun LogScreen(vm: LogViewModel, onHome: () -> Unit) {
+@Composable fun LogScreen(vm: LogViewModel, onHome: () -> Unit, practiceTime: List<PracticeTimeEntry>? = null) {
     val status by vm.status.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val focus = LocalFocusManager.current
@@ -59,6 +59,7 @@ import java.time.format.FormatStyle
                 }
             } else {
                 Text("${vm.week} – ${vm.week.plusDays(6)}", style = MaterialTheme.typography.titleLarge)
+                practiceTime?.let { Text("Practice this week · ${practiceDuration(weeklyPracticeMs(it, vm.week))}") }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(onClick = { vm.showWeek(vm.week.minusWeeks(1)) }, enabled = !vm.busy, modifier = Modifier.weight(1f)) { Text("Previous week") }
                     OutlinedButton(onClick = { vm.showWeek(vm.week.plusWeeks(1)) }, enabled = !vm.busy, modifier = Modifier.weight(1f)) { Text("Next week") }

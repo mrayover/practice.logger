@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel()) {
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -113,16 +113,28 @@ class MainActivity : ComponentActivity() {
         recordings.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
         onDispose { lifecycle.removeObserver(observer); recordings.setForeground(false) }
     }
-    DisposableEffect(lifecycle, practice) {
+    DisposableEffect(lifecycle, practice, transcribe) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) practice.setForeground(true)
-            if (event == Lifecycle.Event.ON_PAUSE) practice.setForeground(false)
+            if (event == Lifecycle.Event.ON_RESUME) {
+                practice.setForeground(true)
+                transcribe.setForeground(true)
+            }
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                practice.setForeground(false)
+                transcribe.setForeground(false)
+            }
         }
         lifecycle.addObserver(observer)
-        practice.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
-        onDispose { lifecycle.removeObserver(observer); practice.setForeground(false) }
+        val resumed = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        practice.setForeground(resumed)
+        transcribe.setForeground(resumed)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            practice.setForeground(false)
+            transcribe.setForeground(false)
+        }
     }
-    DisposableEffect(practice.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
+    DisposableEffect(practice.running, transcribe.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || transcribe.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf("home") }
     var mediaWorkspace by remember { mutableStateOf(false) }
@@ -183,14 +195,20 @@ class MainActivity : ComponentActivity() {
         } else if (!catalog.ready || !sessions.ready || !goals.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
-            "home" -> PracticeHome(onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
+            "home" -> {
+                val time by transcribe.practiceTime.collectAsStateWithLifecycle()
+                PracticeHome(practiceMs = time?.sumOf { it.activeMs }, onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
                 onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+            }
             "media-library" -> {
                 BackHandler { page = "home" }
                 MediaLibraryScreen(media, onBack = { page = "home" }, onWorkspaceChanged = { mediaWorkspace = it })
             }
-            "log" -> LogScreen(log, onHome = { page = "home" })
+            "log" -> {
+                val time by transcribe.practiceTime.collectAsStateWithLifecycle()
+                LogScreen(log, onHome = { page = "home" }, practiceTime = time)
+            }
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
             "goal-detail" -> {
@@ -218,7 +236,13 @@ class MainActivity : ComponentActivity() {
             "practice-now" -> PracticeNowScreen(sessions, practice, onBack = { page = "home" },
                 onBuilder = { page = "builder" }, onRoutines = { page = "practice-routines" }, onTranscribe = { page = "transcribe" })
             "practice-routines" -> PracticeRoutinesScreen(catalog, routines, practice, onBack = { page = "practice-now" })
-            "transcribe" -> StandaloneTranscribeScreen(media, onBack = { page = "practice-now" })
+            "transcribe" -> {
+                DisposableEffect(transcribe) {
+                    transcribe.setVisible(true)
+                    onDispose { transcribe.setVisible(false) }
+                }
+                StandaloneTranscribeScreen(media, transcribe, goalRows, onBack = { page = "practice-now" })
+            }
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, routines, onBack = { page = "practice-now" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings, onNavigationCancelled = { headerHomeRequested = false })
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId), onNavigationCancelled = { headerHomeRequested = false })

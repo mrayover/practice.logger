@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit) {
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(MaterialTheme.colorScheme.background)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.sp
                         HomeButton("Library", onLibrary)
                     }
                 }
+                practiceMs?.let { Text("Total practice · ${practiceDuration(it)}", modifier = Modifier.padding(top = 12.dp)) }
                 Text("Data usage", modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
                     textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
             }

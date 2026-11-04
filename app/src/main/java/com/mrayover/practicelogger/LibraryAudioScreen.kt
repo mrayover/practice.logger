@@ -37,7 +37,7 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel(), onChangeAudio: (() -> Unit)? = null) {
+@Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel(), onChangeAudio: (() -> Unit)? = null, stopwatch: (@Composable () -> Unit)? = null) {
     val standalone = onChangeAudio != null
     val player = vm.controller
     val state by rememberAudioDisplayState(player)
@@ -156,6 +156,7 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
                 transport()
                 if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}",
                     style = MaterialTheme.typography.bodySmall)
+                stopwatch?.invoke()
                 details()
             }
             item {

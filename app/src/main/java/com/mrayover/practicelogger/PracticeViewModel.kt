@@ -26,8 +26,13 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     }
         .catch { emit(SessionCatalog(error = "Could not open practice sessions. Close and reopen the app to retry.")) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SessionCatalog())
-    var running by mutableStateOf(false)
-        private set
+    private var timerRunning by mutableStateOf(false)
+    var running: Boolean
+        get() = timerRunning
+        private set(value) {
+            timerRunning = value
+            if (!value) PracticeTimingOwner.release(this)
+        }
     var busy by mutableStateOf(false)
         private set
     var error by mutableStateOf<String?>(null)
@@ -167,6 +172,10 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         else check(current.overtimeAccepted || current.activeMs < current.configuredMs)
         completionArmedFor = current.id.takeIf { !overtime && !current.overtimeAccepted && current.activeMs < current.configuredMs }
         check(foreground)
+        if (!PracticeTimingOwner.acquire(this)) {
+            error = "Pause the Transcribe timer before resuming Block practice."
+            return@operation
+        }
         timingSessionId = id; anchor = SystemClock.elapsedRealtime(); running = true
     }
     fun addBlock(id: String) = operation { repository.addBlock(id) }
@@ -231,6 +240,6 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         }
     }
     fun saveNote(id: String, note: String) = operation { repository.saveSessionNote(id, note); noteSaved = true }
-    override fun onCleared() { stopObservingAudio(); metronome.stop(); super.onCleared() }
+    override fun onCleared() { PracticeTimingOwner.release(this); stopObservingAudio(); metronome.stop(); super.onCleared() }
     // The shared database belongs to the application, not an individual screen.
 }
