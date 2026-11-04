@@ -217,7 +217,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
         Box(Modifier.fillMaxWidth().then(if (panelOpen) Modifier else Modifier.weight(1f)).testTag("practice-workspace-viewport")) {
-            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, sideBySideHeaders = wideTranscribe, onReveal = {
+            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, sideBySideHeaders = wideTranscribe || (loopPanelOpen && !audioBusy && maxWidth >= 360.dp && density.fontScale < 1.4f), onReveal = {
                 focusManager.clearFocus(force = true); keyboard?.hide()
                 transportPanel = null
                 reviewCollapsed = recordings.reviewTake != null
