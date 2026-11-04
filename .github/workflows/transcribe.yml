@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [build, native, ui, library]
+        options: [build, native, ui, library, transport]
         default: build
       api:
         type: choice
