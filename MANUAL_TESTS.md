@@ -147,6 +147,6 @@ JSON7 does not include Library originals, associations or master annotations. Ke
 4. Shift down/up by an octave; check C1/lower guitar and upper registers, plus C4–C5 reference pitches.
 5. Rotate and try enlarged text; keep keys and Back reachable. Leave/reopen/background while holding notes and confirm silence with no automatic restart.
 6. Check Tuner and Metronome, Timer and Audio Settings.
-7. Embedded audio coexistence is checked by the K1 harness; owner acoustic headphone/speaker/vendor interruption acceptance remains separate. T1 will expose it in the product.
+7. Embedded audio coexistence is checked by the K1 harness; owner acoustic headphone/speaker/vendor interruption acceptance remains separate. T1 exposes it in Focused Practice.
 
-Do not infer these individual checks from the owner's general report that the latest functionality works. Actual K1 automated results and signed package: CURRENT_STATE.md.
+The owner confirms the K1 keyboard works on their phone. Individual acoustic measurements and itemized checklist results were not supplied. Actual K1 automated results and signed package: CURRENT_STATE.md.

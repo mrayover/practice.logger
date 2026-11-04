@@ -1,8 +1,29 @@
-# Current state — T1 Transcribe verification
+# Current state — T1 Record Loop / Transcribe delivered
 
-T1 source adds Record Loop and Transcribe modes to the existing Focused Practice transport. Build 83 is in scoped verification. The signed owner install target remains build 81 below. Build 82 was signed as an engineering candidate, and compact-layout follow-up moved to build 83. Room 14 and JSON 7 remain in use.
+Updated November 3, 2026 (America/Los_Angeles). T1 is implemented and its scoped Android checks passed. T1 owner-phone acceptance is pending. The owner confirms the K1 Reference Piano works on their phone. This accepts the reported keyboard functionality. L1–L3 retain their separately documented acceptance status.
 
-**Exact next task:** finish scoped T1 Android verification and permanent-key build 83 delivery. T2 is the next separately assigned milestone after T1.
+## Current signed delivery
+
+**0.22.0/build83**, app source `b7e422ab92d019c33ae5fed1b5f71ab31890f31e`. [APK](dist/practice.logger-0.22.0-b83-b7e422a/practice.logger-0.22.0-b83-b7e422a.apk) · [ZIP](dist/practice.logger-0.22.0-b83-b7e422a.zip) · [Build info](dist/practice.logger-0.22.0-b83-b7e422a/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.22.0-b83-b7e422a/PHONE_CHECKLIST.txt). Install over build81 without uninstalling or clearing data.
+
+App ID `com.mrayover.practicelogger.app`, permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `25440f884c24cfe94ec49b183618767c16fbd07f4afec4371e49e118949d7837`. ZIP SHA-256 `893a0b357d657ff521b7107924a00d3628c3e8bc24d45d645a1d4350ff7d3464`. Signature, package/version, 67 matching unsigned payload entries, ZIP contents/CRC, 368 prior package hashes and both build82 candidate hashes were verified.
+
+## Implemented scope
+
+Focused Practice switches between Record Loop and Transcribe. Transcribe uses the source Block's canonical AUDIO link, the existing Library picker/import and role checks, and the shared source-time player, waveform and zoom. The panel supports pitch-preserving 50–100% speed, seek, A–B repeat, one-shot phrase playback and timestamp edits. Master points and sections are read-only. The existing expandable piano can sound while reference audio is playing or paused, using the controller's single focus request. Keyboard collapse releases its output. Leaving the panel, changing the reference or backgrounding releases active Transcribe output.
+
+Record Loop and Free Record use the existing capture and review path. The practice timer remains authoritative. Saved legacy imports retain their original take ownership and playback. Room14 and JSON7 are in use. T1 playback state is transient. Durable local state and annotations belong to T2, and simultaneous Transcribe playback and Free Record belong to T3.
+
+## Actual verification
+
+- [Build83 compilation and unit tests](https://github.com/mrayover/practice.logger/actions/runs/41767496452) passed debug, release and instrumentation APK compilation and all **24 scoped units**.
+- [API26 at normal text](https://github.com/mrayover/practice.logger/actions/runs/41767948973) and [API35 at 200% text](https://github.com/mrayover/practice.logger/actions/runs/41767951438) passed the Transcribe workflow in portrait and landscape. Tests cover mode changes, retained Loop setup, canonical association isolation, picker cancellation and replacement, 75% playback with section selection and repeat, piano collapse during playback, rotation and pinned actions. Compact portrait keyboard and enlarged landscape transport screenshots were reviewed. Secondary controls scroll in constrained layouts.
+- [API35 recording compatibility](https://github.com/mrayover/practice.logger/actions/runs/41767954387) passed **2 native workflows** for Record Loop, Free Record, Notes during capture, saved take selection/playback and legacy imported audio.
+- The unchanged audio engine passed **3 native piano and Tools checks** on [API35 build82](https://github.com/mrayover/practice.logger/actions/runs/41766318314) and **3 Library playback and waveform checks** on [API26 build82](https://github.com/mrayover/practice.logger/actions/runs/41766321106). These covered actual piano output during paused and playing reference audio, interruption, standalone operation, MP3/M4A/WAV speed and pitch parameters, repeat/seek, missing original handling and long waveform cache recovery. Build83 changes presentation and version after those audio checks.
+
+See [WORK_LOG](WORK_LOG.md) for the early dependency failure and layout retries. Physical install-over, listening and owner phone verification remain pending. No full regression gate was rerun.
+
+**Exact next task:** run the [T1 owner-phone checklist](MANUAL_TESTS.md#t1--block-transcribe-owner-phone-checklist) on signed build83. **Next separately assigned milestone:** T2, Block-local Audio State, Marker Overrides and Master Promotion.
 
 ---
 
@@ -10,7 +31,7 @@ T1 source adds Record Loop and Transcribe modes to the existing Focused Practice
 
 Updated November 3, 2026 (America/Los_Angeles). K1 implementation, targeted engineering verification and permanent-key signed delivery are complete. **The owner confirms the K1 Reference Piano works on their phone.** This accepts the reported keyboard functionality. Individual acoustic measurements and checklist results were not supplied. The owner reports the latest pre-K1 functionality works; no individual L1/L2/L3 phone-check results are invented.
 
-## Current signed delivery
+## Build 81 signed delivery
 
 **0.21.0/build81**, application/release source `a3fd4090dd34a95c0bea266b83a9b04e0fc14638`. [APK](dist/practice.logger-0.21.0-b81-a3fd409/practice.logger-0.21.0-b81-a3fd409.apk) · [ZIP](dist/practice.logger-0.21.0-b81-a3fd409.zip) · [Build info](dist/practice.logger-0.21.0-b81-a3fd409/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.21.0-b81-a3fd409/PHONE_CHECKLIST.txt). Install over build80 without uninstalling or clearing data. AppID `com.mrayover.practicelogger.app`; unchanged permanent certificate SHA256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
 
