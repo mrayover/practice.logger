@@ -39,6 +39,16 @@ jobs:
       - name: Prepare supported audio fixtures
         if: ${{ inputs.compiled_run == '' }}
         run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            # The runner's Ubuntu package mirror can exceed the fixture setup timeout.
+            wheel="$RUNNER_TEMP/imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl"
+            curl -fsSL --retry 2 --max-time 60 'https://files.pythonhosted.org/packages/a0/2d/43c8522a2038e9d0e7dbdf3a61195ecc31ca576fb1527a528c877e87d973/imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl' -o "$wheel"
+            echo "c7e46fcec401dd990405049d2e2f475e2b397779df2519b544b8aab515195282  $wheel" | sha256sum --check
+            mkdir -p "$RUNNER_TEMP/fixture-bin"
+            unzip -p "$wheel" 'imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-*' > "$RUNNER_TEMP/fixture-bin/ffmpeg"
+            chmod +x "$RUNNER_TEMP/fixture-bin/ffmpeg"
+            export PATH="$RUNNER_TEMP/fixture-bin:$PATH"
+          fi
           AUDIO_FIXTURE_DURATION=4.0 bash scripts/Prepare-AudioFixtures.sh
           ffmpeg -y -v error -f lavfi -i 'sine=frequency=440:duration=4' -ar 44100 -ac 1 -c:a pcm_s16le app/src/androidTest/assets/audio/backing.wav
       - name: Compile APKs
