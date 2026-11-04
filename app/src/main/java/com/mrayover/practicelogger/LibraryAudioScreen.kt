@@ -22,12 +22,25 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+
+@Composable
+internal fun rememberAudioDisplayState(player: LibraryAudioController): State<LibraryAudioState> {
+    // Keep the 15 ms playback loop independent of the Compose cursor refresh rate.
+    val displayState = remember(player) {
+        player.state.distinctUntilChanged { previous, next ->
+            previous.playing && next.playing && previous.copy(positionMs = next.positionMs) == next &&
+                previous.positionMs / 100 == next.positionMs / 100
+        }
+    }
+    return displayState.collectAsStateWithLifecycle(player.state.value)
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel(), onChangeAudio: (() -> Unit)? = null) {
     val standalone = onChangeAudio != null
     val player = vm.controller
-    val state by player.state.collectAsStateWithLifecycle()
+    val state by rememberAudioDisplayState(player)
     val markerFlow = remember(asset.id) { vm.markers.observe(asset.id) }
     val markers by markerFlow.collectAsStateWithLifecycle(emptyList())
     val duration = asset.durationMs ?: 1

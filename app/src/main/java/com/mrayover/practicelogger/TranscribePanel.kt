@@ -18,7 +18,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -42,14 +41,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     val mediaId = links.find { it.blockId == blockId && it.role == MediaRole.AUDIO.name }?.mediaId
     val asset = assets.find { it.id == mediaId }
     val player = vm.controller
-    // Keep the 15 ms playback loop independent of the Compose cursor refresh rate.
-    val displayState = remember(player) {
-        player.state.distinctUntilChanged { previous, next ->
-            previous.playing && next.playing && previous.copy(positionMs = next.positionMs) == next &&
-                previous.positionMs / 100 == next.positionMs / 100
-        }
-    }
-    val state by displayState.collectAsStateWithLifecycle(player.state.value)
+    val state by rememberAudioDisplayState(player)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var choice by rememberSaveable(blockId) { mutableStateOf(false) }
     var picker by rememberSaveable(blockId) { mutableStateOf(false) }
