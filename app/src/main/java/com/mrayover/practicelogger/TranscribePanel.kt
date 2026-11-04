@@ -65,7 +65,10 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
                     if (player.state.value.error == null) player.open(id)
                 }
             }
-            if (event == Lifecycle.Event.ON_PAUSE) player.setForeground(false)
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                player.setForeground(false)
+                vm.checkpoint()
+            }
         }
         lifecycle.addObserver(observer)
         player.setForeground(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
@@ -74,8 +77,8 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             player.setForeground(false)
         }
     }
-    LaunchedEffect(asset?.id) {
-        if (asset != null) vm.open(asset.id) else vm.close()
+    LaunchedEffect(blockId, asset?.id) {
+        if (asset != null) vm.openBlock(blockId, asset.id, asset.durationMs ?: 1L) else vm.close()
     }
     if (choice) AlertDialog(
         onDismissRequest = { choice = false },
@@ -96,12 +99,13 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         picker = false
         images.choose(blockId, MediaRole.AUDIO, it)
     })
+    ConfirmBlockAudioChange(blockId, images)
     val title: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(asset?.title ?: if (mediaId == null) "No audio reference" else "Audio reference unavailable",
                 Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleSmall)
-            TextButton(onClick = { player.pause(); pickerError = false; choice = true },
+            TextButton(onClick = { player.pause(); vm.checkpoint(); pickerError = false; choice = true },
                 enabled = !images.busy, modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-choose-audio")) {
                 Text(if (asset == null) "Choose Audio" else "Change Audio")
             }
@@ -109,6 +113,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     }
     val messages: @Composable () -> Unit = {
         if (images.busy) Text("Saving reference…")
+        vm.blockAudioError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         images.message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         if (pickerError) Text("File picker unavailable. Try choosing audio from Library.", color = MaterialTheme.colorScheme.error)
     }
@@ -119,8 +124,8 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     }
 
     val duration = asset.durationMs ?: 1L
-    val markerFlow = remember(asset.id) { vm.markers.observe(asset.id) }
-    val markers by markerFlow.collectAsStateWithLifecycle(emptyList())
+    val markerFlow = remember(blockId, asset.id) { vm.blockAudio.observe(blockId, asset.id) }
+    val markers by markerFlow.collectAsStateWithLifecycle(BlockMarkerSet())
     var start by rememberSaveable(asset.id) { mutableDoubleStateOf(0.0) }
     var span by rememberSaveable(asset.id) { mutableDoubleStateOf(duration.toDouble()) }
     val timeline = AudioTimeline(duration, start, span)
@@ -131,7 +136,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     val ready = state.mediaId == asset.id && state.durationMs > 0 && !state.preparing
 
     val controls: @Composable () -> Unit = {
-        AudioPlaybackControls(player, state, asset.id)
+        AudioPlaybackControls(player, state, asset.id, enabled = ready)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             TextButton(onClick = { seekDialog = true }, enabled = ready, modifier = Modifier.heightIn(min = 48.dp)) {
                 Text("${audioTimestamp(state.positionMs)} / ${audioTimestamp(duration)}")
@@ -142,7 +147,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}", style = MaterialTheme.typography.bodySmall)
     }
     val waveform: @Composable () -> Unit = {
-        AudioWaveformView(vm.waveform, state, markers, timeline, ::viewport, player::seek,
+        AudioWaveformView(vm.waveform, state, markers.visible.map { it.marker }, timeline, ::viewport, player::seek,
             { a, b -> player.range(a, b) })
     }
     val details: @Composable (Dp, Boolean) -> Unit = { keyHeight, waveformInDetails ->
@@ -168,19 +173,15 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             OutlinedButton(onClick = { rangeDialog = true }, enabled = ready) { Text("Edit A–B") }
             OutlinedButton(onClick = player::playSelection, enabled = ready) { Text("Play phrase once") }
         }
-        Text("Master markers and sections", style = MaterialTheme.typography.titleSmall)
-        if (markers.isEmpty()) Text("No master markers yet.", style = MaterialTheme.typography.bodySmall)
-        markers.forEach { marker ->
-            TextButton(onClick = {
+        key(blockId, asset.id) {
+            BlockMarkerControls(blockId, asset.id, duration, ready, markers, vm) { marker ->
                 player.repeatRange(false)
                 marker.endMs?.let { player.range(marker.startMs, it) }
                 player.seek(marker.startMs)
+                vm.selectBlockMarker(marker.id)
                 viewport(timeline.copy(startMs = (marker.startMs - timeline.spanMs / 4)
                     .coerceIn(0.0, (duration - timeline.spanMs).coerceAtLeast(0.0))))
-            }, enabled = ready, modifier = Modifier.heightIn(min = 48.dp).testTag("master-jump-${marker.id}")) {
-                Text("${marker.label} · ${audioTimestamp(marker.startMs)}${marker.endMs?.let { "–${audioTimestamp(it)}" }.orEmpty()}")
             }
-            if (marker.note.isNotBlank()) Text(marker.note, style = MaterialTheme.typography.bodySmall)
         }
     }
     BoxWithConstraints(modifier.testTag("transcribe-panel")) {

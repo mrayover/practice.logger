@@ -55,7 +55,7 @@ class BlockMediaUpgradeTest {
         val manifest = JSONObject(File(app.filesDir, "l3-legacy-manifest.json").readText())
         val db = BlockDatabase.open(app)
         try {
-            assertEquals(14, db.openHelper.readableDatabase.version)
+            assertEquals(15, db.openHelper.readableDatabase.version)
             assertEquals(BackupCodec.decode(manifest.getString("backup").toByteArray()), BackupRepository(db).snapshot())
             assertTrue(db.blockMedia().readAll().isEmpty())
             for (table in listOf("takes", "block_images", "media_assets", "media_markers")) {

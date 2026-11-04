@@ -1,4 +1,4 @@
-name: T1 Transcribe focused checks
+name: Transcribe focused checks
 on:
   workflow_dispatch:
     inputs:
@@ -66,7 +66,7 @@ jobs:
               mv "$local_dir/$stem.$extension.tmp" "$local_dir/$stem.$extension"
             fi
           done
-          bash ./gradlew testDebugUnitTest --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
+          bash ./gradlew testDebugUnitTest --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*MediaMigrationTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
       - name: Reuse verified compilation
         if: ${{ inputs.compiled_run != '' }}
         env:
@@ -91,6 +91,7 @@ jobs:
           path: |
             app/build/outputs/apk
             app/build/test-results/testDebugUnitTest
+            app/schemas/com.mrayover.practicelogger.BlockDatabase/15.json
       - name: Emulator acceleration
         if: ${{ inputs.scope != 'build' && inputs.scope != 'piano-build' }}
         run: |

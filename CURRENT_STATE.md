@@ -1,3 +1,9 @@
+# T2 implementation and verification in progress
+
+The signed delivery below remains build84. T2 source advances to 0.23.0/build85 with Room 15 and the existing JSON 7 format. The next task is focused T2 build and verification, followed by signed delivery.
+
+---
+
 # Current state — Reference Piano range refinement delivered
 
 Updated November 3, 2026 (America/Los_Angeles).
@@ -19,7 +25,7 @@ The shared Tools and Block Transcribe keyboard shows 17 pitches in typical portr
 
 Verification was limited to the scoped piano and Transcribe checks. Physical install-over and listening checks are pending.
 
-**Next task.** Install signed build84 over the existing permanent-key app and complete its [phone checklist](dist/practice.logger-0.22.1-b84-7091421/PHONE_CHECKLIST.txt).
+The owner confirms the latest piano-range refinement works correctly. Individual install-over, device and acoustic checklist results remain unreported.
 
 ---
 

@@ -11,7 +11,7 @@ enum class MediaRole { VISUAL, AUDIO;
 }
 
 @Entity(tableName = "block_media_links", primaryKeys = ["blockId", "role"],
-    indices = [Index("mediaId")], foreignKeys = [
+    indices = [Index("mediaId"), Index(value = ["blockId", "role", "mediaId"], unique = true)], foreignKeys = [
         ForeignKey(entity = Block::class, parentColumns = ["id"], childColumns = ["blockId"], onDelete = ForeignKey.RESTRICT),
         ForeignKey(entity = MediaAsset::class, parentColumns = ["id"], childColumns = ["mediaId"], onDelete = ForeignKey.RESTRICT)])
 data class BlockMediaLink(val blockId: String, val role: String, val mediaId: String)
@@ -46,22 +46,41 @@ val BLOCK_MEDIA_MIGRATION_13_14 = object : Migration(13, 14) {
     }
 }
 
+internal class ConfirmAudioLoss(val mediaId: String) : IllegalStateException()
+
 /** Only associations live here. Canonical storage and all playback remain in the existing Library. */
 class BlockMediaRepository(private val db: BlockDatabase, private val library: MediaLibraryRepository,
     private val legacy: ImageReferenceRepository) {
     val links = db.blockMedia().observeAll()
-    suspend fun link(blockId: String, role: MediaRole, mediaId: String, replaceLegacy: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun link(blockId: String, role: MediaRole, mediaId: String, replaceLegacy: Boolean = false, confirmedAudioId: String? = null) = withContext(Dispatchers.IO) {
         // Share the legacy file mutex so retirement cannot race a legacy import or recovery.
         legacy.commitCanonicalLink(blockId, role == MediaRole.VISUAL, replaceLegacy) {
             checkNotNull(db.blocks().find(blockId)) { "This Block is no longer available." }
             val asset = checkNotNull(db.media().find(mediaId)) { "This Library item is no longer available." }
             require(role.accepts(asset.category)) { "Choose a compatible Library item." }
             check(library.available(asset)) { "The original is missing or changed. Import your original again." }
+            val previous = db.blockMedia().find(blockId, role.name)
+            if (role == MediaRole.AUDIO && previous != null && previous.mediaId != mediaId) {
+                removeAudio(blockId, previous.mediaId, confirmedAudioId)
+            }
             db.blockMedia().save(BlockMediaLink(blockId, role.name, mediaId))
         }
     }
-    suspend fun unlink(blockId: String, role: MediaRole) = withContext(Dispatchers.IO) {
-        db.withTransaction { db.blockMedia().remove(blockId, role.name) }
+    suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null) = withContext(Dispatchers.IO) {
+        db.withTransaction {
+            val previous = db.blockMedia().find(blockId, role.name)
+            if (role == MediaRole.AUDIO && previous != null) removeAudio(blockId, previous.mediaId, confirmedAudioId)
+            else db.blockMedia().remove(blockId, role.name)
+        }
+    }
+
+    private suspend fun removeAudio(block: String, media: String, confirmed: String?): Int {
+        val saved = db.blockAudio().state(block, media)
+        val duration = db.media().find(media)?.durationMs
+        val customized = saved != null && (saved.positionMs != 0L || saved.speedPercent != 100 ||
+            saved.aMs != 0L || saved.bMs != duration || saved.repeat || saved.selectedMarkerId != null)
+        if (confirmed != media && (customized || db.blockAudio().hasMarkers(block, media))) throw ConfirmAudioLoss(media)
+        return db.blockMedia().remove(block, MediaRole.AUDIO.name)
     }
 }
 

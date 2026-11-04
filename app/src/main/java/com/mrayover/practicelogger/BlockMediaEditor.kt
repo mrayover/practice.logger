@@ -82,6 +82,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         text = { Text("Attach the selected Library item, then remove the old Block-owned image/PDF and its private original. If attachment fails, the old reference stays. The Library item is kept if you cancel.") },
         confirmButton = { TextButton(onClick = vm::confirmReplacement, enabled = !vm.busy) { Text("Replace old reference") } },
         dismissButton = { TextButton(onClick = vm::cancelReplacement) { Text("Keep old reference") } })
+    ConfirmBlockAudioChange(blockId, vm)
     removal?.let { name ->
         val role = MediaRole.valueOf(name)
         val legacy = role == MediaRole.VISUAL && visual?.legacy != null
@@ -116,4 +117,15 @@ internal fun BlockMediaPicker(role: MediaRole, selectedId: String?, onClose: () 
             MediaLibraryScreen(libraryVm, onBack = onClose, selectionRole = role, selectedId = selectedId, onChoose = onChoose)
         }
     }
+}
+
+@Composable
+internal fun ConfirmBlockAudioChange(blockId: String, vm: ImageReferenceViewModel) {
+    val change = vm.pendingAudioChange?.takeIf { it.block == blockId } ?: return
+    val action = if (change.next == null) "Remove" else "Replace"
+    AlertDialog(onDismissRequest = vm::cancelAudioChange,
+        title = { Text("$action audio reference?") },
+        text = { Text("This removes this Block's saved playback settings and local marker work for the old recording. The Library original and master markers are kept.") },
+        confirmButton = { TextButton(onClick = vm::confirmAudioChange) { Text("$action reference") } },
+        dismissButton = { TextButton(onClick = vm::cancelAudioChange) { Text("Cancel") } })
 }

@@ -22,6 +22,8 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
     val visuals = combine(images, links, assets, ::resolveBlockVisuals)
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     var pendingVisualMedia by mutableStateOf<String?>(null); private set
+    internal data class AudioChange(val block: String, val next: String?, val previous: String)
+    internal var pendingAudioChange by mutableStateOf<AudioChange?>(null); private set
     private var pendingBlock: String? = null
     suspend fun loadPage(reference: BlockVisualReference, page: Int): ReferencePage =
         reference.mediaId?.let { library.visualPage(it, page) } ?: repository.loadPage(checkNotNull(reference.legacy), page)
@@ -29,7 +31,10 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         if (busy) return
         if (role == MediaRole.VISUAL && images.value.any { it.blockId == blockId }) {
             pendingBlock = blockId; pendingVisualMedia = mediaId
-        } else work { associations.link(blockId, role, mediaId); message = "${roleLabel(role)} attached from Library." }
+        } else work {
+            if (role == MediaRole.AUDIO) changeAudio(blockId, mediaId)
+            else { associations.link(blockId, role, mediaId); message = "Visual reference attached from Library." }
+        }
     }
     fun cancelReplacement() { pendingVisualMedia = null; pendingBlock = null }
     fun confirmReplacement() {
@@ -44,15 +49,37 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
     fun unlink(blockId: String, role: MediaRole) = work {
-        associations.unlink(blockId, role); message = "${roleLabel(role)} removed from this Block. The Library original was kept."
+        if (role == MediaRole.AUDIO) changeAudio(blockId, null)
+        else {
+            associations.unlink(blockId, role)
+            message = "Visual reference removed from this Block. The Library original was kept."
+        }
     }
-    private fun roleLabel(role: MediaRole) = if (role == MediaRole.VISUAL) "Visual reference" else "Audio reference"
+    internal fun cancelAudioChange() { pendingAudioChange = null }
+    internal fun confirmAudioChange() {
+        val change = pendingAudioChange ?: return
+        cancelAudioChange()
+        work { changeAudio(change.block, change.next, change.previous) }
+    }
+    private suspend fun changeAudio(block: String, next: String?, confirmed: String? = null) {
+        try {
+            if (next == null) associations.unlink(block, MediaRole.AUDIO, confirmed)
+            else associations.link(block, MediaRole.AUDIO, next, confirmedAudioId = confirmed)
+            message = if (next == null) "Audio reference removed. The Library original was kept."
+                else "Audio reference attached from Library."
+        } catch (loss: ConfirmAudioLoss) {
+            pendingAudioChange = AudioChange(block, next, loss.mediaId)
+        }
+    }
     private suspend fun attachImported(blockId: String, role: MediaRole, asset: MediaAsset) {
         try {
             require(role.accepts(asset.category)) { "Choose a compatible media type." }
             if (role == MediaRole.VISUAL && repository.images.first().any { it.blockId == blockId }) {
                 pendingBlock = blockId; pendingVisualMedia = asset.id
                 message = "Imported into Library. Confirm replacement to attach it."
+            } else if (role == MediaRole.AUDIO) {
+                changeAudio(blockId, asset.id)
+                if (pendingAudioChange != null) message = "Imported into Library. Confirm replacement to attach it."
             } else {
                 associations.link(blockId, role, asset.id)
                 message = "Imported into Library and attached. JSON backups exclude media and associations."

@@ -82,9 +82,12 @@ class BlockMediaTest {
             assertEquals(canonical.id, db.blockMedia().find(id, "VISUAL")!!.mediaId)
         } finally { db.close(); context.deleteDatabase(name); dir.deleteRecursively() }
     }
-    @Test fun explicitThirteenToFourteenRetainsEveryTableAndForeignKey(): Unit = runBlocking {
-        val name = "migration13-${UUID.randomUUID()}.db"
-        val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/13.json")!!.bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
+    @Test fun explicitThirteenToFifteenRetainsEveryTableAndForeignKey() = verifyMigration(13)
+    @Test fun explicitFourteenToFifteenRetainsEveryTableAndForeignKey() = verifyMigration(14)
+
+    private fun verifyMigration(version: Int): Unit = runBlocking {
+        val name = "migration$version-${UUID.randomUUID()}.db"
+        val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/$version.json")!!.bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
         val path = context.getDatabasePath(name).apply { parentFile!!.mkdirs() }
         val before = linkedMapOf<String, List<List<String?>>>()
         android.database.sqlite.SQLiteDatabase.openOrCreateDatabase(path, null).use { sql ->
@@ -100,14 +103,16 @@ class BlockMediaTest {
             sql.execSQL("INSERT INTO media_markers VALUES ('m','a','POINT',100,NULL,'Keep marker','Keep note')")
             sql.execSQL("INSERT INTO block_images VALUES ('b','${UUID.randomUUID()}.pdf','application/pdf',600,800,1000)")
             sql.execSQL("INSERT INTO takes VALUES ('t','b',3,'IMPORTED_LOOP',1234,'${UUID.randomUUID()}.mp3','Original',NULL,NULL)")
+            if (version == 14) sql.execSQL("INSERT INTO block_media_links VALUES ('b','AUDIO','a')")
             repeat(entities.length()) { i -> val table = entities.getJSONObject(i).getString("tableName")
                 before[table] = sql.rawQuery("SELECT * FROM $table", null).use { c -> buildList { while(c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) } }
             }
-            sql.version = 13
+            sql.version = version
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertTrue(db.blockMedia().readAll().isEmpty()); assertEquals(14, db.openHelper.readableDatabase.version)
+            assertEquals(if (version == 14) 1 else 0, db.blockMedia().readAll().size)
+            assertEquals(15, db.openHelper.readableDatabase.version)
             before.forEach { (table, rows) -> db.openHelper.readableDatabase.query("SELECT * FROM $table").use { c ->
                 assertEquals(table, rows, buildList { while(c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) })
             } }

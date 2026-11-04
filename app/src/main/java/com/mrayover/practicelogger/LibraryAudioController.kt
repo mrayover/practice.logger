@@ -88,9 +88,9 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     private fun guarded(action: () -> Unit) {
         try { action() } catch (_: Exception) { suspendPlayback("Playback failed. Retry the original.") }
     }
-    fun open(id: String) {
+    fun open(id: String, initial: LibraryAudioState? = null) {
         if (mutable.value.mediaId == id && (player != null || opening?.isActive == true)) return
-        val previous = mutable.value.takeIf { it.mediaId == id }
+        val previous = mutable.value.takeIf { it.mediaId == id } ?: initial
         releasePlayer()
         mutable.value = previous?.copy(playing = false, preparing = true, error = null) ?: LibraryAudioState(mediaId = id, preparing = true)
         if (foreground) prepare(id) else mutable.value = mutable.value.copy(preparing = false)

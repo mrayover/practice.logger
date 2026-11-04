@@ -140,7 +140,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     if (seekDialog) AudioSeekDialog(state.positionMs, duration, { seekDialog = false }) { player.seek(it); seekDialog = false }
     val editing = markers.find { it.id == editId }
     if (newType != null || editing != null) key(editId, newType) {
-        MasterMarkerDialog(editing, state, newType == "SECTION", vm, { editId = null; newType = null })
+        AudioMarkerDialog(editing, state, newType == "SECTION", "Master", vm.saving, vm.message,
+            close = { editId = null; newType = null }) { a, b, label, note, done ->
+            vm.save(editing?.id, a, b, label, note, done)
+        }
     }
     deleteId?.let { id -> AlertDialog(onDismissRequest = { if (!vm.saving) deleteId = null }, title = { Text("Delete master marker?") },
         text = { Text("Delete the marker and its note? The recording is kept.") },
@@ -177,7 +180,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     }, confirmButton = { TextButton(onClick = { save(start!!, end!!) }, enabled = valid) { Text("Apply range") } }, dismissButton = { TextButton(onClick = close) { Text("Cancel") } })
 }
 
-@Composable private fun MasterMarkerDialog(marker: MasterAudioMarker?, state: LibraryAudioState, section: Boolean, vm: LibraryAudioViewModel, close: () -> Unit) {
+@Composable
+internal fun AudioMarkerDialog(marker: MasterAudioMarker?, state: LibraryAudioState, section: Boolean,
+    owner: String, saving: Boolean, message: String?, close: () -> Unit,
+    save: (Long, Long?, String, String, () -> Unit) -> Unit) {
     var label by rememberSaveable { mutableStateOf(marker?.label ?: "") }
     var note by rememberSaveable { mutableStateOf(marker?.note ?: "") }
     val isSection = marker?.let { it.endMs != null } ?: section
@@ -185,27 +191,27 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     var end by rememberSaveable { mutableStateOf(audioSeconds(marker?.endMs ?: state.bMs)) }
     val a = parseAudioSeconds(start); val b = if (isSection) parseAudioSeconds(end) else null
     val valid = a != null && a <= state.durationMs && (!isSection || b != null && validAudioRange(a, b, state.durationMs)) && runCatching { MediaLibraryRepository.title(label) }.isSuccess && note.length <= 8000
-    AlertDialog(onDismissRequest = { if (!vm.saving) close() }, title = { Text(if (marker == null) "New master ${if (isSection) "section" else "marker"}" else "Edit master marker") }, text = {
+    AlertDialog(onDismissRequest = { if (!saving) close() }, title = { Text(if (marker == null) "New ${if (isSection) "section" else "marker"} for $owner" else "Edit marker for $owner") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(label, { label = it }, label = { Text("Label") }, modifier = Modifier.testTag("marker-label"))
             OutlinedTextField(note, { note = it }, label = { Text("Note (optional)") }, modifier = Modifier.testTag("marker-note"))
             OutlinedTextField(start, { start = it }, label = { Text("Start seconds") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.testTag("marker-start"))
             if (isSection) OutlinedTextField(end, { end = it }, label = { Text("End seconds") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.testTag("marker-end"))
-            vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }
-    }, confirmButton = { TextButton(onClick = { vm.save(marker?.id, a!!, b, label, note, close) }, enabled = valid && !vm.saving) { Text("Save marker") } },
-        dismissButton = { TextButton(onClick = close, enabled = !vm.saving) { Text("Cancel") } })
+    }, confirmButton = { TextButton(onClick = { save(a!!, b, label, note, close) }, enabled = valid && !saving) { Text("Save marker") } },
+        dismissButton = { TextButton(onClick = close, enabled = !saving) { Text("Cancel") } })
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun AudioPlaybackControls(player: LibraryAudioController, state: LibraryAudioState, mediaId: String) {
+internal fun AudioPlaybackControls(player: LibraryAudioController, state: LibraryAudioState, mediaId: String, enabled: Boolean = true) {
     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Button(onClick = { if (state.playing) player.pause() else player.play() }, enabled = !state.preparing && state.mediaId == mediaId, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-play")) { Text(if (state.playing) "Pause" else "Play") }
-        OutlinedButton(onClick = player::stop, enabled = !state.preparing, modifier = Modifier.heightIn(min = 48.dp)) { Text("Stop") }
-        TextButton(onClick = { player.speed(state.speedPercent - 5) }, enabled = state.speedPercent > 50, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-slower")) { Text("−5%") }
+        Button(onClick = { if (state.playing) player.pause() else player.play() }, enabled = enabled && !state.preparing && state.mediaId == mediaId, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-play")) { Text(if (state.playing) "Pause" else "Play") }
+        OutlinedButton(onClick = player::stop, enabled = enabled && !state.preparing, modifier = Modifier.heightIn(min = 48.dp)) { Text("Stop") }
+        TextButton(onClick = { player.speed(state.speedPercent - 5) }, enabled = enabled && state.speedPercent > 50, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-slower")) { Text("−5%") }
         Text("${state.speedPercent}%", Modifier.padding(vertical = 12.dp).testTag("audio-speed"))
-        TextButton(onClick = { player.speed(state.speedPercent + 5) }, enabled = state.speedPercent < 100, modifier = Modifier.heightIn(min = 48.dp)) { Text("+5%") }
+        TextButton(onClick = { player.speed(state.speedPercent + 5) }, enabled = enabled && state.speedPercent < 100, modifier = Modifier.heightIn(min = 48.dp)) { Text("+5%") }
     }
 }
 

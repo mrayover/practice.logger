@@ -35,7 +35,7 @@ class MediaMarkerTest {
         val dir = File(context.cacheDir, "markers-${UUID.randomUUID()}")
         try {
             assertEquals("Retained", db.blocks().find("old")!!.name)
-            assertEquals(14, db.openHelper.readableDatabase.version)
+            assertEquals(15, db.openHelper.readableDatabase.version)
             val repo = MasterAudioMarkerRepository(db)
             val point = repo.save("audio", null, 100, null, "Solo", "First note")
             val section = repo.save("audio", null, 200, 700, "Phrase", "Voicing")
