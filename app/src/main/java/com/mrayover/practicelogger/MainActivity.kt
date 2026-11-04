@@ -173,17 +173,17 @@ class MainActivity : ComponentActivity() {
                 headerHomeRequested = true; backDispatcher?.onBackPressed()
             } else { focus.clearFocus(force = true); keyboard?.hide(); page = destination }
         }
-        if (page != "media-library" || !mediaWorkspace) PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
+        if (page != "transcribe" && (page != "media-library" || !mediaWorkspace)) PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
             enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
         Box(Modifier.weight(1f).fillMaxWidth().then(
-            if (page == "media-library" && mediaWorkspace) Modifier
+            if (page == "transcribe" || (page == "media-library" && mediaWorkspace)) Modifier
             else Modifier.consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)))) {
         if (catalog.error != null || sessions.error != null) {
             Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text(catalog.error ?: sessions.error!!) }
         } else if (!catalog.ready || !sessions.ready || !goals.ready) {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
-            "home" -> PracticeHome(onPractice = { page = "builder" }, onBlocks = { page = "library" },
+            "home" -> PracticeHome(onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
                 onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
                 onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" }, onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
             "media-library" -> {
@@ -203,7 +203,7 @@ class MainActivity : ComponentActivity() {
                 onCancel = { page = if (headerHomeRequested) headerDestination else if (goalEditorId == null) "goals" else "goal-detail" }, onNavigationCancelled = { headerHomeRequested = false }) }
             "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,
                 onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
-            "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "builder" },
+            "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "practice-now" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
                 onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
             "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) headerDestination else "routines" }, onNavigationCancelled = { headerHomeRequested = false })
@@ -215,7 +215,11 @@ class MainActivity : ComponentActivity() {
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" })
-            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, sessions, practice, routines, onHome = { page = "home" }, onCreate = { openEditor(null, "builder") })
+            "practice-now" -> PracticeNowScreen(sessions, practice, onBack = { page = "home" },
+                onBuilder = { page = "builder" }, onRoutines = { page = "practice-routines" }, onTranscribe = { page = "transcribe" })
+            "practice-routines" -> PracticeRoutinesScreen(catalog, routines, practice, onBack = { page = "practice-now" })
+            "transcribe" -> StandaloneTranscribeScreen(media, onBack = { page = "practice-now" })
+            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, routines, onBack = { page = "practice-now" }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings, onNavigationCancelled = { headerHomeRequested = false })
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId), onNavigationCancelled = { headerHomeRequested = false })
             "library" -> {

@@ -19,11 +19,16 @@ adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 tests='PianoNativeTest PianoWorkflowTest'
 case "${2:-native}" in
   ui) tests=TranscribeWorkflowTest ;;
+  standalone) tests=StandaloneTranscribeTest ;;
+  practice-navigation) tests="MultipleSessionWorkflowTest MultipleSessionReopenTest RoutineWorkflowTest RoutineReopenTest GoalWorkflowTest" ;;
   reopen) tests="BlockAudioReopenTest#checkpointBeforeForceStop BlockAudioReopenTest#restoreAfterForceStop" ;;
   transport) tests="TransportPreviewTest ImportedAudioWorkflowTest#importSelectRepeatInterruptAndKeepExistingTakes" ;;
   library) tests="LibraryPlatformGateTest LibraryWorkspaceTest#realFormatsControllerLoopSpeedSeekEndAndForeground LibraryWorkspaceTest#waveformFaithfulnessLongDurationCacheRecoveryAndOriginalIntegrity" ;;
 esac
 for test in $tests; do
+  if [[ "${2:-}" == practice-navigation && "$test" != *ReopenTest ]]; then
+    adb shell pm clear com.mrayover.practicelogger.app
+  fi
   adb shell am force-stop com.mrayover.practicelogger.app
   timeout --kill-after=10s 300s adb shell am instrument -w -r -e timeout_msec 120000 -e class "com.mrayover.practicelogger.$test" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "$out/$test.txt"
   grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/$test.txt"

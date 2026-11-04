@@ -4,6 +4,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 
 /** Explicit home-menu routes shared by the existing end-to-end workflows. */
 fun openHomeRoutines(compose: AndroidComposeTestRule<*, MainActivity>) {
@@ -21,7 +22,13 @@ fun openHomeTools(compose: AndroidComposeTestRule<*, MainActivity>) {
 fun openHomePractice(compose: AndroidComposeTestRule<*, MainActivity>) {
     compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
     compose.onNodeWithText("Practice Now").scrollIfNeeded().performClick()
-    compose.waitUntil(15000) { compose.onAllNodesWithText("Build a Session").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+    compose.waitUntil(15000) { compose.onAllNodesWithTag("practice-now-title").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+}
+
+fun continueFirstSession(compose: AndroidComposeTestRule<*, MainActivity>) {
+    compose.onAllNodes(SemanticsMatcher("saved session") {
+        it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("continue-session-") == true
+    }).onFirst().scrollIfNeeded().performClick()
 }
 
 /** Compact references expose reset through accessibility while preserving real zoom state. */

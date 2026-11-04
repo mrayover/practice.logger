@@ -89,14 +89,14 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
                 TextButton(onClick = { choice = false; picker = true }) { Text("Choose from Library") }
                 TextButton(onClick = {
                     choice = false
-                    try { importer.launch(blockAudioMimeTypes) }
+                    try { importer.launch(libraryAudioMimeTypes) }
                     catch (_: Exception) { pickerError = true }
                 }) { Text("Import New into Library") }
             }
         },
         confirmButton = { TextButton(onClick = { choice = false }) { Text("Cancel") } }
     )
-    if (picker) BlockMediaPicker(MediaRole.AUDIO, mediaId, onClose = { picker = false }, onChoose = {
+    if (picker) LibraryMediaPicker(MediaRole.AUDIO, mediaId, onClose = { picker = false }, onChoose = {
         picker = false
         images.choose(blockId, MediaRole.AUDIO, it)
     })
@@ -218,7 +218,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
 }
 
 @Composable
-private fun EmbeddedReferencePiano(player: LibraryAudioController, keyHeight: Dp) {
+internal fun EmbeddedReferencePiano(player: LibraryAudioController, keyHeight: Dp) {
     val context = LocalContext.current
     var reset by remember { mutableIntStateOf(0) }
     var error by remember { mutableStateOf<String?>(null) }

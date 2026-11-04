@@ -101,7 +101,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
         }
     }.getOrDefault(false)
 
-    suspend fun import(name: String, declaredMime: String?, open: () -> InputStream): MediaAsset = withContext(Dispatchers.IO) {
+    suspend fun import(name: String, declaredMime: String?, role: MediaRole? = null, open: () -> InputStream): MediaAsset = withContext(Dispatchers.IO) {
         filesMutex.withLock {
             require(name.isNotBlank() && name.length <= 255 && name.none(Char::isISOControl)) { "Choose a filename of 1–255 characters." }
             val extension = name.substringAfterLast('.', "").lowercase(Locale.ROOT)
@@ -116,6 +116,8 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                 "The file type and filename disagree. Choose an original supported file."
             }
             val audio = mime.startsWith("audio/")
+            val category = if (audio) "AUDIO" else if (mime == "application/pdf") "PDF" else "IMAGE"
+            require(role == null || role.accepts(category)) { "Choose a compatible media type." }
             val limit = if (audio) AudioImport.MAX_BYTES else ImageReferenceRepository.MAX_BYTES.toLong()
             check(directory.isDirectory || directory.mkdirs()) { "Library storage is unavailable." }
             if (audio) check(freeBytes() >= AudioImport.MAX_BYTES + 1024 * 1024) { "Free at least 51 MiB before importing audio." }
@@ -143,7 +145,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                 val duration = if (audio) inspectImportedAudio(pending, extension) else null
                 currentCoroutineContext().ensureActive()
                 val target = resolve("$id.${if (extension == "jpeg") "jpg" else extension}")
-                val asset = MediaAsset(id, title(name), name, mime, if (audio) "AUDIO" else if (mime == "application/pdf") "PDF" else "IMAGE",
+                val asset = MediaAsset(id, title(name), name, mime, category,
                     target.name, pending.length(), System.currentTimeMillis(), visual?.width, visual?.height, visual?.pageCount, duration,
                     digest.digest().joinToString("") { "%02x".format(it) })
                 withContext(NonCancellable) {

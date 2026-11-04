@@ -77,7 +77,7 @@ class AccessibilityWorkflowTest {
             readable("Save Routine"); captureStage3("06-large-routine-save"); click("Save Routine"); shown("Large text routine")
             readable("Practice Routine"); readable("Edit Routine"); readable("Delete Routine")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
-            click("Practice Now"); shown("Add Accessible fixture"); click("Add Accessible fixture"); shown("1. Accessible fixture"); compose.waitForIdle(); click("Add Accessible fixture")
+            click("Practice Now"); click("Add Blocks"); shown("Add Accessible fixture"); click("Add Accessible fixture"); shown("1. Accessible fixture"); compose.waitForIdle(); click("Add Accessible fixture")
             shown("2. Accessible fixture"); readable("Change duration")
             // Repeated controls identify their Block for assistive technology.
             compose.onNodeWithContentDescription("Move Accessible fixture, placement 2, up").assertExists()

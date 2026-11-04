@@ -17,30 +17,32 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** Embedded above Recent Practice, preserving the existing history destination. */
 @Composable fun SavedRoutines(catalog: Catalog, vm: RoutineViewModel, practice: PracticeViewModel,
-    onNew: () -> Unit, onEdit: (String) -> Unit) {
+    onNew: (() -> Unit)? = null, onEdit: ((String) -> Unit)? = null) {
     val routines by vm.catalog.collectAsStateWithLifecycle()
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
-    OutlinedButton(onClick = onNew, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Routine") }
+    if (onNew != null) OutlinedButton(onClick = onNew, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Routine") }
     when {
         routines.error != null -> Text(routines.error!!)
         !routines.ready -> Text("Loading Routines…")
-        routines.bundles.isEmpty() -> Text("No saved Routines. Create one here or save a session selection as a Routine.")
+        routines.bundles.isEmpty() -> Text("No saved Routines. Create one from Home → Routines or save a session selection as a Routine.")
     }
     val blocksById = remember(catalog.blocks) { catalog.blocks.associateBy { it.id } }
     routines.bundles.forEach { bundle ->
         val id = bundle.routine.id
         val unavailable = routineUnavailable(bundle.ordered.map { RoutineSelection(it.sourceBlockId, it.configuredMs) }, blocksById)
         Column(Modifier.fillMaxWidth().testTag("routine-" + id), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(bundle.routine.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            Text("${bundle.placements.size} Block placements")
+            if (onEdit != null) Text(bundle.routine.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            if (onEdit != null) Text("${bundle.placements.size} Block placements")
             if (unavailable.isNotEmpty()) Text(unavailable.joinToString("\n") + "\nEdit the Routine or restore its archived Blocks before starting.")
             Button(onClick = { practice.startRoutine(id) }, enabled = unavailable.isEmpty() && bundle.placements.isNotEmpty() && !practice.busy && !vm.busy,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("start-routine-" + id)
-                    .semantics { contentDescription = "Practice " + bundle.routine.name }) { Text("Practice Routine") }
-            OutlinedButton(onClick = { onEdit(id) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                .testTag("edit-routine-" + id).semantics { contentDescription = "Edit " + bundle.routine.name }) { Text("Edit Routine") }
-            TextButton(onClick = { deleteId = id }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)
-                .testTag("delete-routine-" + id).semantics { contentDescription = "Delete " + bundle.routine.name }) { Text("Delete Routine") }
+                    .semantics { contentDescription = "Practice " + bundle.routine.name }) { Text(if (onEdit == null) bundle.routine.name else "Practice Routine") }
+            if (onEdit != null) {
+                OutlinedButton(onClick = { onEdit(id) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                    .testTag("edit-routine-" + id).semantics { contentDescription = "Edit " + bundle.routine.name }) { Text("Edit Routine") }
+                TextButton(onClick = { deleteId = id }, enabled = !vm.busy, modifier = Modifier.heightIn(min = 48.dp)
+                    .testTag("delete-routine-" + id).semantics { contentDescription = "Delete " + bundle.routine.name }) { Text("Delete Routine") }
+            }
             HorizontalDivider()
         }
     }
@@ -50,6 +52,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
             text = { Text("Delete ${bundle.routine.name}? Only the saved Routine is removed. Blocks, recordings and practice history are kept.") },
             confirmButton = { TextButton(onClick = { deleteId = null; vm.delete(bundle.routine.id) }, enabled = !vm.busy) { Text("Delete Routine permanently") } },
             dismissButton = { TextButton(onClick = { deleteId = null }) { Text("Keep Routine") } })
+    }
+}
+
+@Composable
+internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel, practice: PracticeViewModel, onBack: () -> Unit) {
+    BackHandler(onBack = onBack)
+    Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Routines", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
+        SavedRoutines(catalog, routines, practice)
     }
 }
 

@@ -53,29 +53,41 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     }
 }
 
+@Composable
+internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewModel, onBack: () -> Unit,
+    onBuilder: () -> Unit, onRoutines: () -> Unit, onTranscribe: () -> Unit) {
+    BackHandler(onBack = onBack)
+    Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Practice Now", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.testTag("practice-now-title").semantics { heading() })
+        if (sessions.unfinished.isNotEmpty()) {
+            Text("Continue Session", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            sessions.unfinished.forEach { bundle ->
+                OutlinedButton(onClick = { practice.openSession(bundle.session.id) }, enabled = !practice.busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
+                    Column {
+                        Text(bundle.current?.name ?: "Session", style = MaterialTheme.typography.titleMedium)
+                        Text("${sessionDate(bundle.session.startedAt)} · Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}")
+                    }
+                }
+            }
+        }
+        ActionButton("Add Blocks", onBuilder)
+        ActionButton("Routines", onRoutines)
+        ActionButton("Transcribe", onTranscribe)
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, sessions: SessionCatalog, vm: PracticeViewModel, routines: RoutineViewModel, onHome: () -> Unit, onCreate: () -> Unit) {
+@Composable fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewModel, routines: RoutineViewModel, onBack: () -> Unit, onCreate: () -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     var changeId by rememberSaveable { mutableStateOf<String?>(null) }
     var minutes by rememberSaveable { mutableStateOf("") }
     var validation by rememberSaveable { mutableStateOf(false) }
     var discard by rememberSaveable { mutableStateOf(false) }
     val entries = draft?.ordered ?: emptyList()
-    BackHandler { onHome() }
+    BackHandler(onBack = onBack)
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        if (sessions.unfinished.isNotEmpty()) {
-            Text("Unfinished sessions", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            Text("Continue saved practice below, or build a new session. All sessions resume paused.")
-            sessions.active?.let { active ->
-                ActionButton("Continue Session", { vm.openSession(active.session.id) })
-                Text(sessionDate(active.session.startedAt) + " · " + (active.current?.name ?: "Session") + " · Block " + (active.session.currentIndex + 1) + " of " + active.placements.size)
-            }
-            sessions.unfinished.filter { it.session.id != sessions.active?.session?.id }.forEach { bundle ->
-                OutlinedButton(onClick = { vm.openSession(bundle.session.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
-                    Text("Continue: " + (bundle.ordered.firstOrNull()?.name ?: "Session") + " · " + sessionDate(bundle.session.startedAt))
-                }
-            }
-        }
         Text("Build a Session", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Arrange Blocks for this session. Duration changes here leave your saved Blocks unchanged.")
         if (entries.isEmpty()) Text("Add a Block below to begin.")
@@ -449,6 +461,6 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     return style.copy(fontSize = style.fontSize * minOf(1f, available / measured))
 }
 
-@Composable private fun ActionButton(label: String, click: () -> Unit, enabled: Boolean = true) {
+@Composable internal fun ActionButton(label: String, click: () -> Unit, enabled: Boolean = true) {
     Button(onClick = click, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label) }
 }

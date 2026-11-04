@@ -66,13 +66,13 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
             finally { busy = false; importing = false }
         }
     }
-    fun import(uri: Uri) = work(import = true) {
+    fun import(uri: Uri, role: MediaRole? = null) = work(import = true) {
         withContext(Dispatchers.IO) {
             val resolver = getApplication<Application>().contentResolver
             val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
                 if (it.moveToFirst() && !it.isNull(0)) it.getString(0) else null
             } ?: throw IllegalArgumentException("The file provider did not supply a filename. Choose another original.")
-            repository.import(name, resolver.getType(uri)) { checkNotNull(resolver.openInputStream(uri)) { "The source file is unavailable." } }
+            repository.import(name, resolver.getType(uri), role = role) { checkNotNull(resolver.openInputStream(uri)) { "The source file is unavailable." } }
         }
         "Imported. Library media is local and is not included in JSON backups."
     }
@@ -88,7 +88,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, onChoose: ((String) -> Unit)? = null) {
+@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, allowAudioImport: Boolean = false, onChoose: ((String) -> Unit)? = null) {
     val assets by vm.assets.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var filterName by rememberSaveable { mutableStateOf(MediaFilter.ALL.name) }
@@ -98,9 +98,12 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     var previewId by rememberSaveable { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.import(uri) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.import(uri, if (allowAudioImport) MediaRole.AUDIO else null) }
     val importAction = {
-        try { picker.launch(arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf", "audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")) }
+        try {
+            picker.launch(if (allowAudioImport) libraryAudioMimeTypes else
+                arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf") + libraryAudioMimeTypes)
+        }
         catch (_: Exception) { vm.pickerUnavailable() }
     }
     val lifecycle = LocalLifecycleOwner.current
@@ -128,7 +131,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onBack) { Text(if (selectionRole == null) "Back" else "Cancel selection") }
                 Text(if (selectionRole == null) "Media Library" else if (selectionRole == MediaRole.VISUAL) "Choose visual reference" else "Choose audio reference", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(vertical = 8.dp))
-                if (selectionRole == null) Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
+                if (selectionRole == null || allowAudioImport) Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
             }
         }
         item { Text("Library media and master annotations are stored locally and are not yet included in JSON backups. Keep your originals separately.", style = MaterialTheme.typography.bodySmall) }
@@ -155,7 +158,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
             Button(onClick = vm::retryRead) { Text("Retry Library") }
         } else if (!vm.ready) item { Text("Loading Library…") }
         else if (filtered.isEmpty()) item {
-            Text(if (compatible.isEmpty()) "No compatible files imported yet. Import an image, PDF or audio file to organize it here." else "No files match your search and filter.")
+            Text(if (compatible.isEmpty() && allowAudioImport) "No audio in the Library yet. Import an MP3, M4A or WAV." else if (compatible.isEmpty()) "No compatible files imported yet. Import an image, PDF or audio file to organize it here." else "No files match your search and filter.")
             if (selectionRole == null && assets.isEmpty()) OutlinedButton(onClick = importAction, enabled = enabled) { Text("Import a file") }
         }
         items(filtered, key = { it.id }) { asset ->

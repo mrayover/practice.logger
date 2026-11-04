@@ -22,6 +22,7 @@ class RoutineWorkflowTest {
             }
             val blocks = runBlocking { db.blocks().readAll() }
             openHomePractice(compose)
+            click("Add Blocks")
             click("Add Routine A"); shown("1. Routine A")
             click("Add Routine B"); shown("2. Routine B")
             click("Add Routine A"); shown("3. Routine A")
@@ -109,7 +110,7 @@ class RoutineReopenTest {
                 assertEquals("IN_PROGRESS", recovery.session.status); assertEquals("Routine B", recovery.current!!.name)
             }
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick(); openHomePractice(compose)
-            compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()
+            continueFirstSession(compose)
             compose.waitUntil(15000) { compose.onAllNodesWithText("Routine B").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Resume").assertExists(); compose.onNodeWithText("Pause").assertDoesNotExist()
             revealPracticeNotes(compose)

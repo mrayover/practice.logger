@@ -59,7 +59,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             OutlinedButton(onClick = {
                 importRole = role.name
                 try { picker.launch(if (role == MediaRole.VISUAL) arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf")
-                    else blockAudioMimeTypes) }
+                    else libraryAudioMimeTypes) }
                 catch (_: Exception) { vm.photoUnavailable() }
             }, enabled = enabled, modifier = Modifier.heightIn(min = 48.dp).testTag("block-${role.name}-import")) { Text("Import New into Library") }
         }
@@ -74,7 +74,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     vm.message?.let { Text(it, modifier = Modifier.testTag("block-media-message").semantics { liveRegion = LiveRegionMode.Polite }) }
     selection?.let { name ->
         val role = MediaRole.valueOf(name)
-        BlockMediaPicker(role, links.find { it.blockId == blockId && it.role == name }?.mediaId,
+        LibraryMediaPicker(role, links.find { it.blockId == blockId && it.role == name }?.mediaId,
             onClose = { selection = null }, onChoose = { id -> selection = null; vm.choose(blockId, role, id) })
     }
     if (vm.pendingVisualMedia != null) AlertDialog(onDismissRequest = vm::cancelReplacement,
@@ -107,14 +107,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         } }, confirmButton = { TextButton(onClick = { photoOptions = false }) { Text("Cancel") } })
 }
 
-internal val blockAudioMimeTypes = arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")
+internal val libraryAudioMimeTypes = arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")
 
 @Composable
-internal fun BlockMediaPicker(role: MediaRole, selectedId: String?, onClose: () -> Unit, onChoose: (String) -> Unit) {
+internal fun LibraryMediaPicker(role: MediaRole, selectedId: String?, onClose: () -> Unit, allowAudioImport: Boolean = false, onChoose: (String) -> Unit) {
     val libraryVm: MediaLibraryViewModel = viewModel()
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize()) {
-            MediaLibraryScreen(libraryVm, onBack = onClose, selectionRole = role, selectedId = selectedId, onChoose = onChoose)
+            MediaLibraryScreen(libraryVm, onBack = onClose, selectionRole = role, selectedId = selectedId, allowAudioImport = allowAudioImport, onChoose = onChoose)
         }
     }
 }

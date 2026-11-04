@@ -123,7 +123,7 @@ class SystemPickerRestoreTest {
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick()
             openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
-            compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()
+            continueFirstSession(compose)
             shownPickerApp(compose, "Picker recovery")
             compose.onNodeWithText("Resume").assertExists()
             compose.onNodeWithText("Block 2 of 2").assertExists()
@@ -148,7 +148,7 @@ class SystemPickerReopenTest {
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
             openHomePractice(compose)
             shownPickerApp(compose, "Continue Session")
-            compose.onNodeWithText("Continue Session").scrollIfNeeded().performClick()
+            continueFirstSession(compose)
             shownPickerApp(compose, "Picker recovery")
             compose.onNodeWithText("Resume").assertExists()
             compose.onNodeWithText("Complete").scrollIfNeeded().performClick()

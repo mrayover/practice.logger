@@ -24,7 +24,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel()) {
+@Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel(), onChangeAudio: (() -> Unit)? = null) {
+    val standalone = onChangeAudio != null
     val player = vm.controller
     val state by player.state.collectAsStateWithLifecycle()
     val markerFlow = remember(asset.id) { vm.markers.observe(asset.id) }
@@ -42,10 +43,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val activity = LocalContext.current as? Activity
     val compactHeight = LocalConfiguration.current.screenHeightDp / LocalDensity.current.fontScale < 480
+    var pianoExpanded by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(asset.id) { vm.open(asset.id) }
     DisposableEffect(lifecycle, asset.id) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) player.setForeground(true)
+            if (event == Lifecycle.Event.ON_RESUME) {
+                player.setForeground(true)
+                if (standalone && player.state.value.mediaId == asset.id && player.state.value.error == null) {
+                    player.open(asset.id)
+                }
+            }
+            if (standalone && event == Lifecycle.Event.ON_PAUSE) player.setForeground(false)
             if (event == Lifecycle.Event.ON_STOP && activity?.isChangingConfigurations != true) player.setForeground(false)
         }
         lifecycle.addObserver(observer)
@@ -54,85 +62,129 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) player.setForeground(true)
         onDispose {
             lifecycle.removeObserver(observer)
-            if (activity?.isChangingConfigurations != true) vm.close()
+            if (standalone || activity?.isChangingConfigurations != true) vm.close()
         }
     }
     BackHandler(onBack = close)
-    Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 8.dp)) {
-        Row(Modifier.fillMaxWidth()) {
-            TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) { Text(if (compactHeight) "Back" else "Back to Library") }
-            Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
-        }
+    val ready = state.mediaId == asset.id && state.durationMs > 0 && !state.preparing && state.error == null
+    val transport: @Composable () -> Unit = {
         // Transport and source-time/range readouts remain independent of the long marker list.
-        AudioPlaybackControls(player, state, asset.id)
+        AudioPlaybackControls(player, state, asset.id, enabled = !standalone || ready)
         Row(Modifier.fillMaxWidth()) {
-            TextButton(onClick = { seekDialog = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-position")) {
+            TextButton(onClick = { seekDialog = true }, enabled = !standalone || ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-position")) {
                 Text(if (compactHeight) "${audioTimestamp(state.positionMs).substringBeforeLast('.')} / ${audioTimestamp(duration).substringBeforeLast('.')}" else "${audioTimestamp(state.positionMs)} / ${audioTimestamp(duration)}")
             }
-            TextButton(onClick = { rangeDialog = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-edit-range")) {
+            TextButton(onClick = { rangeDialog = true }, enabled = !standalone || ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-edit-range")) {
                 Text(if (compactHeight) "Edit A–B" else "A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}")
             }
         }
         if (state.preparing) Text("Preparing audio…")
         state.error?.let { error -> Text(error, color = MaterialTheme.colorScheme.error); TextButton(onClick = { player.open(asset.id) }) { Text("Retry playback") } }
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-            val details: @Composable (Modifier) -> Unit = { modifier ->
-                Column(modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}", style = MaterialTheme.typography.bodySmall)
-                    AudioWaveformView(vm.waveform, state, markers, timeline, ::viewport, player::seek, { a, b -> player.range(a, b) })
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(audioTimestamp(timeline.timeAt(0f)), style = MaterialTheme.typography.bodySmall)
-                        Text(audioTimestamp(timeline.timeAt(1f)), style = MaterialTheme.typography.bodySmall)
-                    }
-                    if (vm.waveform == null && vm.waveformError == null) Text("Analyzing waveform…", style = MaterialTheme.typography.bodySmall)
-                    vm.waveformError?.let { Text(it); TextButton(onClick = vm::retryWaveform) { Text("Retry waveform") } }
-                    AudioZoomControls(timeline, state.positionMs, duration, ::viewport)
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        OutlinedButton(onClick = { player.range(state.positionMs, state.bMs) }, enabled = state.positionMs < state.bMs) { Text("Set A here") }
-                        OutlinedButton(onClick = { player.range(state.aMs, state.positionMs) }, enabled = state.positionMs > state.aMs) { Text("Set B here") }
-                        OutlinedButton(onClick = player::playSelection, enabled = !state.preparing) { Text("Play selection") }
-                    }
-                    Row { Checkbox(state.repeatRange, { player.repeatRange(it) }, Modifier.testTag("audio-repeat-range")); Text("Repeat A–B", Modifier.padding(top = 12.dp)) }
-                    Row { Checkbox(state.repeatFile, { player.repeatFile(it) }); Text("Repeat whole file", Modifier.padding(top = 12.dp)) }
+    }
+    val details: @Composable () -> Unit = {
+        AudioWaveformView(vm.waveform, state, markers, timeline, ::viewport, player::seek, { a, b -> player.range(a, b) })
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(audioTimestamp(timeline.timeAt(0f)), style = MaterialTheme.typography.bodySmall)
+            Text(audioTimestamp(timeline.timeAt(1f)), style = MaterialTheme.typography.bodySmall)
+        }
+        if (vm.waveform == null && vm.waveformError == null) Text("Analyzing waveform…", style = MaterialTheme.typography.bodySmall)
+        vm.waveformError?.let { Text(it); TextButton(onClick = vm::retryWaveform) { Text("Retry waveform") } }
+        AudioZoomControls(timeline, state.positionMs, duration, ::viewport)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            OutlinedButton(onClick = { player.range(state.positionMs, state.bMs) }, enabled = state.positionMs < state.bMs) { Text("Set A here") }
+            OutlinedButton(onClick = { player.range(state.aMs, state.positionMs) }, enabled = state.positionMs > state.aMs) { Text("Set B here") }
+            OutlinedButton(onClick = player::playSelection, enabled = !state.preparing) { Text("Play selection") }
+        }
+        Row { Checkbox(state.repeatRange, { player.repeatRange(it) }, Modifier.testTag("audio-repeat-range")); Text("Repeat A–B", Modifier.padding(top = 12.dp)) }
+        if (!standalone) Row { Checkbox(state.repeatFile, { player.repeatFile(it) }); Text("Repeat whole file", Modifier.padding(top = 12.dp)) }
+    }
+    val annotationControls: @Composable () -> Unit = {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            TextButton(onClick = { newType = "POINT" }, enabled = state.durationMs > 0, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.testTag("audio-add-point")) { Text("+ Point") }
+            TextButton(onClick = { newType = "SECTION" }, enabled = validAudioRange(state.aMs, state.bMs, duration), contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.testTag("audio-add-section")) { Text("+ Section") }
+        }
+        vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    }
+    val markerRow: @Composable (MasterAudioMarker) -> Unit = { marker ->
+        OutlinedCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(8.dp)) {
+                TextButton(onClick = {
+                    if (marker.endMs != null) player.range(marker.startMs, marker.endMs)
+                    else player.repeatRange(false)
+                    player.seek(marker.startMs)
+                    viewport(AudioTimeline(duration).copy(spanMs = minOf(10000.0, duration.toDouble())).let {
+                        it.copy(startMs = (marker.startMs - it.spanMs / 4).coerceIn(0.0, duration - it.spanMs))
+                    })
+                }, modifier = Modifier.fillMaxWidth().testTag("master-jump-${marker.id}")) {
+                    Text("${marker.label} · ${audioTimestamp(marker.startMs)}${marker.endMs?.let { "–${audioTimestamp(it)}" }.orEmpty()}")
+                }
+                if (marker.note.isNotBlank()) Text(marker.note, maxLines = 3, style = MaterialTheme.typography.bodySmall)
+                Row {
+                    TextButton(onClick = { editId = marker.id }) { Text("Edit") }
+                    TextButton(onClick = { deleteId = marker.id }) { Text("Delete") }
                 }
             }
-            val annotationPanel: @Composable (Modifier) -> Unit = { modifier ->
-                Column(modifier) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        TextButton(onClick = { newType = "POINT" }, enabled = state.durationMs > 0, contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.testTag("audio-add-point")) { Text("+ Point") }
-                        TextButton(onClick = { newType = "SECTION" }, enabled = validAudioRange(state.aMs, state.bMs, duration), contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.testTag("audio-add-section")) { Text("+ Section") }
+        }
+    }
+    val noMarkers: @Composable () -> Unit = {
+        Text("No master markers yet.", style = MaterialTheme.typography.bodySmall)
+    }
+    if (onChangeAudio != null) {
+        val pianoHeight = if (compactHeight) 104.dp else 144.dp
+        LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp)
+            .testTag("standalone-transcribe"), verticalArrangement = Arrangement.spacedBy(4.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)) {
+            item {
+                TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) {
+                    Text("Back to Practice Now")
+                }
+                Text(asset.title, style = MaterialTheme.typography.titleMedium)
+                TextButton(onClick = onChangeAudio, modifier = Modifier.heightIn(min = 48.dp)) { Text("Change Audio") }
+                transport()
+                if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}",
+                    style = MaterialTheme.typography.bodySmall)
+                details()
+            }
+            item {
+                OutlinedSelectionChip(pianoExpanded, { pianoExpanded = !pianoExpanded },
+                    modifier = Modifier.testTag("transcribe-piano"), label = { Text("Reference Piano") })
+                if (pianoExpanded) EmbeddedReferencePiano(player, pianoHeight)
+            }
+            item {
+                Text("Master Markers — shared with Blocks", style = MaterialTheme.typography.titleMedium)
+                annotationControls()
+                if (markers.isEmpty()) noMarkers()
+            }
+            items(markers, key = { it.id }) { markerRow(it) }
+        }
+    } else {
+        Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 8.dp)) {
+            Row(Modifier.fillMaxWidth()) {
+                TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) { Text(if (compactHeight) "Back" else "Back to Library") }
+                Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
+            }
+            transport()
+            BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+                val scrollDetails: @Composable (Modifier) -> Unit = { modifier ->
+                    Column(modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}", style = MaterialTheme.typography.bodySmall)
+                        details()
                     }
-                    vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                    LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("master-markers"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (markers.isEmpty()) item { Text("No master markers yet.", style = MaterialTheme.typography.bodySmall) }
-                        items(markers, key = { it.id }) { marker ->
-                            OutlinedCard(Modifier.fillMaxWidth()) {
-                                Column(Modifier.padding(8.dp)) {
-                                    TextButton(onClick = {
-                                        if (marker.endMs != null) player.range(marker.startMs, marker.endMs)
-                                        else player.repeatRange(false)
-                                        player.seek(marker.startMs)
-                                        viewport(AudioTimeline(duration).copy(spanMs = minOf(10000.0, duration.toDouble())).let {
-                                            it.copy(startMs = (marker.startMs - it.spanMs / 4).coerceIn(0.0, duration - it.spanMs))
-                                        })
-                                    }, modifier = Modifier.fillMaxWidth().testTag("master-jump-${marker.id}")) {
-                                        Text("${marker.label} · ${audioTimestamp(marker.startMs)}${marker.endMs?.let { "–${audioTimestamp(it)}" }.orEmpty()}")
-                                    }
-                                    if (marker.note.isNotBlank()) Text(marker.note, maxLines = 3, style = MaterialTheme.typography.bodySmall)
-                                    Row {
-                                        TextButton(onClick = { editId = marker.id }) { Text("Edit") }
-                                        TextButton(onClick = { deleteId = marker.id }) { Text("Delete") }
-                                    }
-                                }
-                            }
+                }
+                val annotationPanel: @Composable (Modifier) -> Unit = { modifier ->
+                    Column(modifier) {
+                        annotationControls()
+                        LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("master-markers"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (markers.isEmpty()) item { noMarkers() }
+                            items(markers, key = { it.id }) { markerRow(it) }
                         }
                     }
                 }
-            }
-            if (maxWidth > 600.dp && maxWidth > maxHeight * 1.4f) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                details(Modifier.weight(1f).fillMaxHeight()); annotationPanel(Modifier.weight(1f).fillMaxHeight())
-            } else Column {
-                details(Modifier.weight(.5f).fillMaxWidth()); HorizontalDivider(); annotationPanel(Modifier.weight(.5f).fillMaxWidth())
+                if (maxWidth > 600.dp && maxWidth > maxHeight * 1.4f) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    scrollDetails(Modifier.weight(1f).fillMaxHeight()); annotationPanel(Modifier.weight(1f).fillMaxHeight())
+                } else Column {
+                    scrollDetails(Modifier.weight(.5f).fillMaxWidth()); HorizontalDivider(); annotationPanel(Modifier.weight(.5f).fillMaxWidth())
+                }
             }
         }
     }

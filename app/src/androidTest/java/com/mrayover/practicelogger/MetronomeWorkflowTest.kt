@@ -17,7 +17,7 @@ class MetronomeWorkflowTest {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Metronome test", "Play with click", "5", "90")) }
-            shown("Practice Now"); click("Practice Now"); shown("Add Metronome test"); click("Add Metronome test")
+            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); shown("Add Metronome test"); click("Add Metronome test")
             click("Start Session"); shown("90 BPM")
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick()
             shown("91 BPM")
@@ -41,7 +41,7 @@ class MetronomeWorkflowTest {
             shown("Start click"); compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.running) }
             click("Start click"); shown("Stop click")
             compose.activityRule.scenario.recreate(); shown("Start click")
-            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session"); click("Continue Session"); shown("126 BPM"); shown("Start click")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session"); continueFirstSession(compose); shown("126 BPM"); shown("Start click")
             val session = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
             assertEquals(126, session.current!!.lastUsedBpm)
             assertEquals(90, runBlocking { db.blocks().find(session.current!!.sourceBlockId) }!!.tempo)

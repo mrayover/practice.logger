@@ -22,7 +22,7 @@ class HomeNavigationPreviewTest {
     @Test fun sectionsUseBannerAndLogStillSaves() {
         shown("Practice Now")
         click("Blocks"); inspect("Block Library", "library"); home()
-        click("Practice Now"); inspect("Build a Session", "builder"); home()
+        click("Practice Now"); click("Add Blocks"); inspect("Build a Session", "builder"); home()
         openHomeRoutines(compose); inspect("Routines", "routines"); home()
         click("Recording"); inspect("Recording", "recording"); home()
         click("Edit"); inspect("Manage Goals", "goals"); home()
