@@ -72,6 +72,7 @@ import kotlinx.coroutines.launch
         }
         fun release(id: Long) { if (held.remove(id) != null) latestOff(id) }
         fun press(id: Long, note: Int?) {
+            if (savedFirst.coerceIn(24, maxFirst) != first) return
             if (held[id] == note) return
             release(id)
             if (note != null && enabled) { held[id] = note; latestOn(id, note) }
@@ -135,7 +136,8 @@ import kotlinx.coroutines.launch
                             selected = held.values.contains(note)
                             if (enabled) onClick("Play ${pianoNoteName(note)}") {
                                 val token = auditionToken++
-                                keyScope.launch { press(token, note); try { delay(250) } finally { release(token) } }
+                                press(token, note)
+                                keyScope.launch { try { delay(250) } finally { release(token) } }
                                 true
                             }
                         }

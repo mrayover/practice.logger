@@ -2,6 +2,11 @@ package com.mrayover.practicelogger
 
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
@@ -24,6 +29,34 @@ class PianoWorkflowTest {
         val folder = File(inst.targetContext.getExternalFilesDir(null),"k1-native").apply { mkdirs() }
         UiDevice.getInstance(inst).takeScreenshot(File(folder,"$name.png"))
     }
+    @Test fun narrowKeyboardKeepsEdgeKeysVisibleAndPlayable() {
+        val pitches = mutableListOf<Int>()
+        compose.runOnIdle {
+            compose.activity.setContent {
+                MaterialTheme {
+                    Box(Modifier.width(260.dp)) {
+                        PianoKeyboard({ _, note -> pitches.add(note); Unit }, {}, {})
+                    }
+                }
+            }
+        }
+        val register = compose.onNodeWithTag("piano-register")
+        register.assertIsDisplayed().assertTextEquals("C4–C5")
+        val distance = with(compose.density) { 38.dp.toPx() }
+        compose.onNodeWithTag("piano-range-handle").performTouchInput {
+            swipe(center, center - Offset(distance, 0f))
+        }
+        register.assertIsDisplayed().assertTextEquals("C♯4–C♯5")
+        compose.onNodeWithTag("piano-key-61").assertIsDisplayed()
+        compose.onNodeWithTag("piano-key-73").assertIsDisplayed()
+        compose.onNodeWithTag("piano-keyboard").performTouchInput {
+            click(Offset(width * .025f, height * .2f))
+            click(Offset(width * .975f, height * .2f))
+        }
+        compose.runOnIdle { assertEquals(listOf(61, 73), pitches) }
+        shot("narrow-sharp-edges")
+    }
+
     @Test fun toolsMultitouchRegistersCancelRotationAndExistingTools() {
         openHomeTools(compose); click("Reference Piano")
         val register = compose.onNodeWithTag("piano-register")
@@ -70,9 +103,8 @@ class PianoWorkflowTest {
         repeat(4) { next.performClick() }
         next.assertIsNotEnabled()
         repeat(8) {
-            handle.performSemanticsAction(SemanticsActions.CustomActions) { actions ->
-                actions.first { it.label == "Shift up one semitone" }.action()
-            }
+            val actions = handle.fetchSemanticsNode().config[SemanticsActions.CustomActions]
+            compose.runOnIdle { assertTrue(actions.first { it.label == "Shift up one semitone" }.action()) }
         }
         register.assertTextEquals("G♯5–C7")
         handle.performTouchInput { swipe(center, center - Offset(dragDistance, 0f)) }

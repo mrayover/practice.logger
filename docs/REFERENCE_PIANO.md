@@ -1,6 +1,6 @@
 # Reference Piano — K1 architecture
 
-Home → Tools → Reference Piano uses the existing navigation and Lato/theme roles. It requires no microphone access. Compact portrait shows C4–C5 inclusive (eight white keys); widths of at least600dp extend through F5. Octave buttons cover C1 through C7 (MIDI24–96), clamping the upper wide view. Keyboard height is184dp; screen content scrolls at enlarged text and in landscape. C labels include octave numbers; transient note names and selected key semantics reflect held fingers.
+Home → Tools → Reference Piano and Block → Transcribe → Piano use the same keyboard. The initial range starts at C4 and shows 17 chromatic pitches at keyboard widths from 300 dp, 18 from 600 dp, and 13 below 300 dp. Drag the arrow above the keys left to raise the range or right to lower it, one semitone at a time. The handle also provides accessible semitone actions. The entire range stays within MIDI 24–96 (C1–C7). Each octave button moves the starting pitch by exactly 12 semitones and disables when a full octave would exceed the limit. Standalone keys are 184 dp tall, and the Transcribe panel supplies its own key height. Screen content scrolls at enlarged text and in landscape. C labels include octave numbers, and transient note names and selected key semantics reflect held fingers.
 
 ## Reuse contract
 
