@@ -16,7 +16,9 @@ collect() {
 trap collect EXIT
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-for test in PianoNativeTest PianoWorkflowTest; do
+tests='PianoNativeTest PianoWorkflowTest'
+if [ "${2:-native}" = ui ]; then tests=PianoWorkflowTest; fi
+for test in $tests; do
   adb shell am force-stop com.mrayover.practicelogger.app
   timeout --kill-after=10s 300s adb shell am instrument -w -r -e timeout_msec 120000 -e class "com.mrayover.practicelogger.$test" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "$out/$test.txt"
   grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/$test.txt"

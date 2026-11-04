@@ -63,10 +63,10 @@ class PianoWorkflowTest {
         click("Metronome"); click("Start click")
         val tools = ViewModelProvider(compose.activity)[ToolsViewModel::class.java]
         compose.waitUntil(5000) { tools.metronomeNonZeroFramesWritten() > 100 }
-        click("Back to Tools"); assertFalse(tools.clicking)
+        click("Back to Tools"); compose.runOnIdle { assertFalse(tools.clicking) }
         UiDevice.getInstance(inst).executeShellCommand("pm grant com.mrayover.practicelogger.app android.permission.RECORD_AUDIO")
         click("Tuner"); click("Start tuner"); compose.waitUntil(10000) { tools.tunerFramesRead > 8192 }
-        click("Back to Tools"); assertFalse(tools.listening)
+        click("Back to Tools"); compose.runOnIdle { assertFalse(tools.listening) }
         click("Timer"); compose.onNodeWithText("Stopwatch").assertExists(); click("Back to Tools")
         click("Audio Settings"); compose.onNodeWithText("Back to Tools").assertExists()
     }

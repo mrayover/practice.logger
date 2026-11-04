@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [build, native]
+        options: [build, native, ui]
         default: build
       api:
         type: choice
@@ -38,7 +38,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile and scoped units
         if: ${{ inputs.compiled_run == '' }}
-        run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*Piano*Test' --tests '*Tools*Test' --tests '*Tuner*Test' --tests '*LibraryAudio*Test' --stacktrace
+        run: |
+          if [ '${{ inputs.scope }}' = build ]; then
+            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*Piano*Test' --tests '*ToolLogicTest' --tests '*BeatPcmTest' --stacktrace
+          else
+            bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+          fi
       - name: Reuse verified compilation
         if: ${{ inputs.compiled_run != '' }}
         env:
@@ -61,21 +66,21 @@ jobs:
             app/build/outputs/apk
             app/build/test-results/testDebugUnitTest
       - name: Emulator acceleration
-        if: ${{ inputs.scope == 'native' }}
+        if: ${{ inputs.scope != 'build' }}
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
-        if: ${{ inputs.scope == 'native' }}
+        if: ${{ inputs.scope != 'build' }}
         with:
           api-level: ${{ inputs.api }}
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          script: bash scripts/Check-Piano.sh '${{ inputs.font_scale }}'
+          script: bash scripts/Check-Piano.sh '${{ inputs.font_scale }}' '${{ inputs.scope }}'
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.scope == 'native' }}
+        if: ${{ always() && inputs.scope != 'build' }}
         with:
           name: k1-native-${{ inputs.api }}
           path: app/build/k1-native
