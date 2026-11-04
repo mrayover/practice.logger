@@ -231,7 +231,7 @@ Use established layout behavior: opening a transport panel temporarily collapses
 
 ### T2 — Local annotation and persistence model
 
-Implement Block-local customization over shared master annotations.
+T2 implements Block-local customization over shared master annotations. Room 15 consolidates local points, sections, overrides and hides in one marker table alongside Block audio state. See [implemented ownership and publication behavior](MEDIA_AUDIO_WORKSPACE.md#block-local-audio-in-t2).
 
 Suggested logical records:
 

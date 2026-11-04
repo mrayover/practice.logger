@@ -1,14 +1,40 @@
-# T2 implementation and verification in progress
-
-The signed delivery below remains build84. T2 source advances to 0.23.0/build85 with Room 15 and the existing JSON 7 format. The next task is focused T2 build and verification, followed by signed delivery.
-
----
-
-# Current state — Reference Piano range refinement delivered
+# Current state — T2 Block-local Transcribe audio
 
 Updated November 3, 2026 (America/Los_Angeles).
 
-## Current signed delivery
+## Signed delivery
+
+**0.23.0/build86**, source `c4d48edcc27ea2060c6684b8a2f30a8b100d08d0`. [APK](dist/practice.logger-0.23.0-b86-c4d48ed/practice.logger-0.23.0-b86-c4d48ed.apk) · [ZIP](dist/practice.logger-0.23.0-b86-c4d48ed.zip) · [Build info](dist/practice.logger-0.23.0-b86-c4d48ed/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.23.0-b86-c4d48ed/PHONE_CHECKLIST.txt). Install over build84 without uninstalling or clearing data.
+
+App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `3e42bd73e147a16b7ea1fb16bda7feff063a2e760466a73085176c273c3bdb62`. ZIP SHA-256 `81166c850120a4fd4a09b5ecb95292d0e1bb2149b61b0b7c9bb0e766908e8dab`. Verified package/version, signature, 67 matching unsigned payload entries, ZIP members and CRC, and 392 historical APK/ZIP hashes.
+
+## Implemented
+
+Transcribe checkpoints Block-local source position, speed, A–B, repeat and marker selection. It restores the active recording paused. Two Blocks can share one canonical original and retain independent settings.
+
+The shared waveform and list render the same inherited, customized and local markers. Blocks can add points/sections, edit, hide and reset. Add to Master and Update Master require confirmation. Update compares the current master against the original snapshot and checks the reviewed version again after a conflict. Master deletion preserves customized markers as local-only and removes pure hides.
+
+Room 14→15 retains schemas 1–14 and adds two tables scoped to the exact active AUDIO link. Replacement or unlink warns before removing local work and cascades in the association transaction. JSON 7 remains data-only and excludes Block audio state and local markers. Media-inclusive backup is assigned to S2.
+
+## Focused verification
+
+- Build86 compiled debug, release and test APKs, passed 30 scoped units and generated schema15 matching the committed export. Coverage includes 14 to 15 and earlier migration paths, shared ownership, promotion rollback and conflicts, independent overrides and deletion cleanup. [Build 41776290501](https://github.com/mrayover/practice.logger/actions/runs/41776290501)
+- Build86 passed the Transcribe UI workflow on API26 at normal text and API35 at 200% text. The tests cover portrait and landscape, piano drag and playing, paused restoration, local marker creation, canceled and confirmed publication, and canceled and confirmed audio replacement. Reviewed portrait piano and enlarged landscape screenshots. [API26](https://github.com/mrayover/practice.logger/actions/runs/41776777624) · [API35](https://github.com/mrayover/practice.logger/actions/runs/41776779735)
+- Build85 passed both checkpoint and force-stop reopen phases on API26 and API35. It also passed three Library platform/playback/waveform checks and two Record Loop, Free Record and legacy take compatibility workflows. Build86 changes the marker dialog host and version while retaining those persistence and audio paths. [Reopen API26](https://github.com/mrayover/practice.logger/actions/runs/41775914113) · [Reopen API35](https://github.com/mrayover/practice.logger/actions/runs/41775915966) · [Library API26](https://github.com/mrayover/practice.logger/actions/runs/41775920659) · [Transport API35](https://github.com/mrayover/practice.logger/actions/runs/41775918461)
+
+See [WORK_LOG](WORK_LOG.md) for the initial migration fixture failure and UI reruns. Verification was scoped to T2 and adjacent audio workflows.
+
+Physical-phone install-over and listening checks are pending. The owner confirmed the build84 piano-range refinement works correctly. Individual device and acoustic checklist results remain unreported.
+
+**Next task.** Run the [T2 owner-phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) on signed build86. The next separately assigned engineering milestone is **T3 — Transcribe Playback, Free Record and Practice Integration**.
+
+---
+
+## Retained build84 — Reference Piano range refinement
+
+Updated November 3, 2026 (America/Los_Angeles).
+
+### Signed delivery
 
 **0.22.1/build84**, source `7091421748baa2be79535976acc6af1b1bcc46ee`. [APK](dist/practice.logger-0.22.1-b84-7091421/practice.logger-0.22.1-b84-7091421.apk) · [ZIP](dist/practice.logger-0.22.1-b84-7091421.zip) · [Build info](dist/practice.logger-0.22.1-b84-7091421/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.22.1-b84-7091421/PHONE_CHECKLIST.txt). Install over build83 without uninstalling or clearing data.
 
@@ -16,7 +42,7 @@ App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9
 
 The shared Tools and Block Transcribe keyboard shows 17 pitches in typical portrait layouts, 13 below 300 dp and 18 from 600 dp. The register handle shifts by semitone within MIDI 24–96. Both octave buttons retain the current pitch class and require room for a full 12-semitone move. Sharp-starting and sharp-ending windows display complete black keys. Range changes release existing voices and clear their key feedback. Both screens still use the existing audio engine and focus ownership. Room14 and JSON7 remain in use.
 
-## Focused verification
+### Focused verification
 
 - Debug, release and Android test APK compilation and all five piano geometry and PCM units passed. [Build 41770969141](https://github.com/mrayover/practice.logger/actions/runs/41770969141)
 - The Transcribe workflow passed on API26 at normal text and API35 at 200% text, including a semitone drag, sharp-key input during reference playback and portrait/landscape navigation. The register and keyboard are reachable within the scrollable panel. [API26](https://github.com/mrayover/practice.logger/actions/runs/41771459836) · [API35](https://github.com/mrayover/practice.logger/actions/runs/41771461747)

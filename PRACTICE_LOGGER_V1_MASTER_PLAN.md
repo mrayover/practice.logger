@@ -344,7 +344,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [ ] L3 independent visual/audio links, shared originals and safe legacy picker transition.
 - [x] K1 reusable Reference Piano with scoped pitch/polyphony/playback-coexistence verification and signed delivery; physical acoustic checks remain pending in CURRENT_STATE.
 - [ ] T1 compact Record Loop / Transcribe modes and phrase practice without recorder regression.
-- [ ] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state.
+- [x] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state. See [CURRENT_STATE](CURRENT_STATE.md) for signed delivery and scoped verification.
 - [ ] T3 physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
 - [ ] S0 documented SAF/Google Drive provider capabilities and fallback decision.
 - [ ] S1 organized non-destructive audio export and user-selectable destination.
