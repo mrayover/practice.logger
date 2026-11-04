@@ -184,13 +184,14 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         }
     }
     BoxWithConstraints(modifier.testTag("transcribe-panel")) {
+        val keyHeight = (maxHeight - 8.dp).coerceIn(72.dp, 184.dp)
         if (maxWidth >= 560.dp && maxHeight < 370.dp) {
             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-controls") {
                     modes(); title(); controls()
                 }
                 PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-details") {
-                    waveform(); details((maxHeight - 8.dp).coerceIn(72.dp, 184.dp), false)
+                    waveform(); details(keyHeight, false)
                 }
             }
         } else if (maxHeight >= 370.dp && maxWidth >= 350.dp && LocalDensity.current.fontScale < 1.4f) {
@@ -203,7 +204,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             }
         } else {
             PracticeScrollPanel(Modifier.fillMaxSize(), tag = "transcribe-details") {
-                modes(); title(); controls(); waveform(); details((maxHeight - 8.dp).coerceIn(72.dp, 184.dp), false)
+                modes(); title(); controls(); waveform(); details(keyHeight, false)
             }
         }
     }
