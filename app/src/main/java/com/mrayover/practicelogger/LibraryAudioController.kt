@@ -30,6 +30,13 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     private var queuedSeek: Long? = null
     private var resumeAfterSeek = false
     private var selectedOnce = false
+    // Borrowed-focus instruments stop with this owner, without requesting/abandoning its focus.
+    private val companions = mutableSetOf<() -> Unit>()
+    internal fun registerCompanion(stop: () -> Unit): () -> Unit {
+        companions.add(stop)
+        return { companions.remove(stop) }
+    }
+    private fun stopCompanions() { companions.toList().forEach { it() } }
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN).setAudioAttributes(attributes)
         .setWillPauseWhenDucked(true).setOnAudioFocusChangeListener({ change ->
             if (change != AudioManager.AUDIOFOCUS_GAIN) suspendPlayback("Audio interrupted. Press Play to continue.")
@@ -99,7 +106,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
                         mutable.value = mutable.value.copy(playing = false, positionMs = mutable.value.durationMs)
                         if (mutable.value.repeatRange || mutable.value.repeatFile) {
                             resumeAfterSeek = true; seek(if (mutable.value.repeatRange) mutable.value.aMs else 0)
-                        } else manager.abandonAudioFocusRequest(focus)
+                        } else { stopCompanions(); manager.abandonAudioFocusRequest(focus) }
                     }
                 }
                 audio.prepareAsync()
@@ -129,6 +136,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         handler.removeCallbacks(ticker); handler.post(ticker)
     }
     fun pause(): Unit = guarded {
+        stopCompanions()
         resumeAfterSeek = false
         if (mutable.value.playing) player?.pause()
         mutable.value = mutable.value.copy(playing = false)
@@ -170,6 +178,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         releasePlayer(); mutable.value = mutable.value.copy(preparing = false, playing = false, error = error)
     }
     private fun releasePlayer() {
+        stopCompanions()
         handler.removeCallbacks(ticker)
         generation++; opening?.cancel(); opening = null
         val old = player; player = null; seekPending = false; queuedSeek = null; resumeAfterSeek = false

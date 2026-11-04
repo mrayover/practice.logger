@@ -210,6 +210,7 @@ class MainActivity : ComponentActivity() {
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { settingsReturn = "tools"; page = it })
             "audio-settings" -> CountInSettings(recordings, onTools = { page = settingsReturn }, fromHome = settingsReturn == "home", backLabel = if (settingsReturn == "tools") "Back to Tools" else "Back")
             "metronome", "tuner", "timer" -> ToolScreen(page, tools, onTools = { page = "tools" })
+            "piano" -> ReferencePianoScreen(onTools = { page = "tools" })
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)

@@ -92,6 +92,7 @@ import androidx.compose.ui.unit.sp
         Text("Tools", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Metronome") { onTool("metronome") }
         HomeButton("Tuner") { onTool("tuner") }
+        HomeButton("Reference Piano") { onTool("piano") }
         HomeButton("Timer") { onTool("timer") }
         HomeButton("Backup and restore", onBackup)
         HomeButton("Audio Settings") { onTool("audio-settings") }
