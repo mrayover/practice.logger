@@ -60,9 +60,17 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         return { companions.remove(stop) }
     }
     private fun stopCompanions() { companions.toList().forEach { it() } }
+    private val focusInterruptions = mutableSetOf<() -> Unit>()
+    internal fun onFocusInterrupted(interrupted: () -> Unit): () -> Unit {
+        focusInterruptions.add(interrupted)
+        return { focusInterruptions.remove(interrupted) }
+    }
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN).setAudioAttributes(attributes)
         .setWillPauseWhenDucked(true).setOnAudioFocusChangeListener({ change ->
-            if (change != AudioManager.AUDIOFOCUS_GAIN) suspendPlayback("Audio interrupted. Press Play to continue.")
+            if (focusHeld && change != AudioManager.AUDIOFOCUS_GAIN) {
+                suspendPlayback("Audio interrupted. Press Play to continue.")
+                focusInterruptions.toList().forEach { it() }
+            }
         }, handler).build()
     private val noisy = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) { suspendPlayback("Audio route changed. Press Play to continue.") }
@@ -166,6 +174,10 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         mutable.value = mutable.value.copy(playing = false)
         handler.removeCallbacks(ticker)
         releaseIdleFocus()
+    }
+    internal fun pauseForOtherOutput() {
+        pause()
+        stopCompanions()
     }
     fun stop() { selectedOnce = false; pause(); seek(if (mutable.value.repeatRange) mutable.value.aMs else 0) }
     fun playSelection() {

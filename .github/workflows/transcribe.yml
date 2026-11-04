@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [build, piano-build, native, ui, reopen, library, transport, standalone, standalone-reopen, record-reference, practice-navigation]
+        options: [build, piano-build, native, ui, reopen, library, transport, standalone, standalone-reopen, record-reference, record-take, practice-navigation]
         default: build
       api:
         type: choice

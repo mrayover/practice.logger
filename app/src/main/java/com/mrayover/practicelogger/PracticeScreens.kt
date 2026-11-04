@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.*
@@ -147,9 +148,14 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val current = bundle.current!!
+    val activity = LocalContext.current as? android.app.Activity
     DisposableEffect(current.id, vm, recordings) {
         vm.enterFocusedPlacement(current); recordings.enterBlock(current.sourceBlockId)
-        onDispose { vm.leaveFocusedPlacement(); recordings.leaveBlock() }
+        onDispose {
+            vm.leaveFocusedPlacement()
+            if (activity?.isChangingConfigurations == true) recordings.setForeground(false)
+            else recordings.leaveBlock()
+        }
     }
     val loopPermission = androidx.activity.compose.rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), recordings::permissionResult)
@@ -198,7 +204,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
     fun requestLeave() { requestPracticeAction("leave") }
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-    val transcribing = transportPanel == "transcribe" && !audioBusy
+    val transcribing = transportPanel == "transcribe"
     val wideTranscribe = transcribing && maxWidth >= 560.dp && maxWidth > maxHeight
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
     val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.kind == TakeKind.RECORDED_LOOP && !reviewCollapsed)
@@ -232,8 +238,10 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         Box(Modifier.fillMaxWidth().then(if (panelOpen) Modifier else Modifier.weight(1f)).testTag("practice-workspace-viewport")) {
             FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, sideBySideHeaders = sideBySideHeaders, onReveal = {
                 focusManager.clearFocus(force = true); keyboard?.hide()
-                transportPanel = null
-                reviewCollapsed = recordings.reviewTake != null
+                if (!transcribing || !audioBusy) {
+                    transportPanel = null
+                    reviewCollapsed = recordings.reviewTake != null
+                }
             })
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -245,7 +253,34 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                 { focusManager.clearFocus(force = true); keyboard?.hide(); transportPanel = null }, notes,
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp))
             if (transcribing) modeState.SaveableStateProvider("transcribe") {
-                TranscribePanel(current.sourceBlockId, images, transcribeVm,
+                val player = transcribeVm.controller
+                DisposableEffect(player, recordings) {
+                    val unregister = player.onFocusInterrupted {
+                        if (recordings.recording) recordings.finishCapture("Audio interrupted. Recording stopped.")
+                    }
+                    onDispose { unregister() }
+                }
+                TranscribePanel(current.sourceBlockId, images, transcribeVm, audioBusy = audioBusy,
+                    recordTake = {
+                        if (!recordings.recording && recordings.reviewTake == null) {
+                            Button(onClick = {
+                                if (recordings.hasMicrophonePermission()) {
+                                    vm.stopClick()
+                                    recordings.startCapture(current.sourceBlockId, alongsideReference = true)
+                                } else loopPermission.launch(android.Manifest.permission.RECORD_AUDIO)
+                            }, enabled = recordings.ready && !audioBusy && !images.busy,
+                                modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-record-take")) {
+                                Text("Record Take")
+                            }
+                            Text("Use headphones to reduce reference sound picked up by the microphone.",
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                        if (recordings.busy && recordings.reviewTake == null) Text("Preparing take…")
+                        recordings.message?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                        }
+                    },
                     onRecordLoop = { transportPanel = "loop" }, onClose = { transportPanel = null },
                     onBeforeRecording = { recordings.stopPlayback(); vm.stopClick() },
                     modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp))
@@ -278,7 +313,24 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
             Modifier.weight(1f).fillMaxWidth().padding(horizontal=16.dp),tag="practice-metronome-panel") {
             MetronomeOptions(vm.metronomeConfig,vm.metronomePulse,vm.workingBpm,vm::configureMetronome,vm::changeWorkingBpm,!vm.busy,compact=true)
         }
-        if (recordings.reviewTake != null && recordings.reviewTake?.kind == TakeKind.FREE && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
+        if (transcribing && recordings.reviewTake != null) {
+            androidx.compose.ui.window.Dialog(onDismissRequest = {},
+                properties = androidx.compose.ui.window.DialogProperties(
+                    dismissOnBackPress = false, dismissOnClickOutside = false)) {
+                Surface(shape = MaterialTheme.shapes.large) {
+                    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp)) {
+                        TakeReviewControls(recordings) {
+                            transcribeVm.controller.pauseForOtherOutput()
+                            vm.stopClick()
+                        }
+                        recordings.message?.let {
+                            Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                        }
+                    }
+                }
+            }
+        }
+        if (!transcribing && recordings.reviewTake?.kind == TakeKind.FREE && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
         if (!transcribing) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
@@ -298,7 +350,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
             Button(onClick=recordings::saveReview,enabled=!recordings.busy,
                 modifier=Modifier.heightIn(min=48.dp).testTag("review-save")) { Text("Save") }
         }
-        if (recordings.recording && !panelOpen) {
+        if (recordings.recording && (!panelOpen || transcribing)) {
             val status: @Composable (Modifier) -> Unit = { modifier ->
                 Text(if (recordings.countInBeat > 0) "Count-in · ${recordings.countInBeat} of ${recordings.countInTotal}" else "Recording · " + practiceTime(recordings.elapsedMs),
                     color = PracticeTheme.colors.recording, style = MaterialTheme.typography.bodyMedium, modifier = modifier)

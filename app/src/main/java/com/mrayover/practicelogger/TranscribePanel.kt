@@ -22,19 +22,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PracticeTransportModes(transcribing: Boolean, onRecordLoop: () -> Unit, onTranscribe: () -> Unit,
-    onClose: (() -> Unit)? = null, modifier: Modifier = Modifier) {
+    onClose: (() -> Unit)? = null, modifier: Modifier = Modifier, enabled: Boolean = true) {
     FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        OutlinedSelectionChip(!transcribing, onRecordLoop, modifier = Modifier.testTag("practice-mode-record"),
+        OutlinedSelectionChip(!transcribing, onRecordLoop, enabled = enabled, modifier = Modifier.testTag("practice-mode-record"),
             label = { Text("Record Loop") })
         OutlinedSelectionChip(transcribing, onTranscribe, modifier = Modifier.testTag("practice-mode-transcribe"),
             label = { Text("Transcribe") })
-        if (onClose != null) TextButton(onClick = onClose, modifier = Modifier.heightIn(min = 48.dp)) { Text("Close") }
+        if (onClose != null) TextButton(onClick = onClose, enabled = enabled, modifier = Modifier.heightIn(min = 48.dp)) { Text("Close") }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, vm: LibraryAudioViewModel,
+    audioBusy: Boolean, recordTake: @Composable () -> Unit,
     onRecordLoop: () -> Unit, onClose: () -> Unit, modifier: Modifier = Modifier, onBeforeRecording: () -> Unit) {
     val links by images.links.collectAsStateWithLifecycle()
     val assets by images.assets.collectAsStateWithLifecycle()
@@ -103,7 +104,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
                 Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleSmall)
             TextButton(onClick = { player.pause(); vm.checkpoint(); pickerError = false; choice = true },
-                enabled = !images.busy, modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-choose-audio")) {
+                enabled = !images.busy && !audioBusy, modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-choose-audio")) {
                 Text(if (asset == null) "Choose Audio" else "Change Audio")
             }
         }
@@ -115,7 +116,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             onBeforeRecording()
             recordingPreviousId = mediaId
             recordingReference = true
-        }, enabled = !images.busy) { Text("Record Reference") }
+        }, enabled = !images.busy && !audioBusy) { Text("Record Reference") }
     }
     val messages: @Composable () -> Unit = {
         if (images.busy) Text("Saving reference…")
@@ -123,9 +124,9 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         images.message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         if (pickerError) Text("File picker unavailable. Try choosing audio from Library.", color = MaterialTheme.colorScheme.error)
     }
-    val modes: @Composable () -> Unit = { PracticeTransportModes(true, onRecordLoop, {}, onClose) }
+    val modes: @Composable () -> Unit = { PracticeTransportModes(true, onRecordLoop, {}, onClose, enabled = !audioBusy) }
     if (asset == null) {
-        PracticeScrollPanel(modifier, tag = "transcribe-panel") { modes(); title(); recordReference(); messages() }
+        PracticeScrollPanel(modifier, tag = "transcribe-panel") { modes(); title(); recordTake(); recordReference(); messages() }
         return
     }
 
@@ -158,6 +159,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     }
     val details: @Composable (Dp, Boolean, @Composable () -> Unit) -> Unit =
         { keyHeight, waveformInDetails, markerControls ->
+            recordTake()
             recordReference()
             messages()
             if (state.preparing) Text("Preparing audio…")

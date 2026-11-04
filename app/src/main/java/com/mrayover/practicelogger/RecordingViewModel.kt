@@ -97,6 +97,8 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     private var reviewPending: PendingTake? = null
     private var captureStart = 0L
     private var referenceCapture = false
+    private var captureDevices: Set<Int>? = null
+    private fun audioDevices() = manager.getDevices(AudioManager.GET_DEVICES_ALL).map { it.id }.toSet()
     internal var keptReferenceId by mutableStateOf<String?>(null); private set
     internal var referenceReplacement by mutableStateOf<String?>(null); private set
     private val referenceLibrary by lazy { MediaLibraryRepository(db, java.io.File(app.filesDir, "media-library")) }
@@ -146,6 +148,8 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                                 finishCapture("The microphone is in use or was silenced. Take not saved. Try again when it is available.", discard = true)
                             referenceCapture && elapsedMs >= AudioImport.MAX_DURATION_MS - 2_000 ->
                                 finishCapture("Reference recording reached its time limit.")
+                            captureDevices?.let { it != audioDevices() } == true ->
+                                finishCapture("Audio devices changed. Recording stopped.")
                             repository.availableBytes() < 512 * 1024 -> finishCapture("Storage is low. Recording stopped.")
                         }
                     } catch (_: Exception) { finishCapture("Microphone failed. Take not saved. Try again.", discard = true) }
@@ -174,7 +178,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             "Microphone permission was not allowed. Try again or enable Microphone in Android settings."
     }
     @Suppress("DEPRECATION")
-    fun startCapture(blockId: String?, reference: Boolean = false) {
+    fun startCapture(blockId: String?, reference: Boolean = false, alongsideReference: Boolean = false) {
         if (!ready || busy || recording || reviewTake != null || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
@@ -183,6 +187,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         var created: MediaRecorder? = null
         var draft: PendingTake? = null
         try {
+            val devices = if (alongsideReference) audioDevices() else null
             draft = repository.prepare(blockId)
             val audio = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(app) else MediaRecorder()
             created = audio
@@ -206,6 +211,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             }
             audio.prepare(); audio.start()
             referenceCapture = reference
+            captureDevices = devices
             recorder = audio; pending = draft; captureStart = SystemClock.elapsedRealtime(); elapsedMs = 0; recording = true
         } catch (_: Exception) {
             captureOwner = null
@@ -314,7 +320,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         clearReview()
         if (draft.phrase != null && draft.blockId != null) startPhrase(draft.blockId, draft.phrase)
-        else startCapture(draft.blockId, referenceCapture)
+        else startCapture(draft.blockId, referenceCapture, alongsideReference = captureDevices != null)
     }
     internal fun keepReference(expectedAudioId: String?, confirmedAudioId: String? = null) {
         val draft = reviewPending ?: return

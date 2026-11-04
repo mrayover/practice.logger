@@ -21,6 +21,7 @@ case "${2:-native}" in
   ui) tests=TranscribeWorkflowTest ;;
   standalone) tests="StandaloneTranscribeTest#practiceChoicesPreserveDraftAndStartSavedRoutine StandaloneTranscribeTest#stopwatchPausesOnLeaveAndRecreationAndSavesOnce StandaloneTranscribeTest#standaloneUsesCanonicalPlaybackAndMasterMarkers" ;;
   record-reference) tests=RecordReferenceTest ;;
+  record-take) tests=TranscribeRecordTakeTest ;;
   standalone-reopen) tests="StandaloneTimerReopenTest#startAndCheckpoint StandaloneTimerReopenTest#restorePausedAndSave" ;;
   practice-navigation) tests="MultipleSessionWorkflowTest MultipleSessionReopenTest RoutineWorkflowTest RoutineReopenTest GoalWorkflowTest" ;;
   reopen) tests="BlockAudioReopenTest#checkpointBeforeForceStop BlockAudioReopenTest#restoreAfterForceStop" ;;
