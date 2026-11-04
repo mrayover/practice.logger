@@ -1,6 +1,12 @@
-# Current state — T3D Concurrent Transcribe Playback and Free Record
+# Current state — S0 storage and recovery decision
 
 Updated November 4, 2026 (America/Los_Angeles).
+
+## S0 outcome
+
+The [S0 decision](docs/S0_STORAGE_DECISION.md) selects Android SAF with optional writable folder access and manual Save As. Historical API 26 evidence covers local single-file Save As and handling a missing provider. A fresh device run, folder-tree operations and Drive/OneDrive behavior remain unverified. The decision records the phone checklist and the complete ZIP restore design.
+
+**Exact next task:** S1 — Organized Audio Export, upon separate owner assignment.
 
 ## Signed delivery
 
@@ -23,7 +29,7 @@ Saving retains normal Block take ownership in the active practice session. The e
 
 Physical headphones, speaker, Bluetooth routing, microphone denial and acoustic quality remain pending. Speaker playback can be picked up by the mic. Android selects the physical routes. Valid review audio can survive foreground loss or rotation within the app process. A cold restart cleans up unsaved interrupted takes.
 
-**Next action:** Run the [T3D owner-phone checklist](MANUAL_TESTS.md#t3d--concurrent-transcribe-playback-and-free-record). The T3C and build90 BPM Done phone checks also remain open. **S0 — Storage/Recovery Feasibility Gate** awaits a separate assignment.
+**T3D and T3C owner-phone acceptance remains pending.** See the [T3D checklist](MANUAL_TESTS.md#t3d--concurrent-transcribe-playback-and-free-record) and [T3C checklist](MANUAL_TESTS.md#t3c--record-reference-directly-in-transcribe).
 
 ## Retained build90 — Metronome BPM fix
 
@@ -31,7 +37,7 @@ Physical headphones, speaker, Bluetooth routing, microphone denial and acoustic 
 
 [Signed APK](dist/practice.logger-0.26.1-b90-7f9124a/practice.logger-0.26.1-b90-7f9124a.apk) · [ZIP](dist/practice.logger-0.26.1-b90-7f9124a.zip) · [Build info](dist/practice.logger-0.26.1-b90-7f9124a/BUILD_INFO.json). Install over build89 without uninstalling or clearing data. Source 7f9124a09a8890da488838ac5653559eb2eee061. APK SHA-256 1f6660d8a0678de2cd4f325982f3eaa4c68d5d82ed9ba6ce781afd851d1d8a08. ZIP SHA-256 81037b63679445d144a1fa55bf187856ec55d7ceaa434f4cdd49cb644c7cc600.
 
-[Package-only CI](https://github.com/mrayover/practice.logger/actions/runs/41901998805) passed. Verified permanent signing identity, package/version, APK payload and ZIP integrity. Phone check pending. Enter a different BPM and press Done.
+[Package-only CI](https://github.com/mrayover/practice.logger/actions/runs/41901998805) passed. Verified permanent signing identity, package/version, APK payload and ZIP integrity. The owner confirmed that the metronome BPM keyboard Done fix works on their phone.
 
 ## Retained T3C signed delivery
 

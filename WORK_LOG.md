@@ -1017,3 +1017,9 @@ Added Record Take in Block Transcribe using the existing foreground AAC/M4A capt
 Final source `1b842504cb04b8b19f44eeb40867332a7e54f9f6` passed debug/release/test compilation and 50 scoped unit tests (41934161097). Room 16 export matched byte for byte. Both new T3D tests passed on API 26 at 100% (41934795571) and API 35 at 200% (41934795818). Adjacent checks passed for Library and pitch (41934795580), Block Transcribe and piano (41934795568), T3C (41934795557), and normal Free Record and phrase review (41934413158). No completed test run failed. The CI artifact transfer was slow and eventually completed from the original request.
 
 Published local permanent-key 0.27.0/build91. Verified build90 certificate continuity, app ID/version, matching 67 APK payload entries, APK/ZIP hashes, ZIP integrity and all 1,689 earlier distribution files. [Current state](CURRENT_STATE.md) records artifact provenance. [Owner-phone routing and acoustic checks](MANUAL_TESTS.md#t3d--concurrent-transcribe-playback-and-free-record) remain pending. S0 is the next separately assigned increment.
+
+## 2026-11-04 — S0 storage and recovery decision
+
+Reviewed the mandatory efficiency procedure, live main at `86f93125`, signed 0.27.0/build91 provenance, the existing recording and backup paths, and Android SAF documentation. The earlier API 26 recording diagnostic verified local Downloads Save As and missing-provider failure with source preservation. No Android device was connected for a fresh trial. Tree operations, write interruption and Drive/OneDrive interoperability remain open.
+
+The [S0 decision](docs/S0_STORAGE_DECISION.md) specifies optional organized trees plus per-take Save As in S1, and a staged, verified portable ZIP with empty-installation restore in S2. The owner confirmed the metronome BPM keyboard Done fix on their phone. This was a documentation-only milestone. S1 awaits separate assignment.

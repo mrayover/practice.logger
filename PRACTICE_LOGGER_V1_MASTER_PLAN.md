@@ -355,7 +355,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [ ] T1 compact Record Loop / Transcribe modes and phrase practice without recorder regression.
 - [x] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state. See [CURRENT_STATE](CURRENT_STATE.md) for signed delivery and scoped verification.
 - [ ] T3D physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
-- [ ] S0 documented SAF/Google Drive provider capabilities and fallback decision.
+- [x] S0 documented [SAF evidence, provider limitations and fallback decision](docs/S0_STORAGE_DECISION.md). Device qualification of Drive, OneDrive and folder-tree operations remains open.
 - [ ] S1 organized non-destructive audio export and user-selectable destination.
 - [ ] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
