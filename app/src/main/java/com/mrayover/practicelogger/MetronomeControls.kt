@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
@@ -32,14 +34,17 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
     onConfig: (MetronomeConfig) -> Unit, onBpm: (Int) -> Unit, enabled: Boolean = true, compact: Boolean = false) {
     var entered by rememberSaveable(bpm) { mutableStateOf(bpm.toString()) }
     val parsed = parseWorkingBpm(entered)
+    fun applyBpm() { if (enabled && parsed != null) onBpm(parsed) }
     Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(if (compact) 2.dp else 8.dp)) {
         val bpmField: @Composable (Modifier) -> Unit = { modifier ->
             OutlinedTextField(entered,{ entered=it },label={ Text("BPM (30–300)") },singleLine=true, enabled=enabled,
-                keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number),isError=parsed==null,
+                keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number, imeAction=ImeAction.Done),
+                keyboardActions=KeyboardActions(onDone={ applyBpm(); defaultKeyboardAction(ImeAction.Done) }),
+                isError=parsed==null,
                 modifier=modifier.testTag("metronome-panel-bpm"))
         }
         val apply: @Composable () -> Unit = {
-            TextButton(onClick={ parsed?.let(onBpm) },enabled=enabled && parsed!=null,
+            TextButton(onClick=::applyBpm,enabled=enabled && parsed!=null,
                 modifier=Modifier.heightIn(min=48.dp).testTag("metronome-apply-bpm")) { Text("Apply BPM") }
         }
         if (compact && androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f) Row(Modifier.fillMaxWidth(), verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
