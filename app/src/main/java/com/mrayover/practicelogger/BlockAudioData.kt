@@ -59,6 +59,7 @@ val BLOCK_AUDIO_MIGRATION_14_15 = object : Migration(14, 15) {
             label TEXT NOT NULL, note TEXT NOT NULL, originalMaster TEXT, hidden INTEGER NOT NULL, role TEXT NOT NULL,
             PRIMARY KEY (blockId, role, mediaId, id),
             FOREIGN KEY (blockId, role, mediaId) REFERENCES block_media_links (blockId, role, mediaId) ON UPDATE NO ACTION ON DELETE CASCADE)""")
+        installBlockMediaConstraints(db)
         installBlockAudioConstraints(db)
     }
 }
