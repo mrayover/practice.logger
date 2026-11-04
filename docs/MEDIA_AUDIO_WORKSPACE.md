@@ -41,7 +41,7 @@ T1 introduced the shared workspace. The [Standalone Transcribe plan](T3_STANDALO
 
 ## Block-local audio in T2
 
-Room 15 adds state and marker tables scoped to the active Block/audio link. The three-column foreign key identifies the exact association and cascades on unlink. Replacing an audio link removes its old local rows in the same transaction. The editor asks before removing local work or non-default saved playback state. The Library still owns the canonical original and its master markers.
+The Room 15 migration adds state and marker tables scoped to the active Block/audio link. The three-column foreign key identifies the exact association and cascades on unlink. Replacing an audio link removes its old local rows in the same transaction. The editor asks before removing local work or non-default saved playback state. The Library still owns the canonical original and its master markers.
 
 Transcribe restores source-time cursor, speed, A-B range, repeat and surviving marker selection with playback paused. It checkpoints playback and rapid seeks at bounded intervals and saves control changes and the final foreground state. Writes validate the active association. Library playback keeps its own state.
 

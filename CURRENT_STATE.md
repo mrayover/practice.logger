@@ -1,8 +1,30 @@
-# Current state — T3A standalone Transcribe
+# Current state — T3B standalone Transcribe timer
 
 Updated November 4, 2026 (America/Los_Angeles).
 
 ## Signed delivery
+
+**0.25.0/build88**, source `947f636f450e944a8b511cc2efc98cdd09459a9f`. [APK](dist/practice.logger-0.25.0-b88-947f636/practice.logger-0.25.0-b88-947f636.apk) · [ZIP](dist/practice.logger-0.25.0-b88-947f636.zip) · [Build info](dist/practice.logger-0.25.0-b88-947f636/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.25.0-b88-947f636/PHONE_CHECKLIST.txt). Install over build87 without uninstalling or clearing data.
+
+App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `80ce147cdd7e2c156b70e367adbd0b23ffffb98bf3d9c76b186dab95ef19964c`. ZIP SHA-256 `de220d0084f71f8f51698cfd5d02982951ef5ddebba2e42088392f74410d00d3`. Verified signing identity, app ID, version, ZIP integrity, all 67 unsigned payload entries and 1,584 prior distribution file hashes.
+
+## Implemented
+
+T3B implements an open-ended stopwatch with optional Goal attribution, an exclusive clock shared with Block practice, and Home/Weekly View totals. Room 16 adds an activity table with explicit migration from Room 15. JSON 7 readers and writer are retained. Standalone Transcribe history is excluded until S2, and the empty-target restore guard refuses targets with standalone activity.
+
+The timer checkpoints every five seconds while active and when paused or its context changes. Leaving, backgrounding and reopening restore a paused timer. A cold restart retains the last durable checkpoint. Active time since that checkpoint may be lost. A save failure pauses accumulation and can be retried against the same ID. Weekly time uses the local Monday–Sunday week of the start timestamp.
+
+## Focused verification
+
+- Debug, release and device-test compilation passed. All 50 scoped unit tests passed. They cover the explicit Room 15→16 migration, the migration chain from schema 1, Goal and overall aggregation, local week boundaries, duplicate Stop protection, media deletion, and the JSON 7 activity-only restore safeguard. The generated Room 16 export matches the committed file byte for byte. [Build 41891794705](https://github.com/mrayover/practice.logger/actions/runs/41891794705)
+- Three standalone methods passed on each API, covering builder/Routine navigation, timed Goal attribution, pause on leaving, recreation, failed Stop and successful retry, audio playback with an idle timer, and the existing Library, waveform, master-marker and piano flows. The landscape screenshots show the stopwatch and upper playback controls at both text scales. Lower workspace content scrolls. [API 26 at 100%](https://github.com/mrayover/practice.logger/actions/runs/41891820516) · [API 35 at 200%](https://github.com/mrayover/practice.logger/actions/runs/41891820771)
+- The API 35 force-stop and reopen check passed both phases at 200% text using the signed build's verified source. [Cold reopen](https://github.com/mrayover/practice.logger/actions/runs/41892827746)
+
+Physical-phone install-over and T3B owner acceptance are pending. Earlier focused-run failures and their fixes are recorded in [WORK_LOG](WORK_LOG.md).
+
+**Next action:** Run the [T3B owner-phone checklist](MANUAL_TESTS.md#t3b--standalone-timer-and-goal-attribution) on build88. **T3C — Record Reference Directly in Transcribe** is the next separate implementation assignment.
+
+## Retained T3A signed delivery
 
 **0.24.0/build87**, source `bb582ba8eb8195bcbe68888c9f42df582ddcb617`. [APK](dist/practice.logger-0.24.0-b87-bb582ba/practice.logger-0.24.0-b87-bb582ba.apk) · [ZIP](dist/practice.logger-0.24.0-b87-bb582ba.zip) · [Build info](dist/practice.logger-0.24.0-b87-bb582ba/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.24.0-b87-bb582ba/PHONE_CHECKLIST.txt). Install over build86 without uninstalling or clearing data.
 
@@ -23,9 +45,7 @@ Changing the recording, leaving or backgrounding releases playback and piano out
 - The final source passed the existing enlarged-text Block Transcribe workflow. The first T3A source passed five navigation and cold-reopen checks covering multiple sessions, Routine management and Goal practice, and three Library platform checks covering MP3/M4A/WAV playback, looping, seeking, interruption and waveform integrity. The final source retains the navigation and controller paths. [Block Transcribe](https://github.com/mrayover/practice.logger/actions/runs/41885557891) · [Navigation](https://github.com/mrayover/practice.logger/actions/runs/41883772709) · [Library platform](https://github.com/mrayover/practice.logger/actions/runs/41883777746)
 - Reviewed portrait piano and landscape transport screenshots at both text scales. Landscape at 200% requires vertical scrolling for the full waveform and lower controls.
 
-See [WORK_LOG](WORK_LOG.md) for the initial standalone device failure and its follow-up. Phone install-over, acoustic checks and owner acceptance are pending. The existing platform decoder may leave a small gap at short compressed loop joins.
-
-**Next action:** Complete the [T3A owner-phone checklist](MANUAL_TESTS.md#t3a--standalone-transcribe-workspace) on build87. The next separately assigned implementation is **T3B — Standalone Timer and Goal Attribution**.
+See [WORK_LOG](WORK_LOG.md) for the initial standalone device failure and its follow-up. The owner reports having installed and tested T3A and says it works. Specific checklist observations were not supplied. The existing platform decoder may leave a small gap at short compressed loop joins.
 
 ## Retained T2 release — Block-local Transcribe
 

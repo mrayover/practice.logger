@@ -163,7 +163,7 @@ The owner confirms the K1 keyboard works on their phone. Individual acoustic mea
 
 ## T3 owner phone checklists
 
-Unexecuted. Run each checklist on its separately assigned signed install-over build. See the [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) for focused engineering checks.
+Run each checklist on its separately assigned signed install-over build. The owner reported that T3A works after installing and testing it. Individual T3A checklist observations were not supplied. See the [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) for focused engineering checks.
 
 ### T3A — Standalone Transcribe Workspace
 
@@ -177,9 +177,12 @@ Unexecuted. Run each checklist on its separately assigned signed install-over bu
 
 ### T3B — Standalone Timer and Goal Attribution
 
-- [ ] Verify preparation before Start counts no time. Check independent playback, background and process restart, and explicit resume from committed time.
-- [ ] Save once with No Goal and once with a Goal selected during activity. Check overall, weekly and Goal totals, unchanged manual progress, and no overlapping Block time.
-- [ ] Check zero-length and failed or retried saves. Verify media deletion preserves committed time.
+1. Install over signed build87 without uninstalling or clearing data.
+2. Open **Practice Now → Transcribe**. Play a reference before pressing **Start** and confirm **00:00:00** stays visible.
+3. Press **Start**, transcribe briefly, pause playback and confirm the stopwatch continues. Tap **Stop & Save**. Check that **Home → Total practice** and **Log → Weekly View** increase once.
+4. Repeat with an active Goal selected and verify its time increases once and manual progress stays the same.
+5. Background a running activity and return. Confirm it stays paused with its saved time. Resume explicitly, then leave and reopen Transcribe to check the unfinished activity is retained.
+6. Check existing Block sessions, waveform, marker editing and Reference Piano. Try the controls in landscape and with enlarged text.
 
 ### T3C — Record Reference Directly in Transcribe
 

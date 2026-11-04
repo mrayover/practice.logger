@@ -4,7 +4,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Th
 
 ## Forward V1 roadmap
 
-P0–P5, L1–L3, K1, T1–T2 and T3A are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
+P0–P5, L1–L3, K1, T1–T2 and T3A–T3B are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
 The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines the phase order and release gates. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 
@@ -74,6 +74,6 @@ P5 full CI41329443572 passes all nine required jobs: 111 unit tests, 168 native 
 
 Read [AGENTS.md](AGENTS.md), [CURRENT_STATE.md](CURRENT_STATE.md), [BUILD_PLAN.md](BUILD_PLAN.md) and [WORK_LOG.md](WORK_LOG.md), including the mandatory efficiency procedure. Use [FIRST_WORK_HANDOFF.md](FIRST_WORK_HANDOFF.md) to start a new work session.
 
-Build/check command: `./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` (Windows: `.\gradlew.bat` with the same tasks). Generate the MP3/M4A instrumentation fixtures with `scripts/Prepare-AudioFixtures.sh` before compiling native tests. The repository uses JDK 17, SDK 36, Gradle wrapper, Kotlin/Compose and Room 2.8.5; exact dependency versions are in Gradle files. Room schemas 1–13 and explicit migrations are retained. GitHub Actions supports full release checks and isolated class/API/text-scale diagnostics; documentation-only changes skip CI.
+Build/check command: `./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` (Windows: `.\gradlew.bat` with the same tasks). Generate the MP3/M4A instrumentation fixtures with `scripts/Prepare-AudioFixtures.sh` before compiling native tests. The repository uses JDK 17, SDK 36, Gradle wrapper, Kotlin/Compose and Room 2.8.5; exact dependency versions are in Gradle files. Room schemas 1–16 and explicit migrations are retained. GitHub Actions supports full release checks and isolated class/API/text-scale diagnostics; documentation-only changes skip CI.
 
 Use `scripts/Publish-LocalApk.ps1` for the permanent-key distribution. Keep private `.signing`, tools, build outputs and APKs out of Git; retain earlier releases and verify signatures, metadata and hashes. License attribution: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

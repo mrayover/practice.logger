@@ -170,7 +170,9 @@ Practice Now's existing Block and Routine workflows remain functional.
 
 #### Persistence
 
-Introduce the smallest necessary Room migration beyond the live baseline, likely 15→16 if T3A makes no schema change.
+Room 15→16 adds one activity table. A null completion timestamp denotes an unfinished row. The monotonic anchor exists only in memory. Checkpoints use absolute active duration every five seconds and at pause, stop, navigation or Goal/audio changes. Recovery restores the last committed duration paused. Unverified time since the last durable write may be lost. A failed write pauses the timer and retains its in-memory elapsed time for retry. Stop retries update the same ID and cannot reopen a completed record. A zero-duration save adds zero to totals.
+
+Goal attribution is explicit and restrictive. Canonical audio is optional and clears on deletion. Goal time combines independent sums from linked placements and completed activities. Home total and Weekly View combine committed Block placement time with completed standalone time, including No Goal. Both sources use the local start date and Monday–Sunday weeks. A cross-week activity contributes its entire duration to the start week. JSON 7 keeps its existing reader and writer formats and blocks restore into a target with any standalone activity. S2 owns portable recovery.
 
 Use a lightweight activity record within the existing practice accounting model.
 
