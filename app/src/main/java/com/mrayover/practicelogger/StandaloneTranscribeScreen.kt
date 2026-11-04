@@ -21,7 +21,7 @@ internal fun StandaloneTranscribeScreen(
     val selectedId = timer.audioId
     val stopwatch: @Composable () -> Unit = { TranscribeStopwatch(timer, goals) }
     fun leave() {
-        timer.setVisible(false)
+        timer.leaveWorkspace()
         onBack()
     }
     var choosing by rememberSaveable { mutableStateOf(false) }

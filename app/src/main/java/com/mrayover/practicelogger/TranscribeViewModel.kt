@@ -75,6 +75,15 @@ class TranscribeViewModel(application: Application) : AndroidViewModel(applicati
         if (!value) interrupt()
     }
 
+    fun leaveWorkspace() {
+        setVisible(false)
+        if (!hasActivity && !busy) {
+            audioId = null
+            selectedGoalId = null
+            message = null
+        }
+    }
+
     private fun interrupt() {
         contextVersion++
         if (!running) return

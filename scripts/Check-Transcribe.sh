@@ -19,7 +19,7 @@ adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 tests='PianoNativeTest PianoWorkflowTest'
 case "${2:-native}" in
   ui) tests=TranscribeWorkflowTest ;;
-  standalone) tests=StandaloneTranscribeTest ;;
+  standalone) tests="StandaloneTranscribeTest#practiceChoicesPreserveDraftAndStartSavedRoutine StandaloneTranscribeTest#stopwatchPausesOnLeaveAndRecreationAndSavesOnce StandaloneTranscribeTest#standaloneUsesCanonicalPlaybackAndMasterMarkers" ;;
   standalone-reopen) tests="StandaloneTimerReopenTest#startAndCheckpoint StandaloneTimerReopenTest#restorePausedAndSave" ;;
   practice-navigation) tests="MultipleSessionWorkflowTest MultipleSessionReopenTest RoutineWorkflowTest RoutineReopenTest GoalWorkflowTest" ;;
   reopen) tests="BlockAudioReopenTest#checkpointBeforeForceStop BlockAudioReopenTest#restoreAfterForceStop" ;;
@@ -27,7 +27,7 @@ case "${2:-native}" in
   library) tests="LibraryPlatformGateTest LibraryWorkspaceTest#realFormatsControllerLoopSpeedSeekEndAndForeground LibraryWorkspaceTest#waveformFaithfulnessLongDurationCacheRecoveryAndOriginalIntegrity" ;;
 esac
 for test in $tests; do
-  if [[ "${2:-}" == practice-navigation && "$test" != *ReopenTest ]]; then
+  if [[ "${2:-}" == standalone || ( "${2:-}" == practice-navigation && "$test" != *ReopenTest ) ]]; then
     adb shell pm clear com.mrayover.practicelogger.app
   fi
   adb shell am force-stop com.mrayover.practicelogger.app

@@ -58,7 +58,8 @@ class StandaloneTranscribeTest {
         compose.waitUntil(15_000) { runBlocking { db.transcribeActivities().unfinished()?.goalId == goalId } }
         val id = runBlocking { db.transcribeActivities().unfinished()!!.id }
         val checkpoint = runBlocking { db.transcribeActivities().find(id)!!.activeMs }
-        device.pressBack()
+        compose.waitForIdle()
+        click("Back to Practice Now")
         tag("practice-now-title").assertIsDisplayed()
         compose.waitUntil(15_000) { runBlocking { db.transcribeActivities().find(id)!!.activeMs > checkpoint } }
         click("Transcribe")
