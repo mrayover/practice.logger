@@ -151,62 +151,65 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         AudioWaveformView(vm.waveform, state, markers.visible.map { it.marker }, timeline, ::viewport, player::seek,
             { a, b -> player.range(a, b) })
     }
-    val details: @Composable (Dp, Boolean) -> Unit = { keyHeight, waveformInDetails ->
-        messages()
-        if (state.preparing) Text("Preparing audio…")
-        state.error?.let {
-            Text(it, color = MaterialTheme.colorScheme.error)
-            TextButton(onClick = { player.open(asset.id) }) { Text("Retry playback") }
-        }
-        if (vm.waveform == null && vm.waveformError == null) Text("Analyzing waveform…", style = MaterialTheme.typography.bodySmall)
-        vm.waveformError?.let {
-            Text(it, color = MaterialTheme.colorScheme.error)
-            TextButton(onClick = vm::retryWaveform) { Text("Retry waveform") }
-        }
-        OutlinedSelectionChip(pianoExpanded, { pianoExpanded = !pianoExpanded },
-            modifier = Modifier.testTag("transcribe-piano"), label = { Text("Piano") })
-        if (pianoExpanded) EmbeddedReferencePiano(player, keyHeight)
-        if (waveformInDetails) waveform()
-        AudioZoomControls(timeline, state.positionMs, duration, ::viewport)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            OutlinedButton(onClick = { player.range(player.state.value.positionMs, state.bMs) }, enabled = ready && state.positionMs < state.bMs) { Text("Set A here") }
-            OutlinedButton(onClick = { player.range(state.aMs, player.state.value.positionMs) }, enabled = ready && state.positionMs > state.aMs) { Text("Set B here") }
-            OutlinedButton(onClick = { rangeDialog = true }, enabled = ready) { Text("Edit A–B") }
-            OutlinedButton(onClick = player::playSelection, enabled = ready) { Text("Play phrase once") }
-        }
-        key(blockId, asset.id) {
-            BlockMarkerControls(blockId, asset.id, duration, ready, markers, vm) { marker ->
-                player.repeatRange(false)
-                marker.endMs?.let { player.range(marker.startMs, it) }
-                player.seek(marker.startMs)
-                vm.selectBlockMarker(marker.id)
-                viewport(timeline.copy(startMs = (marker.startMs - timeline.spanMs / 4)
-                    .coerceIn(0.0, (duration - timeline.spanMs).coerceAtLeast(0.0))))
+    val details: @Composable (Dp, Boolean, @Composable () -> Unit) -> Unit =
+        { keyHeight, waveformInDetails, markerControls ->
+            messages()
+            if (state.preparing) Text("Preparing audio…")
+            state.error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+                TextButton(onClick = { player.open(asset.id) }) { Text("Retry playback") }
             }
+            if (vm.waveform == null && vm.waveformError == null) Text("Analyzing waveform…", style = MaterialTheme.typography.bodySmall)
+            vm.waveformError?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+                TextButton(onClick = vm::retryWaveform) { Text("Retry waveform") }
+            }
+            OutlinedSelectionChip(pianoExpanded, { pianoExpanded = !pianoExpanded },
+                modifier = Modifier.testTag("transcribe-piano"), label = { Text("Piano") })
+            if (pianoExpanded) EmbeddedReferencePiano(player, keyHeight)
+            if (waveformInDetails) waveform()
+            AudioZoomControls(timeline, state.positionMs, duration, ::viewport)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                OutlinedButton(onClick = { player.range(player.state.value.positionMs, state.bMs) }, enabled = ready && state.positionMs < state.bMs) { Text("Set A here") }
+                OutlinedButton(onClick = { player.range(state.aMs, player.state.value.positionMs) }, enabled = ready && state.positionMs > state.aMs) { Text("Set B here") }
+                OutlinedButton(onClick = { rangeDialog = true }, enabled = ready) { Text("Edit A–B") }
+                OutlinedButton(onClick = player::playSelection, enabled = ready) { Text("Play phrase once") }
+            }
+            markerControls()
         }
-    }
-    BoxWithConstraints(modifier.testTag("transcribe-panel")) {
-        val keyHeight = (maxHeight - 8.dp).coerceIn(72.dp, 184.dp)
-        if (maxWidth >= 560.dp && maxHeight < 370.dp) {
-            Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-controls") {
-                    modes(); title(); controls()
+    key(blockId, asset.id) {
+        BlockMarkerControls(blockId, asset.id, duration, ready, markers, vm, jump = { marker ->
+            player.repeatRange(false)
+            marker.endMs?.let { player.range(marker.startMs, it) }
+            player.seek(marker.startMs)
+            vm.selectBlockMarker(marker.id)
+            viewport(timeline.copy(startMs = (marker.startMs - timeline.spanMs / 4)
+                .coerceIn(0.0, (duration - timeline.spanMs).coerceAtLeast(0.0))))
+        }) { markerControls ->
+            BoxWithConstraints(modifier.testTag("transcribe-panel")) {
+                val keyHeight = (maxHeight - 8.dp).coerceIn(72.dp, 184.dp)
+                if (maxWidth >= 560.dp && maxHeight < 370.dp) {
+                    Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-controls") {
+                            modes(); title(); controls()
+                        }
+                        PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-details") {
+                            waveform(); details(keyHeight, false, markerControls)
+                        }
+                    }
+                } else if (maxHeight >= 370.dp && maxWidth >= 350.dp && LocalDensity.current.fontScale < 1.4f) {
+                    Column(Modifier.fillMaxSize()) {
+                        modes(); title(); controls()
+                        if (!pianoExpanded) waveform()
+                        PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "transcribe-details") {
+                            details(136.dp, pianoExpanded, markerControls)
+                        }
+                    }
+                } else {
+                    PracticeScrollPanel(Modifier.fillMaxSize(), tag = "transcribe-details") {
+                        modes(); title(); controls(); waveform(); details(keyHeight, false, markerControls)
+                    }
                 }
-                PracticeScrollPanel(Modifier.weight(1f).fillMaxHeight(), tag = "transcribe-details") {
-                    waveform(); details(keyHeight, false)
-                }
-            }
-        } else if (maxHeight >= 370.dp && maxWidth >= 350.dp && LocalDensity.current.fontScale < 1.4f) {
-            Column(Modifier.fillMaxSize()) {
-                modes(); title(); controls()
-                if (!pianoExpanded) waveform()
-                PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "transcribe-details") {
-                    details(136.dp, pianoExpanded)
-                }
-            }
-        } else {
-            PracticeScrollPanel(Modifier.fillMaxSize(), tag = "transcribe-details") {
-                modes(); title(); controls(); waveform(); details(keyHeight, false)
             }
         }
     }

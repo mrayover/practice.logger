@@ -18,7 +18,8 @@ private enum class MarkerAction(val title: String) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun BlockMarkerControls(block: String, media: String, duration: Long, ready: Boolean,
-    markers: BlockMarkerSet, vm: LibraryAudioViewModel, jump: (MasterAudioMarker) -> Unit) {
+    markers: BlockMarkerSet, vm: LibraryAudioViewModel, jump: (MasterAudioMarker) -> Unit,
+    content: @Composable (@Composable () -> Unit) -> Unit) {
     val scope = rememberCoroutineScope()
     var menu by remember { mutableStateOf<String?>(null) }
     var editor by remember { mutableStateOf<MasterAudioMarker?>(null) }
@@ -50,63 +51,65 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
             if (section) audio.aMs else audio.positionMs, audio.bMs.takeIf { section }, "", "")
     }
 
-    Text("Markers and sections", style = MaterialTheme.typography.titleSmall)
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        OutlinedButton(onClick = { create(false) }, enabled = ready && !saving) { Text("Add Marker at Cursor") }
-        OutlinedButton(onClick = { create(true) }, enabled = ready && !saving) { Text("Save A–B as Section") }
-    }
-    if (markers.visible.isEmpty()) Text("No visible markers yet.", style = MaterialTheme.typography.bodySmall)
-    if (editor == null && confirmation == null) error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-    for (item in markers.visible + markers.hidden) key(item.marker.id) {
-        val marker = item.marker
-        val hidden = item.ownership == BlockMarkerOwnership.HIDDEN
-        val selected = !hidden && vm.selectedMarkerId == marker.id
-        Row(Modifier.fillMaxWidth()) {
-            Column(Modifier.weight(1f)) {
-                if (hidden) Text(markerSummary(marker))
-                else TextButton(onClick = { jump(marker) }, enabled = ready,
-                    modifier = Modifier.heightIn(min = 48.dp).testTag("master-jump-${marker.id}")) {
-                    Text(markerSummary(marker))
+    content {
+        Text("Markers and sections", style = MaterialTheme.typography.titleSmall)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            OutlinedButton(onClick = { create(false) }, enabled = ready && !saving) { Text("Add Marker at Cursor") }
+            OutlinedButton(onClick = { create(true) }, enabled = ready && !saving) { Text("Save A–B as Section") }
+        }
+        if (markers.visible.isEmpty()) Text("No visible markers yet.", style = MaterialTheme.typography.bodySmall)
+        if (editor == null && confirmation == null) error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        for (item in markers.visible + markers.hidden) key(item.marker.id) {
+            val marker = item.marker
+            val hidden = item.ownership == BlockMarkerOwnership.HIDDEN
+            val selected = !hidden && vm.selectedMarkerId == marker.id
+            Row(Modifier.fillMaxWidth()) {
+                Column(Modifier.weight(1f)) {
+                    if (hidden) Text(markerSummary(marker))
+                    else TextButton(onClick = { jump(marker) }, enabled = ready,
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("master-jump-${marker.id}")) {
+                        Text(markerSummary(marker))
+                    }
+                    Text(item.ownership.label + if (selected) " · Selected" else "", style = MaterialTheme.typography.bodySmall,
+                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (!hidden && selected && marker.note.isNotBlank()) Text(marker.note, style = MaterialTheme.typography.bodySmall)
                 }
-                Text(item.ownership.label + if (selected) " · Selected" else "", style = MaterialTheme.typography.bodySmall,
-                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
-                if (!hidden && selected && marker.note.isNotBlank()) Text(marker.note, style = MaterialTheme.typography.bodySmall)
-            }
-            Box {
-                TextButton(onClick = { menu = marker.id }, enabled = !saving,
-                    modifier = Modifier.testTag("block-marker-actions-${marker.id}")) { Text("Actions") }
-                DropdownMenu(menu == marker.id, onDismissRequest = { menu = null }) {
-                    if (!hidden) {
-                        marker.endMs?.let { end ->
-                            DropdownMenuItem(text = { Text("Load section into A–B") }, enabled = ready, onClick = {
-                                menu = null
-                                if (vm.controller.range(marker.startMs, end)) vm.selectBlockMarker(marker.id)
+                Box {
+                    TextButton(onClick = { menu = marker.id }, enabled = !saving,
+                        modifier = Modifier.testTag("block-marker-actions-${marker.id}")) { Text("Actions") }
+                    DropdownMenu(menu == marker.id, onDismissRequest = { menu = null }) {
+                        if (!hidden) {
+                            marker.endMs?.let { end ->
+                                DropdownMenuItem(text = { Text("Load section into A–B") }, enabled = ready, onClick = {
+                                    menu = null
+                                    if (vm.controller.range(marker.startMs, end)) vm.selectBlockMarker(marker.id)
+                                })
+                            }
+                            val editLabel = when (item.ownership) {
+                                BlockMarkerOwnership.MASTER -> "Edit for This Block"
+                                BlockMarkerOwnership.CUSTOMIZED -> "Edit Local Version"
+                                else -> "Edit"
+                            }
+                            DropdownMenuItem(text = { Text(editLabel) }, onClick = {
+                                menu = null; error = null; vm.controller.pause(); editing = item; editor = marker
                             })
                         }
-                        val editLabel = when (item.ownership) {
-                            BlockMarkerOwnership.MASTER -> "Edit for This Block"
-                            BlockMarkerOwnership.CUSTOMIZED -> "Edit Local Version"
-                            else -> "Edit"
+                        if (item.ownership == BlockMarkerOwnership.MASTER || item.ownership == BlockMarkerOwnership.CUSTOMIZED) {
+                            DropdownMenuItem(text = { Text("Hide in This Block") }, onClick = {
+                                menu = null
+                                runChange { vm.blockAudio.saveMarker(block, media, item, marker, hide = true) }
+                            })
                         }
-                        DropdownMenuItem(text = { Text(editLabel) }, onClick = {
-                            menu = null; error = null; vm.controller.pause(); editing = item; editor = marker
+                        val actions = when (item.ownership) {
+                            BlockMarkerOwnership.MASTER -> emptyList()
+                            BlockMarkerOwnership.CUSTOMIZED -> listOf(MarkerAction.RESET, MarkerAction.UPDATE)
+                            BlockMarkerOwnership.LOCAL -> listOf(MarkerAction.DELETE, MarkerAction.ADD)
+                            BlockMarkerOwnership.HIDDEN -> listOf(MarkerAction.RESET)
+                        }
+                        for (action in actions) DropdownMenuItem(text = { Text(action.title) }, onClick = {
+                            menu = null; error = null; vm.controller.pause(); reviewed = null; confirmation = action to item
                         })
                     }
-                    if (item.ownership == BlockMarkerOwnership.MASTER || item.ownership == BlockMarkerOwnership.CUSTOMIZED) {
-                        DropdownMenuItem(text = { Text("Hide in This Block") }, onClick = {
-                            menu = null
-                            runChange { vm.blockAudio.saveMarker(block, media, item, marker, hide = true) }
-                        })
-                    }
-                    val actions = when (item.ownership) {
-                        BlockMarkerOwnership.MASTER -> emptyList()
-                        BlockMarkerOwnership.CUSTOMIZED -> listOf(MarkerAction.RESET, MarkerAction.UPDATE)
-                        BlockMarkerOwnership.LOCAL -> listOf(MarkerAction.DELETE, MarkerAction.ADD)
-                        BlockMarkerOwnership.HIDDEN -> listOf(MarkerAction.RESET)
-                    }
-                    for (action in actions) DropdownMenuItem(text = { Text(action.title) }, onClick = {
-                        menu = null; error = null; vm.controller.pause(); reviewed = null; confirmation = action to item
-                    })
                 }
             }
         }

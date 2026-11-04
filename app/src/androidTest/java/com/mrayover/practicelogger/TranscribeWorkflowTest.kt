@@ -118,9 +118,13 @@ class TranscribeWorkflowTest {
         click("Add Marker at Cursor")
         tag("marker-label").performTextInput("Block cue")
         click("Save marker")
+        compose.waitUntil(10000) {
+            runBlocking { db.blockAudio().read(block, audio.id).any { it.label == "Block cue" } }
+        }
         val local = runBlocking { db.blockAudio().read(block, audio.id).single { it.label == "Block cue" } }
         assertNull(runBlocking { db.markers().find(local.id) })
         assertTrue(runBlocking { db.blockAudio().read(other, audio.id).isEmpty() })
+        shown("block-marker-actions-${local.id}")
         tag("block-marker-actions-${local.id}").performClick()
         compose.onNodeWithText("Add to Master").performClick()
         compose.onNodeWithText("Cancel").performClick()
@@ -129,7 +133,9 @@ class TranscribeWorkflowTest {
         tag("block-marker-actions-${local.id}").performClick()
         compose.onNodeWithText("Add to Master").performClick()
         compose.onAllNodesWithText("Add to Master").filter(hasClickAction()).onFirst().performClick()
-        assertTrue(runBlocking { db.markers().read(audio.id).any { it.label == "Block cue" } })
+        compose.waitUntil(10000) {
+            runBlocking { db.markers().read(audio.id).any { it.label == "Block cue" } }
+        }
         assertNull(runBlocking { db.blockAudio().marker(block, audio.id, local.id) })
 
         tag("transcribe-choose-audio").performClick()
