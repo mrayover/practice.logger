@@ -77,7 +77,7 @@ class PianoWorkflowTest {
         compose.onNodeWithTag("piano-notes").assertTextEquals("—")
         keyboard.performTouchInput { down(Offset(width*.1f,height*.2f)) }
         compose.onNodeWithTag("piano-notes").assertTextEquals("C♯4")
-        previous.performClick()
+        previous.performSemanticsAction(SemanticsActions.OnClick) { it() }
         register.assertTextEquals("C3–E4")
         compose.onNodeWithTag("piano-notes").assertTextEquals("—")
         keyboard.performTouchInput { moveTo(Offset(width*.2f,height*.85f)); up() }
