@@ -1,5 +1,9 @@
-# practice.logger — T2 Block-local audio
+# practice.logger — Next assignment
 
-See [CURRENT_STATE](CURRENT_STATE.md) for the current signed update, exact source and verification. [Audio ownership and marker behavior](docs/MEDIA_AUDIO_WORKSPACE.md#block-local-audio-in-t2) and the [T2 phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) describe the new increment.
+**T3A — Standalone Transcribe Workspace** is next after the T3-0 documentation checkpoint, pending a separate explicit owner assignment.
 
-Exact next action is the owner T2 phone checklist. The next separately assigned milestone is T3 — Transcribe Playback, Free Record and Practice Integration. Preserve canonical originals and links, legacy takes, Room 15 migrations and JSON 7 limitations. Review AGENTS and the mandatory efficiency procedure in the existing Windows checkout.
+Read the [authoritative T3 plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md), [current state](CURRENT_STATE.md), [AGENTS](AGENTS.md) and the mandatory efficiency procedure in [WORK_LOG](WORK_LOG.md). Start from the existing Windows checkout and verify live Git state.
+
+T3A adds direct Practice Now choices for Continue Session when available, Add Blocks, Routines and standalone Transcribe. Reuse the existing builder and Routine workflows and the Library audio, master annotations and Reference Piano components. Follow the T3A verification and signed install-over gate. Stopwatch and Goal attribution, Record Reference and concurrent Free Record are separately assigned T3B–T3D work.
+
+The signed baseline is T2, 0.23.0/build86, Room 15 and JSON 7. The [T2 owner-phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) remains open.

@@ -36,7 +36,7 @@ The Record Loop selector opens Transcribe in the bounded practice transport. It 
 
 The expanded keyboard uses the reference controller's focus while playing or paused. Pause leaves held notes sounding. Closing the keyboard releases its own output and leaves the reference transport available. Source changes, panel exit, backgrounding and output interruption release audio. Playback resumes only on explicit Play. Practice timing remains with the session. Record Loop and Free Record use their existing capture path. Saved legacy backing takes stay in the take system.
 
-T1 introduced the shared workspace. T3 owns reference playback with Free Record capture. See [Reference Piano](REFERENCE_PIANO.md) and [verification](../CURRENT_STATE.md).
+T1 introduced the shared workspace. The [Standalone Transcribe plan](T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A reuse of this audio workspace, T3C Record Reference with playback paused, and T3D reference playback with ordinary Free Record capture. See [Reference Piano](REFERENCE_PIANO.md) and [verification](../CURRENT_STATE.md).
 
 
 ## Block-local audio in T2

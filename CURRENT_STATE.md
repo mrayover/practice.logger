@@ -1,6 +1,6 @@
-# Current state — T2 Block-local Transcribe audio
+# Current state — T2 signed delivery and T3-0 roadmap lock
 
-Updated November 3, 2026 (America/Los_Angeles).
+Updated November 4, 2026 (America/Los_Angeles).
 
 ## Signed delivery
 
@@ -24,9 +24,13 @@ Room 14→15 retains schemas 1–14 and adds two tables scoped to the exact acti
 
 See [WORK_LOG](WORK_LOG.md) for the initial migration fixture failure and UI reruns. Verification was scoped to T2 and adjacent audio workflows.
 
-Physical-phone install-over and listening checks are pending. The owner confirmed the build84 piano-range refinement works correctly. Individual device and acoustic checklist results remain unreported.
+The T3-0 handoff reports general working status. The owner also confirmed the build84 piano-range refinement works correctly. Individual build86 install-over, device and listening checks remain unreported. The [T2 owner-phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) remains open.
 
-**Next task.** Run the [T2 owner-phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) on signed build86. The next separately assigned engineering milestone is **T3 — Transcribe Playback, Free Record and Practice Integration**.
+## T3-0 roadmap lock
+
+The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the owner’s Practice Now navigation, standalone stopwatch and optional Goal attribution, and separate Record Reference and concurrent Free Record workflows. T3-0 is a documentation checkpoint. T3A–T3D are planned.
+
+**Next executable task:** **T3A — Standalone Transcribe Workspace**, after T3-0 is committed and the owner explicitly assigns T3A.
 
 ---
 
@@ -69,7 +73,7 @@ App ID `com.mrayover.practicelogger.app`, permanent certificate SHA-256 `f56fcf9
 
 Focused Practice switches between Record Loop and Transcribe. Transcribe uses the source Block's canonical AUDIO link, the existing Library picker/import and role checks, and the shared source-time player, waveform and zoom. The panel supports pitch-preserving 50–100% speed, seek, A–B repeat, one-shot phrase playback and timestamp edits. Master points and sections are read-only. The existing expandable piano can sound while reference audio is playing or paused, using the controller's single focus request. Keyboard collapse releases its output. Leaving the panel, changing the reference or backgrounding releases active Transcribe output.
 
-Record Loop and Free Record use the existing capture and review path. The practice timer remains authoritative. Saved legacy imports retain their original take ownership and playback. Room14 and JSON7 are in use. T1 playback state is transient. Durable local state and annotations belong to T2, and simultaneous Transcribe playback and Free Record belong to T3.
+Record Loop and Free Record use the existing capture and review path. The practice timer remains authoritative. Saved legacy imports retain their original take ownership and playback. Room14 and JSON7 are in use. T1 playback state is transient. Durable local state and annotations belong to T2, and simultaneous Transcribe playback and Free Record belong to T3D.
 
 ### Actual verification
 

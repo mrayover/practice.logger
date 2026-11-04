@@ -159,3 +159,32 @@ The owner confirms the K1 keyboard works on their phone. Individual acoustic mea
 3. Add a local marker and customize a Master marker in one Block. Confirm the other Block and Library retain their original markers.
 4. Publish with Add to Master or Update Master. Check the Library and the other Block. Hide and reset a marker to check inheritance.
 5. Open Piano, switch to Record Loop and complete a normal practice Block.
+
+
+## Planned T3 owner phone checklists
+
+Unexecuted. Run each checklist on its separately assigned signed install-over build. See the [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) for focused engineering checks.
+
+### T3A — Standalone Transcribe Workspace
+
+- [ ] Verify Practice Now offers Continue Session when available, Add Blocks opens the existing builder, and Routines selects an existing Routine directly. Check existing Routine shortcuts and management.
+- [ ] Open standalone Transcribe without creating a Block. Select and import audio, slow it, loop a phrase, play the piano and edit a shared master marker. Confirm the edit in the Library.
+- [ ] Verify background and return safety and continued Block Transcribe operation.
+
+### T3B — Standalone Timer and Goal Attribution
+
+- [ ] Verify preparation before Start counts no time. Check independent playback, background and process restart, and explicit resume from committed time.
+- [ ] Save once with No Goal and once with a Goal selected during activity. Check overall, weekly and Goal totals, unchanged manual progress, and no overlapping Block time.
+- [ ] Check zero-length and failed or retried saves. Verify media deletion preserves committed time.
+
+### T3C — Record Reference Directly in Transcribe
+
+- [ ] Check permission denial and grant, paused reference playback, Stop, review playback, Rerecord and Discard.
+- [ ] Keep in both contexts. Verify one canonical original per kept capture, immediate selection or Block attachment, slowdown and looping, and no ordinary take created.
+- [ ] Check cancellation, interrupted capture and failed save or association. Verify the old Block link and local annotations survive.
+
+### T3D — Concurrent Transcribe Playback and Free Record
+
+- [ ] On a physical phone with headphones and then speaker output, record during reference playback. Check independent controls, preserved speed/A–B/markers and possible speaker bleed.
+- [ ] Check Keep, Rerecord and Discard, correct take ownership and single-counted practice time. Verify normal Free Record, Record Loop and Transcribe.
+- [ ] Check interruption, microphone failure, rotation and backgrounding. Verify safe recovery and retained saved audio.

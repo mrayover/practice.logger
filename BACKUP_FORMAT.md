@@ -4,7 +4,7 @@ Format7 / Room12 is current for L1 build72. Canonical media_assets are independe
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **12**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **15**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -78,7 +78,7 @@ Only practice_notes is created: six non-null fields listed above, primary ID and
 
 ## Planned complete recovery (not implemented)
 
-S2 in the [authoritative roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) will include canonical visual/audio originals once, global markers/notes, Block-local overrides/markers/playback state, stable links, legacy imported histories and recorded takes, plus persisted keyboard settings if any. Complete restore must reconstruct shared ownership and inheritance. This is future versioned ZIP scope, not a change to the JSON7 writer/readers1–7 or current empty-target atomic restore contract.
+S2 in the [authoritative roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) will include canonical visual/audio originals once, global markers/notes, Block-local overrides/markers/playback state, stable links, legacy imported histories and recorded takes, plus persisted keyboard settings if any. Complete restore must reconstruct shared ownership and inheritance. S2 also preserves committed standalone Transcribe activities, optional Goal/audio associations, historical time attribution and canonical microphone references. Verify restored shared totals count each activity once. [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md). This is future versioned ZIP scope, not a change to the JSON7 writer/readers1–7 or current empty-target atomic restore contract.
 
 ## L1 canonical media exclusion and restore guard
 

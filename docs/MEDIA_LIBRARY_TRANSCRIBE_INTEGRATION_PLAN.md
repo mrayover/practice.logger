@@ -1,12 +1,12 @@
 # practice.logger — Media Library, Reference Keyboard & Transcribe Integration
 
-**Status:** Approved design; L1–L3 are implemented under explicit owner handoffs. Actual scoped verification, signed delivery and separately pending phone acceptance are in CURRENT_STATE. K1 and T1–T3 remain planned. See [L1 ownership decision](MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for delivered evidence.
+**Status:** L1–L3, K1 and T1–T2 are delivered. See [CURRENT_STATE](../CURRENT_STATE.md) for verification, signed delivery and physical acceptance status. The [Standalone Transcribe plan](T3_STANDALONE_TRANSCRIBE_PLAN.md) governs T3-0 and T3A–T3D.
 **Amended:** November 3, 2026 (America/Los_Angeles).
 **Verified repository baseline:** `main`, `aa3e755638bfbb14e039cf8764d40a5ad76df042`.
 
 This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The original amendment authorized documentation only; the later explicit owner handoff authorized L1 implementation, now delivered with scoped verification and signed packaging. Reinspect live code before each separately assigned phase.
 
-**Order:** accepted P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3 → S0–S2 → G1–G3 → F1–F2. Build69 camera/gallery owner acceptance is recorded; L1–L3 have explicit implementation handoffs. Phone acceptance remains distinct from engineering verification. After the assigned L3 delivery, K1 Reference Piano is next by separate assignment; T1 follows K1. L1/L2 phone acceptance remains separately pending.
+**Order:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. T3A is the next engineering milestone by separate explicit assignment.
 
 ## 1. Verified existing implementation
 
@@ -22,7 +22,7 @@ The repository already contains:
 - Room schema 11, JSON backup format 7, and existing explicit migrations.
 - Existing metronome, tuner and timer Tools.
 
-The list above records the pre-L1 baseline. L1 now adds independent canonical media storage/management with Room12; preview/linking remains L2/L3. Legacy adoption is deferred until L3 can change resolution, deletion and recovery safely together; existing bytes/IDs/associations stay intact. See [storage implementation](MEDIA_LIBRARY_STORAGE.md).
+The list above records the pre-L1 baseline. L1 added independent canonical media storage with Room 12. L2 added previews and master markers, and L3 added independent Block links while retaining legacy take ownership. See [storage implementation](MEDIA_LIBRARY_STORAGE.md).
 
 Relevant source locations:
 
@@ -68,7 +68,7 @@ Every asset receives a stable media ID, title, metadata and a validated storage 
 
 The Library is where media is aggregated, previewed and prepared. It is not a practice-session environment.
 
-### Blocks are the working environment
+### Block and standalone contexts
 
 Blocks link to Library assets by stable media ID.
 
@@ -79,7 +79,7 @@ For the initial scope, a Block may attach:
 
 This is intentionally **not** an unrestricted multi-attachment system.
 
-Different Blocks may link to the same audio or visual original. No duplicate media bytes are created per Block.
+Different Blocks may link to the same audio or visual original. Standalone Transcribe selects the canonical audio directly through Practice Now and edits global master annotations. Users may later attach the recording through the existing Block workflow. Both contexts reuse playback, waveform, marker and keyboard components.
 
 ### Global versus Local
 
@@ -261,35 +261,14 @@ Promotion must be explicit, understandable and tested. Avoid automatic bidirecti
 
 **Exit:** Master/local behavior remains correct across edits, multiple Blocks, master revisions, deletion and process restart.
 
-### T3 — Audio and practice integration
+### T3-0 and T3A–T3D — Standalone Transcribe and recording integration
 
-Ensure the completed feature works within the actual practice environment.
-
-Requirements:
-
-- Free Record remains independently accessible.
-- Transcribe audio can continue playing while Free Record captures microphone audio.
-- Do not force existing beat-based Loop Recorder and Transcribe player to run together.
-- No metronome synchronization, tempo detection or beat-grid alignment for imported audio.
-- No automatic reference-audio mixing or multitrack capture.
-- A reference keyboard can be used while hearing imported audio.
-- Notes and visual references remain available without unnecessary playback interruption.
-- Playback and recording retain appropriate foreground/background, interruption and audio-focus handling.
-- Recordings remain associated with the correct Block/session and retain existing review/save behaviors.
-- Practice time is counted once by the existing session system, not separately for Transcribe playback.
-- Backgrounding and reopening must not silently resume audio unexpectedly.
-
-**Existing code conflict:** Free Record currently stops active playback. Refactor audio ownership only as much as necessary to allow the approved coexistence. Verify real-device microphone recording and speaker/headphone behavior, including possible acoustic bleed.
-
-Do not reinterpret simultaneous capture as approval for overdubbing, synchronization or source-audio mixing.
-
-**Exit:** A complete transcription practice session works on a physical Android device with stable audio, persistent state and no damage to existing recording workflows.
-
+The [authoritative specification](T3_STANDALONE_TRANSCRIBE_PLAN.md) defines the split. T3A adds the dedicated Practice Now workspace. T3B adds the optional-Goal stopwatch and shared time accounting. T3C captures a canonical microphone reference with reference playback paused and protects existing Block links and annotations on replacement. T3D separately enables reference playback with Free Record while retaining ordinary take review and ownership.
 ---
 
 ## 4. Resume the existing pipeline
 
-After T3, resume the V1 master plan's existing sequence.
+After T3D, resume the V1 master plan's existing sequence.
 
 ### S0–S2 — Storage and recovery
 
@@ -297,13 +276,14 @@ Preserve the existing provider feasibility, organized recording exports and medi
 
 Extend complete backup/restore coverage to include:
 
-- All canonical PDFs, images and audio assets, each stored once.
+- All canonical PDFs, images and audio assets, including microphone references, each stored once.
 - Global audio markers and annotation notes.
 - Block-local markers, overrides, A–B selections and speed settings.
 - Stable Block/media relationships.
 - Existing imported backing-track histories and recorded takes.
 - Reference keyboard settings if persisted.
 - All prior Blocks, Goals, sessions, Routines, practice notes and daily Logs.
+- Standalone activity records, optional Goal/audio associations and historical time attribution.
 
 Do not duplicate a shared audio file for every referencing Block in the ZIP.
 
@@ -317,7 +297,7 @@ Keep the already-approved Goal colors, Block filtering and actual-time attributi
 
 Do not add separate transcription statistics or a new practice-time counter.
 
-Transcribe activity is part of ordinary Block practice.
+Block Transcribe continues to count through its practice session. T3B adds completed standalone activities through shared totals. G1–G3 preserve their existing scope and count standalone time once.
 
 ### F1–F2 — Finalization and verification
 
@@ -363,10 +343,10 @@ Potential later enhancement: non-destructive image/PDF highlights, pencil marks 
 
 ## 6. Implementation decisions and compatibility gates
 
-The exact Room entities and schema versions remain implementation decisions. L1 must audit real attachments and legacy imported-file ownership before choosing adoption/migration and deletion rules. Imported histories, IDs, playback and byte-preserving export must survive. L2 must establish real-device platform speed/seek/A–B quality before selecting an engine; any justified alternative needs owner approval. T3 must resolve playback/capture focus and lifecycle ownership, verify microphone/speaker/headphone behavior and document acoustic bleed. S2 must version and validate complete recovery without changing the current JSON7 contract prematurely.
+The exact Room entities and schema versions remain implementation decisions. L1 must audit real attachments and legacy imported-file ownership before choosing adoption/migration and deletion rules. Imported histories, IDs, playback and byte-preserving export must survive. L2 must establish real-device platform speed/seek/A–B quality before selecting an engine; any justified alternative needs owner approval. T3D must resolve playback/capture focus and lifecycle ownership, verify microphone/speaker/headphone behavior and document acoustic bleed. S2 must version and validate complete recovery without changing the current JSON7 contract prematurely.
 
 Reuse [existing audio import](IMPORTED_AUDIO.md), visual renderers, recording repository, practice accounting and [current backup safeguards](../BACKUP_FORMAT.md). No new feature in this specification is delivered by this documentation amendment. Keep targeted checks per assigned increment and the full regression at the final F1/F2 gate.
 
 ## K1 implementation checkpoint — November 3, 2026
 
-K1 is delivered as build81 with one reusable PCM engine and Compose keyboard, standalone Tools wrapper and borrowed-focus active-reference coexistence. T1 remains unimplemented and must embed the same instrument. See [architecture and current focus contract](REFERENCE_PIANO.md) and [delivery/actual scoped evidence](../CURRENT_STATE.md). This checkpoint records implementation without expanding later milestone scope.
+K1 is delivered as build81 with one reusable PCM engine and Compose keyboard, standalone Tools wrapper and borrowed-focus active-reference coexistence. At this checkpoint T1 had yet to embed the same instrument. T1 and T2 have since been delivered. See [architecture and current focus contract](REFERENCE_PIANO.md) and [delivery/actual scoped evidence](../CURRENT_STATE.md). This checkpoint records implementation without expanding later milestone scope.

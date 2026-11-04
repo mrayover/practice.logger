@@ -958,3 +958,14 @@ Superseded run 41775171295 was canceled. Migration retest 41775276040 passed. Fi
 Build86 run 41776290501 passed debug/release/instrumentation compilation and 30 scoped units. KSP schema15 matches the committed export and schemas1–14 are unchanged. API26 UI 41776777624 and API35/200% UI 41776779735 passed after the dialog and test synchronization fixes. Reviewed compact portrait piano and enlarged landscape screenshots. Build85 API26 41775914113 and API35 41775915966 passed both force-stop phases, retaining distinct settings across two Blocks sharing one recording. API26 Library 41775920659 passed three checks and API35 transport 41775918461 passed two. No full P5 or F1/F2 run. Build85 remains a signed candidate and build86 is the phone install target.
 
 Signed 0.23.0/build86 from `c4d48edcc27ea2060c6684b8a2f30a8b100d08d0`. Package, permanent certificate, 67 matching unsigned payload entries, ZIP members/CRC and 392 prior APK/ZIP hashes verified. APK SHA-256 `3e42bd73e147a16b7ea1fb16bda7feff063a2e760466a73085176c273c3bdb62`. ZIP SHA-256 `81166c850120a4fd4a09b5ecb95292d0e1bb2149b61b0b7c9bb0e766908e8dab`. See CURRENT_STATE for artifacts and verification. Owner phone and listening checks are pending. The next exact action is the T2 owner-phone checklist, and T3 requires separate assignment.
+
+
+## 2026-11-04 — T3-0 standalone Transcribe roadmap lock
+
+The November 4 owner T3-0 Roadmap Lock handoff supplied these decisions. Reviewed the mandatory efficiency procedure, current records, shared Library player and piano, recorder ownership and Goal/session timing. Verified the existing Windows checkout with git status, git rev-parse and git remote. Local main was clean at 2b985fe00f1c7bfbafd32cb0943a2abbcd8cb48b, matching live origin/main via git ls-remote.
+
+Added docs/T3_STANDALONE_TRANSCRIBE_PLAN.md. Reconciled PRACTICE_LOGGER_V1_MASTER_PLAN.md, docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md, BUILD_PLAN.md, CURRENT_STATE.md, FIRST_WORK_HANDOFF.md, README.md, AGENTS.md, MANUAL_TESTS.md, BACKUP_FORMAT.md and docs/MEDIA_AUDIO_WORKSPACE.md. The checkpoint records the Practice Now choices, standalone stopwatch and optional Goal attribution, canonical Record Reference capture and separate Free Record coexistence. S2 carries the recovery obligations, and G1–G3 retain their approved scope. Build86 evidence and the open T2 phone checklist are retained.
+
+Validation is limited to documentation scope, links and Git publication. The exact next engineering task is T3A — Standalone Transcribe Workspace, pending explicit owner assignment.
+
+Staged the 12 documentation files explicitly. The staged diff passed whitespace checks, all 39 added or edited local link references resolved, and the work log history remained intact. No application build, release packaging or regression run was performed. The publication SHA and live remote verification are recorded in the closing handoff.

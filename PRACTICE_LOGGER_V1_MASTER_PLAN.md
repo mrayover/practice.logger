@@ -1,10 +1,10 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap; P5 is closed and owner accepted. L1–L3 and K1 are delivered with scoped engineering verification. K1 physical acoustic/phone checks are next; T1 remains separately assigned. Actual delivery/evidence: [CURRENT_STATE](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is closed and owner accepted. L1–L3, K1 and T1–T2 are delivered. T3-0 locks the roadmap. T3A is next by separate assignment. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
-**Current delivery — November 3, 2026:** K1 Reference Piano0.21.0/build81 is delivered; current artifacts, scope, exact source and verification are in [CURRENT_STATE](CURRENT_STATE.md). Earlier starting references are historical. T1 will embed the same keyboard and engine; do not start it automatically.
+**Current delivery:** T2, signed 0.23.0/build86. See [CURRENT_STATE](CURRENT_STATE.md) for exact source, artifacts and verification.
 
 > **Purpose.** Finish practice.logger as a dependable, offline-first Android application for daily music practice. V1 integrates reusable Blocks, sessions, recordings, reference materials, Goals and measured practice time, with export and full recovery. This document *supersedes the prior uncommitted separate pre-Library and Goal/Statistics proposals as the unified forward roadmap*. It does not erase verified implementation history in Git.
 
@@ -47,12 +47,16 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **K1** | Reference Piano Tool and reusable polyphonic keyboard | After L3; range/pitch/touch/lifecycle and audio coexistence checks | **High** for audio; **Medium** for UI |
 | **T1** | Record Loop / Transcribe modes in existing transport | After K1; ordinary Block phrase practice without Loop Recorder regression | **Medium–High** |
 | **T2** | Block-local annotations, overrides, promotion and playback state | After T1; inheritance/deletion/multi-Block/restart tests | **High** |
-| **T3** | Practice audio ownership and concurrent Free Record integration | After T2; physical Android audio/lifecycle acceptance | **High** |
+| **T3-0** | Roadmap lock and handoff | After delivered T2. Documentation checkpoint only | **Medium** |
+| **T3A** | Standalone Transcribe Workspace | After T3-0. Scoped navigation, lifecycle and signed install-over | **Medium–High** |
+| **T3B** | Standalone Timer and Goal Attribution | After T3A. Durable clock, aggregation, migration and restore checks | **High** |
+| **T3C** | Record Reference Directly in Transcribe | After T3B. Shared recorder, canonical save and safe Block replacement | **High** |
+| **T3D** | Concurrent Transcribe Playback and Free Record | After T3C. Physical Android microphone and playback verification | **High** |
 | **S0–S2** | **Storage & recovery**: feasibility gate, organized exports, complete backup/restore | Verify real Drive-provider behavior + round-trip restore before proceeding | **High** for backup; **Medium** for export UI |
 | **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
-**Gating rule:** P5 is complete and precedes L1. L1 → L2 → L3 → K1 → T1 → T2 → T3 precedes S0. S2 precedes G1 (because backups must already preserve the new Goal attribution schema). F1 follows G3. An individual Work task may only span adjacent subphases if the owner explicitly authorizes doing so. The phase sequence is the planned scope, **not** authorization to start everything at once.
+**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before G1 begins. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
 
 ### What is already implemented — do not rebuild it
 
@@ -72,7 +76,7 @@ Current Git baseline includes Block creation/editing/archive/safe delete, indepe
 - A fully completed foreground phrase loop automatically previews its temporary take before the explicit Keep/Re-record/Discard choice (owner follow-up 2026-10-31). Playback never saves, and never starts from incomplete/cancelled/background capture or restarts on return/recomposition. Free review remains manual; **an incomplete phrase remains invalid** and must be rejected/discarded with understandable feedback, never silently padded or saved as complete.
 - Temporary recording can be previewed without creating a fake session, Block, or Goal entry. Keep active Stop/Cancel controls and status reachable when references or notes are open.
 - Preserve existing recovery/orphan handling, foreground interruption safety, media focus and playback ownership. A background/mic/storage/audio error may invalidate a pending file but must never corrupt a saved file or pretend a failed save succeeded.
-- Keep V1 free audio **AAC/M4A** and phrase-loop audio **PCM16 WAV**. No MP3 encoder, multitrack, overdub, effects, trimming or source-audio mixing. T3 later permits imported reference playback during Free Record microphone capture; it does not change beat-based loop capture.
+- Keep V1 free audio **AAC/M4A** and phrase-loop audio **PCM16 WAV**. No MP3 encoder, multitrack, overdub, effects, trimming or source-audio mixing. T3D later permits imported reference playback during Free Record microphone capture; it does not change beat-based loop capture.
 
 **Acceptance:** Record → stop → preview → save; stop → re-record → save; stop → discard; repeated attempts; failed file save; background/interruption; playback stops correctly; saved history unaffected. Check the four entry contexts (Focused Practice, Block recording, standalone Free Recording, completed loop). Deliver versioned signed APK and scoped tests.
 
@@ -163,7 +167,7 @@ Freeze P1–P4 features. Run and record:
 
 ## 8. L1–L3 — Canonical Media Library and Block references
 
-The Library is the global, offline-first media preparation workspace, separate from the Block catalog and practice sessions. The [approved integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) defines detailed requirements, exclusions and acceptance for L1–L3, K1 and T1–T3. CURRENT_STATE records current implementation, actual verification and owner acceptance; this section defines the approved phase scope.
+The Library is the global, offline-first media preparation workspace, separate from the Block catalog and practice sessions. The [approved integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) defines detailed requirements, exclusions and acceptance for L1–L3, K1 and T1–T2. CURRENT_STATE records current implementation, actual verification and owner acceptance; this section defines the approved phase scope.
 
 ### L1 — Canonical Media Library and storage (High)
 
@@ -208,11 +212,16 @@ Use stable master marker identity with Block-local overrides/hiding, independent
 
 **Exit:** inheritance, promotion, edits/deletion, multiple Blocks and process restart satisfy the detailed specification's rules.
 
-### T3 — Audio and practice integration (High)
+### T3-0 — Roadmap lock
 
-Keep Free Record independently accessible and allow Transcribe playback plus microphone capture and keyboard output. Refactor the current `RecordingViewModel.startCapture()` → `stopPlayback()` conflict only as necessary. Do not force beat-based loop recording to run with Transcribe; no overdub, source mixing, beat grid, tempo detection or metronome sync. Keep Notes/visual references accessible, correct Block/session take review/save, foreground/background/focus/interruption safety and no unexpected resume. Count practice time once through existing sessions.
+Documentation checkpoint after T2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) defines the scope, acceptance and exclusions for the four separately assigned milestones.
 
-**Exit:** physical Android speaker/headphone/microphone practice verifies coexistence, acoustic bleed limitations, persisted state and unchanged recording workflows. Then resume S0–S2; do not auto-start the next assignment.
+### T3A–T3D — Standalone Transcribe and recording integration
+
+- **T3A** adds direct Practice Now workflows and standalone Transcribe with shared Library audio, master markers and piano. Existing Block Transcribe stays available.
+- **T3B** adds the foreground stopwatch, one durable activity per Stop and optional Goal attribution through shared time totals.
+- **T3C** reuses microphone capture and review to save one canonical reference from either context. Reference playback pauses during capture, and Block replacement follows T2 protections.
+- **T3D** allows canonical reference playback during ordinary Free Record capture with independent controls, existing take ownership and real-device audio verification.
 
 ---
 
@@ -251,7 +260,7 @@ practice.logger/
 
 ### S2 — Complete portable ZIP backup and verified restore (High; V1 release-critical)
 
-- A true **complete** backup contains *all* durable V1 user data: Blocks, Goal/Block links/Goal history and snapshot attribution, Routines, sessions/placements, practice time, Daily Logs, practice and session Notes, Media Library metadata and canonical PDFs/images/audio (each original once), global markers/notes, Block-local markers/overrides, A–B selections, speed/position and stable media links, persisted keyboard settings if any, imported backing-track histories, recording/take metadata/labels and **actual MP3/M4A/WAV bytes**, settings where appropriate and stable IDs/relationships. Exclude temporary in-progress audio, caches and private secrets.
+- A true **complete** backup contains *all* durable V1 user data: Blocks, Goal/Block links/Goal history and snapshot attribution, Routines, sessions/placements, practice time including standalone activity records and their optional Goal/audio associations and historical attribution, Daily Logs, practice and session Notes, Media Library metadata and canonical PDFs/images/audio including microphone references (each original once), global markers/notes, Block-local markers/overrides, A–B selections, speed/position and stable media links, persisted keyboard settings if any, imported backing-track histories, recording/take metadata/labels and **actual MP3/M4A/WAV bytes**, settings where appropriate and stable IDs/relationships. Exclude temporary in-progress audio, caches and private secrets.
 - ZIP contains a **versioned manifest**, explicit item IDs/paths, counts, types/sizes, cryptographic hashes (e.g. SHA-256), schema/format version and app version. Sanitize archive paths against traversal/duplicate entries and reject or safely handle malformed, oversized or inconsistent archives. Bound memory/storage; stream large file bytes rather than building one giant array.
 - Build a complete archive to a temporary destination, verify integrity, then publish/rename the final copy where supported. Handle out-of-space, missing file, interruption and provider errors without pretending backup succeeded. The target folder may be SAF/Google Drive where supported; provide an explicit alternate Save As flow.
 - Restore must validate the archive, media hashes, IDs, references, bounds and available disk space **before destructive operations**. Follow the existing conservative **empty-installation restore** contract (or a separately approved safe staging/rollback approach); **never overwrite or merge a populated installation without an explicit new owner decision**. Prevent partial database/media restoration or supply a verified rollback mechanism; report failures accurately.
@@ -266,7 +275,7 @@ practice.logger/
 
 ### Current foundation; migrate conservatively
 
-Up to five active Goals, Goal ordering/completion, manual percentages, existing `goal_blocks` many-to-many links and explicit `session_goals` are implemented. Current Goal time counts sessions explicitly started through Goal practice, not all practice. `placements.activeMs` is actual committed time; Home's `Data usage` is placeholder. **Block tags are not implemented at current baseline**—do not assert otherwise or create a separate tag system without explicit approval.
+Up to five active Goals, Goal ordering/completion, manual percentages, existing `goal_blocks` many-to-many links and explicit `session_goals` are implemented. At the T2 baseline, Goal time counts committed placements from explicitly Goal-associated sessions. T3B adds standalone activities to the same totals. G1–G3 retain broader Goal identity, filtering and historical reporting, counting each T3B activity once. `placements.activeMs` is actual committed time; Home's `Data usage` is placeholder. **Block tags are not implemented at current baseline**—do not assert otherwise or create a separate tag system without explicit approval.
 
 ### G1 — Goal identity, primary link and colored Block cap (High for migration, Medium for UI)
 
@@ -345,7 +354,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] K1 reusable Reference Piano with scoped pitch/polyphony/playback-coexistence verification and signed delivery; physical acoustic checks remain pending in CURRENT_STATE.
 - [ ] T1 compact Record Loop / Transcribe modes and phrase practice without recorder regression.
 - [x] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state. See [CURRENT_STATE](CURRENT_STATE.md) for signed delivery and scoped verification.
-- [ ] T3 physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
+- [ ] T3D physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
 - [ ] S0 documented SAF/Google Drive provider capabilities and fallback decision.
 - [ ] S1 organized non-destructive audio export and user-selectable destination.
 - [ ] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
