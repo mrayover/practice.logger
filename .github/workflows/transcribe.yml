@@ -4,7 +4,7 @@ on:
     inputs:
       scope:
         type: choice
-        options: [build, native, ui, library, transport]
+        options: [build, piano-build, native, ui, library, transport]
         default: build
       api:
         type: choice
@@ -44,11 +44,14 @@ jobs:
       - name: Compile APKs
         if: ${{ inputs.compiled_run == '' }}
         run: |
-          if [ '${{ inputs.scope }}' = build ]; then
+          if [[ '${{ inputs.scope }}' == build || '${{ inputs.scope }}' == piano-build ]]; then
             bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
           else
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
           fi
+      - name: Piano geometry and PCM units
+        if: ${{ inputs.scope == 'piano-build' }}
+        run: bash ./gradlew testDebugUnitTest --tests '*PianoPcmTest' --stacktrace
       - name: Scoped unit tests
         if: ${{ inputs.scope == 'build' }}
         run: |
@@ -89,13 +92,13 @@ jobs:
             app/build/outputs/apk
             app/build/test-results/testDebugUnitTest
       - name: Emulator acceleration
-        if: ${{ inputs.scope != 'build' }}
+        if: ${{ inputs.scope != 'build' && inputs.scope != 'piano-build' }}
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
-        if: ${{ inputs.scope != 'build' }}
+        if: ${{ inputs.scope != 'build' && inputs.scope != 'piano-build' }}
         with:
           api-level: ${{ inputs.api }}
           arch: x86_64
@@ -103,7 +106,7 @@ jobs:
           disable-animations: true
           script: bash scripts/Check-Transcribe.sh '${{ inputs.font_scale }}' '${{ inputs.scope }}'
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.scope != 'build' }}
+        if: ${{ always() && inputs.scope != 'build' && inputs.scope != 'piano-build' }}
         with:
           name: t1-native-${{ inputs.api }}
           path: app/build/t1-native

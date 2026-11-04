@@ -2,8 +2,10 @@ package com.mrayover.practicelogger
 
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -79,7 +81,16 @@ class TranscribeWorkflowTest {
         assertTrue(practice.running)
         tag("transcribe-piano").performClick()
         shown("piano-keyboard")
-        tag("piano-keyboard")
+        tag("piano-register").assertTextEquals("C4–E5")
+        val dragDistance = with(compose.density) { 38.dp.toPx() }
+        tag("piano-range-handle").performTouchInput { swipe(center, center - Offset(dragDistance, 0f)) }
+        tag("piano-register").assertTextEquals("C♯4–F5")
+        val keyboard = tag("piano-keyboard")
+        keyboard.performTouchInput { down(Offset(width * .025f, height * .2f)) }
+        tag("piano-notes").assertTextEquals("C♯4")
+        assertTrue(player.state.value.playing)
+        keyboard.performTouchInput { up() }
+        tag("piano-notes").assertTextEquals("—")
         screenshot("portrait-piano")
         tag("transcribe-piano").performClick()
         assertTrue(player.state.value.playing)

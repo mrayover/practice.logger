@@ -47,4 +47,22 @@ class PianoPcmTest {
         assertNull(keys.hit(-1f,20f,800f,180f)); assertNull(keys.hit(100f,181f,800f,180f))
         assertEquals(11,PianoGeometry(60,77).whites.size)
     }
+
+    @Test fun everyChromaticWindowHasPlayableBlackEdgesAndWhiteCenters() {
+        for (span in listOf(12, 16, 17)) {
+            for (first in 24..96 - span) {
+                val keys = PianoGeometry(first, first + span)
+                val width = 300f
+                val unit = width / keys.whites.size
+                keys.whites.forEachIndexed { index, note ->
+                    assertEquals(note, keys.hit(unit * (index + .5f), 80f, width, 100f))
+                }
+                keys.blacks.forEach { note ->
+                    val left = keys.blackLeft(note)
+                    assertTrue(left >= 0 && left + .62f <= keys.whites.size)
+                    assertEquals(note, keys.hit(unit * (left + .31f), 30f, width, 100f))
+                }
+            }
+        }
+    }
 }

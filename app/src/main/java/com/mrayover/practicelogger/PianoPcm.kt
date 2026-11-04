@@ -10,7 +10,8 @@ internal fun pianoBlack(note: Int) = Math.floorMod(note, 12) in listOf(1, 3, 6, 
 internal class PianoGeometry(val first: Int, val last: Int) {
     val whites = (first..last).filterNot(::pianoBlack)
     val blacks = (first..last).filter(::pianoBlack)
-    fun blackLeft(note: Int): Float = whites.count { it < note } - .31f
+    // At either edge keep the full black key inside the playable surface.
+    fun blackLeft(note: Int): Float = (whites.count { it < note } - .31f).coerceIn(0f, whites.size - .62f)
     fun hit(x: Float, y: Float, width: Float, height: Float): Int? {
         if (x < 0 || y < 0 || x >= width || y >= height) return null
         val unit = width / whites.size

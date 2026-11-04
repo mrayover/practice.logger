@@ -3,7 +3,11 @@ package com.mrayover.practicelogger
 import android.view.MotionEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -12,8 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -26,20 +32,44 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable fun PianoKeyboard(onNoteOn: (Long, Int) -> Unit, onNoteOff: (Long) -> Unit,
     onStopAll: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, resetToken: Int = 0, keyHeight: androidx.compose.ui.unit.Dp = 184.dp) {
-    var first by rememberSaveable { mutableIntStateOf(60) }
+    var savedFirst by rememberSaveable { mutableIntStateOf(60) }
     val latestOn by rememberUpdatedState(onNoteOn)
     val latestOff by rememberUpdatedState(onNoteOff)
     val latestStop by rememberUpdatedState(onStopAll)
-    val scope = rememberCoroutineScope()
     var auditionToken by remember { mutableLongStateOf(1_000_000L) }
     var eventWidth by remember { mutableFloatStateOf(1f) }
     var eventHeight by remember { mutableFloatStateOf(1f) }
     val disallowIntercept = remember { RequestDisallowInterceptTouchEvent() }
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        val last = minOf(96, first + if (maxWidth >= 600.dp) 17 else 12)
+        val span = when {
+            maxWidth >= 600.dp -> 17
+            maxWidth >= 300.dp -> 16
+            else -> 12
+        }
+        val maxFirst = 96 - span
+        val first = savedFirst.coerceIn(24, maxFirst)
+        val last = first + span
+        SideEffect { if (savedFirst != first) savedFirst = first }
         val geometry = remember(first, last) { PianoGeometry(first, last) }
         val held = remember(first, last, enabled, resetToken) { mutableStateMapOf<Long, Int>() }
+        val keyScope = key(first, last, enabled, resetToken) { rememberCoroutineScope() }
         DisposableEffect(first, last, enabled, resetToken) { onDispose { latestStop(); held.clear() } }
+        fun shift(semitones: Int) {
+            val current = savedFirst.coerceIn(24, maxFirst)
+            val target = (current + semitones).coerceIn(24, maxFirst)
+            if (target == current) return
+            latestStop()
+            held.clear()
+            savedFirst = target
+        }
+        val dragStep = with(LocalDensity.current) { 24.dp.toPx() }
+        var dragRemainder by remember { mutableFloatStateOf(0f) }
+        val rangeDrag = rememberDraggableState { delta ->
+            dragRemainder -= delta
+            val steps = (dragRemainder / dragStep).toInt()
+            dragRemainder -= steps * dragStep
+            if (steps != 0) shift(steps)
+        }
         fun release(id: Long) { if (held.remove(id) != null) latestOff(id) }
         fun press(id: Long, note: Int?) {
             if (held[id] == note) return
@@ -48,24 +78,50 @@ import kotlinx.coroutines.launch
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = { latestStop(); held.clear(); first -= 12 }, enabled = first > 24,
+                TextButton(onClick = { shift(-12) }, enabled = first - 12 >= 24,
                     modifier = Modifier.semantics { contentDescription = "Previous octave" }) { Text("−8ve") }
-                Text("${pianoNoteName(first)}–${pianoNoteName(last)}", Modifier.testTag("piano-register"), style = MaterialTheme.typography.labelLarge)
-                TextButton(onClick = { latestStop(); held.clear(); first += 12 }, enabled = first < 84,
+                Column(
+                    Modifier.weight(1f).heightIn(min = 48.dp).testTag("piano-range-handle")
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                        .draggable(rangeDrag, Orientation.Horizontal, onDragStarted = { dragRemainder = 0f })
+                        .semantics {
+                            customActions = buildList {
+                                if (first > 24) add(CustomAccessibilityAction("Shift down one semitone") { shift(-1); true })
+                                if (first < maxFirst) add(CustomAccessibilityAction("Shift up one semitone") { shift(1); true })
+                            }
+                        }.padding(horizontal = 4.dp, vertical = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("↔", style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.clearAndSetSemantics { })
+                    Text("${pianoNoteName(first)}–${pianoNoteName(last)}", Modifier.testTag("piano-register"),
+                        style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
+                }
+                TextButton(onClick = { shift(12) }, enabled = first + 12 <= maxFirst,
                     modifier = Modifier.semantics { contentDescription = "Next octave" }) { Text("+8ve") }
             }
             Text(held.values.distinct().sorted().joinToString(" · ", transform = ::pianoNoteName).ifEmpty { "—" },
                 Modifier.testTag("piano-notes"), style = MaterialTheme.typography.labelLarge)
             key(first, last, enabled, resetToken) {
+                var tracking by remember { mutableStateOf(false) }
                 BoxWithConstraints(Modifier.fillMaxWidth().height(keyHeight).testTag("piano-keyboard")
                     .pointerInteropFilter(disallowIntercept) { event ->
-                        if (event.actionMasked == MotionEvent.ACTION_DOWN) disallowIntercept(true)
+                        if (savedFirst.coerceIn(24, maxFirst) != first) return@pointerInteropFilter false
+                        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                            tracking = true
+                            disallowIntercept(true)
+                        }
+                        if (!tracking) return@pointerInteropFilter false
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_MOVE -> {
                                 for (i in 0 until event.pointerCount) press(event.getPointerId(i).toLong(), geometry.hit(event.getX(i), event.getY(i), eventWidth, eventHeight))
                             }
                             MotionEvent.ACTION_POINTER_UP -> release(event.getPointerId(event.actionIndex).toLong())
-                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> { held.keys.toList().forEach(::release) }
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                tracking = false
+                                held.keys.toList().forEach(::release)
+                            }
                         }
                         true
                     }.onSizeChanged { eventWidth = it.width.toFloat(); eventHeight = it.height.toFloat() }) {
@@ -79,7 +135,7 @@ import kotlinx.coroutines.launch
                             selected = held.values.contains(note)
                             if (enabled) onClick("Play ${pianoNoteName(note)}") {
                                 val token = auditionToken++
-                                scope.launch { press(token, note); try { delay(250) } finally { release(token) } }
+                                keyScope.launch { press(token, note); try { delay(250) } finally { release(token) } }
                                 true
                             }
                         }

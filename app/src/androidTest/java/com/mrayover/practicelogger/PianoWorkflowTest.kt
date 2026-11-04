@@ -3,8 +3,10 @@ package com.mrayover.practicelogger
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -24,30 +26,59 @@ class PianoWorkflowTest {
     }
     @Test fun toolsMultitouchRegistersCancelRotationAndExistingTools() {
         openHomeTools(compose); click("Reference Piano")
-        compose.onNodeWithTag("piano-register").assertTextEquals("C4–C5")
+        val register = compose.onNodeWithTag("piano-register")
+        val handle = compose.onNodeWithTag("piano-range-handle")
+        val previous = compose.onNodeWithContentDescription("Previous octave")
+        val next = compose.onNodeWithContentDescription("Next octave")
+        register.assertTextEquals("C4–E5")
         val keyboard = compose.onNodeWithTag("piano-keyboard").performScrollTo().assertIsDisplayed()
         keyboard.performTouchInput {
-            down(0,Offset(width/16f,height*.85f)); down(1,Offset(width*4.5f/8,height*.85f)); down(2,Offset(width*2.5f/8,height*.85f))
+            down(0,Offset(width*.05f,height*.85f)); down(1,Offset(width*.45f,height*.85f)); down(2,Offset(width*.25f,height*.85f))
         }
         compose.onNodeWithTag("piano-notes").assertTextEquals("C4 · E4 · G4")
         compose.onNodeWithTag("piano-key-60").assertIsSelected()
         shot("portrait-chord")
-        keyboard.performTouchInput { moveTo(0,Offset(width*1.5f/8,height*.85f)); up(1); up(2) }
+        keyboard.performTouchInput { moveTo(0,Offset(width*.15f,height*.85f)); up(1); up(2) }
         compose.onNodeWithTag("piano-notes").assertTextEquals("D4")
         keyboard.performTouchInput { cancel() }
         compose.onNodeWithTag("piano-notes").assertTextEquals("—")
-        keyboard.performTouchInput { down(Offset(width/8f,height*.2f)) }
+        keyboard.performTouchInput { down(Offset(width*.1f,height*.2f)) }
+        compose.onNodeWithTag("piano-notes").assertTextEquals("C♯4")
+        previous.performClick()
+        register.assertTextEquals("C3–E4")
+        compose.onNodeWithTag("piano-notes").assertTextEquals("—")
+        keyboard.performTouchInput { moveTo(Offset(width*.2f,height*.85f)); up() }
+        compose.onNodeWithTag("piano-notes").assertTextEquals("—")
+        next.performClick()
+        val dragDistance = with(compose.density) { 38.dp.toPx() }
+        handle.performTouchInput { swipe(center, center - Offset(dragDistance, 0f)) }
+        register.assertTextEquals("C♯4–F5")
+        keyboard.performTouchInput { down(Offset(width*.025f,height*.2f)) }
         compose.onNodeWithTag("piano-notes").assertTextEquals("C♯4")
         keyboard.performTouchInput { up() }
-        compose.onNodeWithContentDescription("Previous octave").performClick()
-        compose.onNodeWithTag("piano-register").assertTextEquals("C3–C4")
-        repeat(3) { compose.onNodeWithContentDescription("Previous octave").performClick() }
-        compose.onNodeWithTag("piano-register").assertTextEquals("C1–C2")
-        compose.onNodeWithContentDescription("Previous octave").assertIsNotEnabled()
-        repeat(5) { compose.onNodeWithContentDescription("Next octave").performClick() }
-        compose.onNodeWithTag("piano-register").assertTextEquals("C6–C7")
-        compose.onNodeWithContentDescription("Next octave").assertIsNotEnabled()
-        repeat(2) { compose.onNodeWithContentDescription("Previous octave").performClick() }
+        next.performClick()
+        register.assertTextEquals("C♯5–F6")
+        previous.performClick()
+        register.assertTextEquals("C♯4–F5")
+        handle.performTouchInput { swipe(center, center + Offset(dragDistance, 0f)) }
+        register.assertTextEquals("C4–E5")
+        repeat(3) { previous.performClick() }
+        register.assertTextEquals("C1–E2")
+        previous.assertIsNotEnabled()
+        handle.performTouchInput { swipe(center, center + Offset(dragDistance, 0f)) }
+        register.assertTextEquals("C1–E2")
+        repeat(4) { next.performClick() }
+        next.assertIsNotEnabled()
+        repeat(8) {
+            handle.performSemanticsAction(SemanticsActions.CustomActions) { actions ->
+                actions.first { it.label == "Shift up one semitone" }.action()
+            }
+        }
+        register.assertTextEquals("G♯5–C7")
+        handle.performTouchInput { swipe(center, center - Offset(dragDistance, 0f)) }
+        register.assertTextEquals("G♯5–C7")
+        next.assertIsNotEnabled()
+        repeat(2) { previous.performClick() }
         compose.onNodeWithTag("piano-keyboard").performScrollTo().performTouchInput { down(Offset(width*.05f,height*.85f)) }
         compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
