@@ -1,4 +1,18 @@
-# Current state — L3 Block media associations delivered
+# Current state — K1 signed candidate, focused Android checks running
+
+Updated November3,2026 (America/Los_Angeles). K1 implementation is a signed0.21.0/build81 candidate. Build41745864648 passes debug/release/instrumentation compilation and4/4 PianoPcm units; Android26/100% and35/200% focused verification is running. No completed native or acoustic result is claimed yet. The owner reports the latest pre-K1 functionality works; this is general feedback, not individual checklist observations.
+
+Candidate [APK](dist/practice.logger-0.21.0-b81-a3fd409/practice.logger-0.21.0-b81-a3fd409.apk) · [ZIP](dist/practice.logger-0.21.0-b81-a3fd409.zip). Application source `a3fd4090dd34a95c0bea266b83a9b04e0fc14638`. Install over build80 without uninstalling/clearing data. Signature, pinned permanent certificate, appID/version, all67 unsigned payload entries and ZIP members/CRC pass;362 prior APK/ZIP hashes are unchanged. APK SHA256 `4c295089bffab0ccf9a789ead6973bc01c4b3977901bb5fbc84ea95de2e47b75`. Native tests and final verification metadata are pending; current final ZIP hash will be recorded at closeout.
+
+Reusable synthesis/audio/keyboard and thin Tools wrapper are documented in [Reference Piano architecture](docs/REFERENCE_PIANO.md). Room14/JSON7 and media ownership are unchanged. No T1 feature is implemented. First compiler failure41745587125 and its theme-capture correction are in WORK_LOG.
+
+**Exact next task: finish scoped K1 Android checks, inspect evidence and finalize signed delivery/records. Stop after K1.**
+
+---
+
+## Retained L3 release — historical delivery and evidence
+
+# L3 Block media associations delivered (historical)
 
 Updated November 3, 2026 (America/Los_Angeles). L3 implementation and signed delivery are complete; actual scoped verification and limits are recorded below. **Owner-phone acceptance of L3 is pending; L1/L2 phone acceptance remains separately pending.** P5/build69 acceptance is preserved below. Stop after L3.
 
