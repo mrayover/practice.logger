@@ -247,6 +247,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
             if (transcribing) modeState.SaveableStateProvider("transcribe") {
                 TranscribePanel(current.sourceBlockId, images, transcribeVm,
                     onRecordLoop = { transportPanel = "loop" }, onClose = { transportPanel = null },
+                    onBeforeRecording = { recordings.stopPlayback(); vm.stopClick() },
                     modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp))
             }
             if (loopPanelOpen) modeState.SaveableStateProvider("loop") {

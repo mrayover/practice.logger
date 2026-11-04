@@ -37,7 +37,7 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel(), onChangeAudio: (() -> Unit)? = null, stopwatch: (@Composable () -> Unit)? = null) {
+@Composable fun LibraryAudioScreen(asset: MediaAsset, close: () -> Unit, vm: LibraryAudioViewModel = viewModel(), onChangeAudio: (() -> Unit)? = null, stopwatch: (@Composable () -> Unit)? = null, onRecordReference: (() -> Unit)? = null) {
     val standalone = onChangeAudio != null
     val player = vm.controller
     val state by rememberAudioDisplayState(player)
@@ -152,7 +152,11 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
                     Text("Back to Practice Now")
                 }
                 Text(asset.title, style = MaterialTheme.typography.titleMedium)
-                TextButton(onClick = onChangeAudio, modifier = Modifier.heightIn(min = 48.dp)) { Text("Change Audio") }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = onChangeAudio, modifier = Modifier.heightIn(min = 48.dp)) { Text("Change Audio") }
+                    if (onRecordReference != null) TextButton(onClick = { player.pause(); onRecordReference() },
+                        modifier = Modifier.heightIn(min = 48.dp)) { Text("Record Reference") }
+                }
                 transport()
                 if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}",
                     style = MaterialTheme.typography.bodySmall)

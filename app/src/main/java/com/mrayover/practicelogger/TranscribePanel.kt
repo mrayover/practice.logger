@@ -35,7 +35,7 @@ internal fun PracticeTransportModes(transcribing: Boolean, onRecordLoop: () -> U
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, vm: LibraryAudioViewModel,
-    onRecordLoop: () -> Unit, onClose: () -> Unit, modifier: Modifier = Modifier) {
+    onRecordLoop: () -> Unit, onClose: () -> Unit, modifier: Modifier = Modifier, onBeforeRecording: () -> Unit) {
     val links by images.links.collectAsStateWithLifecycle()
     val assets by images.assets.collectAsStateWithLifecycle()
     val mediaId = links.find { it.blockId == blockId && it.role == MediaRole.AUDIO.name }?.mediaId
@@ -43,6 +43,8 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     val player = vm.controller
     val state by rememberAudioDisplayState(player)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    var recordingReference by rememberSaveable(blockId) { mutableStateOf(false) }
+    var recordingPreviousId by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
     var choice by rememberSaveable(blockId) { mutableStateOf(false) }
     var picker by rememberSaveable(blockId) { mutableStateOf(false) }
     var pickerError by rememberSaveable(blockId) { mutableStateOf(false) }
@@ -93,6 +95,8 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         images.choose(blockId, MediaRole.AUDIO, it)
     })
     ConfirmBlockAudioChange(blockId, images)
+    if (recordingReference) RecordReferenceDialog(blockId, recordingPreviousId,
+        onClose = { recordingReference = false }, onKept = { recordingReference = false })
     val title: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(asset?.title ?: if (mediaId == null) "No audio reference" else "Audio reference unavailable",
@@ -104,6 +108,15 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             }
         }
     }
+    val recordReference: @Composable () -> Unit = {
+        TextButton(onClick = {
+            player.pause()
+            vm.checkpoint()
+            onBeforeRecording()
+            recordingPreviousId = mediaId
+            recordingReference = true
+        }, enabled = !images.busy) { Text("Record Reference") }
+    }
     val messages: @Composable () -> Unit = {
         if (images.busy) Text("Saving reference…")
         vm.blockAudioError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -112,7 +125,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     }
     val modes: @Composable () -> Unit = { PracticeTransportModes(true, onRecordLoop, {}, onClose) }
     if (asset == null) {
-        PracticeScrollPanel(modifier, tag = "transcribe-panel") { modes(); title(); messages() }
+        PracticeScrollPanel(modifier, tag = "transcribe-panel") { modes(); title(); recordReference(); messages() }
         return
     }
 
@@ -145,6 +158,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     }
     val details: @Composable (Dp, Boolean, @Composable () -> Unit) -> Unit =
         { keyHeight, waveformInDetails, markerControls ->
+            recordReference()
             messages()
             if (state.preparing) Text("Preparing audio…")
             state.error?.let {

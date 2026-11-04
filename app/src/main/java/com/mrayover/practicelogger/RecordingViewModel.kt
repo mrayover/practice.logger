@@ -96,6 +96,13 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var reviewTake by mutableStateOf<BlockTake?>(null); private set
     private var reviewPending: PendingTake? = null
     private var captureStart = 0L
+    private var referenceCapture = false
+    internal var keptReferenceId by mutableStateOf<String?>(null); private set
+    internal var referenceReplacement by mutableStateOf<String?>(null); private set
+    private val referenceLibrary by lazy { MediaLibraryRepository(db, java.io.File(app.filesDir, "media-library")) }
+    private val referenceLinks by lazy {
+        BlockMediaRepository(db, referenceLibrary, ImageReferenceRepository(db, java.io.File(app.filesDir, "block-images")))
+    }
     private var player: MediaPlayer? = null
     private var loopTrack: AudioTrack? = null
     private var phraseCapture: PhraseCapture? = null
@@ -137,6 +144,8 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                             !hasMicrophonePermission() -> finishCapture("Microphone permission was removed. Take not saved.", discard = true)
                             Build.VERSION.SDK_INT >= 29 && recorder?.activeRecordingConfiguration?.isClientSilenced == true ->
                                 finishCapture("The microphone is in use or was silenced. Take not saved. Try again when it is available.", discard = true)
+                            referenceCapture && elapsedMs >= AudioImport.MAX_DURATION_MS - 2_000 ->
+                                finishCapture("Reference recording reached its time limit.")
                             repository.availableBytes() < 512 * 1024 -> finishCapture("Storage is low. Recording stopped.")
                         }
                     } catch (_: Exception) { finishCapture("Microphone failed. Take not saved. Try again.", discard = true) }
@@ -160,8 +169,12 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         message = if (granted) "Microphone allowed. Tap Record take or Record phrase to begin." else
             "Microphone permission was not allowed. Tap Record take to retry; if Android no longer asks, allow Microphone in this app's Android settings."
     }
+    internal fun referencePermissionResult(granted: Boolean) {
+        message = if (granted) "Microphone allowed. Tap Start Recording or Rerecord to begin." else
+            "Microphone permission was not allowed. Try again or enable Microphone in Android settings."
+    }
     @Suppress("DEPRECATION")
-    fun startCapture(blockId: String?) {
+    fun startCapture(blockId: String?, reference: Boolean = false) {
         if (!ready || busy || recording || reviewTake != null || !foreground || !recordingScreenOpen || visibleBlockId != blockId) return
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         if (captureOwner != null) { message = "Another app window is recording. Stop that take first."; return }
@@ -178,10 +191,21 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
             audio.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             audio.setAudioChannels(1); audio.setAudioSamplingRate(44_100); audio.setAudioEncodingBitRate(128_000)
             audio.setOutputFile(draft.file.absolutePath)
+            if (reference) {
+                audio.setMaxDuration(AudioImport.MAX_DURATION_MS.toInt() - 1000)
+                audio.setMaxFileSize(AudioImport.MAX_BYTES)
+                audio.setOnInfoListener { source, what, _ ->
+                    if (source === recorder && (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
+                            what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED)) {
+                        finishCapture("Reference recording reached its limit.")
+                    }
+                }
+            }
             audio.setOnErrorListener { source, _, _ ->
                 if (recorder === source) finishCapture("Microphone or storage failed. Take not saved. Try again.", discard = true)
             }
             audio.prepare(); audio.start()
+            referenceCapture = reference
             recorder = audio; pending = draft; captureStart = SystemClock.elapsedRealtime(); elapsedMs = 0; recording = true
         } catch (_: Exception) {
             captureOwner = null
@@ -290,10 +314,49 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         if (!hasMicrophonePermission()) { permissionResult(false); return }
         clearReview()
         if (draft.phrase != null && draft.blockId != null) startPhrase(draft.blockId, draft.phrase)
-        else startCapture(draft.blockId)
+        else startCapture(draft.blockId, referenceCapture)
     }
+    internal fun keepReference(expectedAudioId: String?, confirmedAudioId: String? = null) {
+        val draft = reviewPending ?: return
+        if (!referenceCapture || !ready || busy || recording) return
+        stopPlayback()
+        busy = true
+        message = null
+        referenceReplacement = null
+        viewModelScope.launch {
+            try {
+                withContext(NonCancellable) {
+                    val name = "Recorded reference " + java.text.SimpleDateFormat("yyyy-MM-dd HH-mm-ss", java.util.Locale.ROOT)
+                        .format(java.util.Date(draft.createdAt)) + ".m4a"
+                    val asset = referenceLibrary.importRecordedReference(name, draft.file) {
+                        draft.blockId?.let { block -> referenceLinks.attachRecordedAudio(block, it.id, expectedAudioId, confirmedAudioId) }
+                    }
+                    clearReview()
+                    keptReferenceId = asset.id
+                }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (loss: ConfirmAudioLoss) { referenceReplacement = loss.mediaId }
+            catch (failure: Exception) {
+                message = "Reference could not be kept. ${failure.message ?: "Check storage and retry."}"
+            } finally { busy = false }
+        }
+    }
+
+    internal fun enterReference(blockId: String?) {
+        if (!recordingScreenOpen) message = null
+        enterBlock(blockId)
+    }
+
+    internal fun dismissReferenceReplacement() { referenceReplacement = null }
+    internal fun referenceHandled() { keptReferenceId = null }
+    internal fun leaveReference() {
+        leaveBlock()
+        clearReview()
+        dismissReferenceReplacement()
+    }
+
     fun saveReview() {
-        if (!ready || busy || recording) return
+        if (!ready || busy || recording || referenceCapture) return
         val draft = reviewPending ?: return
         stopPlayback(); busy = true; message = null
         viewModelScope.launch {

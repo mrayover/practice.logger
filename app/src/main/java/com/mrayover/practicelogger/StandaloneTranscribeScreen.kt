@@ -19,6 +19,7 @@ internal fun StandaloneTranscribeScreen(
 ) {
     val assets by media.assets.collectAsStateWithLifecycle()
     val selectedId = timer.audioId
+    var recordingReference by rememberSaveable { mutableStateOf(false) }
     val stopwatch: @Composable () -> Unit = { TranscribeStopwatch(timer, goals) }
     fun leave() {
         timer.leaveWorkspace()
@@ -28,7 +29,8 @@ internal fun StandaloneTranscribeScreen(
     val asset = assets.find { it.id == selectedId && it.category == "AUDIO" }
     if (asset != null) {
         key(asset.id) {
-            LibraryAudioScreen(asset, ::leave, onChangeAudio = { choosing = true }, stopwatch = stopwatch)
+            LibraryAudioScreen(asset, ::leave, onChangeAudio = { choosing = true }, stopwatch = stopwatch,
+                onRecordReference = { recordingReference = true })
         }
     } else {
         BackHandler(onBack = ::leave)
@@ -44,9 +46,12 @@ internal fun StandaloneTranscribeScreen(
                 })
             }
             ActionButton("Choose Audio", { choosing = true })
+            TextButton(onClick = { recordingReference = true }) { Text("Record Reference") }
             stopwatch()
         }
     }
+    if (recordingReference) RecordReferenceDialog(null, null,
+        onClose = { recordingReference = false }, onKept = { timer.selectAudio(it); recordingReference = false })
     if (choosing) LibraryMediaPicker(MediaRole.AUDIO, selectedId, onClose = { choosing = false },
         allowAudioImport = true, onChoose = { timer.selectAudio(it); choosing = false })
 }

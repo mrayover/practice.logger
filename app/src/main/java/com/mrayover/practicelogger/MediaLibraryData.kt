@@ -101,7 +101,14 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
         }
     }.getOrDefault(false)
 
-    suspend fun import(name: String, declaredMime: String?, role: MediaRole? = null, open: () -> InputStream): MediaAsset = withContext(Dispatchers.IO) {
+    suspend fun import(name: String, declaredMime: String?, role: MediaRole? = null, open: () -> InputStream): MediaAsset =
+        importAsset(name, declaredMime, role, open) {}
+
+    internal suspend fun importRecordedReference(name: String, source: File, attach: suspend (MediaAsset) -> Unit): MediaAsset =
+        importAsset(name, "audio/mp4", MediaRole.AUDIO, source::inputStream, attach)
+
+    private suspend fun importAsset(name: String, declaredMime: String?, role: MediaRole?, open: () -> InputStream,
+        attach: suspend (MediaAsset) -> Unit): MediaAsset = withContext(Dispatchers.IO) {
         filesMutex.withLock {
             require(name.isNotBlank() && name.length <= 255 && name.none(Char::isISOControl)) { "Choose a filename of 1–255 characters." }
             val extension = name.substringAfterLast('.', "").lowercase(Locale.ROOT)
@@ -150,7 +157,12 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                     digest.digest().joinToString("") { "%02x".format(it) })
                 withContext(NonCancellable) {
                     check(!target.exists() && pending.renameTo(target)) { "Could not finish the Library file." }
-                    try { db.withTransaction { db.media().insert(asset) } }
+                    try {
+                        db.withTransaction {
+                            db.media().insert(asset)
+                            attach(asset)
+                        }
+                    }
                     catch (failure: Exception) {
                         // On an uncertain read/commit outcome retain bytes; recovery retries only after a successful read.
                         runCatching { if (db.media().find(id) == null) target.delete() }

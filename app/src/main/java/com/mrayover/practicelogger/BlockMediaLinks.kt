@@ -63,10 +63,8 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             if (role == MediaRole.AUDIO) check(confirmedAudioId == null || confirmedAudioId == previous?.mediaId) {
                 "The audio reference changed. Review the current reference and try again."
             }
-            if (role == MediaRole.AUDIO && previous != null && previous.mediaId != mediaId) {
-                removeAudio(blockId, previous.mediaId, confirmedAudioId)
-            }
-            db.blockMedia().save(BlockMediaLink(blockId, role.name, mediaId))
+            if (role == MediaRole.AUDIO) saveAudioLink(blockId, mediaId, previous?.mediaId, confirmedAudioId)
+            else db.blockMedia().save(BlockMediaLink(blockId, role.name, mediaId))
         }
     }
     suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null) = withContext(Dispatchers.IO) {
@@ -78,6 +76,19 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             if (role == MediaRole.AUDIO && previous != null) removeAudio(blockId, previous.mediaId, confirmedAudioId)
             else db.blockMedia().remove(blockId, role.name)
         }
+    }
+
+    // Runs inside the Library import transaction. Only the audio link owns local audio state.
+    internal suspend fun attachRecordedAudio(blockId: String, mediaId: String, expectedAudioId: String?, confirmedAudioId: String?) {
+        checkNotNull(db.blocks().find(blockId)) { "This Block is no longer available." }
+        val previous = db.blockMedia().find(blockId, MediaRole.AUDIO.name)?.mediaId
+        check(previous == expectedAudioId) { "The audio reference changed. Close recording and review the current reference." }
+        saveAudioLink(blockId, mediaId, previous, confirmedAudioId)
+    }
+
+    private suspend fun saveAudioLink(blockId: String, mediaId: String, previous: String?, confirmedAudioId: String?) {
+        if (previous != null && previous != mediaId) removeAudio(blockId, previous, confirmedAudioId)
+        db.blockMedia().save(BlockMediaLink(blockId, MediaRole.AUDIO.name, mediaId))
     }
 
     private suspend fun removeAudio(block: String, media: String, confirmed: String?): Int {
