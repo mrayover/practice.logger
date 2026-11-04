@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is closed and owner accepted. L1–L3, K1 and T1–T2 are delivered. T3-0 locks the roadmap. T3A is next by separate assignment. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is closed and owner accepted. L1–L3, K1 and T1–T2 are delivered. T3-0 locks the roadmap. T3A adds Practice Now choices and standalone Transcribe. T3B is next by separate assignment. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  

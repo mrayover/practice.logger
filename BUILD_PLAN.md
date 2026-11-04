@@ -2,6 +2,10 @@
 
 Updated 2026-11-04 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## T3A — Practice Now and standalone Transcribe
+
+Practice Now offers saved unfinished sessions, the existing Add Blocks builder, direct Routine start, and standalone Transcribe. Standalone uses canonical Library audio, the shared waveform and transport, global master annotations, and the embedded Reference Piano. Room 15 and JSON 7 remain in use. See [CURRENT_STATE](CURRENT_STATE.md) for delivery and verification.
+
 ## T3-0 — Standalone Transcribe roadmap lock
 
 
@@ -9,7 +13,7 @@ The November 3 Media Library roadmap amendment established the dependency chain 
 
 Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2**.
 
-T2 is delivered in signed build86. T3-0 is a documentation checkpoint. **T3A — Standalone Transcribe Workspace** is the next executable milestone, pending separate explicit owner assignment. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A–T3D, their checks and their dependencies. S2 includes standalone activity history, Goal associations, canonical microphone references, and global and local annotations alongside its approved recovery scope.
+T2 is delivered in signed build86. T3-0 is a documentation checkpoint. The owner assigned **T3A — Standalone Transcribe Workspace** on November 4, 2026. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A–T3D, their checks and their dependencies. S2 includes standalone activity history, Goal associations, canonical microphone references, and global and local annotations alongside its approved recovery scope.
 
 ## T2 - Block-local audio and marker publication
 
@@ -29,7 +33,7 @@ Delivered permanent-key0.20.0/build80: independent canonical visual/audio links,
 
 ## L2 — Media preview and master audio annotation workspace
 
-Explicitly assigned November3,2026. Implements dedicated Library image/PDF previews through shared bounded renderers/gestures; one reusable canonical-audio controller/waveform with source-time seeking, pitch-preserving 50–100% speed, A–B ranges/repeat and master point/section CRUD. Room13 adds restrictive master-marker ownership via12→13. Streamed signal-derived waveform cache is expendable; JSON7 still excludes media/annotations. Delivered as permanent-key0.19.0/build76 with focused automated verification; phone acceptance remains pending. Actual results and signed-delivery status are in [CURRENT_STATE](CURRENT_STATE.md). [Technical details](docs/MEDIA_AUDIO_WORKSPACE.md). L3 now adds Block links above. K1 and T1–T2 are delivered above. T3A–T3D and complete ZIP backup remain forward scope.
+Explicitly assigned November3,2026. Implements dedicated Library image/PDF previews through shared bounded renderers/gestures; one reusable canonical-audio controller/waveform with source-time seeking, pitch-preserving 50–100% speed, A–B ranges/repeat and master point/section CRUD. Room13 adds restrictive master-marker ownership via12→13. Streamed signal-derived waveform cache is expendable; JSON7 still excludes media/annotations. Delivered as permanent-key0.19.0/build76 with focused automated verification; phone acceptance remains pending. Actual results and signed-delivery status are in [CURRENT_STATE](CURRENT_STATE.md). [Technical details](docs/MEDIA_AUDIO_WORKSPACE.md). L3 now adds Block links above. K1 and T1–T2 are delivered above. T3B–T3D and complete ZIP backup remain forward scope.
 
 ## L1 — Canonical Media Library/storage
 
@@ -174,7 +178,7 @@ The owner explicitly approved later features while Stage 3 phone acceptance and 
 
 ## Forward V1 scope and retained boundaries
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) supersedes older future exclusions only for its explicitly described phases: P1 temporary take review; P2 custom 1–64-beat loops and positive whole-beat count-ins; P3 metronome meter/accent/flash; P4 persistent audio Settings and bounded UI polish; P5 full pre-Library regression; L1–L3 canonical visual/audio Media Library; K1 Reference Piano; T1–T2 Block Transcribe and local annotations; T3A–T3D standalone Transcribe, shared time attribution and recording integration; S0–S2 provider feasibility, organized copies and complete ZIP backup/restore; G1–G3 Goal identity/filtering/historical time attribution; F1–F2 final verification and phone signoff. Centralized themes are delivered; verification is in CURRENT_STATE. P0 implemented none of these extensions; P1 temporary take review, P2 flexible loops/count-ins and P3 metronome have since been delivered, with evidence in CURRENT_STATE.md. P4 and P5 are also delivered. L1 canonical storage, L2 previews/master annotations and L3 independent Block associations are implemented; L3 verification/delivery is tracked in CURRENT_STATE. K1 and T1–T2 are delivered. T3A–T3D, S0–S2, G1–G3 and F1–F2 remain planned.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) supersedes older future exclusions only for its explicitly described phases: P1 temporary take review; P2 custom 1–64-beat loops and positive whole-beat count-ins; P3 metronome meter/accent/flash; P4 persistent audio Settings and bounded UI polish; P5 full pre-Library regression; L1–L3 canonical visual/audio Media Library; K1 Reference Piano; T1–T2 Block Transcribe and local annotations; T3A–T3D standalone Transcribe, shared time attribution and recording integration; S0–S2 provider feasibility, organized copies and complete ZIP backup/restore; G1–G3 Goal identity/filtering/historical time attribution; F1–F2 final verification and phone signoff. Centralized themes are delivered; verification is in CURRENT_STATE. P0 implemented none of these extensions; P1 temporary take review, P2 flexible loops/count-ins and P3 metronome have since been delivered, with evidence in CURRENT_STATE.md. P4 and P5 are also delivered. L1 canonical storage, L2 previews/master annotations and L3 independent Block associations are implemented; L3 verification/delivery is tracked in CURRENT_STATE. K1 and T1–T2 are delivered. T3B–T3D, S0–S2, G1–G3 and F1–F2 remain planned.
 
 L1 adds canonical independent Media Library imports/management with Room12; legacy single Block-owned image/PDF references, P1 review/P2 custom loops/count-ins, existing Goal links/manual progress and JSON7 data-only backup remain intact. Media-inclusive backup is required for completed V1 but does not exist yet. Current JSON excludes media bytes and metadata; keep originals separately and retain per-take export until the later phases deliver verified recovery.
 
@@ -190,7 +194,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-Owner K1 phone/acoustic checklist using build81 in CURRENT_STATE. General pre-K1 owner feedback is recorded without invented individual checklist results. Stop after K1. The next separately assigned milestone is T1, reusing the same engine/keyboard alongside existing waveform/slowdown/A–B playback.
+See [CURRENT_STATE](CURRENT_STATE.md) for the T3A verification and phone checklist. T3B is the next separately assigned implementation milestone.
 
 ## Increment 3 — delivered 2026-10-29
 

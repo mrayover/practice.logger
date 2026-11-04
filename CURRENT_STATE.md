@@ -1,14 +1,41 @@
-# Current state — T2 signed delivery and T3-0 roadmap lock
+# Current state — T3A standalone Transcribe
 
 Updated November 4, 2026 (America/Los_Angeles).
 
 ## Signed delivery
 
+**0.24.0/build87**, source `bb582ba8eb8195bcbe68888c9f42df582ddcb617`. [APK](dist/practice.logger-0.24.0-b87-bb582ba/practice.logger-0.24.0-b87-bb582ba.apk) · [ZIP](dist/practice.logger-0.24.0-b87-bb582ba.zip) · [Build info](dist/practice.logger-0.24.0-b87-bb582ba/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.24.0-b87-bb582ba/PHONE_CHECKLIST.txt). Install over build86 without uninstalling or clearing data.
+
+App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `055fe3a2d3108c86344b60839c723924896bdfd4ac581d87fcb6c00c1a360698`. ZIP SHA-256 `f55ff71546b31efae9d5d059cf7b9cb65325e2f3083b35884fe8d6c9b06dc6b5`. The permanent-key publisher verified package, version and signature. The ZIP passed member and CRC checks. All 67 unsigned APK payload entries matched the signed APK, and all 398 prior distribution hashes matched.
+
+## Implemented
+
+Practice Now lists every unfinished session with its current Block. Add Blocks opens the existing builder and its saved draft. Routines starts the selected valid Routine directly, and Home → Routines still manages templates and Recent Practice.
+
+Standalone Transcribe chooses or imports canonical AUDIO through the Library picker. It shares the Library transport, waveform and master point/section editor, and reuses Block Transcribe's embedded Reference Piano and focus coordination. Global edits flow to inheriting Blocks. Customized and local-only Block markers retain their own data.
+
+Changing the recording, leaving or backgrounding releases playback and piano output. Rotation keeps the selected recording and opens it paused. The selection is saved for the current visit. Room 15 and JSON 7 remain in use. Standalone playback carries no practice-time attribution.
+
+## Focused verification
+
+- Debug, release and device-test APK compilation passed. All 30 scoped unit tests passed and generated Room 15 matched the committed export byte for byte. [Build 41884754998](https://github.com/mrayover/practice.logger/actions/runs/41884754998)
+- Both standalone tests passed on API 26 at 100% and API 35 at 200%. They cover builder draft retention, direct Routine start, session continuation, empty Library, real document import and failed import, selection cancellation and change, 75% and 50% speed settings, zoom, A–B playback, master point create/edit/delete, piano with the reference running and paused, rotation without autoplay, and exit without session writes. [API 26](https://github.com/mrayover/practice.logger/actions/runs/41885549924) · [API 35](https://github.com/mrayover/practice.logger/actions/runs/41885553890)
+- The final source passed the existing enlarged-text Block Transcribe workflow. The first T3A source passed five navigation and cold-reopen checks covering multiple sessions, Routine management and Goal practice, and three Library platform checks covering MP3/M4A/WAV playback, looping, seeking, interruption and waveform integrity. The final source retains the navigation and controller paths. [Block Transcribe](https://github.com/mrayover/practice.logger/actions/runs/41885557891) · [Navigation](https://github.com/mrayover/practice.logger/actions/runs/41883772709) · [Library platform](https://github.com/mrayover/practice.logger/actions/runs/41883777746)
+- Reviewed portrait piano and landscape transport screenshots at both text scales. Landscape at 200% requires vertical scrolling for the full waveform and lower controls.
+
+See [WORK_LOG](WORK_LOG.md) for the initial standalone device failure and its follow-up. Phone install-over, acoustic checks and owner acceptance are pending. The existing platform decoder may leave a small gap at short compressed loop joins.
+
+**Next action:** Complete the [T3A owner-phone checklist](MANUAL_TESTS.md#t3a--standalone-transcribe-workspace) on build87. The next separately assigned implementation is **T3B — Standalone Timer and Goal Attribution**.
+
+## Retained T2 release — Block-local Transcribe
+
+### Signed delivery
+
 **0.23.0/build86**, source `c4d48edcc27ea2060c6684b8a2f30a8b100d08d0`. [APK](dist/practice.logger-0.23.0-b86-c4d48ed/practice.logger-0.23.0-b86-c4d48ed.apk) · [ZIP](dist/practice.logger-0.23.0-b86-c4d48ed.zip) · [Build info](dist/practice.logger-0.23.0-b86-c4d48ed/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.23.0-b86-c4d48ed/PHONE_CHECKLIST.txt). Install over build84 without uninstalling or clearing data.
 
 App ID `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. APK SHA-256 `3e42bd73e147a16b7ea1fb16bda7feff063a2e760466a73085176c273c3bdb62`. ZIP SHA-256 `81166c850120a4fd4a09b5ecb95292d0e1bb2149b61b0b7c9bb0e766908e8dab`. Verified package/version, signature, 67 matching unsigned payload entries, ZIP members and CRC, and 392 historical APK/ZIP hashes.
 
-## Implemented
+### Implemented
 
 Transcribe checkpoints Block-local source position, speed, A–B, repeat and marker selection. It restores the active recording paused. Two Blocks can share one canonical original and retain independent settings.
 
@@ -16,7 +43,7 @@ The shared waveform and list render the same inherited, customized and local mar
 
 Room 14→15 retains schemas 1–14 and adds two tables scoped to the exact active AUDIO link. Replacement or unlink warns before removing local work and cascades in the association transaction. JSON 7 remains data-only and excludes Block audio state and local markers. Media-inclusive backup is assigned to S2.
 
-## Focused verification
+### Focused verification
 
 - Build86 compiled debug, release and test APKs, passed 30 scoped units and generated schema15 matching the committed export. Coverage includes 14 to 15 and earlier migration paths, shared ownership, promotion rollback and conflicts, independent overrides and deletion cleanup. [Build 41776290501](https://github.com/mrayover/practice.logger/actions/runs/41776290501)
 - Build86 passed the Transcribe UI workflow on API26 at normal text and API35 at 200% text. The tests cover portrait and landscape, piano drag and playing, paused restoration, local marker creation, canceled and confirmed publication, and canceled and confirmed audio replacement. Reviewed portrait piano and enlarged landscape screenshots. [API26](https://github.com/mrayover/practice.logger/actions/runs/41776777624) · [API35](https://github.com/mrayover/practice.logger/actions/runs/41776779735)
@@ -24,7 +51,9 @@ Room 14→15 retains schemas 1–14 and adds two tables scoped to the exact acti
 
 See [WORK_LOG](WORK_LOG.md) for the initial migration fixture failure and UI reruns. Verification was scoped to T2 and adjacent audio workflows.
 
-The T3-0 handoff reports general working status. The owner also confirmed the build84 piano-range refinement works correctly. Individual build86 install-over, device and listening checks remain unreported. The [T2 owner-phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) remains open.
+The T3-0 handoff reports general working status. The owner also confirmed the build84 piano-range refinement works correctly. Individual build86 install-over, device and listening checks remain unreported. The [T2 owner-phone checklist](MANUAL_TESTS.md#t2
+
+---owner-phone-checklist) remains open.
 
 ## T3-0 roadmap lock
 

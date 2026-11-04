@@ -161,15 +161,19 @@ The owner confirms the K1 keyboard works on their phone. Individual acoustic mea
 5. Open Piano, switch to Record Loop and complete a normal practice Block.
 
 
-## Planned T3 owner phone checklists
+## T3 owner phone checklists
 
 Unexecuted. Run each checklist on its separately assigned signed install-over build. See the [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) for focused engineering checks.
 
 ### T3A — Standalone Transcribe Workspace
 
-- [ ] Verify Practice Now offers Continue Session when available, Add Blocks opens the existing builder, and Routines selects an existing Routine directly. Check existing Routine shortcuts and management.
-- [ ] Open standalone Transcribe without creating a Block. Select and import audio, slow it, loop a phrase, play the piano and edit a shared master marker. Confirm the edit in the Library.
-- [ ] Verify background and return safety and continued Block Transcribe operation.
+1. Install over signed build86 without uninstalling or clearing data.
+2. Open **Practice Now**. Check **Add Blocks** and the draft after Back. Start a saved Routine directly. Resume an unfinished session when one is present.
+3. Open **Transcribe** without creating a Block. Choose an existing Library recording or import an MP3, M4A or WAV. Cancel a subsequent selection and confirm the original choice stays.
+4. Set playback to **75%**, seek and zoom, and listen for the original pitch. Set an A–B phrase, repeat it, and try **Play selection** once.
+5. Add and edit a master marker. Open an attached Block to check that inherited markers reflect the edit and a local override keeps its own values.
+6. Expand **Reference Piano**. Play a chord with the reference running and paused. Drag the range, jump an octave, collapse, and resume playback.
+7. Rotate, background and exit while playing. Verify playback stays paused on return and output stops on exit. Check the existing Block sessions, Routines and Library.
 
 ### T3B — Standalone Timer and Goal Attribution
 

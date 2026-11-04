@@ -1,9 +1,7 @@
 # practice.logger — Next assignment
 
-**T3A — Standalone Transcribe Workspace** is next after the T3-0 documentation checkpoint, pending a separate explicit owner assignment.
+**T3B — Standalone Timer and Goal Attribution** is the next implementation milestone and requires separate explicit owner assignment. Use the existing Windows checkout and verify live Git before editing.
 
-Read the [authoritative T3 plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md), [current state](CURRENT_STATE.md), [AGENTS](AGENTS.md) and the mandatory efficiency procedure in [WORK_LOG](WORK_LOG.md). Start from the existing Windows checkout and verify live Git state.
+T3A delivered Practice Now choices and the dedicated standalone workspace in signed **0.24.0/build87**. Room 15 and JSON 7 remain in use. See [current state](CURRENT_STATE.md) for artifacts and actual verification. The [T3A phone checklist](MANUAL_TESTS.md#t3a--standalone-transcribe-workspace) is pending.
 
-T3A adds direct Practice Now choices for Continue Session when available, Add Blocks, Routines and standalone Transcribe. Reuse the existing builder and Routine workflows and the Library audio, master annotations and Reference Piano components. Follow the T3A verification and signed install-over gate. Stopwatch and Goal attribution, Record Reference and concurrent Free Record are separately assigned T3B–T3D work.
-
-The signed baseline is T2, 0.23.0/build86, Room 15 and JSON 7. The [T2 owner-phone checklist](MANUAL_TESTS.md#t2---owner-phone-checklist) remains open.
+Read the [authoritative T3 plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md#t3b--standalone-timer-and-goal-attribution), [AGENTS](AGENTS.md) and the mandatory efficiency procedure in [WORK_LOG](WORK_LOG.md). T3B adds the foreground stopwatch, one durable activity per explicit Stop and optional Goal attribution through shared totals. Record Reference and concurrent Free Record remain separate assignments.

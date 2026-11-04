@@ -1,6 +1,6 @@
 # practice.logger — Standalone Transcribe plan
 
-T3-0 locks the owner’s November 4, 2026 roadmap for standalone Transcribe, activity tracking and recording integration. T2 is delivered in signed 0.23.0/build86 with Room 15 and JSON 7. T3A–T3D are planned and each requires a separate explicit owner assignment. [Current state](../CURRENT_STATE.md) · [V1 roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) · [Planned owner checklists](../MANUAL_TESTS.md#planned-t3-owner-phone-checklists)
+T3-0 locks the owner’s November 4, 2026 roadmap for standalone Transcribe, activity tracking and recording integration. T2 is delivered in signed 0.23.0/build86 with Room 15 and JSON 7. T3A implements the standalone workspace. T3B–T3D each require a separate explicit owner assignment. [Current state](../CURRENT_STATE.md) · [V1 roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) · [Owner checklists](../MANUAL_TESTS.md#t3-owner-phone-checklists)
 
 ## Owner decisions
 
@@ -113,7 +113,7 @@ The captured microphone take retains its existing review/save ownership. There i
 
 ### T3A — Standalone Transcribe Workspace
 
-**Goal:** Access transcription directly without creating a Block.
+**Goal:** Access transcription directly without creating a Block. See [current state](../CURRENT_STATE.md) for T3A verification and delivery.
 
 #### Scope
 

@@ -50,3 +50,9 @@ One repository calculation feeds both waveform and list. A Block can create poin
 Add to Master inserts a master and removes the local record in one transaction. Update Master retains the original ID and compares the current master with the override's original content snapshot. If it changed, Transcribe shows the current and proposed versions. A second confirmation compares against the reviewed version again. Other Blocks keep their overrides.
 
 JSON 7 excludes Block audio settings and local annotations along with existing media exclusions. S2 owns their portable backup and restore.
+
+## Standalone Transcribe in T3A
+
+Practice Now opens a full-screen activity with a scrollable waveform, transport, piano and master annotations. The AUDIO-only picker lists canonical Library recordings and imports supported files through Android's document picker and existing validation. Selection is a saveable media ID for the current visit. Library and standalone share transport, waveform and master annotation controls. Block and standalone share the embedded piano, which borrows the reference controller's focus.
+
+Changing source or leaving releases playback and piano output. Backgrounding releases output and returning prepares the selected source paused. Rotation restores the selected ID and opens it paused. Master edits apply to the original recording, so inheriting Blocks follow the shared markers and customized markers keep their local values. Standalone uses the global audio context and carries no practice-time attribution.

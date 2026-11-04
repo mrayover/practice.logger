@@ -6,7 +6,7 @@
 
 This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The original amendment authorized documentation only; the later explicit owner handoff authorized L1 implementation, now delivered with scoped verification and signed packaging. Reinspect live code before each separately assigned phase.
 
-**Order:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. T3A is the next engineering milestone by separate explicit assignment.
+**Order:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. T3B is the next separately assigned engineering milestone.
 
 ## 1. Verified existing implementation
 
@@ -263,7 +263,7 @@ Promotion must be explicit, understandable and tested. Avoid automatic bidirecti
 
 ### T3-0 and T3A–T3D — Standalone Transcribe and recording integration
 
-The [authoritative specification](T3_STANDALONE_TRANSCRIBE_PLAN.md) defines the split. T3A adds the dedicated Practice Now workspace. T3B adds the optional-Goal stopwatch and shared time accounting. T3C captures a canonical microphone reference with reference playback paused and protects existing Block links and annotations on replacement. T3D separately enables reference playback with Free Record while retaining ordinary take review and ownership.
+The [authoritative specification](T3_STANDALONE_TRANSCRIBE_PLAN.md) defines the split. T3A adds the dedicated Practice Now workspace using the Library audio context. T3B adds the optional-Goal stopwatch and shared time accounting. T3C captures a canonical microphone reference with reference playback paused and protects existing Block links and annotations on replacement. T3D separately enables reference playback with Free Record while retaining ordinary take review and ownership.
 ---
 
 ## 4. Resume the existing pipeline

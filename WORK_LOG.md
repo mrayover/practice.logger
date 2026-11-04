@@ -969,3 +969,13 @@ Added docs/T3_STANDALONE_TRANSCRIBE_PLAN.md. Reconciled PRACTICE_LOGGER_V1_MASTE
 Validation is limited to documentation scope, links and Git publication. The exact next engineering task is T3A — Standalone Transcribe Workspace, pending explicit owner assignment.
 
 Staged the 12 documentation files explicitly. The staged diff passed whitespace checks, all 39 added or edited local link references resolved, and the work log history remained intact. No application build, release packaging or regression run was performed. The publication SHA and live remote verification are recorded in the closing handoff.
+
+## 2026-11-04 — T3A Practice Now and standalone Transcribe
+
+Reviewed the mandatory efficiency procedure and required project records before edits. Clean local and remote main `112a701966af1d2dcfed52a5caacea478b8979e7` confirmed T3-0 and signed build86 as the baseline. Implemented the activity choices, direct unfinished-session and Routine start, and standalone Transcribe with the existing builder, canonical Library picker and audio, master markers and Reference Piano. Retained Room 15 and JSON 7. T3B–T3D remain separate assignments.
+
+Initial build [41882961152](https://github.com/mrayover/practice.logger/actions/runs/41882961152) compiled and passed 30 scoped units. Its navigation and Library platform checks passed. Both initial standalone attempts timed out waiting for Compose to become idle when scrolling to the piano during active A–B playback. [API 26](https://github.com/mrayover/practice.logger/actions/runs/41883763111) · [API 35](https://github.com/mrayover/practice.logger/actions/runs/41883768524)
+
+The follow-up reused the existing Block display throttle while keeping the controller's 15 ms playback loop. It also exercised successful and failed imports through Android's document picker. The final compilation and scoped units passed, along with both standalone runs and the enlarged-text Block Transcribe comparison. The full P5 and F1/F2 gates were outside this assignment.
+
+The permanent publisher signed build87 from `bb582ba8eb8195bcbe68888c9f42df582ddcb617`. Package, version, permanent certificate, APK payload and ZIP integrity verified. All 398 prior APK and ZIP hashes matched. [CURRENT_STATE](CURRENT_STATE.md) records artifact paths, hashes and actual verification. Owner-phone acceptance is pending. Next implementation requires a separate T3B assignment.
