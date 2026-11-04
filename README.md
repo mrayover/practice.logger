@@ -1,6 +1,6 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. The current signed release is **0.26.0/build89**, with Record Reference in standalone and Block Transcribe. See [CURRENT_STATE.md](CURRENT_STATE.md) for the signed release, focused verification and phone acceptance.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. The current signed release is **0.26.1/build90**, with the manual metronome BPM fix. See [CURRENT_STATE.md](CURRENT_STATE.md) for the signed release, focused verification and phone acceptance.
 
 ## Forward V1 roadmap
 

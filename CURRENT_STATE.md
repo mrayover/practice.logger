@@ -1,4 +1,12 @@
-# Current state — T3C Record Reference
+# Current state — Metronome BPM fix
+
+**0.26.1/build90** applies a valid typed BPM when the Android keyboard's Done action is pressed. The shared field covers the standalone and Focused Practice metronomes.
+
+[Signed APK](dist/practice.logger-0.26.1-b90-7f9124a/practice.logger-0.26.1-b90-7f9124a.apk) · [ZIP](dist/practice.logger-0.26.1-b90-7f9124a.zip) · [Build info](dist/practice.logger-0.26.1-b90-7f9124a/BUILD_INFO.json). Install over build89 without uninstalling or clearing data. Source 7f9124a09a8890da488838ac5653559eb2eee061. APK SHA-256 1f6660d8a0678de2cd4f325982f3eaa4c68d5d82ed9ba6ce781afd851d1d8a08. ZIP SHA-256 81037b63679445d144a1fa55bf187856ec55d7ceaa434f4cdd49cb644c7cc600.
+
+[Package-only CI](https://github.com/mrayover/practice.logger/actions/runs/41901998805) passed. Verified permanent signing identity, package/version, APK payload and ZIP integrity. Phone check pending. Enter a different BPM and press Done. T3D remains the next separate assignment.
+
+## Retained T3C signed delivery
 
 Updated November 4, 2026 (America/Los_Angeles).
 
