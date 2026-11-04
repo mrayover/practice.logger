@@ -1,6 +1,6 @@
 # Current state — K1 Reference Piano delivered
 
-Updated November 3, 2026 (America/Los_Angeles). K1 implementation, targeted engineering verification and permanent-key signed delivery are complete. **Physical acoustic/phone acceptance of K1 remains pending.** The owner reports the latest pre-K1 functionality works; no individual L1/L2/L3 phone-check results are invented. Stop after K1; T1 is separately assigned next.
+Updated November 3, 2026 (America/Los_Angeles). K1 implementation, targeted engineering verification and permanent-key signed delivery are complete. **The owner confirms the K1 Reference Piano works on their phone.** This accepts the reported keyboard functionality. Individual acoustic measurements and checklist results were not supplied. The owner reports the latest pre-K1 functionality works; no individual L1/L2/L3 phone-check results are invented. Stop after K1; T1 is separately assigned next.
 
 ## Current signed delivery
 
@@ -27,7 +27,7 @@ Initial build41745587125 failed a new local theme lookup and was corrected. Nati
 
 Simple synthesized piano-like timbre; no acoustic samples. Sixteen voices include45ms tails; extra presses are ignored until capacity frees. Embedded notes currently require a playing reference controller; paused-reference solo audition needs explicit owner focus support during T1. Native active outputs/source progression do not certify phone speaker/headphone audibility, tuning/timbre, latency, route/vendor interruptions or TalkBack usability. Those remain physical checks. Existing media-inclusive backup limits remain; keep originals separately until S2.
 
-**Exact next task: owner K1 seven-item phone checklist using build81. Next separately assigned milestone: T1 — Record Loop / Transcribe Mode Integration; embed this same instrument. Stop after K1.** P5 acceptance remains closed; Stage4 remains0/10 documented real sessions.
+**Exact next task: verify the separately assigned T1 Record Loop / Transcribe integration for signed delivery.** P5 acceptance remains closed; Stage4 remains0/10 documented real sessions.
 
 ---
 

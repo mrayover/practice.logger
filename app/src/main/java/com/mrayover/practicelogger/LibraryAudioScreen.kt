@@ -64,13 +64,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
         }
         // Transport and source-time/range readouts remain independent of the long marker list.
-        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Button(onClick = { if (state.playing) player.pause() else player.play() }, enabled = !state.preparing && state.mediaId == asset.id, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-play")) { Text(if (state.playing) "Pause" else "Play") }
-            OutlinedButton(onClick = player::stop, enabled = !state.preparing, modifier = Modifier.heightIn(min = 48.dp)) { Text("Stop") }
-            TextButton(onClick = { player.speed(state.speedPercent - 5) }, enabled = state.speedPercent > 50, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-slower")) { Text("−5%") }
-            Text("${state.speedPercent}%", Modifier.padding(vertical = 12.dp).testTag("audio-speed"))
-            TextButton(onClick = { player.speed(state.speedPercent + 5) }, enabled = state.speedPercent < 100, modifier = Modifier.heightIn(min = 48.dp)) { Text("+5%") }
-        }
+        AudioPlaybackControls(player, state, asset.id)
         Row(Modifier.fillMaxWidth()) {
             TextButton(onClick = { seekDialog = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("audio-position")) {
                 Text(if (compactHeight) "${audioTimestamp(state.positionMs).substringBeforeLast('.')} / ${audioTimestamp(duration).substringBeforeLast('.')}" else "${audioTimestamp(state.positionMs)} / ${audioTimestamp(duration)}")
@@ -92,13 +86,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
                     }
                     if (vm.waveform == null && vm.waveformError == null) Text("Analyzing waveform…", style = MaterialTheme.typography.bodySmall)
                     vm.waveformError?.let { Text(it); TextButton(onClick = vm::retryWaveform) { Text("Retry waveform") } }
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        TextButton(onClick = { viewport(timeline.transform(2f, 0f, timeline.fraction(state.positionMs).coerceIn(0f, 1f))) }) { Text("Zoom in") }
-                        TextButton(onClick = { viewport(timeline.transform(.5f, 0f)) }) { Text("Zoom out") }
-                        TextButton(onClick = { viewport(timeline.transform(1f, .5f)) }, enabled = start > 0) { Text("Earlier") }
-                        TextButton(onClick = { viewport(timeline.transform(1f, -.5f)) }, enabled = start + span < duration) { Text("Later") }
-                        TextButton(onClick = { viewport(AudioTimeline(duration)) }) { Text("Fit track") }
-                    }
+                    AudioZoomControls(timeline, state.positionMs, duration, ::viewport)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         OutlinedButton(onClick = { player.range(state.positionMs, state.bMs) }, enabled = state.positionMs < state.bMs) { Text("Set A here") }
                         OutlinedButton(onClick = { player.range(state.aMs, state.positionMs) }, enabled = state.positionMs > state.aMs) { Text("Set B here") }
@@ -160,7 +148,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         dismissButton = { TextButton(onClick = { deleteId = null }, enabled = !vm.saving) { Text("Cancel") } }) }
 }
 
-@Composable private fun AudioSeekDialog(position: Long, duration: Long, close: () -> Unit, seek: (Long) -> Unit) {
+@Composable internal fun AudioSeekDialog(position: Long, duration: Long, close: () -> Unit, seek: (Long) -> Unit) {
     var text by rememberSaveable { mutableStateOf(audioSeconds(position)) }
     val time = parseAudioSeconds(text)
     AlertDialog(onDismissRequest = close, title = { Text("Seek to source time") }, text = {
@@ -168,7 +156,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     }, confirmButton = { TextButton(onClick = { seek(time!!) }, enabled = time != null && time <= duration) { Text("Seek") } }, dismissButton = { TextButton(onClick = close) { Text("Cancel") } })
 }
 
-@Composable private fun AudioRangeDialog(state: LibraryAudioState, close: () -> Unit, save: (Long, Long) -> Unit) {
+@Composable internal fun AudioRangeDialog(state: LibraryAudioState, close: () -> Unit, save: (Long, Long) -> Unit) {
     var a by rememberSaveable { mutableStateOf(audioSeconds(state.aMs)) }
     var b by rememberSaveable { mutableStateOf(audioSeconds(state.bMs)) }
     val start = parseAudioSeconds(a); val end = parseAudioSeconds(b)
@@ -207,4 +195,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         }
     }, confirmButton = { TextButton(onClick = { vm.save(marker?.id, a!!, b, label, note, close) }, enabled = valid && !vm.saving) { Text("Save marker") } },
         dismissButton = { TextButton(onClick = close, enabled = !vm.saving) { Text("Cancel") } })
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun AudioPlaybackControls(player: LibraryAudioController, state: LibraryAudioState, mediaId: String) {
+    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Button(onClick = { if (state.playing) player.pause() else player.play() }, enabled = !state.preparing && state.mediaId == mediaId, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-play")) { Text(if (state.playing) "Pause" else "Play") }
+        OutlinedButton(onClick = player::stop, enabled = !state.preparing, modifier = Modifier.heightIn(min = 48.dp)) { Text("Stop") }
+        TextButton(onClick = { player.speed(state.speedPercent - 5) }, enabled = state.speedPercent > 50, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-slower")) { Text("−5%") }
+        Text("${state.speedPercent}%", Modifier.padding(vertical = 12.dp).testTag("audio-speed"))
+        TextButton(onClick = { player.speed(state.speedPercent + 5) }, enabled = state.speedPercent < 100, modifier = Modifier.heightIn(min = 48.dp)) { Text("+5%") }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun AudioZoomControls(timeline: AudioTimeline, positionMs: Long, duration: Long, viewport: (AudioTimeline) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        TextButton(onClick = { viewport(timeline.transform(2f, 0f, timeline.fraction(positionMs).coerceIn(0f, 1f))) }) { Text("Zoom in") }
+        TextButton(onClick = { viewport(timeline.transform(.5f, 0f)) }) { Text("Zoom out") }
+        TextButton(onClick = { viewport(timeline.transform(1f, .5f)) }, enabled = timeline.startMs > 0) { Text("Earlier") }
+        TextButton(onClick = { viewport(timeline.transform(1f, -.5f)) }, enabled = timeline.startMs + timeline.spanMs < duration) { Text("Later") }
+        TextButton(onClick = { viewport(AudioTimeline(duration)) }) { Text("Fit track") }
+    }
 }

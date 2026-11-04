@@ -22,6 +22,7 @@ class PianoAudioEngine(context: Context, private val reference: LibraryAudioCont
     private var foreground = true
     private var closed = false
     @Volatile private var generation = 0
+    private var companionOutput = false
     private var track: AudioTrack? = null
     @Volatile internal var framesWritten = 0L; private set
     @Volatile internal var nonZeroFramesWritten = 0L; private set
@@ -36,7 +37,7 @@ class PianoAudioEngine(context: Context, private val reference: LibraryAudioCont
     }
     fun noteOn(token: Long, note: Int): Boolean {
         require(note in 24..96)
-        if (closed || !foreground || (reference != null && !reference.state.value.playing)) return false
+        if (closed || !foreground) return false
         if (track == null && !start()) return false
         return pcm.noteOn(token, note)
     }
@@ -46,7 +47,9 @@ class PianoAudioEngine(context: Context, private val reference: LibraryAudioCont
     private fun interrupt(message: String?) { stopOutput(); interrupted(message) }
     private fun start(): Boolean {
         try {
-            if (reference == null && manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            val granted = if (reference == null) manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                else reference.acquireCompanionOutput().also { companionOutput = it }
+            if (!granted) {
                 interrupt("Audio is in use. Try a key again."); return false
             }
             val minimum = AudioTrack.getMinBufferSize(48_000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -84,6 +87,10 @@ class PianoAudioEngine(context: Context, private val reference: LibraryAudioCont
         generation++; pcm.clear()
         val old = track; track = null
         runCatching { old?.pause() }; runCatching { old?.flush() }; runCatching { old?.release() }
+        if (companionOutput) {
+            companionOutput = false
+            reference?.releaseCompanionOutput()
+        }
         if (reference == null) runCatching { manager.abandonAudioFocusRequest(focus) }
     }
     fun close() { if (closed) return; closed = true; removeCompanion?.invoke(); stopOutput(); app.unregisterReceiver(noisy) }

@@ -63,9 +63,23 @@ class PianoNativeTest {
             assertEquals(0,piano.voiceCount()); assertFalse(reference.state.value.playing); assertTrue(resets > 0)
             inst.runOnMainSync { reference.setForeground(true) }
             assertFalse(reference.state.value.playing)
-            inst.runOnMainSync { assertFalse(piano.noteOn(5,60)); reference.play() }
+            val pausedFrames = piano.nonZeroFramesWritten
+            inst.runOnMainSync {
+                assertTrue(piano.noteOn(5,60))
+                assertTrue(piano.noteOn(7,64))
+            }
+            await("paused reference permits actual chord output") { piano.nonZeroFramesWritten > pausedFrames + 2400 }
+            assertFalse(reference.state.value.playing)
+            inst.runOnMainSync { reference.play() }
             await("explicit reference restart") { reference.state.value.playing }
-            inst.runOnMainSync { assertTrue(piano.noteOn(6,72)) }
+            inst.runOnMainSync {
+                assertEquals("held chord survives explicit reference restart", 2, piano.voiceCount())
+                assertTrue(piano.noteOn(6,72))
+                reference.pause()
+                assertFalse(reference.state.value.playing)
+                assertEquals(3, piano.voiceCount())
+                reference.play()
+            }
             // A competing platform focus owner must stop both outputs; gain never resumes notes.
             val manager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val competing = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)

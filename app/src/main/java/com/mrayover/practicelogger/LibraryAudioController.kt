@@ -30,7 +30,30 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     private var queuedSeek: Long? = null
     private var resumeAfterSeek = false
     private var selectedOnce = false
-    // Borrowed-focus instruments stop with this owner, without requesting/abandoning its focus.
+    private var focusHeld = false
+    private var companionOutputs = 0
+
+    private fun acquireFocus(): Boolean {
+        if (!focusHeld) focusHeld = manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        return focusHeld
+    }
+    internal fun acquireCompanionOutput(): Boolean {
+        if (!foreground || !acquireFocus()) return false
+        companionOutputs++
+        return true
+    }
+    internal fun releaseCompanionOutput() {
+        companionOutputs--
+        releaseIdleFocus()
+    }
+    private fun releaseIdleFocus() {
+        if (companionOutputs == 0 && !mutable.value.playing && !resumeAfterSeek) abandonFocus()
+    }
+    private fun abandonFocus() {
+        if (!focusHeld) return
+        focusHeld = false
+        manager.abandonAudioFocusRequest(focus)
+    }
     private val companions = mutableSetOf<() -> Unit>()
     internal fun registerCompanion(stop: () -> Unit): () -> Unit {
         companions.add(stop)
@@ -106,7 +129,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
                         mutable.value = mutable.value.copy(playing = false, positionMs = mutable.value.durationMs)
                         if (mutable.value.repeatRange || mutable.value.repeatFile) {
                             resumeAfterSeek = true; seek(if (mutable.value.repeatRange) mutable.value.aMs else 0)
-                        } else { stopCompanions(); manager.abandonAudioFocusRequest(focus) }
+                        } else { selectedOnce = false; releaseIdleFocus() }
                     }
                 }
                 audio.prepareAsync()
@@ -127,7 +150,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
     }
     private fun playPrepared(): Unit = guarded {
         if (!foreground) return@guarded
-        if (manager.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+        if (!acquireFocus()) {
             mutable.value = mutable.value.copy(error = "Audio output is in use. Try Play again."); return@guarded
         }
         val audio = checkNotNull(player)
@@ -136,15 +159,21 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         handler.removeCallbacks(ticker); handler.post(ticker)
     }
     fun pause(): Unit = guarded {
-        stopCompanions()
+        selectedOnce = false
         resumeAfterSeek = false
         if (mutable.value.playing) player?.pause()
         mutable.value = mutable.value.copy(playing = false)
         handler.removeCallbacks(ticker)
-        manager.abandonAudioFocusRequest(focus)
+        releaseIdleFocus()
     }
     fun stop() { selectedOnce = false; pause(); seek(if (mutable.value.repeatRange) mutable.value.aMs else 0) }
-    fun playSelection() { selectedOnce = true; seek(mutable.value.aMs); play() }
+    fun playSelection() {
+        if (!validAudioRange(mutable.value.aMs, mutable.value.bMs, mutable.value.durationMs)) return
+        mutable.value = mutable.value.copy(repeatRange = false, repeatFile = false)
+        selectedOnce = true
+        seek(mutable.value.aMs)
+        play()
+    }
     fun seek(positionMs: Long) {
         val target = positionMs.coerceIn(0, mutable.value.durationMs)
         mutable.value = mutable.value.copy(positionMs = target)
@@ -182,7 +211,7 @@ class LibraryAudioController(context: Context, private val repository: MediaLibr
         handler.removeCallbacks(ticker)
         generation++; opening?.cancel(); opening = null
         val old = player; player = null; seekPending = false; queuedSeek = null; resumeAfterSeek = false
-        runCatching { old?.release() }; runCatching { manager.abandonAudioFocusRequest(focus) }
+        runCatching { old?.release() }; runCatching { abandonFocus() }
     }
     fun close() { selectedOnce = false; releasePlayer(); mutable.value = LibraryAudioState() }
     fun dispose() { close(); handler.removeCallbacks(ticker); runCatching { app.unregisterReceiver(noisy) } }
