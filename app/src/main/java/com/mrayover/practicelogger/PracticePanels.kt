@@ -52,7 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
     }
 }
 
-@Composable fun FocusedWorkspace(current: Placement, images: ImageReferenceViewModel, modifier: Modifier = Modifier, suppressed: Boolean = false, onReveal: () -> Unit = {}) {
+@Composable fun FocusedWorkspace(current: Placement, images: ImageReferenceViewModel, modifier: Modifier = Modifier, suppressed: Boolean = false, sideBySideHeaders: Boolean = false, onReveal: () -> Unit = {}) {
     val attachments by images.visuals.collectAsStateWithLifecycle()
     val attached = attachments.any { it.blockId == current.sourceBlockId }
     // Description is the default; outside transport panels one workspace always stays open.
@@ -60,21 +60,32 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
     val expanded = if (choice == "reference") "reference" else "description"
     var referenceOpened by rememberSaveable(current.id) { mutableStateOf(false) }
     LaunchedEffect(expanded, attached) { if (attached && expanded == "reference") referenceOpened = true }
-    Column(modifier.testTag("practice-workspace")) {
+    val descriptionHeader: @Composable () -> Unit = {
         WorkspaceHeader("Practice Description", !suppressed && expanded == "description", "practice-description-toggle") {
             choice = if (suppressed) "description" else if (expanded == "description") "reference" else "description"
             onReveal()
         }
+    }
+    val referenceHeader: @Composable () -> Unit = {
+        WorkspaceHeader("Reference Material", !suppressed && expanded == "reference", "practice-reference-toggle") {
+            choice = if (suppressed) "reference" else if (expanded == "reference") "description" else "reference"
+            onReveal()
+        }
+    }
+    Column(modifier.testTag("practice-workspace")) {
+        if (sideBySideHeaders) Row(Modifier.fillMaxWidth()) {
+            Box(Modifier.weight(1f)) { descriptionHeader() }
+            Box(Modifier.weight(1f)) { referenceHeader() }
+        } else descriptionHeader()
         if (expanded == "description") RetainedWorkspaceContent(suppressed,
             if (suppressed) Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
             PracticeScrollPanel(Modifier.fillMaxSize().padding(horizontal = 16.dp), tag = "practice-description-panel") {
                 Text(current.action, style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().testTag("practice-description"))
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        WorkspaceHeader("Reference Material", !suppressed && expanded == "reference", "practice-reference-toggle") {
-            choice = if (suppressed) "reference" else if (expanded == "reference") "description" else "reference"
-            onReveal()
+        if (!sideBySideHeaders) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            referenceHeader()
         }
         if (expanded == "reference" || (referenceOpened && attached)) RetainedWorkspaceContent(suppressed || expanded != "reference",
             if (suppressed || expanded != "reference") Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {

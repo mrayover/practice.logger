@@ -187,6 +187,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
     val transcribing = transportPanel == "transcribe" && !audioBusy
+    val wideTranscribe = transcribing && maxWidth >= 560.dp && maxWidth > maxHeight
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
     val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.kind == TakeKind.RECORDED_LOOP && !reviewCollapsed)
     val density = LocalDensity.current
@@ -216,7 +217,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
             }
         }
         Box(Modifier.fillMaxWidth().then(if (panelOpen) Modifier else Modifier.weight(1f)).testTag("practice-workspace-viewport")) {
-            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, onReveal = {
+            FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, sideBySideHeaders = wideTranscribe, onReveal = {
                 focusManager.clearFocus(force = true); keyboard?.hide()
                 transportPanel = null
                 reviewCollapsed = recordings.reviewTake != null
@@ -303,7 +304,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         if (awaiting && !loopPanelOpen) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
         FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions").onSizeChanged { bottomActionsHeight = with(density) { it.height.toDp() } },
-            maxItemsInEachRow = if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f) 2 else 4,
+            maxItemsInEachRow = if (!wideTranscribe && density.fontScale >= 1.5f) 2 else 4,
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp).semantics { stateDescription = if (vm.running) "Practicing" else "Paused" }) {

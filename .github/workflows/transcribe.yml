@@ -41,14 +41,29 @@ jobs:
         run: |
           AUDIO_FIXTURE_DURATION=4.0 bash scripts/Prepare-AudioFixtures.sh
           ffmpeg -y -v error -f lavfi -i 'sine=frequency=440:duration=4' -ar 44100 -ac 1 -c:a pcm_s16le app/src/androidTest/assets/audio/backing.wav
-      - name: Compile and scoped units
+      - name: Compile APKs
         if: ${{ inputs.compiled_run == '' }}
         run: |
           if [ '${{ inputs.scope }}' = build ]; then
-            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
+            bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
           else
             bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
           fi
+      - name: Scoped unit tests
+        if: ${{ inputs.scope == 'build' }}
+        run: |
+          dependency=org/robolectric/android-all-instrumented/15-robolectric-13954326-i7
+          stem=android-all-instrumented-15-robolectric-13954326-i7
+          local_dir="$HOME/.m2/repository/$dependency"
+          mkdir -p "$local_dir"
+          for extension in pom jar; do
+            if [ ! -s "$local_dir/$stem.$extension" ]; then
+              curl -fsSL --retry 2 --max-time 120 "https://repo.maven.apache.org/maven2/$dependency/$stem.$extension" -o "$local_dir/$stem.$extension.tmp" ||
+                curl -fsSL --retry 2 --max-time 120 "https://maven-central.storage-download.googleapis.com/maven2/$dependency/$stem.$extension" -o "$local_dir/$stem.$extension.tmp"
+              mv "$local_dir/$stem.$extension.tmp" "$local_dir/$stem.$extension"
+            fi
+          done
+          bash ./gradlew testDebugUnitTest --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
       - name: Reuse verified compilation
         if: ${{ inputs.compiled_run != '' }}
         env:
@@ -56,7 +71,8 @@ jobs:
           COMPILED_RUN: ${{ inputs.compiled_run }}
         run: |
           [[ "$COMPILED_RUN" =~ ^[0-9]+$ ]]
-          test "$(gh api "repos/${{ github.repository }}/actions/runs/$COMPILED_RUN" --jq .conclusion)" = success
+          gh api "repos/${{ github.repository }}/actions/runs/$COMPILED_RUN/jobs" \
+            --jq '[.jobs[].steps[] | select(.name == "Compile APKs" and .conclusion == "success")] | length' | grep -qx 1
           compiled_sha=$(gh api "repos/${{ github.repository }}/actions/runs/$COMPILED_RUN" --jq .head_sha)
           git fetch origin "$compiled_sha" --depth=1
           git diff --exit-code "$compiled_sha" HEAD -- app/src app/build.gradle.kts app/schemas
