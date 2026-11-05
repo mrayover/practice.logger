@@ -86,15 +86,15 @@ import kotlin.coroutines.coroutineContext
     }
 }
 
-@Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0, minimumHeight: androidx.compose.ui.unit.Dp = 1.dp) {
+@Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0, minimumHeight: androidx.compose.ui.unit.Dp = 1.dp, overlay: (@Composable BoxScope.(ReferencePageTransform) -> Unit)? = null) {
     var scale by remember(bitmap) { mutableFloatStateOf(1f) }
     var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
     LaunchedEffect(resetKey) { scale = 1f; offset = Offset.Zero }
     var size by remember { mutableStateOf(IntSize.Zero) }
     fun bounded(value: Offset, zoom: Float): Offset {
-        val fit = minOf(size.width.toFloat() / bitmap.width, size.height.toFloat() / bitmap.height)
-        val x = ((bitmap.width * fit * zoom - size.width) / 2).coerceAtLeast(0f)
-        val y = ((bitmap.height * fit * zoom - size.height) / 2).coerceAtLeast(0f)
+        val fit = ReferencePageTransform(size, IntSize(bitmap.width, bitmap.height), zoom, Offset.Zero).bounds
+        val x = ((fit.width - size.width) / 2).coerceAtLeast(0f)
+        val y = ((fit.height - size.height) / 2).coerceAtLeast(0f)
         return Offset(value.x.coerceIn(-x, x), value.y.coerceIn(-y, y))
     }
     val transform = rememberTransformableState { zoom, pan, _ ->
@@ -123,6 +123,9 @@ import kotlin.coroutines.coroutineContext
                 modifier = Modifier.fillMaxSize().graphicsLayer {
                     scaleX = scale; scaleY = scale; translationX = offset.x; translationY = offset.y
                 })
+            if (overlay != null && size.width > 0 && size.height > 0) {
+                overlay(ReferencePageTransform(size, IntSize(bitmap.width, bitmap.height), scale, offset))
+            }
             if (scale > 1f && !fitAvailableHeight && maxHeight < 640.dp) {
                 // Keep reset inside a compact viewport: enlarged-image pans must not
                 // trap the only reset control below its scrolling parent's boundary.

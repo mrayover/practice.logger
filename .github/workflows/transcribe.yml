@@ -77,7 +77,7 @@ jobs:
             fi
           done
           if [[ '${{ inputs.scope }}' == backup-* ]]; then
-            bash ./gradlew testDebugUnitTest --tests '*Backup*Test' --tests '*MediaMigrationTest' --tests '*ImageMigrationTest' --tests '*ImageReferenceTest' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --tests '*TranscribeActivityTest' --tests '*GoalRepositoryTest' --stacktrace
+            bash ./gradlew testDebugUnitTest --tests '*Backup*Test' --tests '*MediaMigrationTest' --tests '*ImageMigrationTest' --tests '*ImageReferenceTest' --tests '*PracticeOverlay*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --tests '*TranscribeActivityTest' --tests '*GoalRepositoryTest' --stacktrace
           else
             bash ./gradlew testDebugUnitTest --tests '*TranscribeActivityTest' --tests '*GoalRepositoryTest' --tests '*BackupRepositoryTest' --tests '*ToolLogicTest' --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*MediaMigrationTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
           fi
@@ -103,6 +103,7 @@ jobs:
         with:
           name: t1-build
           path: |
+            app/schemas/com.mrayover.practicelogger.BlockDatabase/18.json
             app/build/outputs/apk
             app/build/test-results/testDebugUnitTest
             app/schemas/com.mrayover.practicelogger.BlockDatabase/16.json

@@ -75,7 +75,7 @@ class MediaMigrationTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(17, db.openHelper.readableDatabase.version)
+            assertEquals(18, db.openHelper.readableDatabase.version)
             assertEquals("Original", db.blocks().find("b")!!.name)
             assertEquals(1234L, db.sessions().find("s")!!.activeMs)
             assertEquals(20, db.goals().find("g")!!.goal.progress)
@@ -95,7 +95,7 @@ class MediaMigrationTest {
         val db = BlockDatabase.open(context, name)
         try {
             val sql = db.openHelper.writableDatabase
-            assertEquals(17, sql.version)
+            assertEquals(18, sql.version)
             assertEquals("Saved", db.blocks().find("b")?.name)
             assertEquals(1200L, db.transcribeActivities().find("t")?.activeMs)
             assertEquals("Keep this log", db.logs().readAll().single().text)
@@ -110,8 +110,45 @@ class MediaMigrationTest {
         val db = BlockDatabase.open(context, name)
         try {
             assertEquals("Original", db.blocks().find("b")!!.name); assertTrue(db.media().readAll().isEmpty())
-            assertEquals(17, db.openHelper.readableDatabase.version)
+            assertEquals(18, db.openHelper.readableDatabase.version)
             db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
+    }
+
+    @Test fun seventeenToEighteenRetainsVisualsAndRestoreWitness(): Unit = runBlocking {
+        val name = "o1-${UUID.randomUUID()}.db"
+        val original = "${UUID.randomUUID()}.img"
+        create(17, name).use { sql ->
+            sql.execSQL("INSERT INTO blocks VALUES ('b','Saved','Practice',5,90,'Notes',1,1,2)")
+            sql.execSQL("INSERT INTO block_images VALUES ('b',?,'image/png',300,400,1000)", arrayOf(original))
+            sql.execSQL("INSERT INTO portable_restore_witness VALUES ('witness')")
+        }
+        val db = BlockDatabase.open(context, name)
+        val shape = PracticeOverlay("shape", "b", "legacy:$original", 0, "HIGHLIGHT",
+            .1f, .2f, .5f, .6f, 2, 0)
+        try {
+            assertEquals(18, db.openHelper.readableDatabase.version)
+            assertTrue(db.blocks().find("b")!!.archived)
+            assertEquals(original, db.images().find("b")!!.fileName)
+            assertEquals(0, db.overlays().count())
+            db.openHelper.readableDatabase.query("SELECT token FROM portable_restore_witness").use {
+                assertTrue(it.moveToFirst())
+                assertEquals("witness", it.getString(0))
+            }
+            val overlays = PracticeOverlayRepository(db)
+            overlays.edit(OverlayEdit(null, shape), 1)
+            try {
+                overlays.edit(OverlayEdit(shape, shape.copy(left = .9f)), 1)
+                fail("Accepted inverted geometry")
+            } catch (_: IllegalArgumentException) { }
+            assertEquals(shape, db.overlays().find(shape.id))
+            try {
+                db.images().remove("b")
+                fail("Removed an annotated reference outside the repository")
+            } catch (_: android.database.sqlite.SQLiteConstraintException) { }
+        } finally { db.close() }
+        val reopened = BlockDatabase.open(context, name)
+        try { assertEquals(shape, reopened.overlays().find(shape.id)) }
+        finally { reopened.close(); context.deleteDatabase(name) }
     }
 }

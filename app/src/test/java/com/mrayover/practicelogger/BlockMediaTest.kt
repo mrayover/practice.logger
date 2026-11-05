@@ -112,7 +112,7 @@ class BlockMediaTest {
         val db = BlockDatabase.open(context, name)
         try {
             assertEquals(if (version == 14) 1 else 0, db.blockMedia().readAll().size)
-            assertEquals(17, db.openHelper.readableDatabase.version)
+            assertEquals(18, db.openHelper.readableDatabase.version)
             before.forEach { (table, rows) -> db.openHelper.readableDatabase.query("SELECT * FROM $table").use { c ->
                 assertEquals(table, rows, buildList { while(c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) })
             } }

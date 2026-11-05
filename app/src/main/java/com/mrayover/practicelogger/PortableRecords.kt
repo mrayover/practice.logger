@@ -184,5 +184,6 @@ internal val mediaConstraintCallback = object : androidx.room.RoomDatabase.Callb
     override fun onCreate(db: SupportSQLiteDatabase) {
         installBlockMediaConstraints(db)
         installBlockAudioConstraints(db)
+        installPracticeOverlayConstraints(db)
     }
 }
