@@ -9,7 +9,8 @@ else
 fi
 adb shell locksettings set-disabled true
 adb shell wm dismiss-keyguard
-if [[ "${TARGET_TEST_CLASS:-}" == *ImportedAudioWorkflowTest* || "$suite" == appearance-import ]]; then
+if [[ "${TARGET_TEST_CLASS:-}" == *ImportedAudioWorkflowTest* || "${TARGET_TEST_CLASS:-}" == *PortableZipRoundTripTest* || "$suite" == appearance-import ]]; then
+  if [[ "${TARGET_TEST_CLASS:-}" == *PortableZipRoundTripTest* ]]; then export AUDIO_FIXTURE_DURATION=4.0; fi
   bash scripts/Prepare-AudioFixtures.sh
 fi
 bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
@@ -39,6 +40,10 @@ collect() {
 }
 trap collect EXIT
 for test_class in ${TARGET_TEST_CLASS//,/ }; do
+  if [[ "$test_class" == com.mrayover.practicelogger.PortableZipRoundTripTest ]]; then
+    bash scripts/Check-PortableRoundTrip.sh
+    continue
+  fi
   if [[ "$test_class" == *LegacyReferenceUpgradeTest ]]; then adb install -r app/build/outputs/apk/debug/app-debug.apk; fi
   adb shell am force-stop com.mrayover.practicelogger.app
   per_test_ms=120000

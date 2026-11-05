@@ -75,7 +75,7 @@ class MediaMigrationTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(16, db.openHelper.readableDatabase.version)
+            assertEquals(17, db.openHelper.readableDatabase.version)
             assertEquals("Original", db.blocks().find("b")!!.name)
             assertEquals(1234L, db.sessions().find("s")!!.activeMs)
             assertEquals(20, db.goals().find("g")!!.goal.progress)
@@ -85,13 +85,32 @@ class MediaMigrationTest {
         } finally { db.close(); context.deleteDatabase(name) }
     }
 
+    @Test fun sixteenToSeventeenAddsOnlyInternalRestoreWitness(): Unit = runBlocking {
+        val name = "s2-${UUID.randomUUID()}.db"
+        create(16, name).use { sql ->
+            sql.execSQL("INSERT INTO blocks VALUES ('b','Saved','Practice',5,90,'Notes',0,1,2)")
+            sql.execSQL("INSERT INTO transcribe_activities VALUES ('t',3,4,1200,NULL,NULL)")
+            sql.execSQL("INSERT INTO daily_logs VALUES ('2026-11-05','Keep this log')")
+        }
+        val db = BlockDatabase.open(context, name)
+        try {
+            val sql = db.openHelper.writableDatabase
+            assertEquals(17, sql.version)
+            assertEquals("Saved", db.blocks().find("b")?.name)
+            assertEquals(1200L, db.transcribeActivities().find("t")?.activeMs)
+            assertEquals("Keep this log", db.logs().readAll().single().text)
+            sql.query("SELECT token FROM portable_restore_witness").use { assertFalse(it.moveToFirst()) }
+            sql.query("PRAGMA foreign_key_check").use { assertFalse(it.moveToFirst()) }
+        } finally { db.close(); context.deleteDatabase(name) }
+    }
+
     @Test fun versionOneMigratesThroughAllExplicitPathsAndRetainsOriginalBlock(): Unit = runBlocking {
         val name = "chain-${UUID.randomUUID()}.db"; val sql = create(1, name)
         sql.execSQL("INSERT INTO blocks VALUES ('b','Original','Play',5,90,'Notes',0,1,2)"); sql.close()
         val db = BlockDatabase.open(context, name)
         try {
             assertEquals("Original", db.blocks().find("b")!!.name); assertTrue(db.media().readAll().isEmpty())
-            assertEquals(16, db.openHelper.readableDatabase.version)
+            assertEquals(17, db.openHelper.readableDatabase.version)
             db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
     }

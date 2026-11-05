@@ -15,7 +15,7 @@ private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstr
 private fun shownPickerApp(compose: androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, MainActivity>, text: String) {
     compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
 }
-private fun pickerDownloads() {
+internal fun pickerDownloads() {
     val roots = device.wait(Until.findObject(By.desc("Show roots")), 10000)
         ?: error("Document picker did not show navigation")
     roots.click()
