@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D and S1 are delivered, and O0 is complete. S2 is the next separately assigned implementation milestone. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0 and S2 are complete. O1 is the next separately assigned implementation milestone. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -55,7 +55,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **S0** | Storage feasibility and decisions (complete) | Recorded provider evidence and fallback decision | **Medium** |
 | **S1** | Organized Audio Export (complete) | Delivered with focused local SAF verification | **Medium** |
 | **O0** | Practice Overlay Architecture and Roadmap Integration (complete) | Commit and publish the architecture and recovery contract before S2 | **Medium** |
-| **S2** | Complete Portable ZIP Backup and Verified Restore | Verify provider behavior and complete round-trip restore for existing durable data | **High** |
+| **S2** | Complete Portable ZIP Backup and Verified Restore (complete) | Verified clean-install recovery and local SAF publication. Owner cloud-provider checks are pending | **High** |
 | **O1** | Block-Local Practice Overlay Implementation | After verified S2 and before G1. Pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance) including recovery and editing on an empty installation | **High** |
 | **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
@@ -268,6 +268,8 @@ The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines the 
 
 ### S2 — Complete portable ZIP backup and verified restore (High; V1 release-critical)
 
+S2 passed clean-install round trips and interruption recovery on API 26 and API 35. See the [implemented format](BACKUP_FORMAT.md#complete-portable-zip-v1) and [verification record](CURRENT_STATE.md).
+
 - A true **complete** backup contains *all* durable V1 user data: Blocks, Goal/Block links/Goal history and snapshot attribution, Routines, sessions/placements, practice time including standalone activity records and their optional Goal/audio associations and historical attribution, Daily Logs, practice and session Notes, Media Library metadata and canonical PDFs/images/audio including microphone references (each original once), global markers/notes, Block-local markers/overrides, A–B selections, speed/position and stable media links, persisted keyboard settings if any, imported backing-track histories, recording/take metadata/labels and **actual MP3/M4A/WAV bytes**, settings where appropriate and stable IDs/relationships. Exclude temporary in-progress audio, caches and private secrets.
 - ZIP contains a **versioned manifest**, explicit item IDs/paths, counts, types/sizes, cryptographic hashes (e.g. SHA-256), schema/format version and app version. Sanitize archive paths against traversal/duplicate entries and reject or safely handle malformed, oversized or inconsistent archives. Bound memory/storage; stream large file bytes rather than building one giant array.
 - Build a complete archive to a temporary destination, verify integrity, then publish/rename the final copy where supported. Handle out-of-space, missing file, interruption and provider errors without pretending backup succeeded. The target folder may be SAF/Google Drive where supported; provide an explicit alternate Save As flow.
@@ -370,7 +372,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] S0 documented [SAF evidence, provider limitations and fallback decision](docs/S0_STORAGE_DECISION.md). Device qualification of Drive, OneDrive and folder-tree operations remains open.
 - [x] S1 organized non-destructive audio export and user-selectable destination. See [CURRENT_STATE](CURRENT_STATE.md) for local SAF verification and pending phone checks.
 - [x] O0 architecture and roadmap integration with a [single overlay specification](docs/PRACTICE_OVERLAY_SPEC.md).
-- [ ] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
+- [x] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
 - [ ] O1 Block-local overlays, including editable recovery, pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance).
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
 - [ ] G2 Goal filter combined with available search across all three Block selection contexts.
@@ -380,7 +382,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 
 ## Deferred Practice Lifecycle and Insights
 
-This register records future design decisions. S2 remains next. After S2, evaluate whether an explicit Start/Prep gate warrants a targeted workflow correction before G3. Sequence any subsequent check-ins, scheduling, suggestions and statistics within existing Goals and Statistics work as assigned.
+This register records future design decisions. A separately assigned evaluation can consider whether an explicit Start/Prep gate warrants a targeted workflow correction before G3. Sequence any subsequent check-ins, scheduling, suggestions and statistics within existing Goals and Statistics work as assigned.
 
 - **Deliberate practice lifecycle.** Ready → optional Prep → Practicing → optional Block Review → Next Block → optional Session Review. Every Block opens Ready with a prominent Start Block action that glows or gently pulses until activated. Start Block starts measured practice immediately. Prep opens the same workspace with references, recordings, playback and tools, and tracks preparation separately. Completion offers review, then names the next Block with Start Next and Prep Next when one remains. Advance only by explicit action. Model preparation, active practice, review, completion and interruption as distinct states in the shared workflow.
 - **Block check-ins.** Ask the optional question “How secure did that feel?” on a 1–5 scale. More offers optional focus feedback and notes. Skip is always available, completion and advance remain available, and ratings are stored per practice event to preserve history.

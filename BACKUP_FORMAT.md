@@ -1,10 +1,10 @@
 # Backup format and safety — current implementation
 
-JSON 7 is independent of Room 16. Standalone Transcribe activities, including Goal/audio attribution and recorded time, are excluded until S2. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Complete portable ZIP v1 includes original media and standalone Transcribe activity. Legacy JSON 7 remains data-only and is independent of Room 17. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **16**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **17**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -76,25 +76,48 @@ PDF support requires a complete standard startxref/EOF trailer and a cross-refer
 Only practice_notes is created: six non-null fields listed above, primary ID and indices on blockId/sessionId/placementId, restrictive foreign keys to blocks/sessions/placements. No legacy rows are copied or rewritten. Combined history reads existing nonblank placements.note once per placement, with an internal legacy key and session ended/start timestamp marked Earlier session; an exact old note-creation time is unavailable. New note rows have true save timestamps and independent IDs. Every new/edit operation updates the intended note text only; original descriptions, logs, session notes and active metrics stay separate. Compiler schema11 is retained beside1–10. Focused verification/limitations are authoritative in CURRENT_STATE.md.
 
 
-## Planned complete recovery (not implemented)
+## Complete portable ZIP v1
 
-S2 in the [authoritative roadmap](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) will include canonical visual/audio originals once, global markers/notes, Block-local overrides/markers/playback state, stable links, legacy imported histories and recorded takes, plus persisted keyboard settings if any. Complete restore must reconstruct shared ownership and inheritance. S2 also preserves committed standalone Transcribe activities, optional Goal/audio associations, historical time attribution and canonical microphone references. Verify restored shared totals count each activity once. [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md). This is future versioned ZIP scope, not a change to the JSON7 writer/readers1–7 or current empty-target atomic restore contract.
+Tools → Backup and restore prepares a private complete archive and verifies it before enabling destination selection. The archive covers all 18 durable tables in Room 16/17, including practice history, interrupted and draft sessions, Logs, Goals, Routines, notes, Transcribe activity, canonical assets, legacy visuals, takes, Block links and master/local annotations and playback state. Each canonical original is stored once regardless of the number of links. Restored original names, IDs and ownership are preserved. The internal restore witness is excluded.
+
+The archive also includes the saved theme, click sound, default output mode, completion alarm and count-in. Keyboard settings are runtime-only. Export-folder URIs and grants are specific to the device and must be selected again. Unsaved edits and captures, playback/clock runtime state, caches, secrets and signing material are excluded.
+
+### Files and resource bounds
+
+- `manifest.json` identifies `practice.logger.portable` v1, the producing app version and build, Room version, counts by durable record type, and an inventory of all other ZIP entries. Each inventory item has its logical path, type, owner ID, expanded byte count and SHA-256.
+- `records.json` contains a `tables` object with the frozen v1 columns for each durable record type and an allowlisted `preferences` object. Records store stable IDs and relationship columns explicitly. A restore constructs the database through validated records.
+- Original bytes use `originals/media-library/<name>`, `originals/block-images/<name>` or `originals/recordings/<name>`, with the existing generated storage filenames. Canonical hashes also match the stored asset metadata.
+- The format uses a single-disk ZIP32 with no archive comment and caps both archive bytes and expanded bytes at 3 GiB, with up to 12,000 entries. Manifest and records each have a 16 MiB cap, a 500,000-value cap and maximum JSON depth 12. Each table has up to 20,000 rows. Existing 20 MiB visual and 50 MiB audio file limits also apply. Staging keeps an 8 MiB free-space reserve and needs space for the input plus expanded media during validation.
+
+The writer reads committed rows in a Room transaction while the image, Library and recording file locks protect originals from replacement or cleanup. It validates referenced originals and streams them into the private ZIP. It then reopens the archive and verifies the directory, counts, logical relationships, byte lengths, CRC and SHA-256. Missing or corrupt required originals stop creation.
+
+### Destination behavior
+
+**Save ZIP as…** writes a new document through Android's picker. The app reports a verified destination only after closing and reading back bytes that match the private ZIP. A provider that accepts the write but denies reopening produces an explicit unverified-copy result and leaves the private ZIP available for another destination. The selected folder option writes under `Backups/` using a new pending document, verifies the bytes and renames it when supported. If verification or publication fails, it offers Save As and attempts to remove only the new incomplete document. Interrupted copies may still be present at the provider. Read-back verifies the provider-visible copy. Cloud synchronization depends on the provider and account.
+
+### Empty-installation restore and interruption recovery
+
+Restore stages the input privately, validates version and paths, rejects duplicates and undeclared entries, checks bounds and hashes, validates all record types and relationships, and verifies original media with the existing image, PDF and audio validators. The preview shows validated record counts and media size. Cancellation before confirmation leaves the target data and settings intact.
+
+Confirmation rechecks all durable tables for emptiness in the same Room transaction that inserts restored records. Media locks exclude concurrent file mutations and orphan cleanup. A synced journal records the unique transaction token, previously absent destination paths, media hashes and desired settings. Synced staged files are promoted into the existing private stores before references are committed. The witness is inserted with the restored rows. Room 17 adds only this internal table through a non-destructive 16→17 migration.
+
+Startup resolves a pending journal before opening the catalog or running orphan cleanup. An absent witness rolls back only the journal's newly promoted files. A committed witness keeps the restored rows and files, verifies the promoted bytes and finishes the saved settings. Settings are written after commit, so pre-commit rollback leaves the target settings alone. Finalization is retryable and the app gates normal navigation while recovery is required. Unfinished Block practice and Transcribe reopen paused.
 
 ### Future O1 overlay extension
 
-S2 covers the durable data available at its implementation. Its versioned ZIP design must allow a later overlay record extension and preserve the stable identities of Blocks and both canonical and legacy visual references. O1 adds the extension with its Room records. Restore must validate versions, limits, identities, page bounds and editable geometry before committing, retain support for S2 ZIP and legacy JSON readers, and keep S2’s transactional safeguards. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md#persistence-and-recovery) defines the round-trip contract. The current JSON writer and Room schema retain their existing formats.
+S2 covers the durable data available at its implementation. Its versioned ZIP design must allow a later overlay record extension and preserve the stable identities of Blocks and both canonical and legacy visual references. O1 adds the extension with its Room records. Restore must validate versions, limits, identities, page bounds and editable geometry before committing, retain support for S2 ZIP and legacy JSON readers, and keep S2’s transactional safeguards. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md#persistence-and-recovery) defines the round-trip contract. The ZIP v1 reader and the legacy JSON 7 writer/readers 1–7 remain compatibility paths for O1.
 
 ## L1 canonical media exclusion and restore guard
 
-JSON7 and readers1–7 exclude all media_assets metadata/UUIDs/titles and all canonical originals. files/media-library owns one generated original per asset, independently of legacy block-images/recordings. A Library-only installation is nonempty and rejects legacy JSON restore in the same transaction, with existing assets retained. The Library and Backup UI disclose local-only media and the exclusion; keep originals separately. No ZIP backup is added before S2. See [L1 storage/legacy ownership](docs/MEDIA_LIBRARY_STORAGE.md).
+JSON7 and readers1–7 exclude all media_assets metadata/UUIDs/titles and all canonical originals. files/media-library owns one generated original per asset, independently of legacy block-images/recordings. A Library-only installation is nonempty and rejects legacy JSON restore in the same transaction, with existing assets retained. Use the complete ZIP to recover Library originals and metadata. See [L1 storage/legacy ownership](docs/MEDIA_LIBRARY_STORAGE.md).
 
 ## L2 master audio annotations
 
-Room13 master point/section markers are canonical Library metadata and remain excluded from unchanged JSON7 (readers1–7), together with canonical originals/metadata. The current JSON backup is data-only and cannot transport Library annotations. Derived waveform caches are expendable and are not backup content. S2 must preserve stable media/marker identities and shared originals once in its separately assigned complete ZIP recovery. Current Library-only nonempty restore protection remains.
+Room13 master point/section markers are canonical Library metadata and remain excluded from unchanged JSON7 (readers1–7), together with canonical originals/metadata. The current JSON backup is data-only and cannot transport Library annotations. Derived waveform caches are expendable and are not backup content. The complete ZIP preserves stable media/marker identities and shared originals once. Current Library-only nonempty restore protection remains.
 
 ## L3 Block associations remain excluded
 
-Room14 adds restrictive Block VISUAL/AUDIO media links; JSON writer7/readers1–7 do not serialize them or canonical assets. Restoring a legacy JSON backup into an empty installation creates no media links or dangling references. The existing transactional nonempty guard includes media_assets (and Blocks), so a linked or Library-only installation cannot be overwritten. Editor/Library/Backup UI disclose that originals, Block associations and master annotations are not complete recovery content. Future S2 must preserve stable asset/link/annotation IDs and each original once. Legacy visual/take ownership and current per-take export remain intact. See [L3 ownership](docs/BLOCK_MEDIA_ASSOCIATIONS.md).
+Room14 adds restrictive Block VISUAL/AUDIO media links; JSON writer7/readers1–7 do not serialize them or canonical assets. Restoring a legacy JSON backup into an empty installation creates no media links or dangling references. The existing transactional nonempty guard includes media_assets (and Blocks), so a linked or Library-only installation cannot be overwritten. Legacy JSON excludes originals, Block associations and master annotations. The complete ZIP preserves stable asset/link/annotation IDs and each original once. Legacy visual/take ownership and current per-take export remain intact. See [L3 ownership](docs/BLOCK_MEDIA_ASSOCIATIONS.md).
 
 
 **T2 portability.** JSON 7 excludes Block-local playback settings, locally created markers, master-marker overrides and hides. Restore creates no Block/audio associations. Complete media-inclusive recovery belongs to S2.

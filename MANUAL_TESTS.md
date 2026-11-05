@@ -214,3 +214,11 @@ Use disposable folders and sample takes. Record the phone Android version and th
 5. Interrupt a large sample export to a disposable destination. Check that the original stays playable and that an incomplete copy is removed or reported. Retry to a new document. For cloud providers, verify the completed copy separately after reconnecting.
 
 A provider accepting the write does not establish cloud synchronization.
+
+## S2 complete portable backup phone checks
+
+1. Install the signed update over build93. Keep your current installation and its data. Check that existing Blocks, time totals, visual references and takes still open.
+2. Prepare a complete ZIP from Tools → Backup and restore. Save locally using Save ZIP as and confirm the read-back result. If Settings has a suitable selected folder, also check that a new ZIP appears under Backups without replacing earlier copies.
+3. If Drive or OneDrive is available, try each separately. Record which picker, write, read-back and folder operations succeed. Check that the saved file is visible from a second client after sync. For a disposable destination, try revoked access or an interrupted copy and check the app's cleanup or retry message.
+4. On a separate empty installation, choose the ZIP, verify the preview and cancel once. Reopen it and confirm restore. Restart the app. Check the same Blocks, Goal and Routine links, Logs, notes, practice totals, both independent audio annotation sets, PDF pages, recordings and imported loop. Confirm unfinished timers are paused and portable appearance/audio settings were applied. Select export-folder access again if needed.
+5. On the spare now-populated installation, try selecting the same archive again. Confirm the app refuses it and the restored data stays available.

@@ -1,10 +1,31 @@
-# Current state — O0 roadmap integration
+# Current state — S2 Complete Portable ZIP Backup and Verified Restore
 
 Updated November 5, 2026 (America/Los_Angeles).
 
-O0 is complete. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) puts O1 after S2 and links to the [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md). The [deferred practice lifecycle and insights register](PRACTICE_LOGGER_V1_MASTER_PLAN.md#deferred-practice-lifecycle-and-insights) captures future design decisions only.
+## Signed S2 delivery
 
-Room remains at schema 16 and the legacy JSON writer remains at version 7. **Next implementation assignment: S2 — Complete Portable ZIP Backup and Verified Restore.** O1 follows verified S2.
+**0.29.0/build94**, app source `9b2fb69a910dde4295e8b2062fb32284a6b759b8`. Install over permanent-key build93 to retain data. Restore tests belong on a separate empty installation. [APK](dist/practice.logger-0.29.0-b94-9b2fb69/practice.logger-0.29.0-b94-9b2fb69.apk) · [ZIP](dist/practice.logger-0.29.0-b94-9b2fb69.zip) · [Build info](dist/practice.logger-0.29.0-b94-9b2fb69/BUILD_INFO.json) · [Phone checklist](MANUAL_TESTS.md#s2-complete-portable-backup-phone-checks)
+
+Package `com.mrayover.practicelogger.app` and permanent certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` verified against build93. APK SHA-256 `4c54b5b0bba79e3cd973798e46050637e6e00dc14daefa880d9081679731a19f`. ZIP SHA-256 `48954060259b8f6de53648a57c1b7e7bc85649ecc80005ae31ef0ea21c0f3905`. All 67 unsigned payload entries match the signed APK. The distribution ZIP passed round-trip verification and 438 prior APK/ZIP files retained their hashes.
+
+## Implemented backup and recovery
+
+Complete ZIP v1 contains durable practice records, original media, audio annotations, portable preferences and standalone activity. Save As reports whether the destination passed byte read-back. A supported selected folder publishes a verified copy in Backups. Restore previews the validated archive and only applies to an empty installation. Room 17 adds one internal commit witness with explicit 16→17 migration. Legacy JSON still writes v7 and reads v1–v7. [Format, limits and recovery](BACKUP_FORMAT.md#complete-portable-zip-v1)
+
+## Verified S2 gates
+
+- [Build94 CI](https://github.com/mrayover/practice.logger/actions/runs/42085700439) compiled debug, release and instrumentation APKs and passed 57 scoped unit tests with zero failures or skips. Room 16 and 17 exports match the tracked files. The 16→17 upgrade retained existing rows. The ZIP inventory matched every column in all 18 durable tables.
+- [API 26](https://github.com/mrayover/practice.logger/actions/runs/42084771822) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/42083876310) each passed 11 instrumentation checks plus an intentional post-commit process kill. One installation saved through the system picker, a fresh installation restored through the picker, and a cold process restart verified all logical records and SHA-256 for all seven originals. The fixture included a two-page canonical PDF, canonical image, two-page legacy PDF, canonical microphone reference shared by two Blocks, M4A free take, WAV loop and imported MP3. Native rendering and playback, independent markers, A–B and playback state, paused unfinished practice, portable settings, edits and time totals passed. The restored total was 72,666 ms before the post-restore practice checkpoint.
+- Failure checks exercised commit rollback, interrupted promotion, committed preference recovery, restart with a pending journal, cancellation and populated-target protection. Archive checks covered malformed paths, duplicate or missing entries, bad hashes, versions, invalid relationships, expanded-size limits and injected low storage. Destination checks covered unavailable access and simulated write/close failures. Legacy JSON v1–v7 decoding and the v7 export and restore workflow passed.
+- [Local selected-folder test](https://github.com/mrayover/practice.logger/actions/runs/42084890480) verified a ZIP under Backups alongside S1 audio export. The first round-trip jobs timed out while installing the audio fixture encoder. The pinned encoder resolved setup. The first API 26 retry passed the normal round trip and stopped on the journal-check shell command. The corrected runner completed recovery.
+
+Owner-phone install-over, Drive/OneDrive behavior and actual cloud synchronization remain open. The emulator verifies native playback start and progress. Physical audio and provider checks are in the phone checklist.
+
+**O1 — Block-Local Practice Overlay Implementation** is the next implementation milestone and awaits a separate assignment.
+
+## Retained O0 and build93 history
+
+O0 completed the [roadmap integration](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [overlay architecture](docs/PRACTICE_OVERLAY_SPEC.md). The [deferred lifecycle and insights register](PRACTICE_LOGGER_V1_MASTER_PLAN.md#deferred-practice-lifecycle-and-insights) records future design decisions.
 
 ## Signed Home footer correction
 
