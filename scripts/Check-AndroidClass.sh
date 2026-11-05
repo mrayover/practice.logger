@@ -13,6 +13,9 @@ if [[ "${TARGET_TEST_CLASS:-}" == *ImportedAudioWorkflowTest* || "$suite" == app
   bash scripts/Prepare-AudioFixtures.sh
 fi
 bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+if [[ "${TARGET_TEST_CLASS:-}" == *PortableRestoreTest* ]]; then
+  cp app/schemas/com.mrayover.practicelogger.BlockDatabase/17.json app/build/targeted-schema17.json
+fi
 if [ -n "$suite" ]; then
   bash scripts/Check-CurrentFeatures.sh "$suite" "$TARGET_API"
   exit 0

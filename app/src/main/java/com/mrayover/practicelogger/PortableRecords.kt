@@ -169,7 +169,7 @@ internal class PortableRecords(val payload: JSONObject) {
     /** Validate all PKs, unique indexes, FKs and role triggers on a separate empty database. */
     suspend fun validateRelationships(context: Context) {
         val scratch = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java)
-            .addCallback(portableConstraintCallback).build()
+            .addCallback(mediaConstraintCallback).build()
         try {
             scratch.withTransaction {
                 val sql = scratch.openHelper.writableDatabase
@@ -180,7 +180,7 @@ internal class PortableRecords(val payload: JSONObject) {
     }
 }
 
-internal val portableConstraintCallback = object : androidx.room.RoomDatabase.Callback() {
+internal val mediaConstraintCallback = object : androidx.room.RoomDatabase.Callback() {
     override fun onCreate(db: SupportSQLiteDatabase) {
         installBlockMediaConstraints(db)
         installBlockAudioConstraints(db)

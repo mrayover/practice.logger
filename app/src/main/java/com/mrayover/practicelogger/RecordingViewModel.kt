@@ -35,6 +35,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     var countInTotal by mutableLongStateOf(4L); private set
     private val countInPreferences = CountInPreferences(app)
     var defaultCountIn by mutableLongStateOf(countInPreferences.read()); private set
+    internal fun reloadCountIn() { defaultCountIn = countInPreferences.read() }
     fun saveDefaultCountIn(text: String) = work {
         val value = text.trim().toLongOrNull()
         if (value == null || value <= 0) { message = "Enter a positive whole count-in beat count."; return@work }

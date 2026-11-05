@@ -69,14 +69,7 @@ internal data class PortableOriginal(
         }
     }
 
-    fun file(root: File): File {
-        val directory = File(root, store)
-        return File(directory, name).also { file ->
-            require(directory.canonicalFile.parentFile == root.canonicalFile && file.canonicalFile == File(directory.canonicalFile, name)) {
-                "Invalid private media path."
-            }
-        }
-    }
+    fun file(root: File): File = portableMediaFile(root, store, name)
 
     suspend fun validateFile(file: File, db: BlockDatabase) {
         require(file.isFile && file.length() in 1..limit && (bytes == null || file.length() == bytes)) {
@@ -95,6 +88,15 @@ internal data class PortableOriginal(
             take && row.getString("mode") == "FREE" -> require(recordedDuration(file) == row.getLong("durationMs"))
             else -> require(inspectImportedAudio(file, name.substringAfterLast('.')) == row.getLong("durationMs"))
         }
+    }
+}
+
+internal fun portableMediaFile(root: File, store: String, name: String): File {
+    require(store in setOf("recordings", "block-images", "media-library") && generatedMediaName.matches(name))
+    val directory = File(root, store)
+    return File(directory, name).also { file ->
+        require(directory.canonicalFile == File(root.canonicalFile, store) &&
+            file.canonicalFile == File(directory.canonicalFile, name)) { "Invalid private media path." }
     }
 }
 

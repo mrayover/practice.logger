@@ -18,6 +18,7 @@ class ThemePreferences(private val preferences: SharedPreferences) {
     private val saved = MutableStateFlow(read())
     val choice = saved.asStateFlow()
     private fun read() = ThemeChoice.fromId(runCatching { preferences.getString("palette", null) }.getOrNull())
+    internal fun reload() { saved.value = read() }
     @Synchronized fun save(value: ThemeChoice) {
         val previous = saved.value
         if (!preferences.edit().putString("palette", value.id).commit()) {

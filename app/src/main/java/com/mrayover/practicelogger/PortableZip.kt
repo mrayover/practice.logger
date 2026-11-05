@@ -61,6 +61,7 @@ internal data class VerifiedPortableZip(
     val records: PortableRecords,
     val preferences: PortablePreferences,
     val originals: List<PortableOriginal>,
+    val inventory: Map<String, PortableEntry>,
     val mediaBytes: Long,
     val appVersion: String
 )
@@ -194,7 +195,7 @@ internal class PortableZip(
                         zip.setLevel(Deflater.DEFAULT_COMPRESSION)
                         @Suppress("DEPRECATION")
                         val app = context.packageManager.getPackageInfo(context.packageName, 0)
-                        val manifest = JSONObject().put("format", FORMAT).put("version", 1).put("roomSchema", 16)
+                        val manifest = JSONObject().put("format", FORMAT).put("version", 1).put("roomSchema", 17)
                             .put("appVersion", app.versionName ?: "unknown").put("appVersionCode", app.versionCode)
                             .put("counts", records.counts).put("entries", manifestEntries)
                             .toString().toByteArray(Charsets.UTF_8)
@@ -245,7 +246,7 @@ internal class PortableZip(
             }
             val manifest = metadata(MANIFEST)
             require(manifest.keys().asSequence().toSet() == setOf("format", "version", "roomSchema", "appVersion", "appVersionCode", "counts", "entries"))
-            require(manifest.get("format") == FORMAT && manifest.get("version") == 1L && manifest.get("roomSchema") == 16L) {
+            require(manifest.get("format") == FORMAT && manifest.get("version") == 1L && manifest.get("roomSchema") in setOf(16L, 17L)) {
                 "Unsupported portable backup format or version."
             }
             val appVersion = manifest.get("appVersion") as String
@@ -290,7 +291,7 @@ internal class PortableZip(
                     original.validateFile(file, db)
                 }
             }
-            VerifiedPortableZip(data, settings, originals, mediaBytes, appVersion)
+            VerifiedPortableZip(data, settings, originals, listed - RECORDS, mediaBytes, appVersion)
         }
     }
 

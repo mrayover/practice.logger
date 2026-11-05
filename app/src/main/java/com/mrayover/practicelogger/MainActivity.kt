@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,12 +51,36 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         updateThemeWindow(initial)
         setContent {
+            var ready by remember { mutableStateOf(false) }
+            var recoveryError by remember { mutableStateOf(false) }
+            var attempt by remember { mutableIntStateOf(0) }
+            LaunchedEffect(attempt) {
+                recoveryError = false
+                try {
+                    PortableRestore.beforeAppStarts(applicationContext)
+                    themePreferences.reload()
+                    ready = true
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    recoveryError = true
+                }
+            }
             val choice by themePreferences.choice.collectAsStateWithLifecycle()
             val systemDark = isSystemInDarkTheme()
             val palette = resolvePalette(choice, systemDark)
             SideEffect { updateThemeWindow(palette) }
             CompositionLocalProvider(LocalThemePreferences provides themePreferences) {
-                PracticeTheme(choice, systemDark) { CatalogApp() }
+                PracticeTheme(choice, systemDark) {
+                    if (ready) CatalogApp(onRestoreAppearance = themePreferences::reload)
+                    else Column(Modifier.fillMaxSize().background(palette.scheme.background)
+                        .safeDrawingPadding().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        if (recoveryError) {
+                            Text("Restore recovery needs attention. Check that private storage is available, then retry.")
+                            Button(onClick = { attempt++ }) { Text("Retry recovery") }
+                        } else Text("Opening practice.logger…")
+                    }
+                }
             }
         }
     }
@@ -92,7 +117,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Suppress("DEPRECATION")
-@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel()) {
+@Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel(), onRestoreAppearance: () -> Unit = {}) {
+    val backup: BackupViewModel = viewModel()
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -177,6 +203,11 @@ class MainActivity : ComponentActivity() {
     Surface(Modifier.fillMaxSize().testTag("app-surface")) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         fun openFromHeader(destination: String) {
+            if (page == "backup") {
+                if (backup.navigationBlocked) return
+                backup.cancel()
+                backup.cancelZip()
+            }
             headerDestination = destination
             if (destination == "audio-settings" && page != "audio-settings") settingsReturn = page
             if (page == "log") {
@@ -186,7 +217,7 @@ class MainActivity : ComponentActivity() {
             } else { focus.clearFocus(force = true); keyboard?.hide(); page = destination }
         }
         if (page != "transcribe" && (page != "media-library" || !mediaWorkspace)) PracticeBanner(onHome = { openFromHeader("home") }, onSettings = { openFromHeader("audio-settings") },
-            enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording")
+            enabled = (page == "focus" || (!recordings.recording && !recordings.busy)) && recordingsBlockId == null && page != "free-recording" && (page != "backup" || !backup.navigationBlocked))
         Box(Modifier.weight(1f).fillMaxWidth().then(
             if (page == "transcribe" || (page == "media-library" && mediaWorkspace)) Modifier
             else Modifier.consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)))) {
@@ -234,7 +265,7 @@ class MainActivity : ComponentActivity() {
             "recording" -> RecordingHome(catalog.blocks, onHome = { page = "home" }, onBlock = { recordingsBlockId = it }, onFree = { freeRecordingStart = it; page = "free-recording" })
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
-            "backup" -> BackupScreen(onHome = { page = "home" })
+            "backup" -> BackupScreen(onHome = { page = "home" }, vm = backup, onRestored = { onRestoreAppearance(); recordings.reloadCountIn() })
             "practice-now" -> PracticeNowScreen(sessions, practice, onBack = { page = "home" },
                 onBuilder = { page = "builder" }, onRoutines = { page = "practice-routines" }, onTranscribe = { page = "transcribe" })
             "practice-routines" -> PracticeRoutinesScreen(catalog, routines, practice, onBack = { page = "practice-now" })
