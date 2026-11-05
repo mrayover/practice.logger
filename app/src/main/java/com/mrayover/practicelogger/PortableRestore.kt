@@ -229,7 +229,8 @@ internal class PortableRestore(
     }
 
     private fun syncDirectory(file: File) {
-        val fd = Os.open(file.absolutePath, OsConstants.O_RDONLY or OsConstants.O_DIRECTORY, 0)
+        check(file.isDirectory)
+        val fd = Os.open(file.absolutePath, OsConstants.O_RDONLY, 0)
         try { Os.fsync(fd) } finally { Os.close(fd) }
     }
 
