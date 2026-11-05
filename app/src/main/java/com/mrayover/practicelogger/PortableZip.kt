@@ -28,6 +28,7 @@ internal const val PORTABLE_ZIP_LIMIT = 3L * 1024 * 1024 * 1024
 internal const val PORTABLE_SPACE_RESERVE = 8L * 1024 * 1024
 private const val METADATA_LIMIT = 16L * 1024 * 1024
 private const val ENTRY_LIMIT = 12_000
+private const val VALUE_LIMIT = 500_000
 private const val FORMAT = "practice.logger.portable"
 private const val RECORDS = "records.json"
 private const val MANIFEST = "manifest.json"
@@ -94,7 +95,9 @@ internal suspend fun copyPortable(input: InputStream, output: OutputStream?, lim
 internal fun readPortableObject(bytes: ByteArray): JSONObject {
     val text = Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString()
     JsonReader(text.reader()).use { reader ->
+        var values = 0
         fun value(depth: Int): Any {
+            require(++values <= VALUE_LIMIT) { "Too many backup metadata values." }
             require(depth <= 12) { "Backup metadata nesting is too deep." }
             return when (reader.peek()) {
                 JsonToken.BEGIN_OBJECT -> JSONObject().apply {
@@ -140,8 +143,11 @@ internal class PortableZip(
                     val sql = db.openHelper.writableDatabase
                     val tables = JSONObject()
                     var estimate = 0L
+                    var values = portableTables.size + 16
                     for (table in portableTables) {
                         tables.put(table.name, table.snapshot(sql) { row ->
+                            values += row.length() + 1
+                            require(values <= VALUE_LIMIT) { "Too many backup record values." }
                             estimate += row.toString().toByteArray(Charsets.UTF_8).size + 1L
                             require(estimate <= METADATA_LIMIT) { "Portable backup records exceed 16 MiB." }
                         })

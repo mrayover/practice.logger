@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
+import java.io.File
+import java.util.UUID
 
 fun readBackup(input: InputStream): ByteArray {
     val bytes = java.io.ByteArrayOutputStream()
@@ -37,6 +39,14 @@ fun readBackup(input: InputStream): ByteArray {
 class BackupViewModel(app: Application, private val db: BlockDatabase) : AndroidViewModel(app) {
     constructor(app: Application) : this(app, BlockDatabase.appInstance(app))
     private val repository = BackupRepository(db)
+    private val storage = ExportStorage(app)
+    private val portable = PortableZip(app, db)
+    private val staging = File(app.filesDir, "portable-backup")
+    private var prepared: File? = null
+    var zipReady by mutableStateOf(false); private set
+    val hasSelectedFolder get() = storage.selected() != null
+    val unfinishedCopy get() = storage.unfinishedZipCopy()
+    var zipName by mutableStateOf(""); private set
     var busy by mutableStateOf(false); private set
     var message by mutableStateOf<String?>(null); private set
     var pending by mutableStateOf<BackupData?>(null); private set
@@ -48,10 +58,47 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
             catch (e: CancellationException) { throw e }
             catch (e: IllegalArgumentException) { message = e.message ?: "Invalid backup data." }
             catch (_: NonEmptyRestoreException) { message = "Restore needs an empty app. Your existing Blocks and practice history were kept. Use this backup on a new phone or spare empty installation." }
+            catch (e: IllegalStateException) { message = e.message ?: "Could not complete this backup operation." }
             catch (_: Exception) { message = "Could not complete this backup operation. Existing practice data was kept. Check the file, free space and access, then try again. Restore supports version 1, 2, 3, 4, 5, 6 and 7 backups up to 8 MiB and needs an empty app." }
             finally { busy = false }
         }
     }
+    fun prepareZip() = work {
+        discardPreparedZip()
+        zipName = "practice.logger-complete-${System.currentTimeMillis()}.zip"
+        val file = File(staging, "${UUID.randomUUID()}.zip")
+        val verified = withContext(Dispatchers.IO) { portable.create(file) }
+        prepared = file
+        zipReady = true
+        message = "Private ZIP verified with ${verified.originals.size} originals. Choose where to save it."
+    }
+
+    fun publishZip(uri: Uri?) {
+        val file = prepared ?: return
+        work {
+            val copy = if (uri == null) storage.saveZipInSelectedFolder(zipName, file)
+                else storage.saveZipAs(uri, zipName, file)
+            message = if (copy.readBack) "Backup saved and read-back verified at ${copy.location}. Cloud synchronization depends on the provider."
+                else "Backup copy written to ${copy.location}. The provider did not allow read-back verification. You can try another destination."
+            if (copy.readBack) discardPreparedZip()
+        }
+    }
+
+    fun cancelZip() {
+        if (!busy) discardPreparedZip()
+    }
+
+    private fun discardPreparedZip() {
+        prepared?.delete()
+        prepared = null
+        zipReady = false
+    }
+
+    override fun onCleared() {
+        discardPreparedZip()
+        super.onCleared()
+    }
+
     fun export(uri: Uri) = work {
         withContext(Dispatchers.IO) {
             val bytes = BackupCodec.encode(repository.snapshot())
@@ -80,16 +127,32 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
 }
 
 @Composable fun BackupScreen(onHome: () -> Unit, vm: BackupViewModel = viewModel()) {
+    val saveZip = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        uri?.let(vm::publishZip)
+    }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> uri?.let(vm::export) }
     val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::inspect) }
-    BackHandler { if (!vm.busy) { vm.cancel(); onHome() } }
+    BackHandler { if (!vm.busy) { vm.cancel(); vm.cancelZip(); onHome() } }
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-        Text("Save your Logs, Blocks, archived Blocks, Goals, Routines, practice history and unfinished sessions as a versioned JSON file. Choose a safe location using Android's file picker.")
+        Text("Complete ZIP backup", style = MaterialTheme.typography.titleLarge)
+        Text("Includes practice history, settings, original media and recordings. Keep the archive somewhere private.")
+        Button(onClick = vm::prepareZip, enabled = !vm.busy && !vm.zipReady) { Text("Prepare complete ZIP") }
+        if (vm.zipReady) {
+            Button(onClick = { saveZip.launch(vm.zipName) }, enabled = !vm.busy) { Text("Save ZIP as…") }
+            if (vm.hasSelectedFolder) {
+                OutlinedButton(onClick = { vm.publishZip(null) }, enabled = !vm.busy) { Text("Save ZIP to selected folder") }
+            }
+            TextButton(onClick = vm::cancelZip, enabled = !vm.busy) { Text("Discard prepared ZIP") }
+        }
+        vm.unfinishedCopy?.let { Text("A previous destination copy at $it may be incomplete.") }
+        HorizontalDivider()
+        Text("Legacy JSON backup", style = MaterialTheme.typography.titleLarge)
+        Text("Save your Logs, Blocks, Goals, Routines and practice history as a data-only JSON file.")
         Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")
         Text("Media Library originals, metadata, Block media associations and master annotations, Block-local audio settings and markers, reference images, PDFs, recordings and take labels are not included in JSON backups. Keep original images and PDFs separately; they cannot be restored from JSON. Export each take from its recordings list to keep a separate audio copy. Audio cannot be restored from this JSON file.")
         Text("Standalone Transcribe activities and their practice time are also excluded from JSON backups.")
-        Button(onClick = { export.launch("practice.logger-backup-v6-" + System.currentTimeMillis() + ".json") }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
+        Button(onClick = { export.launch("practice.logger-backup-v7-" + System.currentTimeMillis() + ".json") }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
         Text("Restore is for an empty app, such as a new phone. It never replaces or merges existing data. Do not uninstall or clear your current app to try a restore. Supported limit: 8 MiB, 20,000 records per type.")
         OutlinedButton(onClick = { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Choose backup to restore") }
         if (vm.busy) Text("Working…")

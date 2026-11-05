@@ -97,6 +97,69 @@ internal class ExportStorage(context: Context) {
     suspend fun saveAs(uri: Uri, name: String, source: File, copy: suspend (java.io.OutputStream) -> Long): String =
         withContext(Dispatchers.IO) { operation.withLock { write(uri, name, source, copy) } }
 
+    data class ZipPublication(val location: String, val readBack: Boolean)
+
+    fun unfinishedZipCopy(): String? = prefs.getString("zip-pending-name", null)
+
+    suspend fun saveZipAs(uri: Uri, name: String, source: File): ZipPublication =
+        withContext(Dispatchers.IO) { operation.withLock { publishZip(uri, name, source) } }
+
+    suspend fun saveZipInSelectedFolder(name: String, source: File): ZipPublication = withContext(Dispatchers.IO) {
+        operation.withLock {
+            val destination = checkNotNull(selected()) { "Choose a backup folder in Settings or use Save As." }
+            val tree = destination.uri
+            val backups = folder(tree, root(tree), "Backups")
+            val siblings = children(tree, backups)
+            val finalName = uniqueExportName(name, siblings.map { it.name })
+            val pendingName = uniqueExportName("Pending-$finalName", siblings.map { it.name })
+            val pending = create(tree, backups, "application/zip", pendingName, siblings)
+            val prefix = "${destination.label}/${backups.name}/"
+            publishZip(pending, prefix + pendingName, source) {
+                val document = entries(pending).single()
+                check(document.flags and Document.FLAG_SUPPORTS_RENAME != 0) {
+                    "The selected folder does not support safe ZIP publication. Use Save As."
+                }
+                val latestNames = children(tree, backups).map { it.name }
+                val freshName = uniqueExportName(finalName, latestNames)
+                val renamed = checkNotNull(DocumentsContract.renameDocument(resolver, pending, freshName)) {
+                    "The provider could not publish the verified ZIP. Use Save As."
+                }
+                val safeUri = documentUri(tree, DocumentsContract.getDocumentId(renamed))
+                prefix + (query(safeUri, arrayOf(Document.COLUMN_DISPLAY_NAME), optional = true)
+                    .singleOrNull()?.firstOrNull() ?: freshName)
+            }
+        }
+    }
+
+    private suspend fun publishZip(uri: Uri, name: String, source: File,
+        finalize: (() -> String)? = null): ZipPublication {
+        try {
+            check(prefs.edit().putString("zip-pending-name", name).commit()) { "Could not record the pending backup copy." }
+            val size = source.length()
+            require(source.isFile && size in 1..PORTABLE_ZIP_LIMIT)
+            val written = checkNotNull(resolver.openOutputStream(uri, "wt")) { "The provider refused the backup file." }.use { output ->
+                source.inputStream().use { copyPortable(it, output, size) }.also { output.flush() }
+            }
+            check(written.bytes == size) { "The verified private ZIP could not be read completely." }
+            val input = try { resolver.openInputStream(uri) }
+            catch (_: java.io.FileNotFoundException) { null }
+            catch (_: SecurityException) { null }
+            val readBack = input?.use { copyPortable(it, null, size) }
+            if (readBack != null) check(readBack == written) { "The destination ZIP failed integrity verification." }
+            currentCoroutineContext().ensureActive()
+            check(finalize == null || readBack != null) { "The selected folder cannot verify the ZIP. Use Save As." }
+            val location = finalize?.invoke() ?: name
+            prefs.edit().remove("zip-pending-name").commit()
+            return ZipPublication(location, readBack != null)
+        } catch (failure: Exception) {
+            val removed = runCatching { DocumentsContract.deleteDocument(resolver, uri) }.getOrDefault(false)
+            if (removed) prefs.edit().remove("zip-pending-name").commit()
+            if (failure is CancellationException) throw failure
+            val cleanup = if (removed) "Incomplete copy removed." else "A partial copy may remain at $name."
+            throw IllegalStateException("${failure.message ?: "Backup copy failed."} $cleanup", failure)
+        }
+    }
+
     private suspend fun write(uri: Uri, path: String, source: File, copy: suspend (java.io.OutputStream) -> Long): String {
         try {
             check(prefs.edit().putString("pending-name", path).putString("pending-uri", uri.toString()).commit()) {

@@ -40,6 +40,18 @@ class PortableZipCreationTest {
                 val entry = zip.getEntry(verified.originals.single().path)
                 assertArrayEquals(png.readBytes(), zip.getInputStream(entry).use { it.readBytes() })
             }
+            val external = File(root, "copy.zip").apply { check(createNewFile()) }
+            val publisher = ExportStorage(context)
+            val copy = publisher.saveZipAs(android.net.Uri.fromFile(external), external.name, archive)
+            assertTrue(copy.readBack)
+            assertArrayEquals(archive.readBytes(), external.readBytes())
+            assertTrue(runCatching {
+                publisher.saveZipAs(android.net.Uri.parse("content://invalid.s2/backup"), "denied.zip", archive)
+            }.isFailure)
+            assertEquals("denied.zip", publisher.unfinishedZipCopy())
+            publisher.saveZipAs(android.net.Uri.fromFile(external), external.name, archive)
+            assertNull(publisher.unfinishedZipCopy())
+
             val legacyData = BackupRepository(db).snapshot()
             assertEquals(legacyData, BackupCodec.decode(BackupCodec.encode(legacyData)))
             val truncated = File(root, "truncated.zip")
