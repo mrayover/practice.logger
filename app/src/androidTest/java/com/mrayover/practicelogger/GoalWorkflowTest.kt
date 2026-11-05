@@ -45,6 +45,10 @@ class GoalWorkflowTest {
             shown("1. Second Goal · 0%"); captureStage3("goal-02-management")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("1. Second Goal · 0%"); shown("2. Goal workflow edited · 37%")
             captureStage3("goal-03-home")
+            runBlocking {
+                val saved = BlockDraft.from(db.blocks().find(b)!!)
+                BlockRepository(db).save(b, saved.copy(primaryGoalId = id, primaryGoalChanged = true))
+            }
             click("2. Goal workflow edited · 37%")
             click("Practice Goal"); shown("Start"); shown("Goal: Goal workflow edited")
             click("Start"); shown("Pause")
@@ -53,6 +57,20 @@ class GoalWorkflowTest {
             val first = runBlocking { db.goals().readSessions().single { it.goalId == id }.sessionId }
             val committed = runBlocking { db.sessions().find(first)!! }
             assertTrue(committed.activeMs > 0)
+            val placementId = committed.current!!.id
+            val snapshot = PlacementGoalSnapshot(placementId, id, 2)
+            runBlocking {
+                assertEquals(snapshot, db.goalAttribution().snapshot(placementId))
+                val other = db.goals().readAll().single { it.goal.title == "Second Goal" }.goal.id
+                val saved = BlockDraft.from(db.blocks().find(b)!!)
+                BlockRepository(db).save(b, saved.copy(primaryGoalId = other, primaryGoalChanged = true))
+            }
+            click("Practice Now"); shown("Continue Session")
+            compose.onNodeWithTag("continue-session-$first").scrollIfNeeded().performClick()
+            click("Resume")
+            compose.waitUntil(15000) { runBlocking { db.sessions().find(first)!!.activeMs > committed.activeMs } }
+            click("Pause"); leavePracticeForLater(compose); shown("Practice Now")
+            val resumed = runBlocking { db.sessions().find(first)!! }
             click("2. Goal workflow edited · 37%"); click("Practice Goal"); shown("Start")
             click("Complete"); shown("Session Summary"); shown("Goal: Goal workflow edited")
             captureStage3("goal-04-summary")
@@ -65,7 +83,10 @@ class GoalWorkflowTest {
             runBlocking {
                 assertEquals(draft, db.sessions().find(draft.session.id))
                 existing.forEach { assertEquals(it, db.sessions().find(it.session.id)) }
-                assertEquals(committed, db.sessions().find(first))
+                assertEquals(resumed, db.sessions().find(first))
+                assertEquals(snapshot, db.goalAttribution().snapshot(placementId))
+                val withoutTime = db.goals().readSessions().single { it.goalId == id && it.sessionId != first }
+                assertNull(db.goalAttribution().snapshot(db.sessions().find(withoutTime.sessionId)!!.current!!.id))
                 assertEquals(2, db.goals().readSessions().count { it.goalId == id })
                 assertEquals(2, db.goals().find(id)!!.blocks.size)
                 assertEquals(listOf(id), db.goals().readSessions().filter { it.sessionId == first }.map { it.goalId })
