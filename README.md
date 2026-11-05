@@ -67,13 +67,17 @@ Home shows **Total practice** below the main navigation when practice time is av
 
 Focused Practice → Loop Setup → **Add Backing Track** disables musical creation fields and replaces Record Loop with Choose file/Save. Supported: MP3, M4A(AAC), ordinary PCM16 WAV mono/stereo8–96kHz, up to50MiB/15minutes. Validated filename/duration appear; Save adds/selects the existing loop collection item without autoplay. Saved imports retain their type when the checkbox changes, survive restart and share rename/delete/export. Playback repeats the actual file with the existing Stop/focus/background safeguards, independent of BPM/count-in. Ordinary repeat may have audible codec/file/device joins; seamless playback is not certified. JSON still excludes audio. [Support and scoped evidence](docs/IMPORTED_AUDIO.md).
 
+## Practice Overlay
+
+Open a Block’s image or PDF and tap **Markings → Edit markings**. Choose Highlight, Cover or Focus and drag a rectangle. Select a marking to move, resize, recolor a highlight, or delete it. Use the menu to undo the last edit or hide markings. Hold **Peek** to see through covers and tap **Done** to return to zoom and pan. **Copy overlays to Block** copies all saved pages to a Block using the same Library original.
+
 ## Backup and restore
 
-Open **Tools → Backup and restore → Prepare complete ZIP** to save your practice data, original media and recordings, annotations, and portable settings. When the private archive is verified, use **Save ZIP as…** to choose a document or save to **Backups/** under a supported folder selected in Settings. A read-back-verified message confirms the provider-visible copy. Check separately that a cloud provider has finished syncing. Save any open edits before preparing the archive.
+Open **Tools → Backup and restore → Prepare complete ZIP** to save your practice data, original media and recordings, editable practice markings, audio annotations, and portable settings. When the private archive is verified, use **Save ZIP as…** to choose a document or save to **Backups/** under a supported folder selected in Settings. A read-back-verified message confirms the provider-visible copy. Check separately that a cloud provider has finished syncing. Save any open edits before preparing the archive.
 
 On a separate empty installation, choose **Choose complete ZIP to restore**, review the preview, and confirm. The app rejects populated targets and opens restored unfinished practice paused. Keep the ZIP private because it includes your recordings and notes. Export-folder access must be selected again on the new device. Unsaved work and temporary audio are outside the archive.
 
-**Legacy JSON** still writes v7 and reads v1–v7, up to 8 MiB. It carries data such as Logs, Blocks, Routines, Goals and session history. Use the ZIP for originals, recordings, media links and annotations, standalone Transcribe activity and portable settings. See [backup format, limits and recovery](BACKUP_FORMAT.md).
+**Legacy JSON** still writes v7 and reads v1–v7, up to 8 MiB. It carries data such as Logs, Blocks, Routines, Goals and session history. Use the complete ZIP v2 for originals, recordings, media links, editable practice markings, audio annotations, standalone Transcribe activity and portable settings. The app also restores ZIP v1. See [backup format, limits and recovery](BACKUP_FORMAT.md).
 
 ## Historical P5 verification
 

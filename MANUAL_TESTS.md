@@ -222,3 +222,12 @@ A provider accepting the write does not establish cloud synchronization.
 3. If Drive or OneDrive is available, try each separately. Record which picker, write, read-back and folder operations succeed. Check that the saved file is visible from a second client after sync. For a disposable destination, try revoked access or an interrupted copy and check the app's cleanup or retry message.
 4. On a separate empty installation, choose the ZIP, verify the preview and cancel once. Reopen it and confirm restore. Restart the app. Check the same Blocks, Goal and Routine links, Logs, notes, practice totals, both independent audio annotation sets, PDF pages, recordings and imported loop. Confirm unfinished timers are paused and portable appearance/audio settings were applied. Select export-folder access again if needed.
 5. On the spare now-populated installation, try selecting the same archive again. Confirm the app refuses it and the restored data stays available.
+
+## O1 practice overlay phone checks
+
+- Install the permanent-key update over the current practice.logger app. Open existing Blocks, sessions and references to confirm your data is present.
+- Open **Reference Material → Markings → Edit markings** on a saved image or PDF. Draw Highlight, Cover and Focus rectangles. Drag a selected shape by its center and resize it from a corner. Change a highlight color, delete a shape and undo it.
+- Hold **Peek** over a page with a Cover, then release it. Confirm the cover returns. Try Hide/Show markings. Tap **Done** to return to pinch zoom and panning. Rotate and reopen the reference, and check alignment at enlarged text and with TalkBack.
+- On a multipage PDF, confirm that each shape appears on its own page. Copy the markings to another Block using the same Library original and edit one copy. Cancel and then confirm removal of a test reference with markings.
+- While recording in Focused Practice, edit or peek at a marking and change pages. Confirm the timer and recording continue and the Stop control stays reachable.
+- Save a complete ZIP and restore it on a separate empty installation. Reopen the app, find the expected markings and edit one. If you back up to Drive or OneDrive, confirm the provider finishes syncing before relying on the copy.

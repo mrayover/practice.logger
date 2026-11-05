@@ -1,14 +1,36 @@
-# Current state — S2 Complete Portable ZIP Backup and Verified Restore
+# Current state — O1 Practice Overlay
 
 Updated November 5, 2026 (America/Los_Angeles).
 
-## Signed S2 delivery
+## Signed O1 delivery
+
+**0.30.0/build95**, app source `ededd3f9e1e72744bad0e0de9ba53b583720f702`. Install over permanent-key build94. Run restore checks on a separate empty installation. [APK](dist/practice.logger-0.30.0-b95-ededd3f/practice.logger-0.30.0-b95-ededd3f.apk) · [ZIP](dist/practice.logger-0.30.0-b95-ededd3f.zip) · [Build info](dist/practice.logger-0.30.0-b95-ededd3f/BUILD_INFO.json) · [Owner-phone checks](MANUAL_TESTS.md#o1-practice-overlay-phone-checks)
+
+Package `com.mrayover.practicelogger.app` and permanent certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` match build94. APK SHA-256 `5d45c8324cac84598f1f03482f1abbb210d56e1db1fca922113c603d14f6c72c`. ZIP SHA-256 `123f5fd6cac3c87c322ffd38e6388f16ca15fadd42b75a3c0ea9b7099df85d97`. The signed APK matches all 67 unsigned payload entries. The distribution ZIP passed integrity and round-trip checks. All 444 prior APK and ZIP hashes match the session baseline.
+
+## Implemented overlay and recovery
+
+Highlight, Cover with Peek, and Focus use the existing viewer’s orientation-corrected fitted page and zoom and pan transform. Shapes support selection, movement, resizing, highlight colors, deletion, undo and visibility. Room 18 adds an explicit 17→18 migration and keeps markings bound to the exact Block and source. Copy gives shapes fresh IDs. Confirmed visual changes discard only the affected markings in the same transaction. [Practice Overlay scope and limits](docs/PRACTICE_OVERLAY_SPEC.md)
+
+Complete ZIP v2 preserves editable shapes, all S2 durable data and original media. ZIP v1 and JSON v1–v7 remain readable. JSON continues to write data-only v7. [ZIP v2 format and recovery](BACKUP_FORMAT.md#practice-overlay-zip-v2)
+
+## Verified O1 gates
+
+- [Build95 CI](https://github.com/mrayover/practice.logger/actions/runs/42115513257) compiled debug, release and instrumentation APKs. It passed 62 scoped unit tests. Full lint reported 5 errors and 36 warnings. The five errors match the build94 baseline by rule, message and source location. Compiler schemas 16–18 match Git. The Room 17 upgrade fixture retained its archived Block, legacy visual and restore witness.
+- [API 26 viewer](https://github.com/mrayover/practice.logger/actions/runs/42093603142) and [API 35 viewer at 200% text](https://github.com/mrayover/practice.logger/actions/runs/42093607030) passed three executions each. They covered shape edits, copy, Peek, paging, zoom, rotation, legacy replacement, cold reopen and editing while recording and the practice clock were active.
+- [API 26 round trip](https://github.com/mrayover/practice.logger/actions/runs/42114761036) and [API 35 round trip](https://github.com/mrayover/practice.logger/actions/runs/42114764615) passed six executions each plus deliberate process termination after commit. Separate empty installations restored 19 durable tables, five markings and seven original files. The fixture used a multipage PDF shared by two Blocks, a canonical image and a legacy PDF. A Cover moved in the restored viewer survived another cold start. Every original hash matched. The S2 history, settings and audio state also passed.
+- The first [API 26](https://github.com/mrayover/practice.logger/actions/runs/42113977058) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/42113981493) recovery jobs passed six checks each, including corruption, a ZIP v1 fixture, ZIP creation, rollback and recovery. The legacy JSON workflow then stopped on its completed-session fixture prerequisite. The reordered jobs passed it after seeding that data. JSON v1–v7 compatibility passed.
+- [Transcribe on API 26](https://github.com/mrayover/practice.logger/actions/runs/42114065270), [Transcribe on API 35](https://github.com/mrayover/practice.logger/actions/runs/42114071403) and [three metronome tests on API 35](https://github.com/mrayover/practice.logger/actions/runs/42114080004) passed. The full F1 regression was outside this assignment.
+
+Physical phone install-over, touch, TalkBack and provider checks remain pending. **G1 — Goal identity, primary link and colored Block cap** is next, subject to a separate assignment.
+
+## Retained signed S2 delivery
 
 **0.29.0/build94**, app source `9b2fb69a910dde4295e8b2062fb32284a6b759b8`. Install over permanent-key build93 to retain data. Restore tests belong on a separate empty installation. [APK](dist/practice.logger-0.29.0-b94-9b2fb69/practice.logger-0.29.0-b94-9b2fb69.apk) · [ZIP](dist/practice.logger-0.29.0-b94-9b2fb69.zip) · [Build info](dist/practice.logger-0.29.0-b94-9b2fb69/BUILD_INFO.json) · [Phone checklist](MANUAL_TESTS.md#s2-complete-portable-backup-phone-checks)
 
 Package `com.mrayover.practicelogger.app` and permanent certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` verified against build93. APK SHA-256 `4c54b5b0bba79e3cd973798e46050637e6e00dc14daefa880d9081679731a19f`. ZIP SHA-256 `48954060259b8f6de53648a57c1b7e7bc85649ecc80005ae31ef0ea21c0f3905`. All 67 unsigned payload entries match the signed APK. The distribution ZIP passed round-trip verification and 438 prior APK/ZIP files retained their hashes.
 
-## Implemented backup and recovery
+## S2 backup and recovery baseline
 
 Complete ZIP v1 contains durable practice records, original media, audio annotations, portable preferences and standalone activity. Save As reports whether the destination passed byte read-back. A supported selected folder publishes a verified copy in Backups. Restore previews the validated archive and only applies to an empty installation. Room 17 adds one internal commit witness with explicit 16→17 migration. Legacy JSON still writes v7 and reads v1–v7. [Format, limits and recovery](BACKUP_FORMAT.md#complete-portable-zip-v1)
 
@@ -20,8 +42,6 @@ Complete ZIP v1 contains durable practice records, original media, audio annotat
 - [Local selected-folder test](https://github.com/mrayover/practice.logger/actions/runs/42084890480) verified a ZIP under Backups alongside S1 audio export. The first round-trip jobs timed out while installing the audio fixture encoder. The pinned encoder resolved setup. The first API 26 retry passed the normal round trip and stopped on the journal-check shell command. The corrected runner completed recovery.
 
 Owner-phone install-over, Drive/OneDrive behavior and actual cloud synchronization remain open. The emulator verifies native playback start and progress. Physical audio and provider checks are in the phone checklist.
-
-**O1 — Block-Local Practice Overlay Implementation** is the next implementation milestone and awaits a separate assignment.
 
 ## Retained O0 and build93 history
 

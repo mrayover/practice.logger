@@ -4,7 +4,9 @@ O0 defines the contract. O1 delivers it after S2 has verified portable recovery 
 
 ## Interaction
 
-Use a lightweight layer over the single image or PDF already linked or attached to a practice Block.
+Open **Markings → Edit markings**, choose a tool, then drag a rectangle on the page. Tap a shape to select it. Drag inside it to move it, or drag its upper-left or lower-right handle to resize it. Use the Markings menu to change a highlight to yellow, blue or pink, delete the selected shape, undo the last edit, hide or show all shapes, and copy saved markings. Tap **Done** to resume ordinary zoom and pan. The page edges allow scrolling during editing. The menu and viewer provide named actions for selecting and placing shapes, moving, resizing and ending editing with accessibility services.
+
+Hold **Peek** to reveal covers on the current page. The accessibility action reveals covers for three seconds. Multiple Focus rectangles keep all of their openings clear. The surrounding dim layer sits over the source and below highlights and covers. Highlights and covers draw in saved order.
 
 | Tool | Behavior |
 |---|---|
@@ -40,7 +42,9 @@ O1 adds an explicit non-destructive Room migration from the then-current version
 
 In the same milestone, extend the S2 versioned ZIP manifest with overlay records and their relationship IDs. Restore the original bytes once per canonical asset and restore overlay geometry as editable records. Validate manifest and record versions, unique IDs, exact Block/reference relationships, supported type and appearance attributes, page indexes against the verified original, finite rectangle bounds and bounded per-page, per-Block and total counts. O1 must define finite limits shared by interactive writes and restore before shipping. Restore older supported ZIPs and legacy JSON through their existing compatibility paths. Older formats without overlays restore zero overlays. Reject unsupported or malformed overlay data before mutation and retain S2’s empty-target and all-or-nothing recovery protections.
 
-S2 covers the data available when it ships. It must keep stable Block and visual identities and allow this versioned extension. [Backup format](../BACKUP_FORMAT.md#future-o1-overlay-extension) records the handoff boundary.
+Room 18 adds `practice_overlays` through migration 17→18. A restrictive Block foreign key and database triggers tie each shape to its active source. The reference key is `library:<mediaId>` or `legacy:<generated filename>`. The same keys survive ZIP restore. The repository compares the current saved shape before applying an edit or its undo. Copy appends all saved pages to a Block using the same verified canonical source. A legacy attachment’s private filename identifies one Block’s attachment.
+
+The app and ZIP v2 share limits of 64 shapes per page, 256 per Block and 10,000 per installation. IDs are nonblank and at most 64 characters. Drawing order is unique within each page and ranges from 0 to 1,000,000,000. Highlights store one of three colors. Cover and Focus use their fixed appearances. ZIP v1 and legacy JSON restore without markings. [ZIP v2 layout and recovery](../BACKUP_FORMAT.md#practice-overlay-zip-v2)
 
 ## O1 acceptance
 

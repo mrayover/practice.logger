@@ -56,7 +56,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **S1** | Organized Audio Export (complete) | Delivered with focused local SAF verification | **Medium** |
 | **O0** | Practice Overlay Architecture and Roadmap Integration (complete) | Commit and publish the architecture and recovery contract before S2 | **Medium** |
 | **S2** | Complete Portable ZIP Backup and Verified Restore (complete) | Verified clean-install recovery and local SAF publication. Owner cloud-provider checks are pending | **High** |
-| **O1** | Block-Local Practice Overlay Implementation | After verified S2 and before G1. Pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance) including recovery and editing on an empty installation | **High** |
+| **O1** | Block-Local Practice Overlay Implementation (complete) | Build95 passed focused viewer and separate-install ZIP v2 recovery, restart and edit checks on API 26 and 35. Owner phone checks are pending. | **High** |
 | **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
@@ -283,7 +283,7 @@ S2 passed clean-install round trips and interruption recovery on API 26 and API 
 
 ### O1 — Block-Local Practice Overlay Implementation
 
-V1 includes Highlight, Cover with Peek, and Focus over the existing single image or PDF per Block. O1 reuses the viewer and delivers editable local records and their versioned ZIP recovery together. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) owns the detailed scope and acceptance checks.
+Build95 delivers Highlight, Cover with Peek, and Focus over the existing single image or PDF per Block. Room 18 and ZIP v2 preserve the editable local markings. Focused delivery and verification are recorded in [CURRENT_STATE](CURRENT_STATE.md). The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) owns the detailed scope and acceptance checks.
 
 ## 10. G1–G3 — V1 Goal colors, Block filtering and truthful statistics
 

@@ -2,6 +2,10 @@
 
 Updated 2026-11-05 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## O1 — Block-Local Practice Overlay Implementation
+
+Build95 delivers Highlight, Cover with Peek and Focus in the existing Block reference viewer. Room 18 stores editable Block-owned shapes and complete ZIP v2 preserves them with the original media. [Overlay scope](docs/PRACTICE_OVERLAY_SPEC.md) · [Verification and delivery](CURRENT_STATE.md)
+
 ## S2 — Complete Portable ZIP Backup and Verified Restore
 
 S2 delivers ZIP v1 with original media, committed practice data, editable audio annotations and portable preferences. Restore validates and previews the archive, enforces an empty target and recovers across interrupted file promotion and database commit. [Format and recovery](BACKUP_FORMAT.md#complete-portable-zip-v1) · [Delivery and focused verification](CURRENT_STATE.md)
@@ -53,7 +57,7 @@ Explicitly assigned November3,2026. Implements dedicated Library image/PDF previ
 
 ## L1 — Canonical Media Library/storage
 
-Owner explicitly assigned L1 and confirmed build69 camera/gallery works on their phone on November3,2026. Room12 adds indexed media_assets through11→12, with independent originals in files/media-library and shared existing validators. Home Library now imports/manages/searches/filters/sorts/renames/deletes supported visual/audio media. Legacy references, takes, playback/export and deletion restrictions remain unchanged; L3 retains safe legacy take coexistence and only retires legacy visuals after confirmed canonical replacement; no automatic adoption or byte copying. JSON7/readers1–7 stay media-excluding; Library-only installs now block restore. See [storage implementation](docs/MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for actual focused verification/delivery. L2 now delivers previews/master annotations; Block links are delivered in L3; complete ZIP backup remains later scope.
+Owner explicitly assigned L1 and confirmed build69 camera/gallery works on their phone on November3,2026. Room12 adds indexed media_assets through11→12, with independent originals in files/media-library and shared existing validators. Home Library now imports/manages/searches/filters/sorts/renames/deletes supported visual/audio media. Legacy references, takes, playback/export and deletion restrictions remain unchanged; L3 retains safe legacy take coexistence and only retires legacy visuals after confirmed canonical replacement; no automatic adoption or byte copying. JSON7/readers1–7 stay media-excluding; Library-only installs now block restore. See [storage implementation](docs/MEDIA_LIBRARY_STORAGE.md) and CURRENT_STATE for actual focused verification/delivery. L2 now delivers previews/master annotations; Block links are delivered in L3; S2 later delivered complete ZIP backup.
 
 ## Owner-assigned reference photo refinement
 
@@ -210,7 +214,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-O0 documents the Practice Overlay contract in the [master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md). S2 is complete. **O1 — Block-Local Practice Overlay Implementation** awaits a separate assignment. See [CURRENT_STATE](CURRENT_STATE.md) for signed S2 delivery and the owner phone checks.
+The next implementation milestone is **G1 — Goal identity, primary link and colored Block cap**, subject to a separate assignment. See [CURRENT_STATE](CURRENT_STATE.md) for O1 delivery and the owner phone checks.
 
 ## Increment 3 — delivered 2026-10-29
 
