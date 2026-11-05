@@ -6,6 +6,16 @@ O0 is complete. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) puts O1 
 
 Room remains at schema 16 and the legacy JSON writer remains at version 7. **Next implementation assignment: S2 — Complete Portable ZIP Backup and Verified Restore.** O1 follows verified S2.
 
+## Signed Home footer correction
+
+**0.28.1/build93**, app source `6e2c29d42254f69ce793be287645054e5bfdcf75`. Install over build92 to retain existing data. [APK](dist/practice.logger-0.28.1-b93-6e2c29d/practice.logger-0.28.1-b93-6e2c29d.apk) · [ZIP](dist/practice.logger-0.28.1-b93-6e2c29d.zip) · [Build info](dist/practice.logger-0.28.1-b93-6e2c29d/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.28.1-b93-6e2c29d/PHONE_CHECKLIST.txt)
+
+Home removes the static Data usage row. Total practice remains a compact, non-clickable duration from the existing practice-time flow. The seven navigation buttons, Goals, Settings, theme and system insets use their existing paths. Short and enlarged-text layouts retain vertical scrolling. G3 will link Total practice to its statistics screen.
+
+[Build and scoped tests](https://github.com/mrayover/practice.logger/actions/runs/42068841202) compiled debug, release and instrumentation APKs, passed 50 unit tests and reproduced the Room 16 schema byte for byte. The Home test checked all seven destinations and the duration across navigation. [API 35 at 100%](https://github.com/mrayover/practice.logger/actions/runs/42068845784) verified the footer and buttons fit without scrolling in an approximate 400 × 890 dp portrait display, with clear space above Android navigation. [API 26 at 200%](https://github.com/mrayover/practice.logger/actions/runs/42069832923) verified the shorter 400 × 690 dp layout scrolls to the footer and keeps the same navigation usable. The first API 26 dispatch returned HTTP 500 and created no test job. Physical phone acceptance and comparison with the owner’s actual display and saved total remain pending.
+
+Package `com.mrayover.practicelogger.app` and permanent certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` verified against build92. APK SHA-256 `f87378c971f409e0dd01794c709f1f47a273c81e8317a6c1835197169e152ebe`. ZIP SHA-256 `2d6c266e4cc99425d53083a5f6f61c5b66c796b80e49064a1d0ee09cdc98cf15`. Verified all 67 unsigned payload entries, ZIP integrity and hashes for 432 earlier APK/ZIP files.
+
 ## Signed S1 delivery
 
 **0.28.0/build92**, app source `9c29261bc8fee96b11e3cf693f56eb668017bf7a`. Install over build91 without clearing app data. [APK](dist/practice.logger-0.28.0-b92-9c29261/practice.logger-0.28.0-b92-9c29261.apk) · [ZIP](dist/practice.logger-0.28.0-b92-9c29261.zip) · [Build info](dist/practice.logger-0.28.0-b92-9c29261/BUILD_INFO.json) · [Phone checklist](MANUAL_TESTS.md#s1--organized-audio-export-phone-checks)
