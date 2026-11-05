@@ -89,6 +89,24 @@ internal suspend fun BlockDatabase.visualIdentity(blockId: String): String? =
     blockMedia().find(blockId, MediaRole.VISUAL.name)?.let { "library:${it.mediaId}" }
         ?: images().find(blockId)?.let { "legacy:${it.fileName}" }
 
+internal data class VisualChangeCheck(val identity: String?, val hasMarkings: Boolean)
+
+internal suspend fun BlockDatabase.reviewVisualChange(block: String): VisualChangeCheck = withTransaction {
+    val identity = visualIdentity(block)
+    VisualChangeCheck(identity, identity != null && overlays().read(block, identity).isNotEmpty())
+}
+
+// Call inside the same transaction as the visual link change.
+internal suspend fun BlockDatabase.discardVisualMarkings(block: String, current: String?, reviewed: VisualChangeCheck?) {
+    check(reviewed == null || reviewed.identity == current) {
+        "The visual reference changed. Review it and try again."
+    }
+    if (current != null && overlays().read(block, current).isNotEmpty()) {
+        check(reviewed?.hasMarkings == true) { "Review and confirm discarding this Block’s saved markings first." }
+        overlays().discard(block, current)
+    }
+}
+
 /** A committed change can be inverted using the same compare-and-write path. */
 internal data class OverlayEdit(val before: PracticeOverlay?, val after: PracticeOverlay?) {
     val shape get() = checkNotNull(after ?: before)

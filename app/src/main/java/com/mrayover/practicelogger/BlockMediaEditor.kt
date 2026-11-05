@@ -41,7 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) vm.importLibrary(blockId, MediaRole.VISUAL, uri)
     }
-    val enabled = !busy && !vm.busy && pendingPhoto == null && vm.pendingVisualMedia == null
+    val enabled = !busy && !vm.busy && pendingPhoto == null && vm.pendingVisualChange == null
     for (role in MediaRole.entries) {
         val label = if (role == MediaRole.VISUAL) "Visual" else "Audio"
         val link = links.find { it.blockId == blockId && it.role == role.name }
@@ -67,7 +67,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             OutlinedButton(onClick = { photoOptions = true }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Take or Add a photo") }
             visual?.let { CollapsibleImageReference(it, vm) }
         }
-        if (link != null || (role == MediaRole.VISUAL && visual != null)) OutlinedButton(onClick = { removal = role.name }, enabled = enabled,
+        if (link != null || (role == MediaRole.VISUAL && visual != null)) OutlinedButton(onClick = { if (role == MediaRole.VISUAL) vm.unlink(blockId, role) else removal = role.name }, enabled = enabled,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("block-${role.name}-remove")) { Text("Remove ${label.lowercase()} reference") }
     }
     if (vm.busy) Text("Saving reference…")
@@ -77,19 +77,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         LibraryMediaPicker(role, links.find { it.blockId == blockId && it.role == name }?.mediaId,
             onClose = { selection = null }, onChoose = { id -> selection = null; vm.choose(blockId, role, id) })
     }
-    if (vm.pendingVisualMedia != null) AlertDialog(onDismissRequest = vm::cancelReplacement,
-        title = { Text("Replace existing Block-owned reference?") },
-        text = { Text("Attach the selected Library item, then remove the old Block-owned image/PDF and its private original. If attachment fails, the old reference stays. The Library item is kept if you cancel.") },
-        confirmButton = { TextButton(onClick = vm::confirmReplacement, enabled = !vm.busy) { Text("Replace old reference") } },
-        dismissButton = { TextButton(onClick = vm::cancelReplacement) { Text("Keep old reference") } })
+    vm.pendingVisualChange?.takeIf { it.block == blockId }?.let { change ->
+        val replacing = change.next != null
+        val title = when {
+            !replacing -> "Remove visual reference?"
+            change.legacy -> "Replace existing Block-owned reference?"
+            else -> "Replace visual reference?"
+        }
+        val detail = if (change.legacy) {
+            if (replacing) "Attaching the Library item retires the old Block-owned original. The Library item is kept if you cancel."
+            else "Removing this reference deletes the old Block-owned original."
+        } else "The Library original and other Blocks’ references are kept."
+        AlertDialog(onDismissRequest = vm::cancelVisualChange, title = { Text(title) },
+            text = { Text(if (change.reviewed.hasMarkings) "This discards this Block’s saved markings for the reference. $detail" else detail) },
+            confirmButton = { TextButton(onClick = vm::confirmVisualChange, enabled = !vm.busy) {
+                Text(if (replacing) "Replace old reference" else "Remove reference")
+            } },
+            dismissButton = { TextButton(onClick = vm::cancelVisualChange) {
+                Text(if (replacing) "Keep old reference" else "Cancel")
+            } })
+    }
     ConfirmBlockAudioChange(blockId, vm)
     removal?.let { name ->
         val role = MediaRole.valueOf(name)
-        val legacy = role == MediaRole.VISUAL && visual?.legacy != null
         AlertDialog(onDismissRequest = { removal = null }, title = { Text("Remove ${name.lowercase()} reference?") },
-            text = { Text(if (legacy) "This deletes the old Block-owned original. Keep your original separately; JSON backups exclude media."
-                else "Remove this Block's association? The Library original, master markers and other Blocks' links are kept.") },
-            confirmButton = { TextButton(onClick = { removal = null; if (legacy) vm.remove(blockId) else vm.unlink(blockId, role) }, enabled = !vm.busy) { Text("Remove reference") } },
+            text = { Text("Remove this Block's association? The Library original, master markers and other Blocks' links are kept.") },
+            confirmButton = { TextButton(onClick = { removal = null; vm.unlink(blockId, role) }, enabled = !vm.busy) { Text("Remove reference") } },
             dismissButton = { TextButton(onClick = { removal = null }) { Text("Cancel") } })
     }
     if (photoOptions) AlertDialog(onDismissRequest = { photoOptions = false }, title = { Text("Take or Add a photo") },

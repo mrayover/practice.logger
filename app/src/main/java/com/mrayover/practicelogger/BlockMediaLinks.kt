@@ -52,7 +52,12 @@ internal class ConfirmAudioLoss(val mediaId: String) : IllegalStateException()
 class BlockMediaRepository(private val db: BlockDatabase, private val library: MediaLibraryRepository,
     private val legacy: ImageReferenceRepository) {
     val links = db.blockMedia().observeAll()
-    suspend fun link(blockId: String, role: MediaRole, mediaId: String, replaceLegacy: Boolean = false, confirmedAudioId: String? = null) = withContext(Dispatchers.IO) {
+    suspend fun link(blockId: String, role: MediaRole, mediaId: String, replaceLegacy: Boolean = false, confirmedAudioId: String? = null) =
+        linkChecked(blockId, role, mediaId, replaceLegacy, confirmedAudioId)
+
+    internal suspend fun linkChecked(blockId: String, role: MediaRole, mediaId: String,
+        replaceLegacy: Boolean = false, confirmedAudioId: String? = null, reviewedVisual: VisualChangeCheck? = null
+    ) = withContext(Dispatchers.IO) {
         // Share the legacy file mutex so retirement cannot race a legacy import or recovery.
         legacy.commitCanonicalLink(blockId, role == MediaRole.VISUAL, replaceLegacy) {
             checkNotNull(db.blocks().find(blockId)) { "This Block is no longer available." }
@@ -64,17 +69,34 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
                 "The audio reference changed. Review the current reference and try again."
             }
             if (role == MediaRole.AUDIO) saveAudioLink(blockId, mediaId, previous?.mediaId, confirmedAudioId)
-            else db.blockMedia().save(BlockMediaLink(blockId, role.name, mediaId))
+            else {
+                val current = db.visualIdentity(blockId)
+                check(reviewedVisual == null || reviewedVisual.identity == current) {
+                    "The visual reference changed. Review it and try again."
+                }
+                if (current != "library:$mediaId") {
+                    db.discardVisualMarkings(blockId, current, reviewedVisual)
+                    db.blockMedia().save(BlockMediaLink(blockId, role.name, mediaId))
+                }
+            }
         }
     }
-    suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null) = withContext(Dispatchers.IO) {
+    suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null) =
+        unlinkChecked(blockId, role, confirmedAudioId)
+
+    internal suspend fun unlinkChecked(blockId: String, role: MediaRole, confirmedAudioId: String? = null,
+        reviewedVisual: VisualChangeCheck? = null
+    ) = withContext(Dispatchers.IO) {
         db.withTransaction {
             val previous = db.blockMedia().find(blockId, role.name)
             if (role == MediaRole.AUDIO) check(confirmedAudioId == null || confirmedAudioId == previous?.mediaId) {
                 "The audio reference changed. Review the current reference and try again."
             }
             if (role == MediaRole.AUDIO && previous != null) removeAudio(blockId, previous.mediaId, confirmedAudioId)
-            else db.blockMedia().remove(blockId, role.name)
+            else {
+                db.discardVisualMarkings(blockId, previous?.let { "library:${it.mediaId}" }, reviewedVisual)
+                db.blockMedia().remove(blockId, role.name)
+            }
         }
     }
 

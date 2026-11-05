@@ -11,50 +11,79 @@ import kotlinx.coroutines.flow.*
 import java.io.File
 
 class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
+    private val db = BlockDatabase.appInstance(app)
+    internal val overlays = PracticeOverlayRepository(db)
     val photoCapture = ReferencePhotoCapture(app)
-    val repository = ImageReferenceRepository(BlockDatabase.appInstance(app), File(app.filesDir, "block-images"))
+    val repository = ImageReferenceRepository(db, File(app.filesDir, "block-images"))
     val images = repository.images.catch { message = "Could not read references. Reopen the app to retry."; emit(emptyList()) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-    val library = MediaLibraryRepository(BlockDatabase.appInstance(app), File(app.filesDir, "media-library"))
-    val associations = BlockMediaRepository(BlockDatabase.appInstance(app), library, repository)
+    val library = MediaLibraryRepository(db, File(app.filesDir, "media-library"))
+    val associations = BlockMediaRepository(db, library, repository)
     val links = associations.links.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val assets = library.assets.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val visuals = combine(images, links, assets, ::resolveBlockVisuals)
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-    var pendingVisualMedia by mutableStateOf<String?>(null); private set
+    internal data class VisualChange(val block: String, val next: String?, val reviewed: VisualChangeCheck) {
+        val legacy get() = reviewed.identity?.startsWith("legacy:") == true
+    }
+    internal var pendingVisualChange by mutableStateOf<VisualChange?>(null); private set
     internal data class AudioChange(val block: String, val next: String?, val previous: String)
     internal var pendingAudioChange by mutableStateOf<AudioChange?>(null); private set
-    private var pendingBlock: String? = null
     suspend fun loadPage(reference: BlockVisualReference, page: Int): ReferencePage =
         reference.mediaId?.let { library.visualPage(it, page) } ?: repository.loadPage(checkNotNull(reference.legacy), page)
-    fun choose(blockId: String, role: MediaRole, mediaId: String) {
-        if (busy) return
-        if (role == MediaRole.VISUAL && images.value.any { it.blockId == blockId }) {
-            pendingBlock = blockId; pendingVisualMedia = mediaId
-        } else work {
-            if (role == MediaRole.AUDIO) changeAudio(blockId, mediaId)
-            else { associations.link(blockId, role, mediaId); message = "Visual reference attached from Library." }
-        }
+    fun choose(blockId: String, role: MediaRole, mediaId: String) = work {
+        if (role == MediaRole.AUDIO) changeAudio(blockId, mediaId)
+        else changeVisual(blockId, mediaId)
     }
-    fun cancelReplacement() { pendingVisualMedia = null; pendingBlock = null }
-    fun confirmReplacement() {
-        val block = pendingBlock ?: return; val media = pendingVisualMedia ?: return
-        cancelReplacement()
-        work {
-            try {
-                associations.link(block, MediaRole.VISUAL, media, replaceLegacy = true)
-                message = "Library visual attached. The old Block-owned reference was retired."
-            } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { message = "Could not attach the Library item. The old Block-owned reference and Library original were kept. Choose from Library to retry." }
+    private suspend fun changeVisual(blockId: String, next: String?) {
+        val change = VisualChange(blockId, next, db.reviewVisualChange(blockId))
+        if (next == null && change.reviewed.identity == null) return
+        if (change.reviewed.identity != next?.let { "library:$it" } &&
+            (next == null || change.legacy || change.reviewed.hasMarkings)) {
+            pendingVisualChange = change
+        } else applyVisualChange(change)
+    }
+    internal fun cancelVisualChange() { pendingVisualChange = null }
+    internal fun confirmVisualChange() {
+        val change = pendingVisualChange ?: return
+        cancelVisualChange()
+        work { applyVisualChange(change) }
+    }
+    private suspend fun applyVisualChange(change: VisualChange) {
+        val (block, next, reviewed) = change
+        message = when {
+            next != null -> {
+                associations.linkChecked(block, MediaRole.VISUAL, next, replaceLegacy = change.legacy,
+                    reviewedVisual = reviewed)
+                if (change.legacy) "Library visual attached. The old Block-owned reference was retired."
+                else "Visual reference attached from Library."
+            }
+            change.legacy -> if (repository.removeChecked(block, reviewed)) "Reference removed."
+                else "Reference removed. Private file cleanup will be retried when the app reopens."
+            else -> {
+                associations.unlinkChecked(block, MediaRole.VISUAL, reviewedVisual = reviewed)
+                "Visual reference removed from this Block. The Library original was kept."
+            }
         }
     }
     fun unlink(blockId: String, role: MediaRole) = work {
         if (role == MediaRole.AUDIO) changeAudio(blockId, null)
-        else {
-            associations.unlink(blockId, role)
-            message = "Visual reference removed from this Block. The Library original was kept."
-        }
+        else changeVisual(blockId, null)
     }
+
+    internal suspend fun overlayCopyTargets(reference: BlockVisualReference): List<Block> {
+        val compatible = db.blockMedia().readAll().filter {
+            it.role == MediaRole.VISUAL.name && it.mediaId == reference.mediaId && it.blockId != reference.blockId
+        }.mapTo(hashSetOf()) { it.blockId }
+        return if (compatible.isEmpty()) emptyList() else db.blocks().readAll().filter { it.id in compatible }
+    }
+
+    internal suspend fun copyOverlays(reference: BlockVisualReference, target: String): Int {
+        val loaded = loadPage(reference, 0)
+        loaded.bitmap.recycle()
+        return overlays.copy(reference, target, loaded.pageCount)
+    }
+
     internal fun cancelAudioChange() { pendingAudioChange = null }
     internal fun confirmAudioChange() {
         val change = pendingAudioChange ?: return
@@ -74,15 +103,12 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun attachImported(blockId: String, role: MediaRole, asset: MediaAsset) {
         try {
             require(role.accepts(asset.category)) { "Choose a compatible media type." }
-            if (role == MediaRole.VISUAL && repository.images.first().any { it.blockId == blockId }) {
-                pendingBlock = blockId; pendingVisualMedia = asset.id
-                message = "Imported into Library. Confirm replacement to attach it."
-            } else if (role == MediaRole.AUDIO) {
+            if (role == MediaRole.AUDIO) {
                 changeAudio(blockId, asset.id)
                 if (pendingAudioChange != null) message = "Imported into Library. Confirm replacement to attach it."
             } else {
-                associations.link(blockId, role, asset.id)
-                message = "Imported into Library and attached. JSON backups exclude media and associations."
+                changeVisual(blockId, asset.id)
+                if (pendingVisualChange != null) message = "Imported into Library. Confirm replacement to attach it."
             }
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (_: Exception) { message = "Imported into Library, but attachment did not complete. The Library item and previous Block reference were kept. Choose it from Library to retry." }
@@ -134,8 +160,4 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
     fun photoUnavailable() { message = "Could not open the camera or gallery. Try again, or use Add image or PDF." }
-    fun remove(blockId: String) = work {
-        message = if (repository.remove(blockId)) "Reference removed."
-            else "Reference removed. Private file cleanup will be retried when the app reopens."
-    }
 }

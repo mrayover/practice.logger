@@ -93,7 +93,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
                 val available = maxHeight.coerceAtLeast(1.dp)
                 PracticeScrollPanel(Modifier.fillMaxSize(), tag = "practice-reference-panel", reserveScrollbarSpace = false) {
                     PracticeImageReference(current.sourceBlockId, current.id, images, viewerMaxHeight = available,
-                        embeddedExpanded = true, fitAvailableHeight = true)
+                        embeddedExpanded = true, fitAvailableHeight = true, active = !suppressed && expanded == "reference")
                     if (current.referenceNotes.isNotBlank()) Text(current.referenceNotes, Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium)
                 }
             } else {

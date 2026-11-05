@@ -160,6 +160,13 @@ class BlockMediaWorkflowTest {
         assertTrue("Reference stays reachable during enlarged-text capture", (activeReference.bottom - activeReference.top).value >= 48f)
         page("Page 2 of 2"); assertTrue(recordings.recording); assertTrue(practice.running)
         compose.onNodeWithText("Previous page").scrollIfNeeded().performClick(); assertTrue(recordings.recording)
+        tag("overlay-tools").performClick(); click("Edit markings")
+        tag("overlay-tools").performClick(); click("Highlight")
+        compose.onNodeWithTag("overlay-layer").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions ->
+            assertTrue(actions.single { it.label == "Place Highlight in the center" }.action())
+        }
+        compose.waitUntil(15000) { runBlocking { db.overlays().read(a, "library:$pdf").singleOrNull()?.page == 0 } }
+        click("Done"); assertTrue(recordings.recording); assertTrue(practice.running)
         tag("practice-recording-stop").performClick(); compose.waitUntil(15000) { recordings.reviewTake != null && !recordings.busy }
         assertTrue(recordings.reviewTake!!.durationMs >= elapsed); shot("practice-review")
         acceptTemporaryTake(compose, recordings); leavePracticeForLater(compose)

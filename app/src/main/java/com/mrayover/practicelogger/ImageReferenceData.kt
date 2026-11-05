@@ -220,6 +220,11 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
                     check(!target.exists() && pending.renameTo(target)) { "Could not finish the reference file." }
                     try { db.withTransaction {
                         checkNotNull(db.blocks().find(blockId)) { "This Block is no longer available." }
+                        check(db.blockMedia().find(blockId, MediaRole.VISUAL.name) == null) {
+                            "Replace the current Library reference through the Block editor."
+                        }
+                        val current = db.images().find(blockId)?.let { "legacy:${it.fileName}" }
+                        db.discardVisualMarkings(blockId, current, null)
                         db.images().save(image)
                     } } catch (failure: Exception) {
                         // Retain on uncertain commit/read failure; recovery only removes known unreferenced files.
@@ -246,9 +251,16 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
                 if (visual) runCatching { cleanUnreferenced() }
             }
         }
-    suspend fun remove(blockId: String): Boolean = withContext(Dispatchers.IO + NonCancellable) {
+    suspend fun remove(blockId: String): Boolean = removeChecked(blockId)
+
+    internal suspend fun removeChecked(blockId: String, reviewedVisual: VisualChangeCheck? = null): Boolean =
+        withContext(Dispatchers.IO + NonCancellable) {
         filesMutex.withLock {
-            db.withTransaction { db.images().remove(blockId) }
+            db.withTransaction {
+                val current = db.images().find(blockId)?.let { "legacy:${it.fileName}" }
+                db.discardVisualMarkings(blockId, current, reviewedVisual)
+                db.images().remove(blockId)
+            }
             runCatching { cleanUnreferenced(); true }.getOrDefault(false)
         }
     }
