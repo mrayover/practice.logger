@@ -2,6 +2,8 @@ package com.mrayover.practicelogger
 
 import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
+import android.provider.DocumentsContract.Document
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -42,17 +44,13 @@ class OrganizedExportTest {
             check(device.wait(Until.hasObject(entry), 1000) ||
                 device.wait(Until.hasObject(documentsFolder), 3000) ||
                 device.wait(Until.hasObject(By.desc("Show roots")), 5000)) { "Local folder picker did not open" }
-            val root = when {
-                device.hasObject(entry) -> downloads
-                device.hasObject(documentsFolder) -> {
+            if (!device.hasObject(entry)) {
+                if (device.hasObject(documentsFolder)) {
                     device.findObjects(documentsFolder).last().click()
-                    documents
-                }
-                else -> {
+                } else {
                     device.findObject(By.desc("Show roots")).click()
                     checkNotNull(device.wait(Until.findObject(By.text("Downloads")), 10000))
                     device.findObjects(By.text("Downloads")).last().click()
-                    downloads
                 }
             }
             checkNotNull(device.wait(Until.findObject(entry), 10000)) { "Fixture folder is not visible" }.click()
@@ -84,10 +82,23 @@ class OrganizedExportTest {
                 assertTrue(copy(loop).contains("64beats 120bpm"))
                 for (extension in listOf("mp3", "m4a", "wav")) {
                     val imported = take.copy(id = UUID.randomUUID().toString(), mode = "IMPORTED_LOOP", fileName = "fixture.$extension")
-                    val name = copy(imported).substringAfterLast('/')
-                    val checksum = device.executeShellCommand("sha256sum '$root/Recordings/Same Block - $block/$date/$name'")
-                    assertEquals(java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
-                        .joinToString("") { "%02x".format(it) }, checksum.substringBefore(' '))
+                    val relativePath = copy(imported).substringAfter('/')
+                    val tree = destination.uri
+                    var id = DocumentsContract.getTreeDocumentId(tree)
+                    for (segment in relativePath.split('/')) {
+                        val children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, id)
+                        id = checkNotNull(context.contentResolver.query(children,
+                            arrayOf(Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME), null, null, null)).use { cursor ->
+                            val ids = mutableListOf<String>()
+                            while (cursor.moveToNext()) {
+                                if (cursor.getString(1) == segment) ids.add(cursor.getString(0))
+                            }
+                            ids.single()
+                        }
+                    }
+                    val uri = DocumentsContract.buildDocumentUriUsingTree(tree, id)
+                    val actual = checkNotNull(context.contentResolver.openInputStream(uri)).use { it.readBytes() }
+                    assertArrayEquals(bytes, actual)
                 }
                 try {
                     storage.export(destination, take, "Same Block", source) { output ->
