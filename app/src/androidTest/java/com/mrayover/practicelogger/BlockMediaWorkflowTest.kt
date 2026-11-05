@@ -129,9 +129,17 @@ class BlockMediaWorkflowTest {
         choose(MediaRole.AUDIO, audio); waitLink(a, MediaRole.AUDIO, audio)
         click("Cancel"); editor("L3 editor B")
         click("Show reference"); shown("reference-viewer")
+        tag("overlay-tools").performClick(); click("Edit markings")
+        tag("overlay-tools").performClick(); click("Focus")
+        compose.overlayAction("Place Focus in the center")
+        val legacyIdentity = "legacy:${legacy.fileName}"
+        compose.waitUntil(15000) { runBlocking { db.overlays().read(b, legacyIdentity).size == 1 } }
+        click("Done")
         choose(MediaRole.VISUAL, pdf); click("Keep old reference")
+        assertEquals(1, runBlocking { db.overlays().read(b, legacyIdentity).size })
         assertEquals(legacyHash, l1Hash(legacyFile)); assertNotNull(runBlocking { db.images().find(b) })
         choose(MediaRole.VISUAL, pdf); click("Replace old reference"); waitLink(b, MediaRole.VISUAL, pdf)
+        assertTrue(runBlocking { db.overlays().read(b, legacyIdentity).isEmpty() })
         assertFalse(legacyFile.exists()); choose(MediaRole.AUDIO, audio); waitLink(b, MediaRole.AUDIO, audio)
         compose.runOnIdle { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
         compose.waitUntil(15000) { compose.activity.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE }
@@ -162,9 +170,7 @@ class BlockMediaWorkflowTest {
         compose.onNodeWithText("Previous page").scrollIfNeeded().performClick(); assertTrue(recordings.recording)
         tag("overlay-tools").performClick(); click("Edit markings")
         tag("overlay-tools").performClick(); click("Highlight")
-        compose.onNodeWithTag("overlay-layer").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.CustomActions) { actions ->
-            assertTrue(actions.single { it.label == "Place Highlight in the center" }.action())
-        }
+        compose.overlayAction("Place Highlight in the center")
         compose.waitUntil(15000) { runBlocking { db.overlays().read(a, "library:$pdf").singleOrNull()?.page == 0 } }
         click("Done"); assertTrue(recordings.recording); assertTrue(practice.running)
         tag("practice-recording-stop").performClick(); compose.waitUntil(15000) { recordings.reviewTake != null && !recordings.busy }

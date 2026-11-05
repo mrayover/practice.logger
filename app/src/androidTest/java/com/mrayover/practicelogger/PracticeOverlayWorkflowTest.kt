@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.runBlocking
@@ -54,9 +55,7 @@ class PracticeOverlayWorkflowTest {
         }
         compose.waitUntil(15_000) { shapes().single().top > highlight.top }
         val moved = shapes().single()
-        layer.performSemanticsAction(SemanticsActions.CustomActions) { actions ->
-            assertTrue(actions.single { it.label == "Shrink marking" }.action())
-        }
+        compose.overlayAction("Shrink marking")
         compose.waitUntil(15_000) { shapes().single().right - shapes().single().left < moved.right - moved.left }
         tools("Highlight color · Blue")
         compose.waitUntil(15_000) { shapes().single().appearance == 1 }
@@ -115,9 +114,7 @@ class PracticeOverlayWorkflowTest {
 
     private fun place(tool: String) {
         shown(hasTestTag("overlay-layer"))
-        compose.onNodeWithTag("overlay-layer").performSemanticsAction(SemanticsActions.CustomActions) { actions ->
-            assertTrue(actions.single { it.label == "Place $tool in the center" }.action())
-        }
+        compose.overlayAction("Place $tool in the center")
     }
 
     private fun tools(action: String) {
@@ -134,4 +131,10 @@ class PracticeOverlayWorkflowTest {
         shown(hasText(label))
         compose.onNodeWithText(label).scrollIfNeeded().assertIsDisplayed().performClick()
     }
+}
+
+internal fun ComposeTestRule.overlayAction(label: String) {
+    val action = onNodeWithTag("overlay-layer").fetchSemanticsNode()
+        .config[SemanticsActions.CustomActions].single { it.label == label }
+    runOnIdle { assertTrue(action.action()) }
 }

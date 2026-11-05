@@ -145,7 +145,7 @@ private fun OverlayTool.label() = name.lowercase().replaceFirstChar { it.upperca
 
     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Box {
-            TextButton(onClick = { menu = true }, enabled = active, modifier = Modifier.testTag("overlay-tools")
+            TextButton(onClick = { workspace.peek(false); menu = true }, enabled = active, modifier = Modifier.testTag("overlay-tools")
                 .semantics {
                     stateDescription = when {
                         !workspace.visible -> "Hidden"
@@ -246,7 +246,10 @@ private val highlights = listOf(Color(0xFFFFD54F), Color(0xFF42D8FA), Color(0xFF
     val input = if (!enabled) Modifier else Modifier.pointerInput(workspace, transform, page, pages) {
         awaitEachGesture {
             val down = awaitFirstDown()
-            if (down.position !in transform.bounds) return@awaitEachGesture
+            // Keep the scroll panel reachable even if an enlarged page fills the viewport.
+            val scrollInset = 12.dp.toPx()
+            if (down.position !in transform.bounds ||
+                down.position.x < scrollInset || down.position.x > size.width - scrollInset) return@awaitEachGesture
             val tool = workspace.tool
             val start = transform.toPage(down.position)
             val radius = 24.dp.toPx()
@@ -262,7 +265,10 @@ private val highlights = listOf(Color(0xFFFFD54F), Color(0xFF42D8FA), Color(0xFF
                 corner != null -> selectedShape
                 else -> currentShapes.lastOrNull { start in it.rectangle() }
             }
-            if (tool == null) workspace.select(before?.id)
+            if (tool == null) {
+                workspace.select(before?.id)
+                if (before == null) return@awaitEachGesture
+            }
             val newShape = tool?.let { workspace.newShape(page, it, Rect.Zero) }
             down.consume()
             var committed: PracticeOverlay? = null
@@ -314,6 +320,7 @@ private val highlights = listOf(Color(0xFFFFD54F), Color(0xFF42D8FA), Color(0xFF
             else -> "${shapes.size} markings"
         }
         if (enabled) customActions = buildList {
+            add(CustomAccessibilityAction("Done editing markings") { workspace.endEdit(); true })
             workspace.tool?.let { tool ->
                 add(CustomAccessibilityAction("Place ${tool.label()} in the center") {
                     workspace.save(null, workspace.newShape(page, tool, Rect(.3f, .35f, .7f, .65f)), pages)
