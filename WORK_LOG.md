@@ -1031,3 +1031,9 @@ Implemented Settings → Storage and organized per-take SAF copies with stable B
 Signed 0.28.0/build92 from `9c29261bc8fee96b11e3cf693f56eb668017bf7a`. The build compiled three APK variants, passed 50 scoped unit tests and generated an identical Room 16 schema. Verified package/version, permanent certificate, APK payload and ZIP integrity, plus 426 earlier distribution APK/ZIP hashes.
 
 The API 26 and API 35 local SAF tests passed after test-only changes for picker navigation and replacing an API 26 shell checksum timeout with provider byte read-back. API 26 also passed the existing Block/standalone recording tests, including Save As. API 35's generic diagnostic passed the organized-export test before Record Reference failed on the missing generated audio fixture. Dedicated fixture-backed API 35 runs passed both Record Reference tests (41940462250) and both T3D tests (41940465228). Drive and OneDrive were untested. See [CURRENT_STATE](CURRENT_STATE.md) for evidence and [the phone checklist](MANUAL_TESTS.md#s1--organized-audio-export-phone-checks). S2 awaits separate assignment.
+
+## 2026-11-05 — O0 and Home footer
+
+Reviewed the mandatory efficiency procedure and verified local and remote main at `2e7be2684acd2e82923290c95243038f77a75b68`, signed build92, Room 16 and JSON 7. Completed O0 in the [master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) and [overlay specification](docs/PRACTICE_OVERLAY_SPEC.md). S2 covers existing data and O1 adds editable overlay records and ZIP recovery together. Captured the deferred practice lifecycle and insights decisions in the master plan.
+
+Removed the static Home Data usage row and retained the existing Total practice duration and scroll container. Added focused portrait and enlarged-text coverage. Build and delivery results belong in [CURRENT_STATE](CURRENT_STATE.md). S2 is the next separately assigned implementation milestone.

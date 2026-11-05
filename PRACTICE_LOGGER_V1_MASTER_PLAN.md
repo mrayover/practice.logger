@@ -1,10 +1,10 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is closed and owner accepted. L1–L3, K1 and T1–T2 are delivered. T3-0 locks the roadmap. T3A adds Practice Now choices and standalone Transcribe. T3B is next by separate assignment. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D and S1 are delivered, and O0 is complete. S2 is the next separately assigned implementation milestone. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
-**Current delivery:** T2, signed 0.23.0/build86. See [CURRENT_STATE](CURRENT_STATE.md) for exact source, artifacts and verification.
+**Current delivery:** See [CURRENT_STATE](CURRENT_STATE.md) for signed releases, artifacts and verification.
 
 > **Purpose.** Finish practice.logger as a dependable, offline-first Android application for daily music practice. V1 integrates reusable Blocks, sessions, recordings, reference materials, Goals and measured practice time, with export and full recovery. This document *supersedes the prior uncommitted separate pre-Library and Goal/Statistics proposals as the unified forward roadmap*. It does not erase verified implementation history in Git.
 
@@ -52,11 +52,15 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **T3B** | Standalone Timer and Goal Attribution | After T3A. Durable clock, aggregation, migration and restore checks | **High** |
 | **T3C** | Record Reference Directly in Transcribe | After T3B. Shared recorder, canonical save and safe Block replacement | **High** |
 | **T3D** | Concurrent Transcribe Playback and Free Record | Implemented. Physical Android microphone and playback verification pending | **High** |
-| **S0–S2** | **Storage & recovery**: feasibility gate, organized exports, complete backup/restore | Verify real Drive-provider behavior + round-trip restore before proceeding | **High** for backup; **Medium** for export UI |
+| **S0** | Storage feasibility and decisions (complete) | Recorded provider evidence and fallback decision | **Medium** |
+| **S1** | Organized Audio Export (complete) | Delivered with focused local SAF verification | **Medium** |
+| **O0** | Practice Overlay Architecture and Roadmap Integration (complete) | Commit and publish the architecture and recovery contract before S2 | **Medium** |
+| **S2** | Complete Portable ZIP Backup and Verified Restore | Verify provider behavior and complete round-trip restore for existing durable data | **High** |
+| **O1** | Block-Local Practice Overlay Implementation | After verified S2 and before G1. Pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance) including recovery and editing on an empty installation | **High** |
 | **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
-**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before G1 begins. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
+**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → G2 → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
 
 ### What is already implemented — do not rebuild it
 
@@ -258,6 +262,10 @@ practice.logger/
 - Exports copy bytes; **do not relocate/delete private originals**. Existing per-take export still works. Do not overwrite an existing file without deliberate confirmation; handle similarly named Blocks, duplicate takes, renamed Blocks and destination folder permission failures.
 - For failed/interrupted export, do not claim success or delete local audio; avoid leaving misleading partial files where safe cleanup is supported. Report the exact destination and user-friendly failure reason. Organizing exports by Block/date does **not** replace the app's local recording library.
 
+### O0 — Practice Overlay Architecture and Roadmap Integration
+
+The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines the Block-local interaction, storage and recovery contract. O0 is documentation-only. S2 delivers verified recovery of existing durable data and leaves a versioned path for O1 records.
+
 ### S2 — Complete portable ZIP backup and verified restore (High; V1 release-critical)
 
 - A true **complete** backup contains *all* durable V1 user data: Blocks, Goal/Block links/Goal history and snapshot attribution, Routines, sessions/placements, practice time including standalone activity records and their optional Goal/audio associations and historical attribution, Daily Logs, practice and session Notes, Media Library metadata and canonical PDFs/images/audio including microphone references (each original once), global markers/notes, Block-local markers/overrides, A–B selections, speed/position and stable media links, persisted keyboard settings if any, imported backing-track histories, recording/take metadata/labels and **actual MP3/M4A/WAV bytes**, settings where appropriate and stable IDs/relationships. Exclude temporary in-progress audio, caches and private secrets.
@@ -271,11 +279,15 @@ practice.logger/
 
 ---
 
+### O1 — Block-Local Practice Overlay Implementation
+
+V1 includes Highlight, Cover with Peek, and Focus over the existing single image or PDF per Block. O1 reuses the viewer and delivers editable local records and their versioned ZIP recovery together. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) owns the detailed scope and acceptance checks.
+
 ## 10. G1–G3 — V1 Goal colors, Block filtering and truthful statistics
 
 ### Current foundation; migrate conservatively
 
-Up to five active Goals, Goal ordering/completion, manual percentages, existing `goal_blocks` many-to-many links and explicit `session_goals` are implemented. At the T2 baseline, Goal time counts committed placements from explicitly Goal-associated sessions. T3B adds standalone activities to the same totals. G1–G3 retain broader Goal identity, filtering and historical reporting, counting each T3B activity once. `placements.activeMs` is actual committed time; Home's `Data usage` is placeholder. **Block tags are not implemented at current baseline**—do not assert otherwise or create a separate tag system without explicit approval.
+Up to five active Goals, Goal ordering/completion, manual percentages, existing `goal_blocks` many-to-many links and explicit `session_goals` are implemented. At the T2 baseline, Goal time counts committed placements from explicitly Goal-associated sessions. T3B adds standalone activities to the same totals. G1–G3 retain broader Goal identity, filtering and historical reporting, counting each T3B activity once. `placements.activeMs` is actual committed time; Home displays the existing Total practice duration. **Block tags are not implemented at current baseline**—do not assert otherwise or create a separate tag system without explicit approval.
 
 ### G1 — Goal identity, primary link and colored Block cap (High for migration, Medium for UI)
 
@@ -295,7 +307,7 @@ Transcribe remains ordinary Block practice: no separate transcription statistics
 
 ### G3 — Accurate time attribution and concise statistics (High for correctness)
 
-- Replace the Home **`Data usage`** placeholder with compact **total actual practice time**; tap opens one simple statistics view (no large dashboard). Include cumulative total, recent/weekly time where valid from stored timestamps, per-Block practice time and optionally top-practiced Blocks. Provide Goal detail with Goal total and relevant practice history.
+- Make the existing Home **Total practice** duration a link to the concise statistics view. Include cumulative total, recent/weekly time where valid from stored timestamps, per-Block practice time and optionally top-practiced Blocks. Provide Goal detail with Goal total and relevant practice history.
 - Use **distinct committed placement `activeMs`** for totals, including recorded active time of unfinished sessions; exclude configured-but-not-worked duration, pauses, backgrounds, pure metronome use and playback. A Block used multiple times counts its distinct placements, never duplicates a placement through joins.
 - New practice, whether ordinary, routine or Goal-launched, attributes a placement's recorded time to **its primary Goal at the time that placement first accrues actual time** (or equivalently stable snapshot). Null means unattributed. Store this historical snapshot or equivalent durable attribution; subsequent Block reassignment or Goal reorder/complete **must not rewrite historical attribution**.
 - Existing `session_goals` relates entire Goal-launched sessions to a Goal. Define a migration/precedence rule to coexist with per-placement primary Goal attribution. Do not double-count the same minutes in global totals or accidentally credit an entire mixed session to every Goal. For old sessions without a defensible primary Goal snapshot, preserve legacy explicit Goal-session attribution **separately and clearly labeled** if reported, and identify unknown/unattributed time rather than inferring it from today's Block relationship.
@@ -328,9 +340,9 @@ Owner completes and records actual phone checks for: Transcribe speed/pitch/shor
 
 ## 12. Explicit V1 non-goals and boundaries
 
-These are **not** part of V1 unless the owner separately changes this document: in-app scanning/OCR/document markup, unlimited references beyond one visual plus one active audio per Block, Library folder/tag taxonomy, an entirely new tagging system, importing online scores, notation editing, 128-beat loops, meter-aware loop bar selection, grouped 6/8/subdivision tempo maps, MIDI sync, MP3 encoding, converting every free capture to WAV, multitrack/overdub/mixer/effects, always-on recording, background countdown notifications, user-defined imported sound packs, automated music-learning prescriptions, advanced analytics, streaks, cloud accounts, Google Drive OAuth/sync/background upload, teacher/student/publisher products, band collaboration, desktop companion, marketplace or subscription services. These remain future ideas, not V1 acceptance blockers.
+These are **not** part of V1 unless the owner separately changes this document: in-app scanning/OCR and general document editing, unlimited references beyond one visual plus one active audio per Block, Library folder/tag taxonomy, an entirely new tagging system, importing online scores, notation editing, 128-beat loops, meter-aware loop bar selection, grouped 6/8/subdivision tempo maps, MIDI sync, MP3 encoding, converting every free capture to WAV, multitrack/overdub/mixer/effects, always-on recording, background countdown notifications, user-defined imported sound packs, automated music-learning prescriptions, advanced analytics, streaks, cloud accounts, Google Drive OAuth/sync/background upload, teacher/student/publisher products, band collaboration, desktop companion, marketplace or subscription services. These remain future ideas, not V1 acceptance blockers.
 
-**Transcribe boundary:** Manual listening/phrase practice and audio markers are approved; automatic audio-to-MIDI/transcription, AI note/solo identification, BPM/time-signature analysis, pitch shifting/transposition, video/streaming/YouTube, general PDF/image editing, notation rewriting/generation and PDF pencil/highlight annotations remain excluded. Non-destructive visual markup is deferred until core audio and complete backup are reliable.
+**Transcribe boundary:** Manual listening/phrase practice and audio markers are approved; automatic audio-to-MIDI/transcription, AI note/solo identification, BPM/time-signature analysis, pitch shifting/transposition, video/streaming/YouTube, general PDF/image editing, notation rewriting/generation and freehand PDF annotations remain excluded. O1 adds the bounded Block-local practice layer after S2.
 
 **Visual theme:** Centralized themes are delivered; exact verification remains in CURRENT_STATE. Deliberate palette/contrast polish remains required. The app remains useful offline; no backend is needed.
 
@@ -357,12 +369,26 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [ ] T3D physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
 - [x] S0 documented [SAF evidence, provider limitations and fallback decision](docs/S0_STORAGE_DECISION.md). Device qualification of Drive, OneDrive and folder-tree operations remains open.
 - [x] S1 organized non-destructive audio export and user-selectable destination. See [CURRENT_STATE](CURRENT_STATE.md) for local SAF verification and pending phone checks.
+- [x] O0 architecture and roadmap integration with a [single overlay specification](docs/PRACTICE_OVERLAY_SPEC.md).
 - [ ] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
+- [ ] O1 Block-local overlays, including editable recovery, pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance).
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
 - [ ] G2 Goal filter combined with available search across all three Block selection contexts.
 - [ ] G3 actual time statistics and historically accurate, nonduplicated Goal attribution; no fake progress.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
 - [ ] F2 permanent-key V1 release candidate, real-device acceptance and truthful final documentation.
+
+## Deferred Practice Lifecycle and Insights
+
+This register records future design decisions. S2 remains next. After S2, evaluate whether an explicit Start/Prep gate warrants a targeted workflow correction before G3. Sequence any subsequent check-ins, scheduling, suggestions and statistics within existing Goals and Statistics work as assigned.
+
+- **Deliberate practice lifecycle.** Ready → optional Prep → Practicing → optional Block Review → Next Block → optional Session Review. Every Block opens Ready with a prominent Start Block action that glows or gently pulses until activated. Start Block starts measured practice immediately. Prep opens the same workspace with references, recordings, playback and tools, and tracks preparation separately. Completion offers review, then names the next Block with Start Next and Prep Next when one remains. Advance only by explicit action. Model preparation, active practice, review, completion and interruption as distinct states in the shared workflow.
+- **Block check-ins.** Ask the optional question “How secure did that feel?” on a 1–5 scale. More offers optional focus feedback and notes. Skip is always available, completion and advance remain available, and ratings are stored per practice event to preserve history.
+- **Flags and revisits.** A Block can be flagged Return Soon from review or the Block interface. The flag persists until explicitly cleared. Log flag changes as historical events. An optional Revisit in selector offers intervals such as 1, 2, 3, 4, 5, 7, 14 and 30 days. A deterministic rule can recommend an interval from security ratings and later revisit history. Users can override it. Store the due date, recommendation and chosen interval. Treat scheduled revisits as suggestions.
+- **Suggested Blocks.** In Block selection, prioritize manual Return Soon flags, then consider due revisits, security trends, time since last practice and underattended active Goals. Show an understandable reason for each suggestion. Rules stay local, transparent, deterministic and configurable where appropriate. AI coaching and LLM integration are outside scope.
+- **Session reflection.** After the final Block, offer up to five individually skippable prompts and a free-form note. Possible topics are productivity, focus, progress, challenge and energy. Store reflections separately from Block check-ins. Integrate with history and Journal without duplicating or automatically merging unrelated entries.
+- **Statistics and insights.** Derive duration, frequency, Goal time, practice types, tags where available, per-Block activity, intentional prep, meaningful tool use, confidence trends, revisit effectiveness and weekly or longer patterns from shared persisted activity records. Preserve historical Goal attribution across reassignment and count each practice or preparation interval once in its own category. A dismissible weekly invitation can offer factual summaries and a writing prompt entirely offline.
+- **Teacher integration.** A later, non-V1 extension could let teachers assign Blocks and work, set their own revisit thresholds and rules, and review appropriate history and reflections. Multi-user infrastructure, sync and permissions are outside this handoff.
 
 ### Minimal prompt for each new Work instance
 

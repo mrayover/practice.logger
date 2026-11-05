@@ -1,12 +1,12 @@
 # practice.logger
 
-An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. The current signed release is **0.27.0/build91**, with concurrent reference playback and Free Record in Block Transcribe. See [CURRENT_STATE.md](CURRENT_STATE.md) for the signed release, focused verification and phone acceptance.
+An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. See [CURRENT_STATE.md](CURRENT_STATE.md) for the latest permanent-key build, focused verification and phone acceptance.
 
 ## Forward V1 roadmap
 
 P0–P5, L1–L3, K1, T1–T2 and T3A–T3D are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines the phase order and release gates. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines the phase order and release gates. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 
 ## Appearance and Settings
 
@@ -47,6 +47,8 @@ Open the Settings gear and find **Storage → Export destination** to choose a w
 Organized exports copy original audio into `Recordings/<Block name> - <Block ID>/<saved date>/` or `Recordings/Free Recordings/<saved date>/`. Filenames include the local recording time, a take label or recorded loop beat count and BPM, and a short take ID. Repeated copies use distinct filenames. If a provider cannot create the folders or write the file, choose another folder or use Save As. Drive and OneDrive availability depends on what their Android providers expose. The original remains in practice.logger.
 
 ## Using the app
+
+Home shows **Total practice** below the main navigation when practice time is available. The menu scrolls when its content exceeds the available height.
 
 - **Blocks:** create/edit with required Name/Action, default duration and optional tempo/notes. Search name/action/notes literally, switch Active/Archived, Archive/Restore, or select Delete Permanently in a saved Block's editor.
 - **Reference image or PDF:** save a Block, reopen its editor and choose **Add image or PDF** for Android’s document picker, or **Take or Add a photo** for **Take photo** / **Choose from gallery**. The actions stack at enlarged text sizes. Capture uses the installed camera app and gallery uses selected-photo access; no broad camera/gallery permission is requested. Captured photos are private app copies, not automatically saved to the shared gallery. One JPEG/PNG/WebP (up to 40 megapixels/16384px per side) or unencrypted PDF (1–100 pages), up to 20 MiB, is copied into private storage. Show reference/Hide reference reveals it inline. PDFs start at page 1; use Previous page/Next page and the page counter. Pinch to zoom up to 6× and drag while enlarged. Compact practice has no reset overlay and provides an accessible Reset zoom action; larger viewers retain Reset image zoom or Reset PDF zoom. Page changes reset zoom. Camera orientation and the full safe-width viewer remain supported; practice fits the available workspace and larger viewers remain bounded. Use Replace reference image/PDF to choose either type, or Remove reference image/PDF and confirm. Canceling or failed imports keep the current reference; archived Blocks retain ownership. Missing/unreadable files show Retry reference and can be replaced/removed in the editor. A PDF must render successfully before replacing the old file.

@@ -6,7 +6,7 @@
 
 This is the detailed specification supporting the [authoritative V1 master roadmap](../PRACTICE_LOGGER_V1_MASTER_PLAN.md), not a second master plan. [CURRENT_STATE](../CURRENT_STATE.md) governs actual delivery and verification. The original amendment authorized documentation only; the later explicit owner handoff authorized L1 implementation, now delivered with scoped verification and signed packaging. Reinspect live code before each separately assigned phase.
 
-**Order:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. S0 is the next separate assignment.
+**Order at the T3D handoff:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2. T3-0 is a documentation checkpoint. S0 was the next separate assignment at that handoff. See the [V1 master plan](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) for current sequencing.
 
 ## 1. Verified existing implementation
 

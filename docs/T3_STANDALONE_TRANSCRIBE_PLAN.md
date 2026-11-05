@@ -272,11 +272,11 @@ Existing normal Free Record, Record Loop and Transcribe operations continue work
 
 ## Dependencies and roadmap reconciliation
 
-Update the authoritative sequence to:
+The sequence at the T3 roadmap lock was:
 
 **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → S2 → G1 → G2 → G3 → F1 → F2**
 
-Already delivered milestones must remain marked as delivered.
+See the [V1 master plan](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) for current sequencing. Already delivered milestones retain their status.
 
 T3-0 is a documentation checkpoint.
 

@@ -68,8 +68,6 @@ import androidx.compose.ui.unit.sp
                     }
                 }
                 practiceMs?.let { Text("Total practice · ${practiceDuration(it)}", modifier = Modifier.padding(top = 12.dp)) }
-                Text("Data usage", modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
-                    textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
             }
         }
     }

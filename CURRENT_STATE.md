@@ -1,6 +1,10 @@
-# Current state — S1 Organized Audio Export
+# Current state — O0 roadmap integration
 
-Updated November 4, 2026 (America/Los_Angeles).
+Updated November 5, 2026 (America/Los_Angeles).
+
+O0 is complete. The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) puts O1 after S2 and links to the [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md). The [deferred practice lifecycle and insights register](PRACTICE_LOGGER_V1_MASTER_PLAN.md#deferred-practice-lifecycle-and-insights) captures future design decisions only.
+
+Room remains at schema 16 and the legacy JSON writer remains at version 7. **Next implementation assignment: S2 — Complete Portable ZIP Backup and Verified Restore.** O1 follows verified S2.
 
 ## Signed S1 delivery
 
@@ -20,7 +24,6 @@ The dedicated API 35 workflows generated the fixtures and passed both Record Ref
 
 Drive and OneDrive are untested. The local and cloud owner-phone checklist includes folder persistence after app restart, stale grants, interrupted copies and provider availability. [Phone checklist](MANUAL_TESTS.md#s1--organized-audio-export-phone-checks)
 
-**S2 — Complete Portable ZIP Backup and Verified Restore** awaits a separate owner assignment.
 
 ## Retained build91 — T3D signed delivery
 
