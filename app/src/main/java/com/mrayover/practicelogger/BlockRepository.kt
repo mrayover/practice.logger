@@ -3,7 +3,8 @@ package com.mrayover.practicelogger
 import androidx.room.withTransaction
 import java.util.UUID
 
-data class BlockDraft(val name: String = "", val action: String = "", val duration: String = "5", val tempo: String = "", val notes: String = "") {
+data class BlockDraft(val name: String = "", val action: String = "", val duration: String = "5", val tempo: String = "", val notes: String = "",
+    val primaryGoalId: String? = null, val primaryGoalChanged: Boolean = false) {
     fun errors(): Map<String, String> = buildMap {
         if (name.isBlank()) put("name", "Enter a name.")
         if (action.isBlank()) put("action", "Describe what to practice.")
@@ -69,6 +70,21 @@ class BlockRepository(private val db: BlockDatabase, private val now: () -> Long
             createdAt = previous?.createdAt ?: timestamp, updatedAt = timestamp
         )
         if (previous == null) db.blocks().insert(block) else check(db.blocks().update(block) == 1)
+        if (draft.primaryGoalChanged) {
+            val attribution = db.goalAttribution()
+            val goalId = draft.primaryGoalId
+            if (goalId == null) {
+                attribution.clearPrimary(block.id)
+            } else if (goalId != attribution.primaryGoalId(block.id)) {
+                val goal = requireNotNull(db.goals().find(goalId)) { "This Goal is no longer available." }
+                require(!goal.goal.completed) { "Reopen this Goal before assigning it." }
+                if (goal.blocks.none { it.blockId == block.id }) {
+                    require(goal.blocks.size < 20_000) { "This Goal has too many linked Blocks." }
+                    db.goals().insert(GoalBlock(goalId, block.id, goal.blocks.size))
+                }
+                attribution.setPrimary(BlockPrimaryGoal(block.id, goalId))
+            }
+        }
         block.id
     }
     suspend fun setArchived(id: String, archived: Boolean) = db.withTransaction {

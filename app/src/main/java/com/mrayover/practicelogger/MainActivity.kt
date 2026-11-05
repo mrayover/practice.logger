@@ -120,6 +120,7 @@ class MainActivity : ComponentActivity() {
 @Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel(), onRestoreAppearance: () -> Unit = {}) {
     val backup: BackupViewModel = viewModel()
     val goalRows by goals.goals.collectAsStateWithLifecycle()
+    val goalIndicators = remember(goalRows) { GoalIndicators(goalRows) }
     val goalLinks by goals.links.collectAsStateWithLifecycle()
     var goalId by rememberSaveable { mutableStateOf<String?>(null) }
     var goalEditorId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -200,6 +201,7 @@ class MainActivity : ComponentActivity() {
     fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
     fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
     BackHandler(page == "library") { page = "home" }
+    CompositionLocalProvider(LocalGoalIndicators provides goalIndicators) {
     Surface(Modifier.fillMaxSize().testTag("app-surface")) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         fun openFromHeader(destination: String) {
@@ -298,10 +300,12 @@ class MainActivity : ComponentActivity() {
                     } }
                     if (matches.isEmpty()) item { Text(if (query.isNotBlank()) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
                     items(matches, key = { it.id }) { block ->
-                        CatalogPill(onClick = { openEditor(block.id) }) {
+                        val indicator = goalIndicators.block(block.id)
+                        CatalogPill(onClick = { openEditor(block.id) }, modifier = Modifier.testTag("library-block-${block.id}").goalEndCap(indicator)) {
                             Text(block.name, style = MaterialTheme.typography.titleLarge)
                             Text(block.action)
                             Text(block.durationMinutes.toString() + " min" + (block.tempo?.let { " · " + it + " BPM reference" } ?: ""), style = MaterialTheme.typography.bodyMedium)
+                            BlockGoalLabel(indicator)
                         }
                     }
                 }
@@ -361,6 +365,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+}
+
 @Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
@@ -371,7 +377,11 @@ class MainActivity : ComponentActivity() {
     var submitted by rememberSaveable { mutableStateOf(false) }
     var discard by rememberSaveable { mutableStateOf(false) }
     var archiveConfirm by rememberSaveable { mutableStateOf(false) }
-    val draft = BlockDraft(name, action, duration, tempo, notes)
+    val savedPrimary = LocalGoalIndicators.current.block(block?.id)?.goal?.id
+    var pickedPrimary by rememberSaveable { mutableStateOf<String?>(null) }
+    var primaryEdited by rememberSaveable { mutableStateOf(false) }
+    val primary = if (primaryEdited) pickedPrimary else savedPrimary
+    val draft = BlockDraft(name, action, duration, tempo, notes, primary.takeIf { primaryEdited }, primaryEdited)
     val errors = if (submitted) draft.errors() else emptyMap()
     fun leave() { if (!busy) { if (draft != initial) discard = true else onCancel() } }
     BackHandler { leave() }
@@ -386,6 +396,10 @@ class MainActivity : ComponentActivity() {
         EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true)
         EditorField("Tempo reference (BPM, optional)", tempo, { tempo = it }, errors["tempo"], busy, singleLine = true, numeric = true)
         EditorField("Notes / source (optional)", notes, { notes = it }, null, busy)
+        PrimaryGoalPicker(primary, enabled = !busy) { selected ->
+            pickedPrimary = selected
+            primaryEdited = selected != savedPrimary
+        }
         Button(onClick = { submitted = true; if (draft.errors().isEmpty()) onSave(draft) }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Saving…" else "Save") }
         OutlinedButton(onClick = ::leave, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Cancel") }
         if (block != null) OutlinedButton(onClick = { archiveConfirm = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (block.archived) "Restore Block" else "Archive Block") }

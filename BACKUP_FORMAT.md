@@ -1,10 +1,10 @@
 # Backup format and safety — current implementation
 
-Complete portable ZIP v2 includes editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1 remains readable. Legacy JSON 7 remains data-only and is independent of Room 18. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Complete portable ZIP v3 includes primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1 and v2 remain readable. Legacy JSON 7 remains data-only and is independent of Room 19. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **17**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **19**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -61,7 +61,7 @@ Private audio uses generated UUID names under `files/recordings`, with validated
 
 ## Database compatibility and safe Block deletion
 
-All explicit Room migrations through 18 and compiler schemas are retained. Room 18 adds Block practice overlays. Room 17 added the internal portable restore witness. T3B adds standalone activity records through 15→16. T2 added Block-local audio state and markers through 14→15. L3 adds restrictive Block media links through13→14 after L2 master markers through12→13. L1 adds only indexed media_assets through11→12; all prior tables/rows/files remain. Earlier migrations: sessions(2), used BPM(3), takes(4), phrase metadata(5), nullable standalone take ownership(6), Routines(7), Goals(8), independent daily_logs(9), Block images(10), independent practice notes(11). The 10→11 migration only creates the new note table; legacy rows read through unchanged. The 9→10 migration only adds the restrictive image table. The 8→9 migration only adds the date-keyed table; all prior tables and recordings remain intact. Existing data/audio are preserved; no destructive fallback.
+All explicit Room migrations through 19 and compiler schemas are retained. Room 19 adds Block primary Goal assignments and first-accrual placement snapshots. Room 18 adds Block practice overlays. Room 17 added the internal portable restore witness. T3B adds standalone activity records through 15→16. T2 added Block-local audio state and markers through 14→15. L3 adds restrictive Block media links through13→14 after L2 master markers through12→13. L1 adds only indexed media_assets through11→12; all prior tables/rows/files remain. Earlier migrations: sessions(2), used BPM(3), takes(4), phrase metadata(5), nullable standalone take ownership(6), Routines(7), Goals(8), independent daily_logs(9), Block images(10), independent practice notes(11). The 10→11 migration only creates the new note table; legacy rows read through unchanged. The 9→10 migration only adds the restrictive image table. The 8→9 migration only adds the date-keyed table; all prior tables and recordings remain intact. Existing data/audio are preserved; no destructive fallback.
 
 Safe permanent Block deletion originally shipped with Room 8/JSON 5 and preserves those protections with Room 11/JSON 7 and includes image/PDF references as one attachment blocker. It refuses attached images/PDFs, Goal links, saved Routine references, takes and **all** session placements in a transaction, preserving strict backup integrity. A successfully deleted eligible Block is absent from subsequent snapshots; remaining data restore normally. Completed-history references are not detached or weakened.
 
@@ -102,6 +102,19 @@ Restore stages the input privately, validates version and paths, rejects duplica
 Confirmation rechecks all durable tables for emptiness in the same Room transaction that inserts restored records. Media locks exclude concurrent file mutations and orphan cleanup. A synced journal records the unique transaction token, previously absent destination paths, media hashes and desired settings. Synced staged files are promoted into the existing private stores before references are committed. The witness is inserted with the restored rows. Room 17 adds only this internal table through a non-destructive 16→17 migration.
 
 Startup resolves a pending journal before opening the catalog or running orphan cleanup. An absent witness rolls back only the journal's newly promoted files. A committed witness keeps the restored rows and files, verifies the promoted bytes and finishes the saved settings. Settings are written after commit, so pre-commit rollback leaves the target settings alone. Finalization is retryable and the app gates normal navigation while recovery is required. Unfinished Block practice and Transcribe reopen paused.
+
+## Goal attribution ZIP v3
+
+The manifest declares ZIP version 3 and Room schema 19. The records payload also declares version 3. It extends the ZIP v2 tables with these positional rows:
+
+| Table | Ordered fields |
+|---|---|
+| block_primary_goals | blockId, goalId |
+| placement_goal_snapshots | placementId, goalId (nullable), priority (nullable integer 1–5) |
+
+A primary assignment requires its matching Goal/Block link. Each snapshot requires a unique placement with positive committed time. A non-null Goal ID must exist. A null Goal ID requires a null priority. An assigned snapshot with a null priority records a Goal that was completed at capture. An absent snapshot leaves attribution unknown for legacy positive practice, or pending for a placement that has yet to accrue time. Restore validates these rules and relationships before target mutation and uses the same empty-target check, staged originals, journal and transaction witness.
+
+ZIP v1, ZIP v2 and legacy JSON v1–v7 restore their original links and practice records with empty primary and snapshot tables. The adoption of a sole legacy link applies to an on-device Room upgrade. Recovered older archives lack a stored primary decision.
 
 ## Practice Overlay ZIP v2
 

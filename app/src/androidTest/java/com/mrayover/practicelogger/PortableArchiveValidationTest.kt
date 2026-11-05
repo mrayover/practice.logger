@@ -44,6 +44,12 @@ class PortableArchiveValidationTest {
                 "HIGHLIGHT", .1f, .2f, .7f, .8f, 1, 0)), 1)
             overlays.edit(OverlayEdit(null, PracticeOverlay("pdf", "old", "legacy:${legacy.fileName}", 1,
                 "COVER", .15f, .25f, .55f, .65f, 0, 0)), 2)
+            val goal = GoalRepository(source).save(null, "Archive Goal", "", 0, "")
+            val draft = BlockDraft.from(source.blocks().find("block")!!)
+            BlockRepository(source).save("block", draft.copy(primaryGoalId = goal, primaryGoalChanged = true))
+            val sessions = SessionRepository(source)
+            sessions.addBlock("block")
+            sessions.checkpoint(sessions.start(), 2000)
             val input = File(root, "valid.zip")
             val verified = PortableZip(context, source, root).create(input)
             val path = verified.originals.single { it.store == "media-library" }.path
@@ -86,13 +92,31 @@ class PortableArchiveValidationTest {
                     val blocks = getJSONObject("tables").getJSONArray("blocks")
                     blocks.put(blocks.getJSONArray(0))
                 }
-                changeManifest { getJSONObject("counts").put("blocks", 2) }
+                changeManifest { getJSONObject("counts").put("blocks", 3) }
             }
             mutate("broken relationship") {
                 changeRecords { getJSONObject("tables").getJSONArray("block_media_links").getJSONArray(0).put(2, "missing") }
             }
             mutate("unknown record type") {
                 changeRecords { getJSONObject("tables").put("unknown", org.json.JSONArray()) }
+            }
+
+            mutate("primary without Goal link") {
+                changeRecords { getJSONObject("tables").getJSONArray("block_primary_goals").getJSONArray(0).put(0, "old") }
+            }
+            for (priority in listOf(0, 6)) {
+                mutate("historical priority $priority") {
+                    changeRecords { getJSONObject("tables").getJSONArray("placement_goal_snapshots").getJSONArray(0).put(2, priority) }
+                }
+            }
+            mutate("rank without a Goal") {
+                changeRecords { getJSONObject("tables").getJSONArray("placement_goal_snapshots").getJSONArray(0).put(1, JSONObject.NULL) }
+            }
+            mutate("historical Goal missing") {
+                changeRecords { getJSONObject("tables").getJSONArray("placement_goal_snapshots").getJSONArray(0).put(1, "missing") }
+            }
+            mutate("snapshot on zero time") {
+                changeRecords { getJSONObject("tables").getJSONArray("placements").getJSONArray(0).put(9, 0) }
             }
 
             suspend fun badMark(label: String, row: Int, column: Int, value: Any) = mutate(label) {
@@ -154,27 +178,44 @@ class PortableArchiveValidationTest {
                 if (version < 6) json.remove("logs")
                 if (version < 5) for (key in listOf("goals", "goalBlocks", "sessionGoals")) json.remove(key)
                 if (version < 4) for (key in listOf("routines", "routinePlacements")) json.remove(key)
-                assertEquals("Legacy version $version", data, BackupCodec.decode(json.toString().toByteArray()))
+                val expected = if (version < 5) data.copy(goals = emptyList(), goalBlocks = emptyList()) else data
+                assertEquals("Legacy version $version", expected, BackupCodec.decode(json.toString().toByteArray()))
             }
 
-            // Retain every frozen V1 column and recompute the inventory after removing the V2 records.
-            val prior = entries.toMutableMap().apply {
-                changeRecords {
-                    remove("version")
-                    getJSONObject("tables").remove("practice_overlays")
+            // Downgrade the wire records and recompute the digest and inventory for each prior format.
+            val v2Target = BlockDatabase.open(context, "$name-v2.db")
+            try {
+                for (version in listOf(1, 2)) {
+                    val excluded = listOf("block_primary_goals", "placement_goal_snapshots") +
+                        if (version == 1) listOf("practice_overlays") else emptyList()
+                    val prior = entries.toMutableMap().apply {
+                        changeRecords {
+                            if (version == 1) remove("version") else put("version", version)
+                            val tables = getJSONObject("tables")
+                            excluded.forEach { tables.remove(it) }
+                        }
+                        changeManifest {
+                            put("version", version)
+                            put("roomSchema", if (version == 1) 17 else 18)
+                            val counts = getJSONObject("counts")
+                            excluded.forEach { counts.remove(it) }
+                        }
+                    }
+                    val archive = File(root, "compatible-v$version.zip")
+                    write(archive, prior)
+                    val destination = if (version == 1) target else v2Target
+                    val files = if (version == 1) targetFiles else File(root, "v2-target").apply { mkdir() }
+                    val reader = PortableRestore(context, destination, files)
+                    reader.restore(reader.stage(archive::inputStream))
+                    assertEquals(data, BackupRepository(destination).snapshot())
+                    assertEquals(if (version == 1) 0 else 2, destination.overlays().count())
+                    assertNull(destination.goalAttribution().primaryGoalId("block"))
+                    assertNull(destination.goalAttribution().snapshot(data.placements.single().id))
                 }
-                changeManifest {
-                    put("version", 1)
-                    put("roomSchema", 17)
-                    getJSONObject("counts").remove("practice_overlays")
-                }
+            } finally {
+                v2Target.close()
+                context.deleteDatabase("$name-v2.db")
             }
-            val v1 = File(root, "compatible-v1.zip")
-            write(v1, prior)
-            val staged = restore.stage(v1::inputStream)
-            restore.restore(staged)
-            assertEquals(data.blocks, BackupRepository(target).snapshot().blocks)
-            assertEquals(0, target.overlays().count())
             assertEquals(original, target.media().find(original.id))
             assertEquals(legacy, target.images().find("old"))
         } finally {

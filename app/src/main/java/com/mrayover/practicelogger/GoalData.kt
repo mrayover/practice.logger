@@ -24,7 +24,9 @@ data class GoalBlock(val goalId: String, val blockId: String, val position: Int)
 data class GoalSession(@PrimaryKey val sessionId: String, val goalId: String)
 
 data class GoalBundle(@Embedded val goal: Goal,
-    @Relation(parentColumn = "id", entityColumn = "goalId") val blocks: List<GoalBlock>) {
+    @Relation(parentColumn = "id", entityColumn = "goalId") val blocks: List<GoalBlock>,
+    @Relation(parentColumn = "id", entityColumn = "goalId")
+    val primaryBlocks: List<BlockPrimaryGoal> = emptyList()) {
     val ordered get() = blocks.sortedBy { it.position }
 }
 data class GoalTime(val goalId: String, val activeMs: Long)
@@ -41,7 +43,9 @@ fun homeGoals(goals: List<GoalBundle>) = activeGoals(goals).take(2)
     @Update suspend fun update(goal: Goal): Int
     @Insert suspend fun insert(link: GoalBlock)
     @Insert suspend fun insert(link: GoalSession)
-    @Query("DELETE FROM goal_blocks WHERE goalId = :id") suspend fun clearBlocks(id: String)
+    @Upsert suspend fun upsert(link: GoalBlock)
+    @Query("DELETE FROM goal_blocks WHERE goalId = :goalId AND blockId = :blockId")
+    suspend fun removeBlock(goalId: String, blockId: String)
     @Query("SELECT * FROM session_goals") suspend fun readSessions(): List<GoalSession>
     @Query("SELECT * FROM session_goals") fun observeSessions(): Flow<List<GoalSession>>
     @Query("""
@@ -100,11 +104,14 @@ class GoalRepository(private val db: BlockDatabase, private val now: () -> Long 
         db.goals().update(b.copy(priority = a.priority, updatedAt = stamp(b)))
     }
     suspend fun setBlocks(id: String, blockIds: List<String>) = db.withTransaction {
-        val goal = checkNotNull(db.goals().find(id)).goal
+        val bundle = checkNotNull(db.goals().find(id))
+        val goal = bundle.goal
         require(blockIds.size <= 20_000 && blockIds.distinct().size == blockIds.size)
         blockIds.forEach { require(db.blocks().find(it) != null) { "A selected Block is unavailable." } }
-        db.goals().clearBlocks(id)
-        blockIds.forEachIndexed { i, blockId -> db.goals().insert(GoalBlock(id, blockId, i)) }
+        val selected = blockIds.toSet()
+        // Only removed links clear their primary assignments through the foreign key.
+        bundle.blocks.filter { it.blockId !in selected }.forEach { db.goals().removeBlock(id, it.blockId) }
+        blockIds.forEachIndexed { i, blockId -> db.goals().upsert(GoalBlock(id, blockId, i)) }
         db.goals().update(goal.copy(updatedAt = stamp(goal)))
     }
 }

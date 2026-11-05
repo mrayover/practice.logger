@@ -84,6 +84,12 @@ class PortableZipRoundTripTest {
             }
             assertEquals(72_666L, db.transcribeActivities().observePracticeTime().first().sumOf { it.activeMs })
             assertEquals(6000L, db.sessions().find("interrupted")!!.activeMs)
+            assertEquals("goal", db.goalAttribution().primaryGoalId("first"))
+            assertEquals(PlacementGoalSnapshot("completed-placement", "goal", 3),
+                db.goalAttribution().snapshot("completed-placement"))
+            assertEquals(PlacementGoalSnapshot("interrupted-placement", null, null),
+                db.goalAttribution().snapshot("interrupted-placement"))
+            assertNull(db.goalAttribution().snapshot("draft-placement"))
             assertEquals(4000L, db.transcribeActivities().unfinished()!!.activeMs)
             val image = db.media().readAll().single { it.category == "IMAGE" }
             val pdf = db.media().readAll().single { it.category == "PDF" }
@@ -135,6 +141,7 @@ class PortableZipRoundTripTest {
         }
         click("Blocks")
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Score study"))
+        shown("Priority 1 · Study the piece")
         click("Score study")
         click("Show reference")
         compose.waitUntil(20_000) {
@@ -261,16 +268,19 @@ class PortableZipRoundTripTest {
         db.withTransaction {
             db.goals().insert(Goal("goal", "Study the piece", "Goal description", 45, "Goal note", createdAt = 100, updatedAt = 200))
             db.goals().insert(GoalBlock("goal", first.id, 0))
+            db.goalAttribution().setPrimary(BlockPrimaryGoal(first.id, "goal"))
             db.routines().insert(SavedRoutine("routine", "Warm-up sequence", 100, 200))
             db.routines().insert(RoutinePlacement("routine-placement", "routine", second.id, 0, 120_000))
             db.sessions().insert(PracticeSession("completed", 1000, 30_000, "COMPLETED", note = "Session note"))
             db.sessions().insert(Placement("completed-placement", "completed", first.id, first.name, first.action,
                 90, "Reference note", 0, 300_000, 12_345, "COMPLETED", note = "Placement note", lastUsedBpm = 110))
             db.goals().insert(GoalSession("completed", "goal"))
+            db.goalAttribution().insert(PlacementGoalSnapshot("completed-placement", "goal", 3))
             db.practiceNotes().insert(PracticeNote("practice-note", first.id, "completed", "completed-placement", 5000, "Practice note"))
             db.sessions().insert(PracticeSession("interrupted", 32_000, status = "IN_PROGRESS"))
             db.sessions().insert(Placement("interrupted-placement", "interrupted", second.id, second.name, second.action,
                 null, "", 0, 120_000, 6000))
+            db.goalAttribution().insert(PlacementGoalSnapshot("interrupted-placement", null, null))
             db.sessions().insert(PracticeSession("draft", 33_000, note = "Persisted draft"))
             db.sessions().insert(Placement("draft-placement", "draft", first.id, first.name, first.action, 90, "", 0, 120_000))
             db.logs().insert(DailyLog("2026-11-05", "Saved Daily Log"))

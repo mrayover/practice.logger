@@ -34,10 +34,12 @@ import androidx.compose.ui.unit.sp
                             fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                     Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp)).testTag("home-goals")) {
+                        val indicators = LocalGoalIndicators.current
                         repeat(2) { index ->
                             if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             val goal = homeGoals(goals).getOrNull(index)?.goal
-                            Column(Modifier.fillMaxWidth().clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
+                            val marker = if (goal == null) Modifier else Modifier.goalEndCap(indicators.goal(goal.id))
+                            Column(Modifier.fillMaxWidth().then(marker).clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
                                 if (goal == null) onGoals() else onGoal(goal.id)
                             }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}%", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)

@@ -43,15 +43,16 @@ class ThemePaletteTest {
             pair("${p.id} progress",s.primary,c.scrollTrack,3.0)
         }
     }
-    @Test fun goalSlotsStayDistinctAndReadableWithoutAllocatingGoalIdentity() {
-        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette,SubmarinePalette).forEach { p ->
-            assertEquals(5,p.colors.goals.size)
-            assertEquals(5,p.colors.goals.map { it.accent }.distinct().size)
-            p.colors.goals.forEach { g ->
-                pair("${p.id} Goal label",g.onContainer,g.container)
-                pair("${p.id} Goal cap",g.accent,p.scheme.surface,3.0)
-            }
-            pair("${p.id} unassigned",p.colors.unassignedGoalAccent,p.scheme.surface,3.0)
+    @Test fun goalPriorityFillsAndCapOutlinesStayConsistentAcrossThemes() {
+        val expected = listOf(Color(0xFFD1262D), Color(0xFFE9731C), Color(0xFFF1CB24),
+            Color(0xFF34944E), Color(0xFF2D70CE))
+        for (choice in ThemeChoice.entries) for (dark in listOf(false, true)) {
+            val p = resolvePalette(choice, dark)
+            val goal = Goal("goal", "Goal", createdAt = 0, updatedAt = 0)
+            assertEquals(expected, (1..5).map { goalAccent(p.colors, GoalIndicator(goal, it)) })
+            assertEquals(Color.Black, goalAccent(p.colors, null))
+            assertNull(goalAccent(p.colors, GoalIndicator(goal.copy(completed = true), null)))
+            pair("${p.id} cap outline", p.scheme.outline, p.scheme.surface, 3.0)
         }
     }
     @Test fun systemChoiceFollowsDeviceWhileExplicitChoicesOverrideIt() {

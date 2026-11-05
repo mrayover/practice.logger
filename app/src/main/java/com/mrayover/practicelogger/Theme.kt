@@ -11,13 +11,17 @@ val Lato = FontFamily(Font(R.font.lato_regular, FontWeight.Normal), Font(R.font.
 // Raw palette primitives stay here; screens consume semantic roles.
 private val PracticeCream = Color(0xFFF1E6D3)
 private val PracticeGreen = Color(0xFF315C47)
-@Immutable data class GoalColors(val accent: Color, val container: Color, val onContainer: Color)
+// Priority order is also the historical v1 color mapping.
+private val GoalPriorityColors = listOf(
+    Color(0xFFD1262D), Color(0xFFE9731C), Color(0xFFF1CB24), Color(0xFF34944E), Color(0xFF2D70CE)
+)
+
 @Immutable data class PracticeColors(
     val banner: Color, val onBanner: Color, val bannerEdge: Color,
     val transportSurface: Color, val selectionContainer: Color, val onSelectionContainer: Color,
     val recording: Color, val onRecording: Color, val scrollThumb: Color, val scrollTrack: Color,
-    // Reserved for G1; no Goal allocation or persistence changes here.
-    val goals: List<GoalColors>, val unassignedGoalAccent: Color
+    val goalPriorities: List<Color> = GoalPriorityColors,
+    val unassignedGoalAccent: Color = Color.Black
 )
 @Immutable data class PracticePalette(val id: String, val scheme: ColorScheme, val colors: PracticeColors)
 private val lightScheme = lightColorScheme(
@@ -63,28 +67,14 @@ val LightPalette = PracticePalette("light", lightScheme, PracticeColors(
     transportSurface = lerp(PracticeCream, PracticeGreen, .085f),
     selectionContainer = Color(0xFFD2DDCE), onSelectionContainer = Color(0xFF193B29),
     recording = lightScheme.error, onRecording = lightScheme.onError,
-    scrollThumb = PracticeGreen, scrollTrack = Color(0xFFCBD0BF),
-    goals = listOf(
-        GoalColors(PracticeGreen, Color(0xFFD2E8D6), Color(0xFF183B27)),
-        GoalColors(Color(0xFF244E83), Color(0xFFD7E5FA), Color(0xFF153459)),
-        GoalColors(Color(0xFF785414), Color(0xFFF6E3B8), Color(0xFF513600)),
-        GoalColors(Color(0xFF6D3E73), Color(0xFFF0DCF2), Color(0xFF4C2551)),
-        GoalColors(Color(0xFF8A3D2C), Color(0xFFF8DED5), Color(0xFF602518))
-    ), unassignedGoalAccent = Color(0xFF434B43)
+    scrollThumb = PracticeGreen, scrollTrack = Color(0xFFCBD0BF)
 ))
 val DarkPalette = PracticePalette("dark", darkScheme, PracticeColors(
     banner = Color(0xFF223D2E), onBanner = Color(0xFFEDF5EB), bannerEdge = Color(0xFF14291D),
     transportSurface = Color(0xFF202C23),
     selectionContainer = Color(0xFF3E6149), onSelectionContainer = Color(0xFFE0F5DF),
     recording = darkScheme.error, onRecording = darkScheme.onError,
-    scrollThumb = darkScheme.primary, scrollTrack = Color(0xFF465146),
-    goals = listOf(
-        GoalColors(Color(0xFFA5D2B2), Color(0xFF284D37), Color(0xFFC0EFCD)),
-        GoalColors(Color(0xFFA8C8FA), Color(0xFF26476D), Color(0xFFD7E5FA)),
-        GoalColors(Color(0xFFECC779), Color(0xFF574013), Color(0xFFF6E3B8)),
-        GoalColors(Color(0xFFDAB3E0), Color(0xFF523557), Color(0xFFF0DCF2)),
-        GoalColors(Color(0xFFF0B6A4), Color(0xFF66392D), Color(0xFFF8DED5))
-    ), unassignedGoalAccent = Color(0xFFC0C8BE)
+    scrollThumb = darkScheme.primary, scrollTrack = Color(0xFF465146)
 ))
 // Smooth shares semantic state behavior with Dark, using a blue-green palette.
 private val smoothScheme = darkScheme.copy(
@@ -108,9 +98,7 @@ val SmoothPalette = PracticePalette("smooth", smoothScheme, PracticeColors(
     transportSurface = Color(0xFF172D2E),
     selectionContainer = Color(0xFF315B58), onSelectionContainer = Color(0xFFD5F5EE),
     recording = smoothScheme.error, onRecording = smoothScheme.onError,
-    scrollThumb = smoothScheme.primary, scrollTrack = Color(0xFF35534F),
-    goals = listOf(GoalColors(smoothScheme.primary, smoothScheme.primaryContainer, smoothScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
-    unassignedGoalAccent = Color(0xFFC0D3D0)
+    scrollThumb = smoothScheme.primary, scrollTrack = Color(0xFF35534F)
 ))
 // Sunny uses warm light surfaces with amber/orange actions and readable dark text.
 private val sunnyScheme = lightScheme.copy(
@@ -134,9 +122,7 @@ val SunnyPalette = PracticePalette("sunny", sunnyScheme, PracticeColors(
     transportSurface = Color(0xFFFFE5A3),
     selectionContainer = Color(0xFFFFD875), onSelectionContainer = Color(0xFF482200),
     recording = sunnyScheme.error, onRecording = sunnyScheme.onError,
-    scrollThumb = sunnyScheme.primary, scrollTrack = Color(0xFFE9C981),
-    goals = listOf(GoalColors(sunnyScheme.primary, sunnyScheme.primaryContainer, sunnyScheme.onPrimaryContainer)) + LightPalette.colors.goals.drop(1),
-    unassignedGoalAccent = Color(0xFF5C4930)
+    scrollThumb = sunnyScheme.primary, scrollTrack = Color(0xFFE9C981)
 ))
 // Orchid pairs dark plum surfaces with light lavender actions.
 private val orchidScheme = darkScheme.copy(
@@ -160,9 +146,7 @@ val OrchidPalette = PracticePalette("orchid", orchidScheme, PracticeColors(
     transportSurface = Color(0xFF2A2034),
     selectionContainer = Color(0xFF57406F), onSelectionContainer = Color(0xFFF5E5FF),
     recording = orchidScheme.error, onRecording = orchidScheme.onError,
-    scrollThumb = orchidScheme.primary, scrollTrack = Color(0xFF51405F),
-    goals = listOf(GoalColors(orchidScheme.primary, orchidScheme.primaryContainer, orchidScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
-    unassignedGoalAccent = Color(0xFFD2C4DC)
+    scrollThumb = orchidScheme.primary, scrollTrack = Color(0xFF51405F)
 ))
 // Red night lighting; pale accents preserve selected outlines on instrument-red fills.
 private val submarineScheme = darkScheme.copy(
@@ -189,9 +173,7 @@ val SubmarinePalette = PracticePalette("submarine", submarineScheme, PracticeCol
     transportSurface = Color(0xFF2D1518),
     selectionContainer = Color(0xFF743139), onSelectionContainer = Color(0xFFFFDAD2),
     recording = submarineScheme.error, onRecording = submarineScheme.onError,
-    scrollThumb = submarineScheme.primary, scrollTrack = Color(0xFF743139),
-    goals = listOf(GoalColors(submarineScheme.primary, submarineScheme.primaryContainer, submarineScheme.onPrimaryContainer)) + DarkPalette.colors.goals.drop(1),
-    unassignedGoalAccent = Color(0xFFE5ABA5)
+    scrollThumb = submarineScheme.primary, scrollTrack = Color(0xFF743139)
 ))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {

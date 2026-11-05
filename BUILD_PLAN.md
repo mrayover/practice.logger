@@ -2,6 +2,10 @@
 
 Updated 2026-11-05 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## G1 — Goal priority colors and primary Block associations
+
+Room 19 adds a primary link and a first-accrual placement snapshot. Goal indicators and Block caps follow the current active priority. Complete ZIP v3 carries both new record types. Existing Goal session totals still use their established attribution. [Scope](PRACTICE_LOGGER_V1_MASTER_PLAN.md#10-g1g3--v1-goal-colors-block-filtering-and-truthful-statistics) · [Verification and delivery](CURRENT_STATE.md)
+
 ## O1 — Block-Local Practice Overlay Implementation
 
 Build95 delivers Highlight, Cover with Peek and Focus in the existing Block reference viewer. Room 18 stores editable Block-owned shapes and complete ZIP v2 preserves them with the original media. [Overlay scope](docs/PRACTICE_OVERLAY_SPEC.md) · [Verification and delivery](CURRENT_STATE.md)

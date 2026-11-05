@@ -231,3 +231,12 @@ A provider accepting the write does not establish cloud synchronization.
 - On a multipage PDF, confirm that each shape appears on its own page. Copy the markings to another Block using the same Library original and edit one copy. Cancel and then confirm removal of a test reference with markings.
 - While recording in Focused Practice, edit or peek at a marking and change pages. Confirm the timer and recording continue and the Stop control stays reachable.
 - Save a complete ZIP and restore it on a separate empty installation. Reopen the app, find the expected markings and edit one. If you back up to Drive or OneDrive, confirm the provider finishes syncing before relying on the copy.
+
+
+## G1 Goal priority and primary association phone checks
+
+1. Install over build95 with the permanent key. Open the Block Library and check an archived Block, a sole legacy Goal link and a Block with multiple legacy links. Verify the older links still appear in Goal management.
+2. Assign primary Goals to several Blocks. Check the five colors in priority order, a black No Goal cap and accessible names and ranks with TalkBack. Check the Block Library, Practice Now → Add Blocks, Session and Routine builders and Goal-associated Blocks. Repeat at enlarged text in Light, Dark and the other appearance choices.
+3. Move Goal C from third to first. Check that C is red, A orange and B yellow. Complete C and verify its Blocks show a completed label and hollow cap. Reopen C and check its new active rank.
+4. Practice and pause an assigned Block in an ordinary session, a Routine and a Goal-launched session. Change the Block’s primary Goal and resume the unfinished placement. Verify the visible Block association updates and the existing practice totals increase only by newly committed time. Skip a separate placement before starting it.
+5. On a disposable empty installation, restore a ZIP v3 and restart. Verify the primary assignments, editable markings, originals, notes, practice history and totals. Keep the owner’s existing installation and data in place.

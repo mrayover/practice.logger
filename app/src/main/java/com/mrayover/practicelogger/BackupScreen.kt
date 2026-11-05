@@ -217,6 +217,9 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
                     Text("Created by practice.logger ${data.appVersion}.")
                     Text("${rows["blocks"].size} Blocks, ${rows["sessions"].size} sessions, ${rows["routines"].size} Routines, ${rows["goals"].size} Goals and ${rows["daily_logs"].size} Logs.")
                     Text("${rows["media_assets"].size} Library assets, ${rows["takes"].size} saved recordings and ${rows["block_images"].size} legacy visual references. ${android.text.format.Formatter.formatFileSize(androidx.compose.ui.platform.LocalContext.current, data.mediaBytes)} of original media was verified.")
+                    if (rows["block_primary_goals"].isNotEmpty() || rows["placement_goal_snapshots"].isNotEmpty()) {
+                        Text("${rows["block_primary_goals"].size} primary Goal assignments and ${rows["placement_goal_snapshots"].size} practice attribution snapshots.")
+                    }
                     if (rows["practice_overlays"].isNotEmpty()) Text("${rows["practice_overlays"].size} editable practice markings.")
                     Text("Restore includes saved notes, audio annotations, standalone practice history and portable settings. Unfinished practice opens paused. Only an empty app can be restored.")
                 }

@@ -167,6 +167,15 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         val placement = checkNotNull(active(id).current)
         val updated = advancePractice(placement, deltaMs)
         dao.update(updated)
+        if (placement.activeMs == 0L && updated.activeMs > 0L) {
+            val attribution = db.goalAttribution()
+            val goalId = attribution.primaryGoalId(placement.sourceBlockId)
+            val priority = goalId?.let { id ->
+                (activeGoals(db.goals().readAll()).indexOfFirst { it.goal.id == id } + 1)
+                    .takeIf { it in 1..5 }
+            }
+            attribution.insert(PlacementGoalSnapshot(placement.id, goalId, priority))
+        }
         updated
     }
     suspend fun continueOvertime(id: String) = db.withTransaction {

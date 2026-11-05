@@ -37,9 +37,10 @@ import androidx.compose.ui.unit.dp
         }
         val visible = if (completed) rows.filter { it.goal.completed } else active
         if (visible.isEmpty()) Text(if (completed) "No completed Goals yet." else "Create a Goal to describe what you want to accomplish.")
+        val indicators = LocalGoalIndicators.current
         visible.forEachIndexed { i, bundle ->
             val g = bundle.goal
-            OutlinedButton(onClick = { onGoal(g.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("open-goal-${g.id}")) {
+            OutlinedButton(onClick = { onGoal(g.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("open-goal-${g.id}").goalEndCap(indicators.goal(g.id))) {
                 Text((if (completed) "" else "${i + 1}. ") + g.title + " · ${g.progress}%")
             }
             if (!completed) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -56,7 +57,12 @@ import androidx.compose.ui.unit.dp
     GoalPage(onGoals, "Back to Goals", bundle?.goal?.title ?: "Goal unavailable") {
         if (bundle == null) { Text("Return to Goals and select an available Goal."); return@GoalPage }
         val g = bundle.goal
-        if (g.completed) Text("Completed Goal")
+        val indicators = LocalGoalIndicators.current
+        val indicator = indicators.goal(g.id)
+        if (indicator != null) {
+            Text(indicator.priority?.let { "Priority $it" } ?: "Completed Goal",
+                Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 16.dp))
+        }
         if (g.description.isNotBlank()) Text(g.description)
         Text("${g.progress}% complete · set by you", style = MaterialTheme.typography.titleLarge)
         var progress by rememberSaveable(g.id, g.progress) { mutableStateOf(g.progress.toString()) }
@@ -71,8 +77,15 @@ import androidx.compose.ui.unit.dp
         bundle.ordered.forEach { link ->
             val b = blocks[link.blockId]
             if (b == null) Text("Unavailable Block (${link.blockId}) — remove it in Manage Blocks.")
-            else OutlinedButton(onClick = { onBlock(b.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-                Text((if (b.archived) "Archived: " else "") + b.name + " · ${b.durationMinutes} min")
+            else {
+                val primary = indicators.block(b.id)
+                OutlinedButton(onClick = { onBlock(b.id) },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).goalEndCap(primary)) {
+                    Column(Modifier.fillMaxWidth()) {
+                        Text((if (b.archived) "Archived: " else "") + b.name + " · ${b.durationMinutes} min")
+                        BlockGoalLabel(primary)
+                    }
+                }
             }
         }
         if (bundle.blocks.any { blocks[it.blockId]?.archived != false }) Text("Archived and unavailable Blocks stay linked but are excluded from new Goal practice.")
@@ -119,7 +132,8 @@ import androidx.compose.ui.unit.dp
     var query by rememberSaveable { mutableStateOf("") }
     GoalPage(onBack, "Back to Goal", "Goal Blocks") {
         if (bundle == null) { Text("This Goal is unavailable."); return@GoalPage }
-        Text("Choose existing Blocks. Shared Blocks retain their identity and content.")
+        Text("Choose existing Blocks. Removing a Block from its primary Goal clears the primary assignment.")
+        val indicators = LocalGoalIndicators.current
         OutlinedTextField(query, { query = it }, label = { Text("Find Blocks") }, modifier = Modifier.fillMaxWidth())
         val selected = bundle.ordered.map { it.blockId }
         bundle.ordered.filter { link -> blocks.none { it.id == link.blockId } }.forEach { link ->
@@ -129,9 +143,13 @@ import androidx.compose.ui.unit.dp
         if (blocks.isEmpty()) Text("Create a Block in the Block Library, then return to this Goal.")
         blocks.filter { it.name.contains(query.trim(), ignoreCase = true) }.forEach { block ->
             val linked = block.id in selected
+            val indicator = indicators.block(block.id)
             OutlinedButton(onClick = { vm.blocks(bundle.goal.id, if (linked) selected - block.id else selected + block.id) },
-                enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics { stateDescription = if (linked) "Associated" else "Not associated" }) {
-                Text((if (linked) "Remove " else "Add ") + block.name + (if (block.archived) " (archived)" else ""))
+                enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics { stateDescription = if (linked) "Associated" else "Not associated" }.goalEndCap(indicator)) {
+                Column(Modifier.fillMaxWidth()) {
+                    Text((if (linked) "Remove " else "Add ") + block.name + (if (block.archived) " (archived)" else ""))
+                    BlockGoalLabel(indicator)
+                }
             }
         }
         OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Open Block Library") }

@@ -98,16 +98,27 @@ private val portableTablesV1 = listOf(
 )
 
 private const val OVERLAY_TABLE = "practice_overlays"
-internal const val PORTABLE_VERSION = 2
-internal val portableTables = portableTablesV1 + PortableTable(OVERLAY_TABLE,
+private const val PRIMARY_TABLE = "block_primary_goals"
+private const val SNAPSHOT_TABLE = "placement_goal_snapshots"
+internal const val PORTABLE_VERSION = 3
+private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
+internal val portableTables = portableTablesV2 + listOf(
+    PortableTable(PRIMARY_TABLE, "blockId goalId"),
+    PortableTable(SNAPSHOT_TABLE, "placementId goalId:s? priority:i?")
+)
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
 }
 
 internal class PortableRecords(val payload: JSONObject, version: Int) {
-    private val formatTables = if (version == 1) portableTablesV1 else portableTables
+    private val formatTables = when (version) {
+        1 -> portableTablesV1
+        2 -> portableTablesV2
+        PORTABLE_VERSION -> portableTables
+        else -> error("Unsupported portable backup version.")
+    }
     val tables: JSONObject = payload.getJSONObject("tables")
     val preferences: JSONObject = payload.getJSONObject("preferences")
     private val rows = formatTables.associate { table ->
@@ -118,19 +129,21 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
     }
     val counts = JSONObject().apply { rows.forEach { (name, values) -> put(name, values.size) } }
     operator fun get(table: String): List<JSONObject> =
-        if (table == OVERLAY_TABLE) rows[table].orEmpty() else rows.getValue(table)
+        when (table) {
+            OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE -> rows[table].orEmpty()
+            else -> rows.getValue(table)
+        }
     private val maxOverlayPageByReference: Map<String, Int>
 
     init {
         val base = setOf("tables", "preferences")
         when (version) {
             1 -> require(payload.keys().asSequence().toSet() == base)
-            PORTABLE_VERSION -> {
+            else -> {
                 require(payload.keys().asSequence().toSet() == base + "version")
                 val stored = payload.get("version")
-                require(stored == PORTABLE_VERSION || stored == PORTABLE_VERSION.toLong()) { "Unsupported backup records version." }
+                require(stored == version || stored == version.toLong()) { "Unsupported backup records version." }
             }
-            else -> error("Unsupported portable backup version.")
         }
         require(tables.keys().asSequence().toSet() == rows.keys) { "Unexpected backup record type." }
         val overlays = this[OVERLAY_TABLE]
@@ -158,6 +171,28 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         val legacy = JSONObject().put("format", "practice.logger.backup").put("version", 7)
         formatTables.forEach { table -> table.legacyKey?.let { legacy.put(it, JSONArray(this[table.name])) } }
         val core = BackupCodec.decodeObject(legacy)
+        val placements = core.placements.associateBy { it.id }
+        val goalIds = core.goals.mapTo(hashSetOf()) { it.id }
+        val links = core.goalBlocks.mapTo(hashSetOf()) { it.blockId to it.goalId }
+        val primaryBlocks = hashSetOf<String>()
+        for (row in this[PRIMARY_TABLE]) {
+            val blockId = row.getString("blockId")
+            require(primaryBlocks.add(blockId) && (blockId to row.getString("goalId")) in links) {
+                "Invalid primary Goal association."
+            }
+        }
+        val snapshots = hashSetOf<String>()
+        for (row in this[SNAPSHOT_TABLE]) {
+            val placementId = row.getString("placementId")
+            require(snapshots.add(placementId) && (placements[placementId]?.activeMs ?: 0L) > 0L) {
+                "A Goal snapshot requires a unique placement with committed practice time."
+            }
+            val goalId = if (row.isNull("goalId")) null else row.getString("goalId")
+            require(goalId == null || goalId in goalIds) { "A Goal snapshot refers to a missing Goal." }
+            require(row.isNull("priority") || goalId != null && row.getInt("priority") in 1..5) {
+                "Invalid historical Goal priority."
+            }
+        }
         var total = core.placements.fold(0L) { sum, row -> Math.addExact(sum, row.activeMs) }
         val assets = this["media_assets"].associateBy { it.getString("id") }
         val legacyBlocks = this["block_images"].mapTo(hashSetOf()) { it.getString("blockId") }

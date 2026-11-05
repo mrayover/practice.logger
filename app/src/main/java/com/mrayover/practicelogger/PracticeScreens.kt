@@ -92,10 +92,13 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         Text("Build a Session", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Arrange Blocks for this session. Duration changes here leave your saved Blocks unchanged.")
         if (entries.isEmpty()) Text("Add a Block below to begin.")
+        val indicators = LocalGoalIndicators.current
         entries.forEachIndexed { index, placement ->
-            Column(Modifier.fillMaxWidth().testTag("placement-" + index), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            val indicator = indicators.block(placement.sourceBlockId)
+            Column(Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 16.dp).testTag("placement-" + index), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text((index + 1).toString() + ". " + placement.name, style = MaterialTheme.typography.titleLarge)
                 Text(placement.action)
+                BlockGoalLabel(indicator)
                 Text("Session duration: " + practiceTime(placement.configuredMs))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     OutlinedButton(onClick = { vm.move(placement.id, -1) }, enabled = !vm.busy && !routines.busy && index > 0, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Move " + placement.name + ", placement " + (index + 1) + ", up" }) { Text("Up") }
@@ -117,10 +120,12 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         val available = matchingBlocks(blocks, query, false)
         if (available.isEmpty()) Text("No matching active Blocks. Create a Block to add it here.")
         available.forEach { block ->
-            OutlinedButton(onClick = { vm.addBlock(block.id) }, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            val indicator = indicators.block(block.id)
+            OutlinedButton(onClick = { vm.addBlock(block.id) }, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).goalEndCap(indicator)) {
                 Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Text("Add " + block.name)
                     Text(block.durationMinutes.toString() + " min Â· " + block.action, style = MaterialTheme.typography.bodyMedium)
+                    BlockGoalLabel(indicator)
                 }
             }
         }

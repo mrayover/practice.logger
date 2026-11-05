@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 @Composable fun CatalogPill(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)) {
-        // A separate body leaves room beside it for future Goal end caps.
         Row(Modifier.heightIn(min = 64.dp)) {
             Column(Modifier.weight(1f).padding(horizontal = 20.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp), content = content)
