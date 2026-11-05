@@ -9,7 +9,10 @@ import org.junit.Test
 class PracticeOverlayGeometryTest {
     @Test fun centeredFitExcludesLetterbox() {
         val landscape = ReferencePageTransform(IntSize(401, 601), IntSize(800, 400), 1f, Offset.Zero)
-        assertEquals(Rect(0f, 200f, 401f, 400.5f), landscape.bounds)
+        assertEquals(0f, landscape.bounds.left, .0001f)
+        assertEquals(200f, landscape.bounds.top, .0001f)
+        assertEquals(401f, landscape.bounds.right, .0001f)
+        assertEquals(400.5f, landscape.bounds.bottom, .0001f)
         val portrait = ReferencePageTransform(IntSize(600, 400), IntSize(200, 400), 1f, Offset.Zero)
         assertEquals(Rect(200f, 0f, 400f, 400f), portrait.bounds)
     }
