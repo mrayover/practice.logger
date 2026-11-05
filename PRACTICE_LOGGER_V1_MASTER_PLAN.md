@@ -356,7 +356,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] T2 local overrides/markers, explicit promotion/reset, safe master deletion and persisted audio state. See [CURRENT_STATE](CURRENT_STATE.md) for signed delivery and scoped verification.
 - [ ] T3D physical-device concurrent reference playback/Free Record, keyboard and session/lifecycle safety.
 - [x] S0 documented [SAF evidence, provider limitations and fallback decision](docs/S0_STORAGE_DECISION.md). Device qualification of Drive, OneDrive and folder-tree operations remains open.
-- [ ] S1 organized non-destructive audio export and user-selectable destination.
+- [x] S1 organized non-destructive audio export and user-selectable destination. See [CURRENT_STATE](CURRENT_STATE.md) for local SAF verification and pending phone checks.
 - [ ] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
 - [ ] G2 Goal filter combined with available search across all three Block selection contexts.

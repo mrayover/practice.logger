@@ -40,6 +40,12 @@ Use the current APK or ZIP linked in [CURRENT_STATE.md](CURRENT_STATE.md). That 
 
 Android 8.0+; install over the existing permanent-key app **without uninstalling** to retain data/audio. Package ID: `com.mrayover.practicelogger.app`. Original temporary-key 0.1.0 is a separate app with no automatic data transfer. CI debug APKs use a temporary key and cannot update the permanent-key distribution.
 
+## Exporting audio
+
+Open the Settings gear and find **Storage → Export destination** to choose a writable folder. From a saved take, tap **Export audio**, then **Export to Selected Folder** or **Save As…**. With no folder selected, Export audio opens Save As directly.
+
+Organized exports copy original audio into `Recordings/<Block name> - <Block ID>/<saved date>/` or `Recordings/Free Recordings/<saved date>/`. Filenames include the local recording time, a take label or recorded loop beat count and BPM, and a short take ID. Repeated copies use distinct filenames. If a provider cannot create the folders or write the file, choose another folder or use Save As. Drive and OneDrive availability depends on what their Android providers expose. The original remains in practice.logger.
+
 ## Using the app
 
 - **Blocks:** create/edit with required Name/Action, default duration and optional tempo/notes. Search name/action/notes literally, switch Active/Archived, Archive/Restore, or select Delete Permanently in a saved Block's editor.

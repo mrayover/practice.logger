@@ -1,14 +1,28 @@
-# Current state — S0 storage and recovery decision
+# Current state — S1 Organized Audio Export
 
 Updated November 4, 2026 (America/Los_Angeles).
 
-## S0 outcome
+## Signed S1 delivery
 
-The [S0 decision](docs/S0_STORAGE_DECISION.md) selects Android SAF with optional writable folder access and manual Save As. Historical API 26 evidence covers local single-file Save As and handling a missing provider. A fresh device run, folder-tree operations and Drive/OneDrive behavior remain unverified. The decision records the phone checklist and the complete ZIP restore design.
+**0.28.0/build92**, app source `9c29261bc8fee96b11e3cf693f56eb668017bf7a`. Install over build91 without clearing app data. [APK](dist/practice.logger-0.28.0-b92-9c29261/practice.logger-0.28.0-b92-9c29261.apk) · [ZIP](dist/practice.logger-0.28.0-b92-9c29261.zip) · [Build info](dist/practice.logger-0.28.0-b92-9c29261/BUILD_INFO.json) · [Phone checklist](MANUAL_TESTS.md#s1--organized-audio-export-phone-checks)
 
-**Exact next task:** S1 — Organized Audio Export, upon separate owner assignment.
+Package `com.mrayover.practicelogger.app` and pinned certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` verified. APK SHA-256 `82ab5803eca73a9a61e611f7f0b651422d3de7eb741e0e0e586e3f193e360d79`. ZIP SHA-256 `d27a5b56ec71d26a561a5e220e8c4a0f6f81d16a4bcb5add233776d5832aa939`. All 67 unsigned APK payload entries match the signed APK. ZIP round-trip passed and all 426 existing APK/ZIP files retained their hashes.
 
-## Signed delivery
+## S1 implementation
+
+Settings → Storage chooses, changes or forgets a folder and checks current access. Saved-take export uses Android SAF, retains the returned read/write permission and copies original bytes into Block/date or Free Recordings/date folders. Same-name Blocks use stable IDs and repeated exports create independent documents. Save As stays available, including when a provider cannot create or write the organized path. Copy failures preserve originals and report whether the new partial document was removed or may remain. [Usage and naming](README.md#exporting-audio)
+
+Debug, release and instrumentation compiled, all 50 scoped unit tests passed and the generated Room 16 schema matched the baseline byte for byte. [Build and unit tests](https://github.com/mrayover/practice.logger/actions/runs/41938953027)
+
+[API 26](https://github.com/mrayover/practice.logger/actions/runs/41939860147) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/41939862743/job/126958161118) passed the organized-export test on the local SAF provider. It covers picker selection, retained access after Activity recreation, Block/standalone paths, same-name Blocks, Block rename, repeated exports, original MP3/M4A/WAV fixture bytes, a rejected read-only grant, missing source, partial-copy cleanup, retry and forgetting access. API 26 also passed the existing Block and standalone recording workflows, including per-take Save As. API 35's generic diagnostic later stopped on a missing generated fixture for Record Reference. The app source in the signed build is identical to the app source tested by these runs.
+
+The dedicated API 35 workflows generated the fixtures and passed both Record Reference tests and both T3D concurrent capture tests. [Record Reference](https://github.com/mrayover/practice.logger/actions/runs/41940462250) · [T3D](https://github.com/mrayover/practice.logger/actions/runs/41940465228)
+
+Drive and OneDrive are untested. The local and cloud owner-phone checklist includes folder persistence after app restart, stale grants, interrupted copies and provider availability. [Phone checklist](MANUAL_TESTS.md#s1--organized-audio-export-phone-checks)
+
+**S2 — Complete Portable ZIP Backup and Verified Restore** awaits a separate owner assignment.
+
+## Retained build91 — T3D signed delivery
 
 **0.27.0/build91**, app source `1b842504cb04b8b19f44eeb40867332a7e54f9f6`. Install over build90 without uninstalling or clearing data. [APK](dist/practice.logger-0.27.0-b91-1b84250/practice.logger-0.27.0-b91-1b84250.apk) · [ZIP](dist/practice.logger-0.27.0-b91-1b84250.zip) · [Build info](dist/practice.logger-0.27.0-b91-1b84250/BUILD_INFO.json) · [Phone checklist](dist/practice.logger-0.27.0-b91-1b84250/PHONE_CHECKLIST.txt)
 

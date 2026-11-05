@@ -202,3 +202,15 @@ Physical owner-phone acceptance is pending. Record the Android version, device a
 - [ ] Repeat with the phone speaker. The microphone may pick up sound from the speaker. Listen to the take to verify usable capture for that setup.
 - [ ] During capture, background the app, rotate, unplug headphones, connect or disconnect Bluetooth, and trigger an audio interruption. Check that capture stops on foreground loss, device connection changes or playback focus loss. Valid temporary audio should remain available for review where possible. Neither stream should restart automatically on returning to the app. Check microphone denial and recovery, rapid Record/Stop, and that leaving the session requires resolving the pending take.
 - [ ] Check **Record Reference** separately in Block and standalone Transcribe, ordinary Free Record, Record Loop, Reference Piano and metronome. The build90 keyboard **Done** BPM check and the T3C phone checklist also remain pending.
+
+## S1 — Organized Audio Export phone checks
+
+Use disposable folders and sample takes. Record the phone Android version and the installed Drive and OneDrive versions. Repeat for local storage, Drive and OneDrive where each appears in the system picker.
+
+1. From the Settings gear, open Storage. Choose a writable folder. Cancel Change Folder and confirm the previous selection remains. Restart the app, export again, then select a different folder and confirm only new exports go there.
+2. Export a Block free take, a recorded WAV loop, a standalone free take and an imported backing track. Check the date is the saved take's local date and verify the file plays with its original format. Repeat an export, export from two same-name Blocks and rename one Block. Check that earlier copies remain and all original takes still play in practice.logger.
+3. When automatic export fails, use Save As and select a writable location. Verify that an unavailable provider can be replaced with a local destination. If the provider appears only in Save As, record that result separately.
+4. Forget the folder and confirm Export audio still opens Save As. Re-select, then revoke access, move the test folder, sign out or go offline as appropriate. Check that the app explains the failure and offers Choose Folder and Save As.
+5. Interrupt a large sample export to a disposable destination. Check that the original stays playable and that an incomplete copy is removed or reported. Retry to a new document. For cloud providers, verify the completed copy separately after reconnecting.
+
+A provider accepting the write does not establish cloud synchronization.

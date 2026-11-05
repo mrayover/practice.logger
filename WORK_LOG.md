@@ -1023,3 +1023,11 @@ Published local permanent-key 0.27.0/build91. Verified build90 certificate conti
 Reviewed the mandatory efficiency procedure, live main at `86f93125`, signed 0.27.0/build91 provenance, the existing recording and backup paths, and Android SAF documentation. The earlier API 26 recording diagnostic verified local Downloads Save As and missing-provider failure with source preservation. No Android device was connected for a fresh trial. Tree operations, write interruption and Drive/OneDrive interoperability remain open.
 
 The [S0 decision](docs/S0_STORAGE_DECISION.md) specifies optional organized trees plus per-take Save As in S1, and a staged, verified portable ZIP with empty-installation restore in S2. The owner confirmed the metronome BPM keyboard Done fix on their phone. This was a documentation-only milestone. S1 awaits separate assignment.
+
+## 2026-11-04 — S1 organized audio export
+
+Implemented Settings → Storage and organized per-take SAF copies with stable Block folders, saved local dates and fresh document names. Reused the recording repository's byte-copy path for organized export and Save As. Persisted access is rechecked, failed writes clean up only the new document when possible, and the private recording stays available. Room 16 and JSON 7 retain their formats.
+
+Signed 0.28.0/build92 from `9c29261bc8fee96b11e3cf693f56eb668017bf7a`. The build compiled three APK variants, passed 50 scoped unit tests and generated an identical Room 16 schema. Verified package/version, permanent certificate, APK payload and ZIP integrity, plus 426 earlier distribution APK/ZIP hashes.
+
+The API 26 and API 35 local SAF tests passed after test-only changes for picker navigation and replacing an API 26 shell checksum timeout with provider byte read-back. API 26 also passed the existing Block/standalone recording tests, including Save As. API 35's generic diagnostic passed the organized-export test before Record Reference failed on the missing generated audio fixture. Dedicated fixture-backed API 35 runs passed both Record Reference tests (41940462250) and both T3D tests (41940465228). Drive and OneDrive were untested. See [CURRENT_STATE](CURRENT_STATE.md) for evidence and [the phone checklist](MANUAL_TESTS.md#s1--organized-audio-export-phone-checks). S2 awaits separate assignment.
