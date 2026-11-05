@@ -73,7 +73,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     constructor(db: BlockDatabase, context: Context) : this(db, File(context.filesDir, "recordings"))
     private val dao get() = db.takes()
     companion object {
-        private val filesMutex = Mutex()
+        internal val filesMutex = Mutex()
         private val activeFiles = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     }
     val takes = db.takes().observeAll()
@@ -181,7 +181,7 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
     }
 }
 
-private fun recordedDuration(file: File): Long {
+internal fun recordedDuration(file: File): Long {
     val reader = MediaMetadataRetriever()
     try {
         reader.setDataSource(file.absolutePath)

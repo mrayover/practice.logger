@@ -48,7 +48,7 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
     companion object {
         const val MAX_BYTES = 20 * 1024 * 1024
         const val MAX_PDF_PAGES = 100
-        private val filesMutex = Mutex() // Shared by editor, viewer and recovery instances.
+        internal val filesMutex = Mutex() // Shared by editor, viewer and recovery instances.
         private val ownedName = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(img|pdf|pending)")
     }
     val images = db.images().observeAll()

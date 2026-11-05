@@ -54,7 +54,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
     private val freeBytes: () -> Long = { directory.usableSpace }) {
     companion object {
         // Serialize import/finalize/commit/delete/recovery across all repository instances.
-        private val filesMutex = Mutex()
+        internal val filesMutex = Mutex()
         private val ownedName = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(pending|jpg|png|webp|pdf|mp3|m4a|wav)")
         private val formats = mapOf("jpg" to "image/jpeg", "jpeg" to "image/jpeg", "png" to "image/png",
             "webp" to "image/webp", "pdf" to "application/pdf", "mp3" to "audio/mpeg", "m4a" to "audio/mp4", "wav" to "audio/wav")

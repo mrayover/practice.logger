@@ -55,6 +55,10 @@ object BackupCodec {
         val tokener = org.json.JSONTokener(text)
         val root = tokener.nextValue() as? JSONObject ?: error("Invalid backup object.")
         require(tokener.nextClean() == '\u0000') { "Trailing backup content." }
+        return decodeObject(root)
+    }
+
+    internal fun decodeObject(root: JSONObject): BackupData {
         require(root.text("format") == "practice.logger.backup" && root.int("version") in 1..7) { "Unsupported backup format/version." }
         return BackupData(
             root.rows("blocks").map { b -> Block(b.text("id"), b.text("name"), b.text("action"), b.int("durationMinutes"), b.nullInt("tempo"), b.text("notes"), b.bool("archived"), b.number("createdAt"), b.number("updatedAt")) },
