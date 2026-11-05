@@ -80,15 +80,13 @@ class OrganizedExportTest {
                 val loop = take.copy(id = UUID.randomUUID().toString(), mode = "LOOP", fileName = "fixture.wav",
                     recordedBpm = 120, beatCount = 64)
                 assertTrue(copy(loop).contains("64beats 120bpm"))
-                for (extension in listOf("mp3", "m4a", "wav")) {
-                    val imported = take.copy(id = UUID.randomUUID().toString(), mode = "IMPORTED_LOOP", fileName = "fixture.$extension")
-                    val relativePath = copy(imported).substringAfter('/')
+                fun savedDocument(relativePath: String): Uri {
                     val tree = destination.uri
                     var id = DocumentsContract.getTreeDocumentId(tree)
                     for (segment in relativePath.split('/')) {
                         val children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, id)
                         id = checkNotNull(context.contentResolver.query(children,
-                            arrayOf(Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME), null, null, null)).use { cursor ->
+                            arrayOf(Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME), null, null)).use { cursor ->
                             val ids = mutableListOf<String>()
                             while (cursor.moveToNext()) {
                                 if (cursor.getString(1) == segment) ids.add(cursor.getString(0))
@@ -96,10 +94,25 @@ class OrganizedExportTest {
                             ids.single()
                         }
                     }
-                    val uri = DocumentsContract.buildDocumentUriUsingTree(tree, id)
+                    return DocumentsContract.buildDocumentUriUsingTree(tree, id)
+                }
+                for (extension in listOf("mp3", "m4a", "wav")) {
+                    val imported = take.copy(id = UUID.randomUUID().toString(), mode = "IMPORTED_LOOP", fileName = "fixture.$extension")
+                    val uri = savedDocument(copy(imported).substringAfter('/'))
                     val actual = checkNotNull(context.contentResolver.openInputStream(uri)).use { it.readBytes() }
                     assertArrayEquals(bytes, actual)
                 }
+                val stagedZip = File(context.cacheDir, "organized-${UUID.randomUUID()}.zip")
+                try {
+                    PortableZip(context, BlockDatabase.appInstance(context)).create(stagedZip)
+                    val zip = storage.saveZipInSelectedFolder("Portable backup.zip", stagedZip)
+                    assertTrue(zip.readBack)
+                    assertEquals("${destination.label}/Backups/Portable backup.zip", zip.location)
+                    val published = savedDocument(zip.location.substringAfter('/'))
+                    assertArrayEquals(stagedZip.readBytes(),
+                        checkNotNull(context.contentResolver.openInputStream(published)).use { it.readBytes() })
+                    assertNull(storage.unfinishedZipCopy())
+                } finally { stagedZip.delete() }
                 try {
                     storage.export(destination, take, "Same Block", source) { output ->
                         output.write(bytes, 0, 7)
