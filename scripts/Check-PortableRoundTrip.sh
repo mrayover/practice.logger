@@ -43,7 +43,7 @@ timeout --kill-after=10s 180s adb shell am instrument -w -r -e timeout_msec 1200
   -e class "$package.PortableRestoreProcessDeathTest#dieAfterDatabaseCommit" "$runner" \
   | tee app/build/targeted-s2-process-death.txt || true
 grep -F 'Process crashed' app/build/targeted-s2-process-death.txt
-adb shell "run-as $app test -s files/portable-restore/journal.json"
+adb shell "run-as $app sh -c 'test -s files/portable-restore/journal.json'"
 run 'PortableZipRoundTripTest#verifyAfterProcessRestart' app/build/targeted-s2-recover.txt
-adb shell "run-as $app test ! -e files/portable-restore/journal.json"
+adb shell "run-as $app sh -c 'test ! -e files/portable-restore/journal.json'"
 adb shell rm -f "$temp"
