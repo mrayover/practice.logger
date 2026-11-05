@@ -81,6 +81,9 @@ jobs:
           else
             bash ./gradlew testDebugUnitTest --tests '*TranscribeActivityTest' --tests '*GoalRepositoryTest' --tests '*BackupRepositoryTest' --tests '*ToolLogicTest' --tests '*Piano*Test' --tests '*Library*Test' --tests '*BlockMedia*Test' --tests '*BlockAudio*Test' --tests '*MediaMarkerTest' --tests '*MediaMigrationTest' --tests '*RecordingRepositoryTest' --tests '*PhraseRepositoryTest' --tests '*StandaloneRecordingTest' --stacktrace
           fi
+      - name: Scoped release lint
+        if: ${{ inputs.scope == 'backup-build' }}
+        run: bash ./gradlew lintDebug --stacktrace
       - name: Reuse verified compilation
         if: ${{ inputs.compiled_run != '' }}
         env:
@@ -106,6 +109,7 @@ jobs:
             app/schemas/com.mrayover.practicelogger.BlockDatabase/18.json
             app/build/outputs/apk
             app/build/test-results/testDebugUnitTest
+            app/build/reports/lint-results-debug.xml
             app/schemas/com.mrayover.practicelogger.BlockDatabase/16.json
             app/schemas/com.mrayover.practicelogger.BlockDatabase/17.json
       - name: Emulator acceleration

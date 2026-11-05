@@ -43,4 +43,3 @@ internal fun overlayRectangle(start: Offset, end: Offset) = Rect(
 internal fun moveOverlay(rect: Rect, delta: Offset): Rect = rect.translate(
     delta.x.coerceIn(-rect.left, 1f - rect.right), delta.y.coerceIn(-rect.top, 1f - rect.bottom)
 )
-

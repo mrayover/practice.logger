@@ -39,4 +39,3 @@ class PracticeOverlayGeometryTest {
         assertFalse(validOverlayBounds(0, .5f, 1, .25f))
     }
 }
-

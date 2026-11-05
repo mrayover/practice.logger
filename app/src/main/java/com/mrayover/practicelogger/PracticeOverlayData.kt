@@ -245,4 +245,3 @@ internal val OVERLAY_MIGRATION_17_18 = object : Migration(17, 18) {
         installPracticeOverlayConstraints(db)
     }
 }
-
