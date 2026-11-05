@@ -41,6 +41,7 @@ internal class PortableRestore(
     private val context: Context,
     private val db: BlockDatabase,
     private val files: File = context.filesDir,
+    private val freeBytes: (File) -> Long = File::getUsableSpace,
     private val atBoundary: (RestoreBoundary) -> Unit = {}
 ) {
     private val directory = File(files, "portable-restore")
@@ -75,6 +76,7 @@ internal class PortableRestore(
         val stage = File(directory, "stage-${UUID.randomUUID()}")
         check(stage.mkdir())
         try {
+            check(freeBytes(stage) >= PORTABLE_SPACE_RESERVE) { "Free private storage before restoring." }
             val archive = File(stage, "input.zip")
             FileOutputStream(archive).use { output ->
                 open().use { copyPortable(it, output, PORTABLE_ZIP_LIMIT, stage) }

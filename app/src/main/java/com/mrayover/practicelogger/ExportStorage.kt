@@ -135,22 +135,18 @@ internal class ExportStorage(context: Context) {
         finalize: (() -> String)? = null): ZipPublication {
         try {
             check(prefs.edit().putString("zip-pending-name", name).commit()) { "Could not record the pending backup copy." }
-            val size = source.length()
-            require(source.isFile && size in 1..PORTABLE_ZIP_LIMIT)
-            val written = checkNotNull(resolver.openOutputStream(uri, "wt")) { "The provider refused the backup file." }.use { output ->
-                source.inputStream().use { copyPortable(it, output, size) }.also { output.flush() }
-            }
-            check(written.bytes == size) { "The verified private ZIP could not be read completely." }
-            val input = try { resolver.openInputStream(uri) }
-            catch (_: java.io.FileNotFoundException) { null }
-            catch (_: SecurityException) { null }
-            val readBack = input?.use { copyPortable(it, null, size) }
-            if (readBack != null) check(readBack == written) { "The destination ZIP failed integrity verification." }
+            val readBack = copyZipToDestination(source, open = {
+                checkNotNull(resolver.openOutputStream(uri, "wt")) { "The provider refused the backup file." }
+            }, reopen = {
+                try { resolver.openInputStream(uri) }
+                catch (_: java.io.FileNotFoundException) { null }
+                catch (_: SecurityException) { null }
+            })
             currentCoroutineContext().ensureActive()
-            check(finalize == null || readBack != null) { "The selected folder cannot verify the ZIP. Use Save As." }
+            check(finalize == null || readBack) { "The selected folder cannot verify the ZIP. Use Save As." }
             val location = finalize?.invoke() ?: name
             prefs.edit().remove("zip-pending-name").commit()
-            return ZipPublication(location, readBack != null)
+            return ZipPublication(location, readBack)
         } catch (failure: Exception) {
             val removed = runCatching { DocumentsContract.deleteDocument(resolver, uri) }.getOrDefault(false)
             if (removed) prefs.edit().remove("zip-pending-name").commit()
@@ -256,6 +252,19 @@ internal class ExportStorage(context: Context) {
         }
         return if (optional) runCatching(read).getOrDefault(emptyList()) else read()
     }
+}
+
+internal suspend fun copyZipToDestination(source: File, open: () -> java.io.OutputStream,
+    reopen: () -> java.io.InputStream?): Boolean {
+    val size = source.length()
+    require(source.isFile && size in 1..PORTABLE_ZIP_LIMIT)
+    val written = open().use { output ->
+        source.inputStream().use { copyPortable(it, output, size) }.also { output.flush() }
+    }
+    check(written.bytes == size) { "The verified private ZIP could not be read completely." }
+    val readBack = reopen()?.use { copyPortable(it, null, size) } ?: return false
+    check(readBack == written) { "The destination ZIP failed integrity verification." }
+    return true
 }
 
 internal fun exportSafeName(value: String, fallback: String): String =
