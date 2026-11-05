@@ -28,18 +28,34 @@ class OrganizedExportTest {
         val context = instrumentation.targetContext
         val storage = ExportStorage(context)
         val directory = "S1-" + UUID.randomUUID().toString().take(8)
-        val root = "/sdcard/Download/$directory"
-        device.executeShellCommand("mkdir -p $root")
+        val downloads = "/sdcard/Download/$directory"
+        val documents = "/sdcard/Documents/$directory"
+        device.executeShellCommand("mkdir -p $downloads $documents")
         val source = File.createTempFile("export-source", ".bin", context.cacheDir)
         val bytes = ByteArray(9000) { (it % 251).toByte() }
         source.writeBytes(bytes)
         try {
             compose.onNodeWithContentDescription("Settings").performClick()
             compose.onNodeWithText("Choose Folder").scrollIfNeeded().performClick()
-            checkNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)).click()
-            checkNotNull(device.wait(Until.findObject(By.text("Downloads")), 10000))
-            device.findObjects(By.text("Downloads")).last().click()
-            checkNotNull(device.wait(Until.findObject(By.text(directory)), 10000)).click()
+            val entry = By.text(directory)
+            val documentsFolder = By.text("Documents")
+            check(device.wait(Until.hasObject(entry), 1000) ||
+                device.wait(Until.hasObject(documentsFolder), 3000) ||
+                device.wait(Until.hasObject(By.desc("Show roots")), 5000)) { "Local folder picker did not open" }
+            val root = when {
+                device.hasObject(entry) -> downloads
+                device.hasObject(documentsFolder) -> {
+                    device.findObjects(documentsFolder).last().click()
+                    documents
+                }
+                else -> {
+                    device.findObject(By.desc("Show roots")).click()
+                    checkNotNull(device.wait(Until.findObject(By.text("Downloads")), 10000))
+                    device.findObjects(By.text("Downloads")).last().click()
+                    downloads
+                }
+            }
+            checkNotNull(device.wait(Until.findObject(entry), 10000)) { "Fixture folder is not visible" }.click()
             checkNotNull(device.wait(Until.findObject(By.text(Pattern.compile("(?i)(use this folder|select)"))), 10000)).click()
             device.wait(Until.findObject(By.text(Pattern.compile("(?i)allow"))), 3000)?.click()
             compose.waitUntil(10000) { storage.selected() != null }
