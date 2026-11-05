@@ -39,6 +39,22 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     var label by rememberSaveable { mutableStateOf("") }
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     var exportId by rememberSaveable { mutableStateOf<String?>(null) }
+    var exportOptionsId by rememberSaveable { mutableStateOf<String?>(null) }
+    var destination by remember { mutableStateOf(vm.exportStorage.selected()) }
+    var folderFeedback by rememberSaveable { mutableStateOf<String?>(null) }
+    var recoveredWarning by rememberSaveable { mutableStateOf(vm.exportStorage.unfinishedCopy()) }
+    val chooseFolder = exportFolderPicker(vm.exportStorage) { error ->
+        destination = vm.exportStorage.selected()
+        folderFeedback = error
+    }
+    LaunchedEffect(vm.failedOrganizedExport, blockId) {
+        val failed = vm.failedOrganizedExport
+        if (failed != null && takes.any { it.id == failed }) {
+            exportOptionsId = failed
+            folderFeedback = vm.message
+            vm.failedOrganizedExport = null
+        }
+    }
     var phraseDialog by rememberSaveable { mutableStateOf(false) }
     var pendingStart by rememberSaveable { mutableStateOf(startOnOpen) }
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
@@ -63,6 +79,15 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mp4"), exportResult)
     val exportMp3 = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/mpeg"), exportResult)
     val exportWave = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("audio/wav"), exportResult)
+    fun saveAs(take: BlockTake) {
+        exportId = take.id
+        val name = exportFileName(take)
+        when (take.audioMime) {
+            "audio/wav" -> exportWave.launch(name)
+            "audio/mpeg" -> exportMp3.launch(name)
+            else -> export.launch(name)
+        }
+    }
     if (manageLifecycle) DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
     LaunchedEffect(pendingStart, vm.ready, vm.busy, lifecycleState) {
         if (pendingStart && vm.ready && !vm.busy && lifecycleState == Lifecycle.State.RESUMED) {
@@ -76,6 +101,10 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     })) {
       Column(Modifier.fillMaxWidth().fillMaxHeight(0.9f).imePadding().padding(horizontal = 24.dp)) {
         vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(bottom = 8.dp)) }
+        recoveredWarning?.let { path ->
+            Text("A previous export may be incomplete at $path.", style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = { recoveredWarning = null }) { Text("Dismiss export notice") }
+        }
         if (vm.recording) {
             // Always reachable, including when a tall reference or take list is scrolled.
             Text(if (vm.phrasing && vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}"
@@ -149,7 +178,11 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         TextButton(onClick = { renameId = take.id; label = take.label }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("rename-" + take.id).semantics { contentDescription = "Rename $title" }) { Text("Rename") }
-                        TextButton(onClick = { exportId = take.id; when (take.audioMime) { "audio/wav" -> exportWave.launch("practice-loop-${take.id}.wav"); "audio/mpeg" -> exportMp3.launch("practice-loop-${take.id}.mp3"); else -> export.launch("practice-take-${take.id}.m4a") } }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
+                        TextButton(onClick = {
+                            destination = vm.exportStorage.selected()
+                            folderFeedback = null
+                            if (destination == null) saveAs(take) else exportOptionsId = take.id
+                        }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("export-" + take.id).semantics { contentDescription = "Export $title" }) { Text("Export audio") }
                         TextButton(onClick = { deleteId = take.id }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("delete-" + take.id).semantics { contentDescription = "Delete $title" }) { Text("Delete") }
@@ -161,6 +194,31 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
       }
     }
     BackHandler { requestClose() }
+    takes.find { it.id == exportOptionsId }?.let { take ->
+        AlertDialog(
+            onDismissRequest = { exportOptionsId = null },
+            title = { Text("Export audio") },
+            text = {
+                Column {
+                    Text(destination?.label ?: "No export folder selected.")
+                    folderFeedback?.let { Text(it) }
+                    TextButton(onClick = chooseFolder) { Text("Choose Folder") }
+                    TextButton(onClick = {
+                        exportOptionsId = null
+                        saveAs(take)
+                    }) { Text("Save As…") }
+                }
+            },
+            confirmButton = {
+                val selected = destination
+                if (selected != null) TextButton(enabled = !vm.busy, onClick = {
+                    exportOptionsId = null
+                    vm.exportOrganized(take, selected, blockName)
+                }) { Text("Export to Selected Folder") }
+            },
+            dismissButton = { TextButton(onClick = { exportOptionsId = null }) { Text("Cancel") } }
+        )
+    }
     if (confirmDiscard) AlertDialog(onDismissRequest = { confirmDiscard = false }, title = { Text("Discard temporary take?") },
         text = { Text("This take has not been saved. Return to review it, or discard only this temporary audio before closing.") },
         confirmButton = { TextButton(onClick = { vm.discardReview(); confirmDiscard = false; onDismiss() }, enabled = !vm.busy) { Text("Discard and close") } },

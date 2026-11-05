@@ -65,6 +65,8 @@ class CountInPreferences(context: Context) {
         Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         AppearanceSettings()
         HorizontalDivider()
+        StorageSettings()
+        HorizontalDivider()
         Text("Audio Settings", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
         Text("Metronome sound", style = MaterialTheme.typography.titleMedium)
         ClickSound.entries.forEach { choice ->

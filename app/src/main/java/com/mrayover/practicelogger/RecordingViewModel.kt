@@ -443,18 +443,44 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         message = if (cleaned) "Take deleted." else "Take deleted. File cleanup will retry after restart."
     }
     fun expiredExport() { message = "Export selection is no longer available. The source was kept; choose the take and export again." }
-    fun export(take: BlockTake, uri: Uri) {
-      if (!ready || busy || recording) { message = "Export could not start while recordings are busy or loading. The source was kept; try Export audio again."; return }
-      work {
-        stopPlayback()
-        try {
-            withContext(Dispatchers.IO) {
-                checkNotNull(app.contentResolver.openOutputStream(uri, "wt")).use { repository.export(take, it) }
+    internal val exportStorage = ExportStorage(app)
+    internal var failedOrganizedExport by mutableStateOf<String?>(null)
+
+
+    fun export(take: BlockTake, uri: Uri) = exportAudio(take) { source, copy ->
+        exportStorage.saveAs(uri, exportFileName(take), source, copy)
+    }
+
+    internal fun exportOrganized(take: BlockTake, destination: ExportStorage.Destination, blockName: String) =
+        exportAudio(take, organized = true) { source, copy -> exportStorage.export(destination, take, blockName, source, copy) }
+
+    private fun exportAudio(take: BlockTake, organized: Boolean = false,
+        send: suspend (java.io.File, suspend (java.io.OutputStream) -> Long) -> String) {
+        if (!ready || busy || recording) {
+            message = "Export could not start while recordings are busy or loading. The source was kept."
+            return
+        }
+        work {
+            stopPlayback()
+            message = "Exporting audio…"
+            try {
+                val path = withContext(Dispatchers.IO) {
+                    repository.withSavedAudio(take) { source ->
+                        send(source) { output ->
+                            val context = currentCoroutineContext()
+                            repository.export(take, output, context::ensureActive)
+                        }
+                    }
+                }
+                message = "Audio exported. Saved to $path. The original is still in your recordings."
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                val detail = if (failure is IllegalStateException) failure.message.orEmpty() else "Check available storage and provider access."
+                message = "Export failed. $detail The original was kept. Choose a new file with Save As or retry."
+                if (organized) failedOrganizedExport = take.id
             }
-            message = "Audio exported. The saved take is still in your recordings."
-        } catch (cancelled: CancellationException) { throw cancelled }
-        catch (_: Exception) { message = "Export failed. The original take was kept; the destination may be incomplete. Choose a new file and retry." }
-      }
+        }
     }
     override fun onCleared() {
         audioGeneration++; phraseCapture?.cancel(); phraseJob?.cancel()

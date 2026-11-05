@@ -146,7 +146,27 @@ class TakeRepository(private val db: BlockDatabase, private val directory: File,
         // If file deletion is interrupted, startup recovery retries the now-unreferenced private file.
         !file.exists() || file.delete()
     }
-    fun export(take: BlockTake, output: OutputStream) { audioFile(take).inputStream().use { it.copyTo(output) }; output.flush() }
+    internal suspend fun <T> withSavedAudio(take: BlockTake, action: suspend (File) -> T): T = filesMutex.withLock {
+        check(dao.find(take.id)?.fileName == take.fileName) { "The saved take is no longer available." }
+        action(resolve(take.fileName))
+    }
+
+    fun export(take: BlockTake, output: OutputStream, checkActive: () -> Unit = {}): Long {
+        val copied = audioFile(take).inputStream().use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            var total = 0L
+            while (true) {
+                checkActive()
+                val count = input.read(buffer)
+                if (count < 0) break
+                output.write(buffer, 0, count)
+                total += count
+            }
+            total
+        }
+        output.flush()
+        return copied
+    }
     /** Run once before enabling capture, after reading all metadata successfully. */
     suspend fun recover(): Int = filesMutex.withLock {
         check(directory.isDirectory || directory.mkdirs())
