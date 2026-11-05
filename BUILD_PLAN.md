@@ -218,7 +218,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-The next implementation milestone is **G1 — Goal identity, primary link and colored Block cap**, subject to a separate assignment. See [CURRENT_STATE](CURRENT_STATE.md) for O1 delivery and the owner phone checks.
+The next implementation milestone is **G2 — Shared Goal Filtering**, subject to a separate assignment. See [CURRENT_STATE](CURRENT_STATE.md) for G1 delivery and the owner phone checks.
 
 ## Increment 3 — delivered 2026-10-29
 

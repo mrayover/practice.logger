@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0 and S2 are complete. O1 is the next separately assigned implementation milestone. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1 and G1 are delivered. G2 — Shared Goal Filtering is the next separately assigned implementation milestone. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -57,7 +57,9 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **O0** | Practice Overlay Architecture and Roadmap Integration (complete) | Commit and publish the architecture and recovery contract before S2 | **Medium** |
 | **S2** | Complete Portable ZIP Backup and Verified Restore (complete) | Verified clean-install recovery and local SAF publication. Owner cloud-provider checks are pending | **High** |
 | **O1** | Block-Local Practice Overlay Implementation (complete) | Build95 passed focused viewer and separate-install ZIP v2 recovery, restart and edit checks on API 26 and 35. Owner phone checks are pending. | **High** |
-| **G1–G3** | **Goals & Statistics**: colors/primary association, filtering, historical attribution | Focused migration/data tests, signed candidate and owner checks | **High** for attribution; **Medium** for UI |
+| **G1** | Goal priority colors, primary Block association and first-accrual snapshots (complete) | Build96 with focused migration, UI and recovery checks. Owner phone checks are pending. | **High** for attribution; **Medium** for UI |
+| **G2** | Shared Goal Filtering | After G1. Shared filter with search and archived eligibility across three entry points. | **Medium** |
+| **G3** | Accurate time attribution and concise statistics | After G2. Historical snapshots, legacy Goal sessions and distinct committed totals. | **High** |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
 **Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → G2 → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.

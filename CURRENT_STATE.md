@@ -1,6 +1,23 @@
-# Current state — O1 Practice Overlay
+# Current state — G1 Goal priority and primary Block associations
 
 Updated November 5, 2026 (America/Los_Angeles).
+
+## Signed G1 delivery
+
+**0.31.0/build96**, app source `a5b2a4740af4a45a220200ac52bdbbd25e1b017f`. Install over permanent-key build95. Use a separate empty installation for restore checks. [APK](dist/practice.logger-0.31.0-b96-a5b2a47/practice.logger-0.31.0-b96-a5b2a47.apk) · [ZIP](dist/practice.logger-0.31.0-b96-a5b2a47.zip) · [Build info](dist/practice.logger-0.31.0-b96-a5b2a47/BUILD_INFO.json) · [Owner-phone checks](MANUAL_TESTS.md#g1-goal-priority-and-primary-association-phone-checks)
+
+The APK was built locally from the same app source verified by the emulator jobs. Package `com.mrayover.practicelogger.app` and certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` match build95. APK SHA-256 `31cb4f4d4a8ff41b7d924f4406c834087acbed81bc2bd1fd8b093aebd3376397`. ZIP SHA-256 `90faa5d6dfc99ea07adb09028f2912d531a76d5398e561eae09972c5293ac90e`. All 67 unsigned payload entries matched, the ZIP passed integrity and round-trip checks, and all 450 earlier APK/ZIP hashes matched.
+
+## Implementation and checks
+
+- Room 18→19 adds a Block-keyed primary association backed by the existing Goal/Block junction and a placement-keyed snapshot. Migration adopts a sole valid link and retains all existing links. Legacy positive practice keeps its existing attribution. First committed positive time records the current Goal and optional one-based rank atomically. Earlier ranks and explicit absence survive changes to the live association. Home and Goal totals retain the existing queries.
+- Current Goal colors follow priority across themes. The Block Library, Session and Routine builders and Goal Block lists use the same cap. The Block editor offers No Goal and preserves the current completed assignment for review or reassignment. [G1 scope](PRACTICE_LOGGER_V1_MASTER_PLAN.md#g1--priority-colors-primary-goal-and-historical-attribution-high-for-migration-medium-for-ui)
+- Debug, release and instrumentation compiled. All 44 focused unit tests passed, including the Room 18 upgrade, all entry points, first accrual, continued practice, completion/reopening, assignment/clearing and unchanged totals. Schema 19 was compiler-generated. Schemas 1–18 are byte-identical. Full lint reported 5 errors and 27 warnings locally. The errors match build94 and build95 by rule, message and source file, with line shifts where G1 added UI.
+- Goal cap and editor tests passed on [API 26](https://github.com/mrayover/practice.logger/actions/runs/42123935150) and [API 35 at 200% text](https://github.com/mrayover/practice.logger/actions/runs/42123938833). The test exercised all appearance choices, cap pixels, reorder, completion/reopening and clearing.
+- Goal-launched timer tests passed on [API 26](https://github.com/mrayover/practice.logger/actions/runs/42124929480) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/42124933111). First accrual captured rank 2, pause and resume retained that snapshot after reassignment, zero-time completion had no snapshot, and cold reopen retained the established Goal session history.
+- Complete ZIP v3 passed export, restore to a separate empty install, restart, process-death recovery and another restart after editing a restored overlay. Archived records, original media hashes, live Goal assignment, historical rank and explicit absence survived. Prior ZIP v1/v2 restore, JSON v1–v7 readers, malformed attribution rejection and transactional recovery passed. Each API passed 10 checks plus deliberate process termination. [API 26](https://github.com/mrayover/practice.logger/actions/runs/42123942086) · [API 35](https://github.com/mrayover/practice.logger/actions/runs/42123945300) · [Format](BACKUP_FORMAT.md#goal-attribution-zip-v3)
+
+G1 phone checks are pending for install-over, TalkBack, enlarged-text use in the builders and restore on a separate device or profile. The next implementation milestone is **G2 — Shared Goal Filtering**, subject to a separate assignment.
 
 ## Signed O1 delivery
 
@@ -22,7 +39,7 @@ Complete ZIP v2 preserves editable shapes, all S2 durable data and original medi
 - The first [API 26](https://github.com/mrayover/practice.logger/actions/runs/42113977058) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/42113981493) recovery jobs passed six checks each, including corruption, a ZIP v1 fixture, ZIP creation, rollback and recovery. The legacy JSON workflow then stopped on its completed-session fixture prerequisite. The reordered jobs passed it after seeding that data. JSON v1–v7 compatibility passed.
 - [Transcribe on API 26](https://github.com/mrayover/practice.logger/actions/runs/42114065270), [Transcribe on API 35](https://github.com/mrayover/practice.logger/actions/runs/42114071403) and [three metronome tests on API 35](https://github.com/mrayover/practice.logger/actions/runs/42114080004) passed. The full F1 regression was outside this assignment.
 
-Physical phone install-over, touch, TalkBack and provider checks remain pending. **G1 — Goal identity, primary link and colored Block cap** is next, subject to a separate assignment.
+O1 physical phone install-over, touch, TalkBack and provider checks remain pending.
 
 ## Retained signed S2 delivery
 
