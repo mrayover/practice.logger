@@ -93,7 +93,7 @@ internal suspend fun copyPortable(input: InputStream, output: OutputStream?, lim
 }
 
 /** Strict JSON with bounded nesting and duplicate-key rejection. */
-internal fun readPortableObject(bytes: ByteArray): JSONObject {
+internal fun readPortableObject(bytes: ByteArray, allowDecimals: Boolean = false): JSONObject {
     val text = Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString()
     JsonReader(text.reader()).use { reader ->
         var values = 0
@@ -119,7 +119,13 @@ internal fun readPortableObject(bytes: ByteArray): JSONObject {
                     reader.endArray()
                 }
                 JsonToken.STRING -> reader.nextString()
-                JsonToken.NUMBER -> requireNotNull(reader.nextString().toLongOrNull()) { "Expected a whole number." }
+                JsonToken.NUMBER -> {
+                    val number = reader.nextString()
+                    number.toLongOrNull() ?: run {
+                        require(allowDecimals && ('.' in number || 'e' in number.lowercase())) { "Expected a whole number." }
+                        requireNotNull(number.toDoubleOrNull()?.takeIf { it.isFinite() }) { "Expected a finite number." }
+                    }
+                }
                 JsonToken.BOOLEAN -> reader.nextBoolean()
                 JsonToken.NULL -> { reader.nextNull(); JSONObject.NULL }
                 else -> error("Invalid backup metadata.")
@@ -153,15 +159,16 @@ internal class PortableZip(
                             require(estimate <= METADATA_LIMIT) { "Portable backup records exceed 16 MiB." }
                         })
                     }
-                    JSONObject().put("tables", tables).put("preferences", PortablePreferences.snapshot(context).encode())
+                    JSONObject().put("version", PORTABLE_VERSION).put("tables", tables)
+                        .put("preferences", PortablePreferences.snapshot(context).encode())
                 }
-                val records = PortableRecords(payload)
+                val records = PortableRecords(payload, PORTABLE_VERSION)
                 val originals = records.originals()
                 require(originals.size + 2 <= ENTRY_LIMIT) { "Too many originals for one archive." }
                 var mediaSize = 0L
                 for (original in originals) {
                     val file = original.file(files)
-                    original.validateFile(file, db)
+                    records.validateOverlayPages(original, original.validateFile(file, db))
                     mediaSize = Math.addExact(mediaSize, file.length())
                     require(mediaSize <= PORTABLE_ZIP_LIMIT - METADATA_LIMIT * 2)
                 }
@@ -195,7 +202,7 @@ internal class PortableZip(
                         zip.setLevel(Deflater.DEFAULT_COMPRESSION)
                         @Suppress("DEPRECATION")
                         val app = context.packageManager.getPackageInfo(context.packageName, 0)
-                        val manifest = JSONObject().put("format", FORMAT).put("version", 1).put("roomSchema", 17)
+                        val manifest = JSONObject().put("format", FORMAT).put("version", PORTABLE_VERSION).put("roomSchema", 18)
                             .put("appVersion", app.versionName ?: "unknown").put("appVersionCode", app.versionCode)
                             .put("counts", records.counts).put("entries", manifestEntries)
                             .toString().toByteArray(Charsets.UTF_8)
@@ -238,15 +245,21 @@ internal class PortableZip(
                 }
                 return copy
             }
-            suspend fun metadata(path: String, expected: PortableEntry? = null): JSONObject {
+            suspend fun metadata(path: String, expected: PortableEntry? = null, allowDecimals: Boolean = false): JSONObject {
                 val entry = requireNotNull(entries[path]) { "Backup is missing $path." }
                 val output = ByteArrayOutputStream()
                 read(entry, METADATA_LIMIT, expected, output)
-                return readPortableObject(output.toByteArray())
+                return readPortableObject(output.toByteArray(), allowDecimals)
             }
             val manifest = metadata(MANIFEST)
             require(manifest.keys().asSequence().toSet() == setOf("format", "version", "roomSchema", "appVersion", "appVersionCode", "counts", "entries"))
-            require(manifest.get("format") == FORMAT && manifest.get("version") == 1L && manifest.get("roomSchema") in setOf(16L, 17L)) {
+            val version = when (manifest.get("version")) {
+                1L -> 1
+                PORTABLE_VERSION.toLong() -> PORTABLE_VERSION
+                else -> error("Unsupported portable backup format or version.")
+            }
+            val roomVersions = if (version == 1) setOf(16L, 17L) else setOf(18L)
+            require(manifest.get("format") == FORMAT && manifest.get("roomSchema") in roomVersions) {
                 "Unsupported portable backup format or version."
             }
             val appVersion = manifest.get("appVersion") as String
@@ -260,10 +273,10 @@ internal class PortableZip(
             require(MANIFEST !in listed && listed.keys + MANIFEST == entries.keys) { "ZIP entries do not match the manifest." }
             val record = requireNotNull(listed[RECORDS])
             require(record.type == "records" && record.owner == "app")
-            val data = PortableRecords(metadata(RECORDS, record))
+            val data = PortableRecords(metadata(RECORDS, record, allowDecimals = version >= 2), version)
             val counts = manifest.getJSONObject("counts")
             require(counts.keys().asSequence().toSet() == data.counts.keys().asSequence().toSet())
-            require(portableTables.all { counts.get(it.name) == data.counts.getInt(it.name).toLong() })
+            require(counts.keys().asSequence().all { counts.get(it) == data.counts.getInt(it).toLong() })
             val settings = PortablePreferences.decode(data.preferences)
             val originals = data.originals()
             require(listed.keys == originals.mapTo(hashSetOf(RECORDS)) { it.path }) { "Unexpected or missing original paths." }
@@ -288,14 +301,14 @@ internal class PortableZip(
                         read(entry, original.limit, expected, output)
                         output.fd.sync()
                     }
-                    original.validateFile(file, db)
+                    data.validateOverlayPages(original, original.validateFile(file, db))
                 }
             }
             VerifiedPortableZip(data, settings, originals, listed - RECORDS, mediaBytes, appVersion)
         }
     }
 
-    /** V1 uses a single-disk, comment-free ZIP32 directory. Bound it before opening ZipFile. */
+    /** The portable format uses a single-disk, comment-free ZIP32 directory. Bound it before opening ZipFile. */
     private fun checkZipDirectory(source: File): Int = RandomAccessFile(source, "r").use { file ->
         val length = file.length()
         require(length in 22..PORTABLE_ZIP_LIMIT) { "Portable ZIP is truncated or larger than 3 GiB." }

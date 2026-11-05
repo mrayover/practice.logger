@@ -23,6 +23,11 @@ internal data class PortableOriginal(
     private val audio get() = mime.startsWith("audio/")
     val bytes: Long? get() = if (take) null else row.getLong("byteCount")
     val limit: Long get() = if (audio) AudioImport.MAX_BYTES else ImageReferenceRepository.MAX_BYTES.toLong()
+    val overlayIdentity: String? get() = when {
+        audio -> null
+        canonical -> "library:$owner"
+        else -> "legacy:$name"
+    }
     val originalHash: String? get() = if (canonical) row.getString("sha256") else null
 
     init {
@@ -71,7 +76,7 @@ internal data class PortableOriginal(
 
     fun file(root: File): File = portableMediaFile(root, store, name)
 
-    suspend fun validateFile(file: File, db: BlockDatabase) {
+    suspend fun validateFile(file: File, db: BlockDatabase): Int? {
         require(file.isFile && file.length() in 1..limit && (bytes == null || file.length() == bytes)) {
             "Missing or changed original for $store item $owner."
         }
@@ -80,6 +85,7 @@ internal data class PortableOriginal(
                 val info = ImageReferenceRepository(db, file.parentFile!!).inspectOriginal(file)
                 require(info.mimeType == mime && info.width == row.getInt("width") && info.height == row.getInt("height"))
                 if (canonical && mime == "application/pdf") require(info.pageCount == row.getInt("pageCount"))
+                return info.pageCount ?: 1
             }
             take && row.getString("mode") == "LOOP" -> {
                 val spec = PhraseSpec(row.getInt("recordedBpm"), row.getInt("beatCount"))
@@ -88,6 +94,7 @@ internal data class PortableOriginal(
             take && row.getString("mode") == "FREE" -> require(recordedDuration(file) == row.getLong("durationMs"))
             else -> require(inspectImportedAudio(file, name.substringAfterLast('.')) == row.getLong("durationMs"))
         }
+        return null
     }
 }
 

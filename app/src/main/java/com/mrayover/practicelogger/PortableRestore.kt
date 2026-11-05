@@ -137,7 +137,7 @@ internal class PortableRestore(
                                 syncDirectory(File(staged.media, parent.name))
                             }
                             if (parents.isNotEmpty()) syncDirectory(files)
-                            insertPortableRecords(sql, staged.verified.records.tables)
+                            staged.verified.records.insertInto(sql)
                             sql.execSQL("DELETE FROM portable_restore_witness")
                             sql.execSQL("INSERT INTO portable_restore_witness (token) VALUES (?)", arrayOf(plan.token))
                             atBoundary(RestoreBoundary.BEFORE_COMMIT)

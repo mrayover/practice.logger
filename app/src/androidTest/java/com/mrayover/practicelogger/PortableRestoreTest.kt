@@ -22,6 +22,7 @@ class PortableRestoreTest {
                 val staged = beforeCommit.stage(backup::inputStream)
                 assertEquals("Injected commit failure", runCatching { beforeCommit.restore(staged) }.exceptionOrNull()?.message)
                 assertTrue(db.blocks().readAll().isEmpty())
+                assertEquals(0, db.overlays().count())
                 assertTrue(File(files, "media-library").list().orEmpty().isEmpty())
                 beforeCommit.discard(staged)
 
@@ -35,6 +36,7 @@ class PortableRestoreTest {
             usingDatabase(name) { reopened ->
                 assertFalse(PortableRestore(context, reopened, files).recover())
                 assertTrue(reopened.blocks().readAll().isEmpty())
+                assertEquals(0, reopened.overlays().count())
                 assertTrue(File(files, "media-library").list().orEmpty().isEmpty())
                 assertFalse(File(files, "portable-restore/journal.json").exists())
             }
@@ -55,6 +57,7 @@ class PortableRestoreTest {
                     assertFalse(recovery.recover())
                     assertEquals(1, db.blocks().readAll().size)
                     assertEquals(original, db.media().find(original.id))
+                    assertEquals("library:${original.id}", db.overlays().find("mark")?.reference)
                     assertTrue(MediaLibraryRepository(db, File(files, "media-library")).available(original))
                     assertEquals(ThemeChoice.ORCHID, ThemePreferences(context).choice.value)
                     assertEquals(7L, CountInPreferences(context).read())
@@ -71,6 +74,7 @@ class PortableRestoreTest {
                 restore.discard(cancelled)
                 assertFalse(cancelled.directory.exists())
                 assertTrue(db.blocks().readAll().isEmpty())
+                assertEquals(0, db.overlays().count())
 
                 val staged = restore.stage(backup::inputStream)
                 db.logs().save(DailyLog("2026-11-05", "Keep this existing log"))
@@ -78,6 +82,7 @@ class PortableRestoreTest {
                 assertTrue(runCatching { restore.stage(backup::inputStream) }.exceptionOrNull() is NonEmptyRestoreException)
                 assertEquals("Keep this existing log", db.logs().readAll().single().text)
                 assertTrue(db.blocks().readAll().isEmpty())
+                assertEquals(0, db.overlays().count())
                 assertFalse(File(files, "media-library").exists())
             }
         }
@@ -108,6 +113,9 @@ class PortableRestoreTest {
                 db.blocks().insert(Block("one", "One", "Play", createdAt = 1, updatedAt = 1))
                 BlockMediaRepository(db, library, ImageReferenceRepository(db, File(sourceFiles, "block-images")))
                     .link("one", MediaRole.VISUAL, asset.id)
+                val shape = PracticeOverlay("mark", "one", "library:${asset.id}", 0,
+                    "FOCUS", .25f, .25f, .75f, .75f, 0, 0)
+                PracticeOverlayRepository(db).edit(OverlayEdit(null, shape), 1)
                 ThemePreferences(context).save(ThemeChoice.ORCHID)
                 CountInPreferences(context).save(7)
                 PortableZip(context, db, sourceFiles).create(archive)

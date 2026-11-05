@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfDocument
 import android.os.Process
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
@@ -132,6 +133,39 @@ class PortableZipRoundTripTest {
             assertEquals(7000L, session.checkpoint("interrupted", 1000).activeMs)
             assertEquals(73_666L, db.transcribeActivities().observePracticeTime().first().sumOf { it.activeMs })
         }
+        click("Blocks")
+        compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Score study"))
+        click("Score study")
+        click("Show reference")
+        compose.waitUntil(20_000) {
+            compose.onAllNodesWithTag("overlay-layer").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+        }
+        val layer = compose.onNodeWithTag("overlay-layer")
+        layer.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "1 markings"))
+        click("Next page")
+        shown("Page 2 of 2")
+        layer.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "1 markings"))
+        compose.onNodeWithTag("overlay-tools").scrollIfNeeded().performClick()
+        click("Edit markings")
+        compose.onNodeWithTag("overlay-tools").scrollIfNeeded().performClick()
+        click("Select Cover 1")
+        compose.overlayAction("Move marking right")
+        compose.waitUntil(15_000) { runBlocking { db.overlays().find("first-cover")?.left?.let { it > .25f } == true } }
+    }
+
+    @Test fun verifyRestoredOverlayEditAfterAnotherRestart() {
+        runBlocking {
+            val shape = db.overlays().find("first-cover")!!
+            assertEquals(.275f, shape.left, .000001f)
+            assertEquals("first", shape.blockId)
+            assertEquals(1, shape.page)
+            val verified = PortableZip(context, db).verify(File(context.filesDir, EXPECTED))
+            assertEquals(5, db.overlays().count())
+            for (original in verified.originals) {
+                val actual = original.file(context.filesDir).inputStream().use { copyPortable(it, null, original.limit) }
+                assertEquals(verified.inventory.getValue(original.path).sha256, actual.sha256)
+            }
+        }
     }
 
     private fun openBackup() {
@@ -183,15 +217,27 @@ class PortableZipRoundTripTest {
         val first = Block("first", "Score study", "Play from memory", 5, 90, "Original directions", createdAt = 100, updatedAt = 200)
         val second = Block("second", "Listening", "Find the phrase", createdAt = 100, updatedAt = 200)
         val archived = Block("archived", "Archived source", "Keep history", archived = true, createdAt = 100, updatedAt = 200)
-        for (block in listOf(first, second, archived)) db.blocks().insert(block)
+        val imageBlock = Block("image", "Image reference", "Read photo", createdAt = 100, updatedAt = 200)
+        for (block in listOf(first, second, archived, imageBlock)) db.blocks().insert(block)
         val image = library.import("sample.png", "image/png", open = png::inputStream)
         val score = library.import("sample.pdf", "application/pdf", open = pdf::inputStream)
         val audio = library.importRecordedReference("Microphone reference.m4a", m4a) {}
         links.link(first.id, MediaRole.VISUAL, score.id)
-        links.link(second.id, MediaRole.VISUAL, image.id)
+        links.link(second.id, MediaRole.VISUAL, score.id)
+        links.link(imageBlock.id, MediaRole.VISUAL, image.id)
         links.link(first.id, MediaRole.AUDIO, audio.id)
         links.link(second.id, MediaRole.AUDIO, audio.id)
-        legacy.import(archived.id, pdf::inputStream)
+        val old = legacy.import(archived.id, pdf::inputStream)
+        val overlays = PracticeOverlayRepository(db)
+        suspend fun mark(id: String, block: Block, reference: String, page: Int, tool: OverlayTool, pages: Int) {
+            val shape = PracticeOverlay(id, block.id, reference, page, tool.name, .25f, .2f, .7f, .65f, 0, 0)
+            overlays.edit(OverlayEdit(null, shape), pages)
+        }
+        mark("first-highlight", first, "library:${score.id}", 0, OverlayTool.HIGHLIGHT, 2)
+        mark("first-cover", first, "library:${score.id}", 1, OverlayTool.COVER, 2)
+        mark("second-focus", second, "library:${score.id}", 1, OverlayTool.FOCUS, 2)
+        mark("image-highlight", imageBlock, "library:${image.id}", 0, OverlayTool.HIGHLIGHT, 1)
+        mark("legacy-cover", archived, "legacy:${old.fileName}", 1, OverlayTool.COVER, 2)
         val master = MasterAudioMarkerRepository(db).save(audio.id, null, 150, 800, "Master section", "Global note")
         val inherited = BlockMarker(master, BlockMarkerOwnership.MASTER)
         val local = BlockAudioRepository(db)

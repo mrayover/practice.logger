@@ -200,7 +200,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
         Text("Legacy JSON backup", style = MaterialTheme.typography.titleLarge)
         Text("Save your Logs, Blocks, Goals, Routines and practice history as a data-only JSON file.")
         Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")
-        Text("Media Library originals, metadata, Block media associations and master annotations, Block-local audio settings and markers, reference images, PDFs, recordings and take labels are not included in JSON backups. Keep original images and PDFs separately; they cannot be restored from JSON. Export each take from its recordings list to keep a separate audio copy. Audio cannot be restored from this JSON file.")
+        Text("Media Library originals, metadata, Block media associations and master annotations, Block-local audio settings and markers, practice markings, reference images, PDFs, recordings and take labels are not included in JSON backups. Keep original images and PDFs separately; they cannot be restored from JSON. Export each take from its recordings list to keep a separate audio copy. Audio cannot be restored from this JSON file.")
         Text("Standalone Transcribe activities and their practice time are also excluded from JSON backups.")
         Button(onClick = { export.launch("practice.logger-backup-v7-" + System.currentTimeMillis() + ".json") }, enabled = !vm.navigationBlocked, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
         Text("Restore is for an empty app, such as a new phone. It never replaces or merges existing data. Do not uninstall or clear your current app to try a restore. Supported limit: 8 MiB, 20,000 records per type.")
@@ -217,6 +217,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
                     Text("Created by practice.logger ${data.appVersion}.")
                     Text("${rows["blocks"].size} Blocks, ${rows["sessions"].size} sessions, ${rows["routines"].size} Routines, ${rows["goals"].size} Goals and ${rows["daily_logs"].size} Logs.")
                     Text("${rows["media_assets"].size} Library assets, ${rows["takes"].size} saved recordings and ${rows["block_images"].size} legacy visual references. ${android.text.format.Formatter.formatFileSize(androidx.compose.ui.platform.LocalContext.current, data.mediaBytes)} of original media was verified.")
+                    if (rows["practice_overlays"].isNotEmpty()) Text("${rows["practice_overlays"].size} editable practice markings.")
                     Text("Restore includes saved notes, audio annotations, standalone practice history and portable settings. Unfinished practice opens paused. Only an empty app can be restored.")
                 }
             },

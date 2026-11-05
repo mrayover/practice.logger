@@ -10,7 +10,7 @@ import org.json.JSONObject
 
 internal const val ZIP_RECORD_LIMIT = 20_000
 
-/** Version 1 wire columns are frozen independently of future Room migrations. */
+/** Wire columns are frozen independently of future Room migrations. */
 internal class PortableTable(val name: String, fields: String, val legacyKey: String? = null) {
     val columns = fields.split(' ').map { it.substringBefore(':') }
     private val types = fields.split(' ').map { it.substringAfter(':', "s") }
@@ -34,6 +34,7 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
         when (types[index].removeSuffix("?")) {
             "s" -> cursor.getString(index)
             "b" -> cursor.getLong(index) != 0L
+            "f" -> cursor.getDouble(index)
             else -> cursor.getLong(index)
         }
 
@@ -46,6 +47,7 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
                 require(if (value === JSONObject.NULL) type.endsWith('?') else when (type.removeSuffix("?")) {
                     "s" -> value is String
                     "b" -> value is Boolean
+                    "f" -> value is Number && value.toDouble().isFinite()
                     "i" -> value is Int || value is Long && value in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()
                     else -> value is Int || value is Long
                 }) { "Invalid $name field $column." }
@@ -63,7 +65,8 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
                         JSONObject.NULL -> statement.bindNull(j + 1)
                         is String -> statement.bindString(j + 1, value)
                         is Boolean -> statement.bindLong(j + 1, if (value) 1 else 0)
-                        is Number -> statement.bindLong(j + 1, value.toLong())
+                        is Number -> if (types[j] == "f") statement.bindDouble(j + 1, value.toFloat().toDouble())
+                            else statement.bindLong(j + 1, value.toLong())
                         else -> error("Invalid record cell.")
                     }
                 }
@@ -73,7 +76,7 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
     }
 }
 
-internal val portableTables = listOf(
+private val portableTablesV1 = listOf(
     PortableTable("blocks", "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l", "blocks"),
     PortableTable("sessions", "id startedAt:l endedAt:l? status currentIndex:i note", "sessions"),
     PortableTable("placements", "id sessionId sourceBlockId name action tempo:i? referenceNotes position:i configuredMs:l activeMs:l outcome overtimeAccepted:b note lastUsedBpm:i?", "placements"),
@@ -94,30 +97,66 @@ internal val portableTables = listOf(
     PortableTable("transcribe_activities", "id startedAt:l completedAt:l? activeMs:l goalId:s? audioId:s?")
 )
 
+private const val OVERLAY_TABLE = "practice_overlays"
+internal const val PORTABLE_VERSION = 2
+internal val portableTables = portableTablesV1 + PortableTable(OVERLAY_TABLE,
+    "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
+
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
 }
 
-internal fun insertPortableRecords(sql: SupportSQLiteDatabase, records: JSONObject) {
-    for (table in portableTables) table.restore(sql, records.getJSONArray(table.name))
-}
-
-internal class PortableRecords(val payload: JSONObject) {
+internal class PortableRecords(val payload: JSONObject, version: Int) {
+    private val formatTables = if (version == 1) portableTablesV1 else portableTables
     val tables: JSONObject = payload.getJSONObject("tables")
     val preferences: JSONObject = payload.getJSONObject("preferences")
-    private val rows = portableTables.associate { table ->
+    private val rows = formatTables.associate { table ->
         val values = tables.getJSONArray(table.name)
-        require(values.length() <= ZIP_RECORD_LIMIT) { "Too many ${table.name} records." }
+        val limit = if (table.name == OVERLAY_TABLE) OVERLAYS_TOTAL else ZIP_RECORD_LIMIT
+        require(values.length() <= limit) { "Too many ${table.name} records." }
         table.name to List(values.length()) { table.row(values.getJSONArray(it)) }
     }
     val counts = JSONObject().apply { rows.forEach { (name, values) -> put(name, values.size) } }
-    operator fun get(table: String) = rows.getValue(table)
+    operator fun get(table: String): List<JSONObject> =
+        if (table == OVERLAY_TABLE) rows[table].orEmpty() else rows.getValue(table)
+    private val maxOverlayPageByReference: Map<String, Int>
 
     init {
-        require(payload.keys().asSequence().toSet() == setOf("tables", "preferences"))
+        val base = setOf("tables", "preferences")
+        when (version) {
+            1 -> require(payload.keys().asSequence().toSet() == base)
+            PORTABLE_VERSION -> {
+                require(payload.keys().asSequence().toSet() == base + "version")
+                val stored = payload.get("version")
+                require(stored == PORTABLE_VERSION || stored == PORTABLE_VERSION.toLong()) { "Unsupported backup records version." }
+            }
+            else -> error("Unsupported portable backup version.")
+        }
         require(tables.keys().asSequence().toSet() == rows.keys) { "Unexpected backup record type." }
+        val overlays = this[OVERLAY_TABLE]
+        val ids = hashSetOf<String>()
+        for (row in overlays) {
+            val left = row.getDouble("left")
+            val top = row.getDouble("top")
+            val right = row.getDouble("right")
+            val bottom = row.getDouble("bottom")
+            require(validOverlayBounds(left, top, right, bottom)) { "Invalid overlay rectangle." }
+            val shape = PracticeOverlay(row.getString("id"), row.getString("blockId"),
+                row.getString("reference"), row.getInt("page"), row.getString("type"),
+                left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat(),
+                row.getInt("appearance"), row.getInt("drawOrder"))
+            validateOverlay(shape, 100)
+            require(ids.add(shape.id)) { "Duplicate overlay identity." }
+        }
+        require(overlays.groupingBy { it.getString("blockId") }.eachCount().values.all { it <= OVERLAYS_PER_BLOCK }) {
+            "A Block has too many saved markings."
+        }
+        require(overlays.groupingBy { it.getString("blockId") to it.getInt("page") }.eachCount()
+            .values.all { it <= OVERLAYS_PER_PAGE }) { "A page has too many saved markings." }
+        maxOverlayPageByReference = overlays.groupingBy { it.getString("reference") }
+            .fold(-1) { previous, row -> maxOf(previous, row.getInt("page")) }
         val legacy = JSONObject().put("format", "practice.logger.backup").put("version", 7)
-        portableTables.forEach { table -> table.legacyKey?.let { legacy.put(it, JSONArray(this[table.name])) } }
+        formatTables.forEach { table -> table.legacyKey?.let { legacy.put(it, JSONArray(this[table.name])) } }
         val core = BackupCodec.decodeObject(legacy)
         var total = core.placements.fold(0L) { sum, row -> Math.addExact(sum, row.activeMs) }
         val assets = this["media_assets"].associateBy { it.getString("id") }
@@ -166,6 +205,16 @@ internal class PortableRecords(val payload: JSONObject) {
         }
     }
 
+    fun validateOverlayPages(original: PortableOriginal, pages: Int?) {
+        val identity = original.overlayIdentity ?: return
+        val lastPage = maxOverlayPageByReference[identity] ?: return
+        require(pages != null && lastPage < pages) { "A marking refers to a page missing from its original." }
+    }
+
+    fun insertInto(sql: SupportSQLiteDatabase) {
+        for (table in formatTables) table.restore(sql, tables.getJSONArray(table.name))
+    }
+
     /** Validate all PKs, unique indexes, FKs and role triggers on a separate empty database. */
     suspend fun validateRelationships(context: Context) {
         val scratch = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java)
@@ -173,7 +222,7 @@ internal class PortableRecords(val payload: JSONObject) {
         try {
             scratch.withTransaction {
                 val sql = scratch.openHelper.writableDatabase
-                insertPortableRecords(sql, tables)
+                insertInto(sql)
                 sql.query("PRAGMA foreign_key_check").use { require(!it.moveToFirst()) { "Broken backup relationship." } }
             }
         } finally { scratch.close() }

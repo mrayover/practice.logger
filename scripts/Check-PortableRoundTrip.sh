@@ -36,6 +36,8 @@ supply_expected
 run 'PortableZipRoundTripTest#restoreIntoSeparateEmptyInstallation' app/build/targeted-s2-restore.txt
 adb shell am force-stop "$app"
 run 'PortableZipRoundTripTest#verifyAfterProcessRestart' app/build/targeted-s2-restart.txt
+adb shell am force-stop "$app"
+run 'PortableZipRoundTripTest#verifyRestoredOverlayEditAfterAnotherRestart' app/build/targeted-o1-edit-restart.txt
 
 adb shell pm clear "$app"
 supply_expected

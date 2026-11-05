@@ -3,6 +3,7 @@ package com.mrayover.practicelogger
 import android.graphics.Bitmap
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -35,9 +36,17 @@ class PortableArchiveValidationTest {
             val original = library.import(png.name, "image/png", open = png::inputStream)
             BlockMediaRepository(source, library, ImageReferenceRepository(source, File(root, "block-images")))
                 .link("block", MediaRole.VISUAL, original.id)
+            source.blocks().insert(Block("old", "Legacy score", "Play", createdAt = 1, updatedAt = 1))
+            val legacy = ImageReferenceRepository(source, File(root, "block-images"))
+                .import("old") { l1Fixture("references/score.pdf").inputStream() }
+            val overlays = PracticeOverlayRepository(source)
+            overlays.edit(OverlayEdit(null, PracticeOverlay("image", "block", "library:${original.id}", 0,
+                "HIGHLIGHT", .1f, .2f, .7f, .8f, 1, 0)), 1)
+            overlays.edit(OverlayEdit(null, PracticeOverlay("pdf", "old", "legacy:${legacy.fileName}", 1,
+                "COVER", .15f, .25f, .55f, .65f, 0, 0)), 2)
             val input = File(root, "valid.zip")
             val verified = PortableZip(context, source, root).create(input)
-            val path = verified.originals.single().path
+            val path = verified.originals.single { it.store == "media-library" }.path
             val entries = ZipFile(input).use { zip ->
                 zip.entries().asSequence().associateTo(linkedMapOf()) { entry ->
                     entry.name to zip.getInputStream(entry).use { it.readBytes() }
@@ -49,6 +58,7 @@ class PortableArchiveValidationTest {
                 assertTrue(label, runCatching { restore.stage(bad::inputStream) }.isFailure)
                 assertTrue(target.blocks().readAll().isEmpty())
                 assertTrue(target.media().readAll().isEmpty())
+                assertEquals(0, target.overlays().count())
                 assertFalse(File(targetFiles, "media-library").exists())
                 assertTrue(File(targetFiles, "portable-restore").list().orEmpty().isEmpty())
             }
@@ -85,6 +95,33 @@ class PortableArchiveValidationTest {
                 changeRecords { getJSONObject("tables").put("unknown", org.json.JSONArray()) }
             }
 
+            suspend fun badMark(label: String, row: Int, column: Int, value: Any) = mutate(label) {
+                changeRecords { getJSONObject("tables").getJSONArray("practice_overlays").getJSONArray(row).put(column, value) }
+            }
+            badMark("inverted overlay rectangle", 0, 5, .99)
+            badMark("out of range overlay rectangle", 0, 8, 1.01)
+            badMark("string overlay coordinate", 0, 5, "0.1")
+            badMark("missing overlay owner", 0, 1, "missing")
+            badMark("overlay reference mismatch", 0, 2, "library:other")
+            badMark("image overlay page", 0, 3, 1)
+            badMark("legacy overlay page beyond the verified original", 1, 3, 2)
+            badMark("unsupported tool", 0, 4, "UNKNOWN")
+            badMark("unsupported appearance", 0, 9, 5)
+            badMark("negative order", 0, 10, -1)
+            badMark("duplicate overlay ID", 0, 0, "pdf")
+            mutate("unsupported records version") { changeRecords { put("version", 100) } }
+            mutate("missing required overlay records") { changeRecords { getJSONObject("tables").remove("practice_overlays") } }
+            mutate("too many overlays on one page") {
+                changeRecords {
+                    val marks = getJSONObject("tables").getJSONArray("practice_overlays")
+                    val template = marks.getJSONArray(0).toString()
+                    repeat(OVERLAYS_PER_PAGE) { index ->
+                        marks.put(JSONArray(template).put(0, "extra-$index").put(10, index + 1))
+                    }
+                }
+                changeManifest { getJSONObject("counts").put("practice_overlays", OVERLAYS_PER_PAGE + 2) }
+            }
+
             val alias = path.dropLast(1) + "z"
             write(bad, entries + (alias to entries.getValue(path)))
             val duplicate = bad.readBytes()
@@ -119,6 +156,27 @@ class PortableArchiveValidationTest {
                 if (version < 4) for (key in listOf("routines", "routinePlacements")) json.remove(key)
                 assertEquals("Legacy version $version", data, BackupCodec.decode(json.toString().toByteArray()))
             }
+
+            // Retain every frozen V1 column and recompute the inventory after removing the V2 records.
+            val prior = entries.toMutableMap().apply {
+                changeRecords {
+                    remove("version")
+                    getJSONObject("tables").remove("practice_overlays")
+                }
+                changeManifest {
+                    put("version", 1)
+                    put("roomSchema", 17)
+                    getJSONObject("counts").remove("practice_overlays")
+                }
+            }
+            val v1 = File(root, "compatible-v1.zip")
+            write(v1, prior)
+            val staged = restore.stage(v1::inputStream)
+            restore.restore(staged)
+            assertEquals(data.blocks, BackupRepository(target).snapshot().blocks)
+            assertEquals(0, target.overlays().count())
+            assertEquals(original, target.media().find(original.id))
+            assertEquals(legacy, target.images().find("old"))
         } finally {
             source.close()
             target.close()
