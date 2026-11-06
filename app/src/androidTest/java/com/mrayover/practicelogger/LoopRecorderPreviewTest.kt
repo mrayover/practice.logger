@@ -94,6 +94,7 @@ class LoopRecorderPreviewTest {
                 }
             }
         }
+        compose.waitUntil(15000) { audio.ready }
         val fields = listOf("phrase-bpm", "phrase-beats", "phrase-count-in")
         val labels = listOf("BPM", "Loop beats", "Count-in")
         val descriptions = listOf("Phrase BPM", "Loop beats", "Count-in beats")

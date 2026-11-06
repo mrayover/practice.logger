@@ -181,18 +181,21 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
                 TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) { Text(if (compactHeight) "Back" else "Back to Library") }
                 Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
             }
-            transport()
+            if (!compactHeight) transport()
             BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                 val scrollDetails: @Composable (Modifier) -> Unit = { modifier ->
                     Column(modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (compactHeight) Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}", style = MaterialTheme.typography.bodySmall)
+                        if (compactHeight) {
+                            transport()
+                            Text("A ${audioTimestamp(state.aMs)} · B ${audioTimestamp(state.bMs)}", style = MaterialTheme.typography.bodySmall)
+                        }
                         details()
                     }
                 }
                 val annotationPanel: @Composable (Modifier) -> Unit = { modifier ->
                     Column(modifier) {
-                        annotationControls()
-                        LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("master-markers"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        LazyColumn(Modifier.fillMaxSize().testTag("master-markers"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            item { annotationControls() }
                             if (markers.isEmpty()) item { noMarkers() }
                             items(markers, key = { it.id }) { markerRow(it) }
                         }

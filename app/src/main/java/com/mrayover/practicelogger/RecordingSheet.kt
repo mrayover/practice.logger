@@ -278,7 +278,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> vm.chooseBackingTrack(blockId, uri) }
     val editable = !vm.recording && review == null && !vm.busy
     val musicalEditable = editable && !importMode
-    val form: @Composable () -> Unit = {
+    val form: @Composable BoxWithConstraintsScope.() -> Unit = {
+        val availableWidth = maxWidth
         Column(if (inline) Modifier.heightIn(min = (minimumHeight - with(androidx.compose.ui.platform.LocalDensity.current) {
             headingHeight.toDp()
         }).coerceAtLeast(0.dp)) else Modifier.verticalScroll(rememberScrollState()),
@@ -290,31 +291,28 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 maxOf(measurer.measure("Loop beats", labelStyle).size.width,
                     measurer.measure("27000", MaterialTheme.typography.bodyMedium).size.width).toDp()
             } + 36.dp
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val columns = ((maxWidth + 6.dp) / (fieldWidth + 6.dp)).toInt().coerceIn(1, 3)
-                FlowRow(Modifier.fillMaxWidth().testTag("phrase-fields"), maxItemsInEachRow = columns,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    PhraseNumberField(phraseBpm, { phraseBpm = it }, "BPM", "Phrase BPM", "phrase-bpm",
-                        bpm == null || bpm !in 30..300, musicalEditable, Modifier.weight(1f))
-                    PhraseNumberField(phraseBeats, { phraseBeats = it }, "Loop beats", "Loop beats", "phrase-beats",
-                        length == null || length !in 1..64, musicalEditable, Modifier.weight(1f))
-                    PhraseNumberField(countIn, { countIn = it }, "Count-in", "Count-in beats", "phrase-count-in",
-                        intro == null || intro <= 0, musicalEditable, Modifier.weight(1f))
-                }
+            val fieldColumns = ((availableWidth + 6.dp) / (fieldWidth + 6.dp)).toInt().coerceIn(1, 3)
+            val fieldCellWidth = with(density) {
+                ((availableWidth.roundToPx() - 6.dp.roundToPx() * (fieldColumns - 1)) / fieldColumns).toDp()
+            }
+            FlowRow(Modifier.fillMaxWidth().testTag("phrase-fields"), maxItemsInEachRow = fieldColumns,
+                horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                PhraseNumberField(phraseBpm, { phraseBpm = it }, "BPM", "Phrase BPM", "phrase-bpm",
+                    bpm == null || bpm !in 30..300, musicalEditable, Modifier.width(fieldCellWidth))
+                PhraseNumberField(phraseBeats, { phraseBeats = it }, "Loop beats", "Loop beats", "phrase-beats",
+                    length == null || length !in 1..64, musicalEditable, Modifier.width(fieldCellWidth))
+                PhraseNumberField(countIn, { countIn = it }, "Count-in", "Count-in beats", "phrase-count-in",
+                    intro == null || intro <= 0, musicalEditable, Modifier.width(fieldCellWidth))
             }
             val shortcutWidth = with(density) { measurer.measure("48 beats", labelStyle).size.width.toDp() } + 24.dp
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val columns = ((maxWidth + 6.dp) / (shortcutWidth + 6.dp)).toInt().coerceIn(1, 4)
-                Column {
-                    listOf(listOf(4, 8, 16, 32), listOf(6, 12, 24, 48)).forEach { row ->
-                        FlowRow(Modifier.fillMaxWidth(), maxItemsInEachRow = columns,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            row.forEach { beats ->
-                                FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() },
-                                    enabled = musicalEditable, label = { Text("$beats beats", style = labelStyle) },
-                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("phrase-shortcut-$beats"))
-                            }
-                        }
+            val shortcutColumns = ((availableWidth + 6.dp) / (shortcutWidth + 6.dp)).toInt().coerceIn(1, 4)
+            listOf(listOf(4, 8, 16, 32), listOf(6, 12, 24, 48)).forEach { row ->
+                FlowRow(Modifier.fillMaxWidth(), maxItemsInEachRow = shortcutColumns,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    row.forEach { beats ->
+                        FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() },
+                            enabled = musicalEditable, label = { Text("$beats beats", style = labelStyle) },
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("phrase-shortcut-$beats"))
                     }
                 }
             }
@@ -337,58 +335,59 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             }
             // Keep recording/review and its metadata together against the transport boundary.
             Column(Modifier.fillMaxWidth().testTag("phrase-footer")) {
-            if (importMode) {
-                Column(Modifier.fillMaxWidth()) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        OutlinedButton(onClick = { keyboard?.hide(); picker.launch(arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")) },
-                            enabled = editable && vm.ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("backing-track-choose")) { Text(vm.backingTrack?.imported?.name ?: "Choose file…", maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.testTag("backing-track-filename")) }
-                        Button(onClick = { vm.saveBackingTrack(blockId) }, enabled = editable && vm.ready && vm.backingTrack?.blockId == blockId,
-                            modifier = Modifier.heightIn(min = 48.dp).testTag("backing-track-save")) { Text("Save") }
+                if (importMode) {
+                    Column(Modifier.fillMaxWidth()) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            OutlinedButton(onClick = { keyboard?.hide(); picker.launch(arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")) },
+                                enabled = editable && vm.ready, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("backing-track-choose")) { Text(vm.backingTrack?.imported?.name ?: "Choose file…", maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.testTag("backing-track-filename")) }
+                            Button(onClick = { vm.saveBackingTrack(blockId) }, enabled = editable && vm.ready && vm.backingTrack?.blockId == blockId,
+                                modifier = Modifier.heightIn(min = 48.dp).testTag("backing-track-save")) { Text("Save") }
+                        }
+                    }
+                } else if (inline && review != null) {
+                    Row(Modifier.fillMaxWidth().testTag("phrase-primary-actions"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = vm::saveReview, enabled = !vm.busy,
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("review-save")) { Text("Keep") }
+                        OutlinedButton(onClick = { if (vm.hasMicrophonePermission()) vm.rerecordReview() else requestPermission() }, enabled = !vm.busy,
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("review-rerecord")) { Text("Re-record") }
+                    }
+                } else Button(onClick = {
+                    if (vm.recording) vm.finishCapture()
+                    else if (spec != null) {
+                        keyboard?.hide()
+                        if (!inline) onDismiss()
+                        if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec) }
+                        else requestPermission()
+                    }
+                }, enabled = vm.ready && !vm.busy && (vm.phrasing || (editable && spec != null)),
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("phrase-start")) {
+                    Text(if (vm.phrasing) {
+                        if (vm.countInBeat > 0) "Cancel · Count-in ${vm.countInBeat} of ${vm.countInTotal}"
+                        else "Cancel · Recording " + practiceTime(vm.elapsedMs)
+                    } else if (inline) "Record Loop" else "Start count-in")
+                }
+                FlowRow(Modifier.fillMaxWidth().heightIn(min = 24.dp).testTag("phrase-budget-row"),
+                    itemVerticalAlignment = Alignment.CenterVertically) {
+                    Text(if (importMode) "MP3 / M4A / PCM16 WAV · 50 MiB / 15 min" else "Execution budget: 15 minutes.", style = labelStyle, modifier = if (largeText) Modifier.fillMaxWidth() else Modifier.weight(1f))
+                    if (inline && review != null) {
+                        val playing = vm.playingId == review.id || vm.preparingId == review.id
+                        TextButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
+                            contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp).testTag("review-preview")) {
+                            Text(if (playing) "Stop" else "Preview", style = MaterialTheme.typography.labelSmall)
+                        }
+                        TextButton(onClick = vm::discardReview, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp),
+                            modifier = Modifier.heightIn(min = 48.dp).testTag("review-discard")) { Text("Discard", style = MaterialTheme.typography.labelSmall) }
                     }
                 }
-            } else if (inline && review != null) {
-                Row(Modifier.fillMaxWidth().testTag("phrase-primary-actions"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = vm::saveReview, enabled = !vm.busy,
-                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("review-save")) { Text("Keep") }
-                    OutlinedButton(onClick = { if (vm.hasMicrophonePermission()) vm.rerecordReview() else requestPermission() }, enabled = !vm.busy,
-                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("review-rerecord")) { Text("Re-record") }
-                }
-            } else Button(onClick = {
-                if (vm.recording) vm.finishCapture()
-                else if (spec != null) {
-                    keyboard?.hide()
-                    if (!inline) onDismiss()
-                    if (vm.hasMicrophonePermission()) { onBeforePlayback(); vm.startPhrase(blockId, spec) }
-                    else requestPermission()
-                }
-            }, enabled = vm.ready && !vm.busy && (vm.phrasing || (editable && spec != null)),
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("phrase-start")) {
-                Text(if (vm.phrasing) {
-                    if (vm.countInBeat > 0) "Cancel · Count-in ${vm.countInBeat} of ${vm.countInTotal}"
-                    else "Cancel · Recording " + practiceTime(vm.elapsedMs)
-                } else if (inline) "Record Loop" else "Start count-in")
             }
-            FlowRow(Modifier.fillMaxWidth().heightIn(min = 24.dp).testTag("phrase-budget-row"),
-                itemVerticalAlignment = Alignment.CenterVertically) {
-                Text(if (importMode) "MP3 / M4A / PCM16 WAV · 50 MiB / 15 min" else "Execution budget: 15 minutes.", style = labelStyle, modifier = if (largeText) Modifier.fillMaxWidth() else Modifier.weight(1f))
-                if (inline && review != null) {
-                    val playing = vm.playingId == review.id || vm.preparingId == review.id
-                    TextButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
-                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp).testTag("review-preview")) {
-                        Text(if (playing) "Stop" else "Preview", style = MaterialTheme.typography.labelSmall)
-                    }
-                    TextButton(onClick = vm::discardReview, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp),
-                        modifier = Modifier.heightIn(min = 48.dp).testTag("review-discard")) { Text("Discard", style = MaterialTheme.typography.labelSmall) }
-                }
-            }
-        }
         }
     }
     if (inline) Column(Modifier.fillMaxWidth().testTag("practice-loop-panel")) {
         Text("Loop setup", style = MaterialTheme.typography.titleSmall, modifier = Modifier.onSizeChanged { headingHeight = it.height }.semantics { heading() })
-        form()
-    } else AlertDialog(onDismissRequest = onDismiss, title = { Text("Record one phrase") }, text = form,
+        BoxWithConstraints(Modifier.fillMaxWidth(), content = form)
+    } else AlertDialog(onDismissRequest = onDismiss, title = { Text("Record one phrase") },
+        text = { BoxWithConstraints(Modifier.fillMaxWidth(), content = form) },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
 }
 

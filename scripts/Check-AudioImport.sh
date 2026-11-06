@@ -26,5 +26,5 @@ for method in importSelectRepeatInterruptAndKeepExistingTakes reopenAndManageImp
 done
 if [ "${1:-all}" != import ]; then
   timeout 240s adb shell am instrument -w -r -e class com.mrayover.practicelogger.LoopRecorderPreviewTest "$package.test/androidx.test.runner.AndroidJUnitRunner" | tee "$out/existing-loops.txt"
-  grep -q 'OK (2 tests)' "$out/existing-loops.txt"
+  grep -q 'OK (3 tests)' "$out/existing-loops.txt"
 fi

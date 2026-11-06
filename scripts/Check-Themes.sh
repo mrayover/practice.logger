@@ -10,7 +10,7 @@ classes=com.mrayover.practicelogger.ThemeWorkflowTest
 expected=6
 if [ "$api" = 35 ] && [ "${2:-all}" = all ]; then
   classes="$classes,com.mrayover.practicelogger.MetronomeButtonPulseTest,com.mrayover.practicelogger.AudioSettingsWorkflowTest,com.mrayover.practicelogger.LoopRecorderPreviewTest"
-  expected=12
+  expected=13
 fi
 collect() {
   timeout 20s adb logcat -d > "$out/logcat.txt" || true

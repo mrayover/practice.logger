@@ -49,6 +49,16 @@ trap collect EXIT
 adb shell wm size > app/build/targeted-display.txt
 adb shell wm density >> app/build/targeted-display.txt
 adb shell settings get system font_scale >> app/build/targeted-display.txt
+case "${TARGET_NAVIGATION:-standard}" in
+  standard) navigation_overlay= ;;
+  gesture) navigation_overlay=com.android.internal.systemui.navbar.gestural ;;
+  three-button) navigation_overlay=com.android.internal.systemui.navbar.threebutton ;;
+  *) exit 2 ;;
+esac
+if [ -n "$navigation_overlay" ]; then
+  adb shell cmd overlay enable-exclusive --category "$navigation_overlay"
+  adb shell cmd overlay list | grep -F "[x] $navigation_overlay" >> app/build/targeted-display.txt
+fi
 for test_class in ${TARGET_TEST_CLASS//,/ }; do
   if [[ "$test_class" == com.mrayover.practicelogger.PortableZipRoundTripTest ]]; then
     bash scripts/Check-PortableRoundTrip.sh

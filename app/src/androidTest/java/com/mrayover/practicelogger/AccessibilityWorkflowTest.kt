@@ -42,7 +42,7 @@ class AccessibilityWorkflowTest {
         shown("Practice Now")
         captureStage3("00-large-home-top")
         readable("practice.logger"); readable("Goals"); readable("Practice Now"); readable("Blocks")
-        readable("Routines"); readable("Tools"); readable("Recording"); readable("Data usage")
+        readable("Routines"); readable("Tools"); readable("Recording"); readable("Library")
         captureStage3("00-large-home-actions")
         openHomeTools(compose); readable("practice.logger")
         readable("Metronome"); readable("Tuner"); readable("Timer")
@@ -91,7 +91,7 @@ class AccessibilityWorkflowTest {
             compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().performClick(); readable("Apply BPM")
             compose.onNodeWithText("BPM (30–300)").performTextReplacement("300")
             click("Apply BPM"); readable("300 BPM")
-            val accentLabel = compose.onNodeWithTag("practice-metronome-accent-label").fetchSemanticsNode().boundsInRoot
+            val accentLabel = compose.onNodeWithTag("practice-metronome-accent-label", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
             val accentBox = compose.onNodeWithTag("practice-metronome-accent-box", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
             assertTrue("Enlarged Accent text overlaps checkbox: $accentLabel / $accentBox", accentLabel.right <= accentBox.left + 1f)
             readable("Record"); readable("Play")
@@ -100,7 +100,7 @@ class AccessibilityWorkflowTest {
             captureStage3("11-large-recordings")
             click("Loop Setup"); compose.onNodeWithTag("phrase-bpm").scrollIfNeeded().assertIsDisplayed().assertContentDescriptionEquals("Phrase BPM"); captureStage3("11-large-phrase-input"); readable("32 beats")
             compose.onNodeWithTag("phrase-recording-click").assertDoesNotExist()
-            readable("Record Loop"); captureStage3("11-large-phrase-setup")
+            compose.onNodeWithTag("phrase-start").scrollIfNeeded().assertIsDisplayed().assertTextContains("Record Loop"); captureStage3("11-large-phrase-setup")
             click("Loop Setup")
             readable("Complete"); captureStage3("11-large-focus"); click("Complete"); shown("Block 2 of 2"); click("Skip")
             shown("Session Summary"); readable("Session Summary"); captureStage3("12-large-summary")

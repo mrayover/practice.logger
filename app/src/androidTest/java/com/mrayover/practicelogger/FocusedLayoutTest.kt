@@ -41,7 +41,7 @@ class FocusedLayoutTest {
             assertTrue(practice.running);assertTrue(practice.clicking);screenshot("bounded-pdf")
             compose.onNodeWithTag("practice-description-toggle").performClick();click("Loop Setup");shown("Loop setup")
             compose.onNodeWithTag("phrase-bpm").performTextReplacement("240")
-            click("4 beats");click("Record Loop")
+            click("4 beats");compose.onNodeWithTag("phrase-start").scrollIfNeeded().assertIsDisplayed().performClick()
             acceptTemporaryTake(compose, recordings, playAfterSave = true)
             compose.waitUntil(12000) { !recordings.recording && recordings.takes.value.any { it.mode=="LOOP" } }
             compose.waitUntil(10000) { recordings.playingId!=null }
