@@ -396,7 +396,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val keyboard = LocalSoftwareKeyboardController.current
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center,
-            modifier = Modifier.testTag("$tag-label"))
+            modifier = Modifier.fillMaxWidth().testTag("$tag-label"))
         OutlinedTextField(value, onChange, enabled = enabled, singleLine = true, isError = error,
             textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),

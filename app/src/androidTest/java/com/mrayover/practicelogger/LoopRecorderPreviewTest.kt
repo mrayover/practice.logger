@@ -114,7 +114,14 @@ class LoopRecorderPreviewTest {
             assertTrue("Label overlaps $field", label.fetchSemanticsNode().boundsInRoot.bottom <= outline.top + 1)
             val layouts = mutableListOf<TextLayoutResult>()
             label.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
-            assertTrue("Label clips for $field", layouts.isNotEmpty() && layouts.none { it.hasVisualOverflow })
+            assertTrue("Missing label layout for $field", layouts.isNotEmpty())
+            layouts.forEach { layout ->
+                assertEquals("Single line expected for $field", 1, layout.lineCount)
+                assertFalse("Label ellipsized for $field", layout.isLineEllipsized(0))
+                assertTrue("Label exceeds $field width: $layout",
+                    layout.getLineLeft(0) >= -1 && layout.getLineRight(0) <= layout.size.width + 1)
+                assertTrue("Label exceeds $field height: $layout", layout.getLineBottom(0) <= layout.size.height + 1)
+            }
         }
         assertTrue(bounds(fields.last()).top > bounds(fields.first()).top)
         val view = compose.activity.window.decorView

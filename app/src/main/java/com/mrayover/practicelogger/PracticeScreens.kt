@@ -522,7 +522,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                 colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
                 contentPadding = PaddingValues(horizontal = 6.dp), modifier = Modifier.width(clickWidth).heightIn(min = 48.dp)
                     .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
-                Text(clickLabel, textAlign = TextAlign.Center)
+                Text(clickLabel, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
     }
