@@ -3,7 +3,7 @@ set -euo pipefail
 suite=${1:?suite required}
 api=${2:?API required}
 case "$suite" in review|transport|appearance-import) ;; *) exit 2 ;; esac
-case "$api" in 26|35) ;; *) exit 2 ;; esac
+case "$api" in 26|35|36) ;; *) exit 2 ;; esac
 package=com.mrayover.practicelogger.app
 out="app/build/current-$suite-$api"
 mkdir -p "$out"
@@ -53,7 +53,7 @@ case "$suite" in
     fresh; run_class MetronomeOutputTest 1
     fresh; run_class AudioSettingsWorkflowTest 2
     fresh; run_class MetronomeButtonPulseTest 2
-    fresh; run_class LoopRecorderPreviewTest 2
+    fresh; run_class LoopRecorderPreviewTest 3
     fresh; run_class NotesHistoryPreviewTest 1
     # Keep the seed data, but force a fresh application process before checking it.
     adb shell am force-stop "$package"

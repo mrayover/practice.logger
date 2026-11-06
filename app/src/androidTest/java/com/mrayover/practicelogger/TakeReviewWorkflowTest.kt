@@ -68,7 +68,7 @@ class TakeReviewWorkflowTest {
             free();tag("review-save").performClick();compose.waitUntil(15000) { !audio.busy && audio.reviewTake == null }
             assertEquals(before.size+1,runBlocking { db.takes().readAll().size })
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("Record phrase"));click("Record phrase")
-            compose.onNodeWithText("Phrase BPM").performTextReplacement("240");click("4 beats");click("Start count-in")
+            compose.onNodeWithTag("phrase-bpm").performTextReplacement("240");click("4 beats");click("Start count-in")
             review();val loop=audio.reviewTake!!;assertEquals("LOOP",loop.mode)
             assertNull(runBlocking { db.takes().find(loop.id) })
             compose.waitUntil(10000) { audio.playingId == loop.id };compose.waitUntil(10000) { audio.loopFramesPlayed() > 0 }

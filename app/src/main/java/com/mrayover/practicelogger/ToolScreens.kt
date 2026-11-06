@@ -45,7 +45,7 @@ import java.util.Locale
         onDispose { lifecycle.removeObserver(observer); vm.leave(); vm.setForeground(false) }
     }
     BackHandler(onBack = onTools)
-    Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
+    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onTools, modifier = Modifier.align(Alignment.Start)) { Text("Back to Tools") }
         Text(tool.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.headlineMedium,

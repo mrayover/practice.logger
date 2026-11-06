@@ -43,12 +43,12 @@ class PhraseWorkflowTest {
             compose.waitUntil(10000) { vm.ready }
             click("Loop Setup"); shown("Loop setup")
             compose.onNodeWithTag("phrase-recording-click").assertDoesNotExist()
-            compose.onNodeWithText("Phrase BPM").performTextReplacement("0")
+            compose.onNodeWithTag("phrase-bpm").performTextReplacement("0")
             compose.onNodeWithText("Record Loop").assertIsNotEnabled()
-            compose.onNodeWithText("Phrase BPM").performTextReplacement("120")
+            compose.onNodeWithTag("phrase-bpm").performTextReplacement("120")
             compose.onNodeWithTag("phrase-beats").performTextReplacement("8")
             compose.onNodeWithText("One phrase: 4.00 seconds").assertExists()
-            compose.onNodeWithText("Phrase BPM").performImeAction()
+            compose.onNodeWithTag("phrase-bpm").performImeAction()
             captureStage3("30-phrase-setup")
             click("Record Loop")
             compose.waitUntil(5000) { vm.recording && vm.countInBeat > 0 }

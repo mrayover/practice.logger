@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,7 +16,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -242,6 +248,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable fun PhraseSetupDialog(blockId: String, vm: RecordingViewModel, initialBpm: Int, onBeforePlayback: () -> Unit, requestPermission: () -> Unit, onDismiss: () -> Unit, inline: Boolean = false, minimumHeight: androidx.compose.ui.unit.Dp = 0.dp) {
     val keyboard = LocalSoftwareKeyboardController.current
     var phraseBpm by rememberSaveable(blockId) { mutableStateOf(initialBpm.coerceIn(30, 300).toString()) }
@@ -276,25 +283,38 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             headingHeight.toDp()
         }).coerceAtLeast(0.dp)) else Modifier.verticalScroll(rememberScrollState()),
             verticalArrangement = if (inline) Arrangement.SpaceBetween else Arrangement.Top) {
-            Row(Modifier.fillMaxWidth().testTag("phrase-fields"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                val field: @Composable RowScope.(String, (String) -> Unit, String, String, Boolean) -> Unit = { value, change, label, tag, error ->
-                    OutlinedTextField(value, change, label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                        enabled = musicalEditable, singleLine = true, isError = error,
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
-                        modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag(tag))
+            val labelStyle = MaterialTheme.typography.labelSmall
+            val measurer = rememberTextMeasurer()
+            val density = LocalDensity.current
+            val fieldWidth = with(density) {
+                maxOf(measurer.measure("Loop beats", labelStyle).size.width,
+                    measurer.measure("27000", MaterialTheme.typography.bodyMedium).size.width).toDp()
+            } + 36.dp
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val columns = ((maxWidth + 6.dp) / (fieldWidth + 6.dp)).toInt().coerceIn(1, 3)
+                FlowRow(Modifier.fillMaxWidth().testTag("phrase-fields"), maxItemsInEachRow = columns,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    PhraseNumberField(phraseBpm, { phraseBpm = it }, "BPM", "Phrase BPM", "phrase-bpm",
+                        bpm == null || bpm !in 30..300, musicalEditable, Modifier.weight(1f))
+                    PhraseNumberField(phraseBeats, { phraseBeats = it }, "Loop beats", "Loop beats", "phrase-beats",
+                        length == null || length !in 1..64, musicalEditable, Modifier.weight(1f))
+                    PhraseNumberField(countIn, { countIn = it }, "Count-in", "Count-in beats", "phrase-count-in",
+                        intro == null || intro <= 0, musicalEditable, Modifier.weight(1f))
                 }
-                field(phraseBpm, { phraseBpm = it }, "Phrase BPM", "phrase-bpm", bpm == null || bpm !in 30..300)
-                field(phraseBeats, { phraseBeats = it }, "Loop beats", "phrase-beats", length == null || length !in 1..64)
-                field(countIn, { countIn = it }, "Count-in beats", "phrase-count-in", intro == null || intro <= 0)
             }
-            listOf(listOf(4, 8, 16, 32), listOf(6, 12, 24, 48)).forEach { row ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    row.forEach { beats ->
-                        FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() }, enabled = musicalEditable,
-                            label = { Text("$beats beats", style = MaterialTheme.typography.labelSmall) },
-                            modifier = Modifier.weight(1f).then(if (largeText) Modifier.heightIn(min = 56.dp) else Modifier.height(34.dp)).testTag("phrase-shortcut-$beats"))
+            val shortcutWidth = with(density) { measurer.measure("48 beats", labelStyle).size.width.toDp() } + 24.dp
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val columns = ((maxWidth + 6.dp) / (shortcutWidth + 6.dp)).toInt().coerceIn(1, 4)
+                Column {
+                    listOf(listOf(4, 8, 16, 32), listOf(6, 12, 24, 48)).forEach { row ->
+                        FlowRow(Modifier.fillMaxWidth(), maxItemsInEachRow = columns,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            row.forEach { beats ->
+                                FilterChip(selected = phraseBeats == beats.toString(), onClick = { phraseBeats = beats.toString() },
+                                    enabled = musicalEditable, label = { Text("$beats beats", style = labelStyle) },
+                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("phrase-shortcut-$beats"))
+                            }
+                        }
                     }
                 }
             }
@@ -304,10 +324,15 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                         ?: (result.exceptionOrNull()?.message ?: "Check loop settings."),
                     color = if (!importMode && spec == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                if (inline && review == null) Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text("Add Backing Track", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                    Checkbox(checked = backing, onCheckedChange = { backing = it }, enabled = editable,
-                        modifier = Modifier.height(24.dp).width(32.dp).testTag("backing-track-toggle").semantics { contentDescription = "Add Backing Track" })
+                if (inline && review == null) Row(Modifier.weight(1f, fill = false).heightIn(min = 48.dp)
+                    .toggleable(value = backing, enabled = editable, role = Role.Checkbox, onValueChange = { backing = it })
+                    .testTag("backing-track-toggle").semantics { contentDescription = "Add Backing Track" },
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text("Add Backing Track", Modifier.weight(1f, fill = false),
+                        style = labelStyle, color = MaterialTheme.colorScheme.primary)
+                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                        Checkbox(checked = backing, onCheckedChange = null, enabled = editable)
+                    }
                 }
             }
             // Keep recording/review and its metadata together against the transport boundary.
@@ -344,16 +369,17 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     else "Cancel · Recording " + practiceTime(vm.elapsedMs)
                 } else if (inline) "Record Loop" else "Start count-in")
             }
-            Row(Modifier.fillMaxWidth().heightIn(min = 24.dp).testTag("phrase-budget-row"), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text(if (importMode) "MP3 / M4A / PCM16 WAV · 50 MiB / 15 min" else "Execution budget: 15 minutes.", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+            FlowRow(Modifier.fillMaxWidth().heightIn(min = 24.dp).testTag("phrase-budget-row"),
+                itemVerticalAlignment = Alignment.CenterVertically) {
+                Text(if (importMode) "MP3 / M4A / PCM16 WAV · 50 MiB / 15 min" else "Execution budget: 15 minutes.", style = labelStyle, modifier = if (largeText) Modifier.fillMaxWidth() else Modifier.weight(1f))
                 if (inline && review != null) {
                     val playing = vm.playingId == review.id || vm.preparingId == review.id
                     TextButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
-                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.then(if (largeText) Modifier.heightIn(min = 48.dp) else Modifier.height(24.dp)).testTag("review-preview")) {
+                        contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.heightIn(min = 48.dp).testTag("review-preview")) {
                         Text(if (playing) "Stop" else "Preview", style = MaterialTheme.typography.labelSmall)
                     }
                     TextButton(onClick = vm::discardReview, enabled = !vm.busy, contentPadding = PaddingValues(horizontal = 4.dp),
-                        modifier = Modifier.then(if (largeText) Modifier.heightIn(min = 48.dp) else Modifier.height(24.dp)).testTag("review-discard")) { Text("Discard", style = MaterialTheme.typography.labelSmall) }
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("review-discard")) { Text("Discard", style = MaterialTheme.typography.labelSmall) }
                 }
             }
         }
@@ -366,6 +392,21 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
         confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
 }
 
+@Composable private fun PhraseNumberField(value: String, onChange: (String) -> Unit, label: String,
+    description: String, tag: String, error: Boolean, enabled: Boolean, modifier: Modifier) {
+    val keyboard = LocalSoftwareKeyboardController.current
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center,
+            modifier = Modifier.testTag("$tag-label"))
+        OutlinedTextField(value, onChange, enabled = enabled, singleLine = true, isError = error,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
+            modifier = Modifier.fillMaxWidth().testTag(tag).semantics { contentDescription = description })
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable fun CompactRecordingControls(blockId: String, takes: List<BlockTake>, freeTake: BlockTake?, loopTake: BlockTake?,
     vm: RecordingViewModel, onBeforePlayback: () -> Unit, onLoopSetup: () -> Unit, onSelectType: (Boolean) -> Unit) {
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
@@ -386,7 +427,8 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 Row(Modifier.padding(end = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text(if (activeCapture) { if (vm.countInBeat > 0) "Count-in · ${vm.countInBeat} of ${vm.countInTotal}" else "Recording · " + practiceTime(vm.elapsedMs) } else selected?.let(::compactPracticeTakeTitle) ?: "No recordings", Modifier.weight(1f),
                         maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = action)
-                    Text("▾", Modifier.width(24.dp).testTag("practice-$type-chevron"), textAlign = androidx.compose.ui.text.style.TextAlign.Center, color = action)
+                    Icon(painterResource(R.drawable.ic_expand_more), contentDescription = null,
+                        modifier = Modifier.size(24.dp).testTag("practice-$type-chevron"), tint = action)
                 }
             }
         }

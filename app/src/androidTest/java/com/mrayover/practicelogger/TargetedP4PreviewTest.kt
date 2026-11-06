@@ -48,19 +48,26 @@ class TargetedP4PreviewTest {
             val buttons = listOf("Start", "Complete", "Notes", "Skip").map { compose.onNodeWithText(it).assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
             assertTrue(buttons.all { kotlin.math.abs(it.top-buttons.first().top) <= 1f })
             compose.onNodeWithTag("practice-transport-scrollbar").assertDoesNotExist()
-            val chevron = compose.onNodeWithTag("practice-metronome-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
-            for (type in listOf("free", "loop")) {
-                val x = compose.onNodeWithTag("practice-$type-chevron", true).fetchSemanticsNode().boundsInRoot.center.x
-                assertTrue("Aligned transport chevrons: $chevron / $x", kotlin.math.abs(chevron-x) <= compose.activity.resources.displayMetrics.density)
-            }
-            screenshot("transport-measurement")
             val density = compose.activity.resources.displayMetrics.density
             val row = compose.onNodeWithTag("practice-metronome-row").fetchSemanticsNode().boundsInRoot
-            assertTrue("Chevron retains its original anchor", kotlin.math.abs(chevron-(row.right-196f*density)) <= density)
-            val minus = compose.onNodeWithContentDescription("Decrease click BPM by 1").fetchSemanticsNode().boundsInRoot
-            val plus = compose.onNodeWithContentDescription("Increase click BPM by 1").fetchSemanticsNode().boundsInRoot
-            val record = compose.onNodeWithTag("practice-free-record").fetchSemanticsNode().boundsInRoot
-            assertTrue("Tempo pair centered above Record: ${(minus.center.x+plus.center.x)/2} / ${record.center.x}", kotlin.math.abs((minus.center.x+plus.center.x)/2-record.center.x) <= density)
+            val controls = listOf(
+                compose.onNodeWithTag("metronome-bpm"),
+                compose.onNodeWithTag("practice-metronome-accent"),
+                compose.onNodeWithTag("practice-metronome-expand"),
+                compose.onNodeWithContentDescription("Decrease click BPM by 1"),
+                compose.onNodeWithContentDescription("Increase click BPM by 1"),
+                compose.onNodeWithTag("practice-metronome-pulse")
+            ).map { it.scrollIfNeeded().assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
+            controls.forEach { bounds ->
+                assertTrue("Control outside transport: $bounds / $row", bounds.left >= row.left - 1 && bounds.right <= row.right + 1)
+                assertTrue("Control smaller than 48dp: $bounds", bounds.width >= 48 * density - 1 && bounds.height >= 48 * density - 1)
+            }
+            controls.forEachIndexed { index, bounds ->
+                assertTrue("Metronome controls overlap", controls.drop(index + 1).none {
+                    minOf(bounds.right, it.right) - maxOf(bounds.left, it.left) > 1 &&
+                        minOf(bounds.bottom, it.bottom) - maxOf(bounds.top, it.top) > 1
+                })
+            }
             fun textLayout(node: SemanticsNodeInteraction): androidx.compose.ui.text.TextLayoutResult {
                 val results = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
                 node.performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(results) }
@@ -88,10 +95,6 @@ class TargetedP4PreviewTest {
             val clickLayout = textLayout(clickLabel)
             val clickTextCenter = clickLabel.fetchSemanticsNode().boundsInRoot.left + (clickLayout.getLineLeft(0)+clickLayout.getLineRight(0))/2
             assertTrue("Click text centered: $clickTextCenter / ${clickBubble.center.x}", kotlin.math.abs(clickTextCenter-clickBubble.center.x) <= density)
-            for (type in listOf("free", "loop")) {
-                val action = compose.onNodeWithTag("practice-$type-record").fetchSemanticsNode().boundsInRoot
-                assertTrue("Bubble left meets $type action right: ${clickBubble.left} / ${action.right}", kotlin.math.abs(clickBubble.left-action.right) <= density)
-            }
             screenshot("transport")
             compose.runOnIdle { compose.activity.themePreferences.save(ThemeChoice.DARK) }
             screenshot("transport-dark")

@@ -1,3 +1,6 @@
+import java.nio.ByteBuffer
+import java.nio.charset.CharacterCodingException
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -11,8 +14,8 @@ android {
         applicationId = "com.mrayover.practicelogger.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 96
-        versionName = "0.31.0"
+        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 97
+        versionName = "0.31.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes { release { isMinifyEnabled = false } }
@@ -49,3 +52,29 @@ dependencies {
 tasks.withType<Test>().configureEach {
     systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
 }
+
+// Scan source and textual resources without rejecting legitimate Unicode or opening binary assets.
+val verifySourceEncoding by tasks.registering {
+    val sources = fileTree("src") {
+        include("**/*.kt", "**/*.java", "**/*.xml", "**/*.json", "**/*.txt", "**/*.html", "**/*.properties")
+    }
+    inputs.files(sources)
+    doLast {
+        val continuation = "[\u0080-\u00BF€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ]"
+        val mojibake = Regex("[\uFFFD\u0080-\u009F]|\u00C2$continuation|\u00C3$continuation|" +
+            "\u00E2$continuation$continuation|\u00F0$continuation$continuation$continuation|\u00EF\u00BB\u00BF")
+        val invalid = sources.files.sorted().flatMap { file ->
+            val path = file.relativeTo(projectDir)
+            try {
+                val text = Charsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(file.readBytes()))
+                text.lineSequence().mapIndexedNotNull { index, line ->
+                    if (mojibake.containsMatchIn(line)) "$path:${index + 1}: suspected mojibake" else null
+                }.toList()
+            } catch (_: CharacterCodingException) {
+                listOf("$path: invalid UTF-8")
+            }
+        }
+        check(invalid.isEmpty()) { invalid.joinToString("\n") }
+    }
+}
+tasks.named("preBuild") { dependsOn(verifySourceEncoding) }

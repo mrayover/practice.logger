@@ -146,7 +146,7 @@ class TransportPreviewTest {
             click("Notes"); assertSavedPracticeNote(compose, noteText.trim()); click("Notes")
             repeat(2) { index ->
                 click("Loop Setup")
-                compose.onNodeWithText("Phrase BPM").scrollIfNeeded().performTextReplacement("240")
+                compose.onNodeWithTag("phrase-bpm").scrollIfNeeded().performTextReplacement("240")
                 clearKeyboard(); click("4 beats")
                 // The primary loop action is distinct from the compact free-record control.
                 compose.onNodeWithTag("phrase-start").assertIsDisplayed().performClick()

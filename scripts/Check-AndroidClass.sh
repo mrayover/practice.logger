@@ -9,6 +9,13 @@ else
 fi
 adb shell locksettings set-disabled true
 adb shell wm dismiss-keyguard
+case "${TARGET_DISPLAY_PROFILE:-standard}" in
+  standard) ;;
+  narrow) adb shell wm size 720x1440; adb shell wm density 360 ;;
+  tablet) adb shell wm size 1600x2400; adb shell wm density 320 ;;
+  landscape) adb shell settings put system accelerometer_rotation 0; adb shell settings put system user_rotation 1 ;;
+  *) exit 2 ;;
+esac
 if [[ "${TARGET_TEST_CLASS:-}" == *ImportedAudioWorkflowTest* || "${TARGET_TEST_CLASS:-}" == *PortableZipRoundTripTest* || "$suite" == appearance-import ]]; then
   if [[ "${TARGET_TEST_CLASS:-}" == *PortableZipRoundTripTest* ]]; then export AUDIO_FIXTURE_DURATION=4.0; fi
   bash scripts/Prepare-AudioFixtures.sh
@@ -39,6 +46,9 @@ collect() {
   timeout 30s adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files app/build/targeted-files || true
 }
 trap collect EXIT
+adb shell wm size > app/build/targeted-display.txt
+adb shell wm density >> app/build/targeted-display.txt
+adb shell settings get system font_scale >> app/build/targeted-display.txt
 for test_class in ${TARGET_TEST_CLASS//,/ }; do
   if [[ "$test_class" == com.mrayover.practicelogger.PortableZipRoundTripTest ]]; then
     bash scripts/Check-PortableRoundTrip.sh

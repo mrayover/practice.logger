@@ -1,0 +1,4 @@
+root = true
+
+[*.{kt,kts,java,xml,json,txt,properties}]
+charset = utf-8

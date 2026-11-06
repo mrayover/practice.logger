@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,7 +16,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
@@ -48,7 +51,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
         sessions.history.forEach { bundle ->
             CatalogPill(onClick = { onSummary(bundle.session.id) }, modifier = Modifier.testTag("recent-session-${bundle.session.id}")) {
                 Text(sessionDate(bundle.session.startedAt), style = MaterialTheme.typography.titleMedium)
-                Text(bundle.ordered.count { it.outcome == "COMPLETED" }.toString() + " completed Â· " + bundle.ordered.count { it.outcome == "SKIPPED" } + " skipped Â· " + practiceTime(bundle.activeMs) + " active")
+                Text(bundle.ordered.count { it.outcome == "COMPLETED" }.toString() + " completed · " + bundle.ordered.count { it.outcome == "SKIPPED" } + " skipped · " + practiceTime(bundle.activeMs) + " active")
             }
         }
     }
@@ -68,7 +71,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
                     Column {
                         Text(bundle.current?.name ?: "Session", style = MaterialTheme.typography.titleMedium)
-                        Text("${sessionDate(bundle.session.startedAt)} Â· Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}")
+                        Text("${sessionDate(bundle.session.startedAt)} · Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}")
                     }
                 }
             }
@@ -124,7 +127,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
             OutlinedButton(onClick = { vm.addBlock(block.id) }, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).goalEndCap(indicator)) {
                 Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Text("Add " + block.name)
-                    Text(block.durationMinutes.toString() + " min Â· " + block.action, style = MaterialTheme.typography.bodyMedium)
+                    Text(block.durationMinutes.toString() + " min · " + block.action, style = MaterialTheme.typography.bodyMedium)
                     BlockGoalLabel(indicator)
                 }
             }
@@ -218,7 +221,10 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
     val loopPanelOpen = (recordings.reviewTake == null && transportPanel == "loop") || (recordings.reviewTake?.kind == TakeKind.RECORDED_LOOP && !reviewCollapsed)
     val density = LocalDensity.current
-    val sideBySideHeaders = wideTranscribe || (loopPanelOpen && !audioBusy && maxWidth >= 360.dp && density.fontScale < 1.4f)
+    val editingInShortPanel = panelOpen && !audioBusy && maxHeight < 360.dp &&
+        WindowInsets.ime.getBottom(density) > 0
+    val sideBySideHeaders = (wideTranscribe && density.fontScale < 1.5f) ||
+        (loopPanelOpen && !audioBusy && maxWidth >= 360.dp && density.fontScale < 1.4f)
     var headingHeight by remember(current.id) { mutableStateOf(0.dp) }
     var captureActionsHeight by remember(current.id) { mutableStateOf(0.dp) }
     var bottomActionsHeight by remember(current.id) { mutableStateOf(0.dp) }
@@ -230,7 +236,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         (maxHeight - headingHeight - bottomActionsHeight -
             (if (recordings.recording) captureActionsHeight else 0.dp) - 200.dp).coerceAtLeast(48.dp)) else baseTransportHeight
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading").onSizeChanged { headingHeight = with(density) { it.height.toDp() } }, horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        if (!editingInShortPanel) Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading").onSizeChanged { headingHeight = with(density) { it.height.toDp() } }, horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
                 goalName?.let { Text("Goal: " + it, style = MaterialTheme.typography.bodySmall) }
@@ -244,7 +250,11 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                     })
             }
         }
-        Box(Modifier.fillMaxWidth().then(if (panelOpen) Modifier else Modifier.weight(1f)).testTag("practice-workspace-viewport")) {
+        Box(Modifier.fillMaxWidth().then(when {
+            editingInShortPanel -> Modifier.height(0.dp).clearAndSetSemantics { }
+            panelOpen -> Modifier
+            else -> Modifier.weight(1f)
+        }).testTag("practice-workspace-viewport")) {
             FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, sideBySideHeaders = sideBySideHeaders, onReveal = {
                 focusManager.clearFocus(force = true); keyboard?.hide()
                 if (!transcribing || !audioBusy) {
@@ -284,7 +294,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                             Text("Use headphones to reduce reference sound picked up by the microphone.",
                                 style = MaterialTheme.typography.bodySmall)
                         }
-                        if (recordings.busy && recordings.reviewTake == null) Text("Preparing takeâ€¦")
+                        if (recordings.busy && recordings.reviewTake == null) Text("Preparing take…")
                         recordings.message?.let {
                             Text(it, style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
@@ -342,7 +352,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         if (!transcribing && recordings.reviewTake?.kind == TakeKind.FREE && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
-        if (!transcribing) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
+        if (!transcribing && !editingInShortPanel) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
             state = transportScroll, tag = "practice-transport") {
             PracticeMetronome(vm, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
                 onExpand = { transportPanel = if (transportPanel == "metronome") null else "metronome" },
@@ -355,13 +365,13 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         if (recordings.reviewTake != null && reviewCollapsed) Row(Modifier.fillMaxWidth().padding(horizontal=16.dp),
             verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
             TextButton(onClick={ reviewCollapsed=false; transportPanel=if(recordings.reviewTake?.kind==TakeKind.RECORDED_LOOP) "loop" else null }, modifier=Modifier.weight(1f).heightIn(min=48.dp)
-                .testTag("practice-review-expand")) { Text("Review Take Â· Not saved") }
+                .testTag("practice-review-expand")) { Text("Review Take · Not saved") }
             Button(onClick=recordings::saveReview,enabled=!recordings.busy,
                 modifier=Modifier.heightIn(min=48.dp).testTag("review-save")) { Text("Save") }
         }
         if (recordings.recording && (!panelOpen || transcribing)) {
             val status: @Composable (Modifier) -> Unit = { modifier ->
-                Text(if (recordings.countInBeat > 0) "Count-in Â· ${recordings.countInBeat} of ${recordings.countInTotal}" else "Recording Â· " + practiceTime(recordings.elapsedMs),
+                Text(if (recordings.countInBeat > 0) "Count-in · ${recordings.countInBeat} of ${recordings.countInTotal}" else "Recording · " + practiceTime(recordings.elapsedMs),
                     color = PracticeTheme.colors.recording, style = MaterialTheme.typography.bodyMedium, modifier = modifier)
             }
             val stop: @Composable (Modifier) -> Unit = { modifier ->
@@ -376,9 +386,9 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                 status(Modifier.weight(1f)); stop(Modifier)
             }
         }
-        if (awaiting && !loopPanelOpen) Text("Time reached. Continue for overtime or complete this Block.",
+        if (awaiting && !loopPanelOpen && !editingInShortPanel) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
-        FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions").onSizeChanged { bottomActionsHeight = with(density) { it.height.toDp() } },
+        if (!editingInShortPanel) FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions").onSizeChanged { bottomActionsHeight = with(density) { it.height.toDp() } },
             maxItemsInEachRow = if (!wideTranscribe && density.fontScale >= 1.5f) 2 else 4,
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
@@ -433,7 +443,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         bundle.ordered.forEach { placement ->
             Text(placement.name, style = MaterialTheme.typography.titleLarge)
             Text(placement.action)
-            Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " Â· " + practiceTime(placement.activeMs) + " active Â· " + practiceTime(placement.configuredMs) + " planned")
+            Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
             placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
             SavedPracticeNotes(sessionPlacementNotes(history, bundle.session.id, placement), notes.busy, notes)
             HorizontalDivider()
@@ -449,79 +459,81 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
 @Composable private fun PracticeMetronome(vm: PracticeViewModel, expanded: Boolean, blocked: Boolean, onExpand: () -> Unit, onEditingChanged: (Boolean) -> Unit = {}) {
     var editing by rememberSaveable { mutableStateOf(false) }
     var entered by rememberSaveable { mutableStateOf("") }
-    val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
-    val bpmControl: @Composable (Modifier) -> Unit = { modifier ->
-        BoxWithConstraints(modifier.heightIn(min = 48.dp).clickable(enabled = !vm.busy, role = Role.Button) {
-            entered = vm.workingBpm.toString(); editing = true; onEditingChanged(true)
-        }.padding(horizontal = 2.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" }) {
-            val infoStyle = fittedTransportStyle("Metronome\n${vm.workingBpm} BPM  ${vm.metronomeConfig.meter.label}",
-                MaterialTheme.typography.labelSmall, maxWidth)
-            Column(Modifier.align(androidx.compose.ui.Alignment.CenterStart)) {
-                Text("Metronome", style = infoStyle, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("${vm.workingBpm} BPM", style = infoStyle, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
-                    Text(vm.metronomeConfig.meter.label, style = infoStyle, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
-                }
+    val infoStyle = MaterialTheme.typography.labelSmall
+    val actionStyle = MaterialTheme.typography.labelLarge
+    val bpm = "${vm.workingBpm} BPM"
+    val meter = vm.metronomeConfig.meter.label
+    val clickLabel = if (vm.clicking) "Stop click" else "Start click"
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val infoWidth = with(density) {
+        maxOf(measurer.measure("Metronome", infoStyle).size.width.toDp(),
+            measurer.measure(bpm, infoStyle).size.width.toDp() + measurer.measure(meter, infoStyle).size.width.toDp() + 4.dp)
+    } + 4.dp
+    val accentWidth = with(density) { measurer.measure("Accent", infoStyle).size.width.toDp() } + 48.dp
+    val stepWidth = maxOf(48.dp, with(density) { measurer.measure("−1", actionStyle).size.width.toDp() } + 8.dp)
+    val clickWidth = maxOf(72.dp, with(density) {
+        maxOf(measurer.measure("Start click", actionStyle).size.width, measurer.measure("Stop click", actionStyle).size.width).toDp()
+    } + 14.dp)
+    FlowRow(Modifier.fillMaxWidth().testTag("practice-metronome-row"),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        itemVerticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.widthIn(min = infoWidth).heightIn(min = 48.dp)
+            .clickable(enabled = !vm.busy, role = Role.Button) {
+                entered = vm.workingBpm.toString()
+                editing = true
+                onEditingChanged(true)
+            }.padding(horizontal = 2.dp).testTag("metronome-bpm").semantics { contentDescription = "Set BPM" },
+            verticalArrangement = Arrangement.Center) {
+            Text("Metronome", style = infoStyle, color = MaterialTheme.colorScheme.primary)
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(bpm, style = infoStyle, color = MaterialTheme.colorScheme.primary)
+                Text(meter, style = infoStyle, color = MaterialTheme.colorScheme.primary)
             }
         }
-    }
-    val controls: @Composable (Boolean) -> Unit = { compact ->
-        // Preserve the 184dp region after the chevron; center the tempo pair above Record.
-        if (compact) Spacer(Modifier.width(32.dp))
-        TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
-            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Decrease click BPM by 1" }) { Text("âˆ’1") }
-        TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
-            contentPadding = PaddingValues(0.dp), modifier = Modifier.sizeIn(minWidth = 40.dp, minHeight = 48.dp).width(40.dp).semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
-        val clickWidth = if (compact) 72.dp else 104.dp
-        val label = if (vm.clicking) "Stop click" else "Start click"
-        val labelStyle = fittedTransportStyle(label, MaterialTheme.typography.bodyMedium, clickWidth - 4.dp)
-        OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
-            colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
-            contentPadding = PaddingValues(horizontal = 2.dp), modifier = Modifier.offset(x = if (compact) 12.dp else 0.dp).width(clickWidth).heightIn(min = 48.dp)
-                .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
-            Text(label, Modifier.fillMaxWidth(), style = labelStyle, textAlign = TextAlign.Center, maxLines = 1, softWrap = false)
-        }
-    }
-        val expand: @Composable () -> Unit = {
-            TextButton(onClick=onExpand,contentPadding=PaddingValues(0.dp),modifier=Modifier.width(24.dp).heightIn(min=48.dp)
-                .testTag("practice-metronome-expand").semantics { contentDescription=if(expanded) "Collapse metronome" else "Expand metronome" }) {
-                Text(if(expanded) "â–´" else "â–¾", Modifier.testTag("practice-metronome-chevron"))
+        Row(Modifier.widthIn(min = accentWidth).heightIn(min = 48.dp)
+            .toggleable(value = vm.metronomeConfig.accent, enabled = !vm.busy, role = Role.Checkbox,
+                onValueChange = { vm.configureMetronome(vm.metronomeConfig.copy(accent = it)) })
+            .testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" },
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("Accent", Modifier.testTag("practice-metronome-accent-label"), style = infoStyle, color = MaterialTheme.colorScheme.primary)
+            Box(Modifier.size(48.dp).testTag("practice-metronome-accent-box"), contentAlignment = Alignment.Center) {
+                Checkbox(checked = vm.metronomeConfig.accent, onCheckedChange = null,
+                    colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.primary, checkmarkColor = MaterialTheme.colorScheme.onPrimary),
+                    enabled = !vm.busy)
             }
         }
-    val accent: @Composable () -> Unit = {
-        Row(Modifier.widthIn(min = 72.dp).width(IntrinsicSize.Min), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text("Accent", modifier = Modifier.testTag("practice-metronome-accent-label"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-            Checkbox(checked = vm.metronomeConfig.accent,
-                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary, uncheckedColor = MaterialTheme.colorScheme.primary, checkmarkColor = MaterialTheme.colorScheme.onPrimary),
-                onCheckedChange = { vm.configureMetronome(vm.metronomeConfig.copy(accent = it)) }, enabled = !vm.busy,
-                modifier = Modifier.width(if (largeText) 48.dp else 32.dp).height(48.dp).testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" })
+        IconButton(onClick = onExpand, modifier = Modifier.size(48.dp).testTag("practice-metronome-expand")
+            .semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" }) {
+            Icon(painterResource(R.drawable.ic_expand_more),
+                contentDescription = if (expanded) "Collapse metronome" else "Expand metronome",
+                modifier = Modifier.rotate(if (expanded) 180f else 0f).testTag("practice-metronome-chevron"),
+                tint = MaterialTheme.colorScheme.primary)
         }
-    }
-    BoxWithConstraints(Modifier.fillMaxWidth().testTag("practice-metronome-row")) {
-        if (largeText || maxWidth < 350.dp) Column {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                bpmControl(Modifier.weight(1f)); accent(); expand()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = { vm.changeWorkingBpm(vm.workingBpm - 1) }, enabled = vm.workingBpm > 30 && !vm.busy,
+                contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
+                    .semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
+            TextButton(onClick = { vm.changeWorkingBpm(vm.workingBpm + 1) }, enabled = vm.workingBpm < 300 && !vm.busy,
+                contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
+                    .semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
+            OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
+                colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
+                contentPadding = PaddingValues(horizontal = 6.dp), modifier = Modifier.width(clickWidth).heightIn(min = 48.dp)
+                    .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
+                Text(clickLabel, textAlign = TextAlign.Center)
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { controls(false) }
-        } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            bpmControl(Modifier.weight(1f)); accent(); expand(); controls(true)
         }
     }
     vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
     if (editing) AlertDialog(onDismissRequest = { editing = false; onEditingChanged(false) }, title = { Text("Working BPM") }, text = {
-        OutlinedTextField(entered, { entered = it }, label = { Text("BPM (30â€“300)") }, singleLine = true,
+        OutlinedTextField(entered, { entered = it }, label = { Text("BPM (30–300)") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = parseWorkingBpm(entered) == null,
             supportingText = { Text("Enter a whole number from 30 to 300.") })
     }, confirmButton = { TextButton(onClick = { parseWorkingBpm(entered)?.let { vm.changeWorkingBpm(it); editing = false; onEditingChanged(false) } },
         enabled = parseWorkingBpm(entered) != null && !vm.busy) { Text("Apply BPM") } },
         dismissButton = { TextButton(onClick = { editing = false; onEditingChanged(false) }) { Text("Cancel") } })
-}
-
-// Fit only when a user's text scale would otherwise clip the compact row; keep Lato and one line.
-@Composable private fun fittedTransportStyle(text: String, style: TextStyle, width: Dp): TextStyle {
-    val measured = rememberTextMeasurer().measure(text, style, softWrap = false).size.width.coerceAtLeast(1)
-    val available = with(LocalDensity.current) { width.toPx() }.coerceAtLeast(1f)
-    return style.copy(fontSize = style.fontSize * minOf(1f, available / measured))
 }
 
 @Composable internal fun ActionButton(label: String, click: () -> Unit, enabled: Boolean = true) {

@@ -1,6 +1,17 @@
 package com.mrayover.practicelogger
 
 import android.Manifest
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.ui.test.*
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.text.TextLayoutResult
@@ -66,6 +77,57 @@ class LoopRecorderPreviewTest {
         compose.onNodeWithTag("phrase-recording-click").assertDoesNotExist()
         if (review) listOf("review-save", "review-rerecord", "review-discard", "review-preview").forEach { compose.onAllNodesWithTag(it).assertCountEquals(1) }
     }
+    @Test fun loopFieldsReflowWithoutLosingValuesAndRecordRemainsReachableWithIme() {
+        val audio = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
+        val narrow = mutableStateOf(false)
+        compose.runOnIdle {
+            compose.activity.setContent {
+                val density = LocalDensity.current
+                CompositionLocalProvider(LocalDensity provides Density(density.density, if (narrow.value) 2f else 1f)) {
+                    PracticeTheme {
+                        Box(Modifier.width(if (narrow.value) 280.dp else 380.dp).fillMaxHeight().imePadding()) {
+                            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                                PhraseSetupDialog("adaptive-preview", audio, 90, {}, {}, {}, inline = true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val fields = listOf("phrase-bpm", "phrase-beats", "phrase-count-in")
+        val labels = listOf("BPM", "Loop beats", "Count-in")
+        val descriptions = listOf("Phrase BPM", "Loop beats", "Count-in beats")
+        val values = listOf("126", "12", "6")
+        fun bounds(name: String) = compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
+            .fetchSemanticsNode().boundsInRoot
+        val wide = fields.map(::bounds)
+        assertTrue(wide.zipWithNext().all { (a, b) -> a.right <= b.left + 1 && kotlin.math.abs(a.top - b.top) <= 1 })
+        fields.zip(values).forEach { (field, value) -> tag(field).performTextReplacement(value) }
+        keyboard()
+        compose.runOnIdle { narrow.value = true }
+        fields.forEachIndexed { index, field ->
+            val input = compose.onNodeWithTag(field).scrollIfNeeded().assertIsDisplayed()
+                .assertContentDescriptionEquals(descriptions[index]).assertTextContains(values[index])
+            val outline = input.fetchSemanticsNode().boundsInRoot
+            val label = compose.onNodeWithTag("$field-label").assertTextEquals(labels[index])
+            assertTrue("Label overlaps $field", label.fetchSemanticsNode().boundsInRoot.bottom <= outline.top + 1)
+            val layouts = mutableListOf<TextLayoutResult>()
+            label.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            assertTrue("Label clips for $field", layouts.isNotEmpty() && layouts.none { it.hasVisualOverflow })
+        }
+        assertTrue(bounds(fields.last()).top > bounds(fields.first()).top)
+        val view = compose.activity.window.decorView
+        fun imeVisible() = ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime()) == true
+        compose.onNodeWithTag("phrase-count-in").scrollIfNeeded().performTouchInput { click() }
+        compose.waitUntil(8000) { imeVisible() }
+        compose.onNodeWithTag("phrase-start").scrollIfNeeded().assertIsDisplayed().assertIsEnabled()
+        assertTrue("The IME must remain open during the reachability check", imeVisible())
+        shot("narrow-ime")
+        keyboard()
+        compose.runOnIdle { narrow.value = false }
+        fields.zip(values).forEach { (field, value) -> tag(field).assertTextContains(value) }
+    }
+
     @Test fun compactSetupPermanentClickAndInlineReview() {
         val app = compose.activity.application
         val db = BlockDatabase.open(app)

@@ -79,6 +79,14 @@ class PracticeRefinementPreviewTest {
                 val repo=SessionRepository(db);repo.addBlock(b);repo.start()
             }
             shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("90 BPM")
+            compose.onNodeWithText("−1").scrollIfNeeded().assertIsDisplayed().performClick()
+            shown("89 BPM")
+            compose.onNodeWithText("+1").scrollIfNeeded().assertIsDisplayed().performClick()
+            shown("90 BPM")
+            tag("practice-metronome-expand").assertContentDescriptionEquals("Expand metronome")
+            tag("metronome-bpm").performClick()
+            shown("BPM (30–300)")
+            click("Cancel")
             compose.waitUntil(15000) { audio.ready }
             tag("practice-reference-toggle").performClick();click("Next page");shown("Page 2 of 2")
             tag("reference-viewer").performTouchInput {
@@ -179,6 +187,14 @@ class PracticeRefinementPreviewTest {
                 }
             }
             shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("90 BPM")
+            compose.onNodeWithText("−1").scrollIfNeeded().assertIsDisplayed().performClick()
+            shown("89 BPM")
+            compose.onNodeWithText("+1").scrollIfNeeded().assertIsDisplayed().performClick()
+            shown("90 BPM")
+            tag("practice-metronome-expand").assertContentDescriptionEquals("Expand metronome")
+            tag("metronome-bpm").performClick()
+            shown("BPM (30–300)")
+            click("Cancel")
             tag("practice-metronome-expand").performClick();modeRow()
             tag("metronome-apply-bpm");tag("meter-7/8");tag("metronome-accent")
             tag("practice-metronome-pulse").performClick();shown("Stop click")

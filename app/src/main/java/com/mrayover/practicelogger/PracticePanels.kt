@@ -46,7 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
         .padding(horizontal = 16.dp).testTag(tag).semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" },
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(label, Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.labelLarge,
-            maxLines = 1, overflow = TextOverflow.Ellipsis)
+            maxLines = 2, overflow = TextOverflow.Ellipsis)
         Text(if (expanded) "Collapse" else "Expand", color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.labelMedium, maxLines = 1)
     }

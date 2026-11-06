@@ -47,9 +47,19 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
             TextButton(onClick=::applyBpm,enabled=enabled && parsed!=null,
                 modifier=Modifier.heightIn(min=48.dp).testTag("metronome-apply-bpm")) { Text("Apply BPM") }
         }
-        if (compact && androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f) Row(Modifier.fillMaxWidth(), verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
-            horizontalArrangement=Arrangement.spacedBy(4.dp)) { bpmField(Modifier.weight(1f)); apply() }
-        else { bpmField(if(compact) Modifier.fillMaxWidth() else Modifier); apply() }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val fontScale = androidx.compose.ui.platform.LocalDensity.current.fontScale
+            if (compact && maxWidth >= 264.dp && fontScale < 1.4f) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    bpmField(Modifier.weight(1f))
+                    apply()
+                }
+            } else Column {
+                bpmField(Modifier.fillMaxWidth())
+                apply()
+            }
+        }
         Text("Time signature",style=MaterialTheme.typography.labelLarge)
         if (compact) BoxWithConstraints(Modifier.fillMaxWidth()) {
             val columns = if (maxWidth >= 288.dp && androidx.compose.ui.platform.LocalDensity.current.fontScale < 1.5f) 6 else 3
@@ -76,8 +86,10 @@ fun Modifier.metronomeBeat(pulse: MetronomePulse, running: Boolean, tag: String)
             }
         }
         Row(Modifier.fillMaxWidth().heightIn(min=48.dp).toggleable(value=config.accent,role=Role.Checkbox,
-            enabled=enabled,onValueChange={ onConfig(config.copy(accent=it)) }).testTag("metronome-accent")) {
-            Checkbox(checked=config.accent,onCheckedChange=null);Text("Accent first beat",Modifier.padding(top=12.dp))
+            enabled=enabled,onValueChange={ onConfig(config.copy(accent=it)) }).testTag("metronome-accent"),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Checkbox(checked=config.accent,onCheckedChange=null,enabled=enabled)
+            Text("Accent first beat",Modifier.padding(horizontal=8.dp, vertical=4.dp))
         }
         if (compact) Row(Modifier.fillMaxWidth().testTag("practice-metronome-modes"),
             horizontalArrangement=Arrangement.spacedBy(4.dp), verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
