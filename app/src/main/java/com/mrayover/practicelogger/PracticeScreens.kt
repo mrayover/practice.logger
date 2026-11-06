@@ -226,15 +226,20 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
     val sideBySideHeaders = (wideTranscribe && density.fontScale < 1.5f) ||
         (loopPanelOpen && !audioBusy && maxWidth >= 360.dp && density.fontScale < 1.4f)
     var headingHeight by remember(current.id) { mutableStateOf(0.dp) }
+    var workspaceHeaderHeight by remember(current.id) { mutableStateOf(0.dp) }
     var captureActionsHeight by remember(current.id) { mutableStateOf(0.dp) }
     var bottomActionsHeight by remember(current.id) { mutableStateOf(0.dp) }
-    val baseTransportHeight = if (panelOpen) minOf(maxHeight * .42f,
-        (maxHeight - 97.dp - 56.dp - 48.dp - 128.dp).coerceAtLeast(48.dp)) else maxHeight * .42f
-    // At enlarged text the pinned rows must not consume the entire Reference area.
-    // Keep the same scrollable transport and controls, budgeting their measured siblings.
-    val transportMaxHeight = if (!panelOpen && density.fontScale >= 1.5f) minOf(baseTransportHeight,
-        (maxHeight - headingHeight - bottomActionsHeight -
-            (if (recordings.recording) captureActionsHeight else 0.dp) - 200.dp).coerceAtLeast(48.dp)) else baseTransportHeight
+    val baseTransportHeight = maxHeight * .42f
+    val captureHeight = if (recordings.recording && (!panelOpen || transcribing)) captureActionsHeight else 0.dp
+    val heightAboveTransport = headingHeight + bottomActionsHeight + captureHeight
+    // Leave room to scroll the active panel even when enlarged text makes the pinned rows taller.
+    val transportMaxHeight = when {
+        panelOpen -> minOf(baseTransportHeight,
+            (maxHeight - heightAboveTransport - workspaceHeaderHeight - 128.dp).coerceAtLeast(48.dp))
+        density.fontScale >= 1.5f -> minOf(baseTransportHeight,
+            (maxHeight - heightAboveTransport - 200.dp).coerceAtLeast(48.dp))
+        else -> baseTransportHeight
+    }
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
         if (!editingInShortPanel) Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading").onSizeChanged { headingHeight = with(density) { it.height.toDp() } }, horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -254,7 +259,9 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
             editingInShortPanel -> Modifier.height(0.dp).clearAndSetSemantics { }
             panelOpen -> Modifier
             else -> Modifier.weight(1f)
-        }).testTag("practice-workspace-viewport")) {
+        }).onSizeChanged {
+            if (panelOpen && !editingInShortPanel) workspaceHeaderHeight = with(density) { it.height.toDp() }
+        }.testTag("practice-workspace-viewport")) {
             FocusedWorkspace(current, images, if (panelOpen) Modifier.fillMaxWidth() else Modifier.fillMaxSize(), suppressed = panelOpen || bpmDialog, sideBySideHeaders = sideBySideHeaders, onReveal = {
                 focusManager.clearFocus(force = true); keyboard?.hide()
                 if (!transcribing || !audioBusy) {
