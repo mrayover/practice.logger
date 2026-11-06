@@ -13,7 +13,7 @@ case "${TARGET_DISPLAY_PROFILE:-standard}" in
   standard) ;;
   narrow) adb shell wm size 720x1440; adb shell wm density 360 ;;
   tablet) adb shell wm size 1600x2400; adb shell wm density 320 ;;
-  landscape) adb shell settings put system accelerometer_rotation 0; adb shell settings put system user_rotation 1 ;;
+  landscape) adb shell wm user-rotation lock 1 ;;
   *) exit 2 ;;
 esac
 if [[ "${TARGET_TEST_CLASS:-}" == *ImportedAudioWorkflowTest* || "${TARGET_TEST_CLASS:-}" == *PortableZipRoundTripTest* || "$suite" == appearance-import ]]; then
@@ -70,7 +70,7 @@ for test_class in ${TARGET_TEST_CLASS//,/ }; do
   wall_seconds=480
   if [[ "$test_class" == *'#'* ]]; then wall_seconds=180; fi
   if [[ "$test_class" == *LongPhrasePlaybackTest* ]]; then per_test_ms=360000; wall_seconds=420; fi
-  timeout --kill-after=10s "${wall_seconds}s" adb shell am instrument -w -r -e timeout_msec "$per_test_ms" -e class "$test_class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/targeted-${test_class##*.}.txt"
+  timeout --kill-after=10s "${wall_seconds}s" adb shell am instrument -w -r -e timeout_msec "$per_test_ms" -e display_profile "${TARGET_DISPLAY_PROFILE:-standard}" -e class "$test_class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/targeted-${test_class##*.}.txt"
   adb logcat -d > app/build/targeted-log.txt
   adb shell screencap -p /sdcard/targeted-screen.png
   adb pull /sdcard/targeted-screen.png app/build/targeted-screen.png

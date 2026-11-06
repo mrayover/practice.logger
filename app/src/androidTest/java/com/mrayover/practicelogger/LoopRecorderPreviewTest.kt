@@ -1,6 +1,8 @@
 package com.mrayover.practicelogger
 
 import android.Manifest
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -80,12 +82,18 @@ class LoopRecorderPreviewTest {
     @Test fun loopFieldsReflowWithoutLosingValuesAndRecordRemainsReachableWithIme() {
         val audio = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
         val narrow = mutableStateOf(false)
+        if (InstrumentationRegistry.getArguments().getString("display_profile") == "landscape") {
+            compose.runOnIdle { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
+            compose.waitUntil(15000) {
+                compose.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            }
+        }
         compose.runOnIdle {
             compose.activity.setContent {
                 val density = LocalDensity.current
                 CompositionLocalProvider(LocalDensity provides Density(density.density, if (narrow.value) 2f else 1f)) {
                     PracticeTheme {
-                        Box(Modifier.width(if (narrow.value) 280.dp else 380.dp).fillMaxHeight().imePadding()) {
+                        Box(Modifier.width(if (narrow.value) 280.dp else 380.dp).fillMaxHeight().safeDrawingPadding().imePadding()) {
                             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                                 PhraseSetupDialog("adaptive-preview", audio, 90, {}, {}, {}, inline = true)
                             }
@@ -128,7 +136,10 @@ class LoopRecorderPreviewTest {
         fun imeVisible() = ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime()) == true
         compose.onNodeWithTag("phrase-count-in").scrollIfNeeded().performTouchInput { click() }
         compose.waitUntil(8000) { imeVisible() }
-        compose.onNodeWithTag("phrase-start").scrollIfNeeded().assertIsDisplayed().assertIsEnabled()
+        val action = compose.onNodeWithTag("phrase-start").scrollIfNeeded().assertIsDisplayed().assertIsEnabled()
+        val visibleHeight = action.fetchSemanticsNode().boundsInRoot.height
+        val fullHeight = action.getUnclippedBoundsInRoot().height.value * compose.activity.resources.displayMetrics.density
+        assertEquals("The record action is fully inside the viewport", fullHeight, visibleHeight, 1f)
         assertTrue("The IME must remain open during the reachability check", imeVisible())
         shot("narrow-ime")
         keyboard()
