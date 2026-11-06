@@ -1,6 +1,42 @@
-# Current state — G1 Goal priority and primary Block associations
+# Current state — Android display compatibility and G1 delivery
 
 Updated November 5, 2026 (America/Los_Angeles).
+
+## Signed Android compatibility candidate
+
+**0.31.1/build97**, app source `16a496fd58f740388e02f9782a1c73772c52cbcf`. Install over permanent-key build96. [APK](dist/practice.logger-0.31.1-b97-16a496f/practice.logger-0.31.1-b97-16a496f.apk) · [ZIP](dist/practice.logger-0.31.1-b97-16a496f.zip) · [Build info](dist/practice.logger-0.31.1-b97-16a496f/BUILD_INFO.json) · [Phone checks](MANUAL_TESTS.md#android-display-compatibility-phone-checks)
+
+Package `com.mrayover.practicelogger.app` and certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830` match build96. APK SHA-256 `769224ec5269cab8149dd4815c0425bf1803ed5703e79ed12fcc94959333cf0f`. ZIP SHA-256 `67dd0e04109020b2c5714fca78deeddd3a2f19f1a25b20c1cb7bbbf178282c3a`. Verified all 142 unsigned APK payload entries, the distribution ZIP and all 454 earlier APK and ZIP hashes.
+
+- Loop setup now puts compact labels above centered numeric inputs and fits the column count to the available width and font. The same form serves Focused Practice and the saved Block recorder. Narrow and short viewports can scroll to the record action. The fields retain full accessibility names.
+- The metronome uses measured control widths, a Material chevron and separate touch targets. Start/Stop continues to use the existing audio-driven flash. Repaired minus, separators, an ellipsis and the BPM range throughout Practice.
+- Short keyboard viewports give the active Practice panel room to scroll. Tools respect keyboard insets. Short Library audio viewports scroll the transport and marker controls. The compatibility changes retain Room 19, legacy JSON 7, portable ZIP v3, themes, and the existing session and audio owners.
+
+## Android compatibility verification
+
+The app still supports API 26 through target API 36. Local Windows Gradle compiled the debug, release and instrumentation APKs. The following command passed 15 focused tests with zero failures, errors or skips.
+
+```powershell
+.\gradlew.bat --offline :app:verifySourceEncoding :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease :app:testDebugUnitTest --tests '*Phrase*Test' --tests '*Metronome*Test' --tests '*RecordingRepositoryTest'
+```
+
+The UTF-8 check passed on app source and text resources. Separate probes verified that it accepts accented and Japanese text, musical punctuation and symbols, and rejects both common mojibake and invalid UTF-8.
+
+GitHub diagnostics built the app and test APKs with `assembleDebug assembleDebugAndroidTest`, then ran selected classes with `adb shell am instrument -w -r -e class … com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner`. Tests used emulator fixtures and disposable installs.
+
+| Configuration | Result |
+| --- | --- |
+| API 26, default phone and text | Build97 source passed compact and taller loop setup, capture and review, the transport workflow and both practice and Tools button-pulse tests. An earlier compatibility commit also passed loop cancellation/background, Free Recording, Tools and the narrow piano. [Build97](https://github.com/mrayover/practice.logger/actions/runs/42164265662) · [Cancellation](https://github.com/mrayover/practice.logger/actions/runs/42163619893) · [Tools and Free Recording](https://github.com/mrayover/practice.logger/actions/runs/42162715129) |
+| API 35, default text and 115% | Focused Practice passed with a long Goal, PDF page navigation and a recorded loop. The transport passed bounds and touch-target checks. Separate 115% checks passed dark forms, dialogs, date picker, Settings, Goal priority/theme indicators and the journal. [Focused layout result](https://github.com/mrayover/practice.logger/actions/runs/42163616853) · [Transport rerun](https://github.com/mrayover/practice.logger/actions/runs/42163760167) · [115%](https://github.com/mrayover/practice.logger/actions/runs/42162714593) |
+| API 35, 200%, gesture navigation | Build97 source passed Home, catalog, routine and session builders, Focused Practice, loop setup, Block editor, session summary, Tools and backup control reachability. [Accessibility workflow](https://github.com/mrayover/practice.logger/actions/runs/42164265666) |
+| API 35, media fixtures | Standalone Transcribe passed practice navigation, routine launch, stopwatch, the native Media Library picker, waveform and playback, markers, Reference Piano and rotation. Library platform speed, seek, loop and waveform checks passed. These jobs used the same media code as build97. [Transcribe](https://github.com/mrayover/practice.logger/actions/runs/42163760644) · [Library audio](https://github.com/mrayover/practice.logger/actions/runs/42163760870) |
+| API 36, 720×1440 at density 360, 130%, three-button navigation | Build97 source passed the metronome and loop layout checks. The tests also override the Compose viewport and text scale to exercise a 320dp practice layout and a 280dp loop form at 200%. [Narrow phone](https://github.com/mrayover/practice.logger/actions/runs/42164265843) |
+| API 36, 1600×2400 at density 320, 150%, gesture navigation | Build97 source passed the full-size Focused Practice workflow with a long Goal, PDF navigation, loop capture and saved-take playback. [Tablet profile](https://github.com/mrayover/practice.logger/actions/runs/42164484825) |
+| API 36, narrow portrait and verified landscape, 130% and 200% system text | The final test-only follow-up passed label bounds, value retention, and visibility of the entire enabled Record Loop action with the native keyboard open. The landscape run explicitly requested and asserted the activity orientation. [Narrow three-button](https://github.com/mrayover/practice.logger/actions/runs/42165056596) · [Landscape gesture](https://github.com/mrayover/practice.logger/actions/runs/42165056464) |
+
+Earlier trials exposed a one-column intrinsic-width error, text bounds at 200%, and insufficient height in the expanded practice panel. Corrected runs are linked above. The prior API 36 routine-navigation diagnostic encountered a System UI ANR. The generic API 35 Transcribe diagnostic lacked its audio fixture and the fixture-backed API 35 rerun passed. The early landscape setting did not rotate the app. The first stricter instrumentation build failed to compile because its bounds accessor was incompatible. The corrected test compiled locally and passed in narrow portrait and verified landscape. The two follow-up commits changed tests and their runner only.
+
+No physical phone or tablet was attached. Samsung One UI, TalkBack, physical install-over and audio/display timing still need owner-device checks. The compatibility pass leaves **G2 — Shared Goal Filtering** as the next separately assigned implementation milestone.
 
 ## Signed G1 delivery
 
@@ -17,7 +53,7 @@ The APK was built locally from the same app source verified by the emulator jobs
 - Goal-launched timer tests passed on [API 26](https://github.com/mrayover/practice.logger/actions/runs/42124929480) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/42124933111). First accrual captured rank 2, pause and resume retained that snapshot after reassignment, zero-time completion had no snapshot, and cold reopen retained the established Goal session history.
 - Complete ZIP v3 passed export, restore to a separate empty install, restart, process-death recovery and another restart after editing a restored overlay. Archived records, original media hashes, live Goal assignment, historical rank and explicit absence survived. Prior ZIP v1/v2 restore, JSON v1–v7 readers, malformed attribution rejection and transactional recovery passed. Each API passed 10 checks plus deliberate process termination. [API 26](https://github.com/mrayover/practice.logger/actions/runs/42123942086) · [API 35](https://github.com/mrayover/practice.logger/actions/runs/42123945300) · [Format](BACKUP_FORMAT.md#goal-attribution-zip-v3)
 
-G1 phone checks are pending for install-over, TalkBack, enlarged-text use in the builders and restore on a separate device or profile. The next implementation milestone is **G2 — Shared Goal Filtering**, subject to a separate assignment.
+G1 phone checks are pending for install-over, TalkBack, enlarged-text use in the builders and restore on a separate device or profile.
 
 ## Signed O1 delivery
 

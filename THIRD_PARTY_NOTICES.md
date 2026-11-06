@@ -5,3 +5,5 @@ Lato Regular and Bold: Copyright (c) 2010-2014 by tyPoland Lukasz Dziedzic, Rese
 Gradle wrapper scripts and jar originate from Gradle (Apache License 2.0): https://github.com/gradle/gradle . Other dependencies retain their respective licenses and Android packaged notices.
 
 AndroidX ExifInterface1.4.2 (Apache License2.0), used for read-only photo orientation: https://developer.android.com/jetpack/androidx/releases/exifinterface .
+
+The Expand More chevron comes from Google Material Icons under Apache License 2.0. [Material Icons license](https://github.com/google/material-design-icons#license)
