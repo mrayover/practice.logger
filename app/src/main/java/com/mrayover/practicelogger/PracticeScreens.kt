@@ -470,7 +470,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
         maxOf(measurer.measure("Metronome", infoStyle).size.width.toDp(),
             measurer.measure(bpm, infoStyle).size.width.toDp() + measurer.measure(meter, infoStyle).size.width.toDp() + 4.dp)
     } + 4.dp
-    val accentWidth = with(density) { measurer.measure("Accent", infoStyle).size.width.toDp() } + 48.dp
+    val accentWidth = with(density) { measurer.measure("Accent", infoStyle).size.width.toDp() } + 28.dp
     val stepWidth = maxOf(48.dp, with(density) { measurer.measure("−1", actionStyle).size.width.toDp() } + 8.dp)
     val clickWidth = maxOf(72.dp, with(density) {
         maxOf(measurer.measure("Start click", actionStyle).size.width, measurer.measure("Stop click", actionStyle).size.width).toDp()
@@ -497,7 +497,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
             .testTag("practice-metronome-accent").semantics { contentDescription = "Accent first beat" },
             verticalAlignment = Alignment.CenterVertically) {
             Text("Accent", Modifier.testTag("practice-metronome-accent-label"), style = infoStyle, color = MaterialTheme.colorScheme.primary)
-            Box(Modifier.size(48.dp).testTag("practice-metronome-accent-box"), contentAlignment = Alignment.Center) {
+            Box(Modifier.width(28.dp).height(48.dp).testTag("practice-metronome-accent-box"), contentAlignment = Alignment.Center) {
                 Checkbox(checked = vm.metronomeConfig.accent, onCheckedChange = null,
                     colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary,
                         uncheckedColor = MaterialTheme.colorScheme.primary, checkmarkColor = MaterialTheme.colorScheme.onPrimary),
@@ -512,10 +512,10 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewM
                 tint = MaterialTheme.colorScheme.primary)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { vm.changeWorkingBpm(vm.workingBpm - 1) }, enabled = vm.workingBpm > 30 && !vm.busy,
+            TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
                 contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
                     .semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
-            TextButton(onClick = { vm.changeWorkingBpm(vm.workingBpm + 1) }, enabled = vm.workingBpm < 300 && !vm.busy,
+            TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
                 contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
                     .semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
             OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,

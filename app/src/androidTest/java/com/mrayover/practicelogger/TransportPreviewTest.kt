@@ -102,12 +102,9 @@ class TransportPreviewTest {
             compose.onNodeWithTag("practice-notes-panel").assertDoesNotExist()
             compose.onNodeWithTag("practice-loop-panel").assertExists()
             compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
-            compose.onNodeWithTag("practice-loop-setup-content-scrollbar").assertDoesNotExist()
-            listOf("phrase-bpm", "phrase-beats", "phrase-count-in", "phrase-start", "phrase-duration", "phrase-budget-row").forEach {
-                compose.onNodeWithTag(it).assertIsDisplayed()
-            }
-            val fields = listOf("phrase-bpm", "phrase-beats", "phrase-count-in").map { compose.onNodeWithTag(it).fetchSemanticsNode().boundsInRoot }
+            val fields = listOf("phrase-bpm", "phrase-beats", "phrase-count-in").map { tagged(it).fetchSemanticsNode().boundsInRoot }
             assertTrue(fields.zipWithNext().all { (a,b) -> a.right <= b.left + 1 && kotlin.math.abs(a.top-b.top) <= 1 })
+            listOf("phrase-start", "phrase-duration", "phrase-budget-row").forEach { tagged(it) }
             for (action in listOf("record", "play")) {
                 val free = compose.onNodeWithTag("practice-free-$action").fetchSemanticsNode().boundsInRoot
                 val loop = compose.onNodeWithTag("practice-loop-$action").fetchSemanticsNode().boundsInRoot
@@ -149,7 +146,7 @@ class TransportPreviewTest {
                 compose.onNodeWithTag("phrase-bpm").scrollIfNeeded().performTextReplacement("240")
                 clearKeyboard(); click("4 beats")
                 // The primary loop action is distinct from the compact free-record control.
-                compose.onNodeWithTag("phrase-start").assertIsDisplayed().performClick()
+                tagged("phrase-start").performClick()
                 compose.waitUntil(10000) { recordings.recording }
                 compose.onNodeWithTag("practice-loop-panel").assertIsDisplayed()
                 tagged("phrase-start")

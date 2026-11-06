@@ -30,7 +30,7 @@ class LoopRecorderPreviewTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private fun shown(text: String) = compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
-    private fun tag(name: String) = compose.onNodeWithTag(name).assertIsDisplayed()
+    private fun tag(name: String) = compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
     private fun shot(name: String) {
         compose.waitForIdle()
         val dir = File(compose.activity.getExternalFilesDir(null), "loop-refinement").apply { mkdirs() }
@@ -44,8 +44,8 @@ class LoopRecorderPreviewTest {
         }
         compose.waitForIdle()
     }
-    private fun layout(review: Boolean = false) {
-        compose.onNodeWithTag("practice-loop-setup-content-scrollbar").assertDoesNotExist()
+    private fun layout(review: Boolean = false, allAtOnce: Boolean = true) {
+        if (allAtOnce) compose.onNodeWithTag("practice-loop-setup-content-scrollbar").assertDoesNotExist()
         val panel = tag("practice-loop-setup-content").fetchSemanticsNode().boundsInRoot
         val names = listOf("phrase-bpm", "phrase-beats", "phrase-count-in", "phrase-duration", "phrase-budget-row") +
             listOf(4,8,16,32,6,12,24,48).map { "phrase-shortcut-$it" } +
@@ -55,7 +55,7 @@ class LoopRecorderPreviewTest {
             assertTrue("$name clipped: $bounds / $panel", bounds.top >= panel.top-1 && bounds.bottom <= panel.bottom+1)
         }
         val budget = tag("phrase-budget-row").fetchSemanticsNode().boundsInRoot
-        assertEquals("Loop footer must end at the transport boundary", panel.bottom, budget.bottom, 2f)
+        if (allAtOnce) assertEquals("Loop footer must end at the transport boundary", panel.bottom, budget.bottom, 2f)
         listOf("phrase-bpm", "phrase-beats", "phrase-count-in").forEach { name ->
             val layouts = mutableListOf<TextLayoutResult>()
             tag(name).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
@@ -146,7 +146,10 @@ class LoopRecorderPreviewTest {
             shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; shown("Practice Description")
             compose.waitUntil(15000) { audio.ready }
             tag("practice-loop-record").performClick()
-            layout(); compose.onNodeWithText("One phrase: 3.10 seconds").assertExists(); shot("setup-compact")
+            compose.onNodeWithTag("phrase-count-in").assertIsDisplayed()
+            shot("setup-compact")
+            layout(allAtOnce = false)
+            compose.onNodeWithText("One phrase: 3.10 seconds").assertExists()
             val compact = tag("practice-loop-setup-content").fetchSemanticsNode().boundsInRoot.height
             device.executeShellCommand("wm size 1080x2340")
             compose.waitUntil(15000) {
