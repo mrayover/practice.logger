@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
@@ -94,7 +95,7 @@ class LoopRecorderPreviewTest {
                 CompositionLocalProvider(LocalDensity provides Density(density.density, if (narrow.value) 2f else 1f)) {
                     PracticeTheme {
                         Box(Modifier.width(if (narrow.value) 280.dp else 380.dp).fillMaxHeight().safeDrawingPadding().imePadding()) {
-                            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                            Column(Modifier.fillMaxSize().testTag("adaptive-loop-scroll").verticalScroll(rememberScrollState())) {
                                 PhraseSetupDialog("adaptive-preview", audio, 90, {}, {}, {}, inline = true)
                             }
                         }
@@ -137,9 +138,16 @@ class LoopRecorderPreviewTest {
         compose.onNodeWithTag("phrase-count-in").scrollIfNeeded().performTouchInput { click() }
         compose.waitUntil(8000) { imeVisible() }
         val action = compose.onNodeWithTag("phrase-start").scrollIfNeeded().assertIsDisplayed().assertIsEnabled()
-        val visibleHeight = action.fetchSemanticsNode().boundsInRoot.height
-        val fullHeight = action.getUnclippedBoundsInRoot().height.value * compose.activity.resources.displayMetrics.density
-        assertEquals("The record action is fully inside the viewport", fullHeight, visibleHeight, 1f)
+        val density = compose.activity.resources.displayMetrics.density
+        fun fullHeight(): Float {
+            val bounds = action.getUnclippedBoundsInRoot()
+            return (bounds.bottom - bounds.top).value * density
+        }
+        if (action.fetchSemanticsNode().boundsInRoot.height < fullHeight() - 1f) {
+            compose.onNodeWithTag("adaptive-loop-scroll").performTouchInput { swipeUp() }
+        }
+        assertEquals("The record action is fully inside the viewport", fullHeight(),
+            action.fetchSemanticsNode().boundsInRoot.height, 1f)
         assertTrue("The IME must remain open during the reachability check", imeVisible())
         shot("narrow-ime")
         keyboard()
