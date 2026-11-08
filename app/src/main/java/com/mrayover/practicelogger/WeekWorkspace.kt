@@ -35,6 +35,7 @@ internal fun WeekWorkspace(
         .filter { it.weekStart < weekKey && blocks[it.blockId]?.archived == false }
         .map { it.weekStart }.distinct().toList().asReversed()
     val indicators = LocalGoalIndicators.current
+    var goalFilter by rememberBlockGoalFilter(indicators, week to preparing)
     val enabled = !vm.busy && !practice.busy
 
     BackHandler {
@@ -110,7 +111,9 @@ internal fun WeekWorkspace(
                 OutlinedTextField(query, { query = it }, label = { Text("Find a Block") }, singleLine = true,
                     modifier = Modifier.fillMaxWidth())
             }
-            val available = matchingBlocks(catalog.blocks, query, false).filter { it.id !in assignedIds }
+            item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
+            val available = matchingBlocks(catalog.blocks, query, false, indicators, goalFilter)
+                .filter { it.id !in assignedIds }
             if (available.isEmpty()) item { Text("No matching active Blocks to add.") }
             items(available, key = { "available-${it.id}" }) { block ->
                 val indicator = indicators.block(block.id)

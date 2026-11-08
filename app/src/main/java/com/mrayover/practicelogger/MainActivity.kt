@@ -333,18 +333,20 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(query, archived, searchFocused) {
                     libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 2 else 0)
                 }
-                val matches = matchingBlocks(catalog.blocks, query, archived)
+                var goalFilter by rememberBlockGoalFilter(goalIndicators)
+                val matches = matchingBlocks(catalog.blocks, query, archived, goalIndicators, goalFilter)
                 LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
                     item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
                     item { Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") } }
                     item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,
                         modifier = Modifier.fillMaxWidth().onFocusChanged { searchFocused = it.isFocused }) }
+                    item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
                     item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedSelectionChip(selected = !archived, onClick = { archived = false }, label = { Text("Active") })
                         OutlinedSelectionChip(selected = archived, onClick = { archived = true }, label = { Text("Archived") })
                     } }
-                    if (matches.isEmpty()) item { Text(if (query.isNotBlank()) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
+                    if (matches.isEmpty()) item { Text(if (query.isNotBlank() || goalFilter.availableIn(goalIndicators) != BlockGoalFilter.All) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
                     items(matches, key = { it.id }) { block ->
                         val indicator = goalIndicators.block(block.id)
                         CatalogPill(onClick = { openEditor(block.id) }, modifier = Modifier.testTag("library-block-${block.id}").goalEndCap(indicator)) {

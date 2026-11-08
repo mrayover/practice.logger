@@ -81,6 +81,7 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
         Text("Saved durations belong to this Routine. Practice uses the current Block details and starts paused.")
         if (vm.entries.isEmpty()) Text("Add a Block below to begin.")
         val indicators = LocalGoalIndicators.current
+        var goalFilter by rememberBlockGoalFilter(indicators)
         vm.entries.forEachIndexed { index, row ->
             val block = blocks.find { it.id == row.blockId }
             val title = block?.name ?: "Unavailable Block (${row.blockId})"
@@ -107,7 +108,8 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (vm.busy) "Saving…" else "Save Routine") }
         Text("Add Blocks", style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(query, { query = it }, label = { Text("Find a Block") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        val available = matchingBlocks(blocks, query, false)
+        BlockGoalFilterPicker(goalFilter) { goalFilter = it }
+        val available = matchingBlocks(blocks, query, false, indicators, goalFilter)
         if (available.isEmpty()) Text("No matching active Blocks. Create or restore Blocks in the Block Library.")
         available.forEach { block ->
             val indicator = indicators.block(block.id)

@@ -25,10 +25,12 @@ internal class GoalIndicators(rows: List<GoalBundle>) {
     private val primary = rows.flatMap { it.primaryBlocks }.associate { it.blockId to it.goalId }
 
     fun goal(id: String?) = byGoal[id]
-    fun block(id: String?) = goal(primary[id])
+    fun primaryGoalId(blockId: String?) = primary[blockId]
+    fun block(id: String?) = goal(primaryGoalId(id))
 }
 
-internal val LocalGoalIndicators = compositionLocalOf { GoalIndicators(emptyList()) }
+internal val EmptyGoalIndicators = GoalIndicators(emptyList())
+internal val LocalGoalIndicators = compositionLocalOf { EmptyGoalIndicators }
 
 internal fun goalAccent(colors: PracticeColors, indicator: GoalIndicator?): Color? = when {
     indicator == null -> colors.unassignedGoalAccent

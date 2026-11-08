@@ -107,6 +107,7 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
         Text("Arrange Blocks for this session. Duration changes here leave your saved Blocks unchanged.")
         if (entries.isEmpty()) Text("Add a Block below to begin.")
         val indicators = LocalGoalIndicators.current
+        var goalFilter by rememberBlockGoalFilter(indicators)
         entries.forEachIndexed { index, placement ->
             val indicator = indicators.block(placement.sourceBlockId)
             Column(Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 16.dp).testTag("placement-" + index), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -130,8 +131,9 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
         if (entries.isNotEmpty()) TextButton(onClick = { discard = true }, enabled = !vm.busy && !routines.busy) { Text("Discard draft session") }
         Text("Add Blocks", style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(query, { query = it }, label = { Text("Find a Block") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        BlockGoalFilterPicker(goalFilter) { goalFilter = it }
         OutlinedButton(onClick = onCreate, enabled = !vm.busy && !routines.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Create a new Block") }
-        val available = matchingBlocks(blocks, query, false)
+        val available = matchingBlocks(blocks, query, false, indicators, goalFilter)
         if (available.isEmpty()) Text("No matching active Blocks. Create a Block to add it here.")
         available.forEach { block ->
             val indicator = indicators.block(block.id)
