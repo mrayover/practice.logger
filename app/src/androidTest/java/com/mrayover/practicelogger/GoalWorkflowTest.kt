@@ -50,8 +50,8 @@ class GoalWorkflowTest {
                 BlockRepository(db).save(b, saved.copy(primaryGoalId = id, primaryGoalChanged = true))
             }
             click("2. Goal workflow edited · 37%")
-            click("Practice Goal"); shown("Start"); shown("Goal: Goal workflow edited")
-            click("Start"); shown("Pause")
+            click("Practice Goal"); shown("Start Block"); prepReadyBlock(compose); shown("Goal: Goal workflow edited")
+            click("Start Practice"); shown("Pause")
             compose.waitUntil(15000) { runBlocking { db.goals().readSessions().any { it.goalId == id && (db.sessions().find(it.sessionId)?.activeMs ?: 0) > 500 } } }
             click("Pause"); leavePracticeForLater(compose); shown("Practice Now")
             val first = runBlocking { db.goals().readSessions().single { it.goalId == id }.sessionId }
@@ -67,11 +67,11 @@ class GoalWorkflowTest {
             }
             click("Practice Now"); shown("In Progress"); click("In Progress")
             compose.onNodeWithTag("continue-session-$first").scrollIfNeeded().performClick()
-            click("Resume")
+            click("Resume Block")
             compose.waitUntil(15000) { runBlocking { db.sessions().find(first)!!.activeMs > committed.activeMs } }
             click("Pause"); leavePracticeForLater(compose); shown("Practice Now")
             val resumed = runBlocking { db.sessions().find(first)!! }
-            click("2. Goal workflow edited · 37%"); click("Practice Goal"); shown("Start")
+            click("2. Goal workflow edited · 37%"); click("Practice Goal"); shown("Start Block"); prepReadyBlock(compose)
             click("Complete"); shown("Session Summary"); shown("Goal: Goal workflow edited")
             captureStage3("goal-04-summary")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); click("2. Goal workflow edited · 37%")

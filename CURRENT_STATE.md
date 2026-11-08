@@ -1,4 +1,10 @@
-# Current state — G2 Shared Goal Filtering
+# Current state — P1 Intentional Practice Lifecycle
+
+## P1 implementation and verification
+
+Version **0.34.0/build100** adds Ready, Prep and Up Next to the shared Block practice workflow. Room 21 stores foreground preparation checkpoints separately and complete ZIP v5 preserves them. Previous ZIP v1–v4 and JSON v1–v7 remain readable. [Phone checks](MANUAL_TESTS.md#p1-intentional-practice-lifecycle-phone-checks)
+
+**Next task** is focused Android verification and permanent-key delivery for P1.
 
 Updated November 8, 2026 (America/Los_Angeles).
 
@@ -18,7 +24,7 @@ The same Goal filter is beside text search in Manage Blocks, Practice Now → Ad
 - The four-picker G2 workflow passed on API 26 at 100% text and on API 35 at 200% text with a 720 × 1440, 360 dpi display override. It verified Library archive switching, Goal reorder and completion, session draft order, saving a Routine after filtering, and adding an existing Block in Prepare Week. The native test follow-up `77399ce4ee2f3a7323133ecb20425214a635c500` changed only the test's menu selectors. [API 26 run](https://github.com/mrayover/practice.logger/actions/runs/42519694262) · [API 35 run](https://github.com/mrayover/practice.logger/actions/runs/42519696489)
 - The app stays on Room 20 and complete ZIP v4. Physical install-over and phone acceptance are pending.
 
-**Next task** is owner phone verification of build99. G3 awaits a separate assignment.
+Physical phone verification for build99 remains pending.
 
 ## Retained signed W1 candidate
 

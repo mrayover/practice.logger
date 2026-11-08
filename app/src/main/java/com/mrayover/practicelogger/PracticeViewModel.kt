@@ -45,6 +45,10 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         private set
     var blockNoteSavedFor by mutableStateOf<String?>(null)
         private set
+    var workspacePlacementId by mutableStateOf<String?>(null)
+        private set
+    var preparing by mutableStateOf(false)
+        private set
     private var foreground = false
     private var pauseGeneration = 0
     private var focusedPlacementId: String? = null
@@ -104,6 +108,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     internal fun completionFramesWritten() = metronome.completionFramesWritten
     private var anchor: Long? = null
     private var timingSessionId: String? = null
+    private var timingPlacementId: String? = null
     private val mutex = Mutex()
 
     init {
@@ -111,10 +116,13 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         viewModelScope.launch {
             while (isActive) {
                 delay(250)
-                if (running) mutex.withLock {
-                    if (running) try { flush(SystemClock.elapsedRealtime()) }
+                if (foreground && (running || preparing) && anchor != null) mutex.withLock {
+                    if (foreground && (running || preparing)) try { flush(SystemClock.elapsedRealtime()) }
                     catch (cancelled: CancellationException) { throw cancelled }
-                    catch (_: Exception) { running = false; anchor = null; error = "Timer paused because practice time could not be saved. Check available storage and retry." }
+                    catch (_: Exception) {
+                        running = false; anchor = null
+                        error = "The timer stopped because its checkpoint could not be saved. Check available storage and retry."
+                    }
                 }
             }
         }
@@ -125,7 +133,15 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     private suspend fun flush(until: Long) {
         val start = anchor ?: return
         val id = timingSessionId ?: return
-        val updated = repository.checkpoint(id, maxOf(0L, until - start))
+        val placementId = checkNotNull(timingPlacementId)
+        val delta = until - start
+        if (delta <= 0) return
+        if (preparing) {
+            repository.checkpointPrep(id, placementId, delta)
+            anchor = until
+            return
+        }
+        val updated = repository.checkpoint(id, delta, placementId)
         anchor = until
         if (!updated.overtimeAccepted && updated.activeMs >= updated.configuredMs) {
             val alert = running && foreground && completionArmedFor == updated.id
@@ -152,7 +168,16 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     }
     fun setForeground(value: Boolean) {
         foreground = value
-        if (!value) { stopClick(); pause() }
+        if (!value) {
+            stopClick()
+            pause()
+        } else if (preparing) {
+            viewModelScope.launch {
+                mutex.withLock {
+                    if (foreground && preparing && anchor == null) anchor = SystemClock.elapsedRealtime()
+                }
+            }
+        }
     }
     fun pause() {
         pauseGeneration++
@@ -166,23 +191,56 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
             }
         }
     }
-    fun resume(overtime: Boolean = false) = operation {
-        if (running) return@operation
-        check(foreground)
+    fun beginBlock(sessionId: String, placementId: String, prep: Boolean) {
         val generation = pauseGeneration
-        val id = checkNotNull(catalog.value.active).session.id
-        val current = checkNotNull(db.sessions().find(id)?.current)
-        if (!foreground || generation != pauseGeneration) return@operation
+        operation {
+            if (workspacePlacementId == placementId || !foreground || generation != pauseGeneration) return@operation
+            val bundle = checkNotNull(db.sessions().find(sessionId))
+            val current = checkNotNull(bundle.current)
+            check(bundle.session.status == "IN_PROGRESS" && current.id == placementId)
+            if (!foreground || generation != pauseGeneration) return@operation
+            if (prep) {
+                preparing = true
+                timingSessionId = sessionId
+                timingPlacementId = placementId
+                anchor = SystemClock.elapsedRealtime()
+            } else if (current.overtimeAccepted || current.activeMs < current.configuredMs) {
+                startClock(current, overtime = false, generation = generation)
+                if (!running) return@operation
+            }
+            // A recovered Block at zero opens paused so overtime still requires Continue.
+            workspacePlacementId = placementId
+        }
+    }
+
+    fun resume(overtime: Boolean = false) {
+        val generation = pauseGeneration
+        operation {
+            if (running || !foreground || generation != pauseGeneration) return@operation
+            val id = checkNotNull(catalog.value.active).session.id
+            val current = checkNotNull(db.sessions().find(id)?.current)
+            if (current.id != workspacePlacementId) return@operation
+            startClock(current, overtime, generation)
+        }
+    }
+
+    private suspend fun startClock(current: Placement, overtime: Boolean, generation: Int) {
+        if (!foreground || generation != pauseGeneration) return
         if (!PracticeTimingOwner.acquire(this)) {
             error = "Pause the Transcribe timer before resuming Block practice."
-            return@operation
+            return
         }
         try {
-            if (overtime) repository.continueOvertime(id)
+            if (preparing) flush(SystemClock.elapsedRealtime())
+            if (overtime) repository.continueOvertime(current.sessionId)
             else check(current.overtimeAccepted || current.activeMs < current.configuredMs)
-            if (!foreground || generation != pauseGeneration) return@operation
+            if (!foreground || generation != pauseGeneration) return
+            preparing = false
             completionArmedFor = current.id.takeIf { !overtime && !current.overtimeAccepted && current.activeMs < current.configuredMs }
-            timingSessionId = id; anchor = SystemClock.elapsedRealtime(); running = true
+            timingSessionId = current.sessionId
+            timingPlacementId = current.id
+            anchor = SystemClock.elapsedRealtime()
+            running = true
         } finally {
             if (!running) PracticeTimingOwner.release(this)
         }
@@ -205,6 +263,8 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     fun discardDraft() = operation { repository.discardDraft(); destination = "home" }
     private suspend fun selectSession(id: String) {
         check(db.sessions().find(id)?.session?.status == "IN_PROGRESS")
+        preparing = false
+        workspacePlacementId = null
         savedState["selectedSession"] = id
         catalog.first { it.active?.session?.id == id }
         destination = "focus"
@@ -238,7 +298,16 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         operation {
             flush(until); anchor = null
             val id = checkNotNull(catalog.value.active).session.id
-            if (repository.finishBlock(id, outcome, note, preserveNote)) { completedId = id; destination = "summary" }
+            val previousPlacement = workspacePlacementId
+            val finished = repository.finishBlock(id, outcome, note, preserveNote)
+            preparing = false
+            workspacePlacementId = null
+            if (finished) {
+                completedId = id
+                destination = "summary"
+            } else {
+                catalog.first { it.active?.current?.id != previousPlacement }
+            }
         }
     }
     fun saveBlockNote(sessionId: String, placementId: String, note: String) = operation {
@@ -253,6 +322,8 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         operation {
             flush(until); anchor = null
             if (!preserveNote) repository.saveBlockNote(sessionId, placementId, note)
+            preparing = false
+            workspacePlacementId = null
             destination = "home"
         }
     }

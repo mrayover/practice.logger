@@ -1,6 +1,13 @@
 package com.mrayover.practicelogger
 
+import android.animation.ValueAnimator
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.toggleable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -160,6 +167,59 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
         dismissButton = { TextButton(onClick = { discard = false }) { Text("Keep draft") } })
 }
 
+@Composable
+private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeViewModel, onNavigationCancelled: () -> Unit) {
+    var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
+    val resumed = current.activeMs > 0 || current.overtimeAccepted
+    val upNext = bundle.session.currentIndex > 0 && !resumed && current.prepMs == 0L
+    val startLabel = when {
+        resumed -> "Resume Block"
+        upNext -> "Start Next Block"
+        else -> "Start Block"
+    }
+    val glow = if (ValueAnimator.areAnimatorsEnabled()) {
+        rememberInfiniteTransition(label = "Start Block highlight").animateFloat(
+            initialValue = 0f, targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(1500), RepeatMode.Reverse),
+            label = "Start Block highlight strength"
+        ).value
+    } else 0f
+    BackHandler { if (!vm.busy) leaving = true }
+    Column(
+        Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(16.dp)
+            .testTag("practice-ready"),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}",
+            style = MaterialTheme.typography.labelLarge)
+        Text(if (upNext) "Up Next: ${current.name}" else current.name,
+            style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+        Text(practiceTime(current.configuredMs) + " planned")
+        Button(
+            onClick = { vm.beginBlock(bundle.session.id, current.id, prep = false) },
+            enabled = !vm.busy,
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.16f + glow * 0.20f)),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("practice-ready-start")
+        ) { Text(startLabel) }
+        OutlinedButton(
+            onClick = { vm.beginBlock(bundle.session.id, current.id, prep = true) },
+            enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("practice-ready-prep")
+        ) { Text(if (upNext) "Prep Next Block" else "Prep Block") }
+    }
+    if (leaving) AlertDialog(
+        onDismissRequest = { if (!vm.busy) { leaving = false; onNavigationCancelled() } },
+        title = { Text("Leave current session?") },
+        text = { Text("Your current session will be saved for later.") },
+        confirmButton = {
+            TextButton(onClick = { vm.saveForLater(bundle.session.id, current.id, current.note, preserveNote = true) },
+                enabled = !vm.busy) { Text("Back to Main") }
+        },
+        dismissButton = {
+            TextButton(onClick = { leaving = false; onNavigationCancelled() }, enabled = !vm.busy) { Text("Continue") }
+        }
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), onNavigationCancelled: () -> Unit = {}) {
     if (bundle == null || bundle.current == null) {
@@ -169,6 +229,10 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val current = bundle.current!!
+    if (vm.workspacePlacementId != current.id) {
+        BlockReady(bundle, current, vm, onNavigationCancelled)
+        return
+    }
     val activity = LocalContext.current as? android.app.Activity
     DisposableEffect(current.id, vm, recordings) {
         vm.enterFocusedPlacement(current); recordings.enterBlock(current.sourceBlockId)
@@ -259,6 +323,7 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
                 goalName?.let { Text("Goal: " + it, style = MaterialTheme.typography.bodySmall) }
                 Text(current.name, style = MaterialTheme.typography.titleMedium)
+                if (vm.preparing) Text("Prep", style = MaterialTheme.typography.labelLarge)
             }
             Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.surfaceVariant) {
                 Text(if (current.overtimeAccepted) "+" + practiceTime(current.activeMs - current.configuredMs) else practiceTime(current.configuredMs - current.activeMs, roundUp = true),
@@ -406,12 +471,16 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
                 status(Modifier.weight(1f)); stop(Modifier)
             }
         }
-        if (awaiting && !loopPanelOpen && !editingInShortPanel) Text("Time reached. Continue for overtime or complete this Block.",
+        if (vm.preparing && !editingInShortPanel) Button(
+            onClick = { vm.resume(overtime = awaiting) }, enabled = !vm.busy,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).heightIn(min = 48.dp)
+        ) { Text("Start Practice") }
+        if (awaiting && !vm.preparing && !loopPanelOpen && !editingInShortPanel) Text("Time reached. Continue for overtime or complete this Block.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp).semantics { liveRegion = LiveRegionMode.Polite })
         if (!editingInShortPanel) FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-bottom-actions").onSizeChanged { bottomActionsHeight = with(density) { it.height.toDp() } },
             maxItemsInEachRow = if (!wideTranscribe && density.fontScale >= 1.5f) 2 else 4,
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
+            if (!vm.preparing) Button(onClick = { if (vm.running) vm.pause() else vm.resume(overtime = awaiting) }, enabled = !vm.busy,
                 contentPadding = PaddingValues(horizontal = 4.dp), modifier = Modifier.weight(1.35f).heightIn(min = 48.dp).semantics { stateDescription = if (vm.running) "Practicing" else "Paused" }) {
                 Text(if (awaiting) "Continue" else if (vm.running) "Pause" else if (current.activeMs == 0L) "Start" else "Resume")
             }

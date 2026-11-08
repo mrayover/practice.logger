@@ -132,10 +132,11 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     val awaiting = placement.activeMs >= placement.configuredMs && !placement.overtimeAccepted
                     val value = if (placement.overtimeAccepted) "+" + practiceTime(placement.activeMs - placement.configuredMs)
                         else practiceTime(placement.configuredMs - placement.activeMs, roundUp = true)
-                    Text("Practice timer · $value · " + if (practice.running) "Running" else "Paused", style = MaterialTheme.typography.bodyMedium)
+                    val timerState = if (practice.running) "Running" else if (practice.preparing) "Prep" else "Paused"
+                    Text("Practice timer · $value · $timerState", style = MaterialTheme.typography.bodyMedium)
                     OutlinedButton(onClick = { if (practice.running) practice.pause() else practice.resume(overtime = awaiting) }, enabled = !practice.busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                        Text(if (practice.running) "Pause timer" else if (awaiting) "Continue timer" else if (placement.activeMs == 0L) "Start timer" else "Resume timer")
+                        Text(if (practice.preparing) "Start Practice" else if (practice.running) "Pause timer" else if (awaiting) "Continue timer" else if (placement.activeMs == 0L) "Start timer" else "Resume timer")
                     }
                 }
             }

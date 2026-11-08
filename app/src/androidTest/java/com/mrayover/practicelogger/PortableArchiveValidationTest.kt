@@ -50,7 +50,10 @@ class PortableArchiveValidationTest {
             BlockRepository(source).save("block", draft.copy(primaryGoalId = goal, primaryGoalChanged = true))
             val sessions = SessionRepository(source)
             sessions.addBlock("block")
-            sessions.checkpoint(sessions.start(), 2000)
+            val sessionId = sessions.start()
+            val placementId = source.sessions().find(sessionId)!!.current!!.id
+            sessions.checkpointPrep(sessionId, placementId, 1200)
+            sessions.checkpoint(sessionId, 2000)
             val week = LocalDate.of(2026, 11, 8)
             BlockRepository(source).addToWeek(week, "block")
             BlockRepository(source).addToWeek(week, "old")
@@ -182,7 +185,7 @@ class PortableArchiveValidationTest {
             assertTrue(File(targetFiles, "portable-restore").list().orEmpty().isEmpty())
             assertTrue(target.blocks().readAll().isEmpty())
 
-            val data = BackupRepository(source).snapshot()
+            val data = BackupRepository(source).snapshot().let { it.copy(placements = it.placements.map { row -> row.copy(prepMs = 0) }) }
             for (version in 1..7) {
                 val json = JSONObject(BackupCodec.encode(data).toString(Charsets.UTF_8)).put("version", version)
                 if (version < 7) json.remove("practiceNotes")
@@ -208,6 +211,7 @@ class PortableArchiveValidationTest {
                             if (version == 1) remove("version") else put("version", version)
                             val tables = getJSONObject("tables")
                             excluded.forEach { tables.remove(it) }
+                            if (version < 5) tables.getJSONArray("placements").getJSONArray(0).remove(14)
                         }
                         changeManifest {
                             put("version", version)
@@ -221,7 +225,9 @@ class PortableArchiveValidationTest {
                     val files = if (version == 1) targetFiles else File(root, "v$version-target").apply { mkdir() }
                     val reader = PortableRestore(context, destination, files)
                     reader.restore(reader.stage(archive::inputStream))
-                    assertEquals(data, BackupRepository(destination).snapshot())
+                    val restored = BackupRepository(destination).snapshot()
+                    assertEquals(if (version >= 5) 1200L else 0L, restored.placements.single().prepMs)
+                    assertEquals(data, restored.copy(placements = restored.placements.map { it.copy(prepMs = 0) }))
                     assertEquals(if (version == 1) 0 else 2, destination.overlays().count())
                     assertEquals(goal.takeIf { version >= 3 }, destination.goalAttribution().primaryGoalId("block"))
                     assertEquals(source.goalAttribution().snapshot(data.placements.single().id).takeIf { version >= 3 },

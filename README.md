@@ -77,7 +77,7 @@ Open **Tools → Backup and restore → Prepare complete ZIP** to save your prac
 
 On a separate empty installation, choose **Choose complete ZIP to restore**, review the preview, and confirm. The app rejects populated targets and opens restored unfinished practice paused. Keep the ZIP private because it includes your recordings and notes. Export-folder access must be selected again on the new device. Unsaved work and temporary audio are outside the archive.
 
-**Legacy JSON** still writes v7 and reads v1–v7, up to 8 MiB. It carries data such as Logs, Blocks, Routines, Goals and session history. Use the complete ZIP v4 for weekly plans, originals, recordings, media links, editable practice markings, audio annotations, standalone Transcribe activity, portable settings and primary Goal assignments and snapshots. The app also restores ZIP v1–v3. See [backup format, limits and recovery](BACKUP_FORMAT.md).
+**Legacy JSON** still writes v7 and reads v1–v7, up to 8 MiB. It carries data such as Logs, Blocks, Routines, Goals and session history. Use the complete ZIP v5 for preparation time, weekly plans, originals, recordings, media links, editable practice markings, audio annotations, standalone Transcribe activity, portable settings and primary Goal assignments and snapshots. The app also restores ZIP v1–v4. See [backup format, limits and recovery](BACKUP_FORMAT.md).
 
 ## Historical P5 verification
 

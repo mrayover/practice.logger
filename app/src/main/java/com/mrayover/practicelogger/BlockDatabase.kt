@@ -39,7 +39,7 @@ data class Block(
     @Insert suspend fun insert(block: Block)
     @Update suspend fun update(block: Block): Int
 }
-@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class, SavedRoutine::class, RoutinePlacement::class, Goal::class, GoalBlock::class, GoalSession::class, DailyLog::class, BlockImage::class, PracticeNote::class, MediaAsset::class, MasterAudioMarker::class, BlockMediaLink::class, BlockAudioState::class, BlockAudioMarker::class, TranscribeActivity::class, PortableRestoreWitness::class, PracticeOverlay::class, BlockPrimaryGoal::class, PlacementGoalSnapshot::class, WeekBlock::class], version = 20, exportSchema = true)
+@Database(entities = [Block::class, PracticeSession::class, Placement::class, BlockTake::class, SavedRoutine::class, RoutinePlacement::class, Goal::class, GoalBlock::class, GoalSession::class, DailyLog::class, BlockImage::class, PracticeNote::class, MediaAsset::class, MasterAudioMarker::class, BlockMediaLink::class, BlockAudioState::class, BlockAudioMarker::class, TranscribeActivity::class, PortableRestoreWitness::class, PracticeOverlay::class, BlockPrimaryGoal::class, PlacementGoalSnapshot::class, WeekBlock::class], version = 21, exportSchema = true)
 abstract class BlockDatabase : RoomDatabase() {
     abstract fun weekPlan(): WeekPlanDao
     abstract fun transcribeActivities(): TranscribeActivityDao
@@ -64,6 +64,6 @@ abstract class BlockDatabase : RoomDatabase() {
             applicationDatabase ?: open(context.applicationContext).also { applicationDatabase = it }
         }
         fun open(context: Context, name: String = "practice.logger.db") =
-            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6, ROUTINE_MIGRATION_6_7, GOAL_MIGRATION_7_8, LOG_MIGRATION_8_9, IMAGE_MIGRATION_9_10, NOTES_MIGRATION_10_11, MEDIA_MIGRATION_11_12, MARKER_MIGRATION_12_13, BLOCK_MEDIA_MIGRATION_13_14, BLOCK_AUDIO_MIGRATION_14_15, TRANSCRIBE_MIGRATION_15_16, PORTABLE_MIGRATION_16_17, OVERLAY_MIGRATION_17_18, GOAL_ATTRIBUTION_MIGRATION_18_19, WEEK_PLAN_MIGRATION_19_20).addCallback(mediaConstraintCallback).enableMultiInstanceInvalidation().build()
+            Room.databaseBuilder(context.applicationContext, BlockDatabase::class.java, name).addMigrations(SESSION_MIGRATION_1_2, METRONOME_MIGRATION_2_3, RECORDING_MIGRATION_3_4, PHRASE_MIGRATION_4_5, FREE_RECORDING_MIGRATION_5_6, ROUTINE_MIGRATION_6_7, GOAL_MIGRATION_7_8, LOG_MIGRATION_8_9, IMAGE_MIGRATION_9_10, NOTES_MIGRATION_10_11, MEDIA_MIGRATION_11_12, MARKER_MIGRATION_12_13, BLOCK_MEDIA_MIGRATION_13_14, BLOCK_AUDIO_MIGRATION_14_15, TRANSCRIBE_MIGRATION_15_16, PORTABLE_MIGRATION_16_17, OVERLAY_MIGRATION_17_18, GOAL_ATTRIBUTION_MIGRATION_18_19, WEEK_PLAN_MIGRATION_19_20, PREP_MIGRATION_20_21).addCallback(mediaConstraintCallback).enableMultiInstanceInvalidation().build()
     }
 }

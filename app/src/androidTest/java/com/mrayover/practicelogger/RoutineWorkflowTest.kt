@@ -68,15 +68,15 @@ class RoutineWorkflowTest {
             runBlocking { BlockRepository(db).setArchived(ids[1], false) }
             compose.waitUntil(15000) { !compose.onNodeWithTag("start-routine-$routineId").fetchSemanticsNode().config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled) }
             compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick()
-            shown("Start"); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
+            shown("Start Block"); prepReadyBlock(compose); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
             val first = runBlocking { db.sessions().readAll().single { it.current?.name == "Routine B" && it.session.status == "IN_PROGRESS" }.session.id }
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Routine recovery note")
             savePracticeNote(compose); click("Return to Practice")
-            click("Start"); shown("Pause"); click("Pause"); shown("Resume")
+            click("Start Practice"); shown("Pause"); click("Pause"); shown("Resume")
             leavePracticeForLater(compose); openHomeRoutines(compose)
             runBlocking { BlockRepository(db).save(ids[1], BlockDraft("Routine B updated", "Current action", "9", "140", "Current notes")) }
-            compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick(); shown("Start")
+            compose.onNodeWithTag("start-routine-$routineId").scrollIfNeeded().performClick(); shown("Start Block"); prepReadyBlock(compose)
             shown("Routine B updated"); compose.onNodeWithTag("practice-timer").assertTextEquals("3:00")
             runBlocking {
                 val all = db.sessions().readAll(); val one = db.sessions().find(first)!!
@@ -87,7 +87,7 @@ class RoutineWorkflowTest {
                 assertEquals("Current notes", two.current!!.referenceNotes)
             }
             compose.onNodeWithTag("practice-timer").scrollIfNeeded(); compose.waitForIdle(); captureStage3("routine-03-fresh-practice")
-            click("Complete"); shown("Routine A"); click("Skip"); shown("Routine C"); click("Complete")
+            click("Complete"); shown("Up Next: Routine A"); prepReadyBlock(compose); click("Skip"); shown("Up Next: Routine C"); prepReadyBlock(compose); click("Complete")
             shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomeRoutines(compose)
             compose.onNodeWithText("Recent Practice").performScrollTo().assertIsDisplayed()
             compose.waitForIdle(); captureStage3("routine-04-history-retained")
@@ -112,7 +112,7 @@ class RoutineReopenTest {
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick(); openHomePractice(compose)
             continueFirstSession(compose)
             compose.waitUntil(15000) { compose.onAllNodesWithText("Routine B").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Resume").assertExists(); compose.onNodeWithText("Pause").assertDoesNotExist()
+            compose.onNodeWithText("Resume Block").assertExists(); compose.onNodeWithText("Pause").assertDoesNotExist()
             revealPracticeNotes(compose)
             assertSavedPracticeNote(compose, "Routine recovery note")
             compose.waitForIdle(); captureStage3("routine-05-cold-recovery")

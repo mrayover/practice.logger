@@ -1,10 +1,10 @@
 # Backup format and safety — current implementation
 
-Complete portable ZIP v4 includes weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v3 remain readable. Legacy JSON 7 remains data-only and is independent of Room 20. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Complete portable ZIP v5 includes per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v4 remain readable. Legacy JSON 7 remains data-only and is independent of Room 21. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **20**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **21**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -102,6 +102,10 @@ Restore stages the input privately, validates version and paths, rejects duplica
 Confirmation rechecks all durable tables for emptiness in the same Room transaction that inserts restored records. Media locks exclude concurrent file mutations and orphan cleanup. A synced journal records the unique transaction token, previously absent destination paths, media hashes and desired settings. Synced staged files are promoted into the existing private stores before references are committed. The witness is inserted with the restored rows. Room 17 adds only this internal table through a non-destructive 16→17 migration.
 
 Startup resolves a pending journal before opening the catalog or running orphan cleanup. An absent witness rolls back only the journal's newly promoted files. A committed witness keeps the restored rows and files, verifies the promoted bytes and finishes the saved settings. Settings are written after commit, so pre-commit rollback leaves the target settings alone. Finalization is retryable and the app gates normal navigation while recovery is required. Unfinished Block practice and Transcribe reopen paused.
+
+## Preparation time in ZIP v5
+
+The manifest declares ZIP version 5 and Room schema 21. The records payload declares version 5 and appends a nonnegative integer `prepMs` to each placement row. Only a placement already reached in a started session can hold prep time. Complete ZIP v1–v4, legacy JSON v1–v7 and the Room 20→21 migration initialize prep to zero. Measured practice and Goal totals continue to use active time.
 
 ## Weekly plans in ZIP v4
 

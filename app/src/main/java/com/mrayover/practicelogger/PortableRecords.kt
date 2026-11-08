@@ -77,10 +77,12 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
     }
 }
 
+private const val PLACEMENT_FIELDS = "id sessionId sourceBlockId name action tempo:i? referenceNotes position:i configuredMs:l activeMs:l outcome overtimeAccepted:b note lastUsedBpm:i?"
+
 private val portableTablesV1 = listOf(
     PortableTable("blocks", "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l", "blocks"),
     PortableTable("sessions", "id startedAt:l endedAt:l? status currentIndex:i note", "sessions"),
-    PortableTable("placements", "id sessionId sourceBlockId name action tempo:i? referenceNotes position:i configuredMs:l activeMs:l outcome overtimeAccepted:b note lastUsedBpm:i?", "placements"),
+    PortableTable("placements", PLACEMENT_FIELDS, "placements"),
     PortableTable("takes", "id blockId:s? createdAt:l mode durationMs:l fileName label recordedBpm:i? beatCount:i?"),
     PortableTable("routines", "id name createdAt:l updatedAt:l", "routines"),
     PortableTable("routine_placements", "id routineId sourceBlockId position:i configuredMs:l", "routinePlacements"),
@@ -102,7 +104,7 @@ private const val OVERLAY_TABLE = "practice_overlays"
 private const val PRIMARY_TABLE = "block_primary_goals"
 private const val SNAPSHOT_TABLE = "placement_goal_snapshots"
 private const val WEEK_TABLE = "week_blocks"
-internal const val PORTABLE_VERSION = 4
+internal const val PORTABLE_VERSION = 5
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -110,7 +112,11 @@ private val portableTablesV3 = portableTablesV2 + listOf(
     PortableTable(SNAPSHOT_TABLE, "placementId goalId:s? priority:i?")
 )
 
-internal val portableTables = portableTablesV3 + PortableTable(WEEK_TABLE, "weekStart blockId position:i")
+private val portableTablesV4 = portableTablesV3 + PortableTable(WEEK_TABLE, "weekStart blockId position:i")
+
+internal val portableTables = portableTablesV4.map { table ->
+    if (table.name == "placements") PortableTable("placements", "$PLACEMENT_FIELDS prepMs:l", "placements") else table
+}
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -121,6 +127,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         1 -> portableTablesV1
         2 -> portableTablesV2
         3 -> portableTablesV3
+        4 -> portableTablesV4
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -176,6 +183,17 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         val legacy = JSONObject().put("format", "practice.logger.backup").put("version", 7)
         formatTables.forEach { table -> table.legacyKey?.let { legacy.put(it, JSONArray(this[table.name])) } }
         val core = BackupCodec.decodeObject(legacy)
+        if (version >= 5) {
+            val sessions = core.sessions.associateBy { it.id }
+            for (row in this["placements"]) {
+                val session = sessions.getValue(row.getString("sessionId"))
+                val prepMs = row.getLong("prepMs")
+                require(prepMs >= 0 && (prepMs == 0L ||
+                    session.status != "DRAFT" && row.getInt("position") <= session.currentIndex)) {
+                    "Invalid placement preparation time."
+                }
+            }
+        }
         val blockIds = core.blocks.mapTo(hashSetOf()) { it.id }
         for ((week, entries) in this[WEEK_TABLE].groupBy { it.getString("weekStart") }) {
             val date = LocalDate.parse(week)

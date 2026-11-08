@@ -121,7 +121,11 @@ class WeekPlanTest {
             }
             BlockDatabase.open(context, name).useDb { db ->
                 assertEquals("Notes", db.blocks().find("legacy")!!.notes)
-                assertEquals(1200L, db.sessions().find("s")!!.activeMs)
+                val current = db.sessions().find("s")!!.current!!
+                assertEquals(1200L, current.activeMs)
+                assertEquals(0L, current.prepMs)
+                SessionRepository(db).checkpointPrep("s", current.id, 600)
+                assertEquals(current.copy(prepMs = 600), db.sessions().find("s")!!.current)
                 assertTrue(db.weekPlan().read(sunday.toString()).isEmpty())
                 BlockRepository(db).addToWeek(sunday, "legacy")
                 assertEquals("legacy", db.weekPlan().read(sunday.toString()).single().blockId)
@@ -142,6 +146,11 @@ class WeekPlanTest {
             val b = blocks.save(null, BlockDraft("Second", "Play"), sunday)
             blocks.setArchived(b, true)
             blocks.addToWeek(sunday.minusWeeks(1), a)
+            val sessions = SessionRepository(source)
+            val session = sessions.startBlock(a)
+            val placement = source.sessions().find(session)!!.current!!
+            sessions.checkpointPrep(session, placement.id, 2500L)
+            assertNull(source.goalAttribution().snapshot(placement.id))
             val zip = PortableZip(context, source, root)
             zip.create(archive)
             val verified = zip.verify(archive)
@@ -149,10 +158,18 @@ class WeekPlanTest {
             assertEquals(source.weekPlan().read(sunday.toString()), target.weekPlan().read(sunday.toString()))
             assertEquals(source.weekPlan().read(sunday.minusWeeks(1).toString()), target.weekPlan().read(sunday.minusWeeks(1).toString()))
             assertTrue(target.blocks().find(b)!!.archived)
+            assertEquals(placement.copy(prepMs = 2500L), target.sessions().find(session)!!.current)
+            assertNull(target.goalAttribution().snapshot(placement.id))
 
             val original = verified.records.payload.toString()
             val legacy = JSONObject(original).put("version", 3)
-            legacy.getJSONObject("tables").remove("week_blocks")
+            legacy.getJSONObject("tables").apply {
+                remove("week_blocks")
+                getJSONArray("placements").getJSONArray(0).remove(14)
+            }
+            val badPrep = JSONObject(original)
+            badPrep.getJSONObject("tables").getJSONArray("placements").getJSONArray(0).put(14, -1)
+            assertTrue(runCatching { PortableRecords(badPrep, PORTABLE_VERSION) }.isFailure)
             assertEquals(emptyList<JSONObject>(), PortableRecords(legacy, 3)["week_blocks"])
             for (bad in listOf(
                 JSONArray().put(sunday.plusDays(1).toString()).put(a).put(0),

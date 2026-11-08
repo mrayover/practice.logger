@@ -32,6 +32,14 @@ fun continueFirstSession(compose: AndroidComposeTestRule<*, MainActivity>) {
     }).onFirst().scrollIfNeeded().performClick()
 }
 
+/** Enter the existing workspace for tests that need tools before measured practice. */
+fun prepReadyBlock(compose: AndroidComposeTestRule<*, MainActivity>) {
+    compose.waitUntil(15000) {
+        compose.onAllNodesWithTag("practice-ready-prep").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+    }
+    compose.onNodeWithTag("practice-ready-prep").scrollIfNeeded().assertIsDisplayed().performClick()
+}
+
 /** Compact references expose reset through accessibility while preserving real zoom state. */
 fun assertPracticeReferenceZoomed(compose: AndroidComposeTestRule<*, MainActivity>) {
     compose.waitUntil(10000) {

@@ -33,7 +33,8 @@ data class Placement(
     val outcome: String = "PENDING",
     val overtimeAccepted: Boolean = false,
     val note: String = "",
-    val lastUsedBpm: Int? = null
+    val lastUsedBpm: Int? = null,
+    @ColumnInfo(defaultValue = "0") val prepMs: Long = 0
 )
 
 data class SessionBundle(
@@ -83,6 +84,12 @@ val SESSION_MIGRATION_1_2 = object : Migration(1, 2) {
 val METRONOME_MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE placements ADD COLUMN lastUsedBpm INTEGER")
+    }
+}
+
+internal val PREP_MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE placements ADD COLUMN prepMs INTEGER NOT NULL DEFAULT 0")
     }
 }
 
@@ -181,8 +188,9 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         session.id
     }
     private suspend fun active(id: String): SessionBundle = checkNotNull(dao.find(id)).also { check(it.session.status == "IN_PROGRESS") }
-    suspend fun checkpoint(id: String, deltaMs: Long): Placement = db.withTransaction {
+    suspend fun checkpoint(id: String, deltaMs: Long, placementId: String? = null): Placement = db.withTransaction {
         val placement = checkNotNull(active(id).current)
+        check(placementId == null || placement.id == placementId)
         val updated = advancePractice(placement, deltaMs)
         dao.update(updated)
         if (placement.activeMs == 0L && updated.activeMs > 0L) {
@@ -195,6 +203,13 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
             attribution.insert(PlacementGoalSnapshot(placement.id, goalId, priority))
         }
         updated
+    }
+    suspend fun checkpointPrep(id: String, placementId: String, deltaMs: Long) = db.withTransaction {
+        require(deltaMs >= 0)
+        val current = checkNotNull(active(id).current)
+        check(current.id == placementId)
+        val prepMs = current.prepMs + minOf(deltaMs, Long.MAX_VALUE - current.prepMs)
+        dao.update(current.copy(prepMs = prepMs))
     }
     suspend fun continueOvertime(id: String) = db.withTransaction {
         val current = checkNotNull(active(id).current)

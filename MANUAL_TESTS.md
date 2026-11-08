@@ -260,6 +260,14 @@ Use the signed compatibility candidate linked in [CURRENT_STATE](CURRENT_STATE.m
 5. Close and reopen the app and verify both plans. Create a complete ZIP and restore it only into a separate empty installation to check weekly membership and media together.
 
 
+## P1 Intentional Practice Lifecycle phone checks
+
+1. Install the permanent-key build100 over build99. Confirm a saved Block, unfinished session, Goal, note and recording still open.
+2. Open Blocks from This Week (single and multi), Add Blocks, Routines and a Goal. Check Ready shows the Block, position and planned duration. Wait at Ready, then tap Start Block and check the timer moves. Turn off system animations and confirm the Start highlight is static.
+3. Choose Prep Block. Play a reference, use the click and make a short recording. Confirm the countdown stays fixed until Start Practice. Check that an unsaved note or unresolved take still protects Complete, Skip and leaving.
+4. Pause and resume. Leave the app during both Prep and active practice, then reopen the unfinished placement from In Progress. Confirm it waits for your choice. At zero, tap Continue to enter overtime.
+5. Complete or skip a Block. Confirm Up Next waits, then try both Start Next Block and Prep Next Block. Finish the final Block to reach Session Summary. Repeat at maximum text size on a narrow display. Test complete ZIP restore on a separate empty installation.
+
 ## G2 Shared Goal Filtering phone checks
 
 1. Install the signed build99 APK over build98 without uninstalling. Open the Library and This Week to confirm the existing Blocks and weekly plans are present.
