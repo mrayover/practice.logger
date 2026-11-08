@@ -32,12 +32,12 @@ class BlockGoalFilterWorkflowTest : WeekUiChecks() {
         click("Active", inList = "block-library-list")
         runBlocking { goals.move(goalB, -1) }
         click("Goal filter · Priority 2 · Timing and articulation", inList = "block-library-list")
-        compose.onNodeWithText("Priority 2 · Timing and articulation").assertIsSelected().performClick()
+        option("Priority 2 · Timing and articulation").assertIsSelected().performClick()
         libraryBlock(blockA)
         runBlocking { goals.setCompleted(goalA, true) }
         click("Goal filter · All Goals", inList = "block-library-list")
-        compose.onNodeWithText("Priority 2 · Timing and articulation").assertDoesNotExist()
-        click("No Goal")
+        option("Priority 2 · Timing and articulation").assertDoesNotExist()
+        option("No Goal").scrollIfNeeded().performClick()
         libraryBlock(unassigned)
         choose("All Goals", "block-library-list")
         libraryBlock(blockA)
@@ -93,8 +93,10 @@ class BlockGoalFilterWorkflowTest : WeekUiChecks() {
     private fun choose(option: String, list: String? = null) {
         if (list != null) compose.onNodeWithTag(list).performScrollToNode(hasTestTag("block-goal-filter"))
         compose.onNodeWithTag("block-goal-filter").scrollIfNeeded().performClick()
-        click(option)
+        option(option).scrollIfNeeded().performClick()
     }
+
+    private fun option(label: String) = compose.onNode(hasText(label) and hasAnyAncestor(isPopup()))
 
     private fun libraryBlock(id: String) {
         val tag = "library-block-$id"
