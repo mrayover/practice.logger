@@ -224,9 +224,11 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 The shared Block practice screen gates entry and advancement with Start or Prep. Existing placements reopen Ready and active practice resumes only by explicit action. Prep retains the existing workspace, audio ownership and note/recording safeguards. Room 21 adds placement preparation time. Complete ZIP v5 preserves it and reads v1–v4. Session and Goal totals use active practice only. [Current verification and delivery](CURRENT_STATE.md)
 
+Build101 fits the Focused Practice metronome controls on one row when space permits, with Start/Stop click before the BPM steps. Controls wrap with narrow widths or enlarged text. [Delivery and verification](CURRENT_STATE.md)
+
 ## Next action
 
-Verify [P1 on the phone](MANUAL_TESTS.md#p1-intentional-practice-lifecycle-phone-checks). G3 awaits a separate owner assignment.
+Run the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check) on the S26 Ultra. G3 awaits a separate owner assignment.
 
 ## Increment 3 — delivered 2026-10-29
 

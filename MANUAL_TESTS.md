@@ -260,6 +260,10 @@ Use the signed compatibility candidate linked in [CURRENT_STATE](CURRENT_STATE.m
 5. Close and reopen the app and verify both plans. Create a complete ZIP and restore it only into a separate empty installation to check weekly membership and media together.
 
 
+## Compact metronome phone check
+
+Install build101 over build100 on the Samsung S26 Ultra. Open a Block at your usual font and display sizes. Check that Metronome/BPM, Accent, expand, Start click, −1 and +1 share one row above Free Recording. Start and stop the click, adjust BPM, and open and close the metronome settings. At enlarged text, check that the controls can wrap and remain reachable.
+
 ## P1 Intentional Practice Lifecycle phone checks
 
 1. Install the permanent-key build100 over build99. Confirm a saved Block, unfinished session, Goal, note and recording still open.

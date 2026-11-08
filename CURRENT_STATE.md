@@ -2,7 +2,16 @@
 
 Updated November 8, 2026 (America/Los_Angeles).
 
-## Signed P1 delivery
+## Signed compact metronome update
+
+**0.34.1/build101**, app source `b7b1417a328ce22851f28d18efda0efd8a298a47`. Install over build100. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P1 delivery → Compact metronome** under the name `practice.logger-0.34.1-b101-b7b1417`.
+
+- Focused Practice lays out Metronome/BPM, Accent, expand, Start/Stop click, −1 and +1 on the same row when there is room. The controls wrap at narrow widths or enlarged text and retain 48dp touch targets.
+- Local Gradle release and instrumentation compilation passed. The permanent certificate matches build100. The delivery copies and all four ZIP members passed hash verification.
+- APK SHA-256 `360b0a9a9833a8f2c0f70e43b927a710fafe9b0afac8f740d7fe3cb58b1a6fad`. ZIP SHA-256 `6bf9661e331e59ae308ca92cdf9c1c4100500f5917792b298130bdc9492436f2`.
+- Android 15 passed both focused layout checks. At about 411dp and standard text, all six controls shared one row in the requested order with no overlap. At 320dp and 200% text, controls wrapped and stayed reachable, and tempo, click and expanded settings worked. Both screenshots were reviewed. S26 Ultra verification is pending. [Standard layout](https://github.com/mrayover/practice.logger/actions/runs/42525561538) · [Narrow and enlarged layout](https://github.com/mrayover/practice.logger/actions/runs/42525563517)
+
+## Retained signed P1 delivery
 
 **0.34.0/build100**, app source `49178a24e60a47c0a6ded64454ed3131efa6af75`. The signed APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P1 delivery**. Install `practice.logger-0.34.0-b100-49178a2.apk` over the permanent-key build99.
 
@@ -24,7 +33,7 @@ Version **0.34.0/build100** adds Ready, Prep and Up Next to the shared Block pra
 
 Verification was scoped to P1. Native test follow-ups through `ab06778` leave the signed app source unchanged. Physical-phone install-over and acceptance remain pending.
 
-**Next task** is to install build100 over build99 on the owner's phone and run the [P1 phone checklist](MANUAL_TESTS.md#p1-intentional-practice-lifecycle-phone-checks).
+**Next task** is to install build101 over build100 on the S26 Ultra and run the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check).
 
 ## Retained signed G2 delivery
 
