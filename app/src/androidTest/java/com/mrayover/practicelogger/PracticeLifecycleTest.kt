@@ -197,7 +197,7 @@ class PracticeLifecycleTest {
             val window = compose.activity.window
             WindowInsetsControllerCompat(window, window.decorView).hide(WindowInsetsCompat.Type.ime())
         }
-        shown("Complete")
+        compose.waitUntil(15000) { compose.onNodeWithText("Complete").isDisplayed() }
         click("Complete")
         shown("Unsaved note text")
         click("Keep editing")
