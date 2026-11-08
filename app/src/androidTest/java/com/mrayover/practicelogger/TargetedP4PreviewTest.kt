@@ -55,10 +55,14 @@ class TargetedP4PreviewTest {
                 compose.onNodeWithTag("metronome-bpm"),
                 compose.onNodeWithTag("practice-metronome-accent"),
                 compose.onNodeWithTag("practice-metronome-expand"),
+                compose.onNodeWithTag("practice-metronome-pulse"),
                 compose.onNodeWithContentDescription("Decrease click BPM by 1"),
-                compose.onNodeWithContentDescription("Increase click BPM by 1"),
-                compose.onNodeWithTag("practice-metronome-pulse")
+                compose.onNodeWithContentDescription("Increase click BPM by 1")
             ).map { it.scrollIfNeeded().assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
+            assertTrue("Metronome controls should share one row: $controls",
+                controls.all { kotlin.math.abs(it.center.y - controls.first().center.y) <= 1f })
+            assertTrue("Click should come before the two tempo buttons: $controls",
+                controls.zipWithNext().all { (left, right) -> left.right <= right.left + 1f })
             controls.forEach { bounds ->
                 assertTrue("Control outside transport: $bounds / $row", bounds.left >= row.left - 1 && bounds.right <= row.right + 1)
                 assertTrue("Control smaller than 48dp: $bounds", bounds.width >= 48 * density - 1 && bounds.height >= 48 * density - 1)

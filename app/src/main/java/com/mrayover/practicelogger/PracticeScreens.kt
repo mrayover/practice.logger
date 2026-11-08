@@ -600,20 +600,18 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
                 modifier = Modifier.rotate(if (expanded) 180f else 0f).testTag("practice-metronome-chevron"),
                 tint = MaterialTheme.colorScheme.primary)
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
-                contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
-                    .semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
-            TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
-                contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
-                    .semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
-            OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
-                colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
-                contentPadding = PaddingValues(horizontal = 6.dp), modifier = Modifier.width(clickWidth).heightIn(min = 48.dp)
-                    .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
-                Text(clickLabel, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-            }
+        OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
+            colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
+            contentPadding = PaddingValues(horizontal = 6.dp), modifier = Modifier.width(clickWidth).heightIn(min = 48.dp)
+                .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
+            Text(clickLabel, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
+        TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
+            contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
+                .semantics { contentDescription = "Decrease click BPM by 1" }) { Text("−1") }
+        TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm + 1).coerceAtMost(300)) }, enabled = vm.workingBpm < 300 && !vm.busy,
+            contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
+                .semantics { contentDescription = "Increase click BPM by 1" }) { Text("+1") }
     }
     vm.clickError?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
     if (editing) AlertDialog(onDismissRequest = { editing = false; onEditingChanged(false) }, title = { Text("Working BPM") }, text = {
