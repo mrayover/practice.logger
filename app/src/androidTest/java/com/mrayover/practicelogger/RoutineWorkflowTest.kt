@@ -113,6 +113,7 @@ class RoutineReopenTest {
             continueFirstSession(compose)
             compose.waitUntil(15000) { compose.onAllNodesWithText("Routine B").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Resume Block").assertExists(); compose.onNodeWithText("Pause").assertDoesNotExist()
+            prepReadyBlock(compose)
             revealPracticeNotes(compose)
             assertSavedPracticeNote(compose, "Routine recovery note")
             compose.waitForIdle(); captureStage3("routine-05-cold-recovery")
