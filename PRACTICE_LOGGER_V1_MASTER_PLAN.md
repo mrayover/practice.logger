@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. The owner assigned P1 Intentional Practice Lifecycle before G3. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle is delivered ahead of G3. G3 awaits a separate owner assignment. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -387,7 +387,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
 - [x] W1 This Week workspace, preparation, session entry and complete ZIP support. See [CURRENT_STATE](CURRENT_STATE.md) for verification and delivery.
 - [x] G2 Goal filter and text search in Manage Blocks, Session Builder, saved Routine editor, and Prepare Week.
-- [ ] P1 Intentional Practice Lifecycle. See [current verification and delivery](CURRENT_STATE.md).
+- [x] P1 Intentional Practice Lifecycle delivered with scoped verification. See [current verification and delivery](CURRENT_STATE.md).
 - [ ] G3 actual time statistics and historically accurate, nonduplicated Goal attribution; no fake progress.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
 - [ ] F2 permanent-key V1 release candidate, real-device acceptance and truthful final documentation.

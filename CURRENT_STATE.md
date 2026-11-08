@@ -1,22 +1,32 @@
 # Current state — P1 Intentional Practice Lifecycle
 
+Updated November 8, 2026 (America/Los_Angeles).
+
 ## Signed P1 delivery
 
 **0.34.0/build100**, app source `49178a24e60a47c0a6ded64454ed3131efa6af75`. The signed APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P1 delivery**. Install `practice.logger-0.34.0-b100-49178a2.apk` over the permanent-key build99.
 
 - Package `com.mrayover.practicelogger.app`, permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
-- APK SHA-256 `9ad3083f68f8bea970a9d8db2f6978f2545a06b426e95d3f6d7eedd7c33fe934`. ZIP SHA-256 `83c35cec375726f2b6c17c40c2132991ddedd8097ea78e57dceac9f332844a7b`. All four ZIP members and the OneDrive copies matched.
+- APK SHA-256 `9ad3083f68f8bea970a9d8db2f6978f2545a06b426e95d3f6d7eedd7c33fe934`. ZIP SHA-256 `83c35cec375726f2b6c17c40c2132991ddedd8097ea78e57dceac9f332844a7b`. All 142 APK payload entries matched the unsigned build. All four ZIP members and the OneDrive copies matched.
 - Local Gradle release and Android test compilation passed. All 17 selected tests in SessionRepositoryTest, GoalAttributionTest, WeekPlanTest and BackupRepositoryTest passed. The checks include migration, separate prep time, the ZIP round trip, older records, and first-accrual Goal attribution.
 
 ## P1 behavior and native verification
 
 Version **0.34.0/build100** adds Ready, Prep and Up Next to the shared Block practice workflow. Room 21 stores foreground preparation checkpoints separately and complete ZIP v5 preserves them. Previous ZIP v1–v4 and JSON v1–v7 remain readable. [Phone checks](MANUAL_TESTS.md#p1-intentional-practice-lifecycle-phone-checks)
 
-**Next task** is to finish the focused Android verification, then run the phone checklist.
+- Android 15/API 35 at 200% text and 720 × 1440 at 360 dpi passed Ready, Up Next, Start/Pause/Resume, Prep background and Activity recreation, Skip and force-stop/reopen. Ready, Up Next and Prep screenshots were reviewed. [Narrow Android checks](https://github.com/mrayover/practice.logger/actions/runs/42522300462)
+- Android 15 passed the three-outcome builder flow, countdown, overtime, paused recovery, saved notes and history reopen. [Practice and recovery checks](https://github.com/mrayover/practice.logger/actions/runs/42522302128)
+- Android 8/API 26 passed Prep reference playback and capture, recording/exit protection, note draft protection, and Prep to Start. The first run reached playback and failed on an incorrect Close button selector, which was corrected in test source `0d79f41`. [Corrected Prep tools check](https://github.com/mrayover/practice.logger/actions/runs/42522616688)
+- Android 15 passed This Week single and multi-Block Ready entry and weekly process reopen. The same run passed the saved Routine launch and Block transitions, then stopped when the recovery test tried to open Notes from Ready. After the test chose Prep, the Routine workflow and cold reopen both passed. [This Week and first Routine run](https://github.com/mrayover/practice.logger/actions/runs/42522304073) · [Corrected Routine checks](https://github.com/mrayover/practice.logger/actions/runs/42522765613)
+- Android 15 passed complete ZIP v1–v5 restore, JSON v1–v7 compatibility and malformed archive checks. ZIP v5 preserved prep time through restore. Earlier ZIP and JSON versions restored with zero prep. [Archive checks](https://github.com/mrayover/practice.logger/actions/runs/42522305848)
 
-Updated November 8, 2026 (America/Los_Angeles).
+- Android 15 passed Goal-launched Ready and Prep, independent sessions, resume, and preservation of first-accrual attribution after reassignment. [Goal workflow check](https://github.com/mrayover/practice.logger/actions/runs/42522767506)
 
-## Signed G2 delivery
+Verification was scoped to P1. Native test follow-ups through `ab06778` leave the signed app source unchanged. Physical-phone install-over and acceptance remain pending.
+
+**Next task** is to install build100 over build99 on the owner's phone and run the [P1 phone checklist](MANUAL_TESTS.md#p1-intentional-practice-lifecycle-phone-checks).
+
+## Retained signed G2 delivery
 
 **0.33.0/build99**, app source `e4b805961c9fb4fb8efd1e61535498b5be87fc1f`. Install over permanent-key build98 without uninstalling. The verified APK and ZIP are in the owner's **OneDrive → Documents → ChatGPT → Practice Log development → G2 delivery** folder. Open `practice.logger-0.33.0-b99-e4b8059.apk` to install. The ZIP has the same name with a `.zip` extension and includes the build manifest and installation notes. [Phone checks](MANUAL_TESTS.md#g2-shared-goal-filtering-phone-checks)
 
@@ -30,9 +40,7 @@ The same Goal filter is beside text search in Manage Blocks, Practice Now → Ad
 - Local Windows Gradle passed source encoding and debug, release and Android test APK compilation. All 10 focused unit tests passed across BlockGoalFilterTest, BlockRepositoryTest, GoalAttributionTest and WeekPlanTest. Coverage includes all five Goal ranks, legacy links versus primary IDs, completed Goals, text search, archive eligibility, changing Goal choices and weekly persistence.
 - The API 35 W1 workflow and separate process reopen passed, covering add/create/remove, carry-forward, builder order and paused single-Block practice. [W1 Android run](https://github.com/mrayover/practice.logger/actions/runs/42519588530)
 - The four-picker G2 workflow passed on API 26 at 100% text and on API 35 at 200% text with a 720 × 1440, 360 dpi display override. It verified Library archive switching, Goal reorder and completion, session draft order, saving a Routine after filtering, and adding an existing Block in Prepare Week. The native test follow-up `77399ce4ee2f3a7323133ecb20425214a635c500` changed only the test's menu selectors. [API 26 run](https://github.com/mrayover/practice.logger/actions/runs/42519694262) · [API 35 run](https://github.com/mrayover/practice.logger/actions/runs/42519696489)
-- The app stays on Room 20 and complete ZIP v4. Physical install-over and phone acceptance are pending.
-
-Physical phone verification for build99 remains pending.
+- G2 used Room 20 and complete ZIP v4. Physical phone verification for build99 remains pending.
 
 ## Retained signed W1 candidate
 

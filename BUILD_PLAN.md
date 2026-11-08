@@ -220,7 +220,7 @@ Stage 3 phone acceptance and Stage 4's 0/10 real sessions remain pending. Evalua
 
 The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice top matter, upright camera-photo orientation and full safe-width image display. Signed0.14.1/build27 delivers these refinements; Room10/JSON6, private originals and timer/recording architecture stay unchanged. Delivery/testing status is in CURRENT_STATE.md.
 
-## P1 Intentional Practice Lifecycle
+## P1 Intentional Practice Lifecycle — delivered in build100
 
 The shared Block practice screen gates entry and advancement with Start or Prep. Existing placements reopen Ready and active practice resumes only by explicit action. Prep retains the existing workspace, audio ownership and note/recording safeguards. Room 21 adds placement preparation time. Complete ZIP v5 preserves it and reads v1–v4. Session and Goal totals use active practice only. [Current verification and delivery](CURRENT_STATE.md)
 
