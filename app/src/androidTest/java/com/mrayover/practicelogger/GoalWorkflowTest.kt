@@ -65,7 +65,7 @@ class GoalWorkflowTest {
                 val saved = BlockDraft.from(db.blocks().find(b)!!)
                 BlockRepository(db).save(b, saved.copy(primaryGoalId = other, primaryGoalChanged = true))
             }
-            click("Practice Now"); shown("Continue Session")
+            click("Practice Now"); shown("In Progress"); click("In Progress")
             compose.onNodeWithTag("continue-session-$first").scrollIfNeeded().performClick()
             click("Resume")
             compose.waitUntil(15000) { runBlocking { db.sessions().find(first)!!.activeMs > committed.activeMs } }

@@ -70,7 +70,7 @@ class PracticeWorkflowTest {
             savePracticeNote(compose)
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextReplacement("Saved on leaving ♫"); savePracticeNote(compose)
-            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("In Progress")
             continueFirstSession(compose); shown("Overtime fixture")
             revealPracticeNotes(compose)
             assertSavedPracticeNote(compose, "Saved on leaving ♫")
@@ -84,7 +84,7 @@ class PracticeWorkflowTest {
                     if (compose.onAllNodesWithText("Back to Main").fetchSemanticsNodes().isNotEmpty()) compose.onNodeWithText("Back to Main").performClick()
                 }
             }
-            openHomePractice(compose); shown("Continue Session")
+            openHomePractice(compose); shown("In Progress")
         } finally { db.close() }
     }
 }
@@ -93,7 +93,7 @@ class PracticeRecoveryTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() } }
     @Test fun recoverPausedThenCompleteAndRetainSnapshots() {
-        openHomePractice(compose); shown("Continue Session"); continueFirstSession(compose)
+        openHomePractice(compose); shown("In Progress"); continueFirstSession(compose)
         shown("Overtime fixture")
         revealPracticeNotes(compose)
         assertSavedPracticeNote(compose, "Saved on Back ♫")

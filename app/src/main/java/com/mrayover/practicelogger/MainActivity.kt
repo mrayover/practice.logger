@@ -38,6 +38,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     lateinit var themePreferences: ThemePreferences
@@ -163,6 +166,22 @@ class MainActivity : ComponentActivity() {
     }
     DisposableEffect(practice.running, transcribe.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || transcribe.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
+    val weekBlocks by vm.weekBlocks.collectAsStateWithLifecycle()
+    val currentWeek by produceState(practiceWeek(), lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                value = practiceWeek()
+                delay(15_000)
+            }
+        }
+    }
+    val currentWeekIds = remember(weekBlocks, currentWeek) {
+        weekBlocks.filter { it.weekStart == currentWeek.toString() }.mapTo(hashSetOf()) { it.blockId }
+    }
+    var viewedWeek by rememberSaveable { mutableStateOf<String?>(null) }
+    var editorWeek by rememberSaveable { mutableStateOf<String?>(null) }
+    var builderBack by rememberSaveable { mutableStateOf("practice-now") }
+    val selectedWeek = viewedWeek?.let(LocalDate::parse) ?: currentWeek
     var page by rememberSaveable { mutableStateOf("home") }
     var mediaWorkspace by remember { mutableStateOf(false) }
     var settingsReturn by rememberSaveable { mutableStateOf("tools") }
@@ -186,6 +205,7 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(practice.destination) {
         practice.destination?.let { destination ->
             if (destination == "summary") summaryId = practice.completedId
+            if (destination == "builder") builderBack = "week"
             page = if (destination == "home" && headerHomeRequested) headerDestination else destination; practice.navigationHandled()
         }
     }
@@ -199,7 +219,12 @@ class MainActivity : ComponentActivity() {
     }
     fun goalName(sessionId: String?): String? = goalLinks.find { it.sessionId == sessionId }?.let { link -> goalRows.find { it.goal.id == link.goalId }?.goal?.title }
     fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
-    fun openEditor(id: String?, returnTo: String = "library") { editorId = id; editorReturn = returnTo; page = "editor" }
+    fun openEditor(id: String?, returnTo: String = "library") {
+        editorId = id
+        editorReturn = returnTo
+        editorWeek = if (returnTo == "prepare-week") selectedWeek.toString() else null
+        page = "editor"
+    }
     BackHandler(page == "library") { page = "home" }
     CompositionLocalProvider(LocalGoalIndicators provides goalIndicators) {
     Surface(Modifier.fillMaxSize().testTag("app-surface")) {
@@ -268,8 +293,29 @@ class MainActivity : ComponentActivity() {
             "free-recording" -> BlockRecordings(null, "Free recording", recordings, practice, null, 120,
                 onBeforePlayback = practice::stopClick, onDismiss = { page = "recording" }, startOnOpen = freeRecordingStart)
             "backup" -> BackupScreen(onHome = { page = "home" }, vm = backup, onRestored = { onRestoreAppearance(); recordings.reloadCountIn() })
-            "practice-now" -> PracticeNowScreen(sessions, practice, onBack = { page = "home" },
-                onBuilder = { page = "builder" }, onRoutines = { page = "practice-routines" }, onTranscribe = { page = "transcribe" })
+            "practice-now" -> PracticeNowScreen(sessions, onBack = { page = "home" },
+                onWeek = { viewedWeek = practiceWeek().takeUnless { it == currentWeek }?.toString(); page = "week" }, onUnfinished = { page = "unfinished" },
+                onBuilder = { builderBack = "practice-now"; page = "builder" },
+                onRoutines = { page = "practice-routines" }, onTranscribe = { page = "transcribe" })
+            "unfinished" -> UnfinishedSessions(sessions, practice, onBack = { page = "practice-now" })
+            "week", "prepare-week" -> key(page, selectedWeek) {
+                val preparing = page == "prepare-week"
+                WeekWorkspace(selectedWeek, selectedWeek == currentWeek, weekBlocks, catalog, preparing,
+                    vm, practice, sessions.draft?.placements?.isNotEmpty() == true,
+                    onNavigate = { offset ->
+                        val next = selectedWeek.plusWeeks(offset)
+                        viewedWeek = next.takeUnless { it == currentWeek }?.toString()
+                    },
+                    onBack = {
+                        if (preparing && selectedWeek == currentWeek) viewedWeek = null
+                        page = if (preparing) "week" else "practice-now"
+                    },
+                    onPrepare = {
+                        viewedWeek = selectedWeek.toString()
+                        page = "prepare-week"
+                    },
+                    onCreate = { openEditor(null, "prepare-week") })
+            }
             "practice-routines" -> PracticeRoutinesScreen(catalog, routines, practice, onBack = { page = "practice-now" })
             "transcribe" -> {
                 DisposableEffect(transcribe) {
@@ -278,7 +324,7 @@ class MainActivity : ComponentActivity() {
                 }
                 StandaloneTranscribeScreen(media, transcribe, goalRows, onBack = { page = "practice-now" })
             }
-            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, routines, onBack = { page = "practice-now" }, onCreate = { openEditor(null, "builder") })
+            "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, routines, onBack = { page = builderBack }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings, onNavigationCancelled = { headerHomeRequested = false })
             "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId), onNavigationCancelled = { headerHomeRequested = false })
             "library" -> {
@@ -307,6 +353,9 @@ class MainActivity : ComponentActivity() {
                             Text(block.durationMinutes.toString() + " min" + (block.tempo?.let { " · " + it + " BPM reference" } ?: ""), style = MaterialTheme.typography.bodyMedium)
                             BlockGoalLabel(indicator)
                         }
+                        AddToThisWeek(block.id in currentWeekIds, block.archived, vm.busy) {
+                            vm.addToWeek(practiceWeek(), block.id)
+                        }
                     }
                 }
             }
@@ -319,7 +368,12 @@ class MainActivity : ComponentActivity() {
                     }
                 } else key(editorId) {
                     BlockEditor(block, vm.busy || images.busy, images, onNavigationCancelled = { headerHomeRequested = false }, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) headerDestination else editorReturn },
-                        onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false) },
+                        onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false, editorWeek?.let(LocalDate::parse)) },
+                        weeklyAction = {
+                            if (block != null) AddToThisWeek(block.id in currentWeekIds, block.archived, vm.busy) {
+                                vm.addToWeek(practiceWeek(), block.id)
+                            }
+                        },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
                 }
             }
@@ -367,7 +421,7 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?, weeklyAction: @Composable () -> Unit) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -387,6 +441,7 @@ class MainActivity : ComponentActivity() {
     BackHandler { leave() }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.headlineMedium)
+        weeklyAction()
         if (block?.archived == true) Text("Archived — restore to return this Block to your active library.")
         if (block != null) OutlinedButton(onClick = onRecordings, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
         if (block != null) recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }

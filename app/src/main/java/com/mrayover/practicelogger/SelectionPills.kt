@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.dp
             if (!enabled) MaterialTheme.colorScheme.outlineVariant else if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline))
 }
 
-@Composable fun CatalogPill(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp),
+@Composable fun CatalogPill(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable ColumnScope.() -> Unit) {
+    Surface(onClick = onClick, enabled = enabled, modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)) {
         Row(Modifier.heightIn(min = 64.dp)) {
             Column(Modifier.weight(1f).padding(horizontal = 20.dp, vertical = 14.dp),

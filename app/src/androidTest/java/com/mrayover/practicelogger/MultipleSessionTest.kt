@@ -22,14 +22,15 @@ class MultipleSessionWorkflowTest {
             click("Start Session"); shown("Parallel A")
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Keep A"); savePracticeNote(compose)
-            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("In Progress")
             click("Add Blocks"); shown("Add Parallel B"); click("Add Parallel B")
             click("Start Session"); shown("Parallel B")
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Keep B"); savePracticeNote(compose)
-            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("In Progress")
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
             assertEquals(2, runBlocking { db.sessions().readAll().count { it.session.status == "IN_PROGRESS" } })
+            click("In Progress")
             compose.onNodeWithTag("continue-session-" + first.session.id).scrollIfNeeded().performClick()
             shown("Parallel A")
             revealPracticeNotes(compose)
@@ -38,7 +39,7 @@ class MultipleSessionWorkflowTest {
             compose.activityRule.scenario.recreate(); shown("Parallel A")
             revealPracticeNotes(compose)
             assertSavedPracticeNote(compose, "Keep A")
-            leavePracticeForLater(compose); openHomePractice(compose); shown("Continue Session")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("In Progress")
         } finally { db.close() }
     }
 }
@@ -48,16 +49,15 @@ class MultipleSessionReopenTest {
     private fun shown(text: String) { compose.waitUntil(15000) { compose.onAllNodesWithText(text, substring = false).fetchSemanticsNodes().isNotEmpty() } }
     private fun click(text: String) { compose.onNodeWithText(text, substring = false).scrollIfNeeded().performClick() }
     @Test fun bothUnfinishedSessionsSurviveProcessRestartAndFinishIndependently() {
-        openHomePractice(compose); shown("Continue Session")
+        openHomePractice(compose); shown("In Progress")
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             val first = runBlocking { db.sessions().readAll().single { it.session.status == "IN_PROGRESS" && it.current!!.name == "Parallel A" } }
             assertEquals(2, runBlocking { db.sessions().readAll().count { it.session.status == "IN_PROGRESS" } })
-            val firstControl = compose.onAllNodesWithTag("continue-session-" + first.session.id)
-            if (firstControl.fetchSemanticsNodes().isNotEmpty()) firstControl[0].scrollIfNeeded().performClick()
-            else continueFirstSession(compose)
+            click("In Progress")
+            compose.onNodeWithTag("continue-session-" + first.session.id).scrollIfNeeded().performClick()
             shown("Parallel A"); revealPracticeNotes(compose); assertSavedPracticeNote(compose, "Keep A")
-            click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomePractice(compose); shown("Continue Session")
+            click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomePractice(compose); shown("In Progress")
             continueFirstSession(compose); shown("Parallel B")
             revealPracticeNotes(compose)
             assertSavedPracticeNote(compose, "Keep B")

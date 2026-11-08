@@ -58,27 +58,38 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 }
 
 @Composable
-internal fun PracticeNowScreen(sessions: SessionCatalog, practice: PracticeViewModel, onBack: () -> Unit,
+internal fun PracticeNowScreen(sessions: SessionCatalog, onBack: () -> Unit, onWeek: () -> Unit, onUnfinished: () -> Unit,
     onBuilder: () -> Unit, onRoutines: () -> Unit, onTranscribe: () -> Unit) {
     BackHandler(onBack = onBack)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Practice Now", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.testTag("practice-now-title").semantics { heading() })
+        ActionButton("This Week", onWeek)
         if (sessions.unfinished.isNotEmpty()) {
-            Text("Continue Session", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            sessions.unfinished.forEach { bundle ->
-                OutlinedButton(onClick = { practice.openSession(bundle.session.id) }, enabled = !practice.busy,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("continue-session-" + bundle.session.id)) {
-                    Column {
-                        Text(bundle.current?.name ?: "Session", style = MaterialTheme.typography.titleMedium)
-                        Text("${sessionDate(bundle.session.startedAt)} · Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}")
-                    }
-                }
-            }
+            Button(onClick = onUnfinished, colors = ButtonDefaults.buttonColors(
+                containerColor = LightPalette.scheme.primary, contentColor = LightPalette.scheme.onPrimary),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("In Progress") }
         }
         ActionButton("Add Blocks", onBuilder)
         ActionButton("Routines", onRoutines)
         ActionButton("Transcribe", onTranscribe)
+    }
+}
+
+@Composable
+internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeViewModel, onBack: () -> Unit) {
+    BackHandler(onBack = onBack)
+    Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Unfinished sessions", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        if (sessions.unfinished.isEmpty()) Text("No unfinished sessions.")
+        sessions.unfinished.forEach { bundle ->
+            CatalogPill(onClick = { practice.openSession(bundle.session.id) }, enabled = !practice.busy,
+                modifier = Modifier.testTag("continue-session-" + bundle.session.id)) {
+                Text(bundle.current?.name ?: "Session", style = MaterialTheme.typography.titleMedium)
+                Text("${sessionDate(bundle.session.startedAt)} · Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}")
+            }
+        }
     }
 }
 

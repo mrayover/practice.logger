@@ -1,6 +1,7 @@
 package com.mrayover.practicelogger
 
 import androidx.room.withTransaction
+import java.time.LocalDate
 import java.util.UUID
 
 data class BlockDraft(val name: String = "", val action: String = "", val duration: String = "5", val tempo: String = "", val notes: String = "",
@@ -23,12 +24,13 @@ fun matchingBlocks(blocks: List<Block>, query: String, archived: Boolean): List<
 }
 
 data class BlockDependencies(val goals: Int, val routines: Int, val recordings: Int,
-    val sessionEntries: Int, val completedEntries: Int, val images: Int = 0, val mediaLinks: Int = 0) {
-    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0 && mediaLinks == 0
+    val sessionEntries: Int, val completedEntries: Int, val images: Int = 0, val mediaLinks: Int = 0, val weeks: Int = 0) {
+    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0 && mediaLinks == 0 && weeks == 0
     fun explanation(): String = buildList {
         add("It is associated with:")
         if (mediaLinks > 0) add("• $mediaLinks Library media links. Remove the visual/audio associations in this Block editor first. Library originals are retained.")
         if (images > 0) add("• $images reference attachment (image or PDF). Remove the reference first in this Block editor (confirmation required).")
+        if (weeks > 0) add("• $weeks weekly plans. Remove the Block in Prepare Week first.")
         if (goals > 0) add("• $goals Goal associations")
         if (routines > 0) add("• $routines saved Routines")
         if (recordings > 0) add("• $recordings recordings")
@@ -59,7 +61,7 @@ class BlockRepository(private val db: BlockDatabase, private val now: () -> Long
             BlockDeletionResult.Deleted
         }
     }
-    suspend fun save(id: String?, draft: BlockDraft): String = db.withTransaction {
+    suspend fun save(id: String?, draft: BlockDraft, week: LocalDate? = null): String = db.withTransaction {
         require(draft.errors().isEmpty()) { "Check the highlighted fields." }
         val previous = id?.let { checkNotNull(db.blocks().find(it)) { "This Block is no longer available." } }
         val timestamp = now()
@@ -85,7 +87,38 @@ class BlockRepository(private val db: BlockDatabase, private val now: () -> Long
                 attribution.setPrimary(BlockPrimaryGoal(block.id, goalId))
             }
         }
+        if (week != null) addToWeek(week, block.id)
         block.id
+    }
+
+    suspend fun addToWeek(week: LocalDate, id: String) = db.withTransaction {
+        check(db.blocks().find(id)?.archived == false)
+        appendWeek(week, listOf(id))
+    }
+
+    suspend fun carryWeek(from: LocalDate, to: LocalDate) = db.withTransaction {
+        require(from < to)
+        val activeIds = db.weekPlan().read(from.toString()).map { it.blockId }
+            .filter { db.blocks().find(it)?.archived == false }
+        appendWeek(to, activeIds)
+    }
+
+    private suspend fun appendWeek(week: LocalDate, ids: List<String>) {
+        require(practiceWeek(week) == week)
+        val dao = db.weekPlan()
+        val existing = dao.read(week.toString())
+        val present = existing.mapTo(hashSetOf()) { it.blockId }
+        val additions = ids.filter(present::add)
+        if (additions.isEmpty()) return
+        check(dao.count() + additions.size <= ZIP_RECORD_LIMIT)
+        dao.insert(additions.mapIndexed { index, id -> WeekBlock(week.toString(), id, existing.size + index) })
+    }
+
+    suspend fun removeFromWeek(week: LocalDate, id: String) = db.withTransaction {
+        val dao = db.weekPlan()
+        val row = dao.read(week.toString()).find { it.blockId == id } ?: return@withTransaction
+        dao.remove(row.weekStart, id)
+        dao.closeGap(row.weekStart, row.position)
     }
     suspend fun setArchived(id: String, archived: Boolean) = db.withTransaction {
         val previous = checkNotNull(db.blocks().find(id)) { "This Block is no longer available." }

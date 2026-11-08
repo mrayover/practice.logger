@@ -7,6 +7,7 @@ import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
 
 internal const val ZIP_RECORD_LIMIT = 20_000
 
@@ -100,13 +101,16 @@ private val portableTablesV1 = listOf(
 private const val OVERLAY_TABLE = "practice_overlays"
 private const val PRIMARY_TABLE = "block_primary_goals"
 private const val SNAPSHOT_TABLE = "placement_goal_snapshots"
-internal const val PORTABLE_VERSION = 3
+private const val WEEK_TABLE = "week_blocks"
+internal const val PORTABLE_VERSION = 4
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
-internal val portableTables = portableTablesV2 + listOf(
+private val portableTablesV3 = portableTablesV2 + listOf(
     PortableTable(PRIMARY_TABLE, "blockId goalId"),
     PortableTable(SNAPSHOT_TABLE, "placementId goalId:s? priority:i?")
 )
+
+internal val portableTables = portableTablesV3 + PortableTable(WEEK_TABLE, "weekStart blockId position:i")
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -116,6 +120,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
     private val formatTables = when (version) {
         1 -> portableTablesV1
         2 -> portableTablesV2
+        3 -> portableTablesV3
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -130,7 +135,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
     val counts = JSONObject().apply { rows.forEach { (name, values) -> put(name, values.size) } }
     operator fun get(table: String): List<JSONObject> =
         when (table) {
-            OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE -> rows[table].orEmpty()
+            OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
     private val maxOverlayPageByReference: Map<String, Int>
@@ -171,6 +176,16 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         val legacy = JSONObject().put("format", "practice.logger.backup").put("version", 7)
         formatTables.forEach { table -> table.legacyKey?.let { legacy.put(it, JSONArray(this[table.name])) } }
         val core = BackupCodec.decodeObject(legacy)
+        val blockIds = core.blocks.mapTo(hashSetOf()) { it.id }
+        for ((week, entries) in this[WEEK_TABLE].groupBy { it.getString("weekStart") }) {
+            val date = LocalDate.parse(week)
+            require(date.toString() == week && practiceWeek(date) == date) { "Invalid weekly plan start date." }
+            val members = hashSetOf<String>()
+            require(entries.all { row -> row.getString("blockId").let { it in blockIds && members.add(it) } } &&
+                entries.map { it.getInt("position") }.sorted() == entries.indices.toList()) {
+                "Invalid weekly plan membership or order."
+            }
+        }
         val placements = core.placements.associateBy { it.id }
         val goalIds = core.goals.mapTo(hashSetOf()) { it.id }
         val links = core.goalBlocks.mapTo(hashSetOf()) { it.blockId to it.goalId }

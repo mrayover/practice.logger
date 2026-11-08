@@ -26,6 +26,7 @@ fun openHomePractice(compose: AndroidComposeTestRule<*, MainActivity>) {
 }
 
 fun continueFirstSession(compose: AndroidComposeTestRule<*, MainActivity>) {
+    compose.onNodeWithText("In Progress").scrollIfNeeded().performClick()
     compose.onAllNodes(SemanticsMatcher("saved session") {
         it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("continue-session-") == true
     }).onFirst().scrollIfNeeded().performClick()

@@ -94,12 +94,30 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         val record = dao.withStatus("DRAFT") ?: PracticeSession(UUID.randomUUID().toString(), now()).also { dao.insert(it) }
         return checkNotNull(dao.find(record.id))
     }
-    suspend fun addBlock(blockId: String) = db.withTransaction {
-        val block = checkNotNull(db.blocks().find(blockId))
-        check(!block.archived)
+    suspend fun addBlock(blockId: String) = addBlocks(listOf(blockId))
+
+    suspend fun addBlocks(blockIds: List<String>) = db.withTransaction {
+        require(blockIds.isNotEmpty())
         val bundle = draft()
-        dao.insert(Placement(UUID.randomUUID().toString(), bundle.session.id, block.id, block.name, block.action,
-            block.tempo, block.notes, bundle.placements.size, block.durationMinutes.toLong() * 60_000L))
+        blockIds.forEachIndexed { index, id ->
+            insertBlock(bundle.session.id, activeBlock(id), bundle.placements.size + index)
+        }
+    }
+
+    suspend fun startBlock(blockId: String): String = db.withTransaction {
+        val block = activeBlock(blockId)
+        val session = PracticeSession(UUID.randomUUID().toString(), now(), status = "IN_PROGRESS")
+        dao.insert(session)
+        insertBlock(session.id, block, 0)
+        session.id
+    }
+
+    private suspend fun activeBlock(id: String): Block =
+        checkNotNull(db.blocks().find(id)).also { check(!it.archived) }
+
+    private suspend fun insertBlock(sessionId: String, block: Block, position: Int) {
+        dao.insert(Placement(UUID.randomUUID().toString(), sessionId, block.id, block.name, block.action,
+            block.tempo, block.notes, position, block.durationMinutes.toLong() * 60_000L))
     }
     suspend fun setDuration(placementId: String, milliseconds: Long) = db.withTransaction {
         require(milliseconds > 0)

@@ -122,7 +122,7 @@ class SystemPickerRestoreTest {
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick()
             openHomePractice(compose)
-            shownPickerApp(compose, "Continue Session")
+            shownPickerApp(compose, "In Progress")
             continueFirstSession(compose)
             shownPickerApp(compose, "Picker recovery")
             compose.onNodeWithText("Resume").assertExists()
@@ -147,7 +147,7 @@ class SystemPickerReopenTest {
             val expected = BackupCodec.decode(device.executeShellCommand("cat /sdcard/Download/$PICKER_FILE").toByteArray(Charsets.UTF_8))
             runBlocking { assertEquals(expected, BackupRepository(db).snapshot()) }
             openHomePractice(compose)
-            shownPickerApp(compose, "Continue Session")
+            shownPickerApp(compose, "In Progress")
             continueFirstSession(compose)
             shownPickerApp(compose, "Picker recovery")
             compose.onNodeWithText("Resume").assertExists()

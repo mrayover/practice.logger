@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
+import java.time.LocalDate
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID
@@ -50,6 +51,10 @@ class PortableArchiveValidationTest {
             val sessions = SessionRepository(source)
             sessions.addBlock("block")
             sessions.checkpoint(sessions.start(), 2000)
+            val week = LocalDate.of(2026, 11, 8)
+            BlockRepository(source).addToWeek(week, "block")
+            BlockRepository(source).addToWeek(week, "old")
+            BlockRepository(source).setArchived("old", true)
             val input = File(root, "valid.zip")
             val verified = PortableZip(context, source, root).create(input)
             val path = verified.originals.single { it.store == "media-library" }.path
@@ -133,6 +138,12 @@ class PortableArchiveValidationTest {
             badMark("unsupported appearance", 0, 9, 5)
             badMark("negative order", 0, 10, -1)
             badMark("duplicate overlay ID", 0, 0, "pdf")
+            mutate("non-Sunday week") {
+                changeRecords { getJSONObject("tables").getJSONArray("week_blocks").getJSONArray(0).put(0, "2026-11-09") }
+            }
+            mutate("missing weekly Block") {
+                changeRecords { getJSONObject("tables").getJSONArray("week_blocks").getJSONArray(0).put(1, "missing") }
+            }
             mutate("unsupported records version") { changeRecords { put("version", 100) } }
             mutate("missing required overlay records") { changeRecords { getJSONObject("tables").remove("practice_overlays") } }
             mutate("too many overlays on one page") {
@@ -183,11 +194,15 @@ class PortableArchiveValidationTest {
             }
 
             // Downgrade the wire records and recompute the digest and inventory for each prior format.
-            val v2Target = BlockDatabase.open(context, "$name-v2.db")
-            try {
-                for (version in listOf(1, 2)) {
-                    val excluded = listOf("block_primary_goals", "placement_goal_snapshots") +
-                        if (version == 1) listOf("practice_overlays") else emptyList()
+            for (version in 1..PORTABLE_VERSION) {
+                val excluded = buildList {
+                    if (version < 4) add("week_blocks")
+                    if (version < 3) addAll(listOf("block_primary_goals", "placement_goal_snapshots"))
+                    if (version < 2) add("practice_overlays")
+                }
+                val dbName = "$name-v$version.db"
+                val destination = if (version == 1) target else BlockDatabase.open(context, dbName)
+                try {
                     val prior = entries.toMutableMap().apply {
                         changeRecords {
                             if (version == 1) remove("version") else put("version", version)
@@ -196,25 +211,29 @@ class PortableArchiveValidationTest {
                         }
                         changeManifest {
                             put("version", version)
-                            put("roomSchema", if (version == 1) 17 else 18)
+                            put("roomSchema", 16 + version)
                             val counts = getJSONObject("counts")
                             excluded.forEach { counts.remove(it) }
                         }
                     }
                     val archive = File(root, "compatible-v$version.zip")
                     write(archive, prior)
-                    val destination = if (version == 1) target else v2Target
-                    val files = if (version == 1) targetFiles else File(root, "v2-target").apply { mkdir() }
+                    val files = if (version == 1) targetFiles else File(root, "v$version-target").apply { mkdir() }
                     val reader = PortableRestore(context, destination, files)
                     reader.restore(reader.stage(archive::inputStream))
                     assertEquals(data, BackupRepository(destination).snapshot())
                     assertEquals(if (version == 1) 0 else 2, destination.overlays().count())
-                    assertNull(destination.goalAttribution().primaryGoalId("block"))
-                    assertNull(destination.goalAttribution().snapshot(data.placements.single().id))
+                    assertEquals(goal.takeIf { version >= 3 }, destination.goalAttribution().primaryGoalId("block"))
+                    assertEquals(source.goalAttribution().snapshot(data.placements.single().id).takeIf { version >= 3 },
+                        destination.goalAttribution().snapshot(data.placements.single().id))
+                    assertEquals(source.weekPlan().read(week.toString()).takeIf { version >= 4 }.orEmpty(),
+                        destination.weekPlan().read(week.toString()))
+                } finally {
+                    if (version != 1) {
+                        destination.close()
+                        context.deleteDatabase(dbName)
+                    }
                 }
-            } finally {
-                v2Target.close()
-                context.deleteDatabase("$name-v2.db")
             }
             assertEquals(original, target.media().find(original.id))
             assertEquals(legacy, target.images().find("old"))

@@ -188,6 +188,14 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         }
     }
     fun addBlock(id: String) = operation { repository.addBlock(id) }
+    fun addWeekBlocks(ids: List<String>) = operation {
+        repository.addBlocks(ids)
+        destination = "builder"
+    }
+    fun startWeekBlock(id: String) = operation {
+        check(!running && !clicking)
+        selectSession(repository.startBlock(id))
+    }
     fun move(id: String, direction: Int) = operation { repository.move(id, direction) }
     fun remove(id: String) = operation { repository.remove(id) }
     fun duration(id: String, minutes: String) = operation {

@@ -96,7 +96,7 @@ class StandaloneTranscribeTest {
             block to routine
         }
         openHomePractice(compose)
-        compose.onNodeWithText("Continue Session").assertDoesNotExist()
+        compose.onNodeWithText("In Progress").assertDoesNotExist()
         click("Add Blocks")
         click("Add T3A fixture")
         shown("1. T3A fixture")
@@ -113,7 +113,7 @@ class StandaloneTranscribeTest {
         tag("practice-timer").assertTextEquals("3:00")
         leavePracticeForLater(compose)
         openHomePractice(compose)
-        shown("Continue Session")
+        shown("In Progress")
         continueFirstSession(compose)
         tag("practice-timer").assertTextEquals("3:00")
         leavePracticeForLater(compose)
