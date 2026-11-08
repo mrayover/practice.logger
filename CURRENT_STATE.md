@@ -2,7 +2,17 @@
 
 Updated November 8, 2026 (America/Los_Angeles).
 
-## Signed compact metronome update
+## Signed metronome scaling fix
+
+**0.34.3/build103**, app source `a22a52a34b445996031002685e5acfbea7e68b96`. Install over build101 or build102. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P1 delivery → Compact metronome → Build 103**, named `practice.logger-0.34.3-b103-a22a52a`.
+
+The owner's S26 Ultra showed +1 alone on a second line in build101. The intermediate build102 reclaimed 28dp from gutters and the scrollbar, but still wrapped at 130% on Android 15. Build103 measures a more compact Start/Stop click button when that lets all six controls fit, retaining the 48dp touch targets and wrapping at narrower layouts. Local release and instrumentation compilation, permanent-key signature, ZIP integrity and OneDrive copy hashes verified. [Build101 reproduction](https://github.com/mrayover/practice.logger/actions/runs/42526714122) · [Intermediate build102 check](https://github.com/mrayover/practice.logger/actions/runs/42526719175)
+
+- APK SHA-256 `f566125c52feb074407bed7dcc757a495ad5187e28a5768d803d88952fa5a3e7`.
+- ZIP SHA-256 `eab97e5fb393f2cd94ed25a1044a25cab14f1ab0950807ebd245a45d8692f169`.
+- Android 15 at 130% text passed with all six controls on one row in order, without overlap and with 48dp touch targets. Physical S26 Ultra confirmation is pending. [Build103 check](https://github.com/mrayover/practice.logger/actions/runs/42527201294)
+
+## Retained compact metronome update
 
 **0.34.1/build101**, app source `b7b1417a328ce22851f28d18efda0efd8a298a47`. Install over build100. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P1 delivery → Compact metronome** under the name `practice.logger-0.34.1-b101-b7b1417`.
 
@@ -33,7 +43,7 @@ Version **0.34.0/build100** adds Ready, Prep and Up Next to the shared Block pra
 
 Verification was scoped to P1. Native test follow-ups through `ab06778` leave the signed app source unchanged. Physical-phone install-over and acceptance remain pending.
 
-**Next task** is to install build101 over build100 on the S26 Ultra and run the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check).
+**Next task** is to install build103 on the S26 Ultra and run the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check).
 
 ## Retained signed G2 delivery
 

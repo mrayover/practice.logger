@@ -262,7 +262,7 @@ Use the signed compatibility candidate linked in [CURRENT_STATE](CURRENT_STATE.m
 
 ## Compact metronome phone check
 
-Install build101 over build100 on the Samsung S26 Ultra. Open a Block at your usual font and display sizes. Check that Metronome/BPM, Accent, expand, Start click, −1 and +1 share one row above Free Recording. Start and stop the click, adjust BPM, and open and close the metronome settings. At enlarged text, check that the controls can wrap and remain reachable.
+Install build103 over build101 or build102 on the Samsung S26 Ultra. Open a Block at your usual font and display sizes. Check that Metronome/BPM, Accent, expand, Start click, −1 and +1 share one row above Free Recording. Start and stop the click, adjust BPM, and open and close the metronome settings. At enlarged text, check that the controls can wrap and remain reachable.
 
 ## P1 Intentional Practice Lifecycle phone checks
 

@@ -224,7 +224,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 The shared Block practice screen gates entry and advancement with Start or Prep. Existing placements reopen Ready and active practice resumes only by explicit action. Prep retains the existing workspace, audio ownership and note/recording safeguards. Room 21 adds placement preparation time. Complete ZIP v5 preserves it and reads v1–v4. Session and Goal totals use active practice only. [Current verification and delivery](CURRENT_STATE.md)
 
-Build101 fits the Focused Practice metronome controls on one row when space permits, with Start/Stop click before the BPM steps. Controls wrap with narrow widths or enlarged text. [Delivery and verification](CURRENT_STATE.md)
+Build103 gives the Focused Practice metronome row more room and uses a measured compact Start/Stop click button when it allows one row at enlarged text. Controls wrap with narrow widths or enlarged text. [Delivery and verification](CURRENT_STATE.md)
 
 ## Next action
 

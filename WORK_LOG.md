@@ -1097,3 +1097,7 @@ Reviewed the mandatory efficiency procedure and the live build99 baseline. Local
 ## 2026-11-08 — Compact Focused Practice metronome
 
 Reviewed the mandatory efficiency procedure and verified the build100 baseline on main. Matched the owner's S26 Ultra mockup by placing click Start/Stop before the tempo steps and allowing each metronome control to wrap independently. Build101 compiled locally and passed two targeted Android 15 layout checks at standard width and 320dp/200% text. Reviewed both screenshots. Signed with the existing key from b7b1417 and verified the APK and ZIP in the OneDrive Compact metronome folder. S26 Ultra install-over and layout confirmation remain pending. See CURRENT_STATE.md for artifact hashes and test links.
+
+## 2026-11-08 — Focused Practice metronome scaling correction
+
+The owner reported +1 wrapping on the S26 Ultra after installing build101. Reproduced at 130% on Android 15. Build102 reclaimed 28dp and still wrapped at 130%. Build103 adds a measured compact click label and insets when they let the controls fit, retaining 48dp targets. Local release and instrumentation compilation passed after capturing the enclosing width before entering the scroll panel. The focused 130% check passed. Signed build103 and verified OneDrive copies are recorded in CURRENT_STATE.md. Physical S26 Ultra confirmation is next.
