@@ -439,7 +439,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         }
         if (!transcribing && !editingInShortPanel) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight),
             state = transportScroll, tag = "practice-transport", reserveScrollbarSpace = false) {
-            PracticeMetronome(vm, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
+            PracticeMetronome(vm, availableWidth = maxWidth, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
                 onExpand = { transportPanel = if (transportPanel == "metronome") null else "metronome" },
                 onEditingChanged = { open -> bpmDialog = open; if (open) transportPanel = null })
             Column(Modifier.padding(start = 16.dp, end = 28.dp)) {
@@ -547,7 +547,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun PracticeMetronome(vm: PracticeViewModel, expanded: Boolean, blocked: Boolean, onExpand: () -> Unit, onEditingChanged: (Boolean) -> Unit = {}) {
+@Composable private fun PracticeMetronome(vm: PracticeViewModel, availableWidth: Dp, expanded: Boolean, blocked: Boolean, onExpand: () -> Unit, onEditingChanged: (Boolean) -> Unit = {}) {
     var editing by rememberSaveable { mutableStateOf(false) }
     var entered by rememberSaveable { mutableStateOf("") }
     val infoStyle = MaterialTheme.typography.labelSmall
@@ -563,10 +563,18 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
     } + 4.dp
     val accentWidth = with(density) { measurer.measure("Accent", infoStyle).size.width.toDp() } + 28.dp
     val stepWidth = maxOf(48.dp, with(density) { measurer.measure("−1", actionStyle).size.width.toDp() } + 8.dp)
-    val clickWidth = maxOf(72.dp, with(density) {
-        maxOf(measurer.measure("Start click", actionStyle).size.width, measurer.measure("Stop click", actionStyle).size.width).toDp()
-    } + 14.dp)
-    FlowRow(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp).testTag("practice-metronome-row"),
+    fun clickWidth(style: androidx.compose.ui.text.TextStyle, horizontalPadding: Dp) = maxOf(72.dp, with(density) {
+        maxOf(measurer.measure("Start click", style).size.width, measurer.measure("Stop click", style).size.width).toDp()
+    } + horizontalPadding * 2 + 2.dp)
+    val compactStyle = MaterialTheme.typography.labelMedium
+    val standardClickWidth = clickWidth(actionStyle, 6.dp)
+    val compactClickWidth = clickWidth(compactStyle, 3.dp)
+    val otherControlsWidth = infoWidth + accentWidth + 48.dp + stepWidth * 2
+    // Compact only when it can preserve the row without reducing any touch target.
+    val compactClick = otherControlsWidth + standardClickWidth + 16.dp > availableWidth &&
+        otherControlsWidth + compactClickWidth + 14.dp <= availableWidth
+    FlowRow(Modifier.fillMaxWidth().padding(start = if (compactClick) 8.dp else 12.dp, end = 4.dp)
+        .testTag("practice-metronome-row"),
         horizontalArrangement = Arrangement.SpaceBetween,
         itemVerticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.widthIn(min = infoWidth).heightIn(min = 48.dp)
@@ -604,9 +612,11 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         }
         OutlinedButton(onClick = { if (vm.clicking) vm.stopClick() else vm.startClick() }, enabled = !vm.busy && !blocked,
             colors = metronomeButtonColors(vm.metronomePulse, vm.clicking, outlined = true),
-            contentPadding = PaddingValues(horizontal = 6.dp), modifier = Modifier.width(clickWidth).heightIn(min = 48.dp)
+            contentPadding = PaddingValues(horizontal = if (compactClick) 3.dp else 6.dp),
+            modifier = Modifier.width(if (compactClick) compactClickWidth else standardClickWidth).heightIn(min = 48.dp)
                 .metronomeBeat(vm.metronomePulse, vm.clicking, "practice-metronome-pulse")) {
-            Text(clickLabel, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            Text(clickLabel, Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                style = if (compactClick) compactStyle else actionStyle)
         }
         TextButton(onClick = { vm.changeWorkingBpm((vm.workingBpm - 1).coerceAtLeast(30)) }, enabled = vm.workingBpm > 30 && !vm.busy,
             contentPadding = PaddingValues(0.dp), modifier = Modifier.width(stepWidth).heightIn(min = 48.dp)
