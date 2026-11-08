@@ -165,6 +165,9 @@ class WeekPlanTest {
             val legacy = JSONObject(original).put("version", 3)
             legacy.getJSONObject("tables").apply {
                 remove("week_blocks")
+                remove("block_completions")
+                remove("block_reflections")
+                remove("session_reflections")
                 getJSONArray("placements").getJSONArray(0).remove(14)
             }
             val badPrep = JSONObject(original)

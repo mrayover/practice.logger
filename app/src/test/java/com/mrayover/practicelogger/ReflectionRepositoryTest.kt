@@ -2,6 +2,7 @@ package com.mrayover.practicelogger
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -9,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -18,6 +20,8 @@ class ReflectionRepositoryTest {
         val name = "block-reflection-test.db"
         context.deleteDatabase(name)
         var db = BlockDatabase.open(context, name)
+        val zipDirectory = File(context.cacheDir, name).apply { check(mkdir()) }
+        val restored = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
         val legacy = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
         try {
             val goals = GoalRepository(db)
@@ -77,6 +81,13 @@ class ReflectionRepositoryTest {
             assertEquals("Session note", reopened.session.note)
             assertTrue(runCatching { repo.finishBlock(id, "COMPLETED", "", placementId = skipped.id) }.isFailure)
 
+            val archive = File(zipDirectory, "practice.zip")
+            val zip = PortableZip(context, db, zipDirectory)
+            zip.create(archive)
+            val verified = zip.verify(archive)
+            restored.withTransaction { verified.records.insertInto(restored.openHelper.writableDatabase) }
+            assertEquals(reopened, restored.sessions().find(id))
+
             val json = BackupCodec.encode(BackupRepository(db).snapshot())
             BackupRepository(legacy).restore(BackupCodec.decode(json))
             val oldHistory = legacy.sessions().find(id)!!
@@ -87,6 +98,8 @@ class ReflectionRepositoryTest {
         } finally {
             db.close()
             legacy.close()
+            restored.close()
+            zipDirectory.deleteRecursively()
             context.deleteDatabase(name)
         }
     }
