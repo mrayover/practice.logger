@@ -293,6 +293,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
     fun requestLeave() { requestPracticeAction("leave") }
     BackHandler { requestLeave() }
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
+    val practiceWidth = maxWidth
     val transcribing = transportPanel == "transcribe"
     val wideTranscribe = transcribing && maxWidth >= 560.dp && maxWidth > maxHeight
     val panelOpen = transportPanel != null || (recordings.reviewTake != null && !reviewCollapsed)
@@ -439,7 +440,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         }
         if (!transcribing && !editingInShortPanel) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight),
             state = transportScroll, tag = "practice-transport", reserveScrollbarSpace = false) {
-            PracticeMetronome(vm, availableWidth = maxWidth, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
+            PracticeMetronome(vm, availableWidth = practiceWidth, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
                 onExpand = { transportPanel = if (transportPanel == "metronome") null else "metronome" },
                 onEditingChanged = { open -> bpmDialog = open; if (open) transportPanel = null })
             Column(Modifier.padding(start = 16.dp, end = 28.dp)) {
