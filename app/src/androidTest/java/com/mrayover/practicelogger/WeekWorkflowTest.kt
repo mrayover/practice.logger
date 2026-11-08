@@ -30,6 +30,7 @@ class WeekWorkflowTest : WeekUiChecks() {
         shown("No Blocks assigned to this week.")
         click("Prepare Week", inList = "week-list")
         click("Add Weekly scales", inList = "week-list")
+        shown("Remove Weekly scales from week")
         click("Create a new Block", inList = "week-list")
         compose.onNodeWithText("Name").scrollIfNeeded().performTextInput("Weekly chords")
         compose.onNodeWithText("Action").scrollIfNeeded().performTextInput("Change cleanly")
@@ -44,6 +45,7 @@ class WeekWorkflowTest : WeekUiChecks() {
         click("Next week", inList = "week-list")
         click("Prepare Week", inList = "week-list")
         click("Carry forward", inList = "week-list")
+        waitForTag("carry-week-$previous")
         compose.onNodeWithTag("carry-week-$previous").performClick()
         click("Remove Weekly scales from week", inList = "week-list")
         click("Add Weekly scales", inList = "week-list")
@@ -111,11 +113,20 @@ abstract class WeekUiChecks {
     }
     protected fun click(label: String, inList: String? = null) {
         if (inList != null) {
+            waitForTag(inList)
             compose.onNodeWithTag(inList).performScrollToNode(hasText(label))
+            compose.waitUntil(15_000) {
+                compose.onAllNodes(hasText(label) and isEnabled()).fetchSemanticsNodes().isNotEmpty()
+            }
             compose.onNodeWithText(label).assertIsDisplayed().performClick()
         } else {
             shown(label)
             compose.onNodeWithText(label).scrollIfNeeded().performClick()
+        }
+    }
+    protected fun waitForTag(tag: String) {
+        compose.waitUntil(15_000) {
+            compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
         }
     }
     protected fun clickTag(tag: String) {

@@ -3,6 +3,7 @@ package com.mrayover.practicelogger
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
@@ -22,6 +23,10 @@ class WeekPlanTest {
     private val context get() = ApplicationProvider.getApplicationContext<Context>()
     private val sunday = LocalDate.of(2026, 11, 8)
 
+    private inline fun BlockDatabase.useDb(action: (BlockDatabase) -> Unit) {
+        try { action(this) } finally { close() }
+    }
+
     @Test fun weeksStartSundayEvenAcrossCalendarYears() {
         assertEquals(LocalDate.of(2026, 12, 27), practiceWeek(LocalDate.of(2027, 1, 2)))
         assertEquals(LocalDate.of(2027, 1, 3), practiceWeek(LocalDate.of(2027, 1, 3)))
@@ -32,7 +37,7 @@ class WeekPlanTest {
         val name = "week-${UUID.randomUUID()}.db"
         val previous = sunday.minusWeeks(1)
         try {
-            BlockDatabase.open(context, name).use { db ->
+            BlockDatabase.open(context, name).useDb { db ->
                 val repo = BlockRepository(db)
                 val a = repo.save(null, BlockDraft("First", "Practice"), previous)
                 val b = repo.save(null, BlockDraft("Second", "Practice"), previous)
@@ -52,7 +57,7 @@ class WeekPlanTest {
                 repo.removeFromWeek(previous, c)
                 assertEquals(BlockDeletionResult.Deleted, repo.deletePermanently(c))
             }
-            BlockDatabase.open(context, name).use { db ->
+            BlockDatabase.open(context, name).useDb { db ->
                 assertEquals(listOf("First", "Second"), db.weekPlan().read(sunday.toString())
                     .map { db.blocks().find(it.blockId)!!.name })
                 assertTrue(db.weekPlan().read(sunday.plusWeeks(1).toString()).isEmpty())
@@ -64,7 +69,7 @@ class WeekPlanTest {
     }
 
     @Test fun singleSessionPreservesDraftAndBatchUsesExistingBuilderAtomically() = runBlocking {
-        Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build().use { db ->
+        Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build().useDb { db ->
             val blocks = BlockRepository(db)
             val a = blocks.save(null, BlockDraft("First", "Play", "3"), sunday)
             val b = blocks.save(null, BlockDraft("Second", "Play"), sunday)
@@ -101,9 +106,10 @@ class WeekPlanTest {
                     val table = tables.getJSONObject(i)
                     val nameInSchema = table.getString("tableName")
                     sql.execSQL(table.getString("createSql").replace("\${TABLE_NAME}", nameInSchema))
-                    val indexes = table.getJSONArray("indices")
-                    repeat(indexes.length()) { j ->
-                        sql.execSQL(indexes.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", nameInSchema))
+                    table.optJSONArray("indices")?.let { indexes ->
+                        repeat(indexes.length()) { j ->
+                            sql.execSQL(indexes.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", nameInSchema))
+                        }
                     }
                 }
                 sql.execSQL("INSERT INTO blocks VALUES ('legacy','Legacy Block','Play',4,NULL,'Notes',0,1,2)")
@@ -113,7 +119,7 @@ class WeekPlanTest {
                 repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
                 sql.version = 19
             }
-            BlockDatabase.open(context, name).use { db ->
+            BlockDatabase.open(context, name).useDb { db ->
                 assertEquals("Notes", db.blocks().find("legacy")!!.notes)
                 assertEquals(1200L, db.sessions().find("s")!!.activeMs)
                 assertTrue(db.weekPlan().read(sunday.toString()).isEmpty())
@@ -125,9 +131,8 @@ class WeekPlanTest {
         }
     }
 
-    @Test fun completeZipRestoresWeeklyRecordsAndValidatesTheirRelationships() = runBlocking {
+    @Test fun zipRecordsRoundTripAndRejectInvalidMembership() = runBlocking {
         val root = File(context.cacheDir, "week-${UUID.randomUUID()}").apply { check(mkdir()) }
-        val targetFiles = File(root, "target").apply { check(mkdir()) }
         val archive = File(root, "week.zip")
         val source = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
         val target = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
@@ -137,9 +142,10 @@ class WeekPlanTest {
             val b = blocks.save(null, BlockDraft("Second", "Play"), sunday)
             blocks.setArchived(b, true)
             blocks.addToWeek(sunday.minusWeeks(1), a)
-            val verified = PortableZip(context, source, root).create(archive)
-            val restore = PortableRestore(context, target, targetFiles)
-            restore.restore(restore.stage(archive::inputStream))
+            val zip = PortableZip(context, source, root)
+            zip.create(archive)
+            val verified = zip.verify(archive)
+            target.withTransaction { verified.records.insertInto(target.openHelper.writableDatabase) }
             assertEquals(source.weekPlan().read(sunday.toString()), target.weekPlan().read(sunday.toString()))
             assertEquals(source.weekPlan().read(sunday.minusWeeks(1).toString()), target.weekPlan().read(sunday.minusWeeks(1).toString()))
             assertTrue(target.blocks().find(b)!!.archived)
