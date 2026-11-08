@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle is delivered ahead of G3. G3 awaits a separate owner assignment. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. G3 awaits a separate owner assignment. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -61,10 +61,11 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **W1** | This Week practice workspace | Owner-prioritized after G1 and before G2. Focused Room, backup and Android workflow checks. | **Medium** |
 | **G2** | Shared Goal Filtering | Delivered after W1. Shared filter with search and archived eligibility across four Block-selection contexts. | **Medium** |
 | **P1 Intentional Practice Lifecycle** | Ready, Prep and deliberate Block transitions | After G2 and before G3. Signed candidate and focused lifecycle checks. | **High** |
-| **G3** | Accurate time attribution and concise statistics | After P1 Intentional Practice Lifecycle. Historical snapshots, legacy Goal sessions and distinct committed totals. | **High** |
+| **P2 Block and Session Reflection** | Optional check-ins and immutable completion Goal snapshots | After P1 and before G3. Signed candidate and focused lifecycle, storage and ZIP checks. | **High** |
+| **G3** | Accurate time attribution and concise statistics | After P2 Block and Session Reflection. Historical snapshots, legacy Goal sessions and distinct committed totals. | **High** |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
-**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
+**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → P2 Block and Session Reflection → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
 
 ### What is already implemented — do not rebuild it
 
@@ -388,6 +389,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] W1 This Week workspace, preparation, session entry and complete ZIP support. See [CURRENT_STATE](CURRENT_STATE.md) for verification and delivery.
 - [x] G2 Goal filter and text search in Manage Blocks, Session Builder, saved Routine editor, and Prepare Week.
 - [x] P1 Intentional Practice Lifecycle delivered with scoped verification. See [current verification and delivery](CURRENT_STATE.md).
+- [x] P2 Block and Session Reflection implemented. See [current delivery and verification](CURRENT_STATE.md).
 - [ ] G3 actual time statistics and historically accurate, nonduplicated Goal attribution; no fake progress.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
 - [ ] F2 permanent-key V1 release candidate, real-device acceptance and truthful final documentation.
@@ -396,15 +398,19 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 
 Every Block opens a Ready gate with its name, session position and planned duration. Start Block begins the shared measured timer. Prep Block opens the existing workspace with tools, playback, references and recording. Start Practice switches from prep to measured time. Reopening a partly practiced placement offers Resume Block. A recovered placement at zero still requires an explicit Continue for overtime.
 
-Complete and Skip open Up Next with Start Next Block and Prep Next Block when more placements remain. The final placement opens Session Summary. Foreground monotonic prep checkpoints accrue separately from practice and Goal totals. Room 21 adds per-placement `prepMs` and complete ZIP v5 preserves it.
+P1 introduced Up Next with Start Next Block and Prep Next Block, and opens Session Summary after the final placement. Foreground monotonic prep checkpoints accrue separately from practice and Goal totals. Room 21 introduced per-placement `prepMs`, preserved since complete ZIP v5.
+
+## P2 Block and Session Reflection
+
+Complete saves the placement outcome and a placement-keyed completion snapshot before offering an optional security rating of 1–5 and four additional prompts. Skip on that screen advances without a review. Skipping practice itself keeps the skipped outcome and bypasses Block reflection. Up Next still handles deliberate advancement. The final placement commits the session and offers optional session prompts and the existing session note before Session Summary.
+
+Room 22 stores completion identity, timestamp, the Block's primary Goal at completion, and the active priority and color when applicable. First-positive-time Goal attribution stays separate. Completion facts and optional reviews use separate records. Complete ZIP v6 preserves both. Older archives restore without invented completions or answers. This phase supplies historical facts for future earned Blocks.
 
 ## Deferred Practice Insights
 
-Sequence subsequent check-ins, scheduling, suggestions and statistics within existing Goals and Statistics work as separately assigned.
-- **Block check-ins.** Ask the optional question “How secure did that feel?” on a 1–5 scale. More offers optional focus feedback and notes. Skip is always available, completion and advance remain available, and ratings are stored per practice event to preserve history.
+Schedule revisits, suggestions, Playground rewards and statistics only under separate owner assignments.
 - **Flags and revisits.** A Block can be flagged Return Soon from review or the Block interface. The flag persists until explicitly cleared. Log flag changes as historical events. An optional Revisit in selector offers intervals such as 1, 2, 3, 4, 5, 7, 14 and 30 days. A deterministic rule can recommend an interval from security ratings and later revisit history. Users can override it. Store the due date, recommendation and chosen interval. Treat scheduled revisits as suggestions.
 - **Suggested Blocks.** In Block selection, prioritize manual Return Soon flags, then consider due revisits, security trends, time since last practice and underattended active Goals. Show an understandable reason for each suggestion. Rules stay local, transparent, deterministic and configurable where appropriate. AI coaching and LLM integration are outside scope.
-- **Session reflection.** After the final Block, offer up to five individually skippable prompts and a free-form note. Possible topics are productivity, focus, progress, challenge and energy. Store reflections separately from Block check-ins. Integrate with history and Journal without duplicating or automatically merging unrelated entries.
 - **Statistics and insights.** Derive duration, frequency, Goal time, practice types, tags where available, per-Block activity, intentional prep, meaningful tool use, confidence trends, revisit effectiveness and weekly or longer patterns from shared persisted activity records. Preserve historical Goal attribution across reassignment and count each practice or preparation interval once in its own category. A dismissible weekly invitation can offer factual summaries and a writing prompt entirely offline.
 - **Teacher integration.** A later, non-V1 extension could let teachers assign Blocks and work, set their own revisit thresholds and rules, and review appropriate history and reflections. Multi-user infrastructure, sync and permissions are outside this handoff.
 

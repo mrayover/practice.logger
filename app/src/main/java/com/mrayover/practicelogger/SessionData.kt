@@ -39,7 +39,10 @@ data class Placement(
 
 data class SessionBundle(
     @Embedded val session: PracticeSession,
-    @Relation(parentColumn = "id", entityColumn = "sessionId") val placements: List<Placement>
+    @Relation(parentColumn = "id", entityColumn = "sessionId") val placements: List<Placement>,
+    @Relation(parentColumn = "id", entityColumn = "sessionId", entity = BlockCompletion::class)
+    val completions: List<CompletedPlacement> = emptyList(),
+    @Relation(parentColumn = "id", entityColumn = "sessionId") val reflection: SessionReflection? = null
 ) {
     val ordered: List<Placement> get() = placements.sortedBy { it.position }
     val current: Placement? get() = ordered.getOrNull(session.currentIndex)
@@ -59,6 +62,9 @@ data class SessionBundle(
     @Update suspend fun update(session: PracticeSession)
     @Insert suspend fun insert(placement: Placement)
     @Update suspend fun update(placement: Placement)
+    @Insert suspend fun insert(completion: BlockCompletion)
+    @Upsert suspend fun save(reflection: BlockReflection)
+    @Upsert suspend fun save(reflection: SessionReflection)
     @Query("DELETE FROM placements WHERE id = :id") suspend fun removePlacement(id: String)
     @Query("DELETE FROM sessions WHERE id = :id AND status = 'DRAFT'") suspend fun discardDraft(id: String)
 }
@@ -216,14 +222,24 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         check(current.activeMs >= current.configuredMs)
         dao.update(current.copy(overtimeAccepted = true))
     }
-    suspend fun finishBlock(id: String, outcome: String, note: String, preserveNote: Boolean = false): Boolean = db.withTransaction {
+    suspend fun finishBlock(id: String, outcome: String, note: String, preserveNote: Boolean = false, placementId: String): Boolean = db.withTransaction {
         require(outcome == "COMPLETED" || outcome == "SKIPPED")
         val bundle = active(id)
         val current = checkNotNull(bundle.current)
-        check(current.outcome == "PENDING")
+        check(current.id == placementId && current.outcome == "PENDING")
+        val completedAt = now()
+        if (outcome == "COMPLETED") {
+            val goalId = db.goalAttribution().primaryGoalId(current.sourceBlockId)
+            val priority = goalId?.let { goal ->
+                (activeGoals(db.goals().readAll()).indexOfFirst { it.goal.id == goal } + 1)
+                    .takeIf { it in 1..5 }
+            }
+            dao.insert(BlockCompletion(current.id, id, current.sourceBlockId, completedAt, goalId,
+                priority, goalCompletionColor(priority)))
+        }
         dao.update(current.copy(outcome = outcome, note = if (preserveNote) current.note else note.trim()))
         val finished = bundle.session.currentIndex + 1 == bundle.placements.size
-        dao.update(if (finished) bundle.session.copy(status = "COMPLETED", endedAt = now()) else bundle.session.copy(currentIndex = bundle.session.currentIndex + 1))
+        dao.update(if (finished) bundle.session.copy(status = "COMPLETED", endedAt = completedAt) else bundle.session.copy(currentIndex = bundle.session.currentIndex + 1))
         finished
     }
     suspend fun saveBlockNote(id: String, placementId: String, note: String) = db.withTransaction {
@@ -239,6 +255,22 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         check(current.id == placementId && current.outcome == "PENDING")
         dao.update(current.copy(lastUsedBpm = bpm))
     }
+    suspend fun saveBlockReflection(review: BlockReflection) {
+        require(review.security == null || review.security in 1..5)
+        require(listOf(review.focus, review.difficulty, review.progress, review.revisit)
+            .all { it.length <= REFLECTION_ANSWER_LIMIT })
+        if (review.hasAnswers) dao.save(review)
+    }
+
+    suspend fun saveSessionReflection(review: SessionReflection, note: String) = db.withTransaction {
+        require(listOf(review.experience, review.focus, review.progress, review.difficulty, review.energy)
+            .all { it.length <= REFLECTION_ANSWER_LIMIT })
+        val session = checkNotNull(dao.find(review.sessionId)).session
+        check(session.status == "COMPLETED")
+        if (review.hasAnswers) dao.save(review)
+        if (note.isNotBlank()) dao.update(session.copy(note = note.trim()))
+    }
+
     suspend fun saveSessionNote(id: String, note: String) = db.withTransaction {
         val bundle = checkNotNull(dao.find(id))
         check(bundle.session.status == "COMPLETED")

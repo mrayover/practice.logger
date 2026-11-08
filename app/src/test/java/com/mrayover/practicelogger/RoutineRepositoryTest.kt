@@ -83,7 +83,7 @@ class RoutineRepositoryTest {
             assertTrue(two.placements.all { it.activeMs == 0L && it.note.isEmpty() && it.lastUsedBpm == null && it.outcome == "PENDING" })
             sessions.checkpoint(first, 1234); sessions.saveUsedBpm(first, one.current!!.id, 126)
             sessions.saveBlockNote(first, one.current!!.id, "Session only")
-            sessions.finishBlock(first, "COMPLETED", "Session only"); sessions.finishBlock(first, "SKIPPED", "")
+            sessions.finishBlock(first, "COMPLETED", "Session only", placementId = db.sessions().find(first)!!.current!!.id); sessions.finishBlock(first, "SKIPPED", "", placementId = db.sessions().find(first)!!.current!!.id)
             assertEquals(template, db.routines().find(id)); assertEquals(draft, db.sessions().find(draft.session.id))
             assertEquals(0L, db.sessions().find(second)!!.activeMs)
             val history = db.sessions().find(first)!!

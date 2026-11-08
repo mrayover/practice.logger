@@ -62,7 +62,7 @@ class GoalRepositoryTest {
             assertEquals(1, db.sessions().find(second)!!.placements.size)
             assertEquals(180_000L, db.sessions().find(second)!!.current!!.configuredMs)
             assertEquals("Current", db.sessions().find(second)!!.current!!.name)
-            sessions.finishBlock(first, "SKIPPED", "Keep this")
+            sessions.finishBlock(first, "SKIPPED", "Keep this", placementId = db.sessions().find(first)!!.current!!.id)
             val totals = db.goals().observeTime().first().associate { it.goalId to it.activeMs }
             assertEquals(3234L, totals[a]); assertEquals(3000L, totals[other])
             assertEquals(23, db.goals().find(a)!!.goal.progress)
@@ -82,7 +82,7 @@ class GoalRepositoryTest {
         try {
             val b = block(db); val g = goal(db); GoalRepository(db).setBlocks(g, listOf(b))
             val sessions = SessionRepository(db); val id = sessions.startGoal(g)
-            sessions.checkpoint(id, 4321); sessions.finishBlock(id, "COMPLETED", "Historical note")
+            sessions.checkpoint(id, 4321); sessions.finishBlock(id, "COMPLETED", "Historical note", placementId = db.sessions().find(id)!!.current!!.id)
             sessions.startGoal(g)
             val data = BackupRepository(db).snapshot(); val bytes = BackupCodec.encode(data)
             assertEquals(7, JSONObject(String(bytes)).getInt("version"))

@@ -64,7 +64,7 @@ class GoalAttributionTest {
             assertEquals(a, live(alsoA)!!.goal.id)
             sessions.checkpoint(ordinary, 2000)
             assertEquals(original, snapshot(ordinary))
-            sessions.finishBlock(ordinary, "SKIPPED", "Keep time")
+            sessions.finishBlock(ordinary, "SKIPPED", "Keep time", placementId = db.sessions().find(ordinary)!!.current!!.id)
             sessions.checkpoint(ordinary, 1000)
             val absent = snapshot(ordinary, 1)!!
             assertNull(absent.goalId)
@@ -85,7 +85,7 @@ class GoalAttributionTest {
             blocks.setArchived(block, false)
 
             val goalSession = sessions.startGoal(a)
-            sessions.finishBlock(goalSession, "SKIPPED", "")
+            sessions.finishBlock(goalSession, "SKIPPED", "", placementId = db.sessions().find(goalSession)!!.current!!.id)
             assertNull(snapshot(goalSession))
             sessions.checkpoint(goalSession, 4000)
             assertEquals(c, snapshot(goalSession, 1)!!.goalId)

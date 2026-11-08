@@ -57,3 +57,18 @@ fun resetPracticeReferenceZoom(compose: AndroidComposeTestRule<*, MainActivity>)
     compose.runOnIdle { org.junit.Assert.assertTrue("Reset zoom accessibility action must succeed", action.action()) }
     compose.waitForIdle()
 }
+
+internal fun skipBlockReflection(compose: AndroidComposeTestRule<*, MainActivity>) {
+    skipOptionalReflection(compose, "How secure did that feel?", "Skip")
+}
+
+internal fun skipSessionReflection(compose: AndroidComposeTestRule<*, MainActivity>) {
+    skipOptionalReflection(compose, "Session Reflection", "Skip Reflection")
+}
+
+private fun skipOptionalReflection(compose: AndroidComposeTestRule<*, MainActivity>, title: String, action: String) {
+    compose.waitUntil(15000) {
+        compose.onAllNodesWithText(title).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+    }
+    compose.onNodeWithText(action).scrollIfNeeded().assertIsDisplayed().performClick()
+}

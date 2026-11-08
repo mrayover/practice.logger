@@ -39,7 +39,7 @@ Practice Now offers saved unfinished sessions, the existing Add Blocks builder, 
 
 The November 3 Media Library roadmap amendment established the dependency chain through T2. The November 4 owner handoff splits the remaining T3 work.
 
-Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → G3 → F1 → F2**.
+Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → P2 Block and Session Reflection → G3 → F1 → F2**.
 
 T2 is delivered in signed build86. T3-0 is a documentation checkpoint. The owner assigned **T3A — Standalone Transcribe Workspace** on November 4, 2026. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A–T3D, their checks and their dependencies. S2 includes standalone activity history, Goal associations, canonical microphone references, and global and local annotations alongside its approved recovery scope.
 
@@ -226,9 +226,13 @@ The shared Block practice screen gates entry and advancement with Start or Prep.
 
 Build103 gives the Focused Practice metronome row more room and uses a measured compact Start/Stop click button when it allows one row at enlarged text. Controls wrap with narrow widths or enlarged text. [Delivery and verification](CURRENT_STATE.md)
 
+## P2 Block and Session Reflection — build104
+
+Completion commits the outcome and its immutable Goal snapshot before a skippable Block review. The final placement commits the session before optional prompts and the existing session note. Session Summary displays saved reflections. Room 22 adds the completion and reflection tables. Complete ZIP v6 preserves those records and reads v1–v5. See the [authoritative phase](PRACTICE_LOGGER_V1_MASTER_PLAN.md#p2-block-and-session-reflection) and [delivery evidence](CURRENT_STATE.md).
+
 ## Next action
 
-Run the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check) on the S26 Ultra. G3 awaits a separate owner assignment.
+Run the [P2 reflection phone checks](MANUAL_TESTS.md#p2-reflection-phone-checks) on the S26 Ultra. G3 awaits a separate owner assignment.
 
 ## Increment 3 — delivered 2026-10-29
 

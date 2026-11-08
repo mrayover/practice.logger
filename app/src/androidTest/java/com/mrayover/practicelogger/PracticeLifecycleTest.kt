@@ -57,6 +57,15 @@ class PracticeLifecycleTest {
         click("Resume")
         shown("Pause")
         click("Complete")
+        shown("How secure did that feel?")
+        val committed = runBlocking { db.sessions().find(sessionId)!! }
+        assertEquals("COMPLETED", committed.ordered.first().outcome)
+        assertEquals(first.id, committed.completions.single().completion.placementId)
+        assertNull(committed.completions.single().reflection)
+        compose.activityRule.scenario.recreate()
+        shown("How secure did that feel?")
+        compose.onNodeWithContentDescription("Security rating 4").scrollIfNeeded().performClick()
+        click("Continue")
         shown("Up Next: Second lifecycle Block")
         assertReady("Block 2 of 3", "Start Next Block", "Prep Next Block")
         Thread.sleep(400)
@@ -89,9 +98,46 @@ class PracticeLifecycleTest {
         val bundle = runBlocking { db.sessions().find(sessionId)!! }
         assertEquals(listOf("COMPLETED", "SKIPPED", "PENDING"), bundle.ordered.map { it.outcome })
         assertEquals(first.id, bundle.ordered.first().id)
+        assertEquals(4, bundle.completions.single().reflection?.security)
         assertEquals(0L, bundle.ordered[1].activeMs)
         assertTrue(bundle.ordered[1].prepMs > 0)
         assertEquals(0L, bundle.current!!.activeMs)
+    }
+
+    @Test fun finalBlockReviewAndSessionReflectionUseCompletedHistory() {
+        val sessionId = runBlocking {
+            val block = BlockRepository(db).save(null, BlockDraft("Reflection fixture", "Play"))
+            SessionRepository(db).startBlock(block)
+        }
+        compose.runOnIdle { practice.openSession(sessionId) }
+        prepReadyBlock(compose)
+        click("Complete")
+        shown("How secure did that feel?")
+        val committed = runBlocking { db.sessions().find(sessionId)!! }
+        assertEquals("COMPLETED", committed.session.status)
+        assertNull(committed.completions.single().reflection)
+        click("More")
+        shown("What to revisit")
+        compose.onNodeWithText("What to revisit").scrollIfNeeded().performTextInput("Slow entrance")
+        click("Hide optional questions")
+        click("Continue")
+        shown("Session Reflection")
+        click("Show optional questions")
+        shown("Energy")
+        compose.onNodeWithText("Energy").scrollIfNeeded().performTextInput("Good")
+        compose.onNodeWithText("Session note (optional)").scrollIfNeeded().performTextInput("Keep this note")
+        click("Hide optional questions")
+        click("Finish Session")
+        shown("Session Summary")
+        val history = runBlocking { db.sessions().find(sessionId)!! }
+        assertEquals(committed.placements, history.placements)
+        assertEquals(committed.completions.single().completion, history.completions.single().completion)
+        assertEquals("Slow entrance", history.completions.single().reflection?.revisit)
+        assertNull(history.completions.single().reflection?.security)
+        assertEquals("Good", history.reflection?.energy)
+        assertEquals("Keep this note", history.session.note)
+        compose.onNodeWithText("Slow entrance").scrollIfNeeded().assertIsDisplayed()
+        compose.onNodeWithText("Good").scrollIfNeeded().assertIsDisplayed()
     }
 
     private fun assertReady(position: String, start: String, prep: String) {
@@ -158,6 +204,8 @@ class PracticeLifecycleTest {
         click("Complete")
         shown("Unsaved note text")
         click("Discard draft and continue")
+        skipBlockReflection(compose)
+        skipSessionReflection(compose)
         shown("Session Summary")
     }
 }

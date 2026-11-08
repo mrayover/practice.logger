@@ -152,7 +152,7 @@ class FocusedPracticeTest {
             assertEquals(1,practice.completionSignals)
             click("Resume Block"); click("Continue"); compose.waitUntil(5000) { practice.running }; click("Pause")
             assertEquals(1,practice.completionSignals)
-            click("Complete"); shown("Block 2 of 2"); prepReadyBlock(compose)
+            click("Complete"); skipBlockReflection(compose); shown("Block 2 of 2"); prepReadyBlock(compose)
             click("Start click"); compose.runOnIdle { practice.changeWorkingBpm(113) }
             click("Start Practice"); compose.waitUntil(12000) { !practice.running && practice.completionSignals==2 }
             compose.waitUntil(5000) { practice.completionFramesWritten()>=28_800 }

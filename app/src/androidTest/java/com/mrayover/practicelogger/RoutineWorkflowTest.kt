@@ -87,8 +87,8 @@ class RoutineWorkflowTest {
                 assertEquals("Current notes", two.current!!.referenceNotes)
             }
             compose.onNodeWithTag("practice-timer").scrollIfNeeded(); compose.waitForIdle(); captureStage3("routine-03-fresh-practice")
-            click("Complete"); shown("Up Next: Routine A"); prepReadyBlock(compose); click("Skip"); shown("Up Next: Routine C"); prepReadyBlock(compose); click("Complete")
-            shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomeRoutines(compose)
+            click("Complete"); skipBlockReflection(compose); shown("Up Next: Routine A"); prepReadyBlock(compose); click("Skip"); shown("Up Next: Routine C"); prepReadyBlock(compose); click("Complete")
+            skipBlockReflection(compose); skipSessionReflection(compose); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomeRoutines(compose)
             compose.onNodeWithText("Recent Practice").performScrollTo().assertIsDisplayed()
             compose.waitForIdle(); captureStage3("routine-04-history-retained")
         } finally { db.close() }

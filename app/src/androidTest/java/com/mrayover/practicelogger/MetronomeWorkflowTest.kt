@@ -45,7 +45,7 @@ class MetronomeWorkflowTest {
             val session = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
             assertEquals(126, session.current!!.lastUsedBpm)
             assertEquals(90, runBlocking { db.blocks().find(session.current!!.sourceBlockId) }!!.tempo)
-            click("Start click"); shown("Stop click"); click("Complete"); shown("Session Summary")
+            click("Start click"); shown("Stop click"); click("Complete"); skipBlockReflection(compose); skipSessionReflection(compose); shown("Session Summary")
             compose.onNodeWithText("Last used click: 126 BPM").assertExists()
             val nextVm = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.runOnIdle { assertFalse(nextVm.clicking) }

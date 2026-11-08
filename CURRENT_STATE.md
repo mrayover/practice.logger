@@ -1,6 +1,12 @@
-# Current state — P1 Intentional Practice Lifecycle
+# Current state — P2 Block and Session Reflection
 
 Updated November 8, 2026 (America/Los_Angeles).
+
+## P2 candidate
+
+Build104 adds optional Block and session reflection to the existing Ready, Prep and Up Next lifecycle. Complete commits the placement and its historical primary Goal, priority and color first. Skip from the workspace retains the skipped outcome. The final placement commits the session before reflection, and saved answers appear in Session Summary. Room 22 and complete ZIP v6 preserve the new records. P2 signing and verification are in progress.
+
+**Next task** is to finish focused verification and permanent-key delivery of build104.
 
 ## Signed metronome scaling fix
 
@@ -43,7 +49,7 @@ Version **0.34.0/build100** adds Ready, Prep and Up Next to the shared Block pra
 
 Verification was scoped to P1. Native test follow-ups through `ab06778` leave the signed app source unchanged. Physical-phone install-over and acceptance remain pending.
 
-**Next task** is to install build103 on the S26 Ultra and run the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check).
+The retained build103 follow-up is the [compact metronome phone check](MANUAL_TESTS.md#compact-metronome-phone-check).
 
 ## Retained signed G2 delivery
 

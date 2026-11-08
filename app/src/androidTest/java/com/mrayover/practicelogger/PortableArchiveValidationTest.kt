@@ -54,6 +54,9 @@ class PortableArchiveValidationTest {
             val placementId = source.sessions().find(sessionId)!!.current!!.id
             sessions.checkpointPrep(sessionId, placementId, 1200)
             sessions.checkpoint(sessionId, 2000)
+            sessions.finishBlock(sessionId, "COMPLETED", "", placementId = placementId)
+            sessions.saveBlockReflection(BlockReflection(placementId, 5, focus = "Steady entrances"))
+            sessions.saveSessionReflection(SessionReflection(sessionId, energy = "Good"), "Session note")
             val week = LocalDate.of(2026, 11, 8)
             BlockRepository(source).addToWeek(week, "block")
             BlockRepository(source).addToWeek(week, "old")
@@ -90,6 +93,12 @@ class PortableArchiveValidationTest {
             mutate("backslash path") { this["originals\\invalid.png"] = getValue(path) }
             assertFalse(File(root, "outside.png").exists())
             mutate("unsupported version") { changeManifest { put("version", 100) } }
+            mutate("invalid security rating") {
+                changeRecords { getJSONObject("tables").getJSONArray("block_reflections").getJSONArray(0).put(1, 6) }
+            }
+            mutate("invalid completion source") {
+                changeRecords { getJSONObject("tables").getJSONArray("block_completions").getJSONArray(0).put(2, "old") }
+            }
             mutate("invalid size type") { changeManifest { getJSONArray("entries").getJSONObject(0).put("bytes", "1") } }
             mutate("duplicate manifest field") {
                 val originalJson = getValue("manifest.json").toString(Charsets.UTF_8)
@@ -199,6 +208,7 @@ class PortableArchiveValidationTest {
             // Downgrade the wire records and recompute the digest and inventory for each prior format.
             for (version in 1..PORTABLE_VERSION) {
                 val excluded = buildList {
+                    if (version < 6) addAll(listOf("block_completions", "block_reflections", "session_reflections"))
                     if (version < 4) add("week_blocks")
                     if (version < 3) addAll(listOf("block_primary_goals", "placement_goal_snapshots"))
                     if (version < 2) add("practice_overlays")
@@ -228,6 +238,10 @@ class PortableArchiveValidationTest {
                     val restored = BackupRepository(destination).snapshot()
                     assertEquals(if (version >= 5) 1200L else 0L, restored.placements.single().prepMs)
                     assertEquals(data, restored.copy(placements = restored.placements.map { it.copy(prepMs = 0) }))
+                    val history = destination.sessions().find(sessionId)!!
+                    val originalHistory = source.sessions().find(sessionId)!!
+                    assertEquals(originalHistory.completions.takeIf { version >= 6 }.orEmpty(), history.completions)
+                    assertEquals(originalHistory.reflection.takeIf { version >= 6 }, history.reflection)
                     assertEquals(if (version == 1) 0 else 2, destination.overlays().count())
                     assertEquals(goal.takeIf { version >= 3 }, destination.goalAttribution().primaryGoalId("block"))
                     assertEquals(source.goalAttribution().snapshot(data.placements.single().id).takeIf { version >= 3 },

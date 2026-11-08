@@ -222,6 +222,10 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun FocusedPractice(bundle: SessionBundle?, vm: PracticeViewModel, images: ImageReferenceViewModel, onHome: () -> Unit, onRecordings: (String) -> Unit, recordingMessage: String?, goalName: String? = null, recordings: RecordingViewModel, notes: BlockNotesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), onNavigationCancelled: () -> Unit = {}) {
+    vm.pendingBlockReflection?.let { pending ->
+        BlockReflectionScreen(pending.placementId, vm.busy, vm::continueAfterBlockReflection, onNavigationCancelled)
+        return
+    }
     if (bundle == null || bundle.current == null) {
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("Session saved.") }
         return
@@ -519,6 +523,11 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         Column(Modifier.safeDrawingPadding().padding(24.dp)) { Text("This session is not available.") }
         return
     }
+    if (vm.reflectionSessionId == bundle.session.id) {
+        SessionReflectionScreen(bundle.session.id, vm.busy, vm::finishSessionReflection, onNavigationCancelled)
+        return
+    }
+    val completions = bundle.completions.associateBy { it.completion.placementId }
     var note by rememberSaveable(bundle.session.id) { mutableStateOf(bundle.session.note) }
     var discard by rememberSaveable(bundle.session.id) { mutableStateOf(false) }
     fun leave() { if (!vm.busy && !notes.busy) { if (note.trim() != bundle.session.note || bundle.ordered.any { notes.hasUnsavedEdits(it.sourceBlockId) }) discard = true else onHome() } }
@@ -532,11 +541,13 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         goalName?.let { Text("Goal: " + it) }
         Text(sessionDate(bundle.session.startedAt))
         Text(practiceTime(bundle.activeMs) + " active practice", style = MaterialTheme.typography.headlineSmall)
+        bundle.reflection?.let { SessionReflectionHistory(it) }
         bundle.ordered.forEach { placement ->
             Text(placement.name, style = MaterialTheme.typography.titleLarge)
             Text(placement.action)
             Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
             placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
+            completions[placement.id]?.let { BlockReflectionHistory(it) }
             SavedPracticeNotes(sessionPlacementNotes(history, bundle.session.id, placement), notes.busy, notes)
             HorizontalDivider()
         }

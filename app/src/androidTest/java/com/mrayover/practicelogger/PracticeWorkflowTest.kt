@@ -43,7 +43,7 @@ class PracticeWorkflowTest {
             }
             capturePractice("02-builder"); click("Start Session"); shown("Warmup fixture"); click("Start Block"); compose.waitForIdle(); capturePractice("03-focus")
             compose.waitUntil(10000) { compose.onAllNodesWithText("1:59").fetchSemanticsNodes().isNotEmpty() }
-            click("Complete"); shown("Up Next: Skip fixture"); prepReadyBlock(compose); click("Skip")
+            click("Complete"); skipBlockReflection(compose); shown("Up Next: Skip fixture"); prepReadyBlock(compose); click("Skip")
             shown("Up Next: Overtime fixture"); click("Start Next Block"); shown("Continue")
             compose.onNodeWithText("Overtime fixture").assertExists()
             compose.onNodeWithTag("practice-timer").assertTextEquals("0:00")
@@ -102,6 +102,7 @@ class PracticeRecoveryTest {
         compose.onNodeWithText("Start Practice").assertExists().scrollIfNeeded().performClick()
         compose.onNodeWithText("Pause").assertExists().scrollIfNeeded().performClick()
         compose.onNodeWithText("Complete").scrollIfNeeded().performClick()
+        skipBlockReflection(compose); skipSessionReflection(compose)
         shown("Session Summary"); compose.waitForIdle(); compose.onNodeWithText("Session Summary").assertIsDisplayed(); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync(); capturePractice("05-summary")
         compose.onNodeWithText("Original warmup action").assertExists()
         compose.onNodeWithText("Session note (optional)").performScrollTo().performTextInput("Restart verified")

@@ -49,7 +49,7 @@ class GoalAccessibilityTest {
                     repo.save(null, "Second Goal", "", 0, "")
                     val g = repo.save(null, "Goal workflow edited", "Memorize melody and changes", 37, "Listen and assess")
                     repo.setBlocks(g, listOf(b, archived)); BlockRepository(db).setArchived(archived, true)
-                    val s = SessionRepository(db); val id = s.startGoal(g); s.checkpoint(id, 1000); s.finishBlock(id, "COMPLETED", "")
+                    val s = SessionRepository(db); val id = s.startGoal(g); s.checkpoint(id, 1000); s.finishBlock(id, "COMPLETED", "", placementId = db.sessions().find(id)!!.current!!.id)
                 }
             }
             shown("2. Goal workflow edited · 37%")

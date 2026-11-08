@@ -50,9 +50,9 @@ class SessionRepositoryTest {
             ids.forEach { repo.addBlock(it) }
             val id = repo.start()
             repo.checkpoint(id, 1_234L)
-            assertFalse(repo.finishBlock(id, "COMPLETED", "Early"))
+            assertFalse(repo.finishBlock(id, "COMPLETED", "Early", placementId = db.sessions().find(id)!!.current!!.id))
             repo.checkpoint(id, 500L)
-            assertFalse(repo.finishBlock(id, "SKIPPED", ""))
+            assertFalse(repo.finishBlock(id, "SKIPPED", "", placementId = db.sessions().find(id)!!.current!!.id))
             repo.checkpoint(id, 2_100L)
             db.close(); db = BlockDatabase.open(context, name); repo = SessionRepository(db) { 9_000L }
             val recovered = db.sessions().find(id)!!
@@ -62,7 +62,7 @@ class SessionRepositoryTest {
             // Paused/background wall time adds nothing; only explicit active deltas count.
             assertEquals(3_834L, recovered.activeMs)
             repo.checkpoint(id, 900L)
-            assertTrue(repo.finishBlock(id, "COMPLETED", "Done"))
+            assertTrue(repo.finishBlock(id, "COMPLETED", "Done", placementId = db.sessions().find(id)!!.current!!.id))
             repo.saveSessionNote(id, "Good session")
             val completed = db.sessions().find(id)!!
             assertEquals("COMPLETED", completed.session.status)
@@ -95,10 +95,10 @@ class SessionRepositoryTest {
             try { repo.saveBlockNote(id, reopened.ordered[1].id, "Wrong"); fail("Edited future Block") } catch (_: IllegalStateException) { }
             repo.saveBlockNote(id, first.id, "")
             assertEquals("", db.sessions().find(id)!!.current!!.note)
-            repo.finishBlock(id, "COMPLETED", "Final first")
+            repo.finishBlock(id, "COMPLETED", "Final first", placementId = db.sessions().find(id)!!.current!!.id)
             try { repo.saveBlockNote(id, first.id, "Wrong"); fail("Edited prior Block") } catch (_: IllegalStateException) { }
             val last = db.sessions().find(id)!!.current!!
-            repo.finishBlock(id, "SKIPPED", "Final second")
+            repo.finishBlock(id, "SKIPPED", "Final second", placementId = db.sessions().find(id)!!.current!!.id)
             val history = db.sessions().find(id)
             try { repo.saveBlockNote(id, last.id, "Wrong"); fail("Edited history") } catch (_: IllegalStateException) { }
             assertEquals(history, db.sessions().find(id))
@@ -123,10 +123,10 @@ class SessionRepositoryTest {
             BackupRepository(target).restore(snapshot)
             assertEquals(db.sessions().readAll().toSet(), target.sessions().readAll().toSet())
             assertEquals("Keep first", db.sessions().find(first)!!.current!!.note)
-            repo.finishBlock(second, "COMPLETED", "Second done")
+            repo.finishBlock(second, "COMPLETED", "Second done", placementId = db.sessions().find(second)!!.current!!.id)
             assertEquals(1234L, db.sessions().find(first)!!.current!!.activeMs)
             assertEquals("IN_PROGRESS", db.sessions().find(first)!!.session.status)
-            repo.finishBlock(first, "SKIPPED", "First done")
+            repo.finishBlock(first, "SKIPPED", "First done", placementId = db.sessions().find(first)!!.current!!.id)
             assertEquals(2, db.sessions().readAll().count { it.session.status == "COMPLETED" })
             val legacy = org.json.JSONObject(String(BackupCodec.encode(BackupData(emptyList(), emptyList(), emptyList())))).put("version", 1)
             assertEquals(BackupData(emptyList(), emptyList(), emptyList()), BackupCodec.decode(legacy.toString().toByteArray()))
@@ -167,7 +167,7 @@ class SessionRepositoryTest {
             assertEquals(1000L, db.sessions().find(id)!!.current!!.activeMs)
             repo.continueOvertime(id); repo.checkpoint(id, 650)
             assertEquals(1650L, db.sessions().find(id)!!.current!!.activeMs)
-            assertTrue(repo.finishBlock(id, "COMPLETED", ""))
+            assertTrue(repo.finishBlock(id, "COMPLETED", "", placementId = db.sessions().find(id)!!.current!!.id))
         } finally { db.close() }
     }
     @Test fun versionOneMigrationPreservesExistingBlocks() = runBlocking {

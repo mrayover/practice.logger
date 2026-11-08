@@ -23,7 +23,7 @@ class BackupRepositoryTest {
             val blocks = BlockRepository(source) { 123L }; val practice = SessionRepository(source) { 456L }
             val a = blocks.save(null, BlockDraft("Å étude 🎵", "Play\nslowly", "7", "123", "Quoted \"reference\""))
             practice.addBlock(a); val completed = practice.start()
-            practice.checkpoint(completed, 2000); practice.finishBlock(completed, "COMPLETED", "block note")
+            practice.checkpoint(completed, 2000); practice.finishBlock(completed, "COMPLETED", "block note", placementId = source.sessions().find(completed)!!.current!!.id)
             practice.saveSessionNote(completed, "session note")
             blocks.save(a, BlockDraft("Changed", "New action")); blocks.setArchived(a, true)
             val b = blocks.save(null, BlockDraft("Second", "Play"))
@@ -51,14 +51,14 @@ class BackupRepositoryTest {
             val repo = SessionRepository(source); repo.addBlock(id); repo.addBlock(id)
             val draft = source.sessions().withStatus("DRAFT")!!
             repo.setDuration(source.sessions().find(draft.id)!!.ordered[1].id, 1000)
-            val session = repo.start(); repo.finishBlock(session, "SKIPPED", "skip")
+            val session = repo.start(); repo.finishBlock(session, "SKIPPED", "skip", placementId = source.sessions().find(session)!!.current!!.id)
             repo.checkpoint(session, 1000); repo.continueOvertime(session); repo.checkpoint(session, 234)
             val data = BackupCodec.decode(BackupCodec.encode(BackupRepository(source).snapshot()))
             BackupRepository(target).restore(data)
             val recovered = target.sessions().find(session)!!
             assertEquals(1, recovered.session.currentIndex); assertEquals(1234L, recovered.current!!.activeMs)
             assertTrue(recovered.current!!.overtimeAccepted)
-            SessionRepository(target).finishBlock(session, "COMPLETED", "restored")
+            SessionRepository(target).finishBlock(session, "COMPLETED", "restored", placementId = target.sessions().find(session)!!.current!!.id)
         } finally { source.close(); target.close() }
     }
     @Test fun invalidFilesAndNonemptyTargetsNeverModifyExistingData(): Unit = runBlocking {

@@ -104,7 +104,10 @@ private const val OVERLAY_TABLE = "practice_overlays"
 private const val PRIMARY_TABLE = "block_primary_goals"
 private const val SNAPSHOT_TABLE = "placement_goal_snapshots"
 private const val WEEK_TABLE = "week_blocks"
-internal const val PORTABLE_VERSION = 5
+private const val COMPLETION_TABLE = "block_completions"
+private const val BLOCK_REFLECTION_TABLE = "block_reflections"
+private const val SESSION_REFLECTION_TABLE = "session_reflections"
+internal const val PORTABLE_VERSION = 6
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -114,9 +117,15 @@ private val portableTablesV3 = portableTablesV2 + listOf(
 
 private val portableTablesV4 = portableTablesV3 + PortableTable(WEEK_TABLE, "weekStart blockId position:i")
 
-internal val portableTables = portableTablesV4.map { table ->
+private val portableTablesV5 = portableTablesV4.map { table ->
     if (table.name == "placements") PortableTable("placements", "$PLACEMENT_FIELDS prepMs:l", "placements") else table
 }
+
+internal val portableTables = portableTablesV5 + listOf(
+    PortableTable(COMPLETION_TABLE, "placementId sessionId sourceBlockId completedAt:l goalId:s? priority:i? colorArgb:i?"),
+    PortableTable(BLOCK_REFLECTION_TABLE, "placementId security:i? focus difficulty progress revisit"),
+    PortableTable(SESSION_REFLECTION_TABLE, "sessionId experience focus progress difficulty energy")
+)
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -128,6 +137,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         2 -> portableTablesV2
         3 -> portableTablesV3
         4 -> portableTablesV4
+        5 -> portableTablesV5
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -142,7 +152,8 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
     val counts = JSONObject().apply { rows.forEach { (name, values) -> put(name, values.size) } }
     operator fun get(table: String): List<JSONObject> =
         when (table) {
-            OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE -> rows[table].orEmpty()
+            OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE,
+            COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
     private val maxOverlayPageByReference: Map<String, Int>
@@ -206,6 +217,42 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         }
         val placements = core.placements.associateBy { it.id }
         val goalIds = core.goals.mapTo(hashSetOf()) { it.id }
+        val completions = hashSetOf<String>()
+        for (row in this[COMPLETION_TABLE]) {
+            val placementId = row.getString("placementId")
+            val placement = placements[placementId]
+            require(completions.add(placementId) && placement?.outcome == "COMPLETED" &&
+                placement.sessionId == row.getString("sessionId") &&
+                placement.sourceBlockId == row.getString("sourceBlockId") &&
+                row.getLong("completedAt") >= 0L) { "Invalid Block completion." }
+            val priority = if (row.isNull("priority")) null else row.getInt("priority")
+            require(row.isNull("goalId") || row.getString("goalId").isNotBlank()) { "Invalid completion Goal." }
+            require(if (priority == null) row.isNull("colorArgb") else
+                priority in 1..5 && !row.isNull("goalId") && !row.isNull("colorArgb")) {
+                "Invalid completion Goal priority or color."
+            }
+        }
+        fun answers(row: JSONObject, vararg fields: String) = fields.map { row.getString(it) }.also {
+            require(it.all { answer -> answer.length <= REFLECTION_ANSWER_LIMIT }) { "Reflection answer is too long." }
+        }
+        val blockReviews = hashSetOf<String>()
+        for (row in this[BLOCK_REFLECTION_TABLE]) {
+            val placementId = row.getString("placementId")
+            val security = if (row.isNull("security")) null else row.getInt("security")
+            val prompts = answers(row, "focus", "difficulty", "progress", "revisit")
+            require(placementId in completions && blockReviews.add(placementId) &&
+                (security == null || security in 1..5) &&
+                (security != null || prompts.any { it.isNotBlank() })) { "Invalid Block reflection." }
+        }
+        val completedSessions = core.sessions.filter { it.status == "COMPLETED" }.mapTo(hashSetOf()) { it.id }
+        val sessionReviews = hashSetOf<String>()
+        for (row in this[SESSION_REFLECTION_TABLE]) {
+            val sessionId = row.getString("sessionId")
+            require(sessionId in completedSessions && sessionReviews.add(sessionId) &&
+                answers(row, "experience", "focus", "progress", "difficulty", "energy").any { it.isNotBlank() }) {
+                "Invalid session reflection."
+            }
+        }
         val links = core.goalBlocks.mapTo(hashSetOf()) { it.blockId to it.goalId }
         val primaryBlocks = hashSetOf<String>()
         for (row in this[PRIMARY_TABLE]) {

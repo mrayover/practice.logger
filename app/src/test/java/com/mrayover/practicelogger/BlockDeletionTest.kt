@@ -38,7 +38,7 @@ class BlockDeletionTest {
             val kept = block(db, "Keep historical data")
             val sessions = SessionRepository(db)
             sessions.addBlock(kept); val sessionId = sessions.start()
-            sessions.finishBlock(sessionId, "COMPLETED", "Keep note")
+            sessions.finishBlock(sessionId, "COMPLETED", "Keep note", placementId = db.sessions().find(sessionId)!!.current!!.id)
             val routine = RoutineRepository(db).save(null, "Kept Routine", listOf(RoutineSelection(kept, 60000)))
             val goal = GoalRepository(db).save(null, "Kept Goal", "Outcome", 30, "Goal notes")
             GoalRepository(db).setBlocks(goal, listOf(kept))

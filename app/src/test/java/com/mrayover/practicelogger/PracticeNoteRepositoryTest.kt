@@ -56,7 +56,10 @@ class PracticeNoteRepositoryTest {
         try {
             assertTrue(db.practiceNotes().readAll().isEmpty())
             before.forEach { (table, rows) -> db.openHelper.writableDatabase.query("SELECT * FROM $table").use { c ->
-                assertEquals(table, rows, buildList { while (c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) })
+                val expected = if (table == "placements") rows.map { it + "0" } else rows
+                assertEquals(table, expected, buildList {
+                    while (c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) })
+                })
             } }
             assertEquals("Earlier practice note", db.practiceNotes().history().first().single().text)
             var tick = 1000L; val repo = PracticeNoteRepository(db) { ++tick }
@@ -78,7 +81,7 @@ class PracticeNoteRepositoryTest {
 
             assertEquals("Overall session note", db.sessions().find("s")!!.session.note)
             assertEquals("Earlier practice note edited", db.sessions().find("s")!!.current!!.note)
-            SessionRepository(db).finishBlock("s", "COMPLETED", "Stale screen copy", preserveNote = true)
+            SessionRepository(db).finishBlock("s", "COMPLETED", "Stale screen copy", preserveNote = true, placementId = db.sessions().find("s")!!.current!!.id)
             assertEquals("Earlier practice note edited", db.sessions().find("s")!!.ordered.single().note)
             assertEquals(1234L, db.sessions().find("s")!!.ordered.single().activeMs)
             db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
@@ -91,7 +94,7 @@ class PracticeNoteRepositoryTest {
             val (block, bundle) = fixture(db)
             val placement = bundle.current!!
             val saved = PracticeNoteRepository(db).append(block, bundle.session.id, placement.id, "Session practice note")
-            SessionRepository(db).finishBlock(bundle.session.id, "COMPLETED", "", preserveNote = true)
+            SessionRepository(db).finishBlock(bundle.session.id, "COMPLETED", "", preserveNote = true, placementId = db.sessions().find(bundle.session.id)!!.current!!.id)
             // A second session on the same Block must not leak into the first summary.
             val repo = SessionRepository(db); repo.addBlock(block); val other = repo.start()
             PracticeNoteRepository(db).append(block, other, db.sessions().find(other)!!.current!!.id, "Other session")

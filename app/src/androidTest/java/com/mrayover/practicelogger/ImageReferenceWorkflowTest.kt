@@ -118,7 +118,7 @@ class ImageReferenceWorkflowTest {
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Reference practice note")
             savePracticeNote(compose); click("Return to Practice")
-            click("Complete"); shown("Up Next: Without image"); prepReadyBlock(compose)
+            click("Complete"); skipBlockReflection(compose); shown("Up Next: Without image"); prepReadyBlock(compose)
             compose.onNodeWithText("Show reference").assertDoesNotExist(); assertFalse(practice.clicking)
             assertEquals("Reference practice note", runBlocking { db.practiceNotes().readAll().single { it.sessionId == session }.text })
             leavePracticeForLater(compose); click("Blocks"); editor("Image reference fixture")

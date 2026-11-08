@@ -72,7 +72,7 @@ class GoalWorkflowTest {
             click("Pause"); leavePracticeForLater(compose); shown("Practice Now")
             val resumed = runBlocking { db.sessions().find(first)!! }
             click("2. Goal workflow edited · 37%"); click("Practice Goal"); shown("Start Block"); prepReadyBlock(compose)
-            click("Complete"); shown("Session Summary"); shown("Goal: Goal workflow edited")
+            click("Complete"); skipBlockReflection(compose); skipSessionReflection(compose); shown("Session Summary"); shown("Goal: Goal workflow edited")
             captureStage3("goal-04-summary")
             compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); click("2. Goal workflow edited · 37%")
             click("Mark Goal completed"); shown("Completed Goal")

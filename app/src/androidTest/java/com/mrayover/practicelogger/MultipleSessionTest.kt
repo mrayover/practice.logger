@@ -59,12 +59,12 @@ class MultipleSessionReopenTest {
             compose.onNodeWithTag("continue-session-" + first.session.id).scrollIfNeeded().performClick()
             prepReadyBlock(compose)
             shown("Parallel A"); revealPracticeNotes(compose); assertSavedPracticeNote(compose, "Keep A")
-            click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomePractice(compose); shown("In Progress")
+            click("Complete"); skipBlockReflection(compose); skipSessionReflection(compose); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); openHomePractice(compose); shown("In Progress")
             continueFirstSession(compose); prepReadyBlock(compose); shown("Parallel B")
             revealPracticeNotes(compose)
             assertSavedPracticeNote(compose, "Keep B")
             compose.onNodeWithText("Start Practice").assertExists()
-            click("Complete"); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
+            click("Complete"); skipBlockReflection(compose); skipSessionReflection(compose); shown("Session Summary"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); shown("Practice Now")
             runBlocking {
                 val pair = db.sessions().readAll().filter { it.ordered.firstOrNull()?.name in setOf("Parallel A", "Parallel B") }
                 assertEquals(2, pair.size)

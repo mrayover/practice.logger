@@ -18,6 +18,8 @@ data class SessionCatalog(val bundles: List<SessionBundle> = emptyList(), val re
     val history get() = bundles.filter { it.session.status == "COMPLETED" }
 }
 
+internal data class PendingBlockReflection(val sessionId: String, val placementId: String, val lastBlock: Boolean)
+
 class PracticeViewModel(application: Application, private val savedState: SavedStateHandle) : AndroidViewModel(application) {
     private val db = BlockDatabase.appInstance(application)
     private val repository = SessionRepository(db)
@@ -40,6 +42,10 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
     var destination by mutableStateOf<String?>(null)
         private set
     var completedId by mutableStateOf<String?>(null)
+        private set
+    internal var pendingBlockReflection by mutableStateOf<PendingBlockReflection?>(null)
+        private set
+    internal var reflectionSessionId by mutableStateOf<String?>(null)
         private set
     var noteSaved by mutableStateOf(false)
         private set
@@ -298,18 +304,57 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         operation {
             flush(until); anchor = null
             val id = checkNotNull(catalog.value.active).session.id
-            val previousPlacement = workspacePlacementId
-            val finished = repository.finishBlock(id, outcome, note, preserveNote)
+            val placementId = checkNotNull(workspacePlacementId)
+            val finished = repository.finishBlock(id, outcome, note, preserveNote, placementId)
             preparing = false
             workspacePlacementId = null
-            if (finished) {
-                completedId = id
-                destination = "summary"
+            if (outcome == "COMPLETED") {
+                pendingBlockReflection = PendingBlockReflection(id, placementId, finished)
             } else {
-                catalog.first { it.active?.current?.id != previousPlacement }
+                advanceAfterBlock(id, placementId, finished)
             }
         }
     }
+
+    internal fun continueAfterBlockReflection(review: BlockReflection?) = operation {
+        val pending = pendingBlockReflection ?: return@operation
+        if (review != null) {
+            check(review.placementId == pending.placementId)
+            repository.saveBlockReflection(review)
+        }
+        advanceAfterBlock(pending.sessionId, pending.placementId, pending.lastBlock)
+        pendingBlockReflection = null
+    }
+
+    private suspend fun advanceAfterBlock(id: String, placementId: String, finished: Boolean) {
+        if (finished) {
+            catalog.first { catalog -> catalog.history.any { it.session.id == id } }
+            completedId = id
+            reflectionSessionId = id
+            destination = "summary"
+        } else {
+            catalog.first { it.active?.current?.id != placementId }
+        }
+    }
+
+    internal fun finishSessionReflection(id: String, review: SessionReflection?, note: String) = operation {
+        if (reflectionSessionId != id) return@operation
+        if (review != null) {
+            check(review.sessionId == id)
+            repository.saveSessionReflection(review, note)
+            if (review.hasAnswers || note.isNotBlank()) {
+                catalog.first { catalog ->
+                    catalog.history.any { bundle ->
+                        bundle.session.id == id &&
+                            (!review.hasAnswers || bundle.reflection == review) &&
+                            (note.isBlank() || bundle.session.note == note.trim())
+                    }
+                }
+            }
+        }
+        reflectionSessionId = null
+    }
+
     fun saveBlockNote(sessionId: String, placementId: String, note: String) = operation {
         repository.saveBlockNote(sessionId, placementId, note)
         blockNoteSavedFor = placementId

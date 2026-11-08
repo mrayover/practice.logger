@@ -120,7 +120,7 @@ class TargetedP4PreviewTest {
                 val repo = SessionRepository(db); repo.addBlock(b); val id = repo.start()
                 val placement = db.sessions().find(id)!!.current!!
                 val n = PracticeNoteRepository(db).append(b,id,placement.id,"Saved during practice")
-                repo.finishBlock(id,"COMPLETED","",preserveNote=true)
+                repo.finishBlock(id, "COMPLETED", "", preserveNote = true, placementId = db.sessions().find(id)!!.current!!.id)
                 id to "note:${n.id}"
             }
             shown("Practice Now"); openHomeRoutines(compose); shown("Recent Practice")

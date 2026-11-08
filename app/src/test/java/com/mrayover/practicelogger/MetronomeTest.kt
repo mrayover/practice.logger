@@ -57,11 +57,11 @@ class MetronomePersistenceTest {
             assertEquals(1234L, db.sessions().find(session)!!.current!!.activeMs)
             assertEquals(90, db.blocks().find(block)!!.tempo)
             try { repo.saveUsedBpm(session, placement.id, 301); fail("Invalid BPM") } catch (_: IllegalArgumentException) { }
-            repo.finishBlock(session, "COMPLETED", "Keep note")
+            repo.finishBlock(session, "COMPLETED", "Keep note", placementId = db.sessions().find(session)!!.current!!.id)
             try { repo.saveUsedBpm(session, placement.id, 130); fail("Changed prior placement") } catch (_: IllegalStateException) { }
             db.close(); db = BlockDatabase.open(context, name); repo = SessionRepository(db)
             assertEquals(126, db.sessions().find(session)!!.ordered[0].lastUsedBpm)
-            repo.finishBlock(session, "SKIPPED", "")
+            repo.finishBlock(session, "SKIPPED", "", placementId = db.sessions().find(session)!!.current!!.id)
             val snapshot = BackupRepository(db).snapshot()
             val bytes = BackupCodec.encode(snapshot)
             assertEquals(snapshot, BackupCodec.decode(bytes))

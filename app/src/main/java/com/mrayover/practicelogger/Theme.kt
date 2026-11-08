@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.*
 
 val Lato = FontFamily(Font(R.font.lato_regular, FontWeight.Normal), Font(R.font.lato_bold, FontWeight.Bold))
@@ -15,6 +16,8 @@ private val PracticeGreen = Color(0xFF315C47)
 private val GoalPriorityColors = listOf(
     Color(0xFFD1262D), Color(0xFFE9731C), Color(0xFFF1CB24), Color(0xFF34944E), Color(0xFF2D70CE)
 )
+
+internal fun goalCompletionColor(priority: Int?): Int? = priority?.let { GoalPriorityColors[it - 1].toArgb() }
 
 @Immutable data class PracticeColors(
     val banner: Color, val onBanner: Color, val bannerEdge: Color,
