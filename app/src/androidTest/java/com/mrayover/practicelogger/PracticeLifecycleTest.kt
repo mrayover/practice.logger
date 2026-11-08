@@ -3,6 +3,8 @@ package com.mrayover.practicelogger
 import android.Manifest
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -58,6 +60,7 @@ class PracticeLifecycleTest {
         shown("Pause")
         click("Complete")
         shown("How secure did that feel?")
+        screenshot("p2-block-review")
         val committed = runBlocking { db.sessions().find(sessionId)!! }
         assertEquals("COMPLETED", committed.ordered.first().outcome)
         assertEquals(first.id, committed.completions.single().completion.placementId)
@@ -122,6 +125,7 @@ class PracticeLifecycleTest {
         click("Hide optional questions")
         click("Continue")
         shown("Session Reflection")
+        screenshot("p2-session-reflection")
         click("Show optional questions")
         shown("Energy")
         compose.onNodeWithText("Energy").scrollIfNeeded().performTextInput("Good")
@@ -188,6 +192,12 @@ class PracticeLifecycleTest {
         compose.waitUntil(15000) { recordings.reviewTake == null && !recordings.busy }
         revealPracticeNotes(compose)
         compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Unfinished prep note")
+        // The short workspace hides its footer while the keyboard is open.
+        compose.runOnIdle {
+            val window = compose.activity.window
+            WindowInsetsControllerCompat(window, window.decorView).hide(WindowInsetsCompat.Type.ime())
+        }
+        shown("Complete")
         click("Complete")
         shown("Unsaved note text")
         click("Keep editing")
