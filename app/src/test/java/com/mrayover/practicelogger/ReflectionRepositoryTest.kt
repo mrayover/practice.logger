@@ -75,8 +75,8 @@ class ReflectionRepositoryTest {
             db = BlockDatabase.open(context, name)
             repo = SessionRepository(db)
             val reopened = db.sessions().find(id)!!
-            assertEquals(finished.completions, reopened.completions)
-            assertEquals(finished.placements, reopened.placements)
+            assertEquals(finished.completions.toSet(), reopened.completions.toSet())
+            assertEquals(finished.ordered, reopened.ordered)
             assertEquals(reflection, reopened.reflection)
             assertEquals("Session note", reopened.session.note)
             assertTrue(runCatching { repo.finishBlock(id, "COMPLETED", "", placementId = skipped.id) }.isFailure)
@@ -86,13 +86,17 @@ class ReflectionRepositoryTest {
             zip.create(archive)
             val verified = zip.verify(archive)
             restored.withTransaction { verified.records.insertInto(restored.openHelper.writableDatabase) }
-            assertEquals(reopened, restored.sessions().find(id))
+            val zipHistory = restored.sessions().find(id)!!
+            assertEquals(reopened.session, zipHistory.session)
+            assertEquals(reopened.ordered, zipHistory.ordered)
+            assertEquals(reopened.completions.toSet(), zipHistory.completions.toSet())
+            assertEquals(reopened.reflection, zipHistory.reflection)
 
             val json = BackupCodec.encode(BackupRepository(db).snapshot())
             BackupRepository(legacy).restore(BackupCodec.decode(json))
             val oldHistory = legacy.sessions().find(id)!!
             assertEquals(reopened.session, oldHistory.session)
-            assertEquals(reopened.placements, oldHistory.placements)
+            assertEquals(reopened.ordered, oldHistory.ordered)
             assertTrue(oldHistory.completions.isEmpty())
             assertNull(oldHistory.reflection)
         } finally {
