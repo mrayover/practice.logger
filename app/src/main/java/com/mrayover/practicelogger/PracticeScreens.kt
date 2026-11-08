@@ -437,15 +437,17 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         if (!transcribing && recordings.reviewTake?.kind == TakeKind.FREE && !reviewCollapsed) PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp), tag = "practice-review-content") {
             TakeReviewControls(recordings, vm::stopClick)
         }
-        if (!transcribing && !editingInShortPanel) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight).padding(horizontal = 16.dp),
-            state = transportScroll, tag = "practice-transport") {
+        if (!transcribing && !editingInShortPanel) PracticeScrollPanel(Modifier.fillMaxWidth().heightIn(max = transportMaxHeight),
+            state = transportScroll, tag = "practice-transport", reserveScrollbarSpace = false) {
             PracticeMetronome(vm, expanded = transportPanel == "metronome", blocked = recordings.phrasing,
                 onExpand = { transportPanel = if (transportPanel == "metronome") null else "metronome" },
                 onEditingChanged = { open -> bpmDialog = open; if (open) transportPanel = null })
-            CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
-                { reviewCollapsed = false; transportPanel = if (transportPanel == "loop") null else "loop" },
-                { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
-            practiceTransportMessage(recordingMessage)?.takeUnless { loopPanelOpen && it == "Temporary take discarded. Saved recordings were kept." }?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            Column(Modifier.padding(start = 16.dp, end = 28.dp)) {
+                CompactRecordingControls(current.sourceBlockId, takes, freeTake, loopTake, recordings, vm::stopClick,
+                    { reviewCollapsed = false; transportPanel = if (transportPanel == "loop") null else "loop" },
+                    { loop -> val panel = if (loop) "loop-list" else "free-list"; transportPanel = if (transportPanel == panel) null else panel })
+                practiceTransportMessage(recordingMessage)?.takeUnless { loopPanelOpen && it == "Temporary take discarded. Saved recordings were kept." }?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            }
         }
         if (recordings.reviewTake != null && reviewCollapsed) Row(Modifier.fillMaxWidth().padding(horizontal=16.dp),
             verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
@@ -564,7 +566,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
     val clickWidth = maxOf(72.dp, with(density) {
         maxOf(measurer.measure("Start click", actionStyle).size.width, measurer.measure("Stop click", actionStyle).size.width).toDp()
     } + 14.dp)
-    FlowRow(Modifier.fillMaxWidth().testTag("practice-metronome-row"),
+    FlowRow(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp).testTag("practice-metronome-row"),
         horizontalArrangement = Arrangement.SpaceBetween,
         itemVerticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.widthIn(min = infoWidth).heightIn(min = 48.dp)
