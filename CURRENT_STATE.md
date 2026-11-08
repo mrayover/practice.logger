@@ -2,11 +2,26 @@
 
 Updated November 8, 2026 (America/Los_Angeles).
 
-## P2 candidate
+## Signed P2 delivery
 
-Build104 adds optional Block and session reflection to the existing Ready, Prep and Up Next lifecycle. Complete commits the placement and its historical primary Goal, priority and color first. Skip from the workspace retains the skipped outcome. The final placement commits the session before reflection, and saved answers appear in Session Summary. Room 22 and complete ZIP v6 preserve the new records. P2 signing and verification are in progress.
+**0.35.0/build104**, app source `e12b6aed9811a03fbbb465ad73c3fdea68d1dc03`. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P2 delivery** under `practice.logger-0.35.0-b104-e12b6ae`. Install the APK over permanent-key build103.
 
-**Next task** is to finish focused verification and permanent-key delivery of build104.
+- Package `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA-256 `c2ff0b90e8bb18419bb890b3c3e2207676a5193b920b8e65341cb3fed48eca17`. ZIP SHA-256 `2f21eac8ae00844dd28e1d66dec7f82f83f410e6bdf2ecf4918c1402769ed85c`. Verified 142 APK payload entries, all four ZIP members and the OneDrive copies.
+
+### P2 behavior and verification
+
+Complete saves the outcome and a placement-keyed snapshot of the Block's primary Goal, including its active priority and color when applicable. The optional 1–5 security rating and four additional prompts advance to Up Next or the final session flow. Skipping practice bypasses Block reflection. The last placement commits the session before optional session prompts and the existing session note. Session Summary displays saved reflections. Reopening from a fresh app launch retains committed practice and saved answers. Unsubmitted reflection is optional and can be left behind.
+
+Room 22 adds separate completion and reflection tables. Complete ZIP v6 preserves them and reads v1–v5. Legacy JSON v1–v7 remains readable. Earlier histories retain their original records without invented completion data. G1 first-positive-time attribution remains independent.
+
+- Release and Android instrumentation test compilation passed. All 28 focused local tests passed, including Room migration, committed outcomes, rating bounds, repeat placement identity, Goal changes, persistence after reopen, unchanged time attribution, v6 ZIP round trip, legacy JSON and prior v3 ZIP records, practice notes, clock and metronome persistence.
+- Android 8/API 26 passed Prep tools, recording-review protection, note-draft safeguards and the two optional reflection skips. [API 26 check](https://github.com/mrayover/practice.logger/actions/runs/42530860130)
+- Android 15/API 35 at 320 dp and 200% text passed both P2 review workflows, including the committed-outcome check before reflection, rating persistence through recreation, Up Next, skipped practice, session answers and summary. The Prep note case at this size timed out waiting for Complete to become visible after dismissing the keyboard. The job stopped before the separate prepared-Block cold-reopen case. The two reflection screenshots were reviewed. Some actions require scrolling at this text size. [Initial run](https://github.com/mrayover/practice.logger/actions/runs/42530860533) · [Keyboard dismissal](https://github.com/mrayover/practice.logger/actions/runs/42531330644) · [Visibility follow-up](https://github.com/mrayover/practice.logger/actions/runs/42531735898)
+- Android 15 passed both portable archive cases, including verified restore of ZIP v1–v6 and rejection of malformed completion/ratings. ZIP v6 retained the completion facts and reflection records. The same run passed the three-outcome practice and overtime workflow. [Archive and practice checks](https://github.com/mrayover/practice.logger/actions/runs/42531330846)
+- Android 15 at standard text passed the three-stage practice workflow, paused recovery and saved summary/history after a process restart. [Practice and cold-reopen checks](https://github.com/mrayover/practice.logger/actions/runs/42531735972)
+
+**Next task** is to install build104 on the S26 Ultra and run the [P2 reflection phone checks](MANUAL_TESTS.md#p2-reflection-phone-checks).
 
 ## Signed metronome scaling fix
 

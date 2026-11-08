@@ -283,8 +283,10 @@ Install build103 over build101 or build102 on the Samsung S26 Ultra. Open a Bloc
 
 Install build104 over the existing permanent-key installation. Check that saved Blocks, recordings, Routines and history still open.
 
-1. Start a multi-Block session. Use Prep, Start Practice and Pause, then tap **Complete**. Check that the optional security question appears. At enlarged text, select 4 and continue. Check that **Up Next** offers Start and Prep.
+1. Start a session with at least four Blocks. Use Prep, Start Practice and Pause, then tap **Complete**. Check that the optional security question appears. At enlarged text, select 4 and continue. Check that **Up Next** offers Start and Prep.
 2. Complete another Block. Open **More**, enter an answer, then choose **Skip**. Skip a practice Block from its workspace and verify it advances directly. Confirm that the summary distinguishes completed and skipped Blocks and only shows the saved rating.
 3. On the last completed Block, enter a review and continue. In **Session Reflection**, expand the questions, enter an answer and a note, then choose **Finish Session**. Reopen through Routines → Recent Practice and check the rating, session answer, note and actual practice time. In a separate short session, use **Skip Reflection** and confirm the session still appears in history.
 4. Change the completed Block's primary Goal or reorder its Goal and verify the earlier summary still shows its original priority/color. Force-stop during an optional review and reopen. Earlier completions and time should be retained, and the timer should remain paused.
 5. Export a complete ZIP and restore it only on a separate empty installation. Compare the saved rating, reflections and completion color with the source history.
+
+6. At enlarged text, type a Prep note, close the keyboard and check that **Complete** is reachable and prompts you to keep or discard the draft. The 320 dp Android 15 test timed out at this step.
