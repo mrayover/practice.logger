@@ -250,3 +250,11 @@ Use the signed compatibility candidate linked in [CURRENT_STATE](CURRENT_STATE.m
 3. In Focused Practice and Tools, test **−1**, **+1**, the meter, **Accent**, the expansion control, **Apply BPM** and **Start/Stop click**. Check that the running button flashes in the existing flash-enabled modes. Expand and collapse the panel with a PDF or a Notes draft open and verify the prior content returns.
 4. Repeat on a narrow phone and a large screen. Use default, intermediate and maximum text sizes, then change display size. Try landscape and both gesture and three-button navigation where available. Scroll to each action at the smallest usable viewport.
 5. Check Home, Settings, the Block editor, the Session builder, Goals, Routines, journal and native pickers. In Library audio and Transcribe, reach the waveform, seek, A–B and markers at large text and in landscape. Check Light, Dark and a custom theme. With TalkBack, verify that the numeric fields announce **Phrase BPM**, **Loop beats**, and **Count-in beats**, and that the metronome announces expansion and the Accent checkbox state.
+
+## W1 This Week phone checks
+
+1. Install build98 over the existing permanent-key app. Confirm saved Blocks, unfinished sessions, Journal entries and media still open.
+2. Open Practice Now → This Week. Confirm the current Sunday–Saturday range. Visit the previous and next weeks and confirm that neither inherits Blocks automatically.
+3. In Prepare Week, add an existing Block and create another. Carry forward from an earlier week, repeat the carry, and confirm each Block appears once in saved order. Remove a membership and confirm its Block is still in the Library. Try Add to This Week from the Library and editor.
+4. Tap a single Block and confirm practice opens paused. Leave it unfinished, return to This Week, select two Blocks and confirm the existing builder opens with them in weekly order. Open In Progress and resume an unfinished session.
+5. Close and reopen the app and verify both plans. Create a complete ZIP and restore it only into a separate empty installation to check weekly membership and media together.

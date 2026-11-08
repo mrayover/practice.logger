@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1 and G1 are delivered. G2 — Shared Goal Filtering is the next separately assigned implementation milestone. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1 and G1 are delivered. The owner prioritized W1 ahead of G2. G2 remains incomplete and requires a separate assignment. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -58,11 +58,12 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **S2** | Complete Portable ZIP Backup and Verified Restore (complete) | Verified clean-install recovery and local SAF publication. Owner cloud-provider checks are pending | **High** |
 | **O1** | Block-Local Practice Overlay Implementation (complete) | Build95 passed focused viewer and separate-install ZIP v2 recovery, restart and edit checks on API 26 and 35. Owner phone checks are pending. | **High** |
 | **G1** | Goal priority colors, primary Block association and first-accrual snapshots (complete) | Build96 with focused migration, UI and recovery checks. Owner phone checks are pending. | **High** for attribution; **Medium** for UI |
-| **G2** | Shared Goal Filtering | After G1. Shared filter with search and archived eligibility across three entry points. | **Medium** |
+| **W1** | This Week practice workspace | Owner-prioritized after G1 and before G2. Focused Room, backup and Android workflow checks. | **Medium** |
+| **G2** | Shared Goal Filtering | After W1. Shared filter with search and archived eligibility across three entry points. | **Medium** |
 | **G3** | Accurate time attribution and concise statistics | After G2. Historical snapshots, legacy Goal sessions and distinct committed totals. | **High** |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
-**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → G2 → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
+**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → G3 → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
 
 ### What is already implemented — do not rebuild it
 
@@ -300,6 +301,12 @@ Up to five active Goals, Goal ordering/completion, manual percentages, existing 
 - Preserve the existing many-to-many Goal links and Goal-launched sessions. An upgrade adopts a sole valid Goal link and leaves zero-link and multi-link Blocks unassigned. Setting a primary creates any missing link. Clearing the primary retains links. Removing the primary link through Goal management also clears the assignment.
 - First positive committed placement time records its primary Goal ID or explicit absence and its active rank from 1 to 5 when applicable. Later practice, reorder and reassignment preserve that snapshot. Pre-G1 positive time remains without a placement snapshot. The complete ZIP preserves both assignments and snapshots.
 
+### W1 — This Week
+
+The owner explicitly assigned W1 ahead of G2. Practice Now offers This Week and an In Progress list for unfinished sessions. Weekly plans use Sunday through Saturday in the device's local calendar. Plan membership stores ordered permanent Block IDs. Prepare Week adds active Blocks, creates and adds a Block in one transaction, carries forward active Blocks from a chosen earlier week, and removes membership without deleting the Block. Plans do not roll over automatically.
+
+A single Block opens independent paused practice. Multi-selection adds Blocks in saved order to the existing session builder. The Block Library and editor can add saved active Blocks directly to the current week. Room 20 and complete ZIP v4 preserve membership and order, including archived assignments. ZIP v1–v3 and JSON v1–v7 remain readable. Journal Weekly View retains its Monday–Sunday calendar.
+
 ### G2 — Shared Goal filtering (Medium)
 
 - Implement **one shared filter** applied in (1) Practice Now/session Block picker, (2) Manage Blocks, and (3) saved Routine editor/builder.
@@ -377,6 +384,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] S2 verified **full media-inclusive ZIP backup and clean restore** with integrity/failure tests.
 - [ ] O1 Block-local overlays, including editable recovery, pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance).
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
+- [x] W1 This Week workspace, preparation, session entry and complete ZIP support. See [CURRENT_STATE](CURRENT_STATE.md) for verification and delivery.
 - [ ] G2 Goal filter combined with available search across all three Block selection contexts.
 - [ ] G3 actual time statistics and historically accurate, nonduplicated Goal attribution; no fake progress.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.

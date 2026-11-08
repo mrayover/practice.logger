@@ -1,8 +1,26 @@
-# Current state — Android display compatibility and G1 delivery
+# Current state — W1 This Week
 
-Updated November 5, 2026 (America/Los_Angeles).
+Updated November 8, 2026 (America/Los_Angeles).
 
-## Signed Android compatibility candidate
+## Signed W1 candidate
+
+**0.32.0/build98**, app source `6c93d474f5db653eeec0ecd8bad77093ed34ad95`. Install over permanent-key build97. [APK](dist/practice.logger-0.32.0-b98-6c93d47/practice.logger-0.32.0-b98-6c93d47.apk) · [ZIP](dist/practice.logger-0.32.0-b98-6c93d47.zip) · [Build info](dist/practice.logger-0.32.0-b98-6c93d47/BUILD_INFO.json) · [Phone checks](MANUAL_TESTS.md#w1-this-week-phone-checks)
+
+The publisher verified package `com.mrayover.practicelogger.app`, version, permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`, and the distribution ZIP round trip. All 142 unsigned payload entries matched the signed APK. APK SHA-256 `e7dfe021793304cdde098ee29cebc99e0a035fee498fe920cfa1d60824fe4ac0`. ZIP SHA-256 `dbebee6cb72faee8dfa27e2ed4686c5698552654154a96d275099e1a545cd8c7`.
+
+- Practice Now opens This Week or the In Progress session list. Prepare Week adds, creates, carries forward, and removes membership immediately. Plans are Sunday–Saturday with no automatic rollover. Journal Weekly View remains Monday–Sunday.
+- Single-Block practice opens an independent paused session. Multi-selection appends to the existing draft in weekly order, retaining any placements already there. Archived Blocks stay visible in their assigned weeks and become eligible again when restored. Carry-forward skips archived Blocks. Permanent deletion requires removing all weekly memberships first.
+- Room 19→20 adds only ordered Block membership. Schemas 1–19 are unchanged. Complete ZIP v4 preserves the new rows. ZIP v1–v3 and legacy JSON v1–v7 remain readable and restore without weekly plans. [Backup format](BACKUP_FORMAT.md#weekly-plans-in-zip-v4)
+
+### W1 verification
+
+- Local Windows Gradle compiled debug, release and instrumentation APKs and passed source encoding verification. The final targeted run passed all 12 unit tests across WeekPlanTest, BlockRepositoryTest, BackupRepositoryTest and GoalAttributionTest. These cover Room 19→20, Sunday boundaries, database reopen, ordered membership, archiving and deletion, session draft safety, and ZIP record validation. The fixture-only follow-up `faed19ab0f8d270bd03475a32cc2f2d6ad070b02` left the signed app source unchanged. Earlier unit attempts hit an unsupported Room cleanup call, a missing optional schema field in the fixture, and a Robolectric directory-sync error. Full restore was verified on Android.
+- API 35 passed all four focused instrumentation tests on the signed candidate's source. WeekWorkflowTest exercised Library add, editor membership status, earlier-week preparation, Block creation, carry-forward, removal, multi-Block builder order, paused single-Block practice and In Progress. WeekReopenTest checked persistence after a separate process launch. PortableArchiveValidationTest verified complete ZIP v1–v4 restore, archived membership, invalid record rejection and destination error handling. [Android diagnostic run](https://github.com/mrayover/practice.logger/actions/runs/42516430245)
+- Full regression was outside this increment. Physical phone install-over and owner acceptance are pending.
+
+**Next task** is owner phone verification of build98. **G2 — Shared Goal Filtering** remains incomplete and requires a separate implementation assignment.
+
+## Retained build97 Android compatibility candidate
 
 **0.31.1/build97**, app source `16a496fd58f740388e02f9782a1c73772c52cbcf`. Install over permanent-key build96. [APK](dist/practice.logger-0.31.1-b97-16a496f/practice.logger-0.31.1-b97-16a496f.apk) · [ZIP](dist/practice.logger-0.31.1-b97-16a496f.zip) · [Build info](dist/practice.logger-0.31.1-b97-16a496f/BUILD_INFO.json) · [Phone checks](MANUAL_TESTS.md#android-display-compatibility-phone-checks)
 
@@ -36,7 +54,7 @@ GitHub diagnostics built the app and test APKs with `assembleDebug assembleDebug
 
 Earlier trials exposed a one-column intrinsic-width error, text bounds at 200%, and insufficient height in the expanded practice panel. Corrected runs are linked above. The prior API 36 routine-navigation diagnostic encountered a System UI ANR. The generic API 35 Transcribe diagnostic lacked its audio fixture and the fixture-backed API 35 rerun passed. The early landscape setting did not rotate the app. The first stricter instrumentation build failed to compile because its bounds accessor was incompatible. The corrected test compiled locally and passed in narrow portrait and verified landscape. The two follow-up commits changed tests and their runner only.
 
-No physical phone or tablet was attached. Samsung One UI, TalkBack, physical install-over and audio/display timing still need owner-device checks. The compatibility pass leaves **G2 — Shared Goal Filtering** as the next separately assigned implementation milestone.
+No physical phone or tablet was attached. Samsung One UI, TalkBack, physical install-over and audio/display timing still need owner-device checks.
 
 ## Signed G1 delivery
 

@@ -35,7 +35,7 @@ Practice Now offers saved unfinished sessions, the existing Add Blocks builder, 
 
 The November 3 Media Library roadmap amendment established the dependency chain through T2. The November 4 owner handoff splits the remaining T3 work.
 
-Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → G2 → G3 → F1 → F2**.
+Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → G3 → F1 → F2**.
 
 T2 is delivered in signed build86. T3-0 is a documentation checkpoint. The owner assigned **T3A — Standalone Transcribe Workspace** on November 4, 2026. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A–T3D, their checks and their dependencies. S2 includes standalone activity history, Goal associations, canonical microphone references, and global and local annotations alongside its approved recovery scope.
 
@@ -218,7 +218,9 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-The next implementation milestone is **G2 — Shared Goal Filtering**, subject to a separate assignment. See [CURRENT_STATE](CURRENT_STATE.md) for G1 delivery and the owner phone checks.
+The owner prioritized **W1 — This Week** ahead of G2. W1 adds Sunday–Saturday weekly plans, immediate membership changes, single-Block practice and ordered selection into the existing builder. Room 20 and complete ZIP v4 preserve those plans. See the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md#w1--this-week) and [CURRENT_STATE](CURRENT_STATE.md) for scope and evidence.
+
+**G2 — Shared Goal Filtering** remains incomplete and requires a separate owner assignment.
 
 ## Increment 3 — delivered 2026-10-29
 
