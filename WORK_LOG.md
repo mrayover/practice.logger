@@ -1080,3 +1080,12 @@ Signed 0.31.1/build97 from `16a496fd58f740388e02f9782a1c73772c52cbcf`. Verified 
 Verified the clean designated checkout and remote main at build97. The owner prioritized W1 ahead of incomplete G2. Implemented Sunday–Saturday weekly plans, immediate preparation, explicit carry-forward, Library and editor membership, single-Block paused practice, ordered selection into the existing builder and the In Progress list. Room 19→20 adds only membership. Complete ZIP v4 preserves it and reads earlier ZIP versions.
 
 Signed 0.32.0/build98 from 6c93d474f5db653eeec0ecd8bad77093ed34ad95 with the permanent key. All 12 focused units passed after test-fixture corrections. All four API 35 instrumentation checks passed, including process restart and complete ZIP v1–v4 restore. Source encoding and debug, release and instrumentation compilation passed. No full regression or physical phone install was performed. See [CURRENT_STATE](CURRENT_STATE.md#w1-verification) for exact evidence and package paths. Next task is owner phone verification of build98. G2 remains separately assignable.
+
+
+## 2026-11-08 — G2 Shared Goal Filtering
+
+Reviewed the mandatory efficiency procedure and verified the designated checkout and remote main at `68fad208255db7b184482e4ed36bdfd13c89b42e`, signed build98. Extended the existing Block matcher with primary Goal filtering and reused one control across Manage Blocks, the Session Builder, the saved Routine editor and the Prepare Week picker. Filter state belongs to each picker visit. Room 20 and complete ZIP v4 remain in use.
+
+Local source encoding, debug, release and Android test APK compilation passed, along with 10 focused unit tests. Two initial G2 Android diagnostics were canceled after scoping test option selectors to the dropdown. The corrected workflow passed on API 26 at normal text and API 35 at 200% text on a narrow display. Separate API 35 W1 workflow and process-reopen checks passed. Verification was scoped to G2 and W1. [Runs and coverage](CURRENT_STATE.md#g2-behavior-and-verification)
+
+Signed 0.33.0/build99 from `e4b805961c9fb4fb8efd1e61535498b5be87fc1f`. Verified package/version, build98 certificate continuity, 142 matching APK payload entries, the distribution ZIP and the owner OneDrive copies. [Delivery and hashes](CURRENT_STATE.md#signed-g2-delivery) Next task is owner phone verification of build99. G3 awaits separate assignment.

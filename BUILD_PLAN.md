@@ -1,6 +1,10 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-11-05 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+Updated 2026-11-08 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+
+## G2 — Shared Goal Filtering
+
+Build99 delivers the same primary Goal filter alongside text search in Manage Blocks, the Session Builder, the saved Routine editor, and This Week → Prepare Week → Add existing Blocks. Results retain the existing active/archived rules and Goal indicators. [Scope](PRACTICE_LOGGER_V1_MASTER_PLAN.md#g2--shared-goal-filtering-medium) · [Delivery and checks](CURRENT_STATE.md)
 
 ## G1 — Goal priority colors and primary Block associations
 
@@ -218,9 +222,7 @@ The owner’s 2026-10-29 phone screenshot authorizes compact Focused Practice to
 
 ## Next action
 
-The owner prioritized **W1 — This Week** ahead of G2. W1 adds Sunday–Saturday weekly plans, immediate membership changes, single-Block practice and ordered selection into the existing builder. Room 20 and complete ZIP v4 preserve those plans. See the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md#w1--this-week) and [CURRENT_STATE](CURRENT_STATE.md) for scope and evidence.
-
-**G2 — Shared Goal Filtering** remains incomplete and requires a separate owner assignment.
+Run the [G2 install-over and phone checks](MANUAL_TESTS.md#g2-shared-goal-filtering-phone-checks). G3 awaits a separate owner assignment.
 
 ## Increment 3 — delivered 2026-10-29
 

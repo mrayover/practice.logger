@@ -1,8 +1,26 @@
-# Current state — W1 This Week
+# Current state — G2 Shared Goal Filtering
 
 Updated November 8, 2026 (America/Los_Angeles).
 
-## Signed W1 candidate
+## Signed G2 delivery
+
+**0.33.0/build99**, app source `e4b805961c9fb4fb8efd1e61535498b5be87fc1f`. Install over permanent-key build98 without uninstalling. The verified APK and ZIP are in the owner's **OneDrive → Documents → ChatGPT → Practice Log development → G2 delivery** folder. Open `practice.logger-0.33.0-b99-e4b8059.apk` to install. The ZIP has the same name with a `.zip` extension and includes the build manifest and installation notes. [Phone checks](MANUAL_TESTS.md#g2-shared-goal-filtering-phone-checks)
+
+- Package `com.mrayover.practicelogger.app`. The signature matches build98 and pinned certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA-256 `c9560d26dcc7048865b7c7db8bbda2d10f2464504f5e2ba540b9e60fe6aeb536`. ZIP SHA-256 `93bf699e117ca1d1f736ae4c019de5d5b0c2fb8fef26d394c5af04e287c50587`. All 142 APK payload entries matched the unsigned build. All four ZIP members and the OneDrive folder copies matched their source files.
+
+### G2 behavior and verification
+
+The same Goal filter is beside text search in Manage Blocks, Practice Now → Add Blocks, the saved Routine editor, and This Week → Prepare Week → Add existing Blocks. All Goals is the default for each visit. Active Goals are listed in priority order. No Goal matches a null primary association. Completed Goals remain identifiable on their Blocks under All Goals. Reordering follows the Goal ID, and completing a selected Goal returns the picker to All Goals. Results respect the current active/archived view and Prepare Week's existing membership rules.
+
+- Local Windows Gradle passed source encoding and debug, release and Android test APK compilation. All 10 focused unit tests passed across BlockGoalFilterTest, BlockRepositoryTest, GoalAttributionTest and WeekPlanTest. Coverage includes all five Goal ranks, legacy links versus primary IDs, completed Goals, text search, archive eligibility, changing Goal choices and weekly persistence.
+- The API 35 W1 workflow and separate process reopen passed, covering add/create/remove, carry-forward, builder order and paused single-Block practice. [W1 Android run](https://github.com/mrayover/practice.logger/actions/runs/42519588530)
+- The four-picker G2 workflow passed on API 26 at 100% text and on API 35 at 200% text with a 720 × 1440, 360 dpi display override. It verified Library archive switching, Goal reorder and completion, session draft order, saving a Routine after filtering, and adding an existing Block in Prepare Week. The native test follow-up `77399ce4ee2f3a7323133ecb20425214a635c500` changed only the test's menu selectors. [API 26 run](https://github.com/mrayover/practice.logger/actions/runs/42519694262) · [API 35 run](https://github.com/mrayover/practice.logger/actions/runs/42519696489)
+- The app stays on Room 20 and complete ZIP v4. Physical install-over and phone acceptance are pending.
+
+**Next task** is owner phone verification of build99. G3 awaits a separate assignment.
+
+## Retained signed W1 candidate
 
 **0.32.0/build98**, app source `6c93d474f5db653eeec0ecd8bad77093ed34ad95`. Install over permanent-key build97. [APK](dist/practice.logger-0.32.0-b98-6c93d47/practice.logger-0.32.0-b98-6c93d47.apk) · [ZIP](dist/practice.logger-0.32.0-b98-6c93d47.zip) · [Build info](dist/practice.logger-0.32.0-b98-6c93d47/BUILD_INFO.json) · [Phone checks](MANUAL_TESTS.md#w1-this-week-phone-checks)
 
@@ -17,8 +35,6 @@ The publisher verified package `com.mrayover.practicelogger.app`, version, perma
 - Local Windows Gradle compiled debug, release and instrumentation APKs and passed source encoding verification. The final targeted run passed all 12 unit tests across WeekPlanTest, BlockRepositoryTest, BackupRepositoryTest and GoalAttributionTest. These cover Room 19→20, Sunday boundaries, database reopen, ordered membership, archiving and deletion, session draft safety, and ZIP record validation. The fixture-only follow-up `faed19ab0f8d270bd03475a32cc2f2d6ad070b02` left the signed app source unchanged. Earlier unit attempts hit an unsupported Room cleanup call, a missing optional schema field in the fixture, and a Robolectric directory-sync error. Full restore was verified on Android.
 - API 35 passed all four focused instrumentation tests on the signed candidate's source. WeekWorkflowTest exercised Library add, editor membership status, earlier-week preparation, Block creation, carry-forward, removal, multi-Block builder order, paused single-Block practice and In Progress. WeekReopenTest checked persistence after a separate process launch. PortableArchiveValidationTest verified complete ZIP v1–v4 restore, archived membership, invalid record rejection and destination error handling. [Android diagnostic run](https://github.com/mrayover/practice.logger/actions/runs/42516430245)
 - Full regression was outside this increment. Physical phone install-over and owner acceptance are pending.
-
-**Next task** is owner phone verification of build98. **G2 — Shared Goal Filtering** remains incomplete and requires a separate implementation assignment.
 
 ## Retained build97 Android compatibility candidate
 

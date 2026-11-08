@@ -1,6 +1,6 @@
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1 and G1 are delivered. The owner prioritized W1 ahead of G2. G2 remains incomplete and requires a separate assignment. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. G3 awaits a separate owner assignment. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -59,7 +59,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **O1** | Block-Local Practice Overlay Implementation (complete) | Build95 passed focused viewer and separate-install ZIP v2 recovery, restart and edit checks on API 26 and 35. Owner phone checks are pending. | **High** |
 | **G1** | Goal priority colors, primary Block association and first-accrual snapshots (complete) | Build96 with focused migration, UI and recovery checks. Owner phone checks are pending. | **High** for attribution; **Medium** for UI |
 | **W1** | This Week practice workspace | Owner-prioritized after G1 and before G2. Focused Room, backup and Android workflow checks. | **Medium** |
-| **G2** | Shared Goal Filtering | After W1. Shared filter with search and archived eligibility across three entry points. | **Medium** |
+| **G2** | Shared Goal Filtering | Delivered after W1. Shared filter with search and archived eligibility across four Block-selection contexts. | **Medium** |
 | **G3** | Accurate time attribution and concise statistics | After G2. Historical snapshots, legacy Goal sessions and distinct committed totals. | **High** |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
@@ -309,10 +309,10 @@ A single Block opens independent paused practice. Multi-selection adds Blocks in
 
 ### G2 — Shared Goal filtering (Medium)
 
-- Implement **one shared filter** applied in (1) Practice Now/session Block picker, (2) Manage Blocks, and (3) saved Routine editor/builder.
-- Choices **All Goals**, each of the current five active Goals, and **No Goal**. Match the **primary** association; `No Goal` means actual null, not an inactive or completed Goal. Show completed-Goal Blocks under All; allow their existing Goal identity to be visible even if completed Goals are not active filter choices.
-- Combine with existing name/action/notes text search and active/archived eligibility. **If actual tag data/features exist by implementation time**, compose tag filtering in the same predicate. If absent, do not invent a tag filter or add tag infrastructure to V1 as a side effect.
-- Retain caps in results, clear filter easily, show meaningful empty states and preserve session-builder ordering/history.
+- Build99 applies one shared filter in Manage Blocks, Practice Now → Add Blocks, the saved Routine editor, and This Week → Prepare Week → Add existing Blocks.
+- Choices are **All Goals** (default), the current active Goals in priority order, and **No Goal**. No Goal matches a null primary association. Completed-Goal Blocks remain under All Goals and retain their indicators. Reordering keeps the selected Goal by ID. Completing it returns the picker to All Goals.
+- The shared matcher combines Goal, name/action/notes text, and active/archived eligibility. Prepare Week offers only eligible Blocks that are available to add to the displayed week.
+- Existing selections and ordering are independent of the displayed results. See [delivery and verification](CURRENT_STATE.md).
 
 Transcribe remains ordinary Block practice: no separate transcription statistics or practice-time counter.
 
@@ -325,7 +325,7 @@ Transcribe remains ordinary Block practice: no separate transcription statistics
 - **Time measures effort, not mastery.** Do not auto-compute a completion percentage from minutes. The current Goal editor requires manual 0–100%; adapt the presentation so percentage is **optional or only displayed when a meaningful measurable target exists**, retaining legacy entered values without erasing them. Status, notes, accumulated time and practice activity can be shown without a fabricated percent.
 - Reuse existing Goal/Block/session screens. Do not invent granular per-day split of a session across midnight where data does not support it; clearly label session-start-date-derived weekly totals if that is the available representation. No streak/gamification/social, broad AI analytics or separate reporting backend.
 
-**G3 exit:** signed candidate with tests for zero/one/multiple legacy links, current colors change with priority after Goal reorder/complete/reopen while earlier snapshots retain their original ranks, filter + search across all three entry points, repeated Block placement, different session start types, unfinished/paused/overtime/skip, Block reassignment after past practice, backup/restore of attribution and no duplicate total time. Goal time must never silently be displayed as skill mastery.
+**G3 exit:** signed candidate with tests for zero/one/multiple legacy links, current colors change with priority after Goal reorder/complete/reopen while earlier snapshots retain their original ranks, filter and search across the four G2 Block-selection contexts, repeated Block placement, different session start types, unfinished/paused/overtime/skip, Block reassignment after past practice, backup/restore of attribution and no duplicate total time. Goal time must never silently be displayed as skill mastery.
 
 ---
 
@@ -385,7 +385,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [ ] O1 Block-local overlays, including editable recovery, pass the [overlay acceptance gate](docs/PRACTICE_OVERLAY_SPEC.md#o1-acceptance).
 - [ ] G1 stable five Goal colors, neutral caps, optional primary Goal and preserved legacy associations.
 - [x] W1 This Week workspace, preparation, session entry and complete ZIP support. See [CURRENT_STATE](CURRENT_STATE.md) for verification and delivery.
-- [ ] G2 Goal filter combined with available search across all three Block selection contexts.
+- [x] G2 Goal filter and text search in Manage Blocks, Session Builder, saved Routine editor, and Prepare Week.
 - [ ] G3 actual time statistics and historically accurate, nonduplicated Goal attribution; no fake progress.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
 - [ ] F2 permanent-key V1 release candidate, real-device acceptance and truthful final documentation.

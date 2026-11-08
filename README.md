@@ -36,7 +36,7 @@ The banner returns Home through the current save/discard barriers. Unsaved new o
 
 ## Install and verify
 
-Use the current APK or ZIP linked in [CURRENT_STATE.md](CURRENT_STATE.md). That file is the single authority for delivery paths, source SHA, signature/hash, actual CI results and known limitations. The local distribution pointer is [dist/LATEST.txt](dist/LATEST.txt). Packages are local, ignored by Git, and earlier releases remain preserved.
+Find the current APK and ZIP in the owner's OneDrive delivery folder recorded in [CURRENT_STATE.md](CURRENT_STATE.md). That file also records the source SHA, signature, hashes and verification results. The checkout's local distribution pointer is `dist/LATEST.txt`.
 
 Android 8.0+; install over the existing permanent-key app **without uninstalling** to retain data/audio. Package ID: `com.mrayover.practicelogger.app`. Original temporary-key 0.1.0 is a separate app with no automatic data transfer. CI debug APKs use a temporary key and cannot update the permanent-key distribution.
 

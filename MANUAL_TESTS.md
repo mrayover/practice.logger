@@ -258,3 +258,11 @@ Use the signed compatibility candidate linked in [CURRENT_STATE](CURRENT_STATE.m
 3. In Prepare Week, add an existing Block and create another. Carry forward from an earlier week, repeat the carry, and confirm each Block appears once in saved order. Remove a membership and confirm its Block is still in the Library. Try Add to This Week from the Library and editor.
 4. Tap a single Block and confirm practice opens paused. Leave it unfinished, return to This Week, select two Blocks and confirm the existing builder opens with them in weekly order. Open In Progress and resume an unfinished session.
 5. Close and reopen the app and verify both plans. Create a complete ZIP and restore it only into a separate empty installation to check weekly membership and media together.
+
+
+## G2 Shared Goal Filtering phone checks
+
+1. Install the signed build99 APK over build98 without uninstalling. Open the Library and This Week to confirm the existing Blocks and weekly plans are present.
+2. In Manage Blocks, try All Goals, an active Goal and No Goal. Combine a Goal with a name, action or notes search, and switch between Active and Archived. Confirm a completed Goal's Block and label are visible under All Goals.
+3. In Practice Now → Add Blocks and in a saved Routine editor, add Blocks from different Goal filters. Change the filter again and confirm the existing placements and order.
+4. In This Week → Prepare Week, choose a Goal and add an existing Block. Confirm it appears in the week and is removed from the available results. With enlarged text, check that the filter menu scrolls and can return to All Goals.
