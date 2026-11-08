@@ -48,9 +48,9 @@ class TranscribeWorkflowTest {
             Triple(first, second, marker)
         }
         val originals = File(app.filesDir, "media-library").listFiles()!!.map { it.name }.toSet()
-        compose.runOnIdle { practice.openSession(session) }
+        compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
         shown("practice-loop-record")
-        click("Start")
+        click("Start Practice")
         compose.waitUntil(15000) { practice.running && !practice.busy }
         tag("practice-reference-toggle").performClick()
         tag("practice-loop-record").performClick()

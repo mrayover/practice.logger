@@ -169,7 +169,7 @@ class LoopRecorderPreviewTest {
                 }
                 val repo=SessionRepository(db); repo.addBlock(b); b to repo.start()
             }
-            shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; shown("Practice Description")
+            shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose); shown("Practice Description")
             compose.waitUntil(15000) { audio.ready }
             tag("practice-loop-record").performClick()
             compose.onNodeWithTag("phrase-count-in").assertIsDisplayed()
@@ -266,7 +266,7 @@ class LoopRecorderPreviewTest {
                 val b = BlockRepository(db).save(null,BlockDraft("Loop autoplay safety","Listen, then decide.","5","300"))
                 val repo=SessionRepository(db);repo.addBlock(b);b to repo.start()
             }
-            shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("Practice Description")
+            shown("Practice Now");compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose);shown("Practice Description")
             compose.waitUntil(15000) { audio.ready };tag("practice-loop-record").performClick()
             val savedBefore=runBlocking { db.takes().readAll() }
             compose.runOnIdle { audio.startPhrase(block,PhraseSpec(300,16,12)) }

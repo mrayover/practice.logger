@@ -67,7 +67,7 @@ class MetronomeButtonPulseTest {
                 val b=BlockRepository(db).save(null,BlockDraft("Button pulse check","Practice","5","90"))
                 val repo=SessionRepository(db);repo.addBlock(b);repo.start()
             }
-            shown("Practice Now");compose.runOnIdle { vm.openSession(session) };shown("90 BPM")
+            shown("Practice Now");compose.runOnIdle { vm.openSession(session) }; prepReadyBlock(compose);shown("90 BPM")
             compose.runOnIdle { vm.configureMetronome(vm.metronomeConfig.copy(mode=MetronomeMode.SOUND_FLASH)) }
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick(); shown("91 BPM")
             for (choice in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.SMOOTH, ThemeChoice.SUNNY, ThemeChoice.ORCHID)) {

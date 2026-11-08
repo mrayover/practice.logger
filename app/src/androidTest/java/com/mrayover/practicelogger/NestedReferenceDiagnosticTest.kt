@@ -21,7 +21,7 @@ class NestedReferenceDiagnosticTest {
                 val repo=SessionRepository(db);repo.addBlock(id);repo.start()
             }
             val practice=ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
-            compose.waitUntil(15000) { practice.catalog.value.ready };compose.runOnIdle { practice.openSession(sid) }
+            compose.waitUntil(15000) { practice.catalog.value.ready };compose.runOnIdle { practice.openSession(sid) }; prepReadyBlock(compose)
             compose.waitUntil(15000) { compose.onAllNodesWithText("Notes").fetchSemanticsNodes().isNotEmpty() }
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("A saved note")

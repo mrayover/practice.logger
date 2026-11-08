@@ -40,7 +40,7 @@ class RecordingWorkflowTest {
             }
             shown("Practice Now"); click("Practice Now"); click("Add Blocks"); shown("Add Recorder fixture"); click("Add Recorder fixture")
             compose.waitUntil(15000) { compose.onAllNodes(hasText("Start Session") and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired=false).size == 1 }
-            click("Start Session"); shown("Start")
+            click("Start Session"); prepReadyBlock(compose); shown("Start Practice")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }
@@ -71,7 +71,7 @@ class RecordingWorkflowTest {
             compose.runOnIdle { assertFalse(vm.recording) }
             assertTrue(runBlocking { db.takes().readAll() }.isEmpty())
             device.executeShellCommand("pm grant com.mrayover.practicelogger.app android.permission.RECORD_AUDIO")
-            click("Start"); shown("Pause"); click("Start click"); shown("Stop click")
+            click("Start Practice"); shown("Pause"); click("Start click"); shown("Stop click")
             // Emulator capture exercises the real encoder/container path, not perceived microphone quality.
             repeat(3) { index ->
                 compose.onNodeWithTag("practice-free-record").scrollIfNeeded().performClick(); shown("Stop and review take")

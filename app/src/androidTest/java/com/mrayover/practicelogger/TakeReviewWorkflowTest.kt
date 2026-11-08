@@ -35,10 +35,10 @@ class TakeReviewWorkflowTest {
                 ImageReferenceRepository(db,File(app.filesDir,"block-images")).import(b) { InstrumentationRegistry.getInstrumentation().context.assets.open("references/score.pdf") }
                 val repo=SessionRepository(db);repo.addBlock(b);b to repo.start()
             }
-            shown("Practice Now");ready();compose.runOnIdle { practice.openSession(session) };shown("Practice Description")
+            shown("Practice Now");ready();compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose);shown("Practice Description")
             val prior=runBlocking { db.takes().readAll() }
             tag("practice-reference-toggle").performClick();shown("Page 1 of 2");click("Next page");shown("Page 2 of 2")
-            click("Start");click("Notes")
+            click("Start Practice");click("Notes")
             tag("practice-new-note").performTextReplacement("Keep review draft")
             compose.runOnIdle { compose.activity.currentFocus?.clearFocus();compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java).hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0) }
             tag("practice-free-record").performClick();compose.waitUntil(15000) { audio.recording && audio.elapsedMs >= 1500 }

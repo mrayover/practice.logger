@@ -36,8 +36,8 @@ class PhraseWorkflowTest {
             val previous = runBlocking { db.takes().readAll() }
             assertTrue(previous.count { it.mode == "FREE" } >= 2)
             val block = runBlocking { BlockRepository(db).save(null, BlockDraft("Loop fixture", "Play along", "5", "120")) }
-            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); click("Add Loop fixture"); click("Start Session"); shown("Start")
-            click("Start"); click("Start click")
+            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); click("Add Loop fixture"); click("Start Session"); shown("Start Block")
+            click("Start Block"); click("Start click")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(10000) { vm.ready }

@@ -1,10 +1,18 @@
 # Current state — P1 Intentional Practice Lifecycle
 
-## P1 implementation and verification
+## Signed P1 delivery
+
+**0.34.0/build100**, app source `49178a24e60a47c0a6ded64454ed3131efa6af75`. The signed APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → P1 delivery**. Install `practice.logger-0.34.0-b100-49178a2.apk` over the permanent-key build99.
+
+- Package `com.mrayover.practicelogger.app`, permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA-256 `9ad3083f68f8bea970a9d8db2f6978f2545a06b426e95d3f6d7eedd7c33fe934`. ZIP SHA-256 `83c35cec375726f2b6c17c40c2132991ddedd8097ea78e57dceac9f332844a7b`. All four ZIP members and the OneDrive copies matched.
+- Local Gradle release and Android test compilation passed. All 17 selected tests in SessionRepositoryTest, GoalAttributionTest, WeekPlanTest and BackupRepositoryTest passed. The checks include migration, separate prep time, the ZIP round trip, older records, and first-accrual Goal attribution.
+
+## P1 behavior and native verification
 
 Version **0.34.0/build100** adds Ready, Prep and Up Next to the shared Block practice workflow. Room 21 stores foreground preparation checkpoints separately and complete ZIP v5 preserves them. Previous ZIP v1–v4 and JSON v1–v7 remain readable. [Phone checks](MANUAL_TESTS.md#p1-intentional-practice-lifecycle-phone-checks)
 
-**Next task** is focused Android verification and permanent-key delivery for P1.
+**Next task** is to finish the focused Android verification, then run the phone checklist.
 
 Updated November 8, 2026 (America/Los_Angeles).
 

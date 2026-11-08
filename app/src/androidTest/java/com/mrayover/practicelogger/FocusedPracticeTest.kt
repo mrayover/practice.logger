@@ -121,9 +121,9 @@ class FocusedPracticeTest {
                 db.sessions().update(rows[0].copy(configuredMs=4000)); db.sessions().update(rows[1].copy(configuredMs=4000))
                 sid
             }
-            shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; shown("Practice Description")
+            shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose); shown("Practice Description")
             screenshot("initial-before-assertions")
-            listOf("Start", "Complete", "Skip").forEach { label ->
+            listOf("Start Practice", "Complete", "Skip").forEach { label ->
                 val layouts=mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
                 compose.onNodeWithText(label,useUnmergedTree=true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertTrue("Primary label must not break inside a word: $label",layouts.isNotEmpty() && layouts.all { it.lineCount==1 })
@@ -131,11 +131,11 @@ class FocusedPracticeTest {
 
             // At normal font scale this verifies real visibility without scrolling first.
             if (app.resources.configuration.fontScale < 1.5f) {
-                listOf("Practice Description","Free Recording","Loop Recording","Start","Complete","Skip").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
+                listOf("Practice Description","Free Recording","Loop Recording","Start Practice","Complete","Skip").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
                 compose.onNodeWithTag("metronome-bpm").assertIsDisplayed()
             }
             screenshot("collapsed")
-            click("Start"); compose.waitUntil(12000) { !practice.running && practice.completionSignals==1 }
+            click("Start Practice"); compose.waitUntil(12000) { !practice.running && practice.completionSignals==1 }
             compose.waitUntil(5000) { practice.completionFramesWritten()>=28_800 }
             assertEquals(4000L,runBlocking { db.sessions().find(session)!!.current!!.activeMs })
             assertEquals("PENDING",runBlocking { db.sessions().find(session)!!.current!!.outcome })
@@ -150,11 +150,11 @@ class FocusedPracticeTest {
             assertEquals(1,practice.completionSignals)
             compose.runOnIdle { practice.openSession(session) }; compose.waitUntil(15000) { !practice.busy }
             assertEquals(1,practice.completionSignals)
-            click("Continue"); compose.waitUntil(5000) { practice.running }; click("Pause")
+            click("Resume Block"); click("Continue"); compose.waitUntil(5000) { practice.running }; click("Pause")
             assertEquals(1,practice.completionSignals)
-            click("Complete"); shown("Block 2 of 2")
+            click("Complete"); shown("Block 2 of 2"); prepReadyBlock(compose)
             click("Start click"); compose.runOnIdle { practice.changeWorkingBpm(113) }
-            click("Start"); compose.waitUntil(12000) { !practice.running && practice.completionSignals==2 }
+            click("Start Practice"); compose.waitUntil(12000) { !practice.running && practice.completionSignals==2 }
             compose.waitUntil(5000) { practice.completionFramesWritten()>=28_800 }
             assertTrue(practice.clicking); assertEquals(113,practice.workingBpm)
             // Continue dismisses the dialog without changing click state.
@@ -177,8 +177,8 @@ class FocusedPracticeTest {
             savePracticeNote(compose); leavePracticeForLater(compose); shown("Practice Now")
             assertFalse(practice.clicking)
             assertEquals("retry note",runBlocking { db.practiceNotes().readAll().single { it.sessionId == session && it.text == "retry note" }.text })
-            compose.runOnIdle { practice.openSession(session) }; shown("Practice Description"); assertEquals(2,practice.completionSignals)
-            click("Continue"); compose.waitUntil(5000) { practice.running }
+            compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose); shown("Practice Description"); assertEquals(2,practice.completionSignals)
+            click("Start Practice"); compose.waitUntil(5000) { practice.running }
             // The direct free take uses the existing engine; exit/Complete cannot lose it.
             compose.onNodeWithTag("practice-free-record").scrollIfNeeded().performClick(); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs>=1000 }
             compose.onNodeWithText("Complete").assertIsNotEnabled(); compose.onNodeWithTag("practice-recording-stop").assertIsDisplayed()
@@ -198,7 +198,7 @@ class FocusedPracticeTest {
             val next=runBlocking {
                 val id=BlockRepository(db).save(null,BlockDraft("Pause safety","Pause before duration","1")); val repo=SessionRepository(db);repo.addBlock(id);repo.start()
             }
-            compose.runOnIdle { practice.openSession(next) }; shown("Start"); click("Start"); click("Pause")
+            compose.runOnIdle { practice.openSession(next) }; shown("Start Block"); click("Start Block"); click("Pause")
             compose.waitUntil(5000) { !practice.running && !practice.busy }; assertEquals(2,practice.completionSignals)
             screenshot("paused")
             // Header protects an unrelated dirty Block editor.

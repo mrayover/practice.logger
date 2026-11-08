@@ -146,7 +146,7 @@ class ThemeWorkflowTest {
                 val repo=SessionRepository(db);repo.addBlock(b);b to repo.start()
             }
             val media=File(app.filesDir,"block-images").walkTopDown().filter { it.isFile }.associate { it.name to it.readBytes().contentHashCode() }
-            shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("Practice Description")
+            shown("Practice Now");compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose);shown("Practice Description")
             compose.waitUntil(15000) { audio.ready }
             compose.runOnIdle { practice.resume() };compose.waitUntil(10000) { practice.running && !practice.busy }
             tag("practice-reference-toggle").performClick();compose.waitUntil(10000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }

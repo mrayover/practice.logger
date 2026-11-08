@@ -52,7 +52,7 @@ class NotesHistoryPreviewTest {
                 PhraseWave.write(pending.file, ShortArray(spec.frames)); takeRepo.save(pending)
                 b to current
             }
-            shown("Practice Now");compose.runOnIdle { practice.openSession(session) }
+            shown("Practice Now");compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
             shown("Practice Description")
             val placement = practice.catalog.value.active!!.current!!.id
             tag("practice-description").assertTextContains("Practice slowly")
@@ -68,7 +68,7 @@ class NotesHistoryPreviewTest {
                 pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f))
             }
             assertPracticeReferenceZoomed(compose)
-            click("Start");click("Start click");click("Notes");collapsedHeaders()
+            click("Start Practice");click("Start click");click("Notes");collapsedHeaders()
             compose.runOnIdle { assertTrue(practice.running);assertTrue(practice.clicking) }
             compose.waitUntil(10000) { notes.history.value.any { it.blockId == block && it.legacy } }
             tag("practice-new-note").performClick().performTextReplacement("First new note")
@@ -136,7 +136,7 @@ class NotesHistoryReopenTest {
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             val notes = ViewModelProvider(compose.activity)[BlockNotesViewModel::class.java]
             compose.waitUntil(15000) { practice.catalog.value.ready }
-            compose.runOnIdle { practice.openSession(fixture.getString("session")) }
+            compose.runOnIdle { practice.openSession(fixture.getString("session")) }; prepReadyBlock(compose)
             compose.waitUntil(15000) { compose.onAllNodesWithText("Notes").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Notes").scrollIfNeeded().performClick()
             compose.waitUntil(10000) { notes.history.value.count { it.blockId == fixture.getString("block") } == 3 }

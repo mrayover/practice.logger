@@ -125,7 +125,7 @@ class SystemPickerRestoreTest {
             shownPickerApp(compose, "In Progress")
             continueFirstSession(compose)
             shownPickerApp(compose, "Picker recovery")
-            compose.onNodeWithText("Resume").assertExists()
+            compose.onNodeWithText("Resume Block").assertExists()
             compose.onNodeWithText("Block 2 of 2").assertExists()
             runBlocking {
                 val bundle = db.sessions().find(expected.sessions.single { it.status == "IN_PROGRESS" }.id)!!
@@ -150,7 +150,8 @@ class SystemPickerReopenTest {
             shownPickerApp(compose, "In Progress")
             continueFirstSession(compose)
             shownPickerApp(compose, "Picker recovery")
-            compose.onNodeWithText("Resume").assertExists()
+            compose.onNodeWithText("Resume Block").assertExists()
+            prepReadyBlock(compose)
             compose.onNodeWithText("Complete").scrollIfNeeded().performClick()
             shownPickerApp(compose, "Session Summary")
             compose.onNodeWithText("Session Summary").assertIsDisplayed()

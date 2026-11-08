@@ -37,7 +37,7 @@ class TargetedP4PreviewTest {
                 val b = BlockRepository(db).save(null, BlockDraft("P4 transport", "Practice slowly", "5", "120"))
                 val repo = SessionRepository(db); repo.addBlock(b); repo.start()
             }
-            shown("Practice Now"); compose.runOnIdle { vm.openSession(id) }; shown("Practice Description")
+            shown("Practice Now"); compose.runOnIdle { vm.openSession(id) }; prepReadyBlock(compose); shown("Practice Description")
             compose.onNodeWithText("4/4").assertIsDisplayed()
             compose.onNodeWithTag("practice-metronome-accent").assertIsOff().performClick().assertIsOn()
             compose.runOnIdle { assertTrue(vm.metronomeConfig.accent) }
@@ -45,7 +45,8 @@ class TargetedP4PreviewTest {
             compose.runOnIdle { assertEquals(121, vm.workingBpm) }
             compose.onNodeWithContentDescription("Decrease click BPM by 1").performClick()
             compose.runOnIdle { assertEquals(120, vm.workingBpm) }
-            val buttons = listOf("Start", "Complete", "Notes", "Skip").map { compose.onNodeWithText(it).assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
+            val buttons = listOf("Complete", "Notes", "Skip").map { compose.onNodeWithText(it).assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
+            compose.onNodeWithText("Start Practice").assertIsDisplayed()
             assertTrue(buttons.all { kotlin.math.abs(it.top-buttons.first().top) <= 1f })
             compose.onNodeWithTag("practice-transport-scrollbar").assertDoesNotExist()
             val density = compose.activity.resources.displayMetrics.density

@@ -126,7 +126,8 @@ class PracticeLifecycleTest {
         tag("audio-play").performClick()
         compose.waitUntil(10000) { player.state.value.playing && player.state.value.positionMs > 0L }
         assertEquals(0L, current(sessionId).activeMs)
-        click("Return to Practice")
+        click("Close")
+        compose.waitUntil(15000) { recordings.ready }
         tag("practice-free-record").performClick()
         compose.waitUntil(15000) { recordings.recording && recordings.elapsedMs >= 1000L }
         compose.onNodeWithText("Complete").assertIsNotEnabled()

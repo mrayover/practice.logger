@@ -40,7 +40,7 @@ class MeterWorkflowTest {
             if(reference) ImageReferenceRepository(db,File(app.filesDir,"block-images")).import(b) { InstrumentationRegistry.getInstrumentation().context.assets.open("references/score.pdf") }
             val repo=SessionRepository(db);repo.addBlock(b);b to repo.start()
         }
-        shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("Practice Description")
+        shown("Practice Now");compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose);shown("Practice Description")
         return block
     }
     @Test fun expansionRestoresPdfZoomNotesAndTimerWhileMeterAndTempoChange() {
@@ -51,7 +51,7 @@ class MeterWorkflowTest {
             tag("practice-reference-toggle").performClick();shown("Page 1 of 2");click("Next page");shown("Page 2 of 2")
             tag("reference-viewer").performTouchInput { pinch(Offset(width*.4f,height*.4f),Offset(width*.6f,height*.6f),Offset(width*.15f,height*.15f),Offset(width*.85f,height*.85f)) };assertPracticeReferenceZoomed(compose)
             click("Notes");tag("practice-new-note").performTextReplacement("Keep P3 draft");keyboard();click("Return to Practice")
-            click("Start");click("Start click");compose.waitUntil(10000) { practice.metronomePulse.sequence>=2 }
+            click("Start Practice");click("Start click");compose.waitUntil(10000) { practice.metronomePulse.sequence>=2 }
             val sequence=practice.metronomePulse.sequence
             tag("practice-metronome-expand").performClick();tag("practice-metronome-panel").assertExists()
             compose.onNodeWithTag("reference-viewer").assertDoesNotExist()

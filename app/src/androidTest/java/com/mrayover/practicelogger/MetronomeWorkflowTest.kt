@@ -18,7 +18,7 @@ class MetronomeWorkflowTest {
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Metronome test", "Play with click", "5", "90")) }
             shown("Practice Now"); click("Practice Now"); click("Add Blocks"); shown("Add Metronome test"); click("Add Metronome test")
-            click("Start Session"); shown("90 BPM")
+            click("Start Session"); prepReadyBlock(compose); shown("90 BPM")
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick()
             shown("91 BPM")
             val unused = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
@@ -27,12 +27,12 @@ class MetronomeWorkflowTest {
             shown("90 BPM")
             repeat(3) { click("Start click"); shown("Stop click"); click("Stop click"); shown("Start click") }
             click("Start click"); shown("Stop click")
-            compose.onNodeWithText("Start").assertExists()
+            compose.onNodeWithText("Start Practice").assertExists()
             compose.onNodeWithContentDescription("Set BPM").scrollIfNeeded().performClick(); compose.onNodeWithText("BPM (30–300)").performTextReplacement("301")
             compose.onNodeWithText("Apply BPM").assertIsNotEnabled()
             compose.onNodeWithText("BPM (30–300)").performTextReplacement("126"); compose.onNodeWithText("Apply BPM").performClick()
             shown("126 BPM"); shown("Stop click")
-            click("Start"); shown("Pause"); click("Stop click"); shown("Pause")
+            click("Start Practice"); shown("Pause"); click("Stop click"); shown("Pause")
             click("Pause"); click("Start click"); shown("Stop click")
             val vm = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.runOnIdle { assertTrue(vm.clicking); assertFalse(vm.running) }
@@ -41,7 +41,7 @@ class MetronomeWorkflowTest {
             shown("Start click"); compose.runOnIdle { assertFalse(vm.clicking); assertFalse(vm.running) }
             click("Start click"); shown("Stop click")
             compose.activityRule.scenario.recreate(); shown("Start click")
-            leavePracticeForLater(compose); openHomePractice(compose); shown("In Progress"); continueFirstSession(compose); shown("126 BPM"); shown("Start click")
+            leavePracticeForLater(compose); openHomePractice(compose); shown("In Progress"); continueFirstSession(compose); prepReadyBlock(compose); shown("126 BPM"); shown("Start click")
             val session = runBlocking { db.sessions().readAll().single { it.current?.name == "Metronome test" } }
             assertEquals(126, session.current!!.lastUsedBpm)
             assertEquals(90, runBlocking { db.blocks().find(session.current!!.sourceBlockId) }!!.tempo)

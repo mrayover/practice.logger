@@ -32,7 +32,7 @@ class FlexiblePhraseWorkflowTest {
             assertEquals(7L,CountInPreferences(app).read());compose.activityRule.scenario.recreate();tag("default-count-in").assertTextContains("7")
             click("Back to Tools");compose.onNodeWithTag("home-brand",useUnmergedTree=true).performClick();shown("Practice Now")
             val (block,session)=runBlocking { val b=BlockRepository(db).save(null,BlockDraft("P2 custom loop","Play","5","120"));val repo=SessionRepository(db);repo.addBlock(b);b to repo.start() }
-            compose.runOnIdle { practice.openSession(session) };shown("Practice Description");click("Loop Setup")
+            compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose);shown("Practice Description");click("Loop Setup")
             tag("phrase-count-in").assertTextContains("7")
             for(value in listOf("0","65","128","bad")) { tag("phrase-beats").performTextReplacement(value);tag("phrase-start").assertIsNotEnabled() }
             tag("phrase-beats").performTextReplacement("3");tag("phrase-count-in").performTextReplacement("9223372036854775807");keyboard();tag("phrase-start").assertIsNotEnabled()

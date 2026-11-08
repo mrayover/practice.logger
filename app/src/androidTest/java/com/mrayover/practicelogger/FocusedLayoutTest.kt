@@ -32,10 +32,10 @@ class FocusedLayoutTest {
                 ImageReferenceRepository(db,File(app.filesDir,"block-images")).import(id) { InstrumentationRegistry.getInstrumentation().context.assets.open("references/score.pdf") }
                 sid
             }
-            shown("Practice Now");compose.runOnIdle { practice.openSession(session) };shown("Goal: Sketch layout Goal")
+            shown("Practice Now");compose.runOnIdle { practice.openSession(session) };prepReadyBlock(compose);shown("Goal: Sketch layout Goal")
             compose.onNodeWithTag("practice-description").performTouchInput { swipeUp() }
             compose.onNodeWithText("Complete").assertIsDisplayed();compose.onNodeWithText("Skip").assertIsDisplayed();screenshot("long-goal")
-            click("Start");click("Start click");compose.onNodeWithTag("practice-reference-toggle").performClick()
+            click("Start Practice");click("Start click");compose.onNodeWithTag("practice-reference-toggle").performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
             click("Next page");shown("Page 2 of 2")
             assertTrue(practice.running);assertTrue(practice.clicking);screenshot("bounded-pdf")
@@ -63,7 +63,8 @@ class FocusedExpiredReopenTest {
             val repo=SessionRepository(db);repo.addBlock(id);val session=repo.start();repo.checkpoint(session,60_000)
             val practice=ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
             compose.waitUntil(15000) { practice.catalog.value.ready };compose.runOnIdle { practice.openSession(session) }
-            compose.waitUntil(15000) { compose.onAllNodesWithText("Practice Description").fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(15000) { compose.onAllNodesWithText("Resume Block").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Resume Block").assertIsDisplayed().performClick()
             compose.onNodeWithText("Continue").assertIsDisplayed();compose.runOnIdle { assertFalse(practice.running);assertEquals(0,practice.completionSignals);assertEquals(0L,practice.completionFramesWritten()) }
         } finally { db.close() }
     }

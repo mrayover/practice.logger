@@ -81,14 +81,14 @@ class ImageReferenceWorkflowTest {
                 SessionRepository(db).let { it.addBlock(id); it.addBlock(second); it.start() }
             }
             val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
-            compose.runOnIdle { practice.openSession(session) }; shown("Start")
+            compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose); shown("Start Practice")
             compose.onNodeWithText("Hide reference").assertDoesNotExist()
             val images = ViewModelProvider(compose.activity)[ImageReferenceViewModel::class.java]
             compose.waitUntil(15000) { images.images.value.any { it.blockId == id } }
             val titleBounds = compose.onNodeWithText("Image reference fixture").getUnclippedBoundsInRoot()
             val actionBounds = compose.onNodeWithText("Study and memorize").getUnclippedBoundsInRoot()
             assertTrue("Description follows compact Block identity", (actionBounds.top - titleBounds.bottom).value <= 64f)
-            click("Start"); compose.waitUntil(15000) { practice.running && !practice.busy }
+            click("Start Practice"); compose.waitUntil(15000) { practice.running && !practice.busy }
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }
             val before = runBlocking { db.sessions().find(session)!!.current!!.activeMs }
@@ -118,7 +118,7 @@ class ImageReferenceWorkflowTest {
             revealPracticeNotes(compose)
             compose.onNodeWithTag("practice-new-note").performScrollTo().performTextInput("Reference practice note")
             savePracticeNote(compose); click("Return to Practice")
-            click("Complete"); shown("Without image")
+            click("Complete"); shown("Up Next: Without image"); prepReadyBlock(compose)
             compose.onNodeWithText("Show reference").assertDoesNotExist(); assertFalse(practice.clicking)
             assertEquals("Reference practice note", runBlocking { db.practiceNotes().readAll().single { it.sessionId == session }.text })
             leavePracticeForLater(compose); click("Blocks"); editor("Image reference fixture")

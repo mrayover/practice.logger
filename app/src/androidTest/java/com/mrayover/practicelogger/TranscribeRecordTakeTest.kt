@@ -43,7 +43,7 @@ class TranscribeRecordTakeTest {
             MasterAudioMarkerRepository(db).save(audio.id, null, 500, 2400, "Phrase", "Master note")
             Setup(block, session, audio, original)
         }
-        compose.runOnIdle { practice.openSession(setup.session) }
+        compose.runOnIdle { practice.openSession(setup.session) }; prepReadyBlock(compose)
         clickTag("practice-loop-record")
         clickTag("practice-mode-transcribe")
         compose.waitUntil(15_000) {
@@ -75,7 +75,7 @@ class TranscribeRecordTakeTest {
         val before = runBlocking { db.takes().readAll() }
         val markers = runBlocking { db.markers().read(setup.audio.id) }
         val hadActivity = runBlocking { db.transcribeActivities().hasEntries() }
-        compose.onNodeWithText("Start").performClick()
+        compose.onNodeWithText("Start Practice").performClick()
         compose.waitUntil(15_000) { practice.running && !practice.busy }
         clickTag("audio-play")
         compose.waitUntil(10_000) { player.state.value.playing }

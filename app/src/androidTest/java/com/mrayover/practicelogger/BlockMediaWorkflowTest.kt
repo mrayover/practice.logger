@@ -152,9 +152,9 @@ class BlockMediaWorkflowTest {
         val recordings = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
         device.executeShellCommand("pm grant ${app.packageName} ${Manifest.permission.RECORD_AUDIO}")
         val session = runBlocking { SessionRepository(db).let { it.addBlock(a); it.start() } }
-        compose.runOnIdle { practice.openSession(session) }
-        compose.waitUntil(15000) { !practice.busy && compose.onAllNodesWithText("Start").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
-        click("Start"); compose.waitUntil(15000) { practice.running && !practice.busy }
+        compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
+        compose.waitUntil(15000) { !practice.busy && compose.onAllNodesWithText("Start Practice").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+        click("Start Practice"); compose.waitUntil(15000) { practice.running && !practice.busy }
         compose.onNodeWithTag("practice-reference-toggle").performClick(); shown("reference-viewer")
         compose.onNodeWithText("Next page").scrollIfNeeded().performClick(); page("Page 2 of 2")
         shown("reference-viewer")

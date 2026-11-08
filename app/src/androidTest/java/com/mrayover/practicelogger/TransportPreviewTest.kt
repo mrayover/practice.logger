@@ -73,13 +73,13 @@ class TransportPreviewTest {
                 repeat(8) { index -> PracticeNoteRepository(db).append(id, sid, placement, "Earlier scroll note $index") }
                 sid
             }
-            shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }
+            shown("Practice Now"); compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
             shown("Practice Description")
             val placement = practice.catalog.value.active!!.current!!.id
             val block = practice.catalog.value.active!!.current!!.sourceBlockId
             compose.waitUntil(10000) { recordings.ready }
             compose.onNodeWithText("Recordings").assertDoesNotExist()
-            click("Start"); click("Start click")
+            click("Start Practice"); click("Start click")
             compose.onNodeWithTag("practice-description").assertExists()
             tagged("practice-reference-toggle").performClick()
             compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes().isNotEmpty() }
@@ -176,7 +176,7 @@ class TransportPreviewTest {
                 val plain = BlockRepository(db).save(null, BlockDraft("No reference", "Description is the default", "5"))
                 val repo = SessionRepository(db); repo.addBlock(plain); repo.start()
             }
-            compose.runOnIdle { practice.openSession(plainSession) }
+            compose.runOnIdle { practice.openSession(plainSession) }; prepReadyBlock(compose)
             shown("Description is the default")
             compose.onNodeWithTag("practice-reference-area").assertDoesNotExist()
             screenshot("refinement-no-reference")

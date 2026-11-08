@@ -81,7 +81,7 @@ class PdfReferenceWorkflowTest {
             compose.onNodeWithTag("block-delete-action").scrollIfNeeded().performClick(); shown("This Block cannot be deleted yet.")
             compose.onNodeWithText("Remove the reference first",substring=true).assertExists(); click("OK"); click("Cancel"); compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
             val session = runBlocking { SessionRepository(db).let { it.addBlock(id); it.start() } }
-            compose.runOnIdle { practice.openSession(session) }; shown("Start"); click("Start")
+            compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose); shown("Start Practice"); click("Start Practice")
             compose.waitUntil(15000) { practice.running && !practice.busy }
             compose.runOnIdle { practice.changeWorkingBpm(111); practice.startClick() }
             compose.waitUntil(15000) { practice.clicking }

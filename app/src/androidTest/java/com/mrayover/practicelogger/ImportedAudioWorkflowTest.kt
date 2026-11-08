@@ -64,7 +64,7 @@ class ImportedAudioWorkflowTest {
                 val phrase=repo.prepare(b,PhraseSpec(120,4));PhraseWave.write(phrase.file,ShortArray(PhraseSpec(120,4).frames));repo.save(phrase)
                 val sessions=SessionRepository(db);sessions.addBlock(b);b to sessions.start()
             }
-            shown("Practice Now");compose.runOnIdle{practice.openSession(session)};shown("Practice Description")
+            shown("Practice Now");compose.runOnIdle{practice.openSession(session)}; prepReadyBlock(compose);shown("Practice Description")
             compose.waitUntil(15000){audio.ready};click("Loop Setup")
             tag("backing-track-toggle").assertIsOff().performClick()
             tag("phrase-bpm").assertIsNotEnabled();tag("phrase-beats").assertIsNotEnabled();tag("phrase-count-in").assertIsNotEnabled()
