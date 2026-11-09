@@ -1,6 +1,22 @@
-# Current state — P2 Block and Session Reflection
+# Current state — Inspirations and Playground navigation
 
 Updated November 8, 2026 (America/Los_Angeles).
+
+## Signed Inspirations delivery
+
+**0.36.0/build105**, app source `0b6af9c5b60a527a30c018f9cf8e2a7eb4a62ba5`. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → Inspirations delivery**, named `practice.logger-0.36.0-b105-0b6af9c`. Install over permanent-key build104.
+
+- Package `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA-256 `43929ed8e188ae9397a79a794a1e5e9678e0c34fc70364689c15de0c3815cf3c`. ZIP SHA-256 `86f4147800b2aabc6d440603b283d939e4dea509ec1ddff1ea0d728c6d923674`. Verified 145 APK payload entries, all five ZIP members and the OneDrive copies.
+
+Library offers Media and Inspirations. Personal entries can be written or pasted, captured with the installed camera, or imported from PDF, JPEG, PNG, WebP, UTF-8 TXT or MD. Read, edit and delete entries and deliberately remove visual attachments. Shared Library originals are protected while linked. Two verified 1914 Evelyn-White selections are packaged read-only. Room 22→23 adds the personal collection. Complete ZIP v7 preserves it and reads v1–v6. Journal and Playground are under Log. Playground shows Coming Soon. See [Inspirations](docs/INSPIRATIONS.md) and [Playground specification](docs/PLAYGROUND_SPEC.md).
+
+- Release build, source encoding, release lint gate and instrumentation compilation passed. All nine selected local tests passed across InspirationMigrationTest, BackupRepositoryTest and WeekPlanTest. The migration fixture reconstructs the published build104 schema and checks Block, Journal and weekly data plus reopening a new Inspiration. Initial test failures involved missing index arrays in the migration fixture, a Windows SQLite open failure resolved with a shorter fixture filename, and a legacy test archive that still included the new table. The corrected runs passed.
+- Android 15 at 320 dp and 200% text passed both workflows on test commit `afc1b33`. Coverage includes Journal text across Playground, returning to Media, bundled reading, long-text creation/edit/reopen/delete and draft protection, unsupported file rejection, TXT/MD editing, PDF paging, image rendering, EXIF orientation, simulated camera cancellation and capture, and deliberate attachment removal. The first narrow run passed imports and timed out looking for bundled text before scrolling. The final test explicitly scrolls to the text. [Passing run](https://github.com/mrayover/practice.logger/actions/runs/42542531232) · [Initial run](https://github.com/mrayover/practice.logger/actions/runs/42541989021)
+- Android 15 passed all three archive checks on `afc1b33`, including v7 recovery of metadata, long text and original images, shared-original deletion protection, empty-target restore, ZIP v1–v7 and JSON v1–v7 compatibility, malformed archives and provider-write failure cases. [Archive run](https://github.com/mrayover/practice.logger/actions/runs/42542531310)
+- External Files and Camera UI, camera permission denial, a real capture, and physical install-over remain phone checks. Native tests inject file and camera results. Saved data was verified through database reopen and Activity recreation.
+
+**Next task** is to install build105 over build104 on the S26 Ultra and run the [Inspirations and Playground phone checks](MANUAL_TESTS.md#inspirations-and-playground-phone-checks).
 
 ## Signed P2 delivery
 
@@ -21,7 +37,7 @@ Room 22 adds separate completion and reflection tables. Complete ZIP v6 preserve
 - Android 15 passed both portable archive cases, including verified restore of ZIP v1–v6 and rejection of malformed completion/ratings. ZIP v6 retained the completion facts and reflection records. The same run passed the three-outcome practice and overtime workflow. [Archive and practice checks](https://github.com/mrayover/practice.logger/actions/runs/42531330846)
 - Android 15 at standard text passed the three-stage practice workflow, paused recovery and saved summary/history after a process restart. [Practice and cold-reopen checks](https://github.com/mrayover/practice.logger/actions/runs/42531735972)
 
-**Next task** is to install build104 on the S26 Ultra and run the [P2 reflection phone checks](MANUAL_TESTS.md#p2-reflection-phone-checks).
+The [P2 reflection phone checks](MANUAL_TESTS.md#p2-reflection-phone-checks) remain available for the retained release.
 
 ## Signed metronome scaling fix
 
