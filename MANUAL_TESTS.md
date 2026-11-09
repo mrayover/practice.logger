@@ -1,5 +1,11 @@
 # Current phone and P5 regression checklist
 
+## I2 included Inspirations phone checks
+
+- Install build106 over permanent-key build105 without uninstalling. Confirm existing personal Inspirations are still available.
+- With the phone offline, open Library → Inspirations and read all five included works through their endings. Check the two Cecilia odes through their Grand Choruses.
+- Switch to Media and back, then recreate or reopen the app and confirm all five works can still be opened.
+
 ## Inspirations and Playground phone checks
 
 - Install the permanent-key APK over build104 on the S26 Ultra. Confirm existing Journal entries, This Week membership and Media Library entries are still available.

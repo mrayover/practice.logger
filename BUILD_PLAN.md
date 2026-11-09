@@ -4,7 +4,7 @@ Updated 2026-11-08 (America/Los_Angeles). This records implemented scope and his
 
 ## Inspirations and Playground navigation
 
-Library offers Media and a personal Inspirations collection. Inspirations supports writing, UTF-8 TXT/Markdown import, camera capture, PDF and image viewing, and protected edit and delete flows. Room 23 stores stable records and complete ZIP v7 preserves originals and metadata. Log offers Journal and the Playground placeholder. See [storage and bundled sources](docs/INSPIRATIONS.md), [future Playground specification](docs/PLAYGROUND_SPEC.md), and [verification](CURRENT_STATE.md).
+Library offers Media and a personal Inspirations collection. Inspirations supports writing, UTF-8 TXT/Markdown import, camera capture, PDF and image viewing, and protected edit and delete flows. Room 23 stores stable records and complete ZIP v7 preserves originals and metadata. I2 expands the offline included collection to five read-only works using the same packaged TXT reader. Log offers Journal and the Playground placeholder. See [storage and bundled sources](docs/INSPIRATIONS.md), [future Playground specification](docs/PLAYGROUND_SPEC.md), and [verification](CURRENT_STATE.md).
 
 ## G2 — Shared Goal Filtering
 

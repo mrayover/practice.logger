@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.exifinterface.media.ExifInterface
@@ -21,6 +23,45 @@ class InspirationsWorkflowTest {
     private val context get() = compose.activity.applicationContext
     private val vm get() = ViewModelProvider(compose.activity)[InspirationsViewModel::class.java]
     private val db get() = BlockDatabase.appInstance(context)
+
+    @Test fun includedWorksRenderCompletelyAfterNavigationAndRecreation() {
+        val works = mapOf(
+            "Homeric Hymn 25 — To the Muses and Apollo" to "homeric-hymn-25.txt",
+            "Theogony — Invocation to the Muses" to "theogony-invocation.txt",
+            "Orphic Hymn 76 — To the Muses" to "orphic-hymn-76.txt",
+            "A Song for St. Cecilia's Day, 1687" to "dryden-st-cecilia.txt",
+            "Hail! Bright Cecilia, 1692" to "brady-hail-bright-cecilia.txt"
+        )
+        openInspirations()
+        repeat(2) { pass ->
+            if (pass == 1) {
+                click("Media")
+                click("Inspirations")
+                compose.activityRule.scenario.recreate()
+            }
+            for ((title, file) in works) {
+                click(title)
+                var remaining = context.assets.open("inspirations/$file").bufferedReader()
+                    .use { it.readText().removeSuffix("\n") }
+                assertTrue(remaining.isNotBlank())
+                while (remaining.isNotEmpty()) {
+                    val firstLine = remaining.substringBefore('\n')
+                    val section = SemanticsMatcher("starts with the next verse line") { node ->
+                        node.config.getOrNull(SemanticsProperties.Text)
+                            ?.any { it.text.startsWith(firstLine) } == true
+                    }
+                    compose.onNode(hasScrollToIndexAction()).performScrollToNode(section)
+                    val rendered = compose.onNode(section).assertIsDisplayed().fetchSemanticsNode()
+                        .config[SemanticsProperties.Text].single().text
+                    assertTrue("Unexpected rendered text for $title", remaining == rendered ||
+                        remaining.startsWith("$rendered\n"))
+                    remaining = remaining.removePrefix(rendered).removePrefix("\n")
+                }
+                compose.onNodeWithText("Edit inspiration").assertDoesNotExist()
+                click("Back to Inspirations")
+            }
+        }
+    }
 
     @Test fun journalNavigationAndTextEditingProtectDrafts() {
         click("Log")

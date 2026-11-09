@@ -14,7 +14,7 @@ Home → **Library** offers **Media** and **Inspirations**. Media opens the cano
 
 The far-right shared-header **Settings** gear offers Light, Dark, **Smooth** (teal), **Sunny** (yellow/orange), **Orchid** (dark purple), **Submarine** (red night lighting), then **System Default**, with the same control states. Existing installs stay Light until changed. Choices persist locally; System Default follows the device. Lato, screen layout, recording ownership and original image/PDF pixels remain. The existing Tools → Audio Settings shortcut reaches the same settings page. Central palette definitions and semantic app roles live in Theme.kt. Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; P5 automated appearance checks pass on API26/API35. Detailed physical/System/audio/TalkBack acceptance remains pending. Exact evidence and limits are in CURRENT_STATE.
 
-Inspirations keeps a private collection of writings, PDFs and images, with two read-only included works. Add a piece by writing or pasting, taking a photo, or choosing a file. Complete ZIP backup preserves saved personal entries. Home → **Log** opens **Journal** and offers a **Playground** Coming Soon screen. [Inspirations details](docs/INSPIRATIONS.md)
+Inspirations keeps a private collection of writings, PDFs and images, with five read-only included works. Add a piece by writing or pasting, taking a photo, or choosing a file. Complete ZIP backup preserves saved personal entries. Home → **Log** opens **Journal** and offers a **Playground** Coming Soon screen. [Inspirations details](docs/INSPIRATIONS.md)
 
 ## Reference Piano
 

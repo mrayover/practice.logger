@@ -26,7 +26,13 @@ private val included = listOf(
     IncludedInspiration("Homeric Hymn 25 — To the Muses and Apollo", "Anonymous · translated by Hugh G. Evelyn-White",
         "Hesiod, the Homeric Hymns and Homerica (Loeb Classical Library, 1914), Hymn 25", "homeric-hymn-25.txt"),
     IncludedInspiration("Theogony — Invocation to the Muses", "Hesiod · translated by Hugh G. Evelyn-White",
-        "Hesiod, the Homeric Hymns and Homerica (Loeb Classical Library, 1914), lines 1–115", "theogony-invocation.txt")
+        "Hesiod, the Homeric Hymns and Homerica (Loeb Classical Library, 1914), lines 1–115", "theogony-invocation.txt"),
+    IncludedInspiration("Orphic Hymn 76 — To the Muses", "Attributed to Orpheus · translated by Thomas Taylor",
+        "The Hymns of Orpheus (1792), LXXV in Taylor’s numbering", "orphic-hymn-76.txt"),
+    IncludedInspiration("A Song for St. Cecilia's Day, 1687", "John Dryden",
+        "The Poetical Works of John Dryden, vol. II, ed. George Gilfillan (1855) · Project Gutenberg", "dryden-st-cecilia.txt"),
+    IncludedInspiration("Hail! Bright Cecilia, 1692", "Nicholas Brady · set by Henry Purcell",
+        "A Select Collection of Poems, vol. V, ed. John Nichols (1782), pp. 302–306", "brady-hail-bright-cecilia.txt")
 )
 
 @OptIn(ExperimentalLayoutApi::class)
