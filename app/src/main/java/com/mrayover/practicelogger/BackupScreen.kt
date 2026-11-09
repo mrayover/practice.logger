@@ -182,7 +182,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Complete ZIP backup", style = MaterialTheme.typography.titleLarge)
-        Text("Includes practice history, settings, original media and recordings. Keep the archive somewhere private.")
+        Text("Includes practice history, settings, Inspirations, original media and recordings. Keep the archive somewhere private.")
         Button(onClick = vm::prepareZip, enabled = !vm.navigationBlocked && !vm.zipReady) { Text("Prepare complete ZIP") }
         if (vm.zipReady) {
             Button(onClick = { saveZip.launch(vm.zipName) }, enabled = !vm.navigationBlocked) { Text("Save ZIP as…") }
@@ -201,7 +201,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
         Text("Save your Logs, Blocks, Goals, Routines and practice history as a data-only JSON file.")
         Text("Backups are plain text and include your notes. Keep private files in a location you trust. A failed export may leave an incomplete file; use only a successfully saved backup.")
         Text("Media Library originals, metadata, Block media associations and master annotations, Block-local audio settings and markers, practice markings, reference images, PDFs, recordings and take labels are not included in JSON backups. Keep original images and PDFs separately; they cannot be restored from JSON. Export each take from its recordings list to keep a separate audio copy. Audio cannot be restored from this JSON file.")
-        Text("Use a complete ZIP to preserve preparation time, weekly plans, and standalone Transcribe activities and their practice time.")
+        Text("Use a complete ZIP to preserve Inspirations, preparation time, weekly plans, and standalone Transcribe activities and their practice time.")
         Button(onClick = { export.launch("practice.logger-backup-v7-" + System.currentTimeMillis() + ".json") }, enabled = !vm.navigationBlocked, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Export backup") }
         Text("Restore is for an empty app, such as a new phone. It never replaces or merges existing data. Do not uninstall or clear your current app to try a restore. Supported limit: 8 MiB, 20,000 records per type.")
         OutlinedButton(onClick = { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !vm.navigationBlocked, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Choose backup to restore") }
@@ -217,6 +217,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
                     Text("Created by practice.logger ${data.appVersion}.")
                     Text("${rows["blocks"].size} Blocks, ${rows["sessions"].size} sessions, ${rows["routines"].size} Routines, ${rows["goals"].size} Goals and ${rows["daily_logs"].size} Logs.")
                     Text("${rows["media_assets"].size} Library assets, ${rows["takes"].size} saved recordings and ${rows["block_images"].size} legacy visual references. ${android.text.format.Formatter.formatFileSize(androidx.compose.ui.platform.LocalContext.current, data.mediaBytes)} of original media was verified.")
+                    if (rows[INSPIRATION_STORE].isNotEmpty()) Text("User Inspirations: " + rows[INSPIRATION_STORE].size)
                     if (rows["block_primary_goals"].isNotEmpty() || rows["placement_goal_snapshots"].isNotEmpty()) {
                         Text("${rows["block_primary_goals"].size} primary Goal assignments and ${rows["placement_goal_snapshots"].size} practice attribution snapshots.")
                     }

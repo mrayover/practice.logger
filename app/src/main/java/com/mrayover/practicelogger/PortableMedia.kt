@@ -4,7 +4,7 @@ import org.json.JSONObject
 import java.io.File
 
 internal val portableDigest = Regex("[0-9a-f]{64}")
-private val generatedMediaName = Regex("[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\\.(img|jpg|png|webp|pdf|m4a|wav|mp3)")
+private val generatedMediaName = Regex("[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\\.(img|jpg|png|webp|pdf|m4a|wav|mp3|txt|md)")
 
 internal data class PortableOriginal(
     val store: String,
@@ -14,6 +14,7 @@ internal data class PortableOriginal(
 ) {
     val path = "originals/$store/$name"
     private val take get() = store == "recordings"
+    private val inspiration get() = store == INSPIRATION_STORE
     private val canonical get() = store == "media-library"
     private val mime get() = if (take) when (name.substringAfterLast('.')) {
         "m4a" -> "audio/mp4"
@@ -22,13 +23,13 @@ internal data class PortableOriginal(
     } else row.getString("mimeType")
     private val audio get() = mime.startsWith("audio/")
     val bytes: Long? get() = if (take) null else row.getLong("byteCount")
-    val limit: Long get() = if (audio) AudioImport.MAX_BYTES else ImageReferenceRepository.MAX_BYTES.toLong()
+    val limit: Long get() = if (inspiration) INSPIRATION_LIMIT else if (audio) AudioImport.MAX_BYTES else ImageReferenceRepository.MAX_BYTES.toLong()
     val overlayIdentity: String? get() = when {
-        audio -> null
+        audio || inspiration -> null
         canonical -> "library:$owner"
         else -> "legacy:$name"
     }
-    val originalHash: String? get() = if (canonical) row.getString("sha256") else null
+    val originalHash: String? get() = if (canonical || inspiration) row.getString("sha256") else null
 
     init {
         require(owner.isNotBlank() && generatedMediaName.matches(name)) { "Invalid original filename or identity." }
@@ -36,12 +37,14 @@ internal data class PortableOriginal(
         require(when (store) {
             "recordings" -> extension in setOf("m4a", "wav", "mp3")
             "block-images" -> extension in setOf("img", "pdf")
-            "media-library" -> extension != "img"
+            "media-library" -> extension !in setOf("img", "txt", "md")
+            INSPIRATION_STORE -> extension in inspirationFormats.keys
             else -> false
         })
         require(bytes?.let { it in 1..limit } != false)
         require(originalHash == null || portableDigest.matches(checkNotNull(originalHash)))
         val expectedMime = when (extension) {
+            "txt", "md" -> "text/plain"
             "img" -> null
             "jpg" -> "image/jpeg"
             "png" -> "image/png"
@@ -52,6 +55,9 @@ internal data class PortableOriginal(
             else -> "audio/mpeg"
         }
         require(if (expectedMime == null) mime in setOf("image/jpeg", "image/png", "image/webp") else mime == expectedMime)
+        if (inspiration) {
+            require(if (extension == "pdf") row.getInt("pageCount") in 1..100 else row.isNull("pageCount"))
+        }
         if (canonical) {
             require(row.getString("category") == if (audio) "AUDIO" else if (mime == "application/pdf") "PDF" else "IMAGE")
             require(row.getLong("importedAt") >= 0 && row.getString("title").isNotBlank())
@@ -81,10 +87,12 @@ internal data class PortableOriginal(
             "Missing or changed original for $store item $owner."
         }
         when {
+            inspiration && mime == "text/plain" -> file.inputStream().use(::readInspirationText)
             !audio -> {
                 val info = ImageReferenceRepository(db, file.parentFile!!).inspectOriginal(file)
-                require(info.mimeType == mime && info.width == row.getInt("width") && info.height == row.getInt("height"))
-                if (canonical && mime == "application/pdf") require(info.pageCount == row.getInt("pageCount"))
+                require(info.mimeType == mime)
+                if (!inspiration) require(info.width == row.getInt("width") && info.height == row.getInt("height"))
+                if ((canonical || inspiration) && mime == "application/pdf") require(info.pageCount == row.getInt("pageCount"))
                 return info.pageCount ?: 1
             }
             take && row.getString("mode") == "LOOP" -> {
@@ -99,7 +107,7 @@ internal data class PortableOriginal(
 }
 
 internal fun portableMediaFile(root: File, store: String, name: String): File {
-    require(store in setOf("recordings", "block-images", "media-library") && generatedMediaName.matches(name))
+    require(store in setOf("recordings", "block-images", "media-library", INSPIRATION_STORE) && generatedMediaName.matches(name))
     val directory = File(root, store)
     return File(directory, name).also { file ->
         require(directory.canonicalFile == File(root.canonicalFile, store) &&
@@ -110,9 +118,10 @@ internal fun portableMediaFile(root: File, store: String, name: String): File {
 internal fun PortableRecords.originals(): List<PortableOriginal> = listOf(
     Triple("media_assets", "media-library", "id"),
     Triple("block_images", "block-images", "blockId"),
-    Triple("takes", "recordings", "id")
+    Triple("takes", "recordings", "id"),
+    Triple(INSPIRATION_STORE, INSPIRATION_STORE, "id")
 ).flatMap { (table, store, identity) ->
-    this[table].map { row -> PortableOriginal(store, row.getString(identity), row.getString("fileName"), row) }
+    this[table].filterNot { it.isNull("fileName") }.map { row -> PortableOriginal(store, row.getString(identity), row.getString("fileName"), row) }
 }.also { originals ->
     require(originals.map { it.path }.toSet().size == originals.size) { "Duplicate original file ownership." }
 }

@@ -26,6 +26,8 @@ data class MediaAsset(@PrimaryKey val id: String, val title: String, val origina
     @Query("SELECT * FROM media_assets ORDER BY importedAt DESC, id") suspend fun readAll(): List<MediaAsset>
     @Query("SELECT EXISTS(SELECT 1 FROM media_assets)") suspend fun hasEntries(): Boolean
     @Query("SELECT * FROM media_assets WHERE id = :id") suspend fun find(id: String): MediaAsset?
+    @Query("SELECT * FROM media_assets WHERE mimeType = :mime AND byteCount = :bytes AND sha256 = :hash ORDER BY id")
+    suspend fun findMatching(mime: String, bytes: Long, hash: String): List<MediaAsset>
     @Insert suspend fun insert(asset: MediaAsset)
     @Query("UPDATE media_assets SET title = :title WHERE id = :id") suspend fun rename(id: String, title: String): Int
     @Query("DELETE FROM media_assets WHERE id = :id") suspend fun remove(id: String): Int

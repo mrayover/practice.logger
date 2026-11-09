@@ -107,7 +107,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 6
+internal const val PORTABLE_VERSION = 7
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -121,11 +121,14 @@ private val portableTablesV5 = portableTablesV4.map { table ->
     if (table.name == "placements") PortableTable("placements", "$PLACEMENT_FIELDS prepMs:l", "placements") else table
 }
 
-internal val portableTables = portableTablesV5 + listOf(
+private val portableTablesV6 = portableTablesV5 + listOf(
     PortableTable(COMPLETION_TABLE, "placementId sessionId sourceBlockId completedAt:l goalId:s? priority:i? colorArgb:i?"),
     PortableTable(BLOCK_REFLECTION_TABLE, "placementId security:i? focus difficulty progress revisit"),
     PortableTable(SESSION_REFLECTION_TABLE, "sessionId experience focus progress difficulty energy")
 )
+
+internal val portableTables = portableTablesV6 + PortableTable(INSPIRATION_STORE,
+    "id title author source category note fileName:s? mimeType:s? byteCount:l? sha256:s? mediaId:s? pageCount:i?")
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -138,6 +141,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         3 -> portableTablesV3
         4 -> portableTablesV4
         5 -> portableTablesV5
+        6 -> portableTablesV6
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -153,7 +157,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
     operator fun get(table: String): List<JSONObject> =
         when (table) {
             OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE,
-            COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE -> rows[table].orEmpty()
+            COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE, INSPIRATION_STORE -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
     private val maxOverlayPageByReference: Map<String, Int>
@@ -275,6 +279,22 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         }
         var total = core.placements.fold(0L) { sum, row -> Math.addExact(sum, row.activeMs) }
         val assets = this["media_assets"].associateBy { it.getString("id") }
+        for (row in this[INSPIRATION_STORE]) {
+            val id = row.getString("id")
+            require(java.util.UUID.fromString(id).toString() == id)
+            require(MediaLibraryRepository.title(row.getString("title")) == row.getString("title"))
+            require(listOf("author", "source", "category", "note").all { row.getString(it).length <= INSPIRATION_METADATA_LIMIT })
+            if (!row.isNull("mediaId")) {
+                val asset = requireNotNull(assets[row.getString("mediaId")]) { "Missing Inspiration Library original." }
+                require(asset.getString("category") in setOf("IMAGE", "PDF") &&
+                    asset.getString("mimeType") == row.getString("mimeType") && asset.get("pageCount") == row.get("pageCount"))
+                require(listOf("fileName", "byteCount", "sha256").all(row::isNull))
+            } else if (row.isNull("fileName")) {
+                require(listOf("mimeType", "byteCount", "sha256", "pageCount").all(row::isNull))
+            } else {
+                require(!row.isNull("byteCount") && !row.isNull("sha256") && !row.isNull("mimeType"))
+            }
+        }
         val legacyBlocks = this["block_images"].mapTo(hashSetOf()) { it.getString("blockId") }
         require(this["block_media_links"].none { it.getString("role") == "VISUAL" && it.getString("blockId") in legacyBlocks }) {
             "A Block has conflicting visual references."

@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun LogScreen(vm: LogViewModel, onHome: () -> Unit, practiceTime: List<PracticeTimeEntry>? = null) {
+@Composable fun LogScreen(vm: LogViewModel, onHome: () -> Unit, practiceTime: List<PracticeTimeEntry>? = null, onPlayground: (() -> Unit)? = null) {
     val status by vm.status.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val focus = LocalFocusManager.current
@@ -48,6 +48,12 @@ import java.time.format.FormatStyle
         val editorHeight = (maxHeight - 240.dp).coerceAtLeast(240.dp)
         val header: @Composable () -> Unit = {
           Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (onPlayground != null) DestinationPills("Journal", "Playground", false) { playground ->
+                if (playground && !vm.busy) {
+                    hideKeyboard()
+                    vm.leave(onPlayground)
+                }
+            }
             Text(if (vm.weekly) "Weekly View" else "Log", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             if (vm.error != null || status.startsWith("Could not")) TextButton(onClick = vm::retry, enabled = !vm.busy) { Text("Retry") }

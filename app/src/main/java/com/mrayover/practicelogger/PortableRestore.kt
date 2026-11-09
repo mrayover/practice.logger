@@ -133,10 +133,10 @@ internal class PortableRestore(
                             }
                             // File bytes were synced at extraction. Persist both sides of each rename.
                             for (parent in parents) {
-                                syncDirectory(parent)
-                                syncDirectory(File(staged.media, parent.name))
+                                syncPrivateDirectory(parent)
+                                syncPrivateDirectory(File(staged.media, parent.name))
                             }
-                            if (parents.isNotEmpty()) syncDirectory(files)
+                            if (parents.isNotEmpty()) syncPrivateDirectory(files)
                             staged.verified.records.insertInto(sql)
                             sql.execSQL("DELETE FROM portable_restore_witness")
                             sql.execSQL("INSERT INTO portable_restore_witness (token) VALUES (?)", arrayOf(plan.token))
@@ -196,11 +196,11 @@ internal class PortableRestore(
                     parents.add(original.parentFile!!)
                 }
             }
-            for (parent in parents) syncDirectory(parent)
+            for (parent in parents) syncPrivateDirectory(parent)
         }
         journal.delete()
         check(!journal.exists()) { "Could not clear the recovery journal." }
-        syncDirectory(directory)
+        syncPrivateDirectory(directory)
         // A stale witness is harmless once the journal is absent. A future restore replaces it.
         return committed
     }
@@ -213,8 +213,8 @@ internal class PortableRestore(
             output.fd.sync()
         }
         check(!journal.exists() && pendingJournal.renameTo(journal)) { "Could not publish the restore journal." }
-        syncDirectory(directory)
-        syncDirectory(files)
+        syncPrivateDirectory(directory)
+        syncPrivateDirectory(files)
     }
 
     private fun target(root: File, entry: PortableEntry): File {
@@ -230,12 +230,6 @@ internal class PortableRestore(
         require(result.bytes == entry.bytes && result.sha256 == entry.sha256) { "Restored original failed verification." }
     }
 
-    private fun syncDirectory(file: File) {
-        check(file.isDirectory)
-        val fd = Os.open(file.absolutePath, OsConstants.O_RDONLY, 0)
-        try { Os.fsync(fd) } finally { Os.close(fd) }
-    }
-
     companion object {
         private val operation = Mutex()
         private val startup = Mutex()
@@ -246,10 +240,17 @@ internal class PortableRestore(
                 if (started) return@withLock
                 val restore = PortableRestore(context, BlockDatabase.appInstance(context))
                 restore.recover()
+                InspirationRepository(restore.db, context.filesDir).recover()
                 restore.directory.listFiles()?.filter { it.name.startsWith("stage-") }?.forEach { it.deleteRecursively() }
                 File(context.filesDir, "portable-backup").listFiles()?.filter { it.extension == "zip" }?.forEach { it.delete() }
                 started = true
             }
         }
     }
+}
+
+internal fun syncPrivateDirectory(file: File) {
+    check(file.isDirectory)
+    val fd = Os.open(file.absolutePath, OsConstants.O_RDONLY, 0)
+    try { Os.fsync(fd) } finally { Os.close(fd) }
 }

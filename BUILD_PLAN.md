@@ -2,6 +2,10 @@
 
 Updated 2026-11-08 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
+## Inspirations and Playground navigation
+
+Library offers Media and a personal Inspirations collection. Inspirations supports writing, UTF-8 TXT/Markdown import, camera capture, PDF and image viewing, and protected edit and delete flows. Room 23 stores stable records and complete ZIP v7 preserves originals and metadata. Log offers Journal and the Playground placeholder. See [storage and bundled sources](docs/INSPIRATIONS.md), [future Playground specification](docs/PLAYGROUND_SPEC.md), and [verification](CURRENT_STATE.md).
+
 ## G2 — Shared Goal Filtering
 
 Build99 delivers the same primary Goal filter alongside text search in Manage Blocks, the Session Builder, the saved Routine editor, and This Week → Prepare Week → Add existing Blocks. Results retain the existing active/archived rules and Goal indicators. [Scope](PRACTICE_LOGGER_V1_MASTER_PLAN.md#g2--shared-goal-filtering-medium) · [Delivery and checks](CURRENT_STATE.md)

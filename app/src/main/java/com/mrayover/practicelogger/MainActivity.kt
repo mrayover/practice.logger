@@ -122,6 +122,7 @@ class MainActivity : ComponentActivity() {
 @Suppress("DEPRECATION")
 @Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel(), onRestoreAppearance: () -> Unit = {}) {
     val backup: BackupViewModel = viewModel()
+    val inspirations: InspirationsViewModel = viewModel()
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalIndicators = remember(goalRows) { GoalIndicators(goalRows) }
     val goalLinks by goals.links.collectAsStateWithLifecycle()
@@ -239,6 +240,9 @@ class MainActivity : ComponentActivity() {
             if (destination == "audio-settings" && page != "audio-settings") settingsReturn = page
             if (page == "log") {
                 focus.clearFocus(force = true); keyboard?.hide(); log.leave { page = destination }
+            } else if (page == "inspirations") {
+                focus.clearFocus(force = true); keyboard?.hide()
+                inspirations.leave { page = destination }
             } else if (page in setOf("focus", "editor", "routine-editor", "goal-editor", "summary")) {
                 headerHomeRequested = true; backDispatcher?.onBackPressed()
             } else { focus.clearFocus(force = true); keyboard?.hide(); page = destination }
@@ -263,11 +267,23 @@ class MainActivity : ComponentActivity() {
             }
             "media-library" -> {
                 BackHandler { page = "home" }
-                MediaLibraryScreen(media, onBack = { page = "home" }, onWorkspaceChanged = { mediaWorkspace = it })
+                MediaLibraryScreen(media, onBack = { page = "home" }, onWorkspaceChanged = { mediaWorkspace = it },
+                    destinationPills = { DestinationPills("Media", "Inspirations", false) { if (it && !media.busy) page = "inspirations" } })
+            }
+            "inspirations" -> InspirationsScreen(inspirations, onMedia = { page = "media-library" }, onHome = { page = "home" })
+            "playground" -> {
+                BackHandler { page = "log" }
+                Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    DestinationPills("Journal", "Playground", true) { if (!it) page = "log" }
+                    Text("Playground", style = MaterialTheme.typography.headlineMedium)
+                    Text("Coming Soon")
+                    TextButton(onClick = { page = "log" }) { Text("Back to Log") }
+                }
             }
             "log" -> {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()
-                LogScreen(log, onHome = { page = "home" }, practiceTime = time)
+                LogScreen(log, onHome = { page = "home" }, practiceTime = time, onPlayground = { page = "playground" })
             }
             "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })

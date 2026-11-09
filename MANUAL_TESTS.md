@@ -1,5 +1,15 @@
 # Current phone and P5 regression checklist
 
+## Inspirations and Playground phone checks
+
+- Install the permanent-key APK over build104 on the S26 Ultra. Confirm existing Journal entries, This Week membership and Media Library entries are still available.
+- Add, read, edit and delete a long text entry. Confirm Back and the banner protect unsaved edits, including at enlarged text with the keyboard open.
+- Choose UTF-8 TXT or MD, a multi-page PDF and a JPEG/PNG/WebP from Android Files. Try an unsupported file, remove an attachment and save, and reopen the app offline.
+- Cancel Camera, test denied access where the camera app exposes it, and capture portrait and landscape pages. Reopen the pictures, zoom and pan, and check orientation.
+- Confirm Journal autosave across the Playground switch and return. Check Journal date selection and practice totals.
+- Create a complete ZIP and restore to a separate empty installation. Check original PDF pages, image orientation, text and metadata. Keep the original installation intact.
+
+
 ## T1 — Block Transcribe owner-phone checklist
 
 1. Install the signed build 83 APK over build 81 without clearing data.

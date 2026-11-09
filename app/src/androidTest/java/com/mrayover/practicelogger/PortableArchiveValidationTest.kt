@@ -208,6 +208,7 @@ class PortableArchiveValidationTest {
             // Downgrade the wire records and recompute the digest and inventory for each prior format.
             for (version in 1..PORTABLE_VERSION) {
                 val excluded = buildList {
+                    if (version < 7) add(INSPIRATION_STORE)
                     if (version < 6) addAll(listOf("block_completions", "block_reflections", "session_reflections"))
                     if (version < 4) add("week_blocks")
                     if (version < 3) addAll(listOf("block_primary_goals", "placement_goal_snapshots"))
