@@ -29,7 +29,7 @@ class InspirationMigrationTest {
                     val table = entities.getJSONObject(i)
                     val tableName = table.getString("tableName")
                     sql.execSQL(table.getString("createSql").replace("$" + "{TABLE_NAME}", tableName))
-                    val indexes = table.getJSONArray("indices")
+                    val indexes = table.optJSONArray("indices") ?: return@repeat
                     repeat(indexes.length()) { j ->
                         sql.execSQL(indexes.getJSONObject(j).getString("createSql").replace("$" + "{TABLE_NAME}", tableName))
                     }
