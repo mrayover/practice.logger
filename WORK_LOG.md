@@ -1114,3 +1114,11 @@ Permanent-key build104 from `e12b6ae` passed release compilation and 28 focused 
 Reviewed the mandatory efficiency procedure. Canonical Windows main and remote started at a4c6922, signed build104 with Room 22 and ZIP v6. W1 had shipped in build98. Added the personal and included Inspirations collections, Media and Journal navigation pills, and the Playground placeholder. Room 23 and ZIP v7 preserve stable Inspiration IDs and originals with restrictive shared-media ownership. Documented future reward migration requirements.
 
 All nine focused local tests and five final Android 15 instrumentation tests passed. The first narrow diagnostic timed out at the bundled reader and passed after the test scrolled to the text. Signed build105 from 0b6af9c with the permanent key and verified the APK, ZIP and OneDrive copies. Physical install-over and real Files and Camera behavior are pending. See [delivery and verification](CURRENT_STATE.md#signed-inspirations-delivery).
+
+## 2026-11-08 — I2 complete Included Inspirations
+
+Reviewed the mandatory efficiency procedure and verified clean canonical Windows main and live remote at `fe8bd74`, with 0.36.0/build105 as the signed baseline. Added three public-domain TXT assets to the existing included list. Checked the signed APK against the source assets and both original texts against the build105 APK. Room 23 and complete ZIP v7 remain in use.
+
+Local release assembly, source encoding, release lint gate and instrumentation compilation passed. Signed and verified 0.36.1/build106 from `146596d` and copied the APK and ZIP to the versioned I2 subfolder in the established OneDrive Inspirations delivery folder. [Delivery and hashes](CURRENT_STATE.md#signed-i2-delivery)
+
+Android 15 passed the focused Included Inspirations test. It opened all five works, compared the complete reader text with each bundled asset, switched between Media and Inspirations, recreated the Activity, then reopened and compared all five again. No full regression was run. [Focused Android run](https://github.com/mrayover/practice.logger/actions/runs/42548771199)

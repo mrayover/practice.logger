@@ -1,8 +1,20 @@
-# Current state — Inspirations and Playground navigation
+# Current state — I2 included Inspirations
 
 Updated November 8, 2026 (America/Los_Angeles).
 
-## Signed Inspirations delivery
+## Signed I2 delivery
+
+**0.36.1/build106**, app source `146596d04884982d410b10474bac24d8585e59f5`. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → Inspirations delivery → I2 build106**, named `practice.logger-0.36.1-b106-146596d`. Install over permanent-key build105.
+
+- Package `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA-256 `a97cd0bd1e9cf89eae14b2365bb3ad77e9778b1a603864d1251f07e3e20f5b2b`. ZIP SHA-256 `9314d56eacbf19a44d2f4609a79bcd1169147aeb2cb62733ed25bbfef19e1c01`. Verified 148 APK payload entries, all five ZIP members and matching OneDrive copies.
+- Library → Inspirations offers five offline, read-only works. I2 adds Taylor's Orphic Hymn to the Muses, Dryden's 1687 song and Brady's 1692 ode using the existing bundled TXT reader. The two build105 assets match byte for byte. Room 23 and complete ZIP v7 remain in use. [Text editions and sources](docs/INSPIRATIONS.md)
+- Local release assembly, source encoding, release lint gate and instrumentation compilation passed.
+- Android 15 passed the focused Included Inspirations test. It opened all five works, compared the complete reader text with each bundled asset, switched between Media and Inspirations, recreated the Activity, then reopened and compared all five again. No full regression was run. [Focused Android run](https://github.com/mrayover/practice.logger/actions/runs/42548771199)
+
+**Next task** is to install build106 over build105 on the S26 Ultra and run the [I2 included Inspirations phone checks](MANUAL_TESTS.md#i2-included-inspirations-phone-checks). Physical install-over remains pending.
+
+## Signed build105 Inspirations and Playground delivery
 
 **0.36.0/build105**, app source `0b6af9c5b60a527a30c018f9cf8e2a7eb4a62ba5`. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → Inspirations delivery**, named `practice.logger-0.36.0-b105-0b6af9c`. Install over permanent-key build104.
 
@@ -16,7 +28,7 @@ Library offers Media and Inspirations. Personal entries can be written or pasted
 - Android 15 passed all three archive checks on `afc1b33`, including v7 recovery of metadata, long text and original images, shared-original deletion protection, empty-target restore, ZIP v1–v7 and JSON v1–v7 compatibility, malformed archives and provider-write failure cases. [Archive run](https://github.com/mrayover/practice.logger/actions/runs/42542531310)
 - External Files and Camera UI, camera permission denial, a real capture, and physical install-over remain phone checks. Native tests inject file and camera results. Saved data was verified through database reopen and Activity recreation.
 
-**Next task** is to install build105 over build104 on the S26 Ultra and run the [Inspirations and Playground phone checks](MANUAL_TESTS.md#inspirations-and-playground-phone-checks).
+[Build105 phone checks](MANUAL_TESTS.md#inspirations-and-playground-phone-checks) also cover the original personal collection and provider flows.
 
 ## Signed P2 delivery
 
