@@ -123,6 +123,7 @@ internal class InspirationRepository(private val db: BlockDatabase, private val 
             )
             var saved = metadata
             var pending: File? = null
+            var destination: File? = null
             var promoted: File? = null
             try {
                 if (removeOriginal || replacement != null) {
@@ -152,15 +153,16 @@ internal class InspirationRepository(private val db: BlockDatabase, private val 
                         pageCount = existing.pageCount)
                     else {
                         val filename = UUID.randomUUID().toString() + "." + if (extension == "jpeg") "jpg" else extension
-                        promoted = portableMediaFile(root, INSPIRATION_STORE, filename)
+                        destination = portableMediaFile(root, INSPIRATION_STORE, filename)
                         saved.copy(fileName = filename, mimeType = mime, byteCount = copy.bytes, sha256 = copy.sha256,
                             pageCount = visual?.pageCount)
                     }
                 }
                 currentCoroutineContext().ensureActive()
                 withContext(NonCancellable) {
-                    promoted?.let { target ->
+                    destination?.let { target ->
                         check(!target.exists() && checkNotNull(pending).renameTo(target)) { "Could not finish saving the original." }
+                        promoted = target
                         syncPrivateDirectory(directory)
                         syncPrivateDirectory(root)
                     }

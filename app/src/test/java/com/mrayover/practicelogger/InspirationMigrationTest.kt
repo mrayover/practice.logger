@@ -17,7 +17,7 @@ import java.util.UUID
 class InspirationMigrationTest {
     @Test fun publishedSchemaMigratesAndReopensWithExistingData() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val name = "inspiration-migration-" + UUID.randomUUID() + ".db"
+        val name = "v22.db"
         val file = context.getDatabasePath(name)
         file.parentFile!!.mkdirs()
         val schema = checkNotNull(javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/22.json"))
