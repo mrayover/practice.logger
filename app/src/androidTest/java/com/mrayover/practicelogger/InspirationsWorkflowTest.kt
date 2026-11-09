@@ -35,7 +35,7 @@ class InspirationsWorkflowTest {
         compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
         openInspirations()
         click("Homeric Hymn 25 — To the Muses and Apollo")
-        waitFor(hasText("I will begin with the Muses", substring = true))
+        readBody("I will begin with the Muses")
         click("Back to Inspirations")
         click("Add Inspiration")
         click("Write / Paste")
@@ -43,7 +43,7 @@ class InspirationsWorkflowTest {
         compose.onNode(hasSetTextAction() and hasText("Title (required)")).performTextInput("Notebook")
         compose.onNodeWithTag("inspiration-body").performScrollTo().performTextInput(body)
         click("Save inspiration")
-        waitFor(hasText("Start of a long document", substring = true))
+        readBody("Start of a long document")
         val id = runBlocking { db.inspirations().observe().first().single { it.title == "Notebook" }.id }
         click("Edit inspiration")
         compose.onNode(hasSetTextAction() and hasText("Title (required)")).performTextReplacement("Unsaved title")
@@ -51,12 +51,12 @@ class InspirationsWorkflowTest {
         shown("Discard unsaved changes?")
         click("Cancel")
         click("Save inspiration")
-        waitFor(hasText("Unsaved title"))
+        waitFor(hasText("Edit inspiration"))
         assertEquals("Unsaved title", runBlocking { db.inspirations().find(id)?.title })
         compose.activityRule.scenario.recreate()
         click("Back to Inspirations")
         click("Unsaved title")
-        waitFor(hasText("Start of a long document", substring = true))
+        readBody("Start of a long document")
         click("Delete inspiration")
         shown("Delete this inspiration?")
         compose.onAllNodesWithText("Delete inspiration").onLast().performClick()
@@ -164,6 +164,12 @@ class InspirationsWorkflowTest {
         compose.waitUntil(15_000) { compose.onAllNodes(matcher).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
     }
 
+    private fun readBody(text: String) {
+        val matcher = hasText(text, substring = true)
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(matcher)
+        compose.onNode(matcher).assertIsDisplayed()
+    }
+
     private fun shown(label: String) {
         waitFor(hasText(label))
         compose.onNodeWithText(label).assertIsDisplayed()
@@ -172,8 +178,8 @@ class InspirationsWorkflowTest {
     private fun click(label: String) {
         val node = compose.onNodeWithText(label)
         if (compose.onAllNodesWithText(label).fetchSemanticsNodes(atLeastOneRootRequired = false).isEmpty() &&
-            compose.onAllNodesWithTag("inspirations-list").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()) {
-            compose.onNodeWithTag("inspirations-list").performScrollToNode(hasText(label))
+            compose.onAllNodes(hasScrollToIndexAction()).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1) {
+            compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(label))
         }
         waitFor(hasText(label))
         if (!node.isDisplayed()) node.performScrollTo()
