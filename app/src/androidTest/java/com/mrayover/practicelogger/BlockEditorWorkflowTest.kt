@@ -15,7 +15,12 @@ class BlockEditorWorkflowTest : WeekUiChecks() {
     }
     private fun field(tag: String, value: String) = compose.onNodeWithTag(tag).scrollIfNeeded().performTextReplacement(value)
     private fun choose(role: MediaRole, id: String) {
-        compose.onNodeWithTag("block-${role.name}-choose").performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
+        val target = compose.onNodeWithTag("block-${role.name}-choose")
+        target.performScrollTo()
+        captureStage3("editor-before-reference-touch")
+        println("EDITOR REFERENCE BOUNDS " + target.fetchSemanticsNode().boundsInRoot)
+        println("EDITOR TREE " + compose.onRoot(useUnmergedTree = true).printToString())
+        target.assertIsDisplayed().assertIsEnabled().performClick()
         captureStage3("editor-reference-options")
         click("Choose from Library")
         waitForTag("media-library-list")
