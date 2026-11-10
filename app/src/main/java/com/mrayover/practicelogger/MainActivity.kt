@@ -419,7 +419,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
                 } else key(editorToken) {
-                    LaunchedEffect(editorToken) { images.openEditor(editorToken, editorId) }
+                    LaunchedEffect(editorToken) { images.openEditor(editorToken, editorId) { vm.recoveredEditorSaved(it, block?.archived ?: false) } }
                     BlockEditor(block, vm.busy || images.busy, images, onNavigationCancelled = { headerHomeRequested = false }, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) headerDestination else editorReturn },
                         onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false, editorWeek?.let(LocalDate::parse), images.editor, editorReturn == "builder") },
                         onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } })

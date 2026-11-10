@@ -29,9 +29,11 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
     var audioChanged by mutableStateOf(false); private set
     private var staged = linkedMapOf<String, MediaAsset>()
     val dirty get() = visualChanged || audioChanged
+    fun isStaged(asset: MediaAsset) = asset.id in staged
     private var token: String? = null
     private var creationId = java.util.UUID.randomUUID().toString()
     private var savedId: String? = null
+    val completedId get() = savedId
 
     suspend fun open(session: String, id: String?) = withContext(Dispatchers.IO) {
         if (token == session && ready) return@withContext
@@ -40,6 +42,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
         directory = File(root, session)
         check(directory.mkdirs() || directory.isDirectory)
         stageLibrary = MediaLibraryRepository(db, directory)
+        ReferencePhotoCapture(app).recoverAbandoned()
         // Deterministic recovery: reopen the saved editor manifest; expire abandoned sessions after 7 days.
         root.listFiles()?.filter { it.isDirectory && it.name != session &&
             it.name.matches(Regex("[0-9a-f-]{36}")) && System.currentTimeMillis() - it.lastModified() > 7 * 86_400_000L }
@@ -149,8 +152,9 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
         val selected = listOfNotNull(visual.takeIf { visualChanged }, audio.takeIf { audioChanged }).distinctBy { it.id }
         val promoted = mutableListOf<Pair<MediaAsset, File>>()
         val canonical = File(app.filesDir, "media-library")
-        val result = MediaLibraryRepository.filesMutex.withLock {
-            ImageReferenceRepository.filesMutex.withLock {
+        // Match portable backup/restore's global lock order (legacy, Library, takes).
+        val result = ImageReferenceRepository.filesMutex.withLock {
+            MediaLibraryRepository.filesMutex.withLock {
                 try {
                     check(canonical.mkdirs() || canonical.isDirectory)
                     selected.filter { it.id in staged }.forEach { asset ->

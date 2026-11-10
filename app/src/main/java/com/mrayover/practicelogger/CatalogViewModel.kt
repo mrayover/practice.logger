@@ -49,6 +49,7 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
         }, {}, "Could not delete this Block. Nothing was deleted. Check available storage and try again.")
     }
     fun dismissError() { error = null }
+    internal fun recoveredEditorSaved(id: String, archived: Boolean) { savedBlockId = id; destinationArchived = archived }
     private fun mutate(action: suspend () -> Unit, done: () -> Unit, failureMessage: String = "Could not save changes. Your draft is still here. Check available storage and try again.") {
         if (busy) return
         busy = true

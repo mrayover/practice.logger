@@ -15,7 +15,8 @@ class BlockEditorWorkflowTest : WeekUiChecks() {
     }
     private fun field(tag: String, value: String) = compose.onNodeWithTag(tag).scrollIfNeeded().performTextReplacement(value)
     private fun choose(role: MediaRole, id: String) {
-        compose.onNodeWithTag("block-${role.name}-choose").scrollIfNeeded().performClick()
+        compose.onNodeWithTag("block-${role.name}-choose").performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
+        captureStage3("editor-reference-options")
         click("Choose from Library")
         waitForTag("media-library-list")
         compose.onNodeWithTag("media-library-list").performScrollToNode(hasTestTag("media-choose-$id"))
@@ -73,12 +74,12 @@ class BlockEditorWorkflowTest : WeekUiChecks() {
         val session = runBlocking { db.sessions().withStatus("DRAFT")!!.id }
         val before = runBlocking { db.sessions().find(session)!!.ordered }
         openHomePractice(compose); click("Add Blocks")
-        click("+ Add Blocks", "builder-lineup"); click("Create a Block", "builder-picker")
+        click("+ Add Blocks", "builder-lineup"); click("Create a new Block", "builder-picker")
         field("Name", "Cancel builder editor")
         click("Cancel"); click("Discard")
         shown("Build Session")
         assertEquals(before, runBlocking { db.sessions().find(session)!!.ordered })
-        click("+ Add Blocks", "builder-lineup"); click("Create a Block", "builder-picker")
+        click("+ Add Blocks", "builder-lineup"); click("Create a new Block", "builder-picker")
         field("Name", "Created once"); field("Action", "Play")
         save(); shown("Build Session")
         compose.waitUntil(15_000) { runBlocking { db.sessions().find(session)!!.placements.size == 2 } }

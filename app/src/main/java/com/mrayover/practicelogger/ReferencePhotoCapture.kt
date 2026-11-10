@@ -19,4 +19,8 @@ class ReferencePhotoCapture(private val context: Context) {
     }
     fun uri(name: String): Uri = FileProvider.getUriForFile(context, "${context.packageName}.reference-camera", file(name))
     fun discard(name: String) { file(name).delete() }
+    internal fun recoverAbandoned() {
+        directory.listFiles()?.filter { it.isFile && it.name.matches(Regex("[0-9a-f-]{36}\\.jpg")) &&
+            System.currentTimeMillis() - it.lastModified() > 7 * 86_400_000L }?.forEach { it.delete() }
+    }
 }

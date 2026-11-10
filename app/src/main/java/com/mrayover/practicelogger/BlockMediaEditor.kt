@@ -16,6 +16,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.*
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun BlockImageEditor(blockId: String?, vm: ImageReferenceViewModel, busy: Boolean) {
@@ -26,6 +27,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
     var importRole by rememberSaveable { mutableStateOf(MediaRole.VISUAL.name) }
     var pendingPhoto by rememberSaveable { mutableStateOf<String?>(null) }
     var preview by remember { mutableStateOf<MediaAsset?>(null) }
+    var audioPreview by remember { mutableStateOf<MediaAsset?>(null) }
+    var legacyPreview by remember { mutableStateOf(false) }
     val visuals by vm.visuals.collectAsStateWithLifecycle()
     val legacy = visuals.find { it.blockId == blockId && it.legacy != null }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -47,11 +50,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(label, style = MaterialTheme.typography.labelMedium)
-                if (asset != null) TextButton(onClick = { if (role == MediaRole.VISUAL) preview = asset else selection = role.name }, enabled = enabled,
+                if (asset != null && role == MediaRole.AUDIO && draft.isStaged(asset)) Text("${asset.originalName} · audio",
+                    modifier = Modifier.testTag("block-AUDIO-title"), style = MaterialTheme.typography.bodyMedium)
+                else if (asset != null) TextButton(onClick = { if (role == MediaRole.VISUAL) preview = asset else audioPreview = asset }, enabled = enabled,
                     contentPadding = PaddingValues(0.dp), modifier = Modifier.testTag("block-${role.name}-title")) {
                     Text("${asset.originalName} · ${asset.category.lowercase()}")
-                } else Text(if (oldVisual) "Block-owned ${if (legacy?.mimeType == "application/pdf") "PDF" else "image"}" else "None selected",
-                    style = MaterialTheme.typography.bodySmall)
+                } else if (oldVisual) TextButton(onClick = { legacyPreview = true }, enabled = enabled) {
+                    Text("Block-owned ${if (legacy?.mimeType == "application/pdf") "PDF" else "image"}")
+                } else Text("None selected", style = MaterialTheme.typography.bodySmall)
             }
             TextButton(onClick = {
                 if (asset != null || oldVisual) confirm = role.name else options = role.name
@@ -99,6 +105,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
             onClose = { selection = null }, onChoose = { selection = null; vm.editorChoose(role, it) })
     }
     preview?.let { asset -> EditorVisualPreview(asset, vm, onClose = { preview = null }) }
+    audioPreview?.let { asset ->
+        Dialog(onDismissRequest = { audioPreview = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Surface(Modifier.fillMaxSize()) { LibraryAudioScreen(asset, { audioPreview = null }) }
+        }
+    }
+    if (legacyPreview && legacy != null) Dialog(onDismissRequest = { legacyPreview = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize()) { Column(Modifier.safeDrawingPadding().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(16.dp)) {
+            TextButton(onClick = { legacyPreview = false }) { Text("Close preview") }
+            CollapsibleImageReference(legacy, vm, embeddedExpanded = true, active = false)
+        } }
+    }
 }
 
 @Composable
@@ -107,8 +124,13 @@ private fun EditorVisualPreview(asset: MediaAsset, vm: ImageReferenceViewModel, 
     var loaded by remember(asset.id, page) { mutableStateOf<ReferencePage?>(null) }
     var error by remember(asset.id, page) { mutableStateOf(false) }
     LaunchedEffect(asset.id, page) {
-        try { loaded = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { vm.editor.preview(asset, page) } }
-        catch (_: Exception) { error = true }
+        val owner = coroutineContext
+        withContext(NonCancellable + Dispatchers.IO) {
+            try {
+                val result = vm.editor.preview(asset, page)
+                if (owner.isActive) loaded = result else result.bitmap.recycle()
+            } catch (_: Exception) { if (owner.isActive) error = true }
+        }
     }
     DisposableEffect(loaded) { val owned = loaded; onDispose { owned?.bitmap?.recycle() } }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
