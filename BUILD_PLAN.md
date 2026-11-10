@@ -6,7 +6,7 @@ Updated 2026-11-10 (America/Los_Angeles). This records implemented scope and his
 
 Stage 1 implements the expandable Block pills and context actions in the Library, This Week and Prepare Week. Weekly markers read committed completion snapshots and leave Room and backup formats unchanged. See [implementation and verification](CURRENT_STATE.md#stage-1-source-and-verification) and the [forward dependency order](PRACTICE_LOGGER_V1_MASTER_PLAN.md#block-ux-normalization).
 
-Stage 1.5 normalizes the Session Builder with snapshot-based placement pills, an on-demand active Block picker, independent repeated placements and a pinned Start Session action. Implementation and focused verification are in progress. Stage 2 remains the compact Block editor and pre-save reference attachment workflow. Stage 3 remains multiple visual and audio references with migration and backup compatibility.
+Stage 1.5 is implemented and scoped verification is complete in signed 0.36.3/build108. The Session Builder uses snapshot-based placement pills, an on-demand active Block picker, independent repeated placements and a pinned Start Session action. All 25 focused unit tests and 11 native test executions passed, including 320dp/200% text. Existing full-lint errors and pending physical acceptance are recorded in [current state](CURRENT_STATE.md#stage-15-session-builder-delivery-and-verification). Stage 2 remains the compact Block editor and pre-save reference attachment workflow. Stage 3 remains multiple visual and audio references with migration and backup compatibility.
 
 ## Inspirations and Playground navigation
 
