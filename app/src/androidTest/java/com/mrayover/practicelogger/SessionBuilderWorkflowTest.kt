@@ -7,10 +7,14 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.text.TextLayoutResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
 class SessionBuilderWorkflowTest : WeekUiChecks() {
+    // These workflows run only in the disposable debug instrumentation installation.
+    @Before fun resetFixtures() { db.clearAllTables() }
+
     private fun draft() = runBlocking { db.sessions().find(db.sessions().withStatus("DRAFT")!!.id)!! }
     private fun lineup(label: String) = click(label, "builder-lineup")
     private fun picker(label: String) = click(label, "builder-picker")
@@ -19,7 +23,9 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         compose.waitUntil(15_000) {
             compose.onAllNodes(hasTestTag("builder-add-$id") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithTag("builder-add-$id").assertIsDisplayed().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("builder-picker").performScrollToNode(hasTestTag("builder-add-$id"))
+        compose.onNodeWithTag("builder-add-$id").scrollIfNeeded().assertIsDisplayed().performClick()
         compose.waitUntil(15_000) { runBlocking { db.sessions().withStatus("DRAFT")?.let { db.sessions().find(it.id)!!.placements.size } } == count }
         compose.onNodeWithText("Done adding Blocks").assertIsDisplayed()
     }
@@ -54,6 +60,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         val repeated = initial.ordered[2].id
         assertNotEquals(first, repeated)
         compose.onNodeWithTag("builder-summary").assertTextEquals("3 Blocks · 17 min planned")
+        captureStage3("builder-lineup")
         compose.onNodeWithText("Start Session").assertIsDisplayed().assertIsEnabled()
         expand(first)
         state(first, "Expanded")
@@ -136,6 +143,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         compose.onNodeWithTag("block-goal-filter").performClick()
         compose.onNode(hasText("Priority 1 · Builder tone") and hasAnyAncestor(isPopup())).scrollIfNeeded().performClick()
         add(a, 1)
+        captureStage3("builder-filtered-picker")
         compose.onNodeWithTag("builder-add-$b").assertDoesNotExist()
         picker("Create a new Block")
         shown("New Block")
@@ -179,6 +187,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
             compose.onNodeWithTag("builder-lineup").performScrollToIndex(0)
             compose.onNodeWithTag("builder-summary").assertTextEquals("2 Blocks · 13 min planned")
             compose.onNodeWithText("Start Session").assertIsDisplayed()
+            captureStage3("builder-snapshot-${theme.name.lowercase()}")
             for ((text, lines) in listOf("1. $name" to 2, action.lineSequence().first() to 1)) {
                 val layouts = mutableListOf<TextLayoutResult>()
                 compose.onNodeWithText(text, useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }

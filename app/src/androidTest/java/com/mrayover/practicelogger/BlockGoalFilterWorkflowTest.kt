@@ -11,6 +11,7 @@ class BlockGoalFilterWorkflowTest : WeekUiChecks() {
         val goals = GoalRepository(db)
         val blocks = BlockRepository(db)
         val sessions = SessionRepository(db)
+        runBlocking { sessions.discardDraft() }
         val (fixture, archived) = runBlocking {
             val a = goals.save(null, "Timing and articulation", "", 0, "")
             val b = goals.save(null, "Tone", "", 0, "")
@@ -48,19 +49,19 @@ class BlockGoalFilterWorkflowTest : WeekUiChecks() {
         openHomePractice(compose)
         click("Add Blocks")
         click("+ Add Blocks", "builder-lineup")
-        choose("Priority 1 · Tone")
+        choose("Priority 1 · Tone", "builder-picker")
         compose.onNodeWithContentDescription("Add G2 Alpha").assertDoesNotExist()
         compose.onNodeWithTag("builder-picker").performScrollToNode(hasContentDescription("Add G2 Beta"))
         compose.onNodeWithContentDescription("Add G2 Beta").performClick()
         shown("Added 1 to session")
-        choose("No Goal")
+        choose("No Goal", "builder-picker")
         compose.onNodeWithContentDescription("Add G2 Beta").assertDoesNotExist()
         compose.onNodeWithTag("builder-picker").performScrollToNode(hasContentDescription("Add G2 Unassigned"))
         compose.onNodeWithContentDescription("Add G2 Unassigned").performClick()
         compose.waitUntil(15_000) { runBlocking { db.sessions().find(db.sessions().withStatus("DRAFT")!!.id)!!.placements.size } == 2 }
         val draft = runBlocking { db.sessions().withStatus("DRAFT")!!.id }
         val order = listOf(blockB, unassigned)
-        choose("All Goals")
+        choose("All Goals", "builder-picker")
         click("Done adding Blocks")
         shown("1. G2 Beta")
         shown("2. G2 Unassigned")
