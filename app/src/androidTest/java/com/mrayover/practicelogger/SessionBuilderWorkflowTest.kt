@@ -15,6 +15,12 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
     // These workflows run only in the disposable debug instrumentation installation.
     @Before fun resetFixtures() { db.clearAllTables() }
 
+    private fun showBuilder() {
+        waitForTag("builder-lineup")
+        compose.onNodeWithTag("builder-lineup").performScrollToIndex(0)
+        shown("Build Session")
+    }
+
     private fun draft() = runBlocking { db.sessions().find(db.sessions().withStatus("DRAFT")!!.id)!! }
     private fun lineup(label: String) = click(label, "builder-lineup")
     private fun picker(label: String) = click(label, "builder-picker")
@@ -45,7 +51,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         }
         openHomePractice(compose)
         click("Add Blocks")
-        shown("Build Session")
+        showBuilder()
         compose.onNodeWithText("Start Session").assertIsDisplayed().assertIsNotEnabled()
         compose.onNodeWithTag("builder-summary").assertTextEquals("0 Blocks · 0 min planned")
         compose.onNodeWithText("Find a Block").assertDoesNotExist()
@@ -97,11 +103,11 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         click("Add Blocks")
         assertEquals(saved, draft())
         compose.activityRule.scenario.recreate()
-        shown("Build Session")
+        showBuilder()
         assertEquals(saved, draft())
         lineup("+ Add Blocks")
         back()
-        shown("Build Session")
+        showBuilder()
         assertEquals(saved, draft())
         click("Start Session")
         shown("Start Block")
@@ -150,7 +156,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         compose.onNodeWithText("Name").scrollIfNeeded().performTextInput("Created in builder")
         compose.onNodeWithText("Action").scrollIfNeeded().performTextInput("Created action")
         click("Save")
-        shown("Build Session")
+        showBuilder()
         compose.waitUntil(15_000) { draft().placements.size == 2 }
         assertEquals(listOf("Search alpha", "Created in builder"), draft().ordered.map { it.name })
         lineup("Discard draft session")
@@ -172,7 +178,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         click("Blocks")
         openBlockPill(compose, "block-library-list", "library-block-$block")
         click("Add to Practice", "block-library-list")
-        shown("Build Session")
+        showBuilder()
         val first = draft().ordered.single().id
         runBlocking {
             BlockRepository(db).save(block, BlockDraft("Changed library title", "Changed library action", "9", "120", "Changed notes"))
@@ -183,7 +189,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         for (theme in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK)) {
             ThemePreferences(compose.activity.applicationContext).save(theme)
             compose.activityRule.scenario.recreate()
-            shown("Build Session")
+            showBuilder()
             compose.onNodeWithTag("builder-lineup").performScrollToIndex(0)
             compose.onNodeWithTag("builder-summary").assertTextEquals("2 Blocks · 13 min planned")
             compose.onNodeWithText("Start Session").assertIsDisplayed()
