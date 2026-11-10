@@ -536,7 +536,7 @@ class MainActivity : ComponentActivity() {
     if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved changes?") }, text = { Text("Your saved Block will stay unchanged.") },
         confirmButton = { TextButton(onClick = { discard = false; images.discardEditor(onCancel) }) { Text("Discard") } },
         dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
-    if (archiveConfirm && block != null) ConfirmBlockArchive(block.archived, dirty = draft != initial,
+    if (archiveConfirm && block != null) ConfirmBlockArchive(block.archived, dirty = draft != initial || images.editor.dirty,
         onDismiss = { archiveConfirm = false }, onConfirm = { archiveConfirm = false; images.discardEditor { onArchive(!block.archived) } })
 }
 
