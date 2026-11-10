@@ -19,6 +19,13 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val library = MediaLibraryRepository(db, File(app.filesDir, "media-library"))
     val associations = BlockMediaRepository(db, library, repository)
+    internal val editor = BlockEditorMedia(app, db, library, repository, associations)
+    internal fun openEditor(token: String, id: String?) = work { editor.open(token, id) }
+    internal fun editorChoose(role: MediaRole, id: String) = work { editor.choose(role, id) }
+    internal fun editorRemove(role: MediaRole) = work { editor.select(role, null) }
+    internal fun editorImport(role: MediaRole, uri: Uri) = work { editor.import(role, uri) }
+    internal fun editorPhoto(name: String) = work { editor.photo(photoCapture, name) }
+    internal fun discardEditor(done: () -> Unit) = work { editor.discard(); done() }
     val links = associations.links.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val assets = library.assets.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val visuals = combine(images, links, assets, ::resolveBlockVisuals)

@@ -107,10 +107,13 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
         importAsset(name, declaredMime, role, open) {}
 
     internal suspend fun importRecordedReference(name: String, source: File, attach: suspend (MediaAsset) -> Unit): MediaAsset =
-        importAsset(name, "audio/mp4", MediaRole.AUDIO, source::inputStream, attach)
+        importAsset(name, "audio/mp4", MediaRole.AUDIO, source::inputStream, attach = attach)
+
+    internal suspend fun stage(name: String, declaredMime: String?, role: MediaRole, open: () -> InputStream): MediaAsset =
+        importAsset(name, declaredMime, role, open, staged = true) {}
 
     private suspend fun importAsset(name: String, declaredMime: String?, role: MediaRole?, open: () -> InputStream,
-        attach: suspend (MediaAsset) -> Unit): MediaAsset = withContext(Dispatchers.IO) {
+        staged: Boolean = false, attach: suspend (MediaAsset) -> Unit): MediaAsset = withContext(Dispatchers.IO) {
         filesMutex.withLock {
             require(name.isNotBlank() && name.length <= 255 && name.none(Char::isISOControl)) { "Choose a filename of 1–255 characters." }
             val extension = name.substringAfterLast('.', "").lowercase(Locale.ROOT)
@@ -160,7 +163,7 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                 withContext(NonCancellable) {
                     check(!target.exists() && pending.renameTo(target)) { "Could not finish the Library file." }
                     try {
-                        db.withTransaction {
+                        if (!staged) db.withTransaction {
                             db.media().insert(asset)
                             attach(asset)
                         }

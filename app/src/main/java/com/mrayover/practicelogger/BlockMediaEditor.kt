@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,106 +19,117 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun BlockImageEditor(blockId: String?, vm: ImageReferenceViewModel, busy: Boolean) {
-    Text("Library references", style = MaterialTheme.typography.titleMedium)
-    Text("One image or PDF and one audio reference, independently. Library originals can be shared by Blocks. Media and associations are not included in JSON backups; keep your originals separately.", style = MaterialTheme.typography.bodySmall)
-    if (blockId == null) { Text("Save this Block first, then reopen it to add references."); return }
-    val links by vm.links.collectAsStateWithLifecycle()
-    val assets by vm.assets.collectAsStateWithLifecycle()
+    val draft = vm.editor
+    var options by rememberSaveable { mutableStateOf<String?>(null) }
+    var confirm by rememberSaveable { mutableStateOf<String?>(null) }
+    var selection by rememberSaveable { mutableStateOf<String?>(null) }
+    var importRole by rememberSaveable { mutableStateOf(MediaRole.VISUAL.name) }
+    var pendingPhoto by rememberSaveable { mutableStateOf<String?>(null) }
+    var preview by remember { mutableStateOf<MediaAsset?>(null) }
     val visuals by vm.visuals.collectAsStateWithLifecycle()
-    val visual = visuals.find { it.blockId == blockId }
-    var selection by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
-    var importRole by rememberSaveable(blockId) { mutableStateOf(MediaRole.VISUAL.name) }
-    var removal by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
-    var photoOptions by rememberSaveable(blockId) { mutableStateOf(false) }
-    // Reuse the accepted private camera staging/provider and gallery contract.
-    var pendingPhoto by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
+    val legacy = visuals.find { it.blockId == blockId && it.legacy != null }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) vm.importLibrary(blockId, MediaRole.valueOf(importRole), uri)
+        if (uri != null) vm.editorImport(MediaRole.valueOf(importRole), uri)
     }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
-        pendingPhoto?.let { name -> if (saved) vm.importLibraryPhoto(blockId, name) else vm.photoCapture.discard(name) }
+        pendingPhoto?.let { if (saved) vm.editorPhoto(it) else vm.photoCapture.discard(it) }
         pendingPhoto = null
     }
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) vm.importLibrary(blockId, MediaRole.VISUAL, uri)
+        if (uri != null) vm.editorImport(MediaRole.VISUAL, uri)
     }
-    val enabled = !busy && !vm.busy && pendingPhoto == null && vm.pendingVisualChange == null
+    val enabled = draft.ready && !busy && pendingPhoto == null
+    Text("References", style = MaterialTheme.typography.titleMedium)
     for (role in MediaRole.entries) {
+        val asset = if (role == MediaRole.VISUAL) draft.visual else draft.audio
         val label = if (role == MediaRole.VISUAL) "Visual" else "Audio"
-        val link = links.find { it.blockId == blockId && it.role == role.name }
-        val asset = assets.find { it.id == link?.mediaId }
-        Text("$label reference", style = MaterialTheme.typography.titleMedium)
-        if (asset != null) {
-            Text(asset.title, modifier = Modifier.testTag("block-${role.name}-title"))
-            LibraryMediaMetadata(asset)
-        } else if (link != null) Text("Library reference unavailable. Replace or remove this association.", color = MaterialTheme.colorScheme.error)
-        else if (role == MediaRole.VISUAL && visual?.legacy != null) Text("Existing Block-owned image/PDF. Kept until you confirm replacement or removal.")
-        else Text("No ${label.lowercase()} reference attached.")
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { selection = role.name }, enabled = enabled,
-                modifier = Modifier.heightIn(min = 48.dp).testTag("block-${role.name}-choose")) { Text("Choose from Library") }
-            OutlinedButton(onClick = {
-                importRole = role.name
-                try { picker.launch(if (role == MediaRole.VISUAL) arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf")
-                    else libraryAudioMimeTypes) }
-                catch (_: Exception) { vm.photoUnavailable() }
-            }, enabled = enabled, modifier = Modifier.heightIn(min = 48.dp).testTag("block-${role.name}-import")) { Text("Import New into Library") }
+        val oldVisual = role == MediaRole.VISUAL && legacy != null && !draft.visualChanged
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(label, style = MaterialTheme.typography.labelMedium)
+                if (asset != null) TextButton(onClick = { if (role == MediaRole.VISUAL) preview = asset else selection = role.name }, enabled = enabled,
+                    contentPadding = PaddingValues(0.dp), modifier = Modifier.testTag("block-${role.name}-title")) {
+                    Text("${asset.originalName} · ${asset.category.lowercase()}")
+                } else Text(if (oldVisual) "Block-owned ${if (legacy?.mimeType == "application/pdf") "PDF" else "image"}" else "None selected",
+                    style = MaterialTheme.typography.bodySmall)
+            }
+            TextButton(onClick = {
+                if (asset != null || oldVisual) confirm = role.name else options = role.name
+            }, enabled = enabled, modifier = Modifier.testTag("block-${role.name}-choose")) { Text(if (asset != null || oldVisual) "Change" else "Add") }
         }
-        if (role == MediaRole.VISUAL) {
-            OutlinedButton(onClick = { photoOptions = true }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Take or Add a photo") }
-            visual?.let { CollapsibleImageReference(it, vm) }
+    }
+    Text("One image or PDF, and one audio. Changes apply with Save Block.", style = MaterialTheme.typography.bodySmall)
+    if (vm.busy) Text("Preparing references…")
+    vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.testTag("block-media-message").semantics { liveRegion = LiveRegionMode.Polite }) }
+    confirm?.let { role ->
+        AlertDialog(onDismissRequest = { confirm = null }, title = { Text("Change ${role.lowercase()} reference?") },
+            text = { Text("Replacing or removing this reference on Save discards this Block’s markings or local playback settings for it. Shared Library originals and other Blocks are kept. An old Block-owned original is retired only after Save succeeds.") },
+            confirmButton = { TextButton(onClick = { confirm = null; options = role }) { Text("Continue") } },
+            dismissButton = { TextButton(onClick = { confirm = null }) { Text("Keep reference") } })
+    }
+    options?.let { value ->
+        val role = MediaRole.valueOf(value)
+        AlertDialog(onDismissRequest = { options = null }, title = { Text("${value.lowercase().replaceFirstChar { it.uppercase() }} reference") },
+            text = { Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+                TextButton(onClick = { options = null; selection = value }) { Text("Choose from Library") }
+                TextButton(onClick = {
+                    options = null; importRole = value
+                    try { picker.launch(if (role == MediaRole.VISUAL) arrayOf("image/jpeg", "image/png", "image/webp", "application/pdf") else libraryAudioMimeTypes) }
+                    catch (_: Exception) { vm.photoUnavailable() }
+                }, modifier = Modifier.testTag("block-${role.name}-import")) { Text("Import New into Library") }
+                if (role == MediaRole.VISUAL) {
+                    TextButton(onClick = {
+                        options = null
+                        try { val name = vm.photoCapture.create(); pendingPhoto = name; camera.launch(vm.photoCapture.uri(name)) }
+                        catch (_: Exception) { pendingPhoto?.let(vm.photoCapture::discard); pendingPhoto = null; vm.photoUnavailable() }
+                    }) { Text("Take photo") }
+                    TextButton(onClick = {
+                        options = null
+                        try { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                        catch (_: Exception) { vm.photoUnavailable() }
+                    }) { Text("Choose from gallery") }
+                }
+                TextButton(onClick = { options = null; vm.editorRemove(role) }, modifier = Modifier.testTag("block-${role.name}-remove")) { Text("Remove reference") }
+            } }, confirmButton = { TextButton(onClick = { options = null }) { Text("Cancel") } })
+    }
+    selection?.let { value ->
+        val role = MediaRole.valueOf(value)
+        LibraryMediaPicker(role, (if (role == MediaRole.VISUAL) draft.visual else draft.audio)?.id,
+            onClose = { selection = null }, onChoose = { selection = null; vm.editorChoose(role, it) })
+    }
+    preview?.let { asset -> EditorVisualPreview(asset, vm, onClose = { preview = null }) }
+}
+
+@Composable
+private fun EditorVisualPreview(asset: MediaAsset, vm: ImageReferenceViewModel, onClose: () -> Unit) {
+    var page by rememberSaveable(asset.id) { mutableIntStateOf(0) }
+    var loaded by remember(asset.id, page) { mutableStateOf<ReferencePage?>(null) }
+    var error by remember(asset.id, page) { mutableStateOf(false) }
+    LaunchedEffect(asset.id, page) {
+        try { loaded = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { vm.editor.preview(asset, page) } }
+        catch (_: Exception) { error = true }
+    }
+    DisposableEffect(loaded) { val owned = loaded; onDispose { owned?.bitmap?.recycle() } }
+    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize()) {
+            Column(Modifier.safeDrawingPadding().padding(16.dp)) {
+                TextButton(onClick = onClose) { Text("Close preview") }
+                Text(asset.originalName)
+                if (error) Text("Could not open this reference. Select the original again.")
+                loaded?.let { result ->
+                    if (result.pageCount > 1) {
+                        Text("Page ${page + 1} of ${result.pageCount}")
+                        Row {
+                            TextButton(onClick = { page-- }, enabled = page > 0) { Text("Previous page") }
+                            TextButton(onClick = { page++ }, enabled = page + 1 < result.pageCount) { Text("Next page") }
+                        }
+                    }
+                    ZoomableReference(result.bitmap, 0.dp, asset.mimeType == "application/pdf")
+                }
+            }
         }
-        if (link != null || (role == MediaRole.VISUAL && visual != null)) OutlinedButton(onClick = { if (role == MediaRole.VISUAL) vm.unlink(blockId, role) else removal = role.name }, enabled = enabled,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("block-${role.name}-remove")) { Text("Remove ${label.lowercase()} reference") }
     }
-    if (vm.busy) Text("Saving reference…")
-    vm.message?.let { Text(it, modifier = Modifier.testTag("block-media-message").semantics { liveRegion = LiveRegionMode.Polite }) }
-    selection?.let { name ->
-        val role = MediaRole.valueOf(name)
-        LibraryMediaPicker(role, links.find { it.blockId == blockId && it.role == name }?.mediaId,
-            onClose = { selection = null }, onChoose = { id -> selection = null; vm.choose(blockId, role, id) })
-    }
-    vm.pendingVisualChange?.takeIf { it.block == blockId }?.let { change ->
-        val replacing = change.next != null
-        val title = when {
-            !replacing -> "Remove visual reference?"
-            change.legacy -> "Replace existing Block-owned reference?"
-            else -> "Replace visual reference?"
-        }
-        val detail = if (change.legacy) {
-            if (replacing) "Attaching the Library item retires the old Block-owned original. The Library item is kept if you cancel."
-            else "Removing this reference deletes the old Block-owned original."
-        } else "The Library original and other Blocks’ references are kept."
-        AlertDialog(onDismissRequest = vm::cancelVisualChange, title = { Text(title) },
-            text = { Text(if (change.reviewed.hasMarkings) "This discards this Block’s saved markings for the reference. $detail" else detail) },
-            confirmButton = { TextButton(onClick = vm::confirmVisualChange, enabled = !vm.busy) {
-                Text(if (replacing) "Replace old reference" else "Remove reference")
-            } },
-            dismissButton = { TextButton(onClick = vm::cancelVisualChange) {
-                Text(if (replacing) "Keep old reference" else "Cancel")
-            } })
-    }
-    ConfirmBlockAudioChange(blockId, vm)
-    removal?.let { name ->
-        val role = MediaRole.valueOf(name)
-        AlertDialog(onDismissRequest = { removal = null }, title = { Text("Remove ${name.lowercase()} reference?") },
-            text = { Text("Remove this Block's association? The Library original, master markers and other Blocks' links are kept.") },
-            confirmButton = { TextButton(onClick = { removal = null; vm.unlink(blockId, role) }, enabled = !vm.busy) { Text("Remove reference") } },
-            dismissButton = { TextButton(onClick = { removal = null }) { Text("Cancel") } })
-    }
-    if (photoOptions) AlertDialog(onDismissRequest = { photoOptions = false }, title = { Text("Take or Add a photo") },
-        text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = {
-                photoOptions = false
-                try { val name = vm.photoCapture.create(); pendingPhoto = name; camera.launch(vm.photoCapture.uri(name)) }
-                catch (_: Exception) { pendingPhoto?.let { vm.photoCapture.discard(it) }; pendingPhoto = null; vm.photoUnavailable() }
-            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Take photo") }
-            OutlinedButton(onClick = {
-                photoOptions = false
-                try { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
-                catch (_: Exception) { vm.photoUnavailable() }
-            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Choose from gallery") }
-        } }, confirmButton = { TextButton(onClick = { photoOptions = false }) { Text("Cancel") } })
 }
 
 internal val libraryAudioMimeTypes = arrayOf("audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/wav", "audio/x-wav")

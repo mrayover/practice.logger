@@ -1,5 +1,16 @@
 # Current phone and P5 regression checklist
 
+## Stage 2 compact Block editor phone checks
+
+- Install the signed Stage 2 update over permanent-key build108 without clearing data. Check existing Blocks, references, Goals, weekly plans, Routines and practice history.
+- Create from Block Library, Prepare Week for a non-current selected week, and Session Builder with an existing ordered draft and duration overrides. Select a Library visual and audio before the first Save Block; verify the saved Block, correct week and exactly one builder append. Repeat with no references and each role alone.
+- Import a new image, multipage PDF and supported audio, take a photo and choose from gallery. Check filename/type summaries, visual preview/pages and the one-visual/one-audio limit. Cancel pickers, deny camera access, and try invalid files.
+- Leave unsaved fields or references using Cancel, Android Back and the banner. Keep editing, then explicitly discard. Verify no new Block or builder placement, no shared-original deletion, and no changes to an existing Block's saved references.
+- Submit invalid fields and retry. Recreate while editing and after selecting references. Check fields and selections survive. Simulate storage failure on a spare installation, retry after freeing storage, and check no partial Block or broken links. Interrupted staging is recovered on editor reopen; abandoned sessions expire after seven days.
+- Edit a Block with markings and audio playback/markers: save text alone, confirm/cancel visual and audio replacement/removal, and verify unchanged local work, shared originals and historical placement snapshots. Check More → Archive/Restore and protected Delete Permanently; open Recordings from expanded Library details.
+- Check Light, Dark and custom themes at normal size and 320dp/200% text, long Name/Action/Notes, primary Goal colors, keyboard and gesture/three-button navigation. Save Block must remain reachable above insets while the last field can scroll fully into view. Check TalkBack and touch targets on physical phones.
+- Make a complete ZIP7 backup and restore it to a separate empty installation; verify attachments and local work. Keep the original phone data. JSON7 remains data-only. Physical acceptance must be recorded separately from automated checks.
+
 ## Stage 1.5 Session Builder phone checks
 
 Record the installed build, phone, Android version, width, text scale and observations. Galaxy S26 Ultra and smaller-phone checks are pending until performed.

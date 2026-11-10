@@ -192,18 +192,19 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(page) { headerHomeRequested = false }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
     var summaryId by rememberSaveable { mutableStateOf<String?>(null) }
+    var editorToken by rememberSaveable { mutableStateOf(java.util.UUID.randomUUID().toString()) }
     var editorId by rememberSaveable { mutableStateOf<String?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
     var archived by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(vm.destinationArchived) {
         vm.destinationArchived?.let { destination ->
+            if (vm.deleted) images.editor.discard()
             focus.clearFocus(force = true); keyboard?.hide()
             if (vm.deleted || editorReturn == "library") {
                 archived = destination
                 query = ""
             }
             page = if (vm.deleted) "library" else editorReturn
-            if (!vm.deleted && editorReturn == "builder") vm.savedBlockId?.let { practice.addBlock(it) }
             vm.navigationHandled()
         }
     }
@@ -228,6 +229,7 @@ class MainActivity : ComponentActivity() {
     fun goalName(sessionId: String?): String? = goalLinks.find { it.sessionId == sessionId }?.let { link -> goalRows.find { it.goal.id == link.goalId }?.goal?.title }
     fun openRoutine(id: String?) { if (routines.beginEditor(id)) page = "routine-editor" }
     fun openEditor(id: String?, returnTo: String = "library") {
+        editorToken = java.util.UUID.randomUUID().toString()
         editorId = id
         editorReturn = returnTo
         editorWeek = if (id == null && returnTo == "prepare-week") selectedWeek.toString() else null
@@ -385,6 +387,7 @@ class MainActivity : ComponentActivity() {
                         BlockPill(block, goalIndicators.block(block.id), references[block.id].orEmpty(),
                             modifier = Modifier.testTag("library-block-${block.id}")) {
                             TextButton(onClick = { openEditor(block.id) }, enabled = !vm.busy) { Text("Edit") }
+                            TextButton(onClick = { recordingsBlockId = block.id }, enabled = !vm.busy) { Text("Recordings") }
                             if (block.archived) {
                                 TextButton(onClick = { restoreId = block.id }, enabled = !vm.busy) { Text("Restore Block") }
                             } else {
@@ -415,15 +418,11 @@ class MainActivity : ComponentActivity() {
                         Text("This Block is no longer available.")
                         Button(onClick = { page = "library" }) { Text("Back to Library") }
                     }
-                } else key(editorId) {
+                } else key(editorToken) {
+                    LaunchedEffect(editorToken) { images.openEditor(editorToken, editorId) }
                     BlockEditor(block, vm.busy || images.busy, images, onNavigationCancelled = { headerHomeRequested = false }, onDelete = { block?.let { vm.reviewDeletion(it.id) } }, onCancel = { page = if (headerHomeRequested) headerDestination else editorReturn },
-                        onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false, editorWeek?.let(LocalDate::parse)) },
-                        weeklyAction = {
-                            if (block != null) AddToThisWeek(block.id in currentWeekIds, block.archived, vm.busy) {
-                                vm.addToWeek(practiceWeek(), block.id)
-                            }
-                        },
-                        onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } }, recordingMessage = recordings.message)
+                        onSave = { draft -> vm.save(editorId, draft, block?.archived ?: false, editorWeek?.let(LocalDate::parse), images.editor, editorReturn == "builder") },
+                        onArchive = { value -> block?.let { vm.archive(it.id, value) } }, onRecordings = { block?.let { recordingsBlockId = it.id } })
                 }
             }
         }
@@ -470,7 +469,7 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit, recordingMessage: String?, weeklyAction: @Composable () -> Unit) {
+@Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
     var name by rememberSaveable { mutableStateOf(initial.name) }
     var action by rememberSaveable { mutableStateOf(initial.action) }
@@ -486,35 +485,59 @@ class MainActivity : ComponentActivity() {
     val primary = if (primaryEdited) pickedPrimary else savedPrimary
     val draft = BlockDraft(name, action, duration, tempo, notes, primary.takeIf { primaryEdited }, primaryEdited)
     val errors = if (submitted) draft.errors() else emptyMap()
-    fun leave() { if (!busy) { if (draft != initial) discard = true else onCancel() } }
+    fun leave() { if (!busy) { if (draft != initial || images.editor.dirty) discard = true else images.discardEditor(onCancel) } }
     BackHandler { leave() }
-    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.headlineMedium)
-        weeklyAction()
-        if (block?.archived == true) Text("Archived — restore to return this Block to your active library.")
-        if (block != null) OutlinedButton(onClick = onRecordings, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Recordings") }
-        if (block != null) recordingMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-        BlockImageEditor(block?.id, images, busy)
-        EditorField("Name", name, { name = it }, errors["name"], busy, singleLine = true)
-        EditorField("Action", action, { action = it }, errors["action"], busy)
-        EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true)
-        EditorField("Tempo reference (BPM, optional)", tempo, { tempo = it }, errors["tempo"], busy, singleLine = true, numeric = true)
-        EditorField("Notes / source (optional)", notes, { notes = it }, null, busy)
-        PrimaryGoalPicker(primary, enabled = !busy) { selected ->
-            pickedPrimary = selected
-            primaryEdited = selected != savedPrimary
+    var notesExpanded by rememberSaveable { mutableStateOf(false) }
+    var overflow by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            if (block != null) Box {
+                TextButton(onClick = { overflow = true }, enabled = !busy, modifier = Modifier.testTag("block-overflow")) { Text("More") }
+                DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
+                    DropdownMenuItem(text = { Text("Recordings") }, onClick = { overflow = false; onRecordings() })
+                    DropdownMenuItem(text = { Text(if (block.archived) "Restore Block" else "Archive Block") }, onClick = { overflow = false; archiveConfirm = true })
+                    DropdownMenuItem(text = { Text("Delete Permanently") }, onClick = { overflow = false; onDelete() }, modifier = Modifier.testTag("block-delete-action"))
+                }
+            }
         }
-        Button(onClick = { submitted = true; if (draft.errors().isEmpty()) onSave(draft) }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Saving…" else "Save") }
-        OutlinedButton(onClick = ::leave, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Cancel") }
-        if (block != null) OutlinedButton(onClick = { archiveConfirm = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (block.archived) "Restore Block" else "Archive Block") }
-        if (block != null) OutlinedButton(onClick = onDelete, enabled = !busy,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("block-delete-action")) { Text("Delete Permanently") }
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (block?.archived == true) Text("Archived", style = MaterialTheme.typography.bodySmall)
+            EditorField("Name", name, { name = it }, errors["name"], busy, singleLine = true)
+            EditorField("Action", action, { action = it }, errors["action"], busy)
+            BoxWithConstraints {
+                val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
+                if (maxWidth >= 360.dp && !largeText) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(1f)) { EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true) }
+                    Box(Modifier.weight(1f)) { EditorField("Tempo reference (BPM, optional)", tempo, { tempo = it }, errors["tempo"], busy, singleLine = true, numeric = true) }
+                } else Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    EditorField("Default duration (minutes)", duration, { duration = it }, errors["duration"], busy, singleLine = true, numeric = true)
+                    EditorField("Tempo reference (BPM, optional)", tempo, { tempo = it }, errors["tempo"], busy, singleLine = true, numeric = true)
+                }
+            }
+            PrimaryGoalPicker(primary, enabled = !busy) { selected ->
+                pickedPrimary = selected; primaryEdited = selected != savedPrimary
+            }
+            BlockImageEditor(block?.id, images, busy)
+            TextButton(onClick = { notesExpanded = !notesExpanded }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (notesExpanded) "Hide Notes / Source" else "Notes / Source" + if (notes.isNotBlank()) " · saved text" else " (optional)")
+            }
+            if (notesExpanded) EditorField("Notes / source (optional)", notes, { notes = it }, null, busy)
+            Spacer(Modifier.height(8.dp))
+        }
+        HorizontalDivider()
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = ::leave, enabled = !busy) { Text("Cancel") }
+            Button(onClick = { submitted = true; if (draft.errors().isEmpty()) onSave(draft) }, enabled = !busy && images.editor.ready,
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("block-save")) { Text(if (busy) "Saving…" else "Save Block") }
+        }
     }
     if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved changes?") }, text = { Text("Your saved Block will stay unchanged.") },
-        confirmButton = { TextButton(onClick = { discard = false; onCancel() }) { Text("Discard") } },
+        confirmButton = { TextButton(onClick = { discard = false; images.discardEditor(onCancel) }) { Text("Discard") } },
         dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
     if (archiveConfirm && block != null) ConfirmBlockArchive(block.archived, dirty = draft != initial,
-        onDismiss = { archiveConfirm = false }, onConfirm = { archiveConfirm = false; onArchive(!block.archived) })
+        onDismiss = { archiveConfirm = false }, onConfirm = { archiveConfirm = false; images.discardEditor { onArchive(!block.archived) } })
 }
 
 @Composable
@@ -531,7 +554,7 @@ private fun ConfirmBlockArchive(archived: Boolean, dirty: Boolean = false, onDis
 
 @Composable private fun EditorField(label: String, value: String, changed: (String) -> Unit, error: String?, busy: Boolean, singleLine: Boolean = false, numeric: Boolean = false) {
     OutlinedTextField(value, changed, label = { Text(label) }, enabled = !busy, isError = error != null,
-        supportingText = { if (error != null) Text(error) }, singleLine = singleLine, minLines = if (singleLine) 1 else 3,
+        supportingText = { if (error != null) Text(error) }, singleLine = singleLine, minLines = 1,
         keyboardOptions = KeyboardOptions(keyboardType = if (numeric) KeyboardType.Number else KeyboardType.Text),
         modifier = Modifier.fillMaxWidth().testTag(label))
 }

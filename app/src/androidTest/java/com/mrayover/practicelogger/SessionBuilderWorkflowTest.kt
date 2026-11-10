@@ -155,7 +155,7 @@ class SessionBuilderWorkflowTest : WeekUiChecks() {
         shown("New Block")
         compose.onNodeWithText("Name").scrollIfNeeded().performTextInput("Created in builder")
         compose.onNodeWithText("Action").scrollIfNeeded().performTextInput("Created action")
-        click("Save")
+        click("Save Block")
         showBuilder()
         compose.waitUntil(15_000) { draft().placements.size == 2 }
         assertEquals(listOf("Search alpha", "Created in builder"), draft().ordered.map { it.name })

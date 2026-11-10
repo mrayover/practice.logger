@@ -1,6 +1,14 @@
-# Current state — Stage 1.5 Session Builder
+# Current state — Stage 2 compact Block editor
 
 Updated November 10, 2026 (America/Los_Angeles).
+
+## Stage 2 implementation checkpoint
+
+Stage 2 source is implemented as candidate0.37.0/build109 on `block-ux-stage1`, using the canonical checkout. The editor puts Name, Action, adaptive Duration/BPM and primary Goal first; reference filename/type summaries and expandable Notes follow. Save Block/Cancel stay pinned above insets. More contains administrative actions; expanded Library details expose Recordings and existing weekly actions remain outside the form.
+
+New Blocks can choose existing Library assets or stage validated imports/camera/gallery originals before the first Save. Existing attachment changes also wait for Save; Cancel preserves saved attachments. One image OR PDF and one audio remain the limit. Room23, complete ZIP7 and JSON7 are unchanged. [Staging, coherent save and interruption recovery](docs/BLOCK_EDITOR_STAGING.md). Stage3 multiple references remains separate.
+
+Debug assembly and seven focused unit tests passed, including injected save rollback, week/builder atomicity and exactly-once creation recovery. Release and instrumentation assembly plus release vital lint passed in `.tools/editor-checks.log`; final source checks and native workflows are in progress. The pre-change13-test baseline had five failures: two stale schema18 assertions and three Windows file-promotion errors, recorded in WORK_LOG. No physical acceptance or completed Stage2 delivery is claimed yet. Signed baseline remains build108 below. Next task: finish Stage2 focused native/release verification, permanent-key delivery and final records; do not start Stage3.
 
 ## Stage 1.5 Session Builder delivery and verification
 

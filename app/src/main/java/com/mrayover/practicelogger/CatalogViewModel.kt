@@ -59,8 +59,8 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
             finally { busy = false }
         }
     }
-    fun save(id: String?, draft: BlockDraft, archived: Boolean, week: LocalDate? = null) =
-        mutate({ savedBlockId = repository.save(id, draft, week) }, { destinationArchived = archived })
+    internal fun save(id: String?, draft: BlockDraft, archived: Boolean, week: LocalDate? = null, media: BlockEditorMedia? = null, appendToBuilder: Boolean = false) =
+        mutate({ savedBlockId = if (media == null) repository.save(id, draft, week) else media.save(id, draft, week, appendToBuilder) }, { destinationArchived = archived })
     fun addToWeek(week: LocalDate, id: String) = changeWeek { repository.addToWeek(week, id) }
     fun carryWeek(from: LocalDate, to: LocalDate) = changeWeek { repository.carryWeek(from, to) }
     fun removeFromWeek(week: LocalDate, id: String) = changeWeek { repository.removeFromWeek(week, id) }

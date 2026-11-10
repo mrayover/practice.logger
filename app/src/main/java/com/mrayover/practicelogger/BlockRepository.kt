@@ -68,12 +68,12 @@ class BlockRepository(private val db: BlockDatabase, private val now: () -> Long
             BlockDeletionResult.Deleted
         }
     }
-    suspend fun save(id: String?, draft: BlockDraft, week: LocalDate? = null): String = db.withTransaction {
+    suspend fun save(id: String?, draft: BlockDraft, week: LocalDate? = null, newId: String? = null): String = db.withTransaction {
         require(draft.errors().isEmpty()) { "Check the highlighted fields." }
         val previous = id?.let { checkNotNull(db.blocks().find(it)) { "This Block is no longer available." } }
         val timestamp = now()
         val block = Block(
-            id = previous?.id ?: UUID.randomUUID().toString(), name = draft.name.trim(), action = draft.action.trim(),
+            id = previous?.id ?: newId ?: UUID.randomUUID().toString(), name = draft.name.trim(), action = draft.action.trim(),
             durationMinutes = draft.duration.trim().toInt(), tempo = draft.tempo.trim().takeIf { it.isNotEmpty() }?.toInt(),
             notes = draft.notes.trim(), archived = previous?.archived ?: false,
             createdAt = previous?.createdAt ?: timestamp, updatedAt = timestamp

@@ -108,12 +108,12 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
         saveAudioLink(blockId, mediaId, previous, confirmedAudioId)
     }
 
-    private suspend fun saveAudioLink(blockId: String, mediaId: String, previous: String?, confirmedAudioId: String?) {
+    internal suspend fun saveAudioLink(blockId: String, mediaId: String, previous: String?, confirmedAudioId: String?) {
         if (previous != null && previous != mediaId) removeAudio(blockId, previous, confirmedAudioId)
         db.blockMedia().save(BlockMediaLink(blockId, MediaRole.AUDIO.name, mediaId))
     }
 
-    private suspend fun removeAudio(block: String, media: String, confirmed: String?): Int {
+    internal suspend fun removeAudio(block: String, media: String, confirmed: String?): Int {
         val saved = db.blockAudio().state(block, media)
         val duration = db.media().find(media)?.durationMs
         val customized = saved != null && (saved.positionMs != 0L || saved.speedPercent != 100 ||
