@@ -269,10 +269,10 @@ Use the signed compatibility candidate linked in [CURRENT_STATE](CURRENT_STATE.m
 
 ## W1 This Week phone checks
 
-1. Install build98 over the existing permanent-key app. Confirm saved Blocks, unfinished sessions, Journal entries and media still open.
+1. On a test build with the Stage 1 Block pills, confirm saved Blocks, unfinished sessions, Journal entries and media still open.
 2. Open Practice Now → This Week. Confirm the current Sunday–Saturday range. Visit the previous and next weeks and confirm that neither inherits Blocks automatically.
-3. In Prepare Week, add an existing Block and create another. Carry forward from an earlier week, repeat the carry, and confirm each Block appears once in saved order. Remove a membership and confirm its Block is still in the Library. Try Add to This Week from the Library and editor.
-4. Tap a single Block and confirm practice opens paused. Leave it unfinished, return to This Week, select two Blocks and confirm the existing builder opens with them in weekly order. Open In Progress and resume an unfinished session.
+3. In Prepare Week, expand and add an existing Block, then create another. Carry forward from an earlier week, repeat the carry, and confirm each Block appears once in saved order. Expand an assigned Block to remove its membership and confirm its Block is still in the Library. Try Add to This Week from the Library and editor.
+4. Expand a single Block, choose Practice Block, and confirm practice opens at Ready with Start and Prep. Leave it unfinished, return to This Week, select two Blocks with their checkboxes and confirm the existing builder opens with them in weekly order. Open In Progress and resume an unfinished session.
 5. Close and reopen the app and verify both plans. Create a complete ZIP and restore it only into a separate empty installation to check weekly membership and media together.
 
 
@@ -294,6 +294,14 @@ Install build103 over build101 or build102 on the Samsung S26 Ultra. Open a Bloc
 2. In Manage Blocks, try All Goals, an active Goal and No Goal. Combine a Goal with a name, action or notes search, and switch between Active and Archived. Confirm a completed Goal's Block and label are visible under All Goals.
 3. In Practice Now → Add Blocks and in a saved Routine editor, add Blocks from different Goal filters. Change the filter again and confirm the existing placements and order.
 4. In This Week → Prepare Week, choose a Goal and add an existing Block. Confirm it appears in the week and is removed from the available results. With enlarged text, check that the filter menu scrolls and can return to All Goals.
+
+## Stage 1 Block pill phone checks
+
+1. On the Galaxy S26 Ultra and a smaller Android phone, repeat at default and enlarged font/display sizes. Compare the Block Library, This Week and Prepare Week in Light and Dark. Check consistent text, padding and markers. Scroll to each expanded action and check for clipping, overlap and reachable touch targets. With TalkBack, verify expanded/collapsed and practice status announcements.
+2. Save a Block with a long title, a long first Action line followed by a second line, notes, a Goal, a BPM and references. Check two title lines at most and one Action line when collapsed. Expand for the full text and reference summary, tap the header to collapse, then explicitly choose Edit and verify the original values.
+3. Combine text search with the Goal filter and switch Active/Archived. Restore an archived Block from its expanded row. Confirm the archived row offers Edit and Restore. Add an active Block to This Week and confirm In This Week, then use Add to Practice and check that the existing session draft contains the Block.
+4. In Prepare Week, expand to add and remove the Block. Check that it moves between available and assigned with one membership row. Edit from each weekly screen and confirm the editor returns to the same screen. Start from This Week and verify Ready, Prep and Start; multi-select two Blocks and check the builder order.
+5. In the week, verify the left Goal square before practice and after skipping. Complete the Block and check the right slit. Reorder or reassign the Goal and compare the recorded color in that week and Session Summary. Assign the same Block to another week and check that week and the Library show the current reusable marker. Compare a No Goal Block and a legacy completion without a saved color.
 
 ## P2 reflection phone checks
 

@@ -1122,3 +1122,15 @@ Reviewed the mandatory efficiency procedure and verified clean canonical Windows
 Local release assembly, source encoding, release lint gate and instrumentation compilation passed. Signed and verified 0.36.1/build106 from `146596d` and copied the APK and ZIP to the versioned I2 subfolder in the established OneDrive Inspirations delivery folder. [Delivery and hashes](CURRENT_STATE.md#signed-i2-delivery)
 
 Android 15 passed the focused Included Inspirations test. It opened all five works, compared the complete reader text with each bundled asset, switched between Media and Inspirations, recreated the Activity, then reopened and compared all five again. No full regression was run. [Focused Android run](https://github.com/mrayover/practice.logger/actions/runs/42548771199)
+
+## 2026-11-10 — Stage 1 Block presentation
+
+Reviewed the mandatory efficiency procedure. The clean designated checkout and live default branch matched `45e8f9f`, the signed build106 baseline. Baseline release and Android test assembly and six weekly and reflection unit tests passed.
+
+Source commit `f20a06e837e6c7074beae01aec14ffe159cf70d0` on `block-ux-stage1` adds `BlockPill.kt` and updates the Library in `MainActivity.kt`, weekly presentation and completion lookup, draft-builder routing, and the saved completion marker in Session Summary. The shared pill keeps the full saved text and gives each screen its own actions. Completion uses the latest saved occurrence in the displayed week and its recorded color. Legacy records without a placement timestamp or color cannot supply those details to a weekly pill. Existing schema and archive formats remain in use.
+
+Local debug, release and Android test assembly, source encoding, the release lint gate and all 11 focused unit tests passed. An initial debug attempt found a missing color import. The first Android test compilation found bounds API mismatches in the new marker assertion. Both passed after correction.
+
+All six Android diagnostics passed, covering eight test executions. Android 15 passed both pill workflows at standard size and at 320 dp with 200% text, weekly preparation and practice, the Library smoke workflow and Goal priority across themes. Android 8 passed shared Goal filtering. Physical checks and the full regression suite remain pending. [Run links and phone checklist](CURRENT_STATE.md#stage-1-source-and-verification)
+
+Next assignment is Stage 2, the compact editor and pre-save reference workflow with retryable staging, cancellation cleanup and the current one-visual and one-audio model. Goal Detail can supply Goal-specific actions to the shared pill. Builder and Routine candidates need selection and placement duration/order controls to stay separate from expansion, as in the weekly multi-selection pattern.

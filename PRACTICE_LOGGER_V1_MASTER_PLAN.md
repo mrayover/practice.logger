@@ -307,7 +307,14 @@ Up to five active Goals, Goal ordering/completion, manual percentages, existing 
 
 The owner explicitly assigned W1 ahead of G2. Practice Now offers This Week and an In Progress list for unfinished sessions. Weekly plans use Sunday through Saturday in the device's local calendar. Plan membership stores ordered permanent Block IDs. Prepare Week adds active Blocks, creates and adds a Block in one transaction, carries forward active Blocks from a chosen earlier week, and removes membership without deleting the Block. Plans do not roll over automatically.
 
-A single Block opens independent paused practice. Multi-selection adds Blocks in saved order to the existing session builder. The Block Library and editor can add saved active Blocks directly to the current week. Room 20 and complete ZIP v4 preserve membership and order, including archived assignments. ZIP v1–v3 and JSON v1–v7 remain readable. Journal Weekly View retains its Monday–Sunday calendar.
+Expand a Block and choose Practice Block to open independent practice at Ready. Multi-selection adds Blocks in saved order to the existing session builder. The Block Library and editor can add saved active Blocks directly to the current week. Room 20 and complete ZIP v4 introduced preservation of membership and order, including archived assignments. Later ZIP versions retain these records and older ZIP and JSON readers. Journal Weekly View retains its Monday–Sunday calendar.
+
+### Block UX normalization
+
+- Stage 1 implements shared compact pills in the Block Library, This Week and Prepare Week. See [current behavior and verification](CURRENT_STATE.md#stage-1-source-and-verification).
+- Stage 2 reorganizes the editor and supports staging references before the first Save with the current single-visual and single-audio model. Assess Goal Detail, the session builder and Routine selection for safe reuse of the presentation.
+- Stage 3 depends on the stabilized editor and adds ordered multiple visual and audio references, with populated migration fixtures, preservation of reference-local state and complete ZIP round-trip coverage.
+- Stage 4 verifies the combined workflows from creation through practice, completion, reuse, history and backup/restore. Playground rewards retain their separate assignment.
 
 ### G2 — Shared Goal filtering (Medium)
 

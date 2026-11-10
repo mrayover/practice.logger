@@ -1,6 +1,10 @@
 # practice.logger — Current approved build plan
 
-Updated 2026-11-08 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+Updated 2026-11-10 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+
+## Block UX normalization
+
+Stage 1 implements the expandable Block pills and context actions in the Library, This Week and Prepare Week. Weekly markers read committed completion snapshots and leave Room and backup formats unchanged. See [implementation and verification](CURRENT_STATE.md#stage-1-source-and-verification) and the [forward dependency order](PRACTICE_LOGGER_V1_MASTER_PLAN.md#block-ux-normalization).
 
 ## Inspirations and Playground navigation
 
@@ -236,7 +240,7 @@ Completion commits the outcome and its immutable Goal snapshot before a skippabl
 
 ## Next action
 
-Run the [P2 reflection phone checks](MANUAL_TESTS.md#p2-reflection-phone-checks) on the S26 Ultra. G3 awaits a separate owner assignment.
+The next Block UX assignment is Stage 2, the compact editor and pre-save reference workflow. [Current verification and pending phone checks](CURRENT_STATE.md#stage-1-source-and-verification)
 
 ## Increment 3 — delivered 2026-10-29
 

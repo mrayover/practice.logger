@@ -1,6 +1,26 @@
-# Current state — I2 included Inspirations
+# Current state — Stage 1 Block presentation
 
-Updated November 8, 2026 (America/Los_Angeles).
+Updated November 10, 2026 (America/Los_Angeles).
+
+## Stage 1 source and verification
+
+Stage 1 app source is `f20a06e837e6c7074beae01aec14ffe159cf70d0` on `block-ux-stage1`.
+
+The Block Library, This Week and Prepare Week share a compact, expandable Block pill. The collapsed header shows a two-line title, the first Action line, duration and optional reference BPM. Expand for the full saved text, primary Goal, attached reference summary and actions for that screen. Library actions include Edit, weekly membership, Add to Practice through the session draft, and confirmed Restore in Archived. Weekly actions include Edit, adding or removing membership, and Practice Block through Ready/Prep. Weekly multi-selection keeps its own checkbox and preserves plan order in the builder.
+
+An active primary Goal supplies the left square for reusable or unfinished Blocks. A timestamped completion in the displayed Sunday–Saturday week supplies the right slit in its recorded color. When a Block has several completions that week, the pill uses the latest. The Library uses the current reusable state. Session Summary retains the placement title and shows the recorded slit when a color snapshot exists. Legacy completions keep their outcome and saved placement text in history. Without a per-placement completion timestamp or color snapshot, the weekly UI cannot reliably date or color those older completions. No Goal retains its neutral treatment.
+
+Stage 1 uses the existing Room 23 schema, complete ZIP v7 and legacy JSON v7. The signed delivery baseline remains build106 below. See the [Stage 1 phone checks](MANUAL_TESTS.md#stage-1-block-pill-phone-checks).
+
+Local verification passed for source encoding, debug and release APKs, the release lint gate and the Android test APK. All 11 focused unit tests passed across weekly planning and completion, Goal filtering, reflection and backup compatibility.
+
+- Android 15 passed both pill workflows at standard text and width and at 320 dp with 200% text. Coverage includes ellipsis, expanded details, Edit, Add to Practice, Restore, marker geometry and color, and week isolation. [Standard](https://github.com/mrayover/practice.logger/actions/runs/42906397369) · [320 dp and 200% text](https://github.com/mrayover/practice.logger/actions/runs/42906401543)
+- Android 15 passed weekly preparation, practice and ordered builder placement, plus Library search, archive, restore and draft recovery. Android 8 passed shared Goal filtering. [Weekly workflow](https://github.com/mrayover/practice.logger/actions/runs/42906405240) · [Library smoke test](https://github.com/mrayover/practice.logger/actions/runs/42906413419) · [Goal filtering](https://github.com/mrayover/practice.logger/actions/runs/42906409047)
+- Android 15 passed Goal assignment, reordering, completion, reopening and marker colors across the available themes. [Goal priority workflow](https://github.com/mrayover/practice.logger/actions/runs/42907223878)
+
+Physical checks on the Galaxy S26 Ultra and a smaller Android phone, including TalkBack, remain pending.
+
+**Next implementation assignment** is Stage 2. Put Name, Action, duration/BPM and primary Goal first in the Block editor. Add a compact References section that stages one visual and one audio attachment before initial Save, keeps staged selections retryable after failure, and cleans them up on Cancel. Preserve existing recording and archive access and assess remaining Block lists for reuse.
 
 ## Signed I2 delivery
 
@@ -12,7 +32,7 @@ Updated November 8, 2026 (America/Los_Angeles).
 - Local release assembly, source encoding, release lint gate and instrumentation compilation passed.
 - Android 15 passed the focused Included Inspirations test. It opened all five works, compared the complete reader text with each bundled asset, switched between Media and Inspirations, recreated the Activity, then reopened and compared all five again. No full regression was run. [Focused Android run](https://github.com/mrayover/practice.logger/actions/runs/42548771199)
 
-**Next task** is to install build106 over build105 on the S26 Ultra and run the [I2 included Inspirations phone checks](MANUAL_TESTS.md#i2-included-inspirations-phone-checks). Physical install-over remains pending.
+Physical install-over and the [I2 included Inspirations phone checks](MANUAL_TESTS.md#i2-included-inspirations-phone-checks) remain pending.
 
 ## Signed build105 Inspirations and Playground delivery
 
@@ -171,7 +191,7 @@ The APK was built locally from the same app source verified by the emulator jobs
 ## Implementation and checks
 
 - Room 18→19 adds a Block-keyed primary association backed by the existing Goal/Block junction and a placement-keyed snapshot. Migration adopts a sole valid link and retains all existing links. Legacy positive practice keeps its existing attribution. First committed positive time records the current Goal and optional one-based rank atomically. Earlier ranks and explicit absence survive changes to the live association. Home and Goal totals retain the existing queries.
-- Current Goal colors follow priority across themes. The Block Library, Session and Routine builders and Goal Block lists use the same cap. The Block editor offers No Goal and preserves the current completed assignment for review or reassignment. [G1 scope](PRACTICE_LOGGER_V1_MASTER_PLAN.md#g1--priority-colors-primary-goal-and-historical-attribution-high-for-migration-medium-for-ui)
+- Current Goal colors follow priority across themes. The Session and Routine builders and Goal Block lists retain the G1 cap. The Stage 1 screens use the Block marker rules above. The Block editor offers No Goal and preserves the current completed assignment for review or reassignment. [G1 scope](PRACTICE_LOGGER_V1_MASTER_PLAN.md#g1--priority-colors-primary-goal-and-historical-attribution-high-for-migration-medium-for-ui)
 - Debug, release and instrumentation compiled. All 44 focused unit tests passed, including the Room 18 upgrade, all entry points, first accrual, continued practice, completion/reopening, assignment/clearing and unchanged totals. Schema 19 was compiler-generated. Schemas 1–18 are byte-identical. Full lint reported 5 errors and 27 warnings locally. The errors match build94 and build95 by rule, message and source file, with line shifts where G1 added UI.
 - Goal cap and editor tests passed on [API 26](https://github.com/mrayover/practice.logger/actions/runs/42123935150) and [API 35 at 200% text](https://github.com/mrayover/practice.logger/actions/runs/42123938833). The test exercised all appearance choices, cap pixels, reorder, completion/reopening and clearing.
 - Goal-launched timer tests passed on [API 26](https://github.com/mrayover/practice.logger/actions/runs/42124929480) and [API 35](https://github.com/mrayover/practice.logger/actions/runs/42124933111). First accrual captured rank 2, pause and resume retained that snapshot after reassignment, zero-time completion had no snapshot, and cold reopen retained the established Goal session history.
