@@ -14,8 +14,8 @@ android {
         applicationId = "com.mrayover.practicelogger.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 107
-        versionName = "0.36.2"
+        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 108
+        versionName = "0.36.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes { release { isMinifyEnabled = false } }

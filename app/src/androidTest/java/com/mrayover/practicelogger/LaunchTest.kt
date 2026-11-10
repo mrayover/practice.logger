@@ -64,7 +64,7 @@ class LaunchTest {
         compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick()
         openHomePractice(compose)
         compose.onNodeWithText("Add Blocks").scrollIfNeeded().performClick()
-        shown("Build a Session")
+        shown("Build Session")
         compose.onNodeWithTag("home-brand", useUnmergedTree = true).scrollIfNeeded().performClick()
         shown("Blocks")
         compose.onNodeWithText("Blocks").scrollIfNeeded().performClick()

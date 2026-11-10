@@ -210,7 +210,11 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(practice.destination) {
         practice.destination?.let { destination ->
             if (destination == "summary") summaryId = practice.completedId
-            page = if (destination == "home" && headerHomeRequested) headerDestination else destination; practice.navigationHandled()
+            page = when {
+                destination == "home" && headerHomeRequested -> headerDestination
+                destination == "home" && page == "builder" -> builderBack
+                else -> destination
+            }; practice.navigationHandled()
         }
     }
     LaunchedEffect(routines.editorSaved) {

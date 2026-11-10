@@ -51,7 +51,7 @@ class BlockPillWorkflowTest : WeekUiChecks() {
         click("Cancel")
         openBlockPill(compose, library, tag)
         click("Add to Practice", inList = library)
-        shown("Build a Session")
+        shown("Build Session")
         assertEquals(block, runBlocking {
             val draft = db.sessions().withStatus("DRAFT")!!
             db.sessions().find(draft.id)!!.placements.single().sourceBlockId

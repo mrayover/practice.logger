@@ -38,7 +38,7 @@ class RecordingWorkflowTest {
                 repeat(8) { repo.save(null, BlockDraft("Earlier catalog fixture $it", "Keep existing catalog data")) }
                 repo.save(null, BlockDraft("Recorder fixture", "Play and listen", "5", "120"))
             }
-            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); shown("Add Recorder fixture"); click("Add Recorder fixture")
+            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); addBuilderBlock(compose, "Recorder fixture")
             compose.waitUntil(15000) { compose.onAllNodes(hasText("Start Session") and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired=false).size == 1 }
             click("Start Session"); prepReadyBlock(compose); shown("Start Practice")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]

@@ -1,5 +1,25 @@
 # Current phone and P5 regression checklist
 
+## Stage 1.5 Session Builder phone checks
+
+Record the installed build, phone, Android version, width, text scale and observations. Galaxy S26 Ultra and smaller-phone checks are pending until performed.
+
+- Install build108 over permanent-key build107. Confirm existing Blocks, Routines, history, unfinished sessions, Goals, references and recordings survive.
+- Open Practice Now → Add Blocks with an empty draft. Check the compact Build Session header, zero count and duration, disabled pinned Start Session and absence of the full catalog.
+- Open + Add Blocks. Search by existing name, Action and Notes matching, select a primary Goal, then No Goal and All Goals. Archived Blocks must stay excluded.
+- Add one Block, several Blocks and the same Block twice deliberately. Check explicit Add controls, confirmed added counts and efficient repeated additions. Close the picker with Done and Android Back.
+- Check position, two-line title, one-line Action, configured duration, optional BPM and Goal-colored left square. Expand and collapse without adding, moving or removing anything. Check full saved Action and Notes.
+- Change only one repeated placement duration. Check the header count and planned total, the other placement and the Library default. Test invalid and large positive values.
+- Move a repeated placement Up and Down. Check its duration and expansion stay with it. Remove one placement and verify the remaining order and total.
+- Save as Routine and start that saved Routine separately. Check its ordered durations and the independent persistent draft.
+- Leave the builder and reopen it, recreate the app and return through the banner. Check order, snapshots and overrides persist. Confirm Discard draft prompts, Keep draft retains it and confirmed discard returns to the origin.
+- Enter from Block Library → Add to Practice and This Week → selected Blocks → Build session. Check selected weekly plan order, existing draft append order and Back to the originating screen.
+- From the picker create and save a new Block. Check return to the lineup and one appended placement. Cancel an editor and check the draft remains intact.
+- Start Session and check Ready offers Start Block and Prep Block. Check prep records no measured practice and Start Practice begins timing deliberately. Reopen an existing unfinished session independently.
+- At 320 dp width and 200% text in Light and Dark, scroll the lineup and picker. Check readable wrapping, Goal colors, 48 dp controls, TalkBack position and expansion descriptions, and Start Session reachability.
+- Open the search keyboard, filter and add a Block. Check the pinned Done action above the keyboard and navigation bars, dismiss the keyboard and return to the lineup. Test gesture and three-button navigation.
+- Check recording, completed history and Goal attribution, then create and restore a complete ZIP on a separate empty installation. Preserve the original phone data.
+
 ## I2 included Inspirations phone checks
 
 - Install build106 over permanent-key build105 without uninstalling. Confirm existing personal Inspirations are still available.

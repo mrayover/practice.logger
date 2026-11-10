@@ -1138,3 +1138,12 @@ Next assignment is Stage 2, the compact editor and pre-save reference workflow w
 ### Signed Stage 1 phone build
 
 Packaged 0.36.2/build107 from version commit `e3e884c` using the permanent signing key. Release assembly and the release lint gate passed. Verified package and version, certificate, 148 APK payload entries, five ZIP members and all OneDrive copies. The prior focused unit and Android runs cover the same implementation at the pre-version commit. Physical install-over and phone checks remain pending. [Delivery path and hashes](CURRENT_STATE.md#stage-1-source-and-verification)
+
+
+## 2026-11-10 — Stage 1.5 Session Builder normalization
+
+Reviewed the mandatory efficiency procedure, required active records and live remote before editing. The designated canonical checkout at C:/Users/mrove/Projects/practice.logger was clean on block-ux-stage1 at 2725d246357e, four commits ahead of live main45e8f9f. The similarly named OneDrive checkout remains a separate older checkout. Baseline debug assembly and 14 focused SessionRepository, RoutineRepository and Goal-filter tests passed. The prior Stage 1 Android diagnostic runs were successful.
+
+Replaced the catalog-sized scrolling form with a compact, keyed placement lineup, a separate active Block picker and pinned primary action. SessionBuilder.kt owns the placement snapshot presentation, expanded editing, query and shared primary Goal filter. MainActivity.kt routes confirmed builder discard to its origin. PracticeScreens.kt loses the old builder. Existing draft, duration, move, removal, Routine and Ready/Prep operations are reused. Repeated source Blocks keep independent placement identity, state and overrides. Added focused builder workflow tests and adapted existing builder callers in Android tests. Candidate 0.36.3/build108 retains Room23, ZIPv7 and JSONv7.
+
+Verification, signing and publication are in progress. The first combined check requested a nonexistent verifyReleaseLint task and stopped before execution. Corrected to the existing lintRelease and assembly tasks. No physical phone result is claimed. Next assignment after this bounded Stage 1.5 verification and delivery is Stage 2, Compact Block Editor and Pre-Save Reference Attachment with safe staging, cancellation, retry and cleanup under the current one-visual/one-audio limit.

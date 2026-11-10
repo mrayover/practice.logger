@@ -98,7 +98,7 @@ class StandaloneTranscribeTest {
         openHomePractice(compose)
         compose.onNodeWithText("In Progress").assertDoesNotExist()
         click("Add Blocks")
-        click("Add T3A fixture")
+        addBuilderBlock(compose, "T3A fixture")
         shown("1. T3A fixture")
         val draft = runBlocking { db.sessions().readAll().single { it.session.status == "DRAFT" } }
         assertEquals(block, draft.ordered.single().sourceBlockId)

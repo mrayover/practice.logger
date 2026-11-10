@@ -312,7 +312,8 @@ Expand a Block and choose Practice Block to open independent practice at Ready. 
 ### Block UX normalization
 
 - Stage 1 implements shared compact pills in the Block Library, This Week and Prepare Week. See [current behavior and verification](CURRENT_STATE.md#stage-1-source-and-verification).
-- Stage 2 reorganizes the editor and supports staging references before the first Save with the current single-visual and single-audio model. Assess Goal Detail, the session builder and Routine selection for safe reuse of the presentation.
+- Stage 1.5 normalizes the Session Builder with compact placement snapshots, an on-demand picker, persistent independent durations and ordering, and an accessible pinned Start Session action.
+- Stage 2 reorganizes the editor and supports staging references before the first Save with the current single-visual and single-audio model. Assess Goal Detail and Routine selection for safe reuse of the presentation.
 - Stage 3 depends on the stabilized editor and adds ordered multiple visual and audio references, with populated migration fixtures, preservation of reference-local state and complete ZIP round-trip coverage.
 - Stage 4 verifies the combined workflows from creation through practice, completion, reuse, history and backup/restore. Playground rewards retain their separate assignment.
 

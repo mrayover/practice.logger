@@ -61,7 +61,7 @@ class WeekWorkflowTest : WeekUiChecks() {
         clickTag("select-week-$existing")
         clickTag("select-week-$created")
         click("Build session (2)", inList = "week-list")
-        shown("Build a Session")
+        shown("Build Session")
         shown("1. Weekly chords")
         shown("2. Weekly scales")
         click("Start Session")

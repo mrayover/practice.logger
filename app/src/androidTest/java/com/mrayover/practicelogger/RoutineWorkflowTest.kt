@@ -23,9 +23,9 @@ class RoutineWorkflowTest {
             val blocks = runBlocking { db.blocks().readAll() }
             openHomePractice(compose)
             click("Add Blocks")
-            click("Add Routine A"); shown("1. Routine A")
-            click("Add Routine B"); shown("2. Routine B")
-            click("Add Routine A"); shown("3. Routine A")
+            addBuilderBlock(compose, "Routine A"); shown("1. Routine A")
+            addBuilderBlock(compose, "Routine B"); shown("2. Routine B")
+            addBuilderBlock(compose, "Routine A"); shown("3. Routine A")
             val draft = runBlocking { db.sessions().find(db.sessions().withStatus("DRAFT")!!.id)!! }
             click("Save as Routine")
             compose.onNodeWithText("Routine name").performTextInput("Warmup saved")

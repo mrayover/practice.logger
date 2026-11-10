@@ -6,6 +6,8 @@ Updated 2026-11-10 (America/Los_Angeles). This records implemented scope and his
 
 Stage 1 implements the expandable Block pills and context actions in the Library, This Week and Prepare Week. Weekly markers read committed completion snapshots and leave Room and backup formats unchanged. See [implementation and verification](CURRENT_STATE.md#stage-1-source-and-verification) and the [forward dependency order](PRACTICE_LOGGER_V1_MASTER_PLAN.md#block-ux-normalization).
 
+Stage 1.5 normalizes the Session Builder with snapshot-based placement pills, an on-demand active Block picker, independent repeated placements and a pinned Start Session action. Implementation and focused verification are in progress. Stage 2 remains the compact Block editor and pre-save reference attachment workflow. Stage 3 remains multiple visual and audio references with migration and backup compatibility.
+
 ## Inspirations and Playground navigation
 
 Library offers Media and a personal Inspirations collection. Inspirations supports writing, UTF-8 TXT/Markdown import, camera capture, PDF and image viewing, and protected edit and delete flows. Room 23 stores stable records and complete ZIP v7 preserves originals and metadata. I2 expands the offline included collection to five read-only works using the same packaged TXT reader. Log offers Journal and the Playground placeholder. See [storage and bundled sources](docs/INSPIRATIONS.md), [future Playground specification](docs/PLAYGROUND_SPEC.md), and [verification](CURRENT_STATE.md).

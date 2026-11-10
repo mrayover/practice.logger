@@ -23,18 +23,20 @@ class PracticeWorkflowTest {
                 repo.save(null, BlockDraft("Overtime fixture", "Keep practicing after zero", "1"))
             }
             shown("Practice Now"); compose.waitForIdle(); capturePractice("01-home"); click("Practice Now"); click("Add Blocks")
-            shown("Add Warmup fixture"); click("Add Warmup fixture")
+            addBuilderBlock(compose, "Warmup fixture")
             shown("1. Warmup fixture")
-            click("Add Skip fixture"); shown("2. Skip fixture")
-            click("Add Overtime fixture"); shown("3. Overtime fixture")
+            addBuilderBlock(compose, "Skip fixture"); shown("2. Skip fixture")
+            addBuilderBlock(compose, "Overtime fixture"); shown("3. Overtime fixture")
+            expandBuilderPlacement(compose, 2)
             compose.onNode(hasText("Up") and hasAnyAncestor(hasTestTag("placement-2"))).scrollIfNeeded().performClick()
             shown("2. Overtime fixture")
             compose.onNode(hasText("Down") and hasAnyAncestor(hasTestTag("placement-1"))).scrollIfNeeded().performClick()
             shown("3. Overtime fixture")
+            expandBuilderPlacement(compose, 0)
             compose.onNode(hasText("Change duration") and hasAnyAncestor(hasTestTag("placement-0"))).scrollIfNeeded().performClick()
             compose.onNodeWithText("Minutes").performTextReplacement("2")
             compose.onNodeWithText("Apply duration").performClick()
-            shown("Session duration: 2:00")
+            shown("2:00")
             runBlocking {
                 val draft = db.sessions().withStatus("DRAFT")!!
                 val bundle = db.sessions().find(draft.id)!!

@@ -1,6 +1,12 @@
-# Current state — Stage 1 Block presentation
+# Current state — Stage 1.5 Session Builder
 
 Updated November 10, 2026 (America/Los_Angeles).
+
+## Stage 1.5 implementation in verification
+
+The canonical checkout is C:/Users/mrove/Projects/practice.logger on block-ux-stage1. Candidate 0.36.3/build108 adds a compact saved-placement lineup, separate active Block picker, independently keyed repeated placements and a pinned Start Session action. Existing single-draft persistence, duration overrides, ordering, Routine save, editor return and Ready/Prep start operations are reused. Room23, ZIPv7 and JSONv7 remain in use. Baseline debug assembly and 14 focused unit tests passed. Release assembly and Android test compilation passed. Focused native checks and signed delivery are pending. Full lintRelease reports five errors in recording and playback code outside this increment, while the release lintVital gate passes. This is distinct from full lint success.
+
+The next implementation assignment after Stage 1.5 verification and delivery is Stage 2, Compact Block Editor and Pre-Save Reference Attachment with safe staging, cancellation, retry and cleanup under the current one-visual/one-audio limit. Stage 3 remains Multiple Visual and Audio References.
 
 ## Stage 1 source and verification
 

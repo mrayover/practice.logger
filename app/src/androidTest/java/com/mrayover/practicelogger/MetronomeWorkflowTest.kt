@@ -17,7 +17,7 @@ class MetronomeWorkflowTest {
         val db = BlockDatabase.open(compose.activity.applicationContext)
         try {
             runBlocking { BlockRepository(db).save(null, BlockDraft("Metronome test", "Play with click", "5", "90")) }
-            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); shown("Add Metronome test"); click("Add Metronome test")
+            shown("Practice Now"); click("Practice Now"); click("Add Blocks"); addBuilderBlock(compose, "Metronome test")
             click("Start Session"); prepReadyBlock(compose); shown("90 BPM")
             compose.onNodeWithContentDescription("Increase click BPM by 1").scrollIfNeeded().performClick()
             shown("91 BPM")
