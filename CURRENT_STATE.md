@@ -4,13 +4,17 @@ Updated November 10, 2026 (America/Los_Angeles).
 
 ## Stage 1 source and verification
 
-Stage 1 app source is `f20a06e837e6c7074beae01aec14ffe159cf70d0` on `block-ux-stage1`.
+**Signed Stage 1 delivery is 0.36.2/build107**, app source `e3e884c3896619d3cb3e6002caa12fed897e3f15` on `block-ux-stage1`. The APK and ZIP are in **OneDrive → Documents → ChatGPT → Practice Log development → Block UX delivery → Stage 1 build107**, named `practice.logger-0.36.2-b107-e3e884c`. Install the APK over permanent-key build106.
+
+- Package `com.mrayover.practicelogger.app`. Permanent certificate SHA-256 `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`.
+- APK SHA-256 `fb3e51cfa18c60cd0776443152e0a8bc5160e75130fc56713a2771b317319c5b`. ZIP SHA-256 `f690f7873405ffefb40cf61af9ca9e7ed121cfc45a69f936359a4c0c8ffe546f`. Verified all 148 APK payload entries, all five ZIP members and matching OneDrive copies.
+- Release assembly and release lint passed on build107. The focused unit and Android results below are from the equivalent Stage 1 implementation at `f20a06e837e6c7074beae01aec14ffe159cf70d0`, before the version bump.
 
 The Block Library, This Week and Prepare Week share a compact, expandable Block pill. The collapsed header shows a two-line title, the first Action line, duration and optional reference BPM. Expand for the full saved text, primary Goal, attached reference summary and actions for that screen. Library actions include Edit, weekly membership, Add to Practice through the session draft, and confirmed Restore in Archived. Weekly actions include Edit, adding or removing membership, and Practice Block through Ready/Prep. Weekly multi-selection keeps its own checkbox and preserves plan order in the builder.
 
 An active primary Goal supplies the left square for reusable or unfinished Blocks. A timestamped completion in the displayed Sunday–Saturday week supplies the right slit in its recorded color. When a Block has several completions that week, the pill uses the latest. The Library uses the current reusable state. Session Summary retains the placement title and shows the recorded slit when a color snapshot exists. Legacy completions keep their outcome and saved placement text in history. Without a per-placement completion timestamp or color snapshot, the weekly UI cannot reliably date or color those older completions. No Goal retains its neutral treatment.
 
-Stage 1 uses the existing Room 23 schema, complete ZIP v7 and legacy JSON v7. The signed delivery baseline remains build106 below. See the [Stage 1 phone checks](MANUAL_TESTS.md#stage-1-block-pill-phone-checks).
+Stage 1 uses the existing Room 23 schema, complete ZIP v7 and legacy JSON v7. See the [Stage 1 phone checks](MANUAL_TESTS.md#stage-1-block-pill-phone-checks).
 
 Local verification passed for source encoding, debug and release APKs, the release lint gate and the Android test APK. All 11 focused unit tests passed across weekly planning and completion, Goal filtering, reflection and backup compatibility.
 

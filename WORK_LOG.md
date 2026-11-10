@@ -1134,3 +1134,7 @@ Local debug, release and Android test assembly, source encoding, the release lin
 All six Android diagnostics passed, covering eight test executions. Android 15 passed both pill workflows at standard size and at 320 dp with 200% text, weekly preparation and practice, the Library smoke workflow and Goal priority across themes. Android 8 passed shared Goal filtering. Physical checks and the full regression suite remain pending. [Run links and phone checklist](CURRENT_STATE.md#stage-1-source-and-verification)
 
 Next assignment is Stage 2, the compact editor and pre-save reference workflow with retryable staging, cancellation cleanup and the current one-visual and one-audio model. Goal Detail can supply Goal-specific actions to the shared pill. Builder and Routine candidates need selection and placement duration/order controls to stay separate from expansion, as in the weekly multi-selection pattern.
+
+### Signed Stage 1 phone build
+
+Packaged 0.36.2/build107 from version commit `e3e884c` using the permanent signing key. Release assembly and the release lint gate passed. Verified package and version, certificate, 148 APK payload entries, five ZIP members and all OneDrive copies. The prior focused unit and Android runs cover the same implementation at the pre-version commit. Physical install-over and phone checks remain pending. [Delivery path and hashes](CURRENT_STATE.md#stage-1-source-and-verification)
