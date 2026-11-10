@@ -104,7 +104,7 @@ import kotlinx.coroutines.*
         LibraryMediaPicker(role, (if (role == MediaRole.VISUAL) draft.visual else draft.audio)?.id,
             onClose = { selection = null }, onChoose = { selection = null; vm.editorChoose(role, it) })
     }
-    preview?.let { asset -> EditorVisualPreview(asset, vm, onClose = { preview = null }) }
+    preview?.let { asset -> EditorVisualPreview(asset, blockId, vm, onClose = { preview = null }) }
     audioPreview?.let { asset ->
         Dialog(onDismissRequest = { audioPreview = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
             Surface(Modifier.fillMaxSize()) { LibraryAudioScreen(asset, { audioPreview = null }) }
@@ -113,13 +113,24 @@ import kotlinx.coroutines.*
     if (legacyPreview && legacy != null) Dialog(onDismissRequest = { legacyPreview = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize()) { Column(Modifier.safeDrawingPadding().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(16.dp)) {
             TextButton(onClick = { legacyPreview = false }) { Text("Close preview") }
-            CollapsibleImageReference(legacy, vm, embeddedExpanded = true, active = false)
+            CollapsibleImageReference(legacy, vm, embeddedExpanded = true)
         } }
     }
 }
 
 @Composable
-private fun EditorVisualPreview(asset: MediaAsset, vm: ImageReferenceViewModel, onClose: () -> Unit) {
+private fun EditorVisualPreview(asset: MediaAsset, blockId: String?, vm: ImageReferenceViewModel, onClose: () -> Unit) {
+    val visuals by vm.visuals.collectAsStateWithLifecycle()
+    val savedReference = visuals.find { it.blockId == blockId && it.mediaId == asset.id }
+    if (savedReference != null) {
+        Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Surface(Modifier.fillMaxSize()) { Column(Modifier.safeDrawingPadding().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(16.dp)) {
+                TextButton(onClick = onClose) { Text("Close preview") }
+                CollapsibleImageReference(savedReference, vm, embeddedExpanded = true)
+            } }
+        }
+        return
+    }
     var page by rememberSaveable(asset.id) { mutableIntStateOf(0) }
     var loaded by remember(asset.id, page) { mutableStateOf<ReferencePage?>(null) }
     var error by remember(asset.id, page) { mutableStateOf(false) }

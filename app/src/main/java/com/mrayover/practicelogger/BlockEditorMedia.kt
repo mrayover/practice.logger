@@ -75,18 +75,31 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
                     item.getString("mime"), item.getString("category"), item.getString("file"), item.getLong("bytes"),
                     item.getLong("time"), item.optInt("width").takeIf { it > 0 }, item.optInt("height").takeIf { it > 0 },
                     item.optInt("pages").takeIf { it > 0 }, item.optLong("duration").takeIf { it > 0 }, item.getString("hash"))
-                check(stageLibrary.available(asset)) { "A pending original is unavailable. Discard this editor and select it again." }
                 staged[asset.id] = asset
             }
             visualChanged = json.getBoolean("visualChanged"); audioChanged = json.getBoolean("audioChanged")
             suspend fun selected(key: String): MediaAsset? = json.optString(key).ifEmpty { null }?.let { staged[it] ?: db.media().find(it) }
             visual = selected("visual"); audio = selected("audio")
+            if (id != null && committedStaging(id)) {
+                savedId = id; ready = true; return@withContext
+            }
+            staged.values.forEach { asset -> check(stageLibrary.available(asset)) {
+                "A pending original is unavailable. Discard this editor and select it again."
+            } }
         }
         // Incomplete copies/promotions not referenced by the synced manifest belong only to this editor.
         directory.listFiles()?.filter { it.name != "draft.json" && it.name !in staged.values.map { a -> a.fileName } }
             ?.forEach { it.delete() }
         persist()
         ready = true
+    }
+
+    private suspend fun committedStaging(id: String): Boolean {
+        val pending = listOfNotNull(visual?.let { MediaRole.VISUAL to it }, audio?.let { MediaRole.AUDIO to it })
+            .filter { it.second.id in staged }
+        return pending.isNotEmpty() && pending.all { (role, asset) ->
+            db.media().find(asset.id) == asset && db.blockMedia().find(id, role.name)?.mediaId == asset.id
+        }
     }
 
     private fun persist() {
@@ -144,6 +157,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
         check(ready && id == blockId)
         require(draft.errors().isEmpty())
         savedId?.let { return@withContext it }
+        if (id != null && committedStaging(id)) { savedId = id; return@withContext id }
         // A creation ID is reserved only in the private manifest, never as a hidden Block.
         // A committed row is the witness after death between commit and navigation/cleanup.
         if (id == null && db.blocks().find(creationId) != null) {
@@ -160,6 +174,9 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
                     selected.filter { it.id in staged }.forEach { asset ->
                         check(stageLibrary.available(asset)) { "A pending original is missing or changed." }
                         val target = File(canonical, asset.fileName)
+                        if (target.exists() && db.media().find(asset.id) == null) {
+                            check(target.delete()) { "Could not recover the pending promotion. Check storage and retry." }
+                        }
                         check(!target.exists()) { "Pending media already exists. Reopen the editor to recover." }
                         promoted += asset to target
                         File(directory, asset.fileName).inputStream().use { input -> java.io.FileOutputStream(target).use { output -> input.copyTo(output); output.fd.sync() } }

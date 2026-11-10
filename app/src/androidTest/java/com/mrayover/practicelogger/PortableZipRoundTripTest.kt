@@ -145,7 +145,7 @@ class PortableZipRoundTripTest {
         openBlockPill(compose, "block-library-list", "library-block-${score.id}")
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Priority 1 · Study the piece"))
         openLibraryBlockEditor(compose, "Score study")
-        click("Show reference")
+        compose.onNodeWithTag("block-VISUAL-title").performScrollTo().assertIsDisplayed().performClick()
         compose.waitUntil(20_000) {
             compose.onAllNodesWithTag("overlay-layer").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
         }

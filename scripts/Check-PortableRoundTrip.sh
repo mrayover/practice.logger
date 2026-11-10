@@ -37,6 +37,8 @@ run 'PortableZipRoundTripTest#restoreIntoSeparateEmptyInstallation' app/build/ta
 adb shell am force-stop "$app"
 run 'PortableZipRoundTripTest#verifyAfterProcessRestart' app/build/targeted-s2-restart.txt
 adb shell am force-stop "$app"
+# Exercise install-over without clearing the restored data, originals or annotations.
+adb install -r "$debug"
 run 'PortableZipRoundTripTest#verifyRestoredOverlayEditAfterAnotherRestart' app/build/targeted-o1-edit-restart.txt
 
 adb shell pm clear "$app"

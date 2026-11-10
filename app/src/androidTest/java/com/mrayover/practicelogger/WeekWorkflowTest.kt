@@ -21,7 +21,7 @@ class WeekWorkflowTest : WeekUiChecks() {
         shown("In This Week")
         click("Edit", inList = "block-library-list")
         shown("Edit Block")
-        shown("In This Week")
+        assertEquals(existing, runBlocking { db.weekPlan().read(current.toString()).single().blockId })
         goHome()
 
         openHomePractice(compose)
@@ -36,7 +36,7 @@ class WeekWorkflowTest : WeekUiChecks() {
         click("Create a new Block", inList = "week-list")
         compose.onNodeWithText("Name").scrollIfNeeded().performTextInput("Weekly chords")
         compose.onNodeWithText("Action").scrollIfNeeded().performTextInput("Change cleanly")
-        click("Save")
+        click("Save Block")
         click("Done", inList = "week-list")
         val created = runBlocking {
             val rows = db.weekPlan().read(previous.toString())
