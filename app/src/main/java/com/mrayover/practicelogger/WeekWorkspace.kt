@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -20,7 +21,9 @@ import java.time.format.DateTimeFormatter
 internal fun WeekWorkspace(
     week: LocalDate, isCurrent: Boolean, plans: List<WeekBlock>, catalog: Catalog,
     preparing: Boolean, vm: CatalogViewModel, practice: PracticeViewModel, hasDraft: Boolean,
-    onNavigate: (Long) -> Unit, onBack: () -> Unit, onPrepare: () -> Unit, onCreate: () -> Unit
+    completions: Map<String, BlockCompletion>, references: Map<String, List<String>>,
+    onNavigate: (Long) -> Unit, onBack: () -> Unit, onPrepare: () -> Unit, onCreate: () -> Unit,
+    onEdit: (String) -> Unit, onBuild: (List<String>) -> Unit
 ) {
     var selecting by rememberSaveable(week.toString()) { mutableStateOf(false) }
     var selected by rememberSaveable(week.toString()) { mutableStateOf(arrayListOf<String>()) }
@@ -77,31 +80,33 @@ internal fun WeekWorkspace(
                 }
                 if (selecting) ActionButton(
                     if (hasDraft) "Add to draft session (${selectedIds.size})" else "Build session (${selectedIds.size})",
-                    click = { practice.addWeekBlocks(selectedIds) }, enabled = enabled && selectedIds.isNotEmpty()
+                    click = { onBuild(selectedIds) }, enabled = enabled && selectedIds.isNotEmpty()
                 )
             }
         }
         if (assigned.isEmpty()) item { Text("No Blocks assigned to this week.") }
         items(assigned, key = { "assigned-${it.id}" }) { block ->
-            val indicator = indicators.block(block.id)
-            when {
-                preparing -> Column(Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 12.dp)) {
-                    WeekBlockText(block, indicator)
-                    TextButton(onClick = { vm.removeFromWeek(week, block.id) }, enabled = enabled) {
-                        Text("Remove ${block.name} from week")
-                    }
-                    HorizontalDivider()
-                }
-                block.archived -> Column(Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 12.dp)) {
-                    WeekBlockText(block, indicator)
-                }
-                selecting -> OutlinedSelectionChip(selected = block.id in selected, onClick = {
-                    selected = ArrayList(if (block.id in selected) selected - block.id else selected + block.id)
-                }, label = { Column { WeekBlockText(block, indicator) } }, enabled = enabled,
-                    modifier = Modifier.fillMaxWidth().goalEndCap(indicator).testTag("select-week-${block.id}"))
-                else -> CatalogPill(onClick = { practice.startWeekBlock(block.id) },
-                    modifier = Modifier.goalEndCap(indicator).testTag("practice-week-${block.id}"), enabled = enabled) {
-                    WeekBlockText(block, indicator)
+            val selection: (@Composable () -> Unit)? = if (selecting && !block.archived) { {
+                Checkbox(
+                    checked = block.id in selected,
+                    onCheckedChange = { checked ->
+                        selected = ArrayList(if (checked) selected + block.id else selected - block.id)
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag("select-week-${block.id}")
+                        .semantics { contentDescription = "Select ${block.name}" }
+                )
+            } } else null
+            BlockPill(block, indicators.block(block.id), references[block.id].orEmpty(),
+                modifier = Modifier.testTag("week-block-${block.id}"),
+                completion = completions[block.id], selection = selection) {
+                if (!preparing && !selecting && !block.archived) TextButton(
+                    onClick = { practice.startWeekBlock(block.id) }, enabled = enabled,
+                    modifier = Modifier.testTag("practice-week-${block.id}")
+                ) { Text("Practice Block") }
+                TextButton(onClick = { onEdit(block.id) }, enabled = enabled) { Text("Edit") }
+                if (!selecting) TextButton(onClick = { vm.removeFromWeek(week, block.id) }, enabled = enabled) {
+                    Text("Remove from Week")
                 }
             }
         }
@@ -116,13 +121,11 @@ internal fun WeekWorkspace(
                 .filter { it.id !in assignedIds }
             if (available.isEmpty()) item { Text("No matching active Blocks to add.") }
             items(available, key = { "available-${it.id}" }) { block ->
-                val indicator = indicators.block(block.id)
-                OutlinedButton(onClick = { vm.addToWeek(week, block.id) }, enabled = enabled,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).goalEndCap(indicator)) {
-                    Column(Modifier.fillMaxWidth()) {
-                        Text("Add ${block.name}")
-                        BlockGoalLabel(indicator)
-                    }
+                BlockPill(block, indicators.block(block.id), references[block.id].orEmpty(),
+                    modifier = Modifier.testTag("available-week-block-${block.id}"),
+                    completion = completions[block.id]) {
+                    TextButton(onClick = { vm.addToWeek(week, block.id) }, enabled = enabled) { Text("Add to Week") }
+                    TextButton(onClick = { onEdit(block.id) }, enabled = enabled) { Text("Edit") }
                 }
             }
         }
@@ -153,14 +156,6 @@ internal fun WeekWorkspace(
 private fun weekRange(week: LocalDate): String {
     val format = DateTimeFormatter.ofPattern("MMM d, uuuu")
     return "${week.format(format)} – ${week.plusDays(6).format(format)}"
-}
-
-@Composable
-private fun WeekBlockText(block: Block, indicator: GoalIndicator?) {
-    Text(block.name, style = MaterialTheme.typography.titleMedium)
-    Text(if (block.archived) "Archived" else "${block.durationMinutes} min · ${block.action}",
-        style = MaterialTheme.typography.bodyMedium)
-    BlockGoalLabel(indicator)
 }
 
 @Composable

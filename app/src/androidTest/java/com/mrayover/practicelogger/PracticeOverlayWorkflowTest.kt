@@ -38,7 +38,7 @@ class PracticeOverlayWorkflowTest {
         fun count(expected: Int) = compose.waitUntil(15_000) { shapes().size == expected }
         click("Blocks")
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Overlay score"))
-        click("Overlay score")
+        openLibraryBlockEditor(compose, "Overlay score")
         click("Show reference")
         tools("Edit markings")
         tools("Highlight")

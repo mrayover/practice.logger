@@ -198,7 +198,11 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(vm.destinationArchived) {
         vm.destinationArchived?.let { destination ->
             focus.clearFocus(force = true); keyboard?.hide()
-            archived = destination; query = ""; page = if (vm.deleted) "library" else editorReturn
+            if (vm.deleted || editorReturn == "library") {
+                archived = destination
+                query = ""
+            }
+            page = if (vm.deleted) "library" else editorReturn
             if (!vm.deleted && editorReturn == "builder") vm.savedBlockId?.let { practice.addBlock(it) }
             vm.navigationHandled()
         }
@@ -206,7 +210,6 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(practice.destination) {
         practice.destination?.let { destination ->
             if (destination == "summary") summaryId = practice.completedId
-            if (destination == "builder") builderBack = "week"
             page = if (destination == "home" && headerHomeRequested) headerDestination else destination; practice.navigationHandled()
         }
     }
@@ -223,7 +226,7 @@ class MainActivity : ComponentActivity() {
     fun openEditor(id: String?, returnTo: String = "library") {
         editorId = id
         editorReturn = returnTo
-        editorWeek = if (returnTo == "prepare-week") selectedWeek.toString() else null
+        editorWeek = if (id == null && returnTo == "prepare-week") selectedWeek.toString() else null
         page = "editor"
     }
     BackHandler(page == "library") { page = "home" }
@@ -316,8 +319,12 @@ class MainActivity : ComponentActivity() {
             "unfinished" -> UnfinishedSessions(sessions, practice, onBack = { page = "practice-now" })
             "week", "prepare-week" -> key(page, selectedWeek) {
                 val preparing = page == "prepare-week"
+                val completions = remember(sessions.bundles, selectedWeek) {
+                    weekCompletions(sessions.bundles, selectedWeek)
+                }
                 WeekWorkspace(selectedWeek, selectedWeek == currentWeek, weekBlocks, catalog, preparing,
                     vm, practice, sessions.draft?.placements?.isNotEmpty() == true,
+                    completions, blockReferenceSummaries(images),
                     onNavigate = { offset ->
                         val next = selectedWeek.plusWeeks(offset)
                         viewedWeek = next.takeUnless { it == currentWeek }?.toString()
@@ -330,7 +337,12 @@ class MainActivity : ComponentActivity() {
                         viewedWeek = selectedWeek.toString()
                         page = "prepare-week"
                     },
-                    onCreate = { openEditor(null, "prepare-week") })
+                    onCreate = { openEditor(null, "prepare-week") },
+                    onEdit = { openEditor(it, if (preparing) "prepare-week" else "week") },
+                    onBuild = { ids ->
+                        builderBack = "week"
+                        practice.addBlocksToBuilder(ids)
+                    })
             }
             "practice-routines" -> PracticeRoutinesScreen(catalog, routines, practice, onBack = { page = "practice-now" })
             "transcribe" -> {
@@ -346,12 +358,14 @@ class MainActivity : ComponentActivity() {
             "library" -> {
                 val libraryScroll = rememberLazyListState()
                 var searchFocused by remember { mutableStateOf(false) }
+                var restoreId by rememberSaveable { mutableStateOf<String?>(null) }
+                val references = blockReferenceSummaries(images)
                 LaunchedEffect(query, archived, searchFocused) {
                     libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 2 else 0)
                 }
                 var goalFilter by rememberBlockGoalFilter(goalIndicators)
                 val matches = matchingBlocks(catalog.blocks, query, archived, goalIndicators, goalFilter)
-                LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
+                LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
                     item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
                     item { Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") } }
@@ -364,17 +378,30 @@ class MainActivity : ComponentActivity() {
                     } }
                     if (matches.isEmpty()) item { Text(if (query.isNotBlank() || goalFilter.availableIn(goalIndicators) != BlockGoalFilter.All) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
                     items(matches, key = { it.id }) { block ->
-                        val indicator = goalIndicators.block(block.id)
-                        CatalogPill(onClick = { openEditor(block.id) }, modifier = Modifier.testTag("library-block-${block.id}").goalEndCap(indicator)) {
-                            Text(block.name, style = MaterialTheme.typography.titleLarge)
-                            Text(block.action)
-                            Text(block.durationMinutes.toString() + " min" + (block.tempo?.let { " · " + it + " BPM reference" } ?: ""), style = MaterialTheme.typography.bodyMedium)
-                            BlockGoalLabel(indicator)
-                        }
-                        AddToThisWeek(block.id in currentWeekIds, block.archived, vm.busy) {
-                            vm.addToWeek(practiceWeek(), block.id)
+                        BlockPill(block, goalIndicators.block(block.id), references[block.id].orEmpty(),
+                            modifier = Modifier.testTag("library-block-${block.id}")) {
+                            TextButton(onClick = { openEditor(block.id) }, enabled = !vm.busy) { Text("Edit") }
+                            if (block.archived) {
+                                TextButton(onClick = { restoreId = block.id }, enabled = !vm.busy) { Text("Restore Block") }
+                            } else {
+                                AddToThisWeek(block.id in currentWeekIds, false, vm.busy) {
+                                    vm.addToWeek(practiceWeek(), block.id)
+                                }
+                                TextButton(onClick = {
+                                    focus.clearFocus(force = true); keyboard?.hide()
+                                    builderBack = "library"
+                                    practice.addBlocksToBuilder(listOf(block.id))
+                                }, enabled = !vm.busy && !practice.busy) { Text("Add to Practice") }
+                            }
                         }
                     }
+                }
+                restoreId?.let { id ->
+                    ConfirmBlockArchive(archived = true, onDismiss = { restoreId = null }, onConfirm = {
+                        restoreId = null
+                        editorReturn = "library"
+                        vm.archive(id, false)
+                    })
                 }
             }
             "editor" -> {
@@ -482,11 +509,20 @@ class MainActivity : ComponentActivity() {
     if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved changes?") }, text = { Text("Your saved Block will stay unchanged.") },
         confirmButton = { TextButton(onClick = { discard = false; onCancel() }) { Text("Discard") } },
         dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
-    if (archiveConfirm && block != null) AlertDialog(onDismissRequest = { archiveConfirm = false },
-        title = { Text(if (block.archived) "Restore this Block?" else "Archive this Block?") },
-        text = { Text(if (draft != initial) "Unsaved edits will be discarded. The saved Block is retained and can be restored; no history is deleted." else "The saved Block is retained and can be restored; no history is deleted.") },
-        confirmButton = { TextButton(onClick = { archiveConfirm = false; onArchive(!block.archived) }) { Text(if (block.archived) "Restore" else "Archive") } },
-        dismissButton = { TextButton(onClick = { archiveConfirm = false }) { Text("Cancel") } })
+    if (archiveConfirm && block != null) ConfirmBlockArchive(block.archived, dirty = draft != initial,
+        onDismiss = { archiveConfirm = false }, onConfirm = { archiveConfirm = false; onArchive(!block.archived) })
+}
+
+@Composable
+private fun ConfirmBlockArchive(archived: Boolean, dirty: Boolean = false, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    AlertDialog(onDismissRequest = onDismiss,
+        title = { Text(if (archived) "Restore this Block?" else "Archive this Block?") },
+        text = {
+            Text((if (dirty) "Unsaved edits will be discarded. " else "") +
+                "The saved Block and its history are kept.")
+        },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(if (archived) "Restore" else "Archive") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
 }
 
 @Composable private fun EditorField(label: String, value: String, changed: (String) -> Unit, error: String?, busy: Boolean, singleLine: Boolean = false, numeric: Boolean = false) {

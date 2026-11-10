@@ -27,7 +27,7 @@ class ImageReferenceWorkflowTest {
         node.assertIsDisplayed().performClick()
     }
     private fun editor(name: String) {
-        compose.onNodeWithTag("block-library-list").performScrollToNode(hasText(name)); click(name); shown("Edit Block")
+        openLibraryBlockEditor(compose, name); shown("Edit Block")
     }
     private fun downloads() {
         checkNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)).click()

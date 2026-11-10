@@ -25,6 +25,19 @@ fun openHomePractice(compose: AndroidComposeTestRule<*, MainActivity>) {
     compose.waitUntil(15000) { compose.onAllNodesWithTag("practice-now-title").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
 }
 
+internal fun openLibraryBlockEditor(compose: AndroidComposeTestRule<*, MainActivity>, name: String) {
+    val header = hasText(name) and hasClickAction()
+    val library = compose.onNodeWithTag("block-library-list")
+    library.performScrollToNode(header)
+    val row = compose.onNode(header).assertIsDisplayed().fetchSemanticsNode()
+    openBlockPill(compose, "block-library-list", row.config[SemanticsProperties.TestTag])
+    val edit = hasText("Edit") and hasAnyAncestor(hasTestTag(
+        "block-pill-${row.config[SemanticsProperties.TestTag].removePrefix("library-block-")}"
+    ))
+    library.performScrollToNode(edit)
+    compose.onNode(edit).assertIsDisplayed().performClick()
+}
+
 fun continueFirstSession(compose: AndroidComposeTestRule<*, MainActivity>) {
     compose.onNodeWithText("In Progress").scrollIfNeeded().performClick()
     compose.onAllNodes(SemanticsMatcher("saved session") {

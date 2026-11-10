@@ -92,7 +92,7 @@ class RecordingWorkflowTest {
             }
             // Management is reached from the saved Block editor in the current app.
             leavePracticeForLater(compose); shown("Practice Now")
-            click("Blocks"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Recorder fixture")); click("Recorder fixture"); click("Recordings"); shown("Block recordings")
+            click("Blocks"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Recorder fixture")); openLibraryBlockEditor(compose, "Recorder fixture"); click("Recordings"); shown("Block recordings")
             val takes = runBlocking { db.takes().readAll().filter { it.blockId == block }.sortedBy { it.createdAt } }
             assertEquals(3, takes.size); assertTrue(takes.all { it.durationMs >= 1000 && it.mode == "FREE" })
             val repository = TakeRepository(db, compose.activity.applicationContext)
@@ -132,7 +132,7 @@ class RecordingWorkflowTest {
                 BlockRepository(db).save(block, BlockDraft("Recorder renamed", "Still the same Block"))
                 BlockRepository(db).setArchived(block, true)
             }
-            click("Blocks"); click("Archived"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Recorder renamed")); shown("Recorder renamed"); compose.onNodeWithText("Recorder renamed").performClick()
+            click("Blocks"); click("Archived"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Recorder renamed")); shown("Recorder renamed"); openLibraryBlockEditor(compose, "Recorder renamed")
             shown("Edit Block"); click("Recordings"); shown("Block recordings")
             compose.onNodeWithTag("take-list").performScrollToNode(hasText("First free take")); compose.onNodeWithText("First free take").assertExists()
             assertEquals(2, runBlocking { db.takes().readAll().count { it.blockId == block } })
@@ -161,7 +161,7 @@ class RecordingReopenTest {
             assertTrue(block.archived); assertEquals(2, takes.size)
             val repository = TakeRepository(db, compose.activity.applicationContext)
             takes.forEach { assertTrue(repository.audioFile(it).length() > 0) }
-            click("Blocks"); click("Archived"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Recorder renamed")); compose.onNodeWithText("Recorder renamed").performClick(); click("Recordings")
+            click("Blocks"); click("Archived"); compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Recorder renamed")); openLibraryBlockEditor(compose, "Recorder renamed"); click("Recordings")
             val vm = ViewModelProvider(compose.activity)[RecordingViewModel::class.java]
             compose.runOnIdle { assertFalse(vm.recording); assertNull(vm.playingId) }
             val first = takes.single { it.label == "First free take" }

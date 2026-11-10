@@ -22,7 +22,7 @@ class BlockDeletionWorkflowTest {
             val protected = runBlocking { repo.save(null, BlockDraft("Delete protected fixture", "Play")) }
             shown("Blocks"); click("Blocks"); shown("Block Library")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Delete active fixture"))
-            click("Delete active fixture"); shown("Edit Block"); request()
+            openLibraryBlockEditor(compose, "Delete active fixture"); shown("Edit Block"); request()
             shown("Delete \"Delete active fixture\" permanently?")
             captureStage3("deletion-01-confirm")
             // Dialog cancel leaves the full persistent snapshot unchanged.
@@ -36,12 +36,12 @@ class BlockDeletionWorkflowTest {
             compose.onAllNodesWithText("Delete active fixture").assertCountEquals(0)
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Archived")); click("Archived")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Delete archived fixture"))
-            click("Delete archived fixture"); shown("Edit Block"); request()
+            openLibraryBlockEditor(compose, "Delete archived fixture"); shown("Edit Block"); request()
             shown("Delete \"Delete archived fixture\" permanently?"); confirm(); shown("Block Library")
             compose.waitUntil(15000) { runBlocking { db.blocks().find(archived) == null } }
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Active")); click("Active")
             compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Delete protected fixture"))
-            click("Delete protected fixture"); shown("Edit Block"); request()
+            openLibraryBlockEditor(compose, "Delete protected fixture"); shown("Edit Block"); request()
             shown("Delete \"Delete protected fixture\" permanently?")
             runBlocking {
                 db.sessions().insert(PracticeSession("delete-protected-history", 1, 2, "COMPLETED"))

@@ -66,7 +66,7 @@ class BlockMediaWorkflowTest {
         compose.onNodeWithTag("media-choose-$id").assertIsDisplayed().performClick()
     }
     private fun editor(name: String) {
-        compose.onNodeWithTag("block-library-list").performScrollToNode(hasText(name)); click(name)
+        openLibraryBlockEditor(compose, name)
         shown("block-VISUAL-choose")
     }
     private fun shot(name: String) { val dir = File(app.getExternalFilesDir(null), "l3-native").apply { mkdirs() }; device.takeScreenshot(File(dir, "$name.png")) }

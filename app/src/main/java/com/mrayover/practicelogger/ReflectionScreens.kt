@@ -1,18 +1,15 @@
 package com.mrayover.practicelogger
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -125,10 +122,7 @@ internal fun BlockReflectionHistory(entry: CompletedPlacement) {
     val completion = entry.completion
     val priority = completion.priority
     if (priority != null && completion.colorArgb != null) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box(Modifier.size(12.dp).background(Color(completion.colorArgb), CircleShape))
-            Text("Goal priority at completion · $priority")
-        }
+        Text("Goal priority at completion · $priority")
     }
     entry.reflection?.let { review ->
         review.security?.let { Text("Security rating · $it / 5") }

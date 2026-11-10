@@ -41,6 +41,7 @@ class BlockGoalFilterWorkflowTest : WeekUiChecks() {
         libraryBlock(unassigned)
         choose("All Goals", "block-library-list")
         libraryBlock(blockA)
+        openBlockPill(compose, "block-library-list", "library-block-$blockA")
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Timing and articulation · Completed Goal"))
 
         home()
@@ -83,11 +84,13 @@ class BlockGoalFilterWorkflowTest : WeekUiChecks() {
         click("This Week")
         click("Prepare Week", inList = "week-list")
         choose("Priority 1 · Tone", "week-list")
-        click("Add G2 Beta", inList = "week-list")
+        openBlockPill(compose, "week-list", "available-week-block-$blockB")
+        click("Add to Week", inList = "week-list")
         compose.onNodeWithTag("week-list").performScrollToNode(hasText("No matching active Blocks to add."))
         val week = practiceWeek().toString()
         assertEquals(listOf(blockB), runBlocking { db.weekPlan().read(week).map { it.blockId } })
-        click("Remove G2 Beta from week", inList = "week-list")
+        openBlockPill(compose, "week-list", "week-block-$blockB")
+        click("Remove from Week", inList = "week-list")
     }
 
     private fun choose(option: String, list: String? = null) {

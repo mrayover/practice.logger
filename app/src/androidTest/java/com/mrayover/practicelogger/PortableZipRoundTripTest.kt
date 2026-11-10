@@ -141,8 +141,10 @@ class PortableZipRoundTripTest {
         }
         click("Blocks")
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Score study"))
-        shown("Priority 1 · Study the piece")
-        click("Score study")
+        val score = runBlocking { db.blocks().readAll().single { it.name == "Score study" } }
+        openBlockPill(compose, "block-library-list", "library-block-${score.id}")
+        compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Priority 1 · Study the piece"))
+        openLibraryBlockEditor(compose, "Score study")
         click("Show reference")
         compose.waitUntil(20_000) {
             compose.onAllNodesWithTag("overlay-layer").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()

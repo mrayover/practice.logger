@@ -129,7 +129,7 @@ class ImportedAudioWorkflowTest {
             assertNull(audio.playingId);assertNull(audio.backingTrack)
             val repo=TakeRepository(db,app);imported.forEach{assertTrue(repo.audioFile(it).isFile)}
             val block=runBlocking{db.blocks().find(imported.first().blockId!!)!!}
-            click("Blocks");click(block.name);click("Recordings");shown("Block recordings")
+            click("Blocks");openLibraryBlockEditor(compose, block.name);click("Recordings");shown("Block recordings")
             val selected=imported.first{it.fileName.endsWith(".mp3")};compose.onNodeWithTag("take-list").performScrollToNode(hasTestTag("take-${selected.id}"));compose.onNodeWithText(selected.label).assertIsDisplayed()
             tag("rename-${selected.id}").performClick();shown("Rename take")
             compose.onNodeWithText("Take label (optional)").performTextReplacement("p61 renamed imported loop")

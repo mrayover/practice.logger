@@ -25,10 +25,11 @@ class GoalPriorityWorkflowTest {
         return compose.onNodeWithTag(tag).assertIsDisplayed()
     }
 
-    private fun assertCap(row: SemanticsNodeInteraction, expected: Color) {
+    private fun assertMarker(row: SemanticsNodeInteraction, expected: Color, leading: Boolean) {
         val pixels = row.captureToImage().toPixelMap()
-        assertTrue("Missing trailing cap fill $expected",
-            (pixels.width * 3 / 4 until pixels.width).any { x ->
+        val edge = if (leading) 0 until pixels.width / 4 else pixels.width * 3 / 4 until pixels.width
+        assertTrue("Missing Goal marker fill $expected",
+            edge.any { x ->
                 (pixels.height / 3 until pixels.height * 2 / 3).any { y -> pixels[x, y] == expected }
             })
     }
@@ -44,22 +45,22 @@ class GoalPriorityWorkflowTest {
         shown("Blocks")
         compose.onNodeWithText("Blocks").scrollIfNeeded().performClick()
         shown("Block Library")
-        assertCap(openRow(block), Color.Black)
-        openRow(block).performClick()
+        assertMarker(openRow(block), Color.Black, leading = false)
+        openLibraryBlockEditor(compose, "Priority study")
         compose.onNodeWithTag("primary-goal-picker").performScrollTo().performClick()
         shown("Priority 3 · Goal C")
         compose.onNodeWithText("Priority 3 · Goal C").scrollIfNeeded().performClick()
         compose.onNodeWithText("Save").performScrollTo().performClick()
         shown("Block Library")
-        openRow(block).assertTextContains("Priority 3 · Goal C")
-        assertCap(openRow(block), LightPalette.colors.goalPriorities[2])
+        openBlockPill(compose, "block-library-list", "library-block-$block")
+        shown("Priority 3 · Goal C")
+        assertMarker(openRow(block), LightPalette.colors.goalPriorities[2], leading = true)
 
         runBlocking { goals.move(ids[2], -1); goals.move(ids[2], -1) }
         shown("Priority 1 · Goal C")
-        assertCap(openRow(block), LightPalette.colors.goalPriorities[0])
+        assertMarker(openRow(block), LightPalette.colors.goalPriorities[0], leading = true)
         runBlocking { goals.setCompleted(ids[2], true) }
         shown("Goal C · Completed Goal")
-        openRow(block).assertTextContains("Goal C · Completed Goal")
         runBlocking { goals.setCompleted(ids[2], false) }
         shown("Priority 5 · Goal C")
 
@@ -67,17 +68,18 @@ class GoalPriorityWorkflowTest {
             ThemePreferences(context).save(theme)
             compose.activityRule.scenario.recreate()
             shown("Block Library")
-            assertCap(openRow(block), LightPalette.colors.goalPriorities[4])
-            openRow(block).assertTextContains("Priority 5 · Goal C")
+            assertMarker(openRow(block), LightPalette.colors.goalPriorities[4], leading = true)
+            openBlockPill(compose, "block-library-list", "library-block-$block")
+            shown("Priority 5 · Goal C")
         }
         captureStage3("goal-priority-library")
-        openRow(block).performClick()
+        openLibraryBlockEditor(compose, "Priority study")
         compose.onNodeWithTag("primary-goal-picker").performScrollTo().performClick()
         shown("No Goal")
         compose.onNodeWithText("No Goal").scrollIfNeeded().performClick()
         compose.onNodeWithText("Save").performScrollTo().performClick()
         shown("Block Library")
-        assertCap(openRow(block), Color.Black)
+        assertMarker(openRow(block), Color.Black, leading = false)
         runBlocking {
             assertNull(db.goalAttribution().primaryGoalId(block))
             assertTrue(db.goals().find(ids[2])!!.blocks.any { it.blockId == block })

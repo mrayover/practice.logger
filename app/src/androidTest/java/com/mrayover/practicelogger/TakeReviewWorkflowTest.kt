@@ -63,7 +63,7 @@ class TakeReviewWorkflowTest {
         val db=BlockDatabase.open(compose.activity.application)
         try {
             val block=runBlocking { BlockRepository(db).save(null,BlockDraft("P1 saved Block","Record")) }
-            shown("Practice Now");ready();click("Blocks");click("P1 saved Block");click("Recordings");shown("Block recordings")
+            shown("Practice Now");ready();click("Blocks");openLibraryBlockEditor(compose, "P1 saved Block");click("Recordings");shown("Block recordings")
             val before=runBlocking { db.takes().readAll() }
             free();tag("review-save").performClick();compose.waitUntil(15000) { !audio.busy && audio.reviewTake == null }
             assertEquals(before.size+1,runBlocking { db.takes().readAll().size })

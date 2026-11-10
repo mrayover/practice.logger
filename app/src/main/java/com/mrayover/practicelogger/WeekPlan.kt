@@ -5,6 +5,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 import kotlinx.coroutines.flow.Flow
 
@@ -43,5 +44,24 @@ internal val WEEK_PLAN_MIGRATION_19_20 = object : Migration(19, 20) {
             weekStart TEXT NOT NULL, blockId TEXT NOT NULL, position INTEGER NOT NULL,
             PRIMARY KEY(weekStart, blockId), FOREIGN KEY(blockId) REFERENCES blocks(id) ON DELETE RESTRICT)""")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_week_blocks_blockId ON week_blocks(blockId)")
+    }
+}
+
+internal fun weekCompletions(
+    sessions: List<SessionBundle>,
+    week: LocalDate,
+    zone: ZoneId = ZoneId.systemDefault()
+): Map<String, BlockCompletion> {
+    val start = week.atStartOfDay(zone).toInstant().toEpochMilli()
+    val end = week.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
+    return buildMap {
+        for (session in sessions) {
+            for ((completion) in session.completions) {
+                if (completion.completedAt >= start && completion.completedAt < end &&
+                    completion.completedAt >= (get(completion.sourceBlockId)?.completedAt ?: start)) {
+                    put(completion.sourceBlockId, completion)
+                }
+            }
+        }
     }
 }

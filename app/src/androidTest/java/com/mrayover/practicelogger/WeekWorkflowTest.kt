@@ -16,10 +16,10 @@ class WeekWorkflowTest : WeekUiChecks() {
 
         shown("Blocks")
         click("Blocks")
+        openBlockPill(compose, "block-library-list", "library-block-$existing")
         click("Add to This Week", inList = "block-library-list")
         shown("In This Week")
-        compose.onNodeWithTag("block-library-list").performScrollToNode(hasTestTag("library-block-$existing"))
-        compose.onNodeWithTag("library-block-$existing").performClick()
+        click("Edit", inList = "block-library-list")
         shown("Edit Block")
         shown("In This Week")
         goHome()
@@ -29,8 +29,10 @@ class WeekWorkflowTest : WeekUiChecks() {
         click("Previous week", inList = "week-list")
         shown("No Blocks assigned to this week.")
         click("Prepare Week", inList = "week-list")
-        click("Add Weekly scales", inList = "week-list")
-        shown("Remove Weekly scales from week")
+        openBlockPill(compose, "week-list", "available-week-block-$existing")
+        click("Add to Week", inList = "week-list")
+        openBlockPill(compose, "week-list", "week-block-$existing")
+        shown("Remove from Week")
         click("Create a new Block", inList = "week-list")
         compose.onNodeWithText("Name").scrollIfNeeded().performTextInput("Weekly chords")
         compose.onNodeWithText("Action").scrollIfNeeded().performTextInput("Change cleanly")
@@ -47,8 +49,10 @@ class WeekWorkflowTest : WeekUiChecks() {
         click("Carry forward", inList = "week-list")
         waitForTag("carry-week-$previous")
         compose.onNodeWithTag("carry-week-$previous").performClick()
-        click("Remove Weekly scales from week", inList = "week-list")
-        click("Add Weekly scales", inList = "week-list")
+        openBlockPill(compose, "week-list", "week-block-$existing")
+        click("Remove from Week", inList = "week-list")
+        openBlockPill(compose, "week-list", "available-week-block-$existing")
+        click("Add to Week", inList = "week-list")
         click("Done", inList = "week-list")
 
         assertEquals(listOf(created, existing), runBlocking { db.weekPlan().read(current.toString()).map { it.blockId } })
@@ -67,6 +71,7 @@ class WeekWorkflowTest : WeekUiChecks() {
 
         openHomePractice(compose)
         click("This Week")
+        openBlockPill(compose, "week-list", "week-block-$existing")
         clickTag("practice-week-$existing")
         shown("Weekly scales")
         compose.onNodeWithText("Start Block").assertIsDisplayed()
@@ -82,6 +87,18 @@ class WeekWorkflowTest : WeekUiChecks() {
     }
 
     private fun goHome() = compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick()
+}
+
+internal fun openBlockPill(
+    compose: androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, MainActivity>,
+    list: String,
+    tag: String
+) {
+    val header = hasTestTag(tag)
+    compose.onNodeWithTag(list).performScrollToNode(header)
+    val node = compose.onNode(header).assertIsDisplayed()
+    val state = node.fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.StateDescription]
+    if (state.startsWith("Collapsed")) node.performClick()
 }
 
 class WeekReopenTest : WeekUiChecks() {

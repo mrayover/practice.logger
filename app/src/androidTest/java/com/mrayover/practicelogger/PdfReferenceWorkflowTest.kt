@@ -52,7 +52,7 @@ class PdfReferenceWorkflowTest {
             compose.onNodeWithTag("Name").performScrollTo().performTextInput("PDF reference fixture")
             compose.onNodeWithTag("Action").performScrollTo().performTextInput("Read score while recording")
             click("Save"); shown("Block Library")
-            compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); click("PDF reference fixture"); shown("Edit Block")
+            compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); openLibraryBlockEditor(compose, "PDF reference fixture"); shown("Edit Block")
             val id = runBlocking { db.blocks().readAll().single { it.name == "PDF reference fixture" }.id }
             val source = File(app.getExternalFilesDir(null),"score-fixture.pdf")
             InstrumentationRegistry.getInstrumentation().context.assets.open("references/score.pdf").use { input -> source.outputStream().use { input.copyTo(it) } }
@@ -122,7 +122,7 @@ class PdfReferenceWorkflowTest {
             compose.waitUntil(10000) { recordings.playingId != null }; captureStage3("pdf-phrase-loop")
             compose.runOnIdle { recordings.stopPlayback() }
             leavePracticeForLater(compose); click("Blocks")
-            compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); click("PDF reference fixture")
+            compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("PDF reference fixture")); openLibraryBlockEditor(compose, "PDF reference fixture")
             click("Recordings"); shown("Block recordings")
             // The full management sheet retains its own viewer during capture.
             click("Record take"); compose.waitUntil(10000) { recordings.recording && recordings.elapsedMs >= 1500 }

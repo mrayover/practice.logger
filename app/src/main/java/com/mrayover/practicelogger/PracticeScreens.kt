@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
@@ -543,11 +544,15 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         Text(practiceTime(bundle.activeMs) + " active practice", style = MaterialTheme.typography.headlineSmall)
         bundle.reflection?.let { SessionReflectionHistory(it) }
         bundle.ordered.forEach { placement ->
-            Text(placement.name, style = MaterialTheme.typography.titleLarge)
+            val completion = completions[placement.id]
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(placement.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+                completion?.completion?.colorArgb?.let { BlockCompletionSlit(Color(it)) }
+            }
             Text(placement.action)
             Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
             placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
-            completions[placement.id]?.let { BlockReflectionHistory(it) }
+            completion?.let { BlockReflectionHistory(it) }
             SavedPracticeNotes(sessionPlacementNotes(history, bundle.session.id, placement), notes.busy, notes)
             HorizontalDivider()
         }

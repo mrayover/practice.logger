@@ -57,7 +57,7 @@ class LibraryWorkspaceTest {
         compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         compose.onNodeWithText("Blocks").scrollIfNeeded().performClick()
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("L2 existing Block viewer"))
-        compose.onNodeWithText("L2 existing Block viewer").performClick()
+        openLibraryBlockEditor(compose, "L2 existing Block viewer")
         compose.onNodeWithText("Show reference").performScrollTo().performClick()
         compose.waitUntil(15000) { compose.onAllNodesWithTag("reference-viewer").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         compose.onNodeWithTag("reference-viewer").performScrollTo().performTouchInput {

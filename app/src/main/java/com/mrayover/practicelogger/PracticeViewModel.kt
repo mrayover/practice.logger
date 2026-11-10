@@ -252,7 +252,7 @@ class PracticeViewModel(application: Application, private val savedState: SavedS
         }
     }
     fun addBlock(id: String) = operation { repository.addBlock(id) }
-    fun addWeekBlocks(ids: List<String>) = operation {
+    fun addBlocksToBuilder(ids: List<String>) = operation {
         repository.addBlocks(ids)
         destination = "builder"
     }
