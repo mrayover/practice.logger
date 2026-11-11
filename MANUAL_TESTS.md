@@ -345,3 +345,14 @@ Install build104 over the existing permanent-key installation. Check that saved 
 5. Export a complete ZIP and restore it only on a separate empty installation. Compare the saved rating, reflections and completion color with the source history.
 
 6. At enlarged text, type a Prep note, close the keyboard and check that **Complete** is reachable and prompts you to keep or discard the draft. The 320 dp Android 15 test timed out at this step.
+
+## Deferred Stage3 acceptance — not executed in Stage3A
+
+Use the [Stage3 architecture acceptance gates](docs/MULTI_REFERENCE_ARCHITECTURE.md#dependency-driven-acceptance-and-stop-points) after3B/3C implementation. This checklist is deferred and conveys no phone acceptance.
+
+- [ ] Install over populated permanent-key build110 without uninstalling; retain IDs/history and hash-matching originals, legacy visuals, PDF annotations and local/master audio markers.
+- [ ] Stage multiple mixed images/PDFs and audio before first Save; test Cancel, failure/retry, recreation, individual removal, reorder and shared-original protection on active/archived Blocks.
+- [ ] Switch two PDFs independently, retaining pages/zoom/markings; switch audio A→B→A retaining each file's settings/markers, paused on switch, without resetting Ready/Prep/timer.
+- [ ] During recording/count-in/review, keep Stop/Save reachable and enforce source-switch safeguards; check narrow/200% text and themes.
+- [ ] Restore old ZIP1–7 and new ZIP8 into separate empty installs; verify ordered links, one copy per shared original and all local state. Reject corrupt/missing files and invalid duplicates/order. Interrupt restore and migration, then verify recovery.
+- [ ] Run cross-feature Goal/Routine/week/completed-history/deletion checks and record physical provider/audio/accessibility acceptance before3D signed delivery.

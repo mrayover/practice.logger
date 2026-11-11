@@ -2,6 +2,10 @@
 
 Complete portable ZIP v7 preserves user Inspirations and their originals alongside Block completions, Block and session reflections, per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v6 remain readable. Legacy JSON 7 remains data-only and is independent of Room 23. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
+## Planned Stage3 compatibility (not shipped)
+
+Stage3A changes no writer, reader or archive version. The proposed Room24 multi-reference model requires **complete ZIP8**, adding explicit ordering to canonical links and legacy visual records while preserving each original once. Historical ZIP1–7 formats remain frozen: validate their original constraints before normalizing missing positions for restore into24. Preserve the current empty-target guard, journal/witness recovery, hashes and file lock order. Legacy JSON7/readers1–7 remain data-only and unchanged. See the [implementation contract](docs/MULTI_REFERENCE_ARCHITECTURE.md#portable-zip8-and-unchanged-json7); these are Stage3B requirements, not current restore capabilities.
+
 ## Format and records
 
 Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **23**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.

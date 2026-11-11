@@ -1,6 +1,14 @@
-# Current state — Stage 2 compact Block editor
+# Current state — Stage 3A architecture and verification preparation
 
 Updated November 10, 2026 (America/Los_Angeles).
+
+## Stage 3A multiple-reference preparation
+
+Stage3A completes the [multiple-reference architecture](docs/MULTI_REFERENCE_ARCHITECTURE.md) and populated frozen Room23 fixture. **Multiple references are not implemented.** Production entities, migrations/registration, attachment behavior, archive writer/reader, version and signed delivery remain unchanged: **0.37.0/build110**, Room23, ZIP7/readers1–7, JSON7/readers1–7. Stage2 delivery and physical acceptance limits remain below.
+
+The proposed3B contract uses `(blockId,role,mediaId)` associations with independent ordering, an ordered legacy/canonical visual union, unchanged source-local annotation identities, safe parent/child rebuild and versioned ZIP8 compatibility. The fixture populates all27 durable tables and records original-file hashes. All13 focused checks pass (11 existing plus two fixture checks). These exercise current-schema preservation and constraints, not a future migration. The new fixture uses test-only TRUNCATE journaling after Windows native WAL transitions failed; production journal configuration is untouched. [Actual results and limitations](WORK_LOG.md#2026-11-10--stage-3a-multiple-reference-architecture-and-fixtures)
+
+**Exact next assignment: Stage3B — implement the planned Room23→24 persistence migration, ordered multi-association repositories and legacy compatibility, preserve existing local media state, add ZIP8 with frozen v1–v7 restore compatibility, and execute populated migration/rollback/backup tests.** Keep existing editor callers safe; collection controls/staging belong to3C and integration/install-over/device delivery to3D. This session stops after3A; no APK or version increment is produced.
 
 ## Stage 2 compact Block editor delivery and verification
 
@@ -26,7 +34,7 @@ New and existing reference selections wait for Save. Existing Library IDs are se
 
 The initial13-test local baseline had five reproduced failures before edits: two outdated schema18 assertions and three Windows file-promotion failures. Full-lint baseline errors remain as documented under Stage1.5; no unrelated repair or full-regression success is claimed. Physical build108→110 phone install-over, TalkBack, camera/gallery/system-provider behavior, acoustic checks and owner ZIP acceptance remain unverified. Emulator install-over verifies a debug package over restored data; permanent-key continuity is independently verified by signing. [Physical checklist](MANUAL_TESTS.md#stage-2-compact-block-editor-phone-checks).
 
-**Stage2 implementation, signed delivery and scoped automated verification are complete; physical acceptance remains pending.** The next separate implementation assignment is **Stage3 — Multiple Visual and Audio References**: ordered collections, populated migration, practice switching, per-file annotations/playback preservation and portable backup compatibility. Do not begin it without the next assignment.
+**Stage2 implementation, signed delivery and scoped automated verification are complete; physical acceptance remains pending.** Stage3A preparation is complete as recorded above. Stage3B is the next implementation milestone; multiple references remain unimplemented.
 
 ## Stage 1.5 Session Builder delivery and verification
 
