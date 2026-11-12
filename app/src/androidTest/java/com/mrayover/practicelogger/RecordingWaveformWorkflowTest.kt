@@ -2,11 +2,15 @@ package com.mrayover.practicelogger
 
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
@@ -51,7 +55,15 @@ class RecordingWaveformWorkflowTest {
             }
         }
         compose.waitUntil(15000) { vm.ready }
+        compose.runOnIdle {
+            vm.play(takes.first())
+            vm.bindScrubber("test", takes[1].id)
+            selected.value = takes[1]
+        }
+        compose.waitUntil(10000) { !vm.busy }
+        compose.runOnIdle { assertNull(vm.playingId); assertNull(vm.preparingId) }
         for (take in takes) {
+            println("RW1 native seek source=${take.kind} file=${take.fileName}")
             compose.runOnIdle { selected.value = take }
             val wave = runBlocking { vm.waveform(take) }
             assertTrue("Nonempty actual amplitudes ${take.fileName}", wave.peaks.any { it > .01f })
@@ -77,6 +89,7 @@ class RecordingWaveformWorkflowTest {
         val before = vm.committedSeeks
         node.performTouchInput { down(Offset(width * .2f, height * .5f)); moveTo(Offset(width * .75f, height * .5f)) }
         compose.runOnIdle { assertEquals(before, vm.committedSeeks) }
+        assertTrue(node.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current in 2220f..2280f)
         node.performTouchInput { up() }
         compose.runOnIdle { assertEquals(before + 1, vm.committedSeeks); assertTrue(kotlin.math.abs(2250L - vm.playbackPosition(take)) <= 30) }
         node.performTouchInput { click(Offset(width * .4f, height * .5f)) }
@@ -99,6 +112,25 @@ class RecordingWaveformWorkflowTest {
             val slow = launch { vm.waveform(takes.first()) }; slow.cancelAndJoin()
             assertTrue(vm.waveform(takes.last()).peaks.any { it > 0 })
         }
+        val corruptFile = File(app.filesDir, "recordings/${java.util.UUID.randomUUID()}.m4a").apply { writeBytes(byteArrayOf(1,2,3)) }
+        compose.runOnIdle { selected.value = takes.first().copy(id="corrupt", fileName=corruptFile.name) }
+        compose.waitUntil(10000) { compose.onAllNodesWithText("Waveform unavailable").fetchSemanticsNodes().isNotEmpty() }
+        compose.runOnIdle { selected.value = takes.first() }
+        compose.waitUntil(10000) { compose.onAllNodesWithText("Waveform unavailable").fetchSemanticsNodes().isEmpty() }
+        compose.runOnIdle {
+            compose.activity.setContent {
+                PracticeTheme {
+                    Column(Modifier.width(320.dp).verticalScroll(rememberScrollState())) {
+                        CompactRecordingControls(block, takes, takes.first(), takes.last(), vm, {}, {}, {})
+                    }
+                }
+            }
+        }
+        compose.waitUntil(10000) { compose.onAllNodesWithText("Loading waveform…").fetchSemanticsNodes().isEmpty() }
+        compose.onNodeWithTag("practice-free-waveform").assertIsDisplayed()
+        compose.onNodeWithTag("practice-loop-waveform").assertIsDisplayed()
+        val shots = File(compose.activity.getExternalFilesDir(null), "home-preview").apply { mkdirs() }
+        androidx.test.uiautomator.UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(shots, "rw1-compact-320dp.png"))
         compose.runOnIdle { vm.leaveBlock() }
     }
 }

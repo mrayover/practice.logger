@@ -109,6 +109,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     private var player: MediaPlayer? = null
     private var loopTrack: AudioTrack? = null
     private var playbackTake: BlockTake? = null
+    private var requestedPlaybackId: String? = null
     private var loopFrameCount = 0
     private var loopOrigin = 0L
     private var loopHeadAtSeek = 0L
@@ -120,7 +121,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     internal fun bindScrubber(slot: String, id: String?) {
         val old = selectedTakes[slot]
         if (old != id) {
-            if (old == playbackTake?.id) stopPlayback()
+            if (old != null && (old == playbackTake?.id || old == requestedPlaybackId)) stopPlayback()
             if (old == cueId) { cueId = null; cueMs = 0 }
             if (id == null) selectedTakes.remove(slot) else selectedTakes[slot] = id
         }
@@ -446,6 +447,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         if (reviewTake != null && reviewTake?.id != take.id) return@work
         val startMs = if (cueId == take.id) cueMs else 0L
         stopPlayback()
+        requestedPlaybackId = take.id
         cueId = take.id; cueMs = startMs
         val generation = audioGeneration
         val file = withContext(Dispatchers.IO) { repository.audioFile(take) }
@@ -487,7 +489,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     fun stopPlayback() {
         audioGeneration++
-        playbackTake = null; cueId = null; cueMs = 0
+        playbackTake = null; requestedPlaybackId = null; cueId = null; cueMs = 0
         val loop = loopTrack; loopTrack = null
         runCatching { loop?.pause(); loop?.flush(); loop?.release() }
         val audio = player; player = null; playingId = null; preparingId = null

@@ -24,6 +24,9 @@ class RecordingWaveformTest {
             assertEquals(0f, wave.peaks[0], 0f)
             assertEquals(.5f, wave.peaks[150], .001f)
             assertSame(wave, RecordingWaveforms.load(file, 1000))
+            val longTake = RecordingWaveforms.load(file, 1800000)
+            assertTrue(longTake.peaks.size <= AudioWaveform.MAX_BINS)
+            assertTrue(longTake.binMs > AudioWaveform.BIN_MS)
             file.writeBytes(byteArrayOf(1,2,3))
             try { RecordingWaveforms.load(file, 1000); fail("Corrupt WAV accepted") } catch (_: IllegalArgumentException) {}
             file.delete()
