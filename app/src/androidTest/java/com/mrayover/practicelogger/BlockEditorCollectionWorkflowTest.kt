@@ -86,6 +86,10 @@ class BlockEditorCollectionWorkflowTest : WeekUiChecks() {
         assertEquals(listOf("library:${pending.id}", "library:${audio.id}"), runBlocking { db.referenceOrder(block.id, MediaRole.AUDIO) })
         openBlockPill(compose, "block-library-list", "library-block-${block.id}"); click("Edit", "block-library-list"); ready()
         tag("reference-preview-library:${pdf.id}").performClick(); click("Next page")
+        compose.waitUntil(15_000) {
+            compose.onAllNodes(hasTestTag("reference-page") and hasText("Page 2 of 2"))
+                .fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+        }
         compose.onNodeWithTag("reference-page").scrollIfNeeded().assertTextEquals("Page 2 of 2"); click("Close preview")
         tag("reference-remove-library:${pending.id}").performClick(); click("Keep reference")
         assertEquals(2, vm.editor.audioReferences.size)
