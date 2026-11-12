@@ -1,8 +1,8 @@
 # practice.logger
 
-LGE-1 is delivered in signed0.40.0/build113 with16 focused tests per Windows/Linux and one API35 workflow/recovery check; physical acceptance remains pending. Optional Learning & revisits controls record first-attempt observations and manual revisit choices. See [current status](CURRENT_STATE.md).
+LGE-2 in0.41.0/build114 adds optional, explainable return suggestions and Suggested views in the existing Block pickers. Manual scheduling stays authoritative; physical acceptance remains pending. Exact focused checks and signed package evidence are in CURRENT_STATE.md. See [current status](CURRENT_STATE.md).
 
-Stage3C.2 and scoped Stage3D are complete in signed build111. G3 Statistics is delivered in signed0.39.0/build112 with focused verification. Build113 adds Room25/ZIP9 for optional learning and revisit history; legacy JSON7 is unchanged and excludes LGE data. Phone acceptance and comprehensive regression remain pending. See [verification and remaining work](CURRENT_STATE.md).
+Stage3C.2 and scoped Stage3D are complete in signed build111. G3 Statistics is delivered in signed0.39.0/build112 with focused verification. Build114 retains Room25 and writes complete ZIP10 for accepted suggestion provenance, retaining readers1–9; legacy JSON7 is unchanged and excludes LGE data. Phone acceptance and comprehensive regression remain pending. See [verification and remaining work](CURRENT_STATE.md).
 
 An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. See [CURRENT_STATE.md](CURRENT_STATE.md) for the latest permanent-key build, focused verification and phone acceptance.
 
@@ -10,7 +10,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Se
 
 P0–P5, L1–L3, K1, T1–T2 and T3A–T3D are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; the owner deferred all ten undocumented Stage4 sessions on November12, resolving that prerequisite without practical-use or phone acceptance. See [the decision](EVALUATION.md). [LGE-1](docs/LEARNING_GUIDANCE_EXTENSION.md) is delivered in build113; LGE-2 is the next recommended separately assigned increment. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; the owner deferred all ten undocumented Stage4 sessions on November12, resolving that prerequisite without practical-use or phone acceptance. See [the decision](EVALUATION.md). [LGE-1/LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are implemented; next is the owner decision on remaining V1 features, especially Playground. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 
 ## Appearance and Settings
 

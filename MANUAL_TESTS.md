@@ -1,3 +1,15 @@
+## LGE-2 — optional explainable suggestions
+
+Physical acceptance is pending. Install signed build114 over the existing permanent-key app without uninstalling or clearing data; keep a complete pre-update backup.
+
+1. Check existing Blocks, Goals, sessions, weekly plans, references and recordings remain available.
+2. Open Learning & revisits. With insufficient comparable evidence, check the three-day **starting suggestion** and explanation. Close to ignore it; verify no date changes.
+3. Set Return Soon and a manual date. Decline with No scheduling; verify both remain. Explicitly accept the offered date only if desired; verify it replaces the date and retains the flag. Check Clear flag and Clear date separately.
+4. In Practice Now → Add Blocks, switch All Blocks/Suggested, search and try Goal/No Goal filters. Add explicitly and check existing lineup order; unassessed exploration stays available in All Blocks.
+5. In This Week → Prepare Week → Add existing Blocks, try Suggested. Only active matching Blocks absent from that displayed week should be addable. Add to Week deliberately and verify no other week changes.
+6. After genuine completed sessions separated by at least24hours, honestly confirm matching target/conditions and first-attempt context. Review interval/date/reason; changed criteria, early/recollected/unfinished/skipped work should explain insufficient evidence. Do not invent delayed observations just to test the app.
+7. Export complete ZIP10 and, if available, restore into a separate empty spare installation. Verify accepted date/history and original media. Keep the main installation intact; JSON7 excludes learning/guidance data.
+
 # Current phone and P5 regression checklist
 
 ## Stage 3C collection integration and Stage 3D install-over acceptance

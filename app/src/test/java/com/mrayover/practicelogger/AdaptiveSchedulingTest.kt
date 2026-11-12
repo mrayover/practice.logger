@@ -120,6 +120,13 @@ class AdaptiveSchedulingTest {
             target.withTransaction { verified.records.insertInto(target.openHelper.writableDatabase) }
             assertEquals(listOf(accepted),target.learning().events(block))
             assertEquals("NOT_YET",target.learning().observation("b")!!.outcome)
+            val changed=JSONObject(verified.records.payload.toString())
+            val guidanceColumns=portableTables.first { it.name=="guidance_events" }.columns
+            val forged=JSONObject(accepted.offeredSuggestion!!).put("elapsedMs",4*RETURN_DAY_MS+1).put("intervalDays",7).put("dueDate",date.plusDays(7).toString())
+            changed.getJSONObject("tables").getJSONArray("guidance_events").getJSONArray(0)
+                .put(guidanceColumns.indexOf("offeredSuggestion"),forged.toString())
+                .put(guidanceColumns.indexOf("intervalDays"),7).put(guidanceColumns.indexOf("dueDate"),date.plusDays(7).toString())
+            assertTrue(runCatching { PortableRecords(changed,10) }.isFailure)
             val old=JSONObject(verified.records.payload.toString()).put("version",9)
             assertTrue(runCatching { PortableRecords(old,9) }.isFailure)
             val manual=accepted.copy(origin="MANUAL",offeredSuggestion=null)

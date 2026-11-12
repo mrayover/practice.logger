@@ -259,6 +259,12 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
                 val o = requireNotNull(observations.find { it.placementId == id })
                 require(placements[id]?.sourceBlockId == s.blockId && o.criterionToken == s.criterionToken && o.criterion == s.criterion)
             }
+            if (s.anchorId != null) {
+                val observed = observations.first { it.placementId == s.observationId }
+                val endpoint = requireNotNull(this[COMPLETION_TABLE].find { it.getString("placementId") == s.anchorId })
+                require(observed.anchorId == s.anchorId && observed.observedAt >= endpoint.getLong("completedAt") &&
+                    observed.observedAt - endpoint.getLong("completedAt") == s.elapsedMs) { "Inconsistent accepted evidence interval." }
+            }
         }
         val completions = hashSetOf<String>()
         for (row in this[COMPLETION_TABLE]) {
