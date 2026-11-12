@@ -26,9 +26,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile owner-test preview (full regression pending)
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
-      - name: Focused LGE-1 data and accounting checks
+      - name: Focused LGE data, suggestions and accounting checks
         if: inputs.check == 'learning'
-        run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.LearningRepositoryTest' --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain
+        run: bash ./gradlew testDebugUnitTest lintVitalRelease --tests 'com.mrayover.practicelogger.LearningRepositoryTest' --tests 'com.mrayover.practicelogger.LearningSuggestionsTest' --tests 'com.mrayover.practicelogger.AdaptiveSchedulingTest' --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain
       - name: Focused G3 statistics checks
         if: inputs.check == 'statistics'
         run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain

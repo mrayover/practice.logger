@@ -108,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 9
+internal const val PORTABLE_VERSION = 10
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -156,6 +156,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         6 -> portableTablesV6
         7 -> portableTablesV7
         8 -> portableTablesV8
+        9 -> portableTables
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -251,7 +252,14 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
                 if (row.isNull("intervalDays")) null else row.getInt("intervalDays"), row.getString("origin"), optionalText(row,"offeredSuggestion"))
         }
         require(guidance.all { it.blockId in blockIds }) { "Guidance refers to a missing Block." }
-        validateGuidanceHistory(guidance)
+        validateGuidanceHistory(guidance, adaptive = version >= 10)
+        guidance.mapNotNull { it.offeredSuggestion }.forEach { raw ->
+            val s = readAcceptedSuggestion(raw)
+            listOfNotNull(s.observationId, s.anchorId).forEach { id ->
+                val o = requireNotNull(observations.find { it.placementId == id })
+                require(placements[id]?.sourceBlockId == s.blockId && o.criterionToken == s.criterionToken && o.criterion == s.criterion)
+            }
+        }
         val completions = hashSetOf<String>()
         for (row in this[COMPLETION_TABLE]) {
             val placementId = row.getString("placementId")

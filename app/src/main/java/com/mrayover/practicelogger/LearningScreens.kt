@@ -12,6 +12,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -19,6 +26,44 @@ import java.util.UUID
 
 private val outcomeLabels = listOf("Held up / Met intended target", "Partially held up", "Didn't hold up yet", "Not assessed")
 private val contextLabels = listOf("First attempt, before rehearsing this task", "Later recollection", "Unknown context")
+
+@Composable
+internal fun rememberLearningInputs(): LearningInputs? {
+    val app = LocalContext.current.applicationContext
+    val flow = remember(app) { LearningRepository(BlockDatabase.appInstance(app)).inputsFlow.map<LearningInputs, LearningInputs?> { it }.catch { emit(null) } }
+    return flow.collectAsStateWithLifecycle(initialValue = null).value
+}
+
+/** Refresh calendar context on entry/resume; no background scheduler or persisted cache. */
+@Composable
+internal fun learningNow(): Long {
+    val owner = LocalLifecycleOwner.current
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    DisposableEffect(owner) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) now = System.currentTimeMillis() }
+        owner.lifecycle.addObserver(observer)
+        onDispose { owner.lifecycle.removeObserver(observer) }
+    }
+    return maxOf(now, System.currentTimeMillis())
+}
+
+@Composable
+internal fun rememberBlockRecommendations(blocks: List<Block>): List<BlockRecommendation>? {
+    val inputs = rememberLearningInputs()
+    val now = learningNow()
+    val zone = ZoneId.systemDefault()
+    val today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
+    return remember(inputs, blocks, today, now, zone) { inputs?.let { recommendedBlocks(blocks, it.goals, it.events, it.observations, it.practices, it.facts, today, now, zone) } }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun SuggestedViewPicker(suggested: Boolean, onSelect: (Boolean) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(selected = !suggested, onClick = { onSelect(false) }, label = { Text("All Blocks") })
+        FilterChip(selected = suggested, onClick = { onSelect(true) }, label = { Text("Suggested") }, modifier = Modifier.testTag("suggested-view"))
+    }
+}
 
 /** Presentation only: never changes timing, recording, playback or workspace ownership. */
 @Composable
@@ -41,6 +86,11 @@ private fun LearningDialog(blockId: String, placement: Placement?, onClose: () -
     val eventsFlow = remember(blockId, db) { db.learning().observeEvents(blockId) }
     val history by historyFlow.collectAsStateWithLifecycle(initialValue = null)
     val events by eventsFlow.collectAsStateWithLifecycle(initialValue = null)
+    val inputs = rememberLearningInputs()
+    val now = learningNow()
+    val today = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate()
+    val suggestion = remember(inputs, blockId, today, now) { inputs?.let { returnSuggestion(blockId, it.observations, it.practices, today, now) } }
+    var acceptId by rememberSaveable(blockId) { mutableStateOf(UUID.randomUUID().toString()) }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var due by rememberSaveable(blockId) { mutableStateOf("") }
@@ -97,11 +147,34 @@ private fun LearningDialog(blockId: String, placement: Placement?, onClose: () -
                     HorizontalDivider()
                     Text("Optional revisits", style = MaterialTheme.typography.titleMedium)
                     val latest = events?.firstOrNull()
+                    if (suggestion != null) {
+                        Text("Suggested return: ${suggestion.intervalDays} days · ${suggestion.dueDate}", style = MaterialTheme.typography.titleSmall)
+                        Text(suggestion.explanation, modifier = Modifier.testTag("learning-suggestion"))
+                        suggestion.criterion?.let { Text("Target: $it", style = MaterialTheme.typography.bodySmall) }
+                        suggestion.observationId?.let { Text("Observation: $it", style = MaterialTheme.typography.bodySmall) }
+                        Text("$LGE2_POLICY · Provisional heuristic, not a validated forgetting-curve prediction. First attempts and criteria are musician-reported; outside practice cannot be detected.", style = MaterialTheme.typography.bodySmall)
+                        if (latest?.dueDate != null) Text("Your saved date stays in place unless you accept this replacement.")
+                        Button(enabled = ready && inputs != null, onClick = {
+                            if (!busy) {
+                                busy = true; message = null
+                                val request = acceptId
+                                scope.launch {
+                                    try {
+                                        repository.accept(suggestion, latest?.revision ?: 0, request)
+                                        acceptId = UUID.randomUUID().toString()
+                                        message = "Suggested revisit accepted."
+                                    } catch (cancelled: CancellationException) { throw cancelled }
+                                    catch (_: Exception) { message = "Could not accept. Choices, evidence or the date may have changed. Close and reopen to review, then retry." }
+                                    finally { busy = false }
+                                }
+                            }
+                        }, modifier = Modifier.testTag("learning-suggestion-accept")) { Text("Accept suggested date") }
+                    }
                     Text(if (latest?.returnSoon == true) "Return Soon is set" else "Return Soon is not set")
                     OutlinedButton(enabled = ready, onClick = { schedule(if (latest?.returnSoon == true) "FLAG_CLEAR" else "FLAG_SET") }) {
                         Text(if (latest?.returnSoon == true) "Clear flag" else "Return Soon")
                     }
-                    Text(latest?.dueDate?.let { "Revisit: $it · chosen manually" } ?: "No revisit date")
+                    Text(latest?.dueDate?.let { "Revisit: $it · " + if (latest.origin == "MANUAL") "chosen manually" else "suggestion accepted by you" } ?: "No revisit date")
                     OutlinedTextField(due, { due = it }, enabled = ready, singleLine = true,
                         label = { Text("Revisit date (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth().testTag("learning-date"))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -129,7 +202,7 @@ private fun LearningDialog(blockId: String, placement: Placement?, onClose: () -
                             Text(sessionDate(e.recordedAt) + " · " + when(e.action) {
                                 "FLAG_SET" -> "Return Soon set"
                                 "FLAG_CLEAR" -> "Return Soon cleared"
-                                "DATE_SET" -> "Manual revisit: " + e.dueDate
+                                "DATE_SET" -> (if (e.origin == "MANUAL") "Manual revisit: " else "Accepted suggested revisit: ") + e.dueDate
                                 "DATE_CLEAR" -> "Revisit date cleared"
                                 else -> "Scheduling declined; previous choices retained"
                             }, style = MaterialTheme.typography.bodySmall)

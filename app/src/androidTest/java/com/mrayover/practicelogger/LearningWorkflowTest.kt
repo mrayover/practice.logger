@@ -22,10 +22,30 @@ class LearningWorkflowTest {
         compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired=false).isNotEmpty()
     }
     @Test fun optionalObservationAndManualRevisitsLeavePracticeAndClickRunning() {
-        val id=runBlocking {
+        val block=runBlocking {
             val b=BlockRepository(db).save(null,BlockDraft("Learning preview","Play bars 1–4 at 80"))
-            SessionRepository(db).startBlock(b)
+            BlockRepository(db).save(null,BlockDraft("Unassessed exploration","Explore freely"))
+            LearningRepository(db).schedule(b,"FLAG_SET",operationId="picker-flag")
+            b
         }
+        openHomePractice(compose)
+        click("Add Blocks")
+        shown("Build Session")
+        compose.onNodeWithTag("builder-lineup").performScrollToNode(hasText("+ Add Blocks"))
+        click("+ Add Blocks")
+        compose.onNodeWithTag("builder-picker").performScrollToNode(hasText("Unassessed exploration"))
+        compose.onNodeWithText("Unassessed exploration").assertExists()
+        compose.onNodeWithTag("builder-picker").performScrollToNode(hasTestTag("suggested-view"))
+        compose.onNodeWithTag("suggested-view").performClick()
+        shown("Return Soon · chosen by you")
+        assertNull(runBlocking { db.sessions().withStatus("DRAFT") })
+        assertEquals(1,runBlocking { db.learning().events(block).size })
+        compose.onNodeWithTag("builder-picker").performScrollToNode(hasTestTag("builder-add-$block"))
+        compose.onNodeWithTag("builder-add-$block").performClick()
+        compose.waitUntil(15000) { runBlocking { db.sessions().withStatus("DRAFT") != null } }
+        click("Done adding Blocks")
+        val id=runBlocking { db.sessions().withStatus("DRAFT")!!.id }
+        click("Start Session")
         val p=runBlocking { db.sessions().find(id)!!.current!! }
         compose.runOnIdle { practice.openSession(id) }
         shown("Start Block"); click("Start Block"); shown("Pause")
@@ -57,9 +77,16 @@ class LearningWorkflowTest {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(folder,"learning-revisits.png"))
         click("No scheduling")
         compose.waitUntil(15000) { runBlocking { db.learning().events(p.sourceBlockId).firstOrNull()?.action == "DECLINED" } }
+        val declined=runBlocking { db.learning().events(p.sourceBlockId).first() }
+        assertTrue(declined.returnSoon)
+        assertEquals(7,declined.intervalDays)
+        compose.onNodeWithTag("learning-suggestion-accept").scrollIfNeeded().performClick()
+        shown("Suggested revisit accepted.")
         val choices=runBlocking { db.learning().events(p.sourceBlockId) }
+        assertEquals("ACCEPTED_SUGGESTION",choices.first().origin)
+        assertEquals(3,choices.first().intervalDays)
         assertTrue(choices.first().returnSoon)
-        assertEquals(7,choices.first().intervalDays)
+        assertEquals("STARTING",readAcceptedSuggestion(choices.first().offeredSuggestion!!).reason)
         click("Close")
         click("Pause"); shown("Resume")
         val committed=runBlocking { db.sessions().find(id)!! }

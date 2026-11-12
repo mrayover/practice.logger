@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewModel,
     routines: RoutineViewModel, onBack: () -> Unit, onCreate: () -> Unit) {
     var picking by rememberSaveable { mutableStateOf(false) }
+    var suggested by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     var changeId by rememberSaveable { mutableStateOf<String?>(null) }
     var minutes by rememberSaveable { mutableStateOf("") }
@@ -44,6 +45,7 @@ fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewM
 
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
         if (picking) {
+            val recommendations = rememberBlockRecommendations(blocks)
             LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("builder-picker"), state = pickerScroll,
                 contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 item {
@@ -55,14 +57,18 @@ fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewM
                         singleLine = true, modifier = Modifier.fillMaxWidth())
                 }
                 item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
+                item { SuggestedViewPicker(suggested) { suggested = it } }
                 item {
                     OutlinedButton(onClick = { picking = false; onCreate() }, enabled = !busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Create a new Block") }
                 }
-                val available = matchingBlocks(blocks, query, false, indicators, goalFilter)
-                if (available.isEmpty()) item { Text("No matching active Blocks.") }
+                val matching = matchingBlocks(blocks, query, false, indicators, goalFilter)
+                val reasons = recommendations.orEmpty().associateBy { it.blockId }
+                val available = if (suggested) recommendations.orEmpty().mapNotNull { r -> matching.find { it.id == r.blockId } } else matching
+                if (available.isEmpty()) item { Text(if (suggested) if (recommendations == null) "Suggestions unavailable. All Blocks remains available." else "No matching suggestions. All Blocks remains available." else "No matching active Blocks.") }
                 items(available, key = { it.id }) { block ->
                     Column {
+                        if (suggested) Text(reasons[block.id]!!.reasons.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
                         BlockPill(block, indicators.block(block.id), emptyList(),
                             modifier = Modifier.testTag("builder-block-${block.id}"),
                             selection = {

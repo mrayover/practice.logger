@@ -262,6 +262,7 @@ internal class PortableZip(
                 6L -> 6
                 7L -> 7
                 8L -> 8
+                9L -> 9
                 PORTABLE_VERSION.toLong() -> PORTABLE_VERSION
                 else -> error("Unsupported portable backup format or version.")
             }

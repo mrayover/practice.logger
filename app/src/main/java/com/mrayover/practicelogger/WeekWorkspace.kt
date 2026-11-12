@@ -29,6 +29,8 @@ internal fun WeekWorkspace(
     var selected by rememberSaveable(week.toString()) { mutableStateOf(arrayListOf<String>()) }
     var carrying by rememberSaveable(week.toString()) { mutableStateOf(false) }
     var query by rememberSaveable(week.toString()) { mutableStateOf("") }
+    var suggested by rememberSaveable(week.toString()) { mutableStateOf(false) }
+    val recommendations = if (preparing) rememberBlockRecommendations(catalog.blocks) else null
     val weekKey = week.toString()
     val blocks = catalog.blocks.associateBy { it.id }
     val assigned = plans.filter { it.weekStart == weekKey }.mapNotNull { blocks[it.blockId] }
@@ -117,10 +119,14 @@ internal fun WeekWorkspace(
                     modifier = Modifier.fillMaxWidth())
             }
             item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
-            val available = matchingBlocks(catalog.blocks, query, false, indicators, goalFilter)
+            item { SuggestedViewPicker(suggested) { suggested = it } }
+            val matching = matchingBlocks(catalog.blocks, query, false, indicators, goalFilter)
                 .filter { it.id !in assignedIds }
-            if (available.isEmpty()) item { Text("No matching active Blocks to add.") }
+            val reasons = recommendations.orEmpty().associateBy { it.blockId }
+            val available = if (suggested) recommendations.orEmpty().mapNotNull { r -> matching.find { it.id == r.blockId } } else matching
+            if (available.isEmpty()) item { Text(if (suggested) if (recommendations == null) "Suggestions unavailable. All Blocks remains available." else "No matching suggestions to add." else "No matching active Blocks to add.") }
             items(available, key = { "available-${it.id}" }) { block ->
+                if (suggested) Text(reasons[block.id]!!.reasons.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
                 BlockPill(block, indicators.block(block.id), references[block.id].orEmpty(),
                     modifier = Modifier.testTag("available-week-block-${block.id}"),
                     completion = completions[block.id]) {

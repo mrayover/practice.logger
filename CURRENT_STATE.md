@@ -1,3 +1,7 @@
+# LGE-2 implementation — focused delivery in progress
+
+LGE-2 is implemented for0.41.0/build114; Windows32 focused tests, debug/release/testAPK assembly and release vital lint pass. Room25 unchanged; complete ZIP10 writes/readers1–10, JSON7 unchanged. Native picker/check-in workflow and signed delivery are pending. Next: run the single API35 owner-preview learning check, then complete permanent-key delivery. No broad regression or physical acceptance claimed.
+
 # Current state — LGE-1 signed development delivery, build113
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.40.0/build113 is delivered. LGE-1 implementation and focused verification are complete; owner phone acceptance remains pending.** Application/package/test source **23e0b6660d2a5027421eff7a605869f119574c46**, branch **block-ux-stage1**. Later documentation commits do not change the packaged app. Existing checkout C:/Users/mrove/Projects/practice.logger was used; the older OneDrive reference checkout was not synchronized or edited. Only the new delivery folder was added there.
