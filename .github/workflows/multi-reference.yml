@@ -13,6 +13,10 @@ on:
         description: 'Only compile native test packages when unchanged source already passed units/release'
         default: false
         type: boolean
+      keep_going:
+        description: 'Collect independent regression groups after a failure; overall result still fails'
+        default: false
+        type: boolean
 permissions:
   contents: read
 jobs:
@@ -58,6 +62,7 @@ jobs:
           script: bash scripts/Check-MultiReference.sh
         env:
           MULTI_REFERENCE_CLASSES: ${{ inputs.classes || 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,FrozenPortableCompatibilityTest,BlockEditorNativeTest,BlockMediaNativeTest,MediaLibraryStorageTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest,process-death,portable-install' }}
+          MULTI_REFERENCE_CONTINUE: ${{ inputs.keep_going }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

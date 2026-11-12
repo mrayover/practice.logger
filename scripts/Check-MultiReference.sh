@@ -11,12 +11,20 @@ collect() {
   adb shell uiautomator dump /sdcard/stage3b-window.xml || true
   adb pull /sdcard/stage3b-window.xml "$out/window.xml" || true
   adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/stage3b-fixtures "$out/fixtures" || true
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots "$out/screenshots" || true
 }
 trap collect EXIT
+failed=0
+group_failed=false
 for class in ${MULTI_REFERENCE_CLASSES//,/ }; do
   if [ "$class" = fresh ]; then
     [[ "${GITHUB_ACTIONS:-}" == true && "$(adb shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]]
     adb shell pm clear com.mrayover.practicelogger.app
+    group_failed=false
+    continue
+  fi
+  if [ "$group_failed" = true ]; then
+    echo "Skipped dependent phase $class after failed setup"
     continue
   fi
   if [ "$class" = process-death ]; then
@@ -36,6 +44,13 @@ for class in ${MULTI_REFERENCE_CLASSES//,/ }; do
   [[ "$class" =~ ^[A-Za-z0-9_.#]+$ ]]
   [[ "$class" == *.* ]] || class="com.mrayover.practicelogger.$class"
   adb shell am force-stop com.mrayover.practicelogger.app
-  timeout --kill-after=10s 1200s adb shell am instrument -w -r -e timeout_msec 480000 -e class "$class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "$out/${class##*.}.txt"
-  grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/${class##*.}.txt"
+  if ! timeout --kill-after=10s 1200s adb shell am instrument -w -r -e timeout_msec 480000 -e class "$class" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "$out/${class##*.}.txt"; then
+    failed=1
+  fi
+  if ! grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/${class##*.}.txt"; then
+    [ "${MULTI_REFERENCE_CONTINUE:-false}" = true ] || exit 1
+    failed=1
+    group_failed=true
+  fi
 done
+exit "$failed"

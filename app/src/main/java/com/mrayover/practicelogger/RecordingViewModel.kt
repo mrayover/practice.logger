@@ -323,7 +323,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         if (draft.phrase != null && draft.blockId != null) startPhrase(draft.blockId, draft.phrase)
         else startCapture(draft.blockId, referenceCapture, alongsideReference = captureDevices != null)
     }
-    internal fun keepReference(expectedAudioId: String?, confirmedAudioId: String? = null) {
+    internal fun keepReference(expectedAudioId: String?, confirmedAudioId: String? = null, reviewedOrder: List<String>? = null) {
         val draft = reviewPending ?: return
         if (!referenceCapture || !ready || busy || recording) return
         stopPlayback()
@@ -336,7 +336,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
                     val name = "Recorded reference " + java.text.SimpleDateFormat("yyyy-MM-dd HH-mm-ss", java.util.Locale.ROOT)
                         .format(java.util.Date(draft.createdAt)) + ".m4a"
                     val asset = referenceLibrary.importRecordedReference(name, draft.file) {
-                        draft.blockId?.let { block -> referenceLinks.attachRecordedAudio(block, it.id, expectedAudioId, confirmedAudioId) }
+                        draft.blockId?.let { block -> referenceLinks.attachRecordedAudio(block, it.id, expectedAudioId, confirmedAudioId, reviewedOrder) }
                     }
                     clearReview()
                     keptReferenceId = asset.id

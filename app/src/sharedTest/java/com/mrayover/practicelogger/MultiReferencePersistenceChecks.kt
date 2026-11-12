@@ -3,6 +3,7 @@ package com.mrayover.practicelogger
 import android.app.Application
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.withTransaction
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -36,6 +37,35 @@ abstract class MultiReferencePersistenceChecks {
     private fun rejects(action: () -> Unit) {
         var failed = false; try { action() } catch (_: Exception) { failed = true }; assertTrue("Unsafe operation accepted", failed)
     }
+    @Test fun recordedCollectionAppendAndScalarCompatibilityRetainOtherSources() = fixture { name, files, _ -> runBlocking {
+        val db = open(name)
+        try {
+            db.openHelper.writableDatabase
+            val library = MediaLibraryRepository(db, File(files, "media-library"))
+            val repository = BlockMediaRepository(db, library, ImageReferenceRepository(db, File(files, "block-images")))
+            val old = "00000000-0000-4000-8000-000000000003"
+            val template = db.media().find(old)!!
+            val saved = db.blockAudio().state("image", old)
+            val archived = db.blockAudio().state("archived", old)
+            suspend fun asset(): String {
+                val fresh = template.copy(id = UUID.randomUUID().toString(), fileName = "${UUID.randomUUID()}.wav")
+                File(files, "media-library/${template.fileName}").copyTo(File(files, "media-library/${fresh.fileName}"))
+                db.media().insert(fresh); return fresh.id
+            }
+            val appended = asset()
+            db.withTransaction { repository.appendRecordedAudio("image", appended, repository.ordered("image", MediaRole.AUDIO)) }
+            assertEquals(saved, db.blockAudio().state("image", old))
+            val replacement = asset()
+            val order = repository.ordered("image", MediaRole.AUDIO)
+            rejects { runBlocking { db.withTransaction { repository.attachRecordedAudio("image", replacement, old, null, order) } } }
+            assertEquals(order, repository.ordered("image", MediaRole.AUDIO))
+            db.withTransaction { repository.attachRecordedAudio("image", replacement, old, old, order) }
+            assertEquals(listOf("library:$replacement", "library:$appended"), repository.ordered("image", MediaRole.AUDIO))
+            assertNull(db.blockAudio().state("image", old)); assertEquals(archived, db.blockAudio().state("archived", old))
+            assertTrue(library.available(template))
+            rejects { runBlocking { db.withTransaction { repository.appendRecordedAudio("image", appended, order) } } }
+        } finally { db.close() }
+    } }
     @Test fun migrationPreservesUnannotatedLegacyCanonicalCoexistence() = fixture { name, files, frozen ->
         val old = raw(name)
         try {
@@ -96,6 +126,12 @@ abstract class MultiReferencePersistenceChecks {
             val db = open(name)
             try {
                 frozen.assertPreserved(db.openHelper.writableDatabase, checkOriginals = false)
+                runBlocking {
+                    val repository = BlockMediaRepository(db, MediaLibraryRepository(db, File(files, "media-library")),
+                        ImageReferenceRepository(db, File(files, "block-images")))
+                    repository.add("image", MediaRole.VISUAL, "00000000-0000-4000-8000-000000000001")
+                    repository.add("image", MediaRole.AUDIO, "00000000-0000-4000-8000-000000000003")
+                }
                 assertFalse(missing.exists()); assertArrayEquals(byteArrayOf(1, 2, 3), corrupt.readBytes())
             } finally { db.close() }
         }

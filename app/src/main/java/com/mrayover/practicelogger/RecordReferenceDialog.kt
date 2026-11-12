@@ -28,6 +28,7 @@ internal fun RecordReferenceDialog(
     previousAudioId: String?,
     onClose: () -> Unit,
     onKept: (String) -> Unit,
+    reviewedOrder: List<String>? = null,
     recorder: RecordingViewModel = viewModel(key = "reference-recorder")
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -80,7 +81,7 @@ internal fun RecordReferenceDialog(
                             OutlinedButton(enabled = !recorder.busy, onClick = {
                                 if (recorder.playingId == review.id) recorder.stopPlayback() else recorder.previewReview()
                             }) { Text(if (recorder.playingId == review.id) "Stop Preview" else "Play Preview") }
-                            Button(enabled = !recorder.busy, onClick = { recorder.keepReference(previousAudioId) }) { Text("Keep") }
+                            Button(enabled = !recorder.busy, onClick = { recorder.keepReference(previousAudioId, reviewedOrder = reviewedOrder) }) { Text("Keep") }
                             TextButton(enabled = !recorder.busy, onClick = {
                                 if (recorder.hasMicrophonePermission()) recorder.rerecordReview()
                                 else permission.launch(Manifest.permission.RECORD_AUDIO)
@@ -103,7 +104,7 @@ internal fun RecordReferenceDialog(
         AlertDialog(onDismissRequest = recorder::dismissReferenceReplacement,
             title = { Text("Replace this Block's audio?") },
             text = { Text("Replacing this reference removes the Block's local playback settings and markers for the previous audio. The Library original and its master markers stay available.") },
-            confirmButton = { TextButton(onClick = { recorder.keepReference(previousAudioId, previous) }) { Text("Replace reference") } },
+            confirmButton = { TextButton(onClick = { recorder.keepReference(previousAudioId, previous, reviewedOrder) }) { Text("Replace reference") } },
             dismissButton = { TextButton(onClick = recorder::dismissReferenceReplacement) { Text("Cancel") } })
     }
 }

@@ -46,6 +46,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var recordingReference by rememberSaveable(blockId) { mutableStateOf(false) }
     var recordingPreviousId by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
+    var recordingPreviousOrder by rememberSaveable(blockId) { mutableStateOf(emptyList<String>()) }
     var choice by rememberSaveable(blockId) { mutableStateOf(false) }
     var picker by rememberSaveable(blockId) { mutableStateOf(false) }
     var pickerError by rememberSaveable(blockId) { mutableStateOf(false) }
@@ -97,7 +98,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     })
     ConfirmBlockAudioChange(blockId, images)
     if (recordingReference) RecordReferenceDialog(blockId, recordingPreviousId,
-        onClose = { recordingReference = false }, onKept = { recordingReference = false })
+        onClose = { recordingReference = false }, onKept = { recordingReference = false }, reviewedOrder = recordingPreviousOrder)
     val title: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(asset?.title ?: if (mediaId == null) "No audio reference" else "Audio reference unavailable",
@@ -115,6 +116,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             vm.checkpoint()
             onBeforeRecording()
             recordingPreviousId = mediaId
+            recordingPreviousOrder = links.filter { it.blockId == blockId && it.role == "AUDIO" }.map { "library:${it.mediaId}" }
             recordingReference = true
         }, enabled = !images.busy && !audioBusy) { Text("Record Reference") }
     }

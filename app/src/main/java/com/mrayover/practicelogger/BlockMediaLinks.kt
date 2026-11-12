@@ -64,6 +64,7 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
         withContext(Dispatchers.IO) { withPortableMediaLocks { db.withTransaction {
             val order = db.referenceOrder(block, role)
             check(reviewed == null || reviewed == order) { "References changed. Review them and try again." }
+            if (db.blockMedia().contains(block, role.name, media)) return@withTransaction
             val asset = checkNotNull(db.media().find(media)) { "This Library item is unavailable." }
             require(role.accepts(asset.category)) { "Choose a compatible Library item." }
             check(library.available(asset)) { "The original is missing or changed." }
@@ -155,10 +156,21 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
     }
 
     // Runs inside the Library import transaction. Only the audio link owns local audio state.
-    internal suspend fun attachRecordedAudio(blockId: String, mediaId: String, expectedAudioId: String?, confirmedAudioId: String?) {
+    internal suspend fun attachRecordedAudio(blockId: String, mediaId: String, expectedAudioId: String?, confirmedAudioId: String?,
+        reviewedOrder: List<String>? = null) {
         checkNotNull(db.blocks().find(blockId)) { "This Block is no longer available." }
         val previous = db.blockMedia().find(blockId, MediaRole.AUDIO.name)?.mediaId
         check(previous == expectedAudioId) { "The audio reference changed. Close recording and review the current reference." }
+        check(reviewedOrder == null || reviewedOrder == db.referenceOrder(blockId, MediaRole.AUDIO)) {
+            "The audio references changed. Close recording and review them again."
+        }
+        // Compatibility for the existing single-slot dialog, which explicitly reviews replacement.
+        saveAudioLink(blockId, mediaId, previous, confirmedAudioId)
+    }
+
+    /** Runs inside the canonical import transaction; Stage3C will select the appended source. */
+    internal suspend fun appendRecordedAudio(blockId: String, mediaId: String, reviewedOrder: List<String>) {
+        check(db.referenceOrder(blockId, MediaRole.AUDIO) == reviewedOrder) { "The audio references changed. Review them again." }
         appendChecked(blockId, MediaRole.AUDIO, mediaId)
     }
 
