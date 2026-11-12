@@ -64,5 +64,8 @@ for class in ${MULTI_REFERENCE_CLASSES//,/ }; do
     failed=1
     group_failed=true
   fi
+  # Keep successful accessibility screenshots before a later disposable `fresh` clears app data.
+  mkdir -p "$out/${class##*.}-evidence"
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots "$out/${class##*.}-evidence/screenshots" || true
 done
 exit "$failed"

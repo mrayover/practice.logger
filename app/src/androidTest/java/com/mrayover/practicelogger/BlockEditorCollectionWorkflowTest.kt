@@ -20,8 +20,25 @@ class BlockEditorCollectionWorkflowTest : WeekUiChecks() {
     @Before fun reset() { db.clearAllTables() }
     private fun ready() = compose.waitUntil(15_000) { vm.editor.ready && !vm.busy }
     private fun field(tag: String, text: String) = compose.onNodeWithTag(tag).scrollIfNeeded().performTextReplacement(text)
-    private fun tag(tag: String) = compose.onNodeWithTag(tag).scrollIfNeeded().assertIsDisplayed()
+    private fun tag(tag: String): SemanticsNodeInteraction {
+        val node = compose.onNodeWithTag(tag).scrollIfNeeded()
+        try { return node.assertIsDisplayed() }
+        catch (failure: AssertionError) {
+            captureStage3("collection-failure-${tag.replace(':', '-')}")
+            val output = File(compose.activity.getExternalFilesDir(null), "screenshots/collection-failure.txt")
+            output.writeText("Target $tag: ${node.fetchSemanticsNode().boundsInRoot}\n" + compose.onRoot(useUnmergedTree = true).printToString())
+            throw failure
+        }
+    }
     private fun choose(role: MediaRole, id: String) {
+        // Finish the field-entry/IME transition before scrolling to a real reference touch.
+        // Otherwise Android can relocate the still-focused field after performScrollTo returns.
+        compose.runOnIdle {
+            compose.activity.currentFocus?.clearFocus()
+            compose.activity.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+                .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken, 0)
+        }
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).waitForIdle()
         tag("block-${role.name}-choose").assertIsEnabled().performClick(); click("Choose from Library")
         waitForTag("media-library-list")
         compose.onNodeWithTag("media-library-list").performScrollToNode(hasTestTag("media-choose-$id"))

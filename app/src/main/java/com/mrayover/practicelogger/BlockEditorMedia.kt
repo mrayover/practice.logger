@@ -270,7 +270,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
                         val baseline = if (role == MediaRole.VISUAL) baselineVisual else baselineAudio
                         val desired = order(role)
                         for (identity in baseline.filter { it !in desired }) {
-                            check(removals[identity] == lossSnapshot(role, identity)) { "Saved markings or audio work changed. Review removal again before saving." }
+                            check(removals[identity] == lossSnapshot(role, identity)) { "Saved markings or audio work changed. Your draft is retained. Cancel and reopen this Block to review removal again." }
                             if (role == MediaRole.VISUAL) {
                                 db.discardVisualMarkings(saved, identity, VisualChangeCheck(identity, true))
                                 if (identity.startsWith("legacy:")) db.images().remove(saved) else db.blockMedia().removeExact(saved, role.name, identity.removePrefix("library:"))
