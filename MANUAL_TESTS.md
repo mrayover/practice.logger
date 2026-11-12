@@ -1,5 +1,17 @@
 # Current phone and P5 regression checklist
 
+## Stage 3C collection integration and Stage 3D install-over acceptance
+
+These are upcoming checks, not completed phone acceptance. Stage3B persistence/native results are recorded in CURRENT_STATE.md. Keep the signed build110 APK/ZIP and a verified pre-upgrade complete ZIP7 backup. Room24 cannot be opened by build110; APK downgrade is not a rollback method. Use disposable installations until Stage3D authorizes signed delivery.
+
+- Stage3C: create and edit several images, multipage PDFs and audio references before Save from Library, selected-week creation and Session Builder. Add duplicate Library IDs, reorder each role independently, preview/remove one source, Cancel/Back, recreate, fail Save and retry. Check no partial Block/Goal/week/builder data, no orphan promotion, no duplicate append and no shared-original deletion.
+- Reopen pre-Stage3C scalar manifests and new collection manifests. Recheck full reviewed baselines, every promoted original and all intended links/creation receipts. Concurrent attach/remove/reorder must request a fresh review. Unchanged source-local state survives ordinary field edits.
+- Practice: switch among two PDFs and an image; keep each source's page, zoom/pan and overlays. Retain exact library:/legacy: identities, first-reference default and missing-source Retry behavior. Timer/Ready/Prep, metronome and active recorder controls must not restart when switching.
+- Audio: customize two sources independently (cursor, speed, A–B/repeat, selected marker, local/hidden/overridden/inherited markers). Switch A→B→A, recreate and cold reopen. Await outgoing checkpoint success; incoming audio starts paused. Inject checkpoint failure and retain the outgoing source for retry. Keep capture/review/save guards, reference recording, ordinary takes and Transcribe integration.
+- Stage3D: on Android8/15 and the owner phone, install the future signed release over populated permanent-key build110 without uninstalling/clearing. Preserve active/archived/shared/legacy originals and hashes; all old Block IDs, completed/unfinished history, Goal/Routine/week relationships, reflections and local media work must match. Repeat intentional upgrade interruption on disposable emulators; never kill or reset the owner's installation for testing.
+- Export ZIP8, verify and preview it, restore into a separate empty installation and cold reopen. Compare every portable record and every original byte/hash; include shared originals once, mixed visual/legacy order and independent audio customization. Recheck frozen ZIP1–7, malformed old duplicate roles, malformed new order/ownership and missing/corrupt originals. Verify failed/interrupted restore recovery and the empty-target rule. JSON7 remains data-only.
+- Run Light/Dark/custom themes, normal and320dp/200% text, physical-phone TalkBack, providers/camera/gallery, recording/output routing and acoustic checks. Record device/build/results separately; do not infer owner acceptance from emulator success.
+
 ## Stage 2 compact Block editor phone checks
 
 - Install the signed Stage 2 update over permanent-key build108 without clearing data. Check existing Blocks, references, Goals, weekly plans, Routines and practice history.
