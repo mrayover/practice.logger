@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -31,7 +32,25 @@ import kotlin.coroutines.coroutineContext
 
 @Composable fun PracticeImageReference(blockId: String, placementId: String, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false, active: Boolean = true) {
     val all by vm.visuals.collectAsStateWithLifecycle()
-    key(placementId) { all.find { it.blockId == blockId }?.let { CollapsibleImageReference(it, vm, edgeToEdge, viewerMaxHeight, embeddedExpanded, fitAvailableHeight, active) } }
+    val assets by vm.assets.collectAsStateWithLifecycle()
+    key(placementId, blockId) {
+        val references = all.filter { it.blockId == blockId }
+        var selected by rememberSaveable { mutableStateOf<String?>(null) }
+        val holder = rememberSaveableStateHolder()
+        val current = references.find { it.identity == selected } ?: references.firstOrNull()
+        val missing = selected != null && references.none { it.identity == selected }
+        if (missing) Text("The selected visual was removed. Showing the first available reference.")
+        if (current != null) {
+            ReferenceSourceSelector("Visual reference", references.map { reference ->
+                reference.identity to (assets.find { it.id == reference.mediaId }?.title
+                    ?: reference.legacy?.let { "Legacy ${if (it.mimeType == "application/pdf") "PDF" else "image"}" }
+                    ?: "Unavailable visual")
+            }, current.identity, active, Modifier.padding(horizontal = if (edgeToEdge) 16.dp else 0.dp)) { selected = it }
+            holder.SaveableStateProvider(current.identity) {
+                CollapsibleImageReference(current, vm, edgeToEdge, viewerMaxHeight, embeddedExpanded, fitAvailableHeight, active)
+            }
+        }
+    }
 }
 
 @Composable internal fun CollapsibleImageReference(image: BlockVisualReference, vm: ImageReferenceViewModel, edgeToEdge: Boolean = false, viewerMaxHeight: androidx.compose.ui.unit.Dp = 640.dp, embeddedExpanded: Boolean = false, fitAvailableHeight: Boolean = false, active: Boolean = true) {
@@ -40,6 +59,7 @@ import kotlin.coroutines.coroutineContext
     var expanded by rememberSaveable(image.identity) { mutableStateOf(false) }
     var page by rememberSaveable(image.identity) { mutableIntStateOf(0) }
     var retry by remember(image.identity) { mutableIntStateOf(0) }
+    val pages = rememberSaveableStateHolder()
     val scope = rememberCoroutineScope()
     val workspace = remember(image.blockId, image.identity) { OverlayWorkspace(image, vm, scope) }
     val shapes by remember(image.blockId, image.identity) { vm.overlays.observe(image) }
@@ -85,11 +105,12 @@ import kotlin.coroutines.coroutineContext
                     OverlayToolbar(workspace, shapes, pageShapes, loaded.pageCount, active)
                 }
                 // Keep the existing image/PDF painter and the same clipped viewport.
-                ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf",
+                pages.SaveableStateProvider(page) { ZoomableReference(loaded.bitmap, inset, image.mimeType == "application/pdf",
                     if (fitAvailableHeight) (viewerMaxHeight - controlsHeight).coerceAtLeast(1.dp) else viewerMaxHeight,
                     fitAvailableHeight, minimumHeight = if (fitAvailableHeight) 180.dp else 1.dp,
                     overlayEditing = active && workspace.editing) { transform ->
                     OverlayLayer(workspace, transform, pageShapes, page, loaded.pageCount, active)
+                }
                 }
             }
         }
@@ -97,9 +118,11 @@ import kotlin.coroutines.coroutineContext
 }
 
 @Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0, minimumHeight: androidx.compose.ui.unit.Dp = 1.dp, overlayEditing: Boolean = false, overlay: (@Composable BoxScope.(ReferencePageTransform) -> Unit)? = null) {
-    var scale by remember(bitmap) { mutableFloatStateOf(1f) }
-    var offset by remember(bitmap) { mutableStateOf(Offset.Zero) }
-    LaunchedEffect(resetKey) { scale = 1f; offset = Offset.Zero }
+    var scale by rememberSaveable { mutableFloatStateOf(1f) }
+    var offset by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver<Offset, List<Float>>(
+        save = { listOf(it.x, it.y) }, restore = { Offset(it[0], it[1]) })) { mutableStateOf(Offset.Zero) }
+    var lastReset by rememberSaveable { mutableIntStateOf(resetKey) }
+    LaunchedEffect(resetKey) { if (lastReset != resetKey) { scale = 1f; offset = Offset.Zero; lastReset = resetKey } }
     var size by remember { mutableStateOf(IntSize.Zero) }
     fun bounded(value: Offset, zoom: Float): Offset {
         val fit = ReferencePageTransform(size, IntSize(bitmap.width, bitmap.height), zoom, Offset.Zero).bounds

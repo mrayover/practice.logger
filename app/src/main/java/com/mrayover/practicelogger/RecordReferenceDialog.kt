@@ -81,7 +81,7 @@ internal fun RecordReferenceDialog(
                             OutlinedButton(enabled = !recorder.busy, onClick = {
                                 if (recorder.playingId == review.id) recorder.stopPlayback() else recorder.previewReview()
                             }) { Text(if (recorder.playingId == review.id) "Stop Preview" else "Play Preview") }
-                            Button(enabled = !recorder.busy, onClick = { recorder.keepReference(previousAudioId, reviewedOrder = reviewedOrder) }) { Text("Keep") }
+                            Button(enabled = !recorder.busy, onClick = { recorder.keepReference(previousAudioId, reviewedOrder = reviewedOrder, append = blockId != null) }) { Text("Keep") }
                             TextButton(enabled = !recorder.busy, onClick = {
                                 if (recorder.hasMicrophonePermission()) recorder.rerecordReview()
                                 else permission.launch(Manifest.permission.RECORD_AUDIO)

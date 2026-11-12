@@ -123,7 +123,11 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (_: Exception) { message = "Imported into Library, but attachment did not complete. The Library item and previous Block reference were kept. Choose it from Library to retry." }
     }
-    fun importLibrary(blockId: String, role: MediaRole, uri: Uri) = work {
+    internal fun addAudio(blockId: String, mediaId: String, added: (String) -> Unit) = work {
+        associations.add(blockId, MediaRole.AUDIO, mediaId)
+        added(mediaId)
+    }
+    fun importLibrary(blockId: String, role: MediaRole, uri: Uri, append: Boolean = false, added: (String) -> Unit = {}) = work {
         val asset = withContext(Dispatchers.IO) {
             val resolver = getApplication<Application>().contentResolver
             val mime = resolver.getType(uri)
@@ -134,7 +138,8 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
             require(if (role == MediaRole.AUDIO) extension in setOf("mp3", "m4a", "wav") else extension in setOf("jpg", "jpeg", "png", "webp", "pdf")) { "Choose a compatible media type." }
             library.import(name, mime) { checkNotNull(resolver.openInputStream(uri)) }
         }
-        attachImported(blockId, role, asset)
+        if (append) { associations.add(blockId, role, asset.id); added(asset.id) }
+        else attachImported(blockId, role, asset)
     }
     fun importLibraryPhoto(blockId: String, name: String) = work {
         try {

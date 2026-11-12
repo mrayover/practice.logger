@@ -39,10 +39,14 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     onRecordLoop: () -> Unit, onClose: () -> Unit, modifier: Modifier = Modifier, onBeforeRecording: () -> Unit) {
     val links by images.links.collectAsStateWithLifecycle()
     val assets by images.assets.collectAsStateWithLifecycle()
-    val mediaId = links.find { it.blockId == blockId && it.role == MediaRole.AUDIO.name }?.mediaId
+    val references = links.filter { it.blockId == blockId && it.role == MediaRole.AUDIO.name }.sortedBy { it.position }
+    var selectedId by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
+    var keptId by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
+    val mediaId = selectedId ?: references.firstOrNull()?.mediaId
     val asset = assets.find { it.id == mediaId }
     val player = vm.controller
     val state by rememberAudioDisplayState(player)
+    val canSwitch = !audioBusy && !vm.switching && !vm.sourceEditBusy && !vm.saving && !images.busy
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var recordingReference by rememberSaveable(blockId) { mutableStateOf(false) }
     var recordingPreviousId by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
@@ -51,7 +55,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     var picker by rememberSaveable(blockId) { mutableStateOf(false) }
     var pickerError by rememberSaveable(blockId) { mutableStateOf(false) }
     val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) images.importLibrary(blockId, MediaRole.AUDIO, uri)
+        if (uri != null) images.importLibrary(blockId, MediaRole.AUDIO, uri, append = true) { keptId = it }
     }
     DisposableEffect(lifecycle, player) {
         val observer = LifecycleEventObserver { _, event ->
@@ -75,11 +79,15 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
         }
     }
     LaunchedEffect(blockId, asset?.id) {
-        if (asset != null) vm.openBlock(blockId, asset.id, asset.durationMs ?: 1L) else vm.close()
+        if (asset != null) vm.openBlock(blockId, asset.id, asset.durationMs ?: 1L) { selectedId = asset.id }
+    }
+    LaunchedEffect(keptId, assets) {
+        val incoming = assets.find { it.id == keptId } ?: return@LaunchedEffect
+        vm.openBlock(blockId, incoming.id, incoming.durationMs ?: 1L) { selectedId = incoming.id; keptId = null }
     }
     if (choice) AlertDialog(
         onDismissRequest = { choice = false },
-        title = { Text(if (asset == null) "Choose audio" else "Change audio") },
+        title = { Text("Add audio reference") },
         text = {
             Column {
                 TextButton(onClick = { choice = false; picker = true }) { Text("Choose from Library") }
@@ -94,31 +102,42 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     )
     if (picker) LibraryMediaPicker(MediaRole.AUDIO, mediaId, onClose = { picker = false }, onChoose = {
         picker = false
-        images.choose(blockId, MediaRole.AUDIO, it)
+        images.addAudio(blockId, it) { id -> keptId = id }
     })
     ConfirmBlockAudioChange(blockId, images)
     if (recordingReference) RecordReferenceDialog(blockId, recordingPreviousId,
-        onClose = { recordingReference = false }, onKept = { recordingReference = false }, reviewedOrder = recordingPreviousOrder)
+        onClose = { recordingReference = false }, onKept = { keptId = it; recordingReference = false }, reviewedOrder = recordingPreviousOrder)
     val title: @Composable () -> Unit = {
+        Column {
+        ReferenceSourceSelector("Audio reference", references.map { reference ->
+            reference.mediaId to (assets.find { it.id == reference.mediaId }?.title ?: "Unavailable audio")
+        }, mediaId, canSwitch && !recordingReference) { id ->
+            val incoming = assets.find { it.id == id }
+            if (incoming != null) vm.openBlock(blockId, id, incoming.durationMs ?: 1L) { selectedId = id }
+        }
+        if (audioBusy) Text("Finish recording, review or Save before switching audio.", style = MaterialTheme.typography.bodySmall)
+        if (selectedId != null && references.none { it.mediaId == selectedId })
+            Text("The selected audio reference was removed. Choose an available reference.", color = MaterialTheme.colorScheme.error)
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(asset?.title ?: if (mediaId == null) "No audio reference" else "Audio reference unavailable",
                 Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleSmall)
             TextButton(onClick = { player.pause(); vm.checkpoint(); pickerError = false; choice = true },
-                enabled = !images.busy && !audioBusy, modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-choose-audio")) {
-                Text(if (asset == null) "Choose Audio" else "Change Audio")
+                enabled = canSwitch, modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-choose-audio")) {
+                Text(if (asset == null) "Choose Audio" else "Add Audio")
             }
+        }
         }
     }
     val recordReference: @Composable () -> Unit = {
         TextButton(onClick = {
-            player.pause()
-            vm.checkpoint()
+            vm.checkpointBefore {
             onBeforeRecording()
             recordingPreviousId = mediaId
             recordingPreviousOrder = links.filter { it.blockId == blockId && it.role == "AUDIO" }.map { "library:${it.mediaId}" }
             recordingReference = true
-        }, enabled = !images.busy && !audioBusy) { Text("Record Reference") }
+            }
+        }, enabled = canSwitch) { Text("Record Reference") }
     }
     val messages: @Composable () -> Unit = {
         if (images.busy) Text("Saving reference…")
@@ -142,7 +161,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
     var rangeDialog by rememberSaveable(asset.id) { mutableStateOf(false) }
     var seekDialog by rememberSaveable(asset.id) { mutableStateOf(false) }
     var pianoExpanded by rememberSaveable(blockId) { mutableStateOf(false) }
-    val ready = state.mediaId == asset.id && state.durationMs > 0 && !state.preparing
+    val ready = state.mediaId == asset.id && state.durationMs > 0 && !state.preparing && !vm.switching && references.any { it.mediaId == asset.id }
 
     val controls: @Composable () -> Unit = {
         AudioPlaybackControls(player, state, asset.id, enabled = ready)

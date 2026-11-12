@@ -311,7 +311,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
                                     vm.stopClick()
                                     recordings.startCapture(current.sourceBlockId, alongsideReference = true)
                                 } else loopPermission.launch(android.Manifest.permission.RECORD_AUDIO)
-                            }, enabled = recordings.ready && !audioBusy && !images.busy,
+                            }, enabled = recordings.ready && !audioBusy && !images.busy && !transcribeVm.switching && !transcribeVm.sourceEditBusy,
                                 modifier = Modifier.heightIn(min = 48.dp).testTag("transcribe-record-take")) {
                                 Text("Record Take")
                             }

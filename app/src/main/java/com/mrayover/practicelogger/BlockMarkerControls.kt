@@ -28,6 +28,10 @@ internal fun BlockMarkerControls(block: String, media: String, duration: Long, r
     var reviewed by remember { mutableStateOf<MasterAudioMarker?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
+    DisposableEffect(editor, menu, confirmation, saving) {
+        vm.sourceEditBusy = editor != null || menu != null || confirmation != null || saving
+        onDispose { vm.sourceEditBusy = false }
+    }
 
     fun runChange(operation: suspend () -> Unit) {
         if (saving) return
