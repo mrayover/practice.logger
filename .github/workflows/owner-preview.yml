@@ -28,7 +28,7 @@ jobs:
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - name: Focused LGE data, suggestions and accounting checks
         if: inputs.check == 'learning'
-        run: bash ./gradlew testDebugUnitTest lintVitalRelease --tests 'com.mrayover.practicelogger.LearningRepositoryTest' --tests 'com.mrayover.practicelogger.LearningSuggestionsTest' --tests 'com.mrayover.practicelogger.AdaptiveSchedulingTest' --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain
+        run: bash ./gradlew lintVitalRelease testDebugUnitTest --tests 'com.mrayover.practicelogger.LearningRepositoryTest' --tests 'com.mrayover.practicelogger.LearningSuggestionsTest' --tests 'com.mrayover.practicelogger.AdaptiveSchedulingTest' --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain
       - name: Focused G3 statistics checks
         if: inputs.check == 'statistics'
         run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain
