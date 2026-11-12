@@ -1,5 +1,8 @@
 name: Stage 3 final build and signed upgrade
 on:
+  push:
+    branches: [block-ux-stage1]
+    paths: [.github/workflows/stage3-final.yml]
   workflow_dispatch:
     inputs:
       scope:
