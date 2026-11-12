@@ -1,3 +1,7 @@
+## LGE-1 — assigned implementation and delivery
+
+The owner assigned LGE-1 after the November12 Stage4 deferral. Implementation targets0.40.0/build113 with Room25/ZIP9; focused verification and signed delivery are in progress. Optional placement observations and manual scheduling reuse existing practice/history; G3 accounting and transport/media behavior remain unchanged. LGE-2 adaptive suggestions remain unassigned. See CURRENT_STATE.md for actual verification and delivery.
+
 ## Approved next phases — Stage4 and Learning Guidance Extension
 
 **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2.** G3 is already delivered in build112; Stage3C.2/scoped Stage3D remain complete in build111. Stage4 prerequisite is resolved by the November12 owner-approved deferral in EVALUATION.md (0/10 sessions; no usability review or phone acceptance claimed). Next recommended task is a separate LGE-1 assignment; LGE-2 requires delivered LGE-1 and its own assignment. Feature completion and explicit F1 authorization remain owner decisions.

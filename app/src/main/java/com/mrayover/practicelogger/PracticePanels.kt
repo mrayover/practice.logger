@@ -80,6 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
         if (expanded == "description") RetainedWorkspaceContent(suppressed,
             if (suppressed) Modifier.fillMaxWidth() else Modifier.weight(1f).fillMaxWidth()) {
             PracticeScrollPanel(Modifier.fillMaxSize().padding(horizontal = 16.dp), tag = "practice-description-panel") {
+                LearningButton(current.sourceBlockId, current)
                 Text(current.action, style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().testTag("practice-description"))
             }
         }

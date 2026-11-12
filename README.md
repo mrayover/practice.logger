@@ -1,5 +1,7 @@
 # practice.logger
 
+LGE-1 has been assigned and implemented toward0.40.0/build113; focused verification and signed delivery are pending. Optional Learning & revisits controls record first-attempt observations and manual revisit choices. See [current status](CURRENT_STATE.md).
+
 Stage3C.2 and scoped Stage3D are complete in signed build111. G3 Statistics is delivered in signed0.39.0/build112 with focused verification. Room24/ZIP8/JSON7 remain unchanged; phone acceptance and comprehensive regression remain pending. See [verification and remaining work](CURRENT_STATE.md).
 
 An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. See [CURRENT_STATE.md](CURRENT_STATE.md) for the latest permanent-key build, focused verification and phone acceptance.

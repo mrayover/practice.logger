@@ -31,8 +31,8 @@ internal fun matchingBlocks(
 }
 
 data class BlockDependencies(val goals: Int, val routines: Int, val recordings: Int,
-    val sessionEntries: Int, val completedEntries: Int, val images: Int = 0, val mediaLinks: Int = 0, val weeks: Int = 0) {
-    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0 && mediaLinks == 0 && weeks == 0
+    val sessionEntries: Int, val completedEntries: Int, val images: Int = 0, val mediaLinks: Int = 0, val weeks: Int = 0, val guidanceEvents: Int = 0) {
+    val canDelete get() = goals == 0 && routines == 0 && recordings == 0 && sessionEntries == 0 && images == 0 && mediaLinks == 0 && weeks == 0 && guidanceEvents == 0
     fun explanation(): String = buildList {
         add("It is associated with:")
         if (mediaLinks > 0) add("• $mediaLinks Library media links. Remove the visual/audio associations in this Block editor first. Library originals are retained.")
@@ -41,6 +41,7 @@ data class BlockDependencies(val goals: Int, val routines: Int, val recordings: 
         if (goals > 0) add("• $goals Goal associations")
         if (routines > 0) add("• $routines saved Routines")
         if (recordings > 0) add("• $recordings recordings")
+        if (guidanceEvents > 0) add("• $guidanceEvents saved revisit/flag history events; use Archive to retain this history.")
         if (sessionEntries > 0) add("• $sessionEntries practice session entries (drafts, unfinished and completed)")
         if (completedEntries > 0) add("$completedEntries entries belong to completed practice history, which remains protected.")
         if (recordings > 0) add("Export any recordings you want to keep before deleting individual takes in Recordings.")

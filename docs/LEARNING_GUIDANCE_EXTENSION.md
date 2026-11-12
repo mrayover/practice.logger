@@ -1,6 +1,14 @@
 # Learning Guidance Extension — approved future architecture
 
-Approved for the V1 roadmap on November 12, 2026. **Planning only: neither LGE-1 nor LGE-2 is implemented or assigned for implementation.** This is the bounded approved addition to the earlier Deferred Practice Insights proposal. The [master plan](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) owns phase order; [CURRENT_STATE](../CURRENT_STATE.md) owns shipped facts.
+Approved for the V1 roadmap on November 12, 2026. **LGE-1 separately assigned November12: implementation and focused delivery in progress. LGE-2 remains future scope and is not implemented or assigned.** This is the bounded approved addition to the earlier Deferred Practice Insights proposal. The [master plan](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) owns phase order; [CURRENT_STATE](../CURRENT_STATE.md) owns shipped facts.
+
+## LGE-1 implementation contract
+
+Two additive stores implement the proposed design: learning_observations (placement primary key, restrictive placement and prior-observation anchor FKs) and guidance_events (stable operation ID, restrictive Block FK, unique Block/revision). Observations preserve timestamp, criterion text/token and explicit comparison anchor; corrections change only outcome/context and record correction time. No derived comparison cache exists; future comparisons must read corrected source evidence. Manual scheduling records resulting independent flag/date state, selected local base date/interval and origin; declining preserves existing state. offeredSuggestion is a nullable provenance slot reserved for LGE-2 and must be null in LGE-1. No suggestion or algorithm exists.
+
+Room25 adds both tables without backfill. Complete ZIP9 adds their fixed typed columns, validates comparability/ownership, ordered event transitions and anchor cycles, restores anchors before dependants, and includes both stores in empty-target protection. ZIP1–8 retain frozen readers. JSON7 remains unchanged and excludes both stores. Clearing a flag/date never removes history; archive retains it, and restrictive deletion guards protect it.
+
+Learning & revisits is an optional dialog in the practice description, saved Block editor and placement summary. Closing without saving records no observation; Not assessed is explicit and distinct. New criteria prefill from placement instructions; reusing an earlier target requires confirming unchanged conditions. Old criteria cannot be edited through a correction. Saving invokes no timing or audio API. Dates are manual opportunities, not reminders.
 
 ## Baseline and sequence
 

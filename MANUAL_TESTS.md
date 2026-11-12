@@ -393,3 +393,17 @@ Install build112 over the existing permanent-key app without uninstalling. Keep 
 - Check Statistics scrolling and Goal Detail on the phone's normal and enlarged text settings. Confirm install-over data and media remain available.
 
 Existing postponed cross-feature, device, accessibility, migration and backup checks remain available for owner-authorized F1. Completing these G3 checks does not authorize F1.
+
+
+## LGE-1 — optional learning evidence and manual revisits
+
+Use the signed build113 update identified in CURRENT_STATE.md. Keep a complete pre-update backup; install over the permanent-key app without uninstalling or clearing data. These remain pending physical-owner observations.
+
+- In a Block's practice description, open Learning & revisits. Close without saving and practice normally. Confirm there is no compulsory check-in, timer change, playback interruption or recording restart.
+- Save Held up, Partially held up, Didn't hold up yet or Not assessed with the appropriate first-attempt, recollection or unknown context. Repeat a Block: its separate placement has its own optional observation. Confirm an earlier target only when passage, tempo, assistance, difficulty and success condition are unchanged. A changed target creates a new criterion.
+- Reopen placement history. Check saved time/criterion persist; correct an outcome/context without changing the original criterion, timing, security rating or Goal time.
+- In practice or the saved Block editor, set Return Soon and a manual date. Clear each separately. No scheduling retains existing choices; it creates no date. Complete/reopen the Block and confirm flags remain until deliberately cleared. Dates are opportunities, without reminders.
+- Try ordinary and enlarged text, scrolling and the keyboard. Close remains reachable. Check existing references, source switching, capture/review and practice controls.
+- Make a complete ZIP9. On a separate empty installation only, restore and reopen; compare observations, criterion identity, scheduling history, practice/Goal time and original media. JSON7 does not preserve LGE data. Never clear the main phone or downgrade to build112 as a recovery method.
+
+No LGE-2 adaptive suggestions, interval algorithm, automatic plan changes or F1 acceptance is included.

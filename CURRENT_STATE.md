@@ -1,3 +1,11 @@
+# Current state — LGE-1 implementation and focused verification
+
+Updated November12,2026. Owner separately assigned LGE-1 after deferring Stage4 sessions. Source targets0.40.0/build113, Room25/complete ZIP9/JSON7. First-attempt observations, immutable comparable criteria, optional manual revisit choices and restrictive history/backup ownership are implemented; signed delivery and one focused Android workflow check are pending. Build112 remains the current signed release until closeout. LGE-2 is not assigned or implemented.
+
+**Exact current task:** complete focused LGE-1 validation and signed delivery; do not start LGE-2 or F1. The G3/Stage3 phone acceptance limitations below remain pending.
+
+## Retained build112 delivery record
+
 # Current state — G3 development release, build112
 
 Updated November 12, 2026 (America/Los_Angeles). **Signed 0.39.0/build112 is delivered. G3 functionality and focused verification are complete; owner phone acceptance is pending.** Application/package source **58a13bda4fb5ac594fbfa70a1f237daaf918d01f**, branch **block-ux-stage1**, pushed after separate policy checkpoint **a8d4c9a1f60e3060ec143c08f2145a3dda6f0261**. Later documentation commits do not change the packaged app. Work is in C:\Users\mrove\Projects\practice.logger; the older OneDrive reference checkout was not synchronized or edited. Only the new delivery folder was added there.

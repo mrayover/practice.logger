@@ -108,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 8
+internal const val PORTABLE_VERSION = 9
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -131,11 +131,16 @@ private val portableTablesV6 = portableTablesV5 + listOf(
 private val portableTablesV7 = portableTablesV6 + PortableTable(INSPIRATION_STORE,
     "id title author source category note fileName:s? mimeType:s? byteCount:l? sha256:s? mediaId:s? pageCount:i?")
 
-internal val portableTables = portableTablesV7.map { table -> when (table.name) {
+private val portableTablesV8 = portableTablesV7.map { table -> when (table.name) {
     "block_media_links" -> PortableTable("block_media_links", "blockId role mediaId position:i")
     "block_images" -> PortableTable("block_images", "blockId fileName mimeType width:i height:i byteCount:l position:i")
     else -> table
 } }
+
+internal val portableTables = portableTablesV8 + listOf(
+    PortableTable("learning_observations", "placementId outcome observedAt:l context criterionToken:s? criterion:s? anchorId:s? correctedAt:l?"),
+    PortableTable("guidance_events", "id blockId revision:l recordedAt:l action returnSoon:b dueDate:s? baseDate:s? intervalDays:i? origin offeredSuggestion:s?")
+)
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -150,6 +155,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         5 -> portableTablesV5
         6 -> portableTablesV6
         7 -> portableTablesV7
+        8 -> portableTablesV8
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -165,9 +171,11 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
     operator fun get(table: String): List<JSONObject> =
         when (table) {
             OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE,
-            COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE, INSPIRATION_STORE -> rows[table].orEmpty()
+            COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE, INSPIRATION_STORE,
+            "learning_observations", "guidance_events" -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
+    private val learningOrder: List<String>
     private val maxOverlayPageByReference: Map<String, Int>
 
     init {
@@ -229,6 +237,21 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         }
         val placements = core.placements.associateBy { it.id }
         val goalIds = core.goals.mapTo(hashSetOf()) { it.id }
+        fun optionalText(row: JSONObject, key: String) = if (row.isNull(key)) null else row.getString(key)
+        val observations = this["learning_observations"].map { row ->
+            LearningObservation(row.getString("placementId"), row.getString("outcome"), row.getLong("observedAt"),
+                row.getString("context"), optionalText(row,"criterionToken"), optionalText(row,"criterion"),
+                optionalText(row,"anchorId"), if (row.isNull("correctedAt")) null else row.getLong("correctedAt"))
+        }
+        validateLearningHistory(observations, core.placements, core.sessions)
+        learningOrder = orderedLearningIds(observations)
+        val guidance = this["guidance_events"].map { row ->
+            GuidanceEvent(row.getString("id"), row.getString("blockId"), row.getLong("revision"), row.getLong("recordedAt"),
+                row.getString("action"), row.getBoolean("returnSoon"), optionalText(row,"dueDate"), optionalText(row,"baseDate"),
+                if (row.isNull("intervalDays")) null else row.getInt("intervalDays"), row.getString("origin"), optionalText(row,"offeredSuggestion"))
+        }
+        require(guidance.all { it.blockId in blockIds }) { "Guidance refers to a missing Block." }
+        validateGuidanceHistory(guidance)
         val completions = hashSetOf<String>()
         for (row in this[COMPLETION_TABLE]) {
             val placementId = row.getString("placementId")
@@ -369,7 +392,15 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
     }
 
     fun insertInto(sql: SupportSQLiteDatabase) {
-        for (table in formatTables) table.restore(sql, tables.getJSONArray(table.name))
+        for (table in formatTables) {
+            if (table.name != "learning_observations") table.restore(sql, tables.getJSONArray(table.name))
+            else {
+                // Immediate restrictive self-FKs require anchors before their dependants.
+                val values = tables.getJSONArray(table.name)
+                val rowsById = (0 until values.length()).map { values.getJSONArray(it) }.associateBy { it.getString(0) }
+                learningOrder.forEach { table.restore(sql, JSONArray().put(rowsById.getValue(it))) }
+            }
+        }
         // Historical single references have a single dense position supplied by the Room24 default.
         // Their old uniqueness and conflicting-visual rules were validated before this insertion.
     }

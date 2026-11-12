@@ -526,6 +526,7 @@ class MainActivity : ComponentActivity() {
             PrimaryGoalPicker(primary, enabled = !busy) { selected ->
                 pickedPrimary = selected; primaryEdited = selected != savedPrimary
             }
+            block?.let { LearningButton(it.id) }
             BlockImageEditor(block?.id, images, busy)
             TextButton(onClick = { notesExpanded = !notesExpanded }, modifier = Modifier.fillMaxWidth()) {
                 Text(if (notesExpanded) "Hide Notes / Source" else "Notes / Source" + if (notes.isNotBlank()) " · saved text" else " (optional)")

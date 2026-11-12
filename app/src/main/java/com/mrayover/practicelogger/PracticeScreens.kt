@@ -486,6 +486,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
             Text((when (placement.outcome) { "COMPLETED" -> "Completed"; "SKIPPED" -> if (placement.activeMs > 0) "Skipped after practice" else "Skipped without practice"; else -> "Unfinished" }) + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
             placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
             completion?.let { BlockReflectionHistory(it) }
+            LearningButton(placement.sourceBlockId, placement)
             SavedPracticeNotes(sessionPlacementNotes(history, bundle.session.id, placement), notes.busy, notes)
             HorizontalDivider()
         }
