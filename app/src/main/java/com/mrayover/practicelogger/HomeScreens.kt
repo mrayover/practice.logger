@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null, onStatistics: () -> Unit = {}) {
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null, onStatistics: () -> Unit = {}, weeklyProgress: WeeklyTargetProgress? = null, onWeekTarget: () -> Unit = {}) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(MaterialTheme.colorScheme.background)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -69,8 +69,14 @@ import androidx.compose.ui.unit.sp
                         HomeButton("Library", onLibrary)
                     }
                 }
-                TextButton(onClick = onStatistics, modifier = Modifier.testTag("home-statistics").padding(top = 12.dp)) {
-                    Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}")
+                Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    TextButton(onClick = onStatistics, modifier = Modifier.testTag("home-statistics")) {
+                        Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}")
+                    }
+                    WeeklyTargetSummary(weeklyProgress)
+                    TextButton(onClick = onWeekTarget, modifier = Modifier.testTag("home-weekly-target")) {
+                        Text(if (weeklyProgress?.targetMinutes == null) "Set weekly target" else "Edit target in This Week")
+                    }
                 }
             }
         }

@@ -19,6 +19,8 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun WeekWorkspace(
+    target: WeeklyPracticeTarget?, targetReady: Boolean, targetVm: WeeklyTargetViewModel,
+    targetEditable: Boolean, weeklyProgress: WeeklyTargetProgress?,
     week: LocalDate, isCurrent: Boolean, plans: List<WeekBlock>, catalog: Catalog,
     preparing: Boolean, vm: CatalogViewModel, practice: PracticeViewModel, hasDraft: Boolean,
     completions: Map<String, BlockCompletion>, references: Map<String, List<String>>,
@@ -59,6 +61,9 @@ internal fun WeekWorkspace(
                 OutlinedButton(onClick = { onNavigate(-1) }, enabled = enabled) { Text("Previous week") }
                 OutlinedButton(onClick = { onNavigate(1) }, enabled = enabled) { Text("Next week") }
             }
+        }
+        if (!preparing) item {
+            WeeklyTargetEditor(week, targetEditable, target, weeklyProgress, targetReady, targetVm)
         }
         if (preparing) {
             item {

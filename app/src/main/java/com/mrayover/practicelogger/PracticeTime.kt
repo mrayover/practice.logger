@@ -5,11 +5,11 @@ import java.time.ZoneId
 
 internal fun weeklyPracticeMs(
     entries: List<PracticeTimeEntry>,
-    monday: LocalDate,
+    weekStart: LocalDate,
     zone: ZoneId = ZoneId.systemDefault()
 ): Long {
-    val from = monday.atStartOfDay(zone).toInstant().toEpochMilli()
-    val end = monday.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
+    val from = weekStart.atStartOfDay(zone).toInstant().toEpochMilli()
+    val end = weekStart.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
     return entries.filter { it.startedAt in from until end }.sumOf { it.activeMs }
 }
 

@@ -431,3 +431,16 @@ Install build115 over the permanent-key app without uninstalling or clearing dat
 5. Background/return and rotate: audio must stay stopped. Confirm ordinary recording/review, practice time and metronome controls still behave as before. Check comfortable scrolling/touch access on the Galaxy S26 Ultra and a narrower layout.
 
 Report recording type and approximate seek location for any audible or cursor issue. Automated native engine checks do not establish physical acoustic acceptance or seamless imported-file repeats.
+
+
+## W2 — weekly practice target
+
+Physical owner-phone checks remain pending. Install build116 over the permanent-key app without uninstalling/clearing data; retain a complete pre-update backup.
+
+- Home: cumulative Total practice still opens Statistics. Without target, actual current-week minutes remain visible; Set weekly target opens This Week.
+- Set180, edit, clear; reject0, negative, decimal, malformed and values above10,080. Units say minutes per week; no Blocks need assigning.
+- With committed practice, compare under/exact/over target. Bar stops at100%; percentage/time continue beyond it and show remaining/extra. Manual Goal percentages and recommendations remain unchanged.
+- Reopen/recreate: target and actual persist. Previous week shows its saved target read-only; next week starts unset unless explicitly set. Sunday rollover leaves historical targets intact.
+- Check narrow/enlarged-text Home, editor/keyboard and This Week navigation in preferred themes; buttons/text remain readable and reachable.
+- Complete ZIP11 backup/restore into an empty separate install preserves current/past/future targets and actual history. ZIP10 restores no invented targets; JSON7 excludes targets. Target-only installs refuse restore. Never test destructive restore over owner data.
+- Local dates: Sunday–Saturday target totals can differ from Monday–Sunday Statistics/Journal. Started sessions/Transcribe keep their start date, including midnight and DST.

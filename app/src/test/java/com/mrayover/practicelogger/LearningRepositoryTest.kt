@@ -156,6 +156,7 @@ class LearningRepositoryTest {
             assertFalse(portableTargetEmpty(restored.openHelper.writableDatabase))
             val payload=JSONObject(verified.records.payload.toString())
             payload.put("version",8)
+            payload.getJSONObject("tables").remove("weekly_practice_targets")
             payload.getJSONObject("tables").remove("learning_observations")
             payload.getJSONObject("tables").remove("guidance_events")
             val historical=PortableRecords(payload,8)
@@ -219,7 +220,7 @@ class LearningRepositoryTest {
         }
         val db=BlockDatabase.open(context,name)
         try {
-            assertEquals(25,db.openHelper.writableDatabase.version)
+            assertEquals(26,db.openHelper.writableDatabase.version)
             assertEquals("Keep",db.blocks().find("b")!!.notes)
             val p=db.sessions().find("s")!!.current!!
             assertEquals(1200L,p.activeMs)

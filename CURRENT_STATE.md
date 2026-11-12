@@ -1,3 +1,13 @@
+# Current state — W2 implemented, focused delivery in progress
+
+November12,2026. W2 source is implemented in the canonical C:/Users/mrove/Projects/practice.logger checkout on block-ux-stage1 from clean baseline32b213a. Version0.43.0/build116, Room26, complete ZIP11/readers1–11, unchanged JSON7/readers1–7. Final focused verification and permanent-key delivery are pending; build115 below remains the latest delivered package until this record is finalized.
+
+One optional weekly target is separate from musical Goals and weekly Block assignments. Home retains cumulative Statistics and adds current Sunday–Saturday actual/target/bar/percentage/remaining-or-extra plus This Week editing. Current/future targets are explicit; historical targets are read-only, retained and never copied. Uses G3 committed time by session/activity start date; Journal/G3 Monday calendar remains. Complete ZIP preserves targets; JSON7 excludes them and target-only installations are protected from restore.
+
+Exact next task: finish W2 focused checks, permanent-key signed APK/ZIP, documentation and remote publication. No Playground or F1. Physical-phone acceptance is pending.
+
+---
+
 # Current state — RW1 recording waveform delivery, build115
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.42.0/build115 is delivered. RW1 implementation and focused verification are complete; physical owner-phone acceptance remains pending.** Exact application/package/test source **145ff9d0a61dff7aa1f26cfe79e91c148e124f7a** on **block-ux-stage1**. Later documentation commits do not change the signed application. Work used C:/Users/mrove/Projects/practice.logger; the older OneDrive checkout is untouched, with only a new delivery folder added beside it.

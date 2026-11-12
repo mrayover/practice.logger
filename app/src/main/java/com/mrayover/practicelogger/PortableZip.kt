@@ -202,7 +202,7 @@ internal class PortableZip(
                         zip.setLevel(Deflater.DEFAULT_COMPRESSION)
                         @Suppress("DEPRECATION")
                         val app = context.packageManager.getPackageInfo(context.packageName, 0)
-                        val manifest = JSONObject().put("format", FORMAT).put("version", PORTABLE_VERSION).put("roomSchema", 25)
+                        val manifest = JSONObject().put("format", FORMAT).put("version", PORTABLE_VERSION).put("roomSchema", 26)
                             .put("appVersion", app.versionName ?: "unknown").put("appVersionCode", app.versionCode)
                             .put("counts", records.counts).put("entries", manifestEntries)
                             .toString().toByteArray(Charsets.UTF_8)
@@ -263,6 +263,7 @@ internal class PortableZip(
                 7L -> 7
                 8L -> 8
                 9L -> 9
+                10L -> 10
                 PORTABLE_VERSION.toLong() -> PORTABLE_VERSION
                 else -> error("Unsupported portable backup format or version.")
             }
@@ -275,7 +276,8 @@ internal class PortableZip(
                 6 -> setOf(22L)
                 7 -> setOf(23L)
                 8 -> setOf(24L)
-                else -> setOf(25L)
+                9, 10 -> setOf(25L)
+                else -> setOf(26L)
             }
             require(manifest.get("format") == FORMAT && manifest.get("roomSchema") in roomVersions) {
                 "Unsupported portable backup format or version."

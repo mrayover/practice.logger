@@ -123,6 +123,9 @@ class MainActivity : ComponentActivity() {
 @Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel(), onRestoreAppearance: () -> Unit = {}) {
     val backup: BackupViewModel = viewModel()
     val inspirations: InspirationsViewModel = viewModel()
+    val weeklyTargetVm: WeeklyTargetViewModel = viewModel()
+    val weeklyTargets by weeklyTargetVm.targets.collectAsStateWithLifecycle()
+    val practiceEntries by transcribe.practiceTime.collectAsStateWithLifecycle()
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalIndicators = remember(goalRows) { GoalIndicators(goalRows) }
     val goalLinks by goals.links.collectAsStateWithLifecycle()
@@ -168,14 +171,16 @@ class MainActivity : ComponentActivity() {
     DisposableEffect(practice.running, transcribe.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || transcribe.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     val weekBlocks by vm.weekBlocks.collectAsStateWithLifecycle()
-    val currentWeek by produceState(practiceWeek(), lifecycle) {
+    val weekCalendar by produceState(practiceWeek() to java.time.ZoneId.systemDefault(), lifecycle) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
-                value = practiceWeek()
+                value = practiceWeek() to java.time.ZoneId.systemDefault()
                 delay(15_000)
             }
         }
     }
+    val currentWeek = weekCalendar.first
+    val weekZone = weekCalendar.second
     val currentWeekIds = remember(weekBlocks, currentWeek) {
         weekBlocks.filter { it.weekStart == currentWeek.toString() }.mapTo(hashSetOf()) { it.blockId }
     }
@@ -269,7 +274,9 @@ class MainActivity : ComponentActivity() {
         } else when (page) {
             "home" -> {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()
-                PracticeHome(practiceMs = time?.sumOf { it.activeMs }, onStatistics = { page = "statistics" },
+                PracticeHome(weeklyProgress = if (time != null && weeklyTargets != null) WeeklyTargetProgress(targetWeekMs(time!!, currentWeek, weekZone), weeklyTargets!!.find { it.weekStart == currentWeek.toString() }?.targetMinutes) else null,
+                    onWeekTarget = { viewedWeek = null; page = "week" },
+                    practiceMs = time?.sumOf { it.activeMs }, onStatistics = { page = "statistics" },
                     onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
                     onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
                     onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" },
@@ -335,9 +342,13 @@ class MainActivity : ComponentActivity() {
                 val completions = remember(sessions.bundles, selectedWeek) {
                     weekCompletions(sessions.bundles, selectedWeek)
                 }
-                WeekWorkspace(selectedWeek, selectedWeek == currentWeek, weekBlocks, catalog, preparing,
-                    vm, practice, sessions.draft?.placements?.isNotEmpty() == true,
-                    completions, blockReferenceSummaries(images),
+                val target = weeklyTargets?.find { it.weekStart == selectedWeek.toString() }
+                WeekWorkspace(target = target, targetReady = weeklyTargets != null, targetVm = weeklyTargetVm,
+                    targetEditable = !selectedWeek.isBefore(currentWeek),
+                    weeklyProgress = if (practiceEntries != null && weeklyTargets != null) WeeklyTargetProgress(targetWeekMs(practiceEntries!!, selectedWeek, weekZone), target?.targetMinutes) else null,
+                    week = selectedWeek, isCurrent = selectedWeek == currentWeek, plans = weekBlocks, catalog = catalog, preparing = preparing,
+                    vm = vm, practice = practice, hasDraft = sessions.draft?.placements?.isNotEmpty() == true,
+                    completions = completions, references = blockReferenceSummaries(images),
                     onNavigate = { offset ->
                         val next = selectedWeek.plusWeeks(offset)
                         viewedWeek = next.takeUnless { it == currentWeek }?.toString()

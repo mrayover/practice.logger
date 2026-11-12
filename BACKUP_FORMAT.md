@@ -1,6 +1,8 @@
 # Backup format and safety — current implementation
 
-Signed build114 complete portable ZIP10 uses the existing Room25 columns for explicitly accepted LGE-2 suggestions. ZIP9 stays frozen/manual-only; readers1–9 and JSON7 are retained. No Room migration or second scheduling-state table is added. See the ZIP10 contract below and [CURRENT_STATE](CURRENT_STATE.md) for actual verification/delivery.
+W2 uses Room26 and complete ZIP11/readers1–11. ZIP11 adds only weekly practice targets; legacy JSON7/readers1–7 stays data-only and excludes targets. Current signed-delivery status is in [CURRENT_STATE](CURRENT_STATE.md).
+
+Historical signed build114 complete portable ZIP10 uses the existing Room25 columns for explicitly accepted LGE-2 suggestions. ZIP9 stays frozen/manual-only; readers1–9 and JSON7 are retained. No Room migration or second scheduling-state table is added. See the ZIP10 contract below and [CURRENT_STATE](CURRENT_STATE.md) for actual verification/delivery.
 Historical signed build113 complete portable ZIP v9 adds placement learning observations and explicit guidance event history (Room25). ZIP1–8 retain their frozen readers; JSON7 excludes learning/guidance data. See the v9 contract below. Prior complete portable ZIP v8 preserves ordered multiple visual/audio associations and legacy visual order, plus user Inspirations and their originals alongside Block completions, Block and session reflections, per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v7 remain readable under frozen historical rules. Legacy JSON7 remains data-only and is independent of Room24. Signed build111 delivers Room24/ZIP8. Build110 is the preserved Room23/ZIP7 pre-upgrade baseline; APK downgrade cannot reopen Room24. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Stage3B portable compatibility
@@ -9,7 +11,7 @@ Room24/ZIP8 and historical compatibility are implemented and verified on API26/A
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **25**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **26**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -191,3 +193,9 @@ Writer10/readers1–10. Room25 and the ZIP9 learning/guidance table columns are 
 ZIP10 additionally accepts origin ACCEPTED_SUGGESTION with bounded fixed-key JSON in offeredSuggestion: policy LGE2_INTERVAL_V1, acceptance=true, reason STARTING/HELD/PARTIAL/NOT_YET, original Block and optional evidence IDs, criterion token/text, qualifying delay/outcome when comparable, base date, proposed interval/date and starting-data explanation. The saved due/base/interval must exactly match the provenance; adaptive intervals are1–30days, starting intervals exactly3days, and comparison arithmetic must match the recorded elapsed interval. Evidence IDs/criteria must belong to the same existing original Block; outcome/context corrections do not invalidate historical accepted snapshots. Unknown fields/policy, wrong types, invalid dates, out-of-bounds values or inconsistent evidence ownership are rejected.
 
 Manual DATE_SET has null provenance. Flag/decline events retain the current date's origin/provenance; Clear date clears it. The per-Block contiguous revision transition contract and append-only history remain intact. Existing media inventory/original-byte verification, locks, empty-target checks, anchor-first insertion, recovery journal and atomic commit witness are unchanged. ZIP10 requires a ZIP10-capable reader, so an older APK is not a backup rollback method. Install-over uses the same permanent key/package and unchanged Room25.
+
+## Complete portable ZIP v11 — weekly practice targets
+
+Writer11/readers1–11. Manifest roomSchema26; records version11 appends required table/count weekly_practice_targets, including when empty. Positional row fields: weekStart (canonical ISO local Sunday date), targetMinutes (integer1–10,080). Reject malformed/noncanonical/non-Sunday dates, invalid types/bounds and duplicate week identities before mutation. Restore every row with its original week identity. No cached time, daily schedule or target inheritance.
+
+Frozen ZIP1–10 contracts remain unchanged; older archives restore zero targets. JSON7 remains unchanged and excludes targets. Target-only installations count as nonempty for complete ZIP and legacy JSON restore, including the transaction recheck after preview. Existing media ownership, locks, original-byte inventory, synced journal, rollback, atomic witness and startup recovery are unchanged. Room25→26 adds only the target table; preserve schemas1–25. Build115 cannot read ZIP11/open Room26: retain a complete pre-update backup and install over the same permanent-key app; APK downgrade is not rollback.

@@ -108,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 10
+internal const val PORTABLE_VERSION = 11
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -137,10 +137,12 @@ private val portableTablesV8 = portableTablesV7.map { table -> when (table.name)
     else -> table
 } }
 
-internal val portableTables = portableTablesV8 + listOf(
+private val portableTablesV9 = portableTablesV8 + listOf(
     PortableTable("learning_observations", "placementId outcome observedAt:l context criterionToken:s? criterion:s? anchorId:s? correctedAt:l?"),
     PortableTable("guidance_events", "id blockId revision:l recordedAt:l action returnSoon:b dueDate:s? baseDate:s? intervalDays:i? origin offeredSuggestion:s?")
 )
+
+internal val portableTables = portableTablesV9 + PortableTable("weekly_practice_targets", "weekStart targetMinutes:i")
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -156,7 +158,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         6 -> portableTablesV6
         7 -> portableTablesV7
         8 -> portableTablesV8
-        9 -> portableTables
+        9, 10 -> portableTablesV9
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -173,7 +175,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         when (table) {
             OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE,
             COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE, INSPIRATION_STORE,
-            "learning_observations", "guidance_events" -> rows[table].orEmpty()
+            "learning_observations", "guidance_events", "weekly_practice_targets" -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
     private val learningOrder: List<String>
@@ -225,6 +227,11 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
                     "Invalid placement preparation time."
                 }
             }
+        }
+        val targetWeeks = hashSetOf<String>()
+        for (row in this["weekly_practice_targets"]) {
+            validateWeeklyTarget(WeeklyPracticeTarget(row.getString("weekStart"), row.getInt("targetMinutes")))
+            require(targetWeeks.add(row.getString("weekStart"))) { "Duplicate weekly target." }
         }
         val blockIds = core.blocks.mapTo(hashSetOf()) { it.id }
         for ((week, entries) in this[WEEK_TABLE].groupBy { it.getString("weekStart") }) {

@@ -72,6 +72,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **Stage 4** | Practical-use usability review | After G3; owner deferred all ten undocumented sessions on November12; prerequisite resolved,0/10 and no practical-use acceptance. See EVALUATION.md. No broad regression authorization. | Owner review |
 | **LGE-1** | Learning evidence and optional revisits (complete in build113) | Delivered after owner-deferred Stage4; Room25/ZIP9, placement evidence/criteria/manual scheduling,16 scoped tests per Windows/Linux and one API35 workflow/recovery check. Phone acceptance pending. | **High** for data safety |
 | **LGE-2** | Explainable adaptive suggestions (implemented in build114) | Owner-assigned after delivered LGE-1; LGE2_INTERVAL_V1, explicit acceptance and optional existing-picker suggestions, ZIP10/Room25. Focused evidence in CURRENT_STATE. | **Medium–High** |
+| **W2** | Optional weekly practice target and compact Home progress (implemented in build116) | After G3, completed LGE work and RW1; scoped persistence/calendar/backup/UI verification and signed development delivery. See CURRENT_STATE. | **Medium** |
 | **Remaining owner-approved V1 features** | Separately bounded features, including assigned Playground scope | After LGE-2; owner decides feature completion before authorizing F1. | Per assignment |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
@@ -457,3 +458,10 @@ Playground rewards/collectible layout retain the [separate specification](docs/P
 > Read `PRACTICE_LOGGER_V1_MASTER_PLAN.md` and the current repository development records. Inspect the live branch and identify the next **owner-assigned** uncompleted phase; do not assume the checked-box state is correct without evidence. Implement **only [PHASE ID]** using the prescribed smallest safe change. Run targeted checks, build a signed installable APK for implementation phases, update `CURRENT_STATE.md`, `WORK_LOG.md` and `BUILD_PLAN.md`, commit and push intended changes, verify remote SHA and report exactly what passed/failed and the next recommended task. Stop; do not start the following phase automatically. For P0 documentation only, do not build an APK.
 
 **End state:** Goals explain *why* practice matters; Blocks define *what* is practiced; sessions and recordings capture *what happened*; the Library provides reusable materials; statistics show *how much actual work* was done; and portable backup means those materials can be recovered. That is practice.logger V1.
+
+
+## W2 — optional weekly practice-time target
+
+Owner-assigned bounded increment after completed G3/LGE and RW1. One positive whole-minute target per This Week Sunday–Saturday calendar, independent of Blocks/sessions/Goals. Explicit current/future set/edit/clear; past targets read-only, never automatically inherited. Home retains cumulative Statistics and adds compact actual/target/bar, uncapped numeric percentage and extra/remaining minutes plus an editing route. Reuse G3 persisted facts and session/activity-start attribution; keep Journal/G3 Monday–Sunday unchanged. Room26 and complete ZIP11 preserve historical targets; JSON7 excludes them.
+
+W2 measures commitment to practicing and is not a replacement for manual Goal progress, musical mastery or LGE evidence. No daily schedule, streak, notifications, automatic goals or separate analytics counter. Preserve Playground and other owner-approved future scope; neither W2 nor its focused delivery starts feature freeze or F1. [Actual status](CURRENT_STATE.md).

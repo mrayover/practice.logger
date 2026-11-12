@@ -1,3 +1,7 @@
+## W2 — weekly practice target (implemented; delivery verification pending)
+
+Owner-assigned after completed G3/LGE and RW1. One optional target per Sunday–Saturday week; uses G3 committed actual time without affecting manual musical Goal progress. Compact Home progress retains cumulative Statistics; This Week sets/edits/clears current/future targets and preserves read-only past weeks. Room26/ZIP11, unchanged JSON7. See [current verification and delivery](CURRENT_STATE.md) and [accounting contract](docs/PRACTICE_STATISTICS.md#w2--weekly-practice-target). Stop after W2; Playground/F1 require separate assignment.
+
 ## RW1 — recording waveform and scrubbing
 
 Owner-assigned bounded increment adds actual waveform, cursor/timestamps and tap/drag seeking to the existing Focused Practice saved free/loop transport. Reuses waveform drawing/decoding and existing MediaPlayer/static AudioTrack engines; no Room25/ZIP10/JSON7 changes. Signed0.42.0/build115 is delivered after local/CI compilation, release vital lint, two focused host checks on each platform and one API35 recording seek/scrub workflow. Physical-phone acceptance remains pending. [Current evidence](CURRENT_STATE.md) · [Owner-phone checks](MANUAL_TESTS.md#rw1--saved-recording-waveform-scrubbing). Stop at RW1; no adjacent audio feature, Playground or F1 is authorized.

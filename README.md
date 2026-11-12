@@ -1,8 +1,8 @@
 # practice.logger
 
-LGE-2 in0.41.0/build114 adds optional, explainable return suggestions and Suggested views in the existing Block pickers. Manual scheduling stays authoritative; physical acceptance remains pending. Exact focused checks and signed package evidence are in CURRENT_STATE.md. See [current status](CURRENT_STATE.md).
+W2 in0.43.0/build116 adds one optional weekly practice-time target, compact Home progress and This Week editing. G3 supplies committed actual time; weekly targets use Sunday–Saturday while Statistics/Journal retain Monday–Sunday. Room26/complete ZIP11 preserve targets; JSON7 remains unchanged and excludes them. See [current signed delivery and focused verification](CURRENT_STATE.md). Physical owner-phone acceptance and comprehensive F1 remain separate.
 
-Stage3C.2 and scoped Stage3D are complete in signed build111. G3 Statistics is delivered in signed0.39.0/build112 with focused verification. Build114 retains Room25 and writes complete ZIP10 for accepted suggestion provenance, retaining readers1–9; legacy JSON7 is unchanged and excludes LGE data. Phone acceptance and comprehensive regression remain pending. See [verification and remaining work](CURRENT_STATE.md).
+G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 
 An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. See [CURRENT_STATE.md](CURRENT_STATE.md) for the latest permanent-key build, focused verification and phone acceptance.
 
