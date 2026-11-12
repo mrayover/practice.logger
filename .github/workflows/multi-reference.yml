@@ -9,6 +9,10 @@ on:
         description: 'Comma-separated native classes (package names optional)'
         default: 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,FrozenPortableCompatibilityTest,BlockEditorNativeTest,BlockMediaNativeTest,MediaLibraryStorageTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest,process-death,portable-install'
         type: string
+      native_only:
+        description: 'Only compile native test packages when unchanged source already passed units/release'
+        default: false
+        type: boolean
 permissions:
   contents: read
 jobs:
@@ -35,7 +39,11 @@ jobs:
           AUDIO_FIXTURE_DURATION: '4.0'
         run: bash scripts/Prepare-AudioFixtures.sh
       - name: Compile and preservation units
+        if: ${{ !inputs.native_only }}
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*MultiReference*Test' --tests '*BlockAudioTest' --tests '*PracticeOverlayRepositoryTest' --tests '*BlockDeletionTest' --tests '*BlockEditorSaveTest' --tests '*Backup*Test' --tests '*SessionRepositoryTest' --tests '*RoutineRepositoryTest' --tests '*GoalRepositoryTest' --tests '*Week*Test' --console=plain
+      - name: Compile native regression packages
+        if: ${{ inputs.native_only }}
+        run: bash ./gradlew assembleDebug assembleDebugAndroidTest --console=plain
       - name: Emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
