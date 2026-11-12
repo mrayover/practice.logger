@@ -2,7 +2,7 @@
 
 ## Stage 3C collection integration and Stage 3D install-over acceptance
 
-These are upcoming checks, not completed phone acceptance. Stage3B persistence/native results are recorded in CURRENT_STATE.md. Keep the signed build110 APK/ZIP and a verified pre-upgrade complete ZIP7 backup. Room24 cannot be opened by build110; APK downgrade is not a rollback method. Use disposable installations until Stage3D authorizes signed delivery.
+The Stage3C.2 automated checkpoint passes on API26/35; Stage3D final verification is in progress. The following remain the physical-phone acceptance checklist; they are not completed phone acceptance. Stage3B persistence/native results are recorded in CURRENT_STATE.md. Keep the signed build110 APK/ZIP and a verified pre-upgrade complete ZIP7 backup. Room24 cannot be opened by build110; APK downgrade is not a rollback method. Use disposable installations until Stage3D authorizes signed delivery.
 
 - Stage3C: create and edit several images, multipage PDFs and audio references before Save from Library, selected-week creation and Session Builder. Add duplicate Library IDs, reorder each role independently, preview/remove one source, Cancel/Back, recreate, fail Save and retry. Check no partial Block/Goal/week/builder data, no orphan promotion, no duplicate append and no shared-original deletion.
 - Reopen pre-Stage3C scalar manifests and new collection manifests. Recheck full reviewed baselines, every promoted original and all intended links/creation receipts. Concurrent attach/remove/reorder must request a fresh review. Unchanged source-local state survives ordinary field edits.

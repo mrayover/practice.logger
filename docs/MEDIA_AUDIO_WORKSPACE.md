@@ -43,7 +43,7 @@ T1 introduced the shared workspace. The [Standalone Transcribe plan](T3_STANDALO
 
 Standalone and Block Transcribe reuse the foreground AAC/M4A recorder, temporary review and cleanup. Opening the recording dialog pauses the reference. The existing Library size and duration limits govern capture and Keep. Review offers preview, Rerecord, Discard and Keep. Only Keep creates a canonical Library asset.
 
-In Block Transcribe, the new asset and its audio link commit together. The transaction rechecks the previous link and applies T2's existing replacement check. Cancelling a protected replacement retains the review audio, the previous link and its local data. A confirmed replacement leaves the previous canonical original and its master markers in the Library. Standalone Keep selects the new asset in place. The flow creates no ordinary take and needs no Room or JSON change.
+Stage3C.2 Block Transcribe uses compact ordered audio selection with one controller. Switching awaits the outgoing final checkpoint, retains the old source/settings on failure and restores the incoming Block/media settings paused. Capture/review/save and marker edits guard switching. Record Reference commits the new canonical asset and appends its link together after rechecking the reviewed full audio order, then selects the new source. Failure or cancellation keeps previous references/local work and retryable review. Standalone Keep selects its new master asset in place. Reference capture creates no ordinary take and needs no Room or JSON change.
 
 ## Block-local audio in T2
 

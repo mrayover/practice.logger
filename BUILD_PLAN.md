@@ -1,6 +1,7 @@
-# Stage 3C.1 editor increment — complete
+# Stage 3C.2 practice integration — complete
 
-Ordered collection staging and compact collection controls are complete. Focused preservation, all-item recovery, Android8/15 editor workflows,320dp/200% text/theme usability and ZIP8 checks have passing evidence:63 host tests and24 distinct scoped native checks per API are recorded in CURRENT_STATE. Physical phone acceptance and five pre-existing full-lint errors remain disclosed. Stage3B remains complete. Stage3C.2 practice-screen switching and Stage3D integration/install-over/owner acceptance/signed delivery remain upcoming and unimplemented by this increment.
+Checkpoint A passes on Android8/API26 and Android15/API35; compact selectors, independent source state, awaited checkpoints/failure retry, paused restores and Record Reference append-and-select are implemented. Stage3C.1 editor and Stage3B preservation remain complete. Stage3D regression, signed install-over and delivery are now assigned/in progress; owner physical acceptance remains pending. Exact evidence is in CURRENT_STATE.md.
+
 
 The current source and verified gate status are maintained in [CURRENT_STATE.md](CURRENT_STATE.md). Older milestone records below retain their historical meaning.
 
@@ -16,7 +17,7 @@ Updated 2026-11-11 (America/Los_Angeles). This records implemented scope and his
 
 **Stage3B — complete:** Room24 child-first migration, ordered exact associations/legacy union, source-local state, scalar adapters, ZIP8/frozen1–7 compatibility and Android8/15 migration/backup/recovery are implemented.57 focused units and32 native persistence checks per API pass. All19 relevant cross-feature native checks also have passing results per API; actual evidence and investigated failures are in CURRENT_STATE.md.
 
-**Stage3C.1 — complete:** independent ordered collection editor, per-item previews/confirmed removal/reorder, versioned staging/scalar upgrade, all-item receipts and atomic difference saves. Exact next assignment (not started): **Stage3C.2 practice-screen switching/checkpoints/append-and-select**, then **Stage3D integration/install-over/device acceptance/signed delivery**. No new signed package is distributed. Stage1/1.5/2/3A history is retained.
+**Stage3C.1 — complete:** independent ordered collection editor, per-item previews/confirmed removal/reorder, versioned staging/scalar upgrade, all-item receipts and atomic difference saves. **Stage3C.2 is complete** with the checkpoint evidence above. Current assignment: **Stage3D integration/install-over/device acceptance/signed delivery**. No new signed package is distributed. Stage1/1.5/2/3A history is retained.
 
 Stage 1 implements the expandable Block pills and context actions in the Library, This Week and Prepare Week. Weekly markers read committed completion snapshots and leave Room and backup formats unchanged. See [implementation and verification](CURRENT_STATE.md#stage-1-source-and-verification) and the [forward dependency order](PRACTICE_LOGGER_V1_MASTER_PLAN.md#block-ux-normalization).
 
@@ -199,7 +200,7 @@ A small offline Android practice tool for one musician: reusable concrete Blocks
 | Saved Routines | Stable ordered Block references, independent duration overrides, management/confirmed deletion, builder save and fresh independent practice. Archived/unavailable links prevent the entire start; no silent skipping. |
 | Goals | Five active Goals maximum, manual 0–100% progress/outcome/notes, ordering/top-two Home bars, completed/reopen, shared existing Blocks, fresh Goal practice and explicit session attribution of actual committed time. |
 | Daily Log / Weekly View | Independent editable local-date plain text, autosave, date picker, Monday–Sunday weekly aggregation/navigation; no practice links or separate weekly records. |
-| Reference image/PDF and audio | Ordered independent visual/audio collections per Block, staged before first Save, with a legacy visual retained alongside canonical visuals. Exact preview, confirmed saved removal, independent reorder/defaults and all-item recovery retain shared originals and local work. Existing image/PDF viewing and recording integration remain; practice switching is Stage3C.2. Verification is in CURRENT_STATE.md. |
+| Reference image/PDF and audio | Ordered independent visual/audio collections per Block, staged before first Save, with a legacy visual retained alongside canonical visuals. Exact preview, confirmed saved removal, independent reorder/defaults and all-item recovery retain shared originals and local work. Existing image/PDF viewing and recording integration remain; practice switching and append-and-select are implemented in Stage3C.2. Verification is in CURRENT_STATE.md. |
 | Backup | JSON writer 7/readers 1–7, protected empty-target transactional restore, complete relationship/order/state/overflow validation. All image/PDF bytes and attachment metadata and audio/take metadata/labels excluded; per-take export remains available. |
 
 ## Data and release acceptance rules

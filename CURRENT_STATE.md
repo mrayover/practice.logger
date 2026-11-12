@@ -1,3 +1,17 @@
+# Current state — Stage 3C.2 complete; Stage 3D in progress
+
+Updated November 11, 2026 (America/Los_Angeles). Canonical branch block-ux-stage1. Checkpoint A implementation/test source **8b9c78eec83a1cc12bfa1a68643b2d912bb04abf**, following clean local/remote baseline458d8c03a28c. Room24, complete ZIP8/readers1–8 and data-only JSON7/readers1–7 remain unchanged. Signed owner delivery is still **0.37.0/build110** until Stage3D passes.
+
+Practice now chooses ordered visual/audio references without changing the Block, placement, Prep/timer or recording owner. Stable source identities retain independent PDF pages, zoom/pan and viewer expansion in occurrence-scoped saveable state. The existing renderer and exact-source overlay repository are reused, including legacy originals. Audio switching pauses output/piano, awaits serialized final checkpoint success, restores incoming Block/media settings paused and invalidates old preparation/waveform work. Save failure keeps the outgoing source/settings and supports retry. Source selection never deletes/reinserts links. Recording/capture/review/save and marker-edit guards remain. Library audio additions and Record Reference append; successful Keep selects the new source, failed/cancelled Keep retains existing links, and ordinary takes stay ordinary takes. Standalone Transcribe retains its independent context.
+
+**Checkpoint A passes:** [43163685034](https://github.com/mrayover/practice.logger/actions/runs/43163685034), API26/job131000486868 and API35/job131000486614, **9 native checks per API**. Covers A→B→A, delayed/injected failed checkpoint and retry, rapid selection, paused restores, two PDFs/image/legacy, independent zoom/pages, exact-source overlay edit, recreation/Prep preservation, failed/cancelled Keep and exactly-one append/select, ordinary Transcribe/capture/focus/background behavior, and320dp/200% Light/Dark/Orchid. Screenshots inspected. Initial43162713405 also passes63 preservation units per API and7 native checks on35; its26 page assertion preceded async rendering. Superseded43163426113 passes3/4 checks per API (record append and enlarged themes pass) but retains that page-readiness failure.43163604233 was cancelled because dispatch resolved the earlier SHA. The final readiness waits retain the original assertions.
+
+Local debug/release/native assembly,63 preservation units and release vital lint pass. Full Windows host suite:180 tests/17 failures, all matching prior baseline methods (16 exact messages; photo-provider temporary paths differ). Full lint retains the same5 historical error locations with38 warnings. No full-host-suite or full-lint pass is claimed.
+
+**Exact next task: Stage3D final regression, populated signed build110 install-over, ZIP8 recovery/compatibility and signed delivery.** No physical phone, provider, TalkBack or acoustic acceptance has occurred. Keep a verified complete pre-upgrade backup; Room24 cannot be downgraded to build110's Room23.
+
+The Stage3C.1 and earlier records below are historical verification/source records, superseded only where stated above.
+
 # Current state — Stage 3C.1 editor complete
 
 Updated November 11, 2026 (America/Los_Angeles). Canonical checkout: C:/Users/mrove/Projects/practice.logger, branch block-ux-stage1. Baseline bb86f6db5886947ae3e83638f705e20254bb4711; final verified implementation/test source **49aae982420d4f4f59b2386511606d747465bb2b**. Later closeout changes are documentation only.
