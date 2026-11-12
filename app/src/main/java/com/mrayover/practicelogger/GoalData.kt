@@ -48,15 +48,7 @@ fun homeGoals(goals: List<GoalBundle>) = activeGoals(goals).take(2)
     suspend fun removeBlock(goalId: String, blockId: String)
     @Query("SELECT * FROM session_goals") suspend fun readSessions(): List<GoalSession>
     @Query("SELECT * FROM session_goals") fun observeSessions(): Flow<List<GoalSession>>
-    @Query("""
-        SELECT goalId, SUM(activeMs) AS activeMs FROM (
-            SELECT sg.goalId, SUM(p.activeMs) AS activeMs
-            FROM session_goals sg JOIN placements p ON p.sessionId = sg.sessionId GROUP BY sg.goalId
-            UNION ALL
-            SELECT goalId, SUM(activeMs) AS activeMs FROM transcribe_activities
-            WHERE completedAt IS NOT NULL AND goalId IS NOT NULL GROUP BY goalId
-        ) GROUP BY goalId
-    """)
+    @Query("SELECT goalId, SUM(activeMs) AS activeMs FROM (" + PRACTICE_FACTS_SQL + ") WHERE goalId IS NOT NULL GROUP BY goalId")
     fun observeTime(): Flow<List<GoalTime>>
 }
 

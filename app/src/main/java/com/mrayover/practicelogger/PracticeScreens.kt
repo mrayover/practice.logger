@@ -483,7 +483,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
                 completion?.completion?.colorArgb?.let { BlockCompletionSlit(Color(it)) }
             }
             Text(placement.action)
-            Text((if (placement.outcome == "COMPLETED") "Completed" else "Skipped") + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
+            Text((when (placement.outcome) { "COMPLETED" -> "Completed"; "SKIPPED" -> if (placement.activeMs > 0) "Skipped after practice" else "Skipped without practice"; else -> "Unfinished" }) + " · " + practiceTime(placement.activeMs) + " active · " + practiceTime(placement.configuredMs) + " planned")
             placement.lastUsedBpm?.let { Text("Last used click: $it BPM") }
             completion?.let { BlockReflectionHistory(it) }
             SavedPracticeNotes(sessionPlacementNotes(history, bundle.session.id, placement), notes.busy, notes)

@@ -380,3 +380,16 @@ Use the [Stage3 architecture acceptance gates](docs/MULTI_REFERENCE_ARCHITECTURE
 - Open the saved Block in existing practice: verify the first ordered visual/audio resolves consistently. Practice switching is not present in3C.1. Export complete ZIP8 and restore into a separate empty installation; compare collections, order, annotations, markers and original bytes. Never install build110 over a migrated Room24 database.
 
 No signed3C.1 owner package is distributed; build110 remains the owner baseline until3D. Automated evidence is recorded separately in CURRENT_STATE.md; this checklist is not a claim of physical acceptance.
+
+## G3 — Focused phone checks (development release)
+
+Install build112 over the existing permanent-key app without uninstalling. Keep a complete backup first. These are pending owner checks, not automated acceptance claims.
+
+- Tap Home Total practice. Check total, Monday–Sunday week definition, Block/Goal breakdown, recorded No Goal and unknown historical labels; use Back and the banner to return.
+- Prep with playback, pause and background: total must not gain that time. Start practice, leave unfinished, reopen Statistics and confirm committed active time. Complete, repeat a Block and continue into overtime; each placement should contribute its own actual time once.
+- Skip once before practice and once after practice: distinguish the outcomes and retain only worked time. Check recent history and existing session notes/reflections.
+- Practice a Block with a primary Goal, then reassign the Block/reorder Goals: past time remains with its saved Goal. Practice with explicit No Goal: a Goal-launched session must not override it. Existing legacy session attribution is visibly labeled; ordinary unknown history stays unattributed.
+- Complete a standalone Transcribe activity with/without a Goal. Check one contribution to Home, Statistics and the relevant Goal; ordinary playback adds none. Confirm manual progress changes only when you edit it.
+- Check Statistics scrolling and Goal Detail on the phone's normal and enlarged text settings. Confirm install-over data and media remain available.
+
+Existing postponed cross-feature, device, accessibility, migration and backup checks remain available for owner-authorized F1. Completing these G3 checks does not authorize F1.

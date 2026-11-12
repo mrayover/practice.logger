@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 }
 
 @Composable fun GoalDetail(bundle: GoalBundle?, allBlocks: List<Block>, actualMs: Long, vm: GoalViewModel, practice: PracticeViewModel,
-    onGoals: () -> Unit, onEdit: () -> Unit, onBlocks: () -> Unit, onBlock: (String) -> Unit) {
+    onGoals: () -> Unit, onEdit: () -> Unit, onBlocks: () -> Unit, onBlock: (String) -> Unit, onSession: (String) -> Unit = {}) {
     GoalPage(onGoals, "Back to Goals", bundle?.goal?.title ?: "Goal unavailable") {
         if (bundle == null) { Text("Return to Goals and select an available Goal."); return@GoalPage }
         val g = bundle.goal
@@ -64,13 +64,26 @@ import androidx.compose.ui.unit.dp
                 Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 16.dp))
         }
         if (g.description.isNotBlank()) Text(g.description)
-        Text("${g.progress}% complete · set by you", style = MaterialTheme.typography.titleLarge)
+        var assessProgress by rememberSaveable(g.id) { mutableStateOf(false) }
+        TextButton(onClick = { assessProgress = !assessProgress }) {
+            Text(if (assessProgress) "Hide manual assessment" else "Assess musical progress manually")
+        }
+        if (assessProgress) {
+        Text("${g.progress}% · your manual assessment", style = MaterialTheme.typography.titleLarge)
         var progress by rememberSaveable(g.id, g.progress) { mutableStateOf(g.progress.toString()) }
-        OutlinedTextField(progress, { progress = it }, label = { Text("Completion percentage (0–100)") }, singleLine = true,
+        OutlinedTextField(progress, { progress = it }, label = { Text("Manual progress (0–100%)") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.progress(g.id, progress) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save progress") }
+        }
         Text(practiceTime(actualMs) + " actual practice", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-        Text("Committed active time from sessions started with Practice Goal, including unfinished sessions. Time does not change progress.")
+        Text("Committed practice attributed to this Goal, including unfinished sessions and completed standalone Transcribe. Saved placement Goals take precedence; explicit legacy Goal-session time is labeled below. Time does not change your assessment.")
+        val activity by vm.activity.collectAsState()
+        vm.error?.let { Text(it) }
+        StatisticsHeading("Related practice (latest 12)")
+        val related = activity?.filter { it.goalId == g.id && it.activeMs > 0 }
+        if (related == null) Text("Loading practice history…")
+        else if (related.isEmpty()) Text("No attributed practice yet.")
+        related?.take(12)?.forEach { PracticeActivityRow(it, onSession) }
         Text("Associated Blocks", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
         val blocks = allBlocks.associateBy { it.id }
         if (bundle.blocks.isEmpty()) Text("No Blocks yet. Add existing Blocks to practice toward this Goal.")
@@ -116,7 +129,7 @@ import androidx.compose.ui.unit.dp
     GoalPage(::leave, "Cancel Goal editing", if (goal == null) "New Goal" else "Edit Goal") {
         OutlinedTextField(title, { title = it }, label = { Text("Goal title") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(description, { description = it }, label = { Text("Desired outcome (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(progress, { progress = it }, label = { Text("Completion percentage (0–100)") }, singleLine = true,
+        OutlinedTextField(progress, { progress = it }, label = { Text("Manual progress (0–100%)") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
         Text("Your assessment of musical progress. Practice time is tracked separately.")
         OutlinedTextField(notes, { notes = it }, label = { Text("Goal notes (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())

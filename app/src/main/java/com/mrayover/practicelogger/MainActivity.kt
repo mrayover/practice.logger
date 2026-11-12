@@ -191,6 +191,7 @@ class MainActivity : ComponentActivity() {
     val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     LaunchedEffect(page) { headerHomeRequested = false }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
+    var summaryReturn by rememberSaveable { mutableStateOf("home") }
     var summaryId by rememberSaveable { mutableStateOf<String?>(null) }
     var editorToken by rememberSaveable { mutableStateOf(java.util.UUID.randomUUID().toString()) }
     var editorId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -210,7 +211,7 @@ class MainActivity : ComponentActivity() {
     }
     LaunchedEffect(practice.destination) {
         practice.destination?.let { destination ->
-            if (destination == "summary") summaryId = practice.completedId
+            if (destination == "summary") { summaryId = practice.completedId; summaryReturn = "home" }
             page = when {
                 destination == "home" && headerHomeRequested -> headerDestination
                 destination == "home" && page == "builder" -> builderBack
@@ -268,11 +269,16 @@ class MainActivity : ComponentActivity() {
         } else when (page) {
             "home" -> {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()
-                PracticeHome(practiceMs = time?.sumOf { it.activeMs },
+                PracticeHome(practiceMs = time?.sumOf { it.activeMs }, onStatistics = { page = "statistics" },
                     onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
                     onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
                     onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" },
                     onGoals = { page = "goals" }, onGoal = { goalId = it; page = "goal-detail" })
+            }
+            "statistics" -> {
+                val activity by goals.activity.collectAsStateWithLifecycle()
+                StatisticsScreen(activity, goalRows, goals.error, onHome = { page = "home" }, onGoal = { goalId = it; page = "goal-detail" },
+                    onSession = { summaryId = it; summaryReturn = "statistics"; page = "summary" })
             }
             "media-library" -> {
                 BackHandler { page = "home" }
@@ -300,7 +306,8 @@ class MainActivity : ComponentActivity() {
                 val goalTimes by goals.times.collectAsStateWithLifecycle()
                 GoalDetail(goalRows.find { it.goal.id == goalId }, catalog.blocks, goalTimes.find { it.goalId == goalId }?.activeMs ?: 0L,
                 goals, practice, onGoals = { page = "goals" }, onEdit = { goalEditorId = goalId; page = "goal-editor" },
-                onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") })
+                onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") },
+                onSession = { summaryId = it; summaryReturn = "goal-detail"; page = "summary" })
             }
             "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
                 onCancel = { page = if (headerHomeRequested) headerDestination else if (goalEditorId == null) "goals" else "goal-detail" }, onNavigationCancelled = { headerHomeRequested = false }) }
@@ -308,7 +315,7 @@ class MainActivity : ComponentActivity() {
                 onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
             "routines" -> PracticeOverview(catalog, sessions, onPractice = { page = "practice-now" },
                 onBackup = { page = "backup" }, onLibrary = { page = "library" }, onNew = { openEditor(null) },
-                onSummary = { summaryId = it; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
+                onSummary = { summaryId = it; summaryReturn = "home"; page = "summary" }, onHome = { page = "home" }, routines = routines, practice = practice, onNewRoutine = { openRoutine(null) }, onEditRoutine = { openRoutine(it) })
             "routine-editor" -> RoutineEditor(catalog.blocks, routines, onRoutines = { page = if (headerHomeRequested) headerDestination else "routines" }, onNavigationCancelled = { headerHomeRequested = false })
             "tools" -> ToolsHome(onHome = { page = "home" }, onBackup = { page = "backup" }, onTool = { settingsReturn = "tools"; page = it })
             "audio-settings" -> CountInSettings(recordings, onTools = { page = settingsReturn }, fromHome = settingsReturn == "home", backLabel = if (settingsReturn == "tools") "Back to Tools" else "Back")
@@ -360,7 +367,7 @@ class MainActivity : ComponentActivity() {
             }
             "builder" -> SessionBuilder(catalog.blocks, sessions.draft, practice, routines, onBack = { page = builderBack }, onCreate = { openEditor(null, "builder") })
             "focus" -> FocusedPractice(sessions.active, practice, images, onHome = { page = "home" }, onRecordings = { recordingsBlockId = it }, recordingMessage = recordings.message, goalName = goalName(sessions.active?.session?.id), recordings = recordings, onNavigationCancelled = { headerHomeRequested = false })
-            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else "home" }, goalName = goalName(summaryId), onNavigationCancelled = { headerHomeRequested = false })
+            "summary" -> SessionSummary(sessions.bundles.find { it.session.id == summaryId }, practice, onHome = { page = if (headerHomeRequested) headerDestination else summaryReturn }, goalName = goalName(summaryId), onNavigationCancelled = { headerHomeRequested = false })
             "library" -> {
                 val libraryScroll = rememberLazyListState()
                 var searchFocused by remember { mutableStateOf(false) }

@@ -24,6 +24,9 @@ data class TranscribeActivity(
 
 @Dao
 interface TranscribeActivityDao {
+    @Query(PRACTICE_FACTS_SQL + " ORDER BY startedAt DESC, id")
+    fun observeFacts(): Flow<List<PracticeFact>>
+
     // An unfinished row has no durable running anchor and always reopens paused.
     @Query("SELECT * FROM transcribe_activities WHERE completedAt IS NULL LIMIT 1")
     suspend fun unfinished(): TranscribeActivity?
@@ -45,16 +48,7 @@ interface TranscribeActivityDao {
     @Query("SELECT EXISTS(SELECT 1 FROM transcribe_activities)")
     suspend fun hasEntries(): Boolean
 
-    @Query("""
-        SELECT startedAt, SUM(activeMs) AS activeMs
-        FROM (
-            SELECT s.startedAt, p.activeMs FROM placements p JOIN sessions s ON s.id = p.sessionId
-            WHERE s.status != 'DRAFT' AND p.activeMs > 0
-            UNION ALL
-            SELECT startedAt, activeMs FROM transcribe_activities WHERE completedAt IS NOT NULL
-        )
-        GROUP BY startedAt
-    """)
+    @Query("SELECT startedAt, SUM(activeMs) AS activeMs FROM (" + PRACTICE_FACTS_SQL + ") GROUP BY startedAt")
     fun observePracticeTime(): Flow<List<PracticeTimeEntry>>
 }
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null) {
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null, onStatistics: () -> Unit = {}) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(MaterialTheme.colorScheme.background)
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
                             Column(Modifier.fillMaxWidth().then(marker).clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
                                 if (goal == null) onGoals() else onGoal(goal.id)
                             }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}%", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
+                                Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}% manual", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
                                 if (goal != null) LinearProgressIndicator(
                                     progress = { goal.progress / 100f }, color = MaterialTheme.colorScheme.primary,
                                     trackColor = PracticeTheme.colors.scrollTrack,
@@ -69,7 +69,9 @@ import androidx.compose.ui.unit.sp
                         HomeButton("Library", onLibrary)
                     }
                 }
-                practiceMs?.let { Text("Total practice · ${practiceDuration(it)}", modifier = Modifier.padding(top = 12.dp)) }
+                TextButton(onClick = onStatistics, modifier = Modifier.testTag("home-statistics").padding(top = 12.dp)) {
+                    Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}")
+                }
             }
         }
     }

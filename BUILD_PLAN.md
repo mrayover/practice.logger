@@ -70,7 +70,7 @@ Practice Now offers saved unfinished sessions, the existing Add Blocks builder, 
 
 The November 3 Media Library roadmap amendment established the dependency chain through T2. The November 4 owner handoff splits the remaining T3 work.
 
-Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → P2 Block and Session Reflection → G3 → F1 → F2**.
+Sequence: **P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → P2 Block and Session Reflection → G3 → owner feature-completion decision → F1 → F2**.
 
 T2 is delivered in signed build86. T3-0 is a documentation checkpoint. The owner assigned **T3A — Standalone Transcribe Workspace** on November 4, 2026. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) defines T3A–T3D, their checks and their dependencies. S2 includes standalone activity history, Goal associations, canonical microphone references, and global and local annotations alongside its approved recovery scope.
 
