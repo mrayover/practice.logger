@@ -1,12 +1,31 @@
-# Current state — Stage 3B implementation in verification
+# Current state — Stage 3B persistence verified; final regression closeout
 
-Updated November 11, 2026 (America/Los_Angeles).
+Updated November11,2026 (America/Los_Angeles).
 
-Stage3B source now implements Room24 and explicit23→24 child-first migration, ordered triple-key associations and legacy visual coexistence, exact source membership, scalar editor compatibility and ZIP8 with frozen1–7 wire definitions. Verification is in progress; **Stage3B is not complete and Stage3C is not authorized to start yet.** Signed application remains build110/Room23/ZIP7; no new owner-installable package is delivered.
+## Stage 3B multiple-reference persistence
 
-Baseline: clean local/remote block-ux-stage1 at ba267be92fcef8ad731bf3eedfb54af5144c5954. Original13-test focused baseline task succeeds using the cached inputs. After implementation,17 focused tests pass; expanded52-test cross-feature units and debug/release/Android-test assembly plus vital release lint pass. Later shared Android/host checks and all-earlier-schema coverage are being compiled and run. Native API26/API35 migration, physical ZIP restore and historical compatibility checks are pending. Full lint has documented baseline failures; no new full-lint pass is claimed.
+Development source implements **Room24**, explicit23→24, ordered multi-association repositories and **complete ZIP8/readers1–8**. **JSON7/readers1–7 is unchanged and data-only.** Signed **0.37.0/build110 remains Room23/ZIP7**; Stage3B delivers no new signed owner package. Actual build110 APK/ZIP hashes were rechecked and match the delivery record below.
 
-Exact next task: finish Stage3B native WAL migration/rollback and real ZIP8/historical archive checks, investigate any failures, then reconcile final documentation and publish verified source. Keep collection controls for Stage3C and signed delivery for Stage3D. Prior signed-delivery evidence and history follow.
+- Migration preflights foreign keys, roles, overlay membership and unexpected triggers; snapshots parent/audio children; drops children before their CASCADE parent; rebuilds final tables/indexes; restores every old column; reinstalls constraints and checks integrity. No application file operations, resets or destructive fallback. Coexisting legacy/canonical visuals become positions0/1.
+- Stable (blockId,role,mediaId) identity, independent dense role order and a canonical/legacy visual union support idempotent append, exact removal/membership and reviewed permutations. Reorder updates positions without deleting links. Audio/overlay checks use exact source membership; shared originals and archived links remain protected.
+- Scalar editor/confirmation adapters recheck reviewed orders and affect only the reviewed source; null never means remove all. Existing staging, receipts, cancellation and retry remain scalar. Record Reference retains confirmed scalar replacement; appendRecordedAudio is ready for Stage3C's append-and-select flow. **Collection interface/staging/switching is not implemented.**
+- ZIP8 saves explicit positions, validates dense union/audio order, preserves originals once per owner and restores links before dependent state. Historical1–7 rules are validated before normalization. Immutable fixtures/provenance/hashes are in androidTest/assets/stage3b. Restore preserves overlay numeric values without Float rounding; rendering/geometry algorithms are unchanged.
+
+### Verified gates
+
+Application source **98c20f866586514e88f76a0fcc2963ced679a7e7**: [43128696524](https://github.com/mrayover/practice.logger/actions/runs/43128696524) passes on **Android8/API26/job130887195252** and **Android15/API35/job130887195980**. Each build passes **57 focused units**, debug/release/test assembly and release vital lint. Each device passes **32 native checks**, plus two expected process crashes for migration/restore recovery.
+
+Coverage: all27 populated Room23 tables/old columns and original bytes after migration/cold reopen; empty schemas1–23 through24; ten injected rollback boundaries; production WAL; actual kill during parent rebuild with intact23 recovery before successful24 upgrade; incorrect roles/relationships/triggers; missing/corrupt originals retained; mixed ordered references, stale changes, duplicates, exact confirmed removal, independent audio/markers/overlays, shared originals and scalar editor/recorded-reference behavior. ZIP checks include frozen1–7, malformed historical/new records, physical file comparisons, empty-target guards, preview and failed/interrupted restore. The real picker workflow exports8 originals, restores into a separate disposable installation, cold reopens, retains overlay edits after install-over and recovers a killed restore commit.
+
+Regression: [43127710836](https://github.com/mrayover/practice.logger/actions/runs/43127710836) passed API26 editor2/builder3/week/Goal/Routine before an obsolete overlay selector. [43128700401](https://github.com/mrayover/practice.logger/actions/runs/43128700401) passed builder3/week/Goal/Routine/protected deletion/initial practice on BOTH APIs; missing WAV and wrong reopen filters were corrected. [43129177920](https://github.com/mrayover/practice.logger/actions/runs/43129177920) passes isolated editor and updated full overlay workflows on BOTH APIs. The unchanged baseline API35 editor method also passes in [43128635405](https://github.com/mrayover/practice.logger/actions/runs/43128635405); the grouped clipping cause remains unestablished. Test navigation/synchronization was corrected without product UI changes.
+
+**Audio/recording and correctly named cold-reopen regression closeout is running in43130057741. Overall Stage3B closeout awaits that result and final records publication.**
+
+### Limits and exact next task
+
+Full Windows host run:173 tests/19 failures before projection-expectation correction. Untouched ba267be reproduced17 matching media-promotion/provider/journal failures and two old schema18 assertions. Relevant migration tests now assert24 and compare every frozen old column. One newly exposed AudioImport journal-open failure occurs before schema creation while its exact baseline method passes; cause unestablished. No full-host-suite pass is claimed. Full lintDebug has the five documented error locations in unchanged files (30 warnings); release vital lint passes. Physical phone/provider/TalkBack/acoustic and signed owner install-over acceptance remain Stage3D work.
+
+Finish the in-flight regression and final publication in this session. After closeout, **Stage3C** must add ordered visual/audio lists; individual preview/reorder/confirmed removal; versioned collection staging, old-manifest compatibility and all-item receipts; per-source PDF/page/zoom/overlays; awaited outgoing audio checkpoint, paused incoming state and stale-callback/capture guards; recording/Transcribe append-and-select. **Stage3D** completes final integration, owner install-over and signed delivery. Build110 cannot open committed Room24; APK downgrade is not rollback.
 
 # Stage 3A architecture and verification preparation (preceding baseline)
 

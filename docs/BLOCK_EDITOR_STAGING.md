@@ -1,6 +1,6 @@
 # Block editor staging (Stage 2)
 
-The editor keeps one visual (image OR PDF) and one audio selection. It does not create a placeholder Block. Existing Library originals are selected by stable ID; replacements and removals take effect only on Save Block. The form retains the existing notes/source column, primary Goal, Block identity and history model. Room23, JSON7 and complete ZIP7 are unchanged.
+The editor keeps one visual (image OR PDF) and one audio selection. It does not create a placeholder Block. Existing Library originals are selected by stable ID; replacements and removals take effect only on Save Block. The form retains the existing notes/source column, primary Goal, Block identity and history model. That shipped Stage2 build uses Room23/JSON7/ZIP7. Stage3B development source uses Room24/ZIP8 with the scalar compatibility rules below; JSON7 is unchanged.
 
 `BlockEditorMedia` uses `MediaLibraryRepository.stage`, the same bounded copy, MIME/content validation, decoder and hash validation as normal Library imports. Staging writes only under `files/block-editor-staging/<editor UUID>`. The camera and gallery use the existing capture provider and contracts. The private manifest is synced before atomic rename and records selections, staged metadata, original attachment identities, and a reserved creation UUID. That UUID is not inserted into the database until Save.
 

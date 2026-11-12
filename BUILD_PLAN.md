@@ -1,14 +1,14 @@
-> Stage3B source implementation is under verification (2026-11-11). Room24/ZIP8 code exists, but native/historical compatibility gates remain pending. Do not mark Stage3B complete or begin Stage3C. See CURRENT_STATE.md.
-
 # practice.logger — Current approved build plan
 
-Updated 2026-11-10 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
+Updated 2026-11-11 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
 ## Block UX normalization
 
 **Stage3A — architecture and verification preparation complete:** [data contract, dependency inventory, migration sequence, backup/UI contracts, risks and acceptance gates](docs/MULTI_REFERENCE_ARCHITECTURE.md) and a populated frozen Room23 fixture are ready. All13 focused checks pass; no production schema, archive or UI behavior changes. [Actual checks and limitations](CURRENT_STATE.md#stage-3a-multiple-reference-preparation)
 
-Next: **Stage3B persistence**, then **Stage3C UI**, then **Stage3D integration/install-over/device acceptance and signed delivery**.3B must establish populated migration and ZIP compatibility before3C collection controls; detailed dependency gates are in the architecture document. Stage1/1.5/2 delivery history below is retained. Stage3A completion does not imply multiple-reference implementation or phone acceptance.
+**Stage3B persistence safety gates pass:** Room24 child-first migration, ordered exact associations/legacy union, source-local state, scalar adapters, ZIP8/frozen1–7 compatibility and Android8/15 migration/backup/recovery are implemented.57 focused units and32 native checks per API pass. Overall closeout awaits the last audio/history regression and final records; see CURRENT_STATE.md.
+
+Next after closeout: **Stage3C collection UI/staging**, then **Stage3D integration/install-over/device acceptance/signed delivery**. No collection controls or signed Stage3B package are claimed. Stage1/1.5/2/3A history is retained.
 
 Stage 1 implements the expandable Block pills and context actions in the Library, This Week and Prepare Week. Weekly markers read committed completion snapshots and leave Room and backup formats unchanged. See [implementation and verification](CURRENT_STATE.md#stage-1-source-and-verification) and the [forward dependency order](PRACTICE_LOGGER_V1_MASTER_PLAN.md#block-ux-normalization).
 

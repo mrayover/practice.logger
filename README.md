@@ -1,5 +1,7 @@
 # practice.logger
 
+Development source has Room24/ZIP8 ordered multiple-reference persistence; controls remain scalar until Stage3C. Signed build110 remains the Room23/ZIP7 baseline. See [verification and remaining work](CURRENT_STATE.md).
+
 An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. See [CURRENT_STATE.md](CURRENT_STATE.md) for the latest permanent-key build, focused verification and phone acceptance.
 
 ## Forward V1 roadmap

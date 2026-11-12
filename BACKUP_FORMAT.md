@@ -1,14 +1,14 @@
 # Backup format and safety — current implementation
 
-Complete portable ZIP v7 preserves user Inspirations and their originals alongside Block completions, Block and session reflections, per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v6 remain readable. Legacy JSON 7 remains data-only and is independent of Room 23. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Development source complete portable ZIP v8 preserves ordered multiple visual/audio associations and legacy visual order, plus user Inspirations and their originals alongside Block completions, Block and session reflections, per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v7 remain readable under frozen historical rules. Legacy JSON7 remains data-only and is independent of Room24. Signed build110 still uses Room23/ZIP7; Stage3B produces no signed delivery. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
-## Planned Stage3 compatibility (not shipped)
+## Stage3B portable compatibility
 
-Stage3A changes no writer, reader or archive version. The proposed Room24 multi-reference model requires **complete ZIP8**, adding explicit ordering to canonical links and legacy visual records while preserving each original once. Historical ZIP1–7 formats remain frozen: validate their original constraints before normalizing missing positions for restore into24. Preserve the current empty-target guard, journal/witness recovery, hashes and file lock order. Legacy JSON7/readers1–7 remain data-only and unchanged. See the [implementation contract](docs/MULTI_REFERENCE_ARCHITECTURE.md#portable-zip8-and-unchanged-json7); these are Stage3B requirements, not current restore capabilities.
+Room24/ZIP8 and historical compatibility are implemented and verified on API26/API35; exact evidence/limits are in CURRENT_STATE.md. Collection controls await Stage3C. JSON7/readers1–7 are unchanged.
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **23**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **24**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|
@@ -163,3 +163,13 @@ Room14 adds restrictive Block VISUAL/AUDIO media links; JSON writer7/readers1–
 ## Complete portable ZIP v7
 
 ZIP v7 declares Room 23 and adds the inspirations table. Each user entry has a stable UUID, title, author, source, category and personal note. Optional content is either an owned original or a reference to an existing canonical image or PDF. Owned originals use the inventory store inspirations and the path originals/inspirations/<UUID>.<extension>. Restore verifies lengths, SHA-256 digests, UTF-8 or visual content, PDF page counts and canonical references. Shared originals remain in the Media Library inventory and are archived once. Files are promoted through the existing restore journal before the database transaction commits. The included works are packaged app assets. ZIP v1–v6 restore with an empty personal collection. Legacy JSON v1–v7 excludes Inspirations and refuses restore over a personal collection.
+
+## Complete portable ZIP v8
+
+ZIP8 declares Room24 and records version8. Relative to frozen7 it appends integer position to block_media_links (blockId,role,mediaId,position) and block_images (blockId,fileName,mimeType,width,height,byteCount,position). Canonical identity is the triple. Positions are unique and dense from zero per Block/role; legacy participates in the VISUAL union. AUDIO order is independent. Links serialize by Block,role,position,mediaId; saved positions determine reads, not array order. No explicit default/selection table is stored.
+
+Reject duplicate triples, wrong role/category, missing owners/assets, negative/fractional/duplicate/gapped positions, duplicate original ownership, invalid source/page annotations and missing/corrupt required originals. Links restore before audio children/overlays. Playback and local/master/hidden/overridden marker IDs remain source-local. Overlay values bind without Float rounding, preserving persisted coordinates exactly.
+
+ZIP1–7 retain frozen fields, single (blockId,role) uniqueness and canonical-versus-legacy visual exclusion. Validate historical rules BEFORE inserting normalized position0 rows into24; the wider Room24 key is insufficient. Fixed archives/provenance/SHA256 are in app/src/androidTest/assets/stage3b. Earlier version descriptions remain historical contracts.
+
+Inventory remains once per canonical asset or exclusive legacy/take/Inspiration owner. No new store. Size/value/entry limits, empty-target rule, image→Library→takes→database lock order, synced journal, atomic witness and startup recovery before orphan cleanup remain unchanged. JSON7 contains no media/association/overlay/order fields. Build110 cannot read ZIP8 or open committed Room24; retain a pre-upgrade ZIP7 and use a compatible future application for ZIP8 recovery.
