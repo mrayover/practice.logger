@@ -53,7 +53,10 @@ class BlockEditorCollectionWorkflowTest : WeekUiChecks() {
         tag("reference-preview-library:${pdf.id}").performClick()
         click("Next page"); shown("Page 2 of 2"); click("Close preview")
         tag("reference-preview-library:${pending.id}").performClick(); click("Play preview")
-        shown("Stop preview"); click("Close preview")
+        shown("Stop preview")
+        compose.activityRule.scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+        compose.activityRule.scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+        shown("Play preview"); click("Close preview")
         assertTrue(runBlocking { db.blocks().readAll().isEmpty() })
         // Removing an individual pending item leaves all other selections and order intact.
         tag("reference-remove-library:${image.id}").performClick(); ready()
@@ -65,12 +68,43 @@ class BlockEditorCollectionWorkflowTest : WeekUiChecks() {
         val block = runBlocking { db.blocks().readAll().single() }
         assertEquals(listOf("library:${pending.id}", "library:${audio.id}"), runBlocking { db.referenceOrder(block.id, MediaRole.AUDIO) })
         openBlockPill(compose, "block-library-list", "library-block-${block.id}"); click("Edit", "block-library-list"); ready()
-        tag("reference-preview-library:${pdf.id}").performClick(); click("Close preview")
+        tag("reference-preview-library:${pdf.id}").performClick(); click("Next page")
+        compose.onNodeWithTag("reference-page").scrollIfNeeded().assertTextEquals("Page 2 of 2"); click("Close preview")
         tag("reference-remove-library:${pending.id}").performClick(); click("Keep reference")
         assertEquals(2, vm.editor.audioReferences.size)
         tag("reference-remove-library:${pending.id}").performClick(); click("Remove reference"); ready(); save()
         assertEquals(listOf("library:${audio.id}"), runBlocking { db.referenceOrder(block.id, MediaRole.AUDIO) })
         assertTrue(library.available(pending)); assertTrue(library.available(pdf))
+    }
+    @Test fun prepareWeekCollectionsKeepSelectedWeekAndPracticeLoadsFirstReferences() {
+        val app = compose.activity.application
+        val library = MediaLibraryRepository(db, File(app.filesDir, "media-library"))
+        val pdf = runBlocking { library.import("Default score.pdf", "application/pdf") { l1Fixture("references/score.pdf").inputStream() } }
+        val image = runBlocking { library.import("Other image.png", "image/png") { l1Png().inputStream() } }
+        val audio = runBlocking { library.import("First reference.wav", "audio/wav") { wav(4).inputStream() } }
+        val audio2 = runBlocking { library.import("Default reference.wav", "audio/wav") { wav(5).inputStream() } }
+        val week = practiceWeek().minusWeeks(1)
+        openHomePractice(compose); click("This Week"); click("Previous week", "week-list")
+        click("Prepare Week", "week-list"); click("Create a new Block", "week-list"); ready()
+        field("Name", "Week collection"); field("Action", "Read and listen")
+        choose(MediaRole.VISUAL, image.id); choose(MediaRole.VISUAL, pdf.id)
+        choose(MediaRole.AUDIO, audio.id); choose(MediaRole.AUDIO, audio2.id)
+        tag("reference-up-library:${pdf.id}").performClick(); ready()
+        tag("reference-up-library:${audio2.id}").performClick(); ready()
+        compose.onNodeWithTag("block-save").assertIsDisplayed().performClick()
+        waitForTag("week-list"); click("Done", "week-list")
+        val block = runBlocking { db.blocks().readAll().single() }
+        assertEquals(listOf(block.id), runBlocking { db.weekPlan().read(week.toString()).map { it.blockId } })
+        assertTrue(runBlocking { db.weekPlan().read(practiceWeek().toString()).isEmpty() })
+        openBlockPill(compose, "week-list", "week-block-${block.id}"); clickTag("practice-week-${block.id}")
+        click("Start Block")
+        tag("practice-reference-toggle").performClick(); waitForTag("reference-page")
+        compose.onNodeWithTag("reference-page").scrollIfNeeded().assertTextEquals("Page 1 of 2")
+        tag("practice-loop-record").performClick(); tag("practice-mode-transcribe").performClick()
+        val audioVm = ViewModelProvider(compose.activity)["practice-transcribe", LibraryAudioViewModel::class.java]
+        compose.waitUntil(20_000) { audioVm.controller.state.value.mediaId == audio2.id && !audioVm.controller.state.value.preparing }
+        assertFalse(audioVm.controller.state.value.playing)
+        leavePracticeForLater(compose)
     }
     @Test fun compact320dp200PercentThemesKeepControlsAndPinnedSaveUsable() {
         val app = compose.activity.application

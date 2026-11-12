@@ -72,7 +72,7 @@ import kotlinx.coroutines.*
                             contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
                                 .semantics { contentDescription = "Move ${item.title} down" }.testTag("reference-down-${item.identity}")) { Text("Down") }
                         TextButton(onClick = {
-                            if (item.asset?.let(draft::isStaged) == true || blockId == null) vm.editorRemove(role, item.identity, false)
+                            if (!draft.isSaved(role, item.identity)) vm.editorRemove(role, item.identity, false)
                             else { importRole = role.name; confirm = item.identity }
                         }, enabled = enabled, contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
                             .semantics { contentDescription = "Remove ${item.title}" }.testTag("reference-remove-${item.identity}")) { Text("Remove") }
@@ -135,15 +135,28 @@ import kotlinx.coroutines.*
 @Composable
 private fun EditorAudioPreview(asset: MediaAsset, vm: ImageReferenceViewModel, onClose: () -> Unit) {
     val owner = LocalLifecycleOwner.current
+    val context = androidx.compose.ui.platform.LocalContext.current.applicationContext
+    val manager = remember(context) { context.getSystemService(android.media.AudioManager::class.java) }
     var player by remember(asset.id) { mutableStateOf<android.media.MediaPlayer?>(null) }
+    var focus by remember(asset.id) { mutableStateOf<android.media.AudioFocusRequest?>(null) }
     var playing by remember(asset.id) { mutableStateOf(false) }
     var preparing by remember(asset.id) { mutableStateOf(false) }
     var error by remember(asset.id) { mutableStateOf<String?>(null) }
-    fun stop() { player?.release(); player = null; playing = false; preparing = false }
+    fun stop() {
+        val outgoing = player; player = null
+        outgoing?.release(); focus?.let { manager.abandonAudioFocusRequest(it) }; focus = null
+        playing = false; preparing = false
+    }
     DisposableEffect(owner, asset.id) {
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) stop() }
+        val noisy = object : android.content.BroadcastReceiver() {
+            override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) { stop() }
+        }
+        val filter = android.content.IntentFilter(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        if (android.os.Build.VERSION.SDK_INT >= 33) context.registerReceiver(noisy, filter, android.content.Context.RECEIVER_NOT_EXPORTED)
+        else context.registerReceiver(noisy, filter)
         owner.lifecycle.addObserver(observer)
-        onDispose { owner.lifecycle.removeObserver(observer); stop() }
+        onDispose { owner.lifecycle.removeObserver(observer); context.unregisterReceiver(noisy); stop() }
     }
     Dialog(onDismissRequest = { stop(); onClose() }) {
         Surface(shape = MaterialTheme.shapes.large) {
@@ -156,7 +169,18 @@ private fun EditorAudioPreview(asset: MediaAsset, vm: ImageReferenceViewModel, o
                         player = preview; preparing = true
                         preview.setAudioAttributes(android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_MEDIA).setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC).build())
                         preview.setDataSource(vm.editor.audioFile(asset).absolutePath)
-                        preview.setOnPreparedListener { if (player === it) { it.start(); playing = true; preparing = false } }
+                        preview.setOnPreparedListener { prepared -> if (player === prepared) {
+                            try {
+                                val request = android.media.AudioFocusRequest.Builder(android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                                    .setAudioAttributes(android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_MEDIA).setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                                    .setWillPauseWhenDucked(true).setOnAudioFocusChangeListener { change ->
+                                        if (player === prepared && change != android.media.AudioManager.AUDIOFOCUS_GAIN) stop()
+                                    }.build()
+                                focus = request
+                                check(manager.requestAudioFocus(request) == android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+                                prepared.start(); playing = true; preparing = false
+                            } catch (_: Exception) { stop(); error = "Could not start preview. Retry when audio is available." }
+                        } }
                         preview.setOnCompletionListener { if (player === it) stop() }
                         preview.setOnErrorListener { failed, _, _ -> if (player === failed) { stop(); error = "Could not preview this audio. Retry or select the original again." }; true }
                         preview.prepareAsync()
@@ -170,6 +194,7 @@ private fun EditorAudioPreview(asset: MediaAsset, vm: ImageReferenceViewModel, o
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun EditorVisualPreview(asset: MediaAsset, blockId: String?, vm: ImageReferenceViewModel, onClose: () -> Unit) {
     val visuals by vm.visuals.collectAsStateWithLifecycle()
     val savedReference = visuals.find { it.blockId == blockId && it.mediaId == asset.id }
@@ -197,14 +222,14 @@ private fun EditorVisualPreview(asset: MediaAsset, blockId: String?, vm: ImageRe
     DisposableEffect(loaded) { val owned = loaded; onDispose { owned?.bitmap?.recycle() } }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize()) {
-            Column(Modifier.safeDrawingPadding().padding(16.dp)) {
+            Column(Modifier.safeDrawingPadding().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(16.dp)) {
                 TextButton(onClick = onClose) { Text("Close preview") }
-                Text(asset.originalName)
+                Text(asset.originalName, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 if (error) Text("Could not open this reference. Select the original again.")
                 loaded?.let { result ->
                     if (result.pageCount > 1) {
                         Text("Page ${page + 1} of ${result.pageCount}")
-                        Row {
+                        FlowRow {
                             TextButton(onClick = { page-- }, enabled = page > 0) { Text("Previous page") }
                             TextButton(onClick = { page++ }, enabled = page + 1 < result.pageCount) { Text("Next page") }
                         }

@@ -41,6 +41,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
     val dirty get() = visualChanged || audioChanged
     fun isStaged(asset: MediaAsset) = asset.id in staged
     fun references(role: MediaRole) = if (role == MediaRole.VISUAL) visualReferences else audioReferences
+    fun isSaved(role: MediaRole, identity: String) = identity in if (role == MediaRole.VISUAL) baselineVisual else baselineAudio
     private fun order(role: MediaRole) = references(role).map { it.identity }
     private fun setOrder(role: MediaRole, order: List<String>) {
         require(order.distinct().size == order.size)
@@ -84,6 +85,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
             creationId = json.getString("creationId")
             savedId = json.optString("savedId").ifEmpty { null }
             if (savedId != null && db.blocks().find(checkNotNull(savedId)) != null) { ready = true; return@withContext }
+            check(savedId == null) { "The saved Block is no longer available. Cancel this completed editor." }
             // The creation UUID witnesses the entire Room transaction, including week and Builder writes.
             if (id == null && db.blocks().find(creationId) != null) { savedId = creationId; ready = true; return@withContext }
             fun list(key: String, fallback: List<String>) = json.optJSONArray(key)?.let { a -> List(a.length()) { a.getString(it) } } ?: fallback
@@ -256,6 +258,12 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
                     promoted.forEach { (asset, _) -> db.media().insert(asset) }
                     for (role in MediaRole.entries) for (item in references(role)) {
                         item.asset?.let { asset -> checkNotNull(db.media().find(asset.id)); require(role.accepts(asset.category)); check(library.available(asset)) { "A reference original is unavailable. Your draft is retained." } }
+                        item.legacy?.let { image ->
+                            val original = File(app.filesDir, "block-images/${image.fileName}")
+                            check(original.isFile && original.length() == image.byteCount) { "The Block-owned original is unavailable. Your draft is retained." }
+                            // The legacy file lock is already held; do not reacquire it through loadPage.
+                            legacy.loadOriginalPage(original, image.mimeType, 0).bitmap.recycle()
+                        }
                     }
                     val saved = BlockRepository(db) { checkNotNull(commitTime) }.save(id, draft, week, creationId)
                     for (role in MediaRole.entries) {
