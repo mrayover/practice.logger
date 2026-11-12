@@ -18,11 +18,19 @@ class WeeklyTargetWorkflowTest {
     private fun waitFor(tag: String) = compose.waitUntil(15000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
     private fun clickTag(tag: String) = compose.onNodeWithTag(tag).performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
     private fun hideKeyboard() {
-        compose.runOnIdle {
-            (compose.activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
-                .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken, 0)
+        // Dialog input owns a separate window; dismiss the visible IME through Android Back.
+        val view = compose.activity.window.decorView
+        if (androidx.core.view.ViewCompat.getRootWindowInsets(view)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true) {
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         }
-        compose.waitUntil(5000) { androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true }
+        try {
+            compose.waitUntil(5000) { androidx.core.view.ViewCompat.getRootWindowInsets(view)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true }
+        } catch (failure: Throwable) {
+            val folder = File(compose.activity.getExternalFilesDir(null), "home-preview").apply { mkdirs() }
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(folder, "w2-input-failure.png"))
+            File(folder, "w2-input-semantics.txt").writeText(compose.onRoot(useUnmergedTree = true).printToString())
+            throw failure
+        }
     }
     private fun home() { compose.onNodeWithTag("home-brand", useUnmergedTree = true).performClick(); waitFor("home-weekly-target") }
     private fun save(text: String) {
@@ -104,4 +112,3 @@ class WeeklyTargetWorkflowTest {
         }
     }
 }
-
