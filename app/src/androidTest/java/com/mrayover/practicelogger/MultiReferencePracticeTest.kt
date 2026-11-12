@@ -12,6 +12,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
+import kotlin.math.roundToInt
 
 class MultiReferencePracticeTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
@@ -78,6 +79,17 @@ class MultiReferencePracticeTest {
             images.associations.add(block, MediaRole.VISUAL, b.id)
             listOf(a, b)
         }
+        val visualBytes = java.io.ByteArrayOutputStream().use { output ->
+            android.graphics.Bitmap.createBitmap(64, 40, android.graphics.Bitmap.Config.ARGB_8888).let {
+                it.eraseColor(android.graphics.Color.GREEN); it.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output); it.recycle()
+            }; output.toByteArray()
+        }
+        val mixed = runBlocking {
+            val image = images.library.import("Practice image.png", "image/png") { visualBytes.inputStream() }
+            images.associations.add(block, MediaRole.VISUAL, image.id)
+            val legacy = images.repository.import(block) { visualBytes.inputStream() }
+            image to legacy
+        }
         val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
         val session = runBlocking { SessionRepository(db).let { it.addBlock(block); it.start() } }
         compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
@@ -91,6 +103,20 @@ class MultiReferencePracticeTest {
         tag("Visual reference-choose").performClick(); tag("Visual reference-library:${pdfs[0].id}").performClick()
         tag("reference-page").assertTextEquals("Page 2 of 2")
         assertEquals(zoom, tag("reference-viewer").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription])
+        tag("Visual reference-choose").performClick(); tag("Visual reference-library:${mixed.first.id}").performClick()
+        tag("reference-viewer").performTouchInput { pinch(Offset(width*.4f,height*.4f), Offset(width*.6f,height*.6f), Offset(width*.15f,height*.15f), Offset(width*.85f,height*.85f)) }
+        val imageZoom = tag("reference-viewer").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription]
+        tag("Visual reference-choose").performClick(); tag("Visual reference-legacy:${mixed.second.fileName}").performClick()
+        tag("reference-viewer").assertIsDisplayed()
+        tag("Visual reference-choose").performClick(); tag("Visual reference-library:${mixed.first.id}").performClick()
+        assertEquals(imageZoom, tag("reference-viewer").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription])
+        // Overlay editing after switching must bind to this exact image, not either PDF.
+        tag("overlay-tools").performClick(); click("Edit markings")
+        tag("overlay-tools").performClick(); click("Highlight")
+        tag("overlay-layer").performTouchInput { swipe(Offset(width*.2f,height*.2f), Offset(width*.7f,height*.5f), 400) }
+        compose.waitUntil(15_000) { runBlocking { db.overlays().read(block, "library:${mixed.first.id}").size == 1 } }
+        assertTrue(runBlocking { db.overlays().read(block, "library:${pdfs[0].id}").isEmpty() })
+        click("Done")
         tag("practice-loop-record").performClick()
         tag("practice-mode-transcribe").performClick(); ready(assets[0].id)
         compose.runOnIdle { audio.controller.speed(75) }
@@ -104,5 +130,79 @@ class MultiReferencePracticeTest {
         val output = File(compose.activity.getExternalFilesDir(null), "screenshots").apply { mkdirs() }
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(output, "multi-reference-practice.png"))
         assertEquals(session, runBlocking { db.sessions().find(session)!!.session.id })
+    }
+
+    @Test fun referenceRecordingAppendsOnceOnlyAfterSuccessfulKeepAndSelectsPaused() {
+        val (block, assets) = seed()
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.executeShellCommand("pm grant ${app.packageName} android.permission.RECORD_AUDIO")
+        val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+        val session = runBlocking { SessionRepository(db).let { it.addBlock(block); it.start() } }
+        val takes = runBlocking { db.takes().readAll() }
+        compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
+        tag("practice-loop-record").performClick(); tag("practice-mode-transcribe").performClick(); ready(assets[0].id)
+        fun record() {
+            click("Record Reference"); click("Start Recording")
+            compose.waitUntil(20_000) { compose.onAllNodesWithText("Recording · 0 min 1 sec").fetchSemanticsNodes().isNotEmpty() }
+            click("Stop and Review")
+            compose.waitUntil(20_000) { compose.onAllNodesWithText("Review Reference").fetchSemanticsNodes().isNotEmpty() }
+        }
+        record(); click("Discard")
+        assertEquals(2, runBlocking { db.blockMedia().list(block, "AUDIO").size })
+        record()
+        val concurrent = runBlocking {
+            images.library.import("Concurrent.m4a", null) { l1Fixture("audio/backing.m4a").inputStream() }.also {
+                images.associations.add(block, MediaRole.AUDIO, it.id)
+            }
+        }
+        val before = runBlocking { db.media().readAll().map { it.id }.toSet() }
+        click("Keep")
+        compose.waitUntil(20_000) { compose.onAllNodesWithText("Reference could not be kept.", substring = true).fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(before, runBlocking { db.media().readAll().map { it.id }.toSet() })
+        assertEquals(assets[0].id, audio.controller.state.value.mediaId)
+        // Remove only the concurrently appended link, restoring the reviewed collection for retry.
+        runBlocking { db.blockMedia().removeExact(block, "AUDIO", concurrent.id) }
+        click("Keep")
+        compose.waitUntil(25_000) { runBlocking { db.blockMedia().list(block, "AUDIO").size == 3 } }
+        val order = runBlocking { db.blockMedia().list(block, "AUDIO").map { it.mediaId } }
+        assertEquals(assets.map { it.id }, order.take(2)); ready(order.last())
+        assertFalse(audio.controller.state.value.playing)
+        assertEquals(takes, runBlocking { db.takes().readAll() })
+        assertEquals(3, runBlocking { db.blockMedia().list(block, "AUDIO").size })
+    }
+
+    @Test fun narrowEnlargedSelectorsRemainReachableInLightDarkAndCustomTheme() {
+        val (block, assets) = seed()
+        runBlocking {
+            repeat(2) { i -> images.library.import("Long score filename for reference $i.pdf", null) {
+                l1Fixture("references/score.pdf").inputStream()
+            }.also { images.associations.add(block, MediaRole.VISUAL, it.id) } }
+        }
+        val practice = ViewModelProvider(compose.activity)[PracticeViewModel::class.java]
+        val session = runBlocking { SessionRepository(db).let { it.addBlock(block); it.start() } }
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val originalScale = device.executeShellCommand("settings get system font_scale").trim().toFloatOrNull() ?: 1f
+        val density = app.resources.displayMetrics.density
+        compose.runOnIdle { practice.openSession(session) }; prepReadyBlock(compose)
+        tag("practice-reference-toggle").performClick()
+        try {
+            device.executeShellCommand("wm size ${(320 * density).roundToInt()}x${(880 * density).roundToInt()}")
+            device.executeShellCommand("settings put system font_scale 2.0")
+            for (theme in listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.ORCHID)) {
+                ThemePreferences(app).save(theme); compose.activityRule.scenario.recreate()
+                assertTrue(compose.activity.resources.configuration.screenWidthDp <= 321)
+                assertTrue(compose.activity.resources.configuration.fontScale >= 1.99f)
+                tag("Visual reference-choose").assertIsEnabled().performClick(); click("Cancel")
+                tag("practice-loop-record").performClick(); tag("practice-mode-transcribe").performClick(); ready(assets[0].id)
+                tag("Audio reference-choose").assertIsEnabled().performClick(); click("Cancel")
+                compose.onNodeWithText("Complete").assertIsDisplayed(); compose.onNodeWithText("Skip").assertIsDisplayed()
+                val output = File(compose.activity.getExternalFilesDir(null), "screenshots").apply { mkdirs() }
+                device.takeScreenshot(File(output, "multi-reference-320dp-200-${theme.name}.png"))
+                tag("practice-reference-toggle").performClick()
+            }
+        } finally {
+            device.executeShellCommand("wm size reset"); device.executeShellCommand("settings put system font_scale $originalScale")
+            ThemePreferences(app).save(ThemeChoice.LIGHT)
+        }
     }
 }

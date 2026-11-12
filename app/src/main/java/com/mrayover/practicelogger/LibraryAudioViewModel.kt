@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.sync.Mutex
@@ -43,7 +44,10 @@ class LibraryAudioViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 controller.pauseForOtherOutput()
                 checkpointAwait()
-                val saved = writes.withLock { blockAudio.state(blockId, mediaId) }
+                val saved = writes.withLock { db.withTransaction {
+                    check(db.blockMedia().contains(blockId, "AUDIO", mediaId)) { "This audio reference was removed." }
+                    blockAudio.state(blockId, mediaId)
+                } }
                 if (generation != contextGeneration) return@launch
                 blockSession?.cancel()
                 analysis?.cancel()
@@ -136,6 +140,7 @@ class LibraryAudioViewModel(app: Application) : AndroidViewModel(app) {
             if (snapshot != lastSaved) {
                 beforeCheckpoint(snapshot)
                 blockAudio.saveState(snapshot)
+                check(blockAudio.state(snapshot.blockId, snapshot.mediaId) == snapshot) { "This audio reference was removed before its settings could be saved." }
             }
             if (generation == contextGeneration && blockKey == (snapshot.blockId to snapshot.mediaId)) {
                 lastSaved = snapshot

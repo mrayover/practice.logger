@@ -118,8 +118,8 @@ import kotlin.coroutines.coroutineContext
 }
 
 @Composable internal fun ZoomableReference(bitmap: android.graphics.Bitmap, inset: androidx.compose.ui.unit.Dp, pdf: Boolean = false, maxHeight: androidx.compose.ui.unit.Dp = 640.dp, fitAvailableHeight: Boolean = false, resetKey: Int = 0, minimumHeight: androidx.compose.ui.unit.Dp = 1.dp, overlayEditing: Boolean = false, overlay: (@Composable BoxScope.(ReferencePageTransform) -> Unit)? = null) {
-    var scale by rememberSaveable { mutableFloatStateOf(1f) }
-    var offset by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver<Offset, List<Float>>(
+    var scale by rememberSaveable(bitmap) { mutableFloatStateOf(1f) }
+    var offset by rememberSaveable(bitmap, stateSaver = androidx.compose.runtime.saveable.Saver<Offset, List<Float>>(
         save = { listOf(it.x, it.y) }, restore = { Offset(it[0], it[1]) })) { mutableStateOf(Offset.Zero) }
     var lastReset by rememberSaveable { mutableIntStateOf(resetKey) }
     LaunchedEffect(resetKey) { if (lastReset != resetKey) { scale = 1f; offset = Offset.Zero; lastReset = resetKey } }
