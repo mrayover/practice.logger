@@ -1,4 +1,14 @@
-# Current state — Stage 3A architecture and verification preparation
+# Current state — Stage 3B implementation in verification
+
+Updated November 11, 2026 (America/Los_Angeles).
+
+Stage3B source now implements Room24 and explicit23→24 child-first migration, ordered triple-key associations and legacy visual coexistence, exact source membership, scalar editor compatibility and ZIP8 with frozen1–7 wire definitions. Verification is in progress; **Stage3B is not complete and Stage3C is not authorized to start yet.** Signed application remains build110/Room23/ZIP7; no new owner-installable package is delivered.
+
+Baseline: clean local/remote block-ux-stage1 at ba267be92fcef8ad731bf3eedfb54af5144c5954. Original13-test focused baseline task succeeds using the cached inputs. After implementation,17 focused tests pass; expanded52-test cross-feature units and debug/release/Android-test assembly plus vital release lint pass. Later shared Android/host checks and all-earlier-schema coverage are being compiled and run. Native API26/API35 migration, physical ZIP restore and historical compatibility checks are pending. Full lint has documented baseline failures; no new full-lint pass is claimed.
+
+Exact next task: finish Stage3B native WAL migration/rollback and real ZIP8/historical archive checks, investigate any failures, then reconcile final documentation and publish verified source. Keep collection controls for Stage3C and signed delivery for Stage3D. Prior signed-delivery evidence and history follow.
+
+# Stage 3A architecture and verification preparation (preceding baseline)
 
 Updated November 10, 2026 (America/Los_Angeles).
 

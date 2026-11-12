@@ -115,7 +115,7 @@ class BlockAudioRepository(private val db: BlockDatabase) {
     }
 
     private suspend fun linked(block: String, media: String) =
-        db.blockMedia().find(block, MediaRole.AUDIO.name)?.mediaId == media
+        db.blockMedia().contains(block, MediaRole.AUDIO.name, media)
 
     suspend fun saveMarker(block: String, media: String, existing: BlockMarker?, draft: MasterAudioMarker,
         hide: Boolean = false): String = db.withTransaction {

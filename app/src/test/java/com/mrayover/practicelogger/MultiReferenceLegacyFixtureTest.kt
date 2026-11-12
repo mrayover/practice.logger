@@ -26,6 +26,7 @@ class MultiReferenceLegacyFixtureTest {
             fixture.create()
             // Isolate schema/row verification from Windows native WAL journal transitions.
             fun open() = Room.databaseBuilder(context, BlockDatabase::class.java, name)
+                .addMigrations(MULTI_REFERENCE_MIGRATION_23_24)
                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).build()
             val db = open()
             try { check(fixture, db) } finally { db.close() }
@@ -35,7 +36,7 @@ class MultiReferenceLegacyFixtureTest {
     }
 
     @Test fun populatedRoom23ReopensWithoutLosingAnyLegacyIdentityOrOriginal() = fixture { legacy, db ->
-        assertEquals(23, db.openHelper.writableDatabase.version)
+        assertEquals(24, db.openHelper.writableDatabase.version)
         legacy.assertPreserved(db.openHelper.writableDatabase)
         runBlocking {
             val dependencies = db.blocks().dependencies("image")

@@ -179,7 +179,7 @@ database. No downgrade path is proposed. Preserve backups before device install-
 
 ## Populated fixture and verification contract
 
-`app/src/test/java/com/mrayover/practicelogger/MultiReferenceLegacyFixture.kt` constructs
+`app/src/sharedTest/java/com/mrayover/practicelogger/MultiReferenceLegacyFixture.kt` constructs
 a physical database from frozen exported23 SQL, setup identity hash and frozen triggers in
 `app/src/test/resources/stage3a/room23-triggers.sql`. Named raw seed rows live in
 `room23-rows.sql`; construction uses no evolving production entities or migration24.
@@ -340,3 +340,7 @@ Open verification dependencies: SQLite upgrade/process interruption on actual An
 native image/PDF/audio decoding and complete ZIP fixtures across all historical versions;
 bounded lock-concurrency tests; async checkpoint failure behavior. These are explicit3B–3D
 gates, not passed3A results. No unresolved identity/ownership decision blocks starting3B.
+
+## Stage3B source reconciliation — verification in progress
+
+The implementation follows the child-first rebuild, triple identity, ordered union, source-local state and ZIP8/frozen1–7 contract above. The frozen helper now lives under src/sharedTest so host and Android exercise the same seeds, with an injected resource loader. Draft manifests retain scalar selections and add reviewed baseline order arrays for fail-closed concurrent edits; old manifests normalize to their original single-source baseline. Atomic manifest replacement uses NIO on API26+ for equivalent host/Android replacement behavior. No collection staging/UI is introduced. Native fixtures separately correct the Stage3A8kHz LOOP original for codec acceptance after migration preservation is checked; frozen23 SQL/media construction is unchanged. Acceptance remains pending until native results are recorded.

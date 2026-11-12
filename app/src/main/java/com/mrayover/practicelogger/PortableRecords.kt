@@ -16,7 +16,8 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
     val columns = fields.split(' ').map { it.substringBefore(':') }
     private val types = fields.split(' ').map { it.substringAfter(':', "s") }
     private val projection = columns.joinToString { "`$it`" }
-    private val select = "SELECT $projection FROM `$name` ORDER BY $projection"
+    private val select = "SELECT $projection FROM `$name` ORDER BY " +
+        if (name == "block_media_links" && "position" in columns) "blockId,role,position,mediaId" else projection
     private val insert = "INSERT INTO `$name` ($projection) VALUES (${columns.joinToString { "?" }})"
 
     fun snapshot(sql: SupportSQLiteDatabase, onRow: (JSONArray) -> Unit): JSONArray =
@@ -107,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 7
+internal const val PORTABLE_VERSION = 8
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -127,14 +128,20 @@ private val portableTablesV6 = portableTablesV5 + listOf(
     PortableTable(SESSION_REFLECTION_TABLE, "sessionId experience focus progress difficulty energy")
 )
 
-internal val portableTables = portableTablesV6 + PortableTable(INSPIRATION_STORE,
+private val portableTablesV7 = portableTablesV6 + PortableTable(INSPIRATION_STORE,
     "id title author source category note fileName:s? mimeType:s? byteCount:l? sha256:s? mediaId:s? pageCount:i?")
+
+internal val portableTables = portableTablesV7.map { table -> when (table.name) {
+    "block_media_links" -> PortableTable("block_media_links", "blockId role mediaId position:i")
+    "block_images" -> PortableTable("block_images", "blockId fileName mimeType width:i height:i byteCount:l position:i")
+    else -> table
+} }
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
 }
 
-internal class PortableRecords(val payload: JSONObject, version: Int) {
+internal class PortableRecords(val payload: JSONObject, private val version: Int) {
     private val formatTables = when (version) {
         1 -> portableTablesV1
         2 -> portableTablesV2
@@ -142,6 +149,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         4 -> portableTablesV4
         5 -> portableTablesV5
         6 -> portableTablesV6
+        7 -> portableTablesV7
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -191,7 +199,7 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
         require(overlays.groupingBy { it.getString("blockId") }.eachCount().values.all { it <= OVERLAYS_PER_BLOCK }) {
             "A Block has too many saved markings."
         }
-        require(overlays.groupingBy { it.getString("blockId") to it.getInt("page") }.eachCount()
+        require(overlays.groupingBy { Triple(it.getString("blockId"), it.getString("reference"), it.getInt("page")) }.eachCount()
             .values.all { it <= OVERLAYS_PER_PAGE }) { "A page has too many saved markings." }
         maxOverlayPageByReference = overlays.groupingBy { it.getString("reference") }
             .fold(-1) { previous, row -> maxOf(previous, row.getInt("page")) }
@@ -296,8 +304,22 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
             }
         }
         val legacyBlocks = this["block_images"].mapTo(hashSetOf()) { it.getString("blockId") }
-        require(this["block_media_links"].none { it.getString("role") == "VISUAL" && it.getString("blockId") in legacyBlocks }) {
+        require(version >= 8 || this["block_media_links"].none { it.getString("role") == "VISUAL" && it.getString("blockId") in legacyBlocks }) {
             "A Block has conflicting visual references."
+        }
+        val mediaLinks = this["block_media_links"]
+        val triples = mediaLinks.map { Triple(it.getString("blockId"), it.getString("role"), it.getString("mediaId")) }
+        require(triples.toSet().size == triples.size) { "Duplicate reference association." }
+        if (version < 8) {
+            require(mediaLinks.map { it.getString("blockId") to it.getString("role") }.toSet().size == mediaLinks.size) {
+                "Historical backups permit only one reference per role."
+            }
+        } else {
+            val ordered = mediaLinks.map { Triple(it.getString("blockId"), it.getString("role"), it.getInt("position")) } +
+                this["block_images"].map { Triple(it.getString("blockId"), "VISUAL", it.getInt("position")) }
+            require(ordered.groupBy { it.first to it.second }.values.all { group ->
+                group.map { it.third }.sorted() == group.indices.toList()
+            }) { "Reference positions must be unique, nonnegative and dense." }
         }
         var unfinished = 0
         for (row in this["transcribe_activities"]) {
@@ -348,6 +370,8 @@ internal class PortableRecords(val payload: JSONObject, version: Int) {
 
     fun insertInto(sql: SupportSQLiteDatabase) {
         for (table in formatTables) table.restore(sql, tables.getJSONArray(table.name))
+        // Historical single references have a single dense position supplied by the Room24 default.
+        // Their old uniqueness and conflicting-visual rules were validated before this insertion.
     }
 
     /** Validate all PKs, unique indexes, FKs and role triggers on a separate empty database. */
@@ -369,5 +393,6 @@ internal val mediaConstraintCallback = object : androidx.room.RoomDatabase.Callb
         installBlockMediaConstraints(db)
         installBlockAudioConstraints(db)
         installPracticeOverlayConstraints(db)
+        installReferencePositions(db)
     }
 }

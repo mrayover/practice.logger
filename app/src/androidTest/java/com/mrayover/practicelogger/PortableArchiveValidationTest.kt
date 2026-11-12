@@ -222,6 +222,10 @@ class PortableArchiveValidationTest {
                             if (version == 1) remove("version") else put("version", version)
                             val tables = getJSONObject("tables")
                             excluded.forEach { tables.remove(it) }
+                            if (version < 8) {
+                                val links = tables.getJSONArray("block_media_links"); repeat(links.length()) { links.getJSONArray(it).remove(3) }
+                                val images = tables.getJSONArray("block_images"); repeat(images.length()) { images.getJSONArray(it).remove(6) }
+                            }
                             if (version < 5) tables.getJSONArray("placements").getJSONArray(0).remove(14)
                         }
                         changeManifest {

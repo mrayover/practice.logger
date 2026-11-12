@@ -63,6 +63,9 @@ interface PracticeOverlayDao {
 
     @Query("SELECT COUNT(*) FROM practice_overlays")
     suspend fun count(): Int
+
+    @Query("SELECT COUNT(*) FROM practice_overlays WHERE blockId = :block")
+    suspend fun countBlock(block: String): Int
 }
 
 internal fun validOverlayBounds(left: Number, top: Number, right: Number, bottom: Number): Boolean {
@@ -86,8 +89,7 @@ internal fun validateOverlay(shape: PracticeOverlay, pageCount: Int) {
 }
 
 internal suspend fun BlockDatabase.visualIdentity(blockId: String): String? =
-    blockMedia().find(blockId, MediaRole.VISUAL.name)?.let { "library:${it.mediaId}" }
-        ?: images().find(blockId)?.let { "legacy:${it.fileName}" }
+    referenceOrder(blockId, MediaRole.VISUAL).firstOrNull()
 
 internal data class VisualChangeCheck(val identity: String?, val hasMarkings: Boolean)
 
@@ -119,7 +121,7 @@ internal class PracticeOverlayRepository(private val db: BlockDatabase) {
     suspend fun edit(change: OverlayEdit, verifiedPages: Int, appendOnPage: Boolean = false): OverlayEdit = db.withTransaction {
         val shape = change.shape
         val dao = db.overlays()
-        check(db.visualIdentity(shape.blockId) == shape.reference) { "The reference changed. Reopen it to edit markings." }
+        check(db.hasVisual(shape.blockId, shape.reference)) { "The reference changed. Reopen it to edit markings." }
         check(dao.find(shape.id) == change.before) { "This marking changed. Select it again." }
         val saved = change.after?.let {
             if (appendOnPage) append(listOf(it), shape.blockId, verifiedPages).single()
@@ -144,8 +146,8 @@ internal class PracticeOverlayRepository(private val db: BlockDatabase) {
 
     suspend fun copy(source: BlockVisualReference, destination: String, verifiedPages: Int): Int = db.withTransaction {
         require(destination != source.blockId &&
-            db.visualIdentity(source.blockId) == source.identity &&
-            db.visualIdentity(destination) == source.identity) {
+            db.hasVisual(source.blockId, source.identity) &&
+            db.hasVisual(destination, source.identity)) {
             "Choose another Block with the same visual original."
         }
         val originals = db.overlays().read(source.blockId, source.identity)
@@ -170,7 +172,7 @@ internal class PracticeOverlayRepository(private val db: BlockDatabase) {
     }
 
     private suspend fun checkCapacity(existing: List<PracticeOverlay>, added: List<PracticeOverlay>) {
-        require(existing.size + added.size <= OVERLAYS_PER_BLOCK &&
+        require(db.overlays().countBlock(added.first().blockId) + added.size <= OVERLAYS_PER_BLOCK &&
             db.overlays().count() + added.size <= OVERLAYS_TOTAL) { "This would exceed the saved markings limit." }
         require((existing + added).groupingBy { it.page }.eachCount().values.all { it <= OVERLAYS_PER_PAGE }) {
             "A page can have up to $OVERLAYS_PER_PAGE markings."
@@ -199,9 +201,7 @@ internal fun installPracticeOverlayConstraints(db: SupportSQLiteDatabase) {
                          (asset.category = 'PDF' AND NEW.page < asset.pageCount)))
                 OR EXISTS (SELECT 1 FROM block_images image WHERE image.blockId = NEW.blockId
                     AND NEW.reference = 'legacy:' || image.fileName
-                    AND (image.mimeType = 'application/pdf' OR NEW.page = 0)
-                    AND NOT EXISTS (SELECT 1 FROM block_media_links
-                        WHERE blockId = NEW.blockId AND role = 'VISUAL'))
+                    AND (image.mimeType = 'application/pdf' OR NEW.page = 0))
             )
         BEGIN SELECT RAISE(ABORT, 'Invalid practice overlay'); END
     """.trimIndent())
@@ -219,14 +219,6 @@ internal fun installPracticeOverlayConstraints(db: SupportSQLiteDatabase) {
         BEFORE $event ON block_images WHEN EXISTS (
             SELECT 1 FROM practice_overlays WHERE blockId = OLD.blockId AND reference = 'legacy:' || OLD.fileName
         ) ${if (event.startsWith("UPDATE")) "AND (NEW.blockId != OLD.blockId OR NEW.fileName != OLD.fileName OR NEW.mimeType != OLD.mimeType)" else ""}
-        BEGIN SELECT RAISE(ABORT, 'Discard markings before changing the visual reference'); END
-    """.trimIndent())
-
-    db.execSQL("""
-        CREATE TRIGGER IF NOT EXISTS practice_overlay_legacy_replacement
-        BEFORE INSERT ON block_media_links WHEN NEW.role = 'VISUAL' AND EXISTS (
-            SELECT 1 FROM practice_overlays WHERE blockId = NEW.blockId AND reference LIKE 'legacy:%'
-        )
         BEGIN SELECT RAISE(ABORT, 'Discard markings before changing the visual reference'); END
     """.trimIndent())
 }

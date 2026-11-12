@@ -22,6 +22,8 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
     private var visualCheck = VisualChangeCheck(null, false)
     private var originalAudio: String? = null
     private var originalVisual: String? = null
+    private var baselineVisual = emptyList<String>()
+    private var baselineAudio = emptyList<String>()
     var ready by mutableStateOf(false); private set
     var visual by mutableStateOf<MediaAsset?>(null); private set
     var audio by mutableStateOf<MediaAsset?>(null); private set
@@ -48,8 +50,10 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
             it.name.matches(Regex("[0-9a-f-]{36}")) && System.currentTimeMillis() - it.lastModified() > 7 * 86_400_000L }
             ?.forEach { it.deleteRecursively() }
         db.withTransaction {
+            baselineVisual = id?.let { db.referenceOrder(it, MediaRole.VISUAL) }.orEmpty()
+            baselineAudio = id?.let { db.referenceOrder(it, MediaRole.AUDIO) }.orEmpty()
             visualCheck = id?.let { db.reviewVisualChange(it) } ?: VisualChangeCheck(null, false)
-            originalVisual = id?.let { db.blockMedia().find(it, "VISUAL")?.mediaId }
+            originalVisual = visualCheck.identity?.takeIf { it.startsWith("library:") }?.removePrefix("library:")
             originalAudio = id?.let { db.blockMedia().find(it, "AUDIO")?.mediaId }
             visual = originalVisual?.let { db.media().find(it) }
             audio = originalAudio?.let { db.media().find(it) }
@@ -68,6 +72,11 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
             visualCheck = VisualChangeCheck(json.optString("identity").ifEmpty { null }, json.getBoolean("markings"))
             originalAudio = json.optString("originalAudio").ifEmpty { null }
             originalVisual = json.optString("originalVisual").ifEmpty { null }
+            fun baseline(key: String, fallback: String?): List<String> = json.optJSONArray(key)?.let { a ->
+                List(a.length()) { a.getString(it) }
+            } ?: listOfNotNull(fallback)
+            baselineVisual = baseline("baselineVisual", visualCheck.identity)
+            baselineAudio = baseline("baselineAudio", originalAudio?.let { "library:$it" })
             val items = json.getJSONArray("staged")
             for (index in 0 until items.length()) {
                 val item = items.getJSONObject(index)
@@ -98,7 +107,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
         val pending = listOfNotNull(visual?.let { MediaRole.VISUAL to it }, audio?.let { MediaRole.AUDIO to it })
             .filter { it.second.id in staged }
         return pending.isNotEmpty() && pending.all { (role, asset) ->
-            db.media().find(asset.id) == asset && db.blockMedia().find(id, role.name)?.mediaId == asset.id
+            db.media().find(asset.id) == asset && db.blockMedia().contains(id, role.name, asset.id)
         }
     }
 
@@ -107,6 +116,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
             .put("markings", visualCheck.hasMarkings).put("originalAudio", originalAudio ?: "")
             .put("originalVisual", originalVisual ?: "").put("visualChanged", visualChanged).put("audioChanged", audioChanged)
             .put("visual", visual?.id ?: "").put("audio", audio?.id ?: "")
+            .put("baselineVisual", org.json.JSONArray(baselineVisual)).put("baselineAudio", org.json.JSONArray(baselineAudio))
         val items = org.json.JSONArray()
         staged.values.forEach { a -> items.put(JSONObject().put("id", a.id).put("title", a.title).put("name", a.originalName)
             .put("mime", a.mimeType).put("category", a.category).put("file", a.fileName).put("bytes", a.byteCount)
@@ -115,7 +125,8 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
         json.put("staged", items)
         val pending = File(directory, "draft.tmp")
         java.io.FileOutputStream(pending).use { it.write(json.toString().toByteArray()); it.fd.sync() }
-        check(pending.renameTo(File(directory, "draft.json"))) { "Could not retain pending references. Try again." }
+        java.nio.file.Files.move(pending.toPath(), File(directory, "draft.json").toPath(),
+            java.nio.file.StandardCopyOption.ATOMIC_MOVE, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
     }
 
     suspend fun select(role: MediaRole, asset: MediaAsset?) = withContext(Dispatchers.IO) {
@@ -184,17 +195,14 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
                     db.withTransaction {
                         // Compare the original identities before writing; no silent overwrite after a concurrent edit.
                         if (id != null) {
-                            if (visualChanged) check(db.visualIdentity(id) == visualCheck.identity) { "Visual reference changed. Reopen this editor to review it." }
-                            if (audioChanged) check(db.blockMedia().find(id, "AUDIO")?.mediaId == originalAudio) { "Audio reference changed. Reopen this editor to review it." }
+                            if (visualChanged) check(db.referenceOrder(id, MediaRole.VISUAL) == baselineVisual) { "Visual reference changed. Reopen this editor to review it." }
+                            if (audioChanged) check(db.referenceOrder(id, MediaRole.AUDIO) == baselineAudio) { "Audio reference changed. Reopen this editor to review it." }
                         }
                         promoted.forEach { (asset, _) -> db.media().insert(asset) }
                         selected.forEach { asset -> checkNotNull(db.media().find(asset.id)); check(library.available(asset)) { "A reference original is unavailable." } }
                         val saved = BlockRepository(db).save(id, draft, week, creationId)
                         if (visualChanged) {
-                            db.discardVisualMarkings(saved, visualCheck.identity, visualCheck)
-                            db.blockMedia().remove(saved, "VISUAL")
-                            db.images().remove(saved)
-                            visual?.let { db.blockMedia().save(BlockMediaLink(saved, "VISUAL", it.id)) }
+                            db.replaceVisual(saved, visual?.id, visualCheck)
                         }
                         if (audioChanged) {
                             // UI explicitly confirms every replacement/removal of an existing reference.

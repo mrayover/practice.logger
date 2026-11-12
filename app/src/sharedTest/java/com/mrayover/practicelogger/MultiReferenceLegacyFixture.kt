@@ -14,9 +14,9 @@ import java.util.Base64
 import java.util.zip.CRC32
 
 /** Frozen Room23 input, not a schema24 migration. Never constructs legacy rows with future entities. */
-internal class MultiReferenceLegacyFixture(private val context: Context, val name: String, val files: File) {
-    private val schema = javaClass.classLoader!!.getResourceAsStream(
-        "com.mrayover.practicelogger.BlockDatabase/23.json")!!.bufferedReader().use {
+internal class MultiReferenceLegacyFixture(private val context: Context, val name: String, val files: File,
+    private val readResource: (String) -> java.io.InputStream = { MultiReferenceLegacyFixture::class.java.classLoader!!.getResourceAsStream(it)!! }) {
+    private val schema = readResource("com.mrayover.practicelogger.BlockDatabase/23.json").bufferedReader().use {
         JSONObject(it.readText()).getJSONObject("database")
     }
     private val entities = schema.getJSONArray("entities")
@@ -70,9 +70,11 @@ internal class MultiReferenceLegacyFixture(private val context: Context, val nam
     }
 
     /** Call before migration, after migration, and after cold reopen. Projects only frozen23 columns. */
-    fun assertPreserved(db: SupportSQLiteDatabase) {
+    fun remember(db: SupportSQLiteDatabase) { rows = snapshot(db); originals = hashes() }
+
+    fun assertPreserved(db: SupportSQLiteDatabase, checkOriginals: Boolean = true) {
         assertEquals("All Room23 row values/IDs must survive", rows, snapshot(db))
-        assertEquals("Original bytes and ownership paths must survive", originals, hashes())
+        if (checkOriginals) assertEquals("Original bytes and ownership paths must survive", originals, hashes())
         db.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         db.query("PRAGMA integrity_check").use { assertTrue(it.moveToFirst()); assertEquals("ok", it.getString(0)) }
     }
@@ -90,7 +92,7 @@ internal class MultiReferenceLegacyFixture(private val context: Context, val nam
     private fun hashes() = files.walkTopDown().filter { it.isFile }.associate {
         it.relativeTo(files).invariantSeparatorsPath to hash(it.readBytes())
     }
-    private fun resource(path: String) = javaClass.classLoader!!.getResourceAsStream(path)!!.bufferedReader().use { it.readText() }
+    private fun resource(path: String) = readResource(path).bufferedReader().use { it.readText() }
     private fun hash(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
     private fun id(n: Int) = "00000000-0000-4000-8000-${n.toString().padStart(12, '0')}"
     private fun original(store: String, n: Int, ext: String, bytes: ByteArray, category: String, mime: String,

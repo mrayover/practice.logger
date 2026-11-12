@@ -24,6 +24,9 @@ android {
     kotlinOptions { jvmTarget = "17" }
     testOptions { unitTests.isIncludeAndroidResources = true }
     sourceSets.getByName("test").resources.srcDir("schemas")
+    sourceSets.getByName("test").java.srcDir("src/sharedTest/java")
+    sourceSets.getByName("androidTest").java.srcDir("src/sharedTest/java")
+    sourceSets.getByName("androidTest").assets.srcDirs("schemas", "src/test/resources")
 }
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 // Both variants export the same Room schema. Serialize first generation to avoid a partial JSON read.

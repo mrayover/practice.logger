@@ -22,7 +22,8 @@ import java.util.UUID
 @Entity(tableName = "block_images", foreignKeys = [ForeignKey(entity = Block::class,
     parentColumns = ["id"], childColumns = ["blockId"], onDelete = ForeignKey.RESTRICT)])
 data class BlockImage(@PrimaryKey val blockId: String, val fileName: String,
-    val mimeType: String, val width: Int, val height: Int, val byteCount: Long)
+    val mimeType: String, val width: Int, val height: Int, val byteCount: Long,
+    @ColumnInfo(defaultValue = "0") val position: Int = 0)
 
 @Dao interface BlockImageDao {
     @Query("SELECT * FROM block_images") fun observeAll(): Flow<List<BlockImage>>
@@ -30,6 +31,7 @@ data class BlockImage(@PrimaryKey val blockId: String, val fileName: String,
     @Query("SELECT * FROM block_images WHERE blockId = :id") suspend fun find(id: String): BlockImage?
     @Upsert suspend fun save(image: BlockImage)
     @Query("DELETE FROM block_images WHERE blockId = :id") suspend fun remove(id: String): Int
+    @Query("UPDATE block_images SET position = :position WHERE blockId = :id") suspend fun move(id: String, position: Int)
 }
 
 val IMAGE_MIGRATION_9_10 = object : Migration(9, 10) {
@@ -214,15 +216,14 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
                 val mime = info.mimeType
                 currentCoroutineContext().ensureActive()
                 val target = resolve("$id." + if (pdf) "pdf" else "img")
-                val image = BlockImage(blockId, target.name, mime, info.width, info.height, pending.length())
+                var image = BlockImage(blockId, target.name, mime, info.width, info.height, pending.length())
                 // Once the file is finalized, cancellation cannot split commit and cleanup.
                 withContext(NonCancellable) {
                     check(!target.exists() && pending.renameTo(target)) { "Could not finish the reference file." }
                     try { db.withTransaction {
                         checkNotNull(db.blocks().find(blockId)) { "This Block is no longer available." }
-                        check(db.blockMedia().find(blockId, MediaRole.VISUAL.name) == null) {
-                            "Replace the current Library reference through the Block editor."
-                        }
+                        image = image.copy(position = db.images().find(blockId)?.position
+                            ?: db.referenceOrder(blockId, MediaRole.VISUAL).size)
                         val current = db.images().find(blockId)?.let { "legacy:${it.fileName}" }
                         db.discardVisualMarkings(blockId, current, null)
                         db.images().save(image)
@@ -241,12 +242,12 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
         withContext(Dispatchers.IO + NonCancellable) {
             filesMutex.withLock {
                 db.withTransaction {
-                    if (visual && db.images().find(blockId) != null) {
+                    if (visual && db.visualIdentity(blockId)?.startsWith("legacy:") == true) {
                         check(replaceLegacy) { "Confirm replacement of the existing Block-owned reference first." }
                     }
                     commit()
                     // The new link and legacy retirement commit atomically; any failure retains the old attachment.
-                    if (visual) db.images().remove(blockId)
+                    // Exact reviewed legacy removal is performed by replaceVisual.
                 }
                 if (visual) runCatching { cleanUnreferenced() }
             }
@@ -259,7 +260,9 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
             db.withTransaction {
                 val current = db.images().find(blockId)?.let { "legacy:${it.fileName}" }
                 db.discardVisualMarkings(blockId, current, reviewedVisual)
-                db.images().remove(blockId)
+                val removed = db.images().remove(blockId)
+                db.writeReferenceOrder(blockId, MediaRole.VISUAL, db.referenceOrder(blockId, MediaRole.VISUAL))
+                removed
             }
             runCatching { cleanUnreferenced(); true }.getOrDefault(false)
         }
