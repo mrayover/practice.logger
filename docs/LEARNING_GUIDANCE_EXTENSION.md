@@ -4,7 +4,7 @@ Approved for the V1 roadmap on November 12, 2026. **Planning only: neither LGE-1
 
 ## Baseline and sequence
 
-Live baseline inspected: block-ux-stage1 at14749db; Stage3C.2 and scoped Stage3D complete in signed build111; G3 complete in signed0.39.0/build112, application source58a13bd. Room24, complete ZIP8/readers1–8, legacy JSON7/readers1–7. G3/Stage3 phone acceptance is pending; Stage4 remains0/10 documented real sessions. No active local changes were present at reconciliation.
+Live baseline inspected: block-ux-stage1 at14749db; Stage3C.2 and scoped Stage3D complete in signed build111; G3 complete in signed0.39.0/build112, application source58a13bd. Room24, complete ZIP8/readers1–8, legacy JSON7/readers1–7. G3/Stage3 phone acceptance is pending; Stage4 remains0/10 documented real sessions; the owner deferred all ten on November12, resolving the prerequisite without claiming a usability review or phone acceptance (see EVALUATION.md). No active local changes were present at reconciliation.
 
 **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2.** Each implementation increment requires a separate explicit assignment. Stage4 gathers real-world usability evidence using [EVALUATION](../EVALUATION.md); it is not a regression campaign or permission to start LGE. The owner decides when review is sufficient to assign LGE-1 and records any deferral of the ten-session target. Remaining approved work, including separately scoped Playground work, is considered before the owner explicitly authorizes F1 and feature freeze. LGE-2 completion does not authorize F1.
 

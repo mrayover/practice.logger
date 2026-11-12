@@ -6,7 +6,7 @@ Comprehensive workflows are manual and require explicit owner authorization for 
 
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. Stage3C.2 and scoped Stage3D are complete in build111; G3 is complete in signed0.39.0/build112 with focused verification, with phone acceptance pending. Stage4 practical-use review is next (0/10 documented real sessions). LGE-1 and LGE-2 are explicitly approved, separately assignable future V1 increments; neither is implemented. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. Stage3C.2 and scoped Stage3D are complete in build111; G3 is complete in signed0.39.0/build112 with focused verification, with phone acceptance pending. Stage4 prerequisite is resolved by the November12 owner-approved deferral of all ten undocumented sessions (0/10; no practical-use review or phone acceptance claimed). See EVALUATION.md. Next recommended task: separately assign LGE-1 — Learning Evidence and Optional Revisits. LGE-1 and LGE-2 are explicitly approved, separately assignable future V1 increments; neither is implemented. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -69,7 +69,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **P1 Intentional Practice Lifecycle** | Ready, Prep and deliberate Block transitions | After G2 and before G3. Signed candidate and focused lifecycle checks. | **High** |
 | **P2 Block and Session Reflection** | Optional check-ins and immutable completion Goal snapshots | After P1 and before G3. Signed candidate and focused lifecycle, storage and ZIP checks. | **High** |
 | **G3** | Accurate time attribution and concise statistics (complete) | Signed build112; focused verification complete, phone acceptance pending. | **High** |
-| **Stage 4** | Practical-use usability review | After G3; real owner sessions and observed friction, currently0/10. No broad regression authorization. | Owner review |
+| **Stage 4** | Practical-use usability review | After G3; owner deferred all ten undocumented sessions on November12; prerequisite resolved,0/10 and no practical-use acceptance. See EVALUATION.md. No broad regression authorization. | Owner review |
 | **LGE-1** | Learning evidence and optional revisits (approved, not implemented) | After Stage4 review and separate implementation assignment; placement evidence, criteria, optional scheduling and focused migration/ZIP preservation. | **High** for data safety |
 | **LGE-2** | Explainable adaptive suggestions (approved, not implemented) | After delivered LGE-1 and separate assignment; deterministic comparable delayed-retention evidence and optional suggestions. | **Medium–High** |
 | **Remaining owner-approved V1 features** | Separately bounded features, including assigned Playground scope | After LGE-2; owner decides feature completion before authorizing F1. | Per assignment |
@@ -427,7 +427,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] P1 Intentional Practice Lifecycle delivered with scoped verification. See [current verification and delivery](CURRENT_STATE.md).
 - [x] P2 Block and Session Reflection implemented. See [current delivery and verification](CURRENT_STATE.md).
 - [x] G3 implemented in signed0.39.0/build112 with focused units and one API35 navigation check; actual time, historical nonduplicated Goal attribution and manual assessment. Owner phone acceptance pending; comprehensive regression deferred to separately authorized F1.
-- [ ] Stage4 practical-use review;0/10 documented real sessions, owner conclusions pending; no broad regression authorization.
+- [x] Stage4 sequencing decision: owner deferred all ten undocumented sessions on November12;0/10, practical-use review not performed, physical acceptance pending. This marks the deferral decision only; no broad regression authorization.
 - [ ] LGE-1 approved future learning evidence/optional revisits; not implemented or assigned for implementation.
 - [ ] LGE-2 approved future explainable suggestions; depends on delivered LGE-1 and separate assignment.
 - [ ] Remaining owner-approved V1 features considered/completed before explicit F1 authorization.

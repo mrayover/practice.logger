@@ -8,7 +8,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Se
 
 P0–P5, L1–L3, K1, T1–T2 and T3A–T3D are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; Stage4 records real owner usability evidence, not broad regression. [LGE-1/LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are approved future increments requiring separate implementation assignments. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; the owner deferred all ten undocumented Stage4 sessions on November12, resolving that prerequisite without practical-use or phone acceptance. See [the decision](EVALUATION.md). [LGE-1/LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are approved future increments requiring separate implementation assignments. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 
 ## Appearance and Settings
 
@@ -87,7 +87,7 @@ On a separate empty installation, choose **Choose complete ZIP to restore**, rev
 
 ## Historical P5 verification
 
-P5 full CI41329443572 passes all nine required jobs: 111 unit tests, 168 native executions on API26/API35, lint zero errors/18 documented advisories and debug/release/instrumentation compilation. Signed build67, source provenance, all attempt outcomes and the exact phone-acceptance next action are in [CURRENT_STATE.md](CURRENT_STATE.md), [the P5 report](docs/P5_REGRESSION_REPORT.md) and [machine-readable baseline](docs/P5_REGRESSION_BASELINE.json). The owner confirmed build67 complete and running correctly on November 1, 2026; P5 is closed. Stage 4 remains at 0/10 documented real sessions.
+P5 full CI41329443572 passes all nine required jobs: 111 unit tests, 168 native executions on API26/API35, lint zero errors/18 documented advisories and debug/release/instrumentation compilation. Signed build67, source provenance, all attempt outcomes and the exact phone-acceptance next action are in [CURRENT_STATE.md](CURRENT_STATE.md), [the P5 report](docs/P5_REGRESSION_REPORT.md) and [machine-readable baseline](docs/P5_REGRESSION_BASELINE.json). The owner confirmed build67 complete and running correctly on November 1, 2026; P5 is closed. Stage 4 remains at 0/10 documented real sessions; the owner deferred the remaining sessions on November12 to permit the next separately assigned phase.
 
 ## Development
 
