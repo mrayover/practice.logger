@@ -75,7 +75,7 @@ class BlockMediaTest {
             links.link(id, MediaRole.VISUAL, canonical.id, replaceLegacy = true)
             assertNull(db.images().find(id)); assertFalse(file.exists()); assertTrue(library.available(canonical))
             val replacement = library.import("Replacement.png", null) { bytes.inputStream() }
-            db.openHelper.writableDatabase.execSQL("CREATE TRIGGER reject_update BEFORE UPDATE ON block_media_links BEGIN SELECT RAISE(ABORT,'injected replacement failure'); END")
+            db.openHelper.writableDatabase.execSQL("CREATE TRIGGER reject_update BEFORE DELETE ON block_media_links BEGIN SELECT RAISE(ABORT,'injected replacement failure'); END")
             rejected { links.link(id, MediaRole.VISUAL, replacement.id) }
             assertEquals(canonical.id, db.blockMedia().find(id, "VISUAL")!!.mediaId)
             File(dir, replacement.fileName).delete(); rejected { links.link(id, MediaRole.VISUAL, replacement.id) }
@@ -105,15 +105,15 @@ class BlockMediaTest {
             sql.execSQL("INSERT INTO takes VALUES ('t','b',3,'IMPORTED_LOOP',1234,'${UUID.randomUUID()}.mp3','Original',NULL,NULL)")
             if (version == 14) sql.execSQL("INSERT INTO block_media_links VALUES ('b','AUDIO','a')")
             repeat(entities.length()) { i -> val table = entities.getJSONObject(i).getString("tableName")
-                before[table] = sql.rawQuery("SELECT * FROM $table", null).use { c -> buildList { while(c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) } }
+                before[table] = sql.rawQuery("SELECT ${frozenColumns(version, table)} FROM $table", null).use { c -> buildList { while(c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) } }
             }
             sql.version = version
         }
         val db = BlockDatabase.open(context, name)
         try {
             assertEquals(if (version == 14) 1 else 0, db.blockMedia().readAll().size)
-            assertEquals(18, db.openHelper.readableDatabase.version)
-            before.forEach { (table, rows) -> db.openHelper.readableDatabase.query("SELECT * FROM $table").use { c ->
+            assertEquals(24, db.openHelper.readableDatabase.version)
+            before.forEach { (table, rows) -> db.openHelper.readableDatabase.query("SELECT ${frozenColumns(version, table)} FROM $table").use { c ->
                 assertEquals(table, rows, buildList { while(c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) })
             } }
             db.blockMedia().save(BlockMediaLink("b", "AUDIO", "a"))

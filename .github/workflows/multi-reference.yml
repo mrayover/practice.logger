@@ -7,7 +7,7 @@ on:
     inputs:
       classes:
         description: 'Comma-separated native classes (package names optional)'
-        default: 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,BlockEditorNativeTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest'
+        default: 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,FrozenPortableCompatibilityTest,BlockEditorNativeTest,BlockMediaNativeTest,MediaLibraryStorageTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest,process-death,portable-install'
         type: string
 permissions:
   contents: read
@@ -49,7 +49,7 @@ jobs:
           disable-animations: true
           script: bash scripts/Check-MultiReference.sh
         env:
-          MULTI_REFERENCE_CLASSES: ${{ inputs.classes || 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,BlockEditorNativeTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest' }}
+          MULTI_REFERENCE_CLASSES: ${{ inputs.classes || 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,FrozenPortableCompatibilityTest,BlockEditorNativeTest,BlockMediaNativeTest,MediaLibraryStorageTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest,process-death,portable-install' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

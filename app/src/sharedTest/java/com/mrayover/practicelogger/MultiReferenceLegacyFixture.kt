@@ -72,9 +72,9 @@ internal class MultiReferenceLegacyFixture(private val context: Context, val nam
     /** Call before migration, after migration, and after cold reopen. Projects only frozen23 columns. */
     fun remember(db: SupportSQLiteDatabase) { rows = snapshot(db); originals = hashes() }
 
-    fun assertPreserved(db: SupportSQLiteDatabase, checkOriginals: Boolean = true) {
+    fun assertPreserved(db: SupportSQLiteDatabase, checkOriginals: Boolean = true, originalRoot: File = files) {
         assertEquals("All Room23 row values/IDs must survive", rows, snapshot(db))
-        if (checkOriginals) assertEquals("Original bytes and ownership paths must survive", originals, hashes())
+        if (checkOriginals) assertEquals("Original bytes and ownership paths must survive", originals, hashes(originalRoot))
         db.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         db.query("PRAGMA integrity_check").use { assertTrue(it.moveToFirst()); assertEquals("ok", it.getString(0)) }
     }
@@ -89,8 +89,8 @@ internal class MultiReferenceLegacyFixture(private val context: Context, val nam
             }
         }
 
-    private fun hashes() = files.walkTopDown().filter { it.isFile }.associate {
-        it.relativeTo(files).invariantSeparatorsPath to hash(it.readBytes())
+    private fun hashes(root: File = files) = root.walkTopDown().filter { it.isFile }.associate {
+        it.relativeTo(root).invariantSeparatorsPath to hash(it.readBytes())
     }
     private fun resource(path: String) = readResource(path).bufferedReader().use { it.readText() }
     private fun hash(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }

@@ -51,7 +51,7 @@ val BLOCK_MEDIA_MIGRATION_13_14 = object : Migration(13, 14) {
     }
 }
 
-internal class ConfirmAudioLoss(val mediaId: String) : IllegalStateException()
+internal class ConfirmAudioLoss(val mediaId: String, val order: List<String>) : IllegalStateException()
 
 /** Only associations live here. Canonical storage and all playback remain in the existing Library. */
 class BlockMediaRepository(private val db: BlockDatabase, private val library: MediaLibraryRepository,
@@ -101,11 +101,11 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             }
             db.writeReferenceOrder(block, role, reviewed.filter { it != identity })
         } } }
-    suspend fun link(blockId: String, role: MediaRole, mediaId: String, replaceLegacy: Boolean = false, confirmedAudioId: String? = null) =
-        linkChecked(blockId, role, mediaId, replaceLegacy, confirmedAudioId)
+    suspend fun link(blockId: String, role: MediaRole, mediaId: String, replaceLegacy: Boolean = false, confirmedAudioId: String? = null, reviewedOrder: List<String>? = null) =
+        linkChecked(blockId, role, mediaId, replaceLegacy, confirmedAudioId, reviewedAudioOrder = reviewedOrder)
 
     internal suspend fun linkChecked(blockId: String, role: MediaRole, mediaId: String,
-        replaceLegacy: Boolean = false, confirmedAudioId: String? = null, reviewedVisual: VisualChangeCheck? = null
+        replaceLegacy: Boolean = false, confirmedAudioId: String? = null, reviewedVisual: VisualChangeCheck? = null, reviewedAudioOrder: List<String>? = null
     ) = withContext(Dispatchers.IO) {
         // Share the legacy file mutex so retirement cannot race a legacy import or recovery.
         legacy.commitCanonicalLink(blockId, role == MediaRole.VISUAL, replaceLegacy) {
@@ -113,6 +113,9 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             val asset = checkNotNull(db.media().find(mediaId)) { "This Library item is no longer available." }
             require(role.accepts(asset.category)) { "Choose a compatible Library item." }
             check(library.available(asset)) { "The original is missing or changed. Import your original again." }
+            check(role != MediaRole.AUDIO || reviewedAudioOrder == null || reviewedAudioOrder == db.referenceOrder(blockId, role)) {
+                "The audio references changed. Review them and try again."
+            }
             val previous = db.blockMedia().find(blockId, role.name)
             if (role == MediaRole.AUDIO) check(confirmedAudioId == null || confirmedAudioId == previous?.mediaId) {
                 "The audio reference changed. Review the current reference and try again."
@@ -129,13 +132,16 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             }
         }
     }
-    suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null) =
-        unlinkChecked(blockId, role, confirmedAudioId)
+    suspend fun unlink(blockId: String, role: MediaRole, confirmedAudioId: String? = null, reviewedOrder: List<String>? = null) =
+        unlinkChecked(blockId, role, confirmedAudioId, reviewedAudioOrder = reviewedOrder)
 
     internal suspend fun unlinkChecked(blockId: String, role: MediaRole, confirmedAudioId: String? = null,
-        reviewedVisual: VisualChangeCheck? = null
+        reviewedVisual: VisualChangeCheck? = null, reviewedAudioOrder: List<String>? = null
     ) = withContext(Dispatchers.IO) {
         db.withTransaction {
+            check(role != MediaRole.AUDIO || reviewedAudioOrder == null || reviewedAudioOrder == db.referenceOrder(blockId, role)) {
+                "The audio references changed. Review them and try again."
+            }
             val previous = db.blockMedia().find(blockId, role.name)
             if (role == MediaRole.AUDIO) check(confirmedAudioId == null || confirmedAudioId == previous?.mediaId) {
                 "The audio reference changed. Review the current reference and try again."
@@ -165,9 +171,9 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
             order.add("library:$mediaId")
             db.blockMedia().save(BlockMediaLink(blockId, "AUDIO", mediaId, order.lastIndex))
         }
-        if (index >= 0 && previous != mediaId && "library:$mediaId" !in order) {
+        if (index >= 0 && previous != mediaId) {
             val updated = db.referenceOrder(blockId, MediaRole.AUDIO).toMutableList()
-            updated.remove("library:$mediaId"); updated.add(index, "library:$mediaId")
+            updated.remove("library:$mediaId"); updated.add(index.coerceAtMost(updated.size), "library:$mediaId")
             db.writeReferenceOrder(blockId, MediaRole.AUDIO, updated)
         }
     }
@@ -177,7 +183,7 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
         val duration = db.media().find(media)?.durationMs
         val customized = saved != null && (saved.positionMs != 0L || saved.speedPercent != 100 ||
             saved.aMs != 0L || saved.bMs != duration || saved.repeat || saved.selectedMarkerId != null)
-        if (confirmed != media && (customized || db.blockAudio().hasMarkers(block, media))) throw ConfirmAudioLoss(media)
+        if (confirmed != media && (customized || db.blockAudio().hasMarkers(block, media))) throw ConfirmAudioLoss(media, db.referenceOrder(block, MediaRole.AUDIO))
         val removed = db.blockMedia().removeExact(block, "AUDIO", media)
         db.writeReferenceOrder(block, MediaRole.AUDIO, db.referenceOrder(block, MediaRole.AUDIO))
         return removed
@@ -187,7 +193,7 @@ class BlockMediaRepository(private val db: BlockDatabase, private val library: M
 data class BlockVisualReference(val blockId: String, val identity: String, val mimeType: String,
     val mediaId: String? = null, val legacy: BlockImage? = null, val position: Int = 0)
 
-/** Canonical when linked; otherwise the existing legacy attachment. No startup copying/adoption. */
+/** Ordered canonical/legacy union, including unavailable originals. No startup copying/adoption. */
 fun resolveBlockVisuals(legacy: List<BlockImage>, links: List<BlockMediaLink>, assets: List<MediaAsset>): List<BlockVisualReference> {
     val canonical = links.filter { it.role == MediaRole.VISUAL.name }
     return (canonical.map { link -> BlockVisualReference(link.blockId, "library:${link.mediaId}",

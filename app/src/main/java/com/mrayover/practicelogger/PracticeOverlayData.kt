@@ -91,15 +91,18 @@ internal fun validateOverlay(shape: PracticeOverlay, pageCount: Int) {
 internal suspend fun BlockDatabase.visualIdentity(blockId: String): String? =
     referenceOrder(blockId, MediaRole.VISUAL).firstOrNull()
 
-internal data class VisualChangeCheck(val identity: String?, val hasMarkings: Boolean)
+internal data class VisualChangeCheck(val identity: String?, val hasMarkings: Boolean, val order: List<String>? = null)
 
 internal suspend fun BlockDatabase.reviewVisualChange(block: String): VisualChangeCheck = withTransaction {
     val identity = visualIdentity(block)
-    VisualChangeCheck(identity, identity != null && overlays().read(block, identity).isNotEmpty())
+    VisualChangeCheck(identity, identity != null && overlays().read(block, identity).isNotEmpty(), referenceOrder(block, MediaRole.VISUAL))
 }
 
 // Call inside the same transaction as the visual link change.
 internal suspend fun BlockDatabase.discardVisualMarkings(block: String, current: String?, reviewed: VisualChangeCheck?) {
+    check(reviewed?.order == null || reviewed.order == referenceOrder(block, MediaRole.VISUAL)) {
+        "The visual references changed. Review them and try again."
+    }
     check(reviewed == null || reviewed.identity == current) {
         "The visual reference changed. Review it and try again."
     }

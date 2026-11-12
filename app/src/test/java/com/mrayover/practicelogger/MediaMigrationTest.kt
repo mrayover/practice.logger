@@ -46,12 +46,12 @@ class MediaMigrationTest {
         val entities = schema(11).getJSONArray("entities")
         val before = (0 until entities.length()).associate { i ->
             val table = entities.getJSONObject(i).getString("tableName")
-            table to sql.rawQuery("SELECT * FROM $table", null).use { cursor -> buildList { while (cursor.moveToNext()) add((0 until cursor.columnCount).map { cursor.getString(it) }) } }
+            table to sql.rawQuery("SELECT ${frozenColumns(11, table)} FROM $table", null).use { cursor -> buildList { while (cursor.moveToNext()) add((0 until cursor.columnCount).map { cursor.getString(it) }) } }
         }
         sql.close(); val db = BlockDatabase.open(context, name)
         try {
             assertTrue(db.media().readAll().isEmpty())
-            before.forEach { (table, rows) -> db.openHelper.readableDatabase.query("SELECT * FROM $table").use { cursor ->
+            before.forEach { (table, rows) -> db.openHelper.readableDatabase.query("SELECT ${frozenColumns(11, table)} FROM $table").use { cursor ->
                 assertEquals(table, rows, buildList { while (cursor.moveToNext()) add((0 until cursor.columnCount).map { cursor.getString(it) }) })
             } }
             db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
@@ -75,7 +75,7 @@ class MediaMigrationTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(18, db.openHelper.readableDatabase.version)
+            assertEquals(24, db.openHelper.readableDatabase.version)
             assertEquals("Original", db.blocks().find("b")!!.name)
             assertEquals(1234L, db.sessions().find("s")!!.activeMs)
             assertEquals(20, db.goals().find("g")!!.goal.progress)
@@ -95,7 +95,7 @@ class MediaMigrationTest {
         val db = BlockDatabase.open(context, name)
         try {
             val sql = db.openHelper.writableDatabase
-            assertEquals(18, sql.version)
+            assertEquals(24, sql.version)
             assertEquals("Saved", db.blocks().find("b")?.name)
             assertEquals(1200L, db.transcribeActivities().find("t")?.activeMs)
             assertEquals("Keep this log", db.logs().readAll().single().text)
@@ -110,7 +110,7 @@ class MediaMigrationTest {
         val db = BlockDatabase.open(context, name)
         try {
             assertEquals("Original", db.blocks().find("b")!!.name); assertTrue(db.media().readAll().isEmpty())
-            assertEquals(18, db.openHelper.readableDatabase.version)
+            assertEquals(24, db.openHelper.readableDatabase.version)
             db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
         } finally { db.close(); context.deleteDatabase(name) }
     }
@@ -127,7 +127,7 @@ class MediaMigrationTest {
         val shape = PracticeOverlay("shape", "b", "legacy:$original", 0, "HIGHLIGHT",
             .1f, .2f, .5f, .6f, 2, 0)
         try {
-            assertEquals(18, db.openHelper.readableDatabase.version)
+            assertEquals(24, db.openHelper.readableDatabase.version)
             assertTrue(db.blocks().find("b")!!.archived)
             assertEquals(original, db.images().find("b")!!.fileName)
             assertEquals(0, db.overlays().count())

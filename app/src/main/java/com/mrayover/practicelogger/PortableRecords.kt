@@ -67,7 +67,7 @@ internal class PortableTable(val name: String, fields: String, val legacyKey: St
                         JSONObject.NULL -> statement.bindNull(j + 1)
                         is String -> statement.bindString(j + 1, value)
                         is Boolean -> statement.bindLong(j + 1, if (value) 1 else 0)
-                        is Number -> if (types[j] == "f") statement.bindDouble(j + 1, value.toFloat().toDouble())
+                        is Number -> if (types[j] == "f") statement.bindDouble(j + 1, value.toDouble())
                             else statement.bindLong(j + 1, value.toLong())
                         else -> error("Invalid record cell.")
                     }

@@ -39,7 +39,7 @@ class PortableZipRoundTripTest {
         runBlocking { seed() }
         openBackup()
         click("Prepare complete ZIP")
-        shown("Private ZIP verified with 7 originals.")
+        shown("Private ZIP verified with 8 originals.")
         click("Save ZIP as…")
         pickerDownloads()
         checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), 10_000)).text = ZIP_NAME
@@ -52,7 +52,7 @@ class PortableZipRoundTripTest {
         openBackup()
         selectZip()
         shown("Restore this complete backup?")
-        shown("3 Library assets, 3 saved recordings and 1 legacy visual references.")
+        shown("4 Library assets, 3 saved recordings and 1 legacy visual references.")
         click("Cancel")
         assertTrue(runBlocking { db.withTransaction { portableTargetEmpty(db.openHelper.writableDatabase) } })
         selectZip()
@@ -93,7 +93,7 @@ class PortableZipRoundTripTest {
             assertEquals(4000L, db.transcribeActivities().unfinished()!!.activeMs)
             val image = db.media().readAll().single { it.category == "IMAGE" }
             val pdf = db.media().readAll().single { it.category == "PDF" }
-            val audio = db.media().readAll().single { it.category == "AUDIO" }
+            val audio = db.media().readAll().single { it.category == "AUDIO" && it.originalName == "Microphone reference.m4a" }
             library.visualPage(image.id, 0).let { assertEquals(1, it.pageCount); it.bitmap.recycle() }
             library.visualPage(pdf.id, 1).let { assertEquals(2, it.pageCount); it.bitmap.recycle() }
             legacy.loadPage(db.images().find("archived")!!, 1).let { assertEquals(2, it.pageCount); it.bitmap.recycle() }
@@ -237,6 +237,16 @@ class PortableZipRoundTripTest {
         links.link(first.id, MediaRole.AUDIO, audio.id)
         links.link(second.id, MediaRole.AUDIO, audio.id)
         val old = legacy.import(archived.id, pdf::inputStream)
+        val secondAudio = library.importRecordedReference("Second reference.m4a", m4a) {}
+        links.add(first.id, MediaRole.VISUAL, image.id)
+        links.add(second.id, MediaRole.VISUAL, image.id)
+        val secondVisuals = links.ordered(second.id, MediaRole.VISUAL)
+        links.reorder(second.id, MediaRole.VISUAL, secondVisuals, secondVisuals.reversed())
+        links.add(archived.id, MediaRole.VISUAL, image.id)
+        links.add(first.id, MediaRole.AUDIO, secondAudio.id)
+        links.add(second.id, MediaRole.AUDIO, secondAudio.id)
+        val secondAudios = links.ordered(second.id, MediaRole.AUDIO)
+        links.reorder(second.id, MediaRole.AUDIO, secondAudios, secondAudios.reversed())
         val overlays = PracticeOverlayRepository(db)
         suspend fun mark(id: String, block: Block, reference: String, page: Int, tool: OverlayTool, pages: Int) {
             val shape = PracticeOverlay(id, block.id, reference, page, tool.name, .25f, .2f, .7f, .65f, 0, 0)
@@ -255,6 +265,10 @@ class PortableZipRoundTripTest {
             master.copy(startMs = 950, type = "POINT", endMs = null, label = "Block two point", note = "Independent"))
         local.saveState(BlockAudioState(first.id, audio.id, 321, 75, 200, 800, true, master.id))
         local.saveState(BlockAudioState(second.id, audio.id, 500, 90, 100, 1200, false, marker))
+        val secondMaster = MasterAudioMarkerRepository(db).save(secondAudio.id, null, 200, 900, "Second master", "Independent reference")
+        local.saveMarker(first.id, secondAudio.id, BlockMarker(secondMaster, BlockMarkerOwnership.MASTER), secondMaster.copy(label = "Second reference override"))
+        local.saveState(BlockAudioState(first.id, secondAudio.id, 678, 65, 200, 900, true, secondMaster.id))
+        local.saveState(BlockAudioState(second.id, secondAudio.id, 890, 85, 100, 1000, false, null))
         val free = takes.prepare(null)
         m4a.copyTo(free.file, overwrite = true)
         val freeTake = takes.save(free)

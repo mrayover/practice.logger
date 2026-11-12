@@ -36,6 +36,9 @@ internal suspend fun BlockDatabase.replaceVisual(block: String, media: String?, 
     val updated = order.toMutableList()
     val index = updated.indexOf(current)
     updated.remove(current)
-    if (identity != null && identity !in updated) updated.add(if (index < 0) updated.size else index, identity)
+    if (identity != null) {
+        updated.remove(identity)
+        updated.add(if (index < 0) updated.size else index.coerceAtMost(updated.size), identity)
+    }
     writeReferenceOrder(block, MediaRole.VISUAL, updated)
 }

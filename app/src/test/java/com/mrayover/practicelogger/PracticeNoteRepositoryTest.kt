@@ -49,18 +49,19 @@ class PracticeNoteRepositoryTest {
         val setup = schema.getJSONArray("setupQueries"); repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
         val before = (0 until entities.length()).associate { i ->
             val table = entities.getJSONObject(i).getString("tableName")
-            table to sql.rawQuery("SELECT * FROM $table", null).use { c -> buildList { while (c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) } }
+            table to sql.rawQuery("SELECT ${frozenColumns(10, table)} FROM $table", null).use { c -> buildList { while (c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) }) } }
         }
         sql.version = 10; sql.close()
         var db = BlockDatabase.open(context, name)
         try {
             assertTrue(db.practiceNotes().readAll().isEmpty())
-            before.forEach { (table, rows) -> db.openHelper.writableDatabase.query("SELECT * FROM $table").use { c ->
-                val expected = if (table == "placements") rows.map { it + "0" } else rows
+            before.forEach { (table, rows) -> db.openHelper.writableDatabase.query("SELECT ${frozenColumns(10, table)} FROM $table").use { c ->
+                val expected = rows
                 assertEquals(table, expected, buildList {
                     while (c.moveToNext()) add((0 until c.columnCount).map { c.getString(it) })
                 })
             } }
+            assertEquals(0L, db.sessions().find("s")!!.placements.single().prepMs)
             assertEquals("Earlier practice note", db.practiceNotes().history().first().single().text)
             var tick = 1000L; val repo = PracticeNoteRepository(db) { ++tick }
             val a = repo.append("b", "s", "p", "First entry")

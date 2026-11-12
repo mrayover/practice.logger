@@ -36,7 +36,7 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
         val legacy get() = reviewed.identity?.startsWith("legacy:") == true
     }
     internal var pendingVisualChange by mutableStateOf<VisualChange?>(null); private set
-    internal data class AudioChange(val block: String, val next: String?, val previous: String)
+    internal data class AudioChange(val block: String, val next: String?, val previous: String, val order: List<String>)
     internal var pendingAudioChange by mutableStateOf<AudioChange?>(null); private set
     suspend fun loadPage(reference: BlockVisualReference, page: Int): ReferencePage =
         reference.mediaId?.let { library.visualPage(it, page) } ?: repository.loadPage(checkNotNull(reference.legacy), page)
@@ -97,16 +97,16 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
     internal fun confirmAudioChange() {
         val change = pendingAudioChange ?: return
         cancelAudioChange()
-        work { changeAudio(change.block, change.next, change.previous) }
+        work { changeAudio(change.block, change.next, change.previous, change.order) }
     }
-    private suspend fun changeAudio(block: String, next: String?, confirmed: String? = null) {
+    private suspend fun changeAudio(block: String, next: String?, confirmed: String? = null, reviewedOrder: List<String>? = null) {
         try {
-            if (next == null) associations.unlink(block, MediaRole.AUDIO, confirmed)
-            else associations.link(block, MediaRole.AUDIO, next, confirmedAudioId = confirmed)
+            if (next == null) associations.unlink(block, MediaRole.AUDIO, confirmed, reviewedOrder)
+            else associations.link(block, MediaRole.AUDIO, next, confirmedAudioId = confirmed, reviewedOrder = reviewedOrder)
             message = if (next == null) "Audio reference removed. The Library original was kept."
                 else "Audio reference attached from Library."
         } catch (loss: ConfirmAudioLoss) {
-            pendingAudioChange = AudioChange(block, next, loss.mediaId)
+            pendingAudioChange = AudioChange(block, next, loss.mediaId, loss.order)
         }
     }
     private suspend fun attachImported(blockId: String, role: MediaRole, asset: MediaAsset) {

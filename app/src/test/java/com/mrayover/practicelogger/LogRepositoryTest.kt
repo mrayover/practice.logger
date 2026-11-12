@@ -136,14 +136,14 @@ class LogRepositoryTest {
         val setup = schema.getJSONArray("setupQueries"); repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
         val before = (0 until entities.length()).associate { i ->
             val table = entities.getJSONObject(i).getString("tableName")
-            table to sql.rawQuery("SELECT * FROM $table", null).use { cursor -> buildList { while (cursor.moveToNext()) add((0 until cursor.columnCount).map { cursor.getString(it) }) } }
+            table to sql.rawQuery("SELECT ${frozenColumns(8, table)} FROM $table", null).use { cursor -> buildList { while (cursor.moveToNext()) add((0 until cursor.columnCount).map { cursor.getString(it) }) } }
         }
         sql.version = 8; sql.close()
         val db = BlockDatabase.open(context, name)
         try {
             assertTrue(db.logs().readAll().isEmpty())
             before.forEach { (table, rows) ->
-                db.openHelper.writableDatabase.query("SELECT * FROM $table").use { cursor ->
+                db.openHelper.writableDatabase.query("SELECT ${frozenColumns(8, table)} FROM $table").use { cursor ->
                     assertEquals(rows, buildList { while (cursor.moveToNext()) add((0 until cursor.columnCount).map { cursor.getString(it) }) })
                 }
             }
