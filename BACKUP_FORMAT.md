@@ -1,6 +1,6 @@
 # Backup format and safety — current implementation
 
-Development source complete portable ZIP v8 preserves ordered multiple visual/audio associations and legacy visual order, plus user Inspirations and their originals alongside Block completions, Block and session reflections, per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v7 remain readable under frozen historical rules. Legacy JSON7 remains data-only and is independent of Room24. Signed build110 still uses Room23/ZIP7; Stage3B produces no signed delivery. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
+Development source complete portable ZIP v8 preserves ordered multiple visual/audio associations and legacy visual order, plus user Inspirations and their originals alongside Block completions, Block and session reflections, per-placement preparation time, weekly plans, primary Goal assignments, placement attribution snapshots, editable Block practice overlays, original media and standalone Transcribe activity. ZIP v1–v7 remain readable under frozen historical rules. Legacy JSON7 remains data-only and is independent of Room24. Signed build111 delivers Room24/ZIP8. Build110 is the preserved Room23/ZIP7 pre-upgrade baseline; APK downgrade cannot reopen Room24. Actual signed delivery and verification are recorded in [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Stage3B portable compatibility
 
