@@ -1,10 +1,11 @@
 name: Multiple-reference editor and preservation
 on:
-  push:
-    branches: [block-ux-stage1]
-    paths: [.github/workflows/multi-reference.yml]
   workflow_dispatch:
     inputs:
+      owner_authorized:
+        description: 'Owner explicitly authorized this regression campaign (F1 or separate assignment)'
+        type: boolean
+        default: false
       classes:
         description: 'Comma-separated native classes (package names optional)'
         default: 'MultiReferenceNativeTest,MultiReferenceWalPersistenceTest,FrozenPortableCompatibilityTest,BlockEditorNativeTest,BlockMediaNativeTest,MediaLibraryStorageTest,PortableZipCreationTest,PortableRestoreTest,PortableArchiveValidationTest,process-death,portable-install'
@@ -21,6 +22,7 @@ permissions:
   contents: read
 jobs:
   native:
+    if: ${{ inputs.owner_authorized }}
     strategy:
       fail-fast: false
       matrix:

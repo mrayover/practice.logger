@@ -1,13 +1,11 @@
 name: Android APK
 on:
-  push:
-    paths-ignore:
-      - "**.md"
-  pull_request:
-    paths-ignore:
-      - "**.md"
   workflow_dispatch:
     inputs:
+      owner_authorized:
+        description: 'Owner explicitly authorized this regression campaign (F1 or separate assignment)'
+        type: boolean
+        default: false
       build_only:
         description: "Build/unit/lint candidate before native release gates"
         type: boolean
@@ -52,7 +50,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    if: ${{ !inputs.test_class && !inputs.feature_suite }}
+    if: ${{ inputs.owner_authorized && (!inputs.test_class && !inputs.feature_suite) }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -119,7 +117,7 @@ jobs:
             app/schemas
           retention-days: 30
   device:
-    if: ${{ !inputs.build_only }}
+    if: ${{ inputs.owner_authorized && (!inputs.build_only) }}
     strategy:
       fail-fast: false
       matrix:
@@ -375,7 +373,7 @@ jobs:
           retention-days: 30
 
   current_features:
-    if: ${{ !inputs.build_only }}
+    if: ${{ inputs.owner_authorized && (!inputs.build_only) }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -418,7 +416,7 @@ jobs:
           retention-days: 30
 
   diagnostic:
-    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.test_class != '' || inputs.feature_suite != '') }}
+    if: ${{ inputs.owner_authorized && (github.event_name == 'workflow_dispatch' && (inputs.test_class != '' || inputs.feature_suite != '')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

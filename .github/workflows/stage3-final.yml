@@ -1,10 +1,11 @@
 name: Stage 3 final build and signed upgrade
 on:
-  push:
-    branches: [block-ux-stage1]
-    paths: [.github/workflows/stage3-final.yml]
   workflow_dispatch:
     inputs:
+      owner_authorized:
+        description: 'Owner explicitly authorized this regression campaign (F1 or separate assignment)'
+        type: boolean
+        default: false
       scope:
         type: choice
         options: [build, signed-upgrade]
@@ -20,7 +21,7 @@ permissions:
   contents: read
 jobs:
   build:
-    if: inputs.scope == 'build'
+    if: ${{ inputs.owner_authorized && (inputs.scope == 'build') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -48,7 +49,7 @@ jobs:
             app/build/test-results/testDebugUnitTest
             app/build/reports/lint-results-debug.*
   signed-upgrade:
-    if: inputs.scope == 'signed-upgrade'
+    if: ${{ inputs.owner_authorized && (inputs.scope == 'signed-upgrade') }}
     permissions:
       contents: write # GitHub requires push access to read temporary draft release assets.
     strategy:

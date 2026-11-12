@@ -1,3 +1,9 @@
+## Owner policy — development verification and F1 regression (2026-11-12)
+
+During ordinary development, compile the changed application and run only focused checks for the assigned feature, critical data integrity, and signed delivery. Comprehensive cross-feature regression, device matrices, historical migration/backup compatibility campaigns, broad UI/accessibility suites and baseline lint investigations are deferred to F1. Retain all tests and verification infrastructure. Investigate failures directly affecting the assigned change; document unrelated failures for F1.
+
+Comprehensive workflows are manual and require explicit owner authorization for each campaign. G3 completion does not authorize F1 or feature freeze. The owner decides when remaining features, including future check-ins/revisit suggestions, Playground and other approved or pending work, justify F1. This directive supersedes older per-stage broad-regression requirements, including the full-suite wording in the efficiency procedure; its other rules remain applicable.
+
 # Stage 3 scoped delivery — build111
 
 Checkpoint A passes on Android8/API26 and Android15/API35; compact selectors, independent source state, awaited checkpoints/failure retry, paused restores and Record Reference append-and-select are implemented. Stage3C.1 editor and Stage3B preservation remain complete. Stage3D signed install-over and scoped delivery are complete in0.38.0/build111. The owner explicitly stopped broad regression; its original full gate remains incomplete, with partial failures/cancellations disclosed. Physical acceptance remains pending. Exact evidence is in CURRENT_STATE.md.
