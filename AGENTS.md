@@ -6,6 +6,12 @@ Comprehensive workflows are manual and require explicit owner authorization for 
 
 # Permanent development instructions
 
+## Approved sequence and learning-guidance boundary
+
+Follow **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is delivered in build112; Stage3C.2/scoped Stage3D are complete in build111. Stage4 gathers real owner usability evidence (0/10 documented sessions); it is not broad regression authorization. The owner decides when review supports a separate LGE-1 assignment and when remaining features justify explicit F1 authorization.
+
+LGE-1/LGE-2 are approved future scope, not implemented or assigned for implementation by the roadmap handoff. Follow [the architecture contract](docs/LEARNING_GUIDANCE_EXTENSION.md): exact-placement first-attempt observations, criterion comparability, confidence distinct from delayed retention, optional scheduling with provenance and clearing/declining, and local explainable suggestions. No inference of mastery from time, no confidence-only interval adaptation, no automatic Goal/plan/session changes or compulsory classification. Preserve G3 accounting and existing Goal/transport/media/backup behavior. Documentation/architecture assignments do not compile, test, generate APKs or implement LGE.
+
 ## Read and verify first
 
 Read README.md, CURRENT_STATE.md, BUILD_PLAN.md and WORK_LOG.md before implementation. Review and follow the [mandatory efficiency procedure](WORK_LOG.md#2026-10-28--mandatory-efficiency-procedure-for-all-future-work); confirm that review in the initial work plan. Inspect local changes, branch, remote, current version and CI before editing. Reuse the existing repository and working architecture.

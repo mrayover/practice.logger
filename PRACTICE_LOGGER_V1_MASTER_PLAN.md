@@ -6,7 +6,7 @@ Comprehensive workflows are manual and require explicit owner authorization for 
 
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. G3 awaits a separate owner assignment. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. Stage3C.2 and scoped Stage3D are complete in build111; G3 is complete in signed0.39.0/build112 with focused verification, with phone acceptance pending. Stage4 practical-use review is next (0/10 documented real sessions). LGE-1 and LGE-2 are explicitly approved, separately assignable future V1 increments; neither is implemented. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -68,10 +68,14 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **G2** | Shared Goal Filtering | Delivered after W1. Shared filter with search and archived eligibility across four Block-selection contexts. | **Medium** |
 | **P1 Intentional Practice Lifecycle** | Ready, Prep and deliberate Block transitions | After G2 and before G3. Signed candidate and focused lifecycle checks. | **High** |
 | **P2 Block and Session Reflection** | Optional check-ins and immutable completion Goal snapshots | After P1 and before G3. Signed candidate and focused lifecycle, storage and ZIP checks. | **High** |
-| **G3** | Accurate time attribution and concise statistics | After P2 Block and Session Reflection. Historical snapshots, legacy Goal sessions and distinct committed totals. | **High** |
+| **G3** | Accurate time attribution and concise statistics (complete) | Signed build112; focused verification complete, phone acceptance pending. | **High** |
+| **Stage 4** | Practical-use usability review | After G3; real owner sessions and observed friction, currently0/10. No broad regression authorization. | Owner review |
+| **LGE-1** | Learning evidence and optional revisits (approved, not implemented) | After Stage4 review and separate implementation assignment; placement evidence, criteria, optional scheduling and focused migration/ZIP preservation. | **High** for data safety |
+| **LGE-2** | Explainable adaptive suggestions (approved, not implemented) | After delivered LGE-1 and separate assignment; deterministic comparable delayed-retention evidence and optional suggestions. | **Medium–High** |
+| **Remaining owner-approved V1 features** | Separately bounded features, including assigned Playground scope | After LGE-2; owner decides feature completion before authorizing F1. | Per assignment |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
 
-**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → P2 Block and Session Reflection → G3 → owner feature-completion decision → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
+**Gating rule:** P5 → L1 → L2 → L3 → K1 → T1 → T2 → T3-0 → T3A → T3B → T3C → T3D → S0 → S1 → O0 → S2 → O1 → G1 → W1 → G2 → P1 Intentional Practice Lifecycle → P2 Block and Session Reflection → G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2. Each phase after T3-0 requires a separate explicit owner assignment. Stage4 is real-world usability review, not a regression gate; the owner explicitly authorizes F1 only after determining feature completion. S2 must preserve T3 activity and media data before O1 begins. O1 must deliver overlay persistence and its ZIP extension together before G1. G1–G3 retain their approved scope, including preservation of historical Goal attribution.
 
 ### What is already implemented — do not rebuild it
 
@@ -321,7 +325,7 @@ Expand a Block and choose Practice Block to open independent practice at Ready. 
 - Stage 1.5 is implemented in signed build108 with compact placement snapshots, an on-demand picker, persistent independent durations and ordering, and an accessible pinned Start Session action. [Scoped verification and phone limitations](CURRENT_STATE.md#stage-15-session-builder-delivery-and-verification)
 - Stage 2 reorganizes the editor and supports staging references before the first Save with the current single-visual and single-audio model. Assess Goal Detail and Routine selection for safe reuse of the presentation.
 - Stage 3 depends on the stabilized editor and adds ordered multiple visual and audio references, with populated migration fixtures, preservation of reference-local state and complete ZIP round-trip coverage.
-- Stage 4 verifies the combined workflows from creation through practice, completion, reuse, history and backup/restore. Playground rewards retain their separate assignment.
+- Stage 4 follows completed G3 and reviews real-world usability from creation through practice, completion, reuse and history. Use [the real-session evaluation](EVALUATION.md), currently0/10; record actual phone observations, not invented automated sessions. Targeted physical backup confidence remains distinct from a broad compatibility campaign. Stage4 does not authorize regression or F1. The owner records review conclusions before separately assigning LGE-1. Playground retains its separate assignment.
 
 ### G2 — Shared Goal filtering (Medium)
 
@@ -345,11 +349,29 @@ Transcribe remains ordinary Block practice: no separate transcription statistics
 
 ---
 
+## LGE-1 and LGE-2 — approved future Learning Guidance Extension
+
+The owner explicitly approves these bounded additions to the earlier Deferred Practice Insights scope. They follow Stage4 practical-use review, after completed G3; approval of scope is not an implementation assignment. [Architecture, data contracts, preservation and future focused acceptance](docs/LEARNING_GUIDANCE_EXTENSION.md).
+
+### LGE-1 — Learning evidence and optional revisits
+
+Optional first-attempt observations belong to exact placements, independently of P2 end-of-practice1–5 security: Held up / Met intended target, Partially held up, Didn't hold up yet, Not assessed. Preserve criterion snapshots and explicit comparability identity; changed material, target or difficulty cannot silently reuse old evidence. Immediate performance and confidence are distinct from delayed retention. Keep exploration and unassessed practice fully valid. No new compulsory Ready gate or transport interruption.
+
+Add optional Return Soon and revisit dates with explicit clearing, manual interval choice, declining and manual/suggested provenance. Plan the smallest additive Room migration and corresponding complete ZIP update; retain historical readers, media safety, all existing records and empty-target recovery. No current version/schema change is authorized by this planning task.
+
+### LGE-2 — Explainable adaptive suggestions
+
+Consume LGE-1 and G3 facts through a provisional local deterministic policy. Only comparable delayed-return evidence may lengthen/shorten suggested intervals; confidence alone or early success cannot. Bound intervals and handle insufficient evidence conservatively; no validated-optimality claim or personalized forgetting-curve fitting. Recommendation order: pinned Return Soon, due revisits, comparable retention difficulties, underattended active Goals. Show understandable reasons in existing Practice Now/This Week selection. Never mutate Goals/priorities, add weekly Blocks, start sessions or create obligations automatically. Manual choices, No Goal and exploration remain available without penalty.
+
+Neither increment creates mastery scores, AI coaching, a new Goal hierarchy or duplicate time accounting. Both need separate future implementation assignments and focused checks only. G3 remains complete; optional factual learning-history displays need a later bounded assignment. Advanced predictive models, season entities, prerequisite graphs, automated diagnosis and teacher/student systems remain deferred.
+
+---
+
 ## 11. F1–F2 — V1 Finalization, full release and real-life acceptance
 
 ### F1 — Feature freeze, cleanup and comprehensive automated verification
 
-- Feature freeze begins only after an explicit owner decision that remaining V1 features are in place. G3 does not authorize F1; consider check-ins/revisit suggestions, Playground and other approved or pending work first. After that decision, no new V1 features during F1. Remove confirmed dead UI/placeholder labels, verify navigation, spacing, Lato, palette, clear error messages and accessibility. Cleanup is **not** an excuse to redesign already accepted screens.
+- Feature freeze begins only after an explicit owner decision that remaining V1 features are in place. Neither G3, Stage4 nor LGE completion authorizes F1; follow Stage4 → LGE-1 → LGE-2 → remaining owner-approved V1 features and consider separately assigned Playground work before the owner authorizes F1. After that decision, no new V1 features during F1. Remove confirmed dead UI/placeholder labels, verify navigation, spacing, Lato, palette, clear error messages and accessibility. Cleanup is **not** an excuse to redesign already accepted screens.
 - Run full unit suite + lint + debug/release compilation + complete available **API26/API35** instrumentation matrix, including updated media, SAF, backup and Goal attribution tests. Compare screenshots and verify 200% font, portrait/landscape, overflow/scroll indicators, accessible colors, TalkBack/semantic labels, keyboard transitions and process recreation where feasible.
 - Verify old-to-new Room migrations and **supported backup format compatibility**. Test install-over from current permanent-key build, data/media persistence, deletion guards, self-contained backup/restore, file-provider failure, audio-focus/microphone, recording review, 64-beat looping, custom count-in, meter/flash, alarms, Logs/Notes, Goals filters/totals and independent session accounting.
 - Extend acceptance to original Loop Recorder/Free Record regression, 100% and slower pitch-accurate playback, short A–B repeat, long waveform navigation, master/local inheritance/promotion, shared storage/deletion, concurrent imported playback/Free Record, keyboard during playback and complete media/legacy restore. Keep phase-scoped checks during development; full regression belongs here after integration.
@@ -367,7 +389,7 @@ Owner completes and records actual phone checks for: Transcribe speed/pitch/shor
 
 ## 12. Explicit V1 non-goals and boundaries
 
-These are **not** part of V1 unless the owner separately changes this document: in-app scanning/OCR and general document editing, unlimited references beyond one visual plus one active audio per Block, Library folder/tag taxonomy, an entirely new tagging system, importing online scores, notation editing, 128-beat loops, meter-aware loop bar selection, grouped 6/8/subdivision tempo maps, MIDI sync, MP3 encoding, converting every free capture to WAV, multitrack/overdub/mixer/effects, always-on recording, background countdown notifications, user-defined imported sound packs, automated music-learning prescriptions, advanced analytics, streaks, cloud accounts, Google Drive OAuth/sync/background upload, teacher/student/publisher products, band collaboration, desktop companion, marketplace or subscription services. These remain future ideas, not V1 acceptance blockers.
+These are **not** part of V1 unless the owner separately changes this document: in-app scanning/OCR and general document editing, unrestricted reference features beyond the implemented Stage3 ordered visual/audio collections, Library folder/tag taxonomy, an entirely new tagging system, importing online scores, notation editing, 128-beat loops, meter-aware loop bar selection, grouped 6/8/subdivision tempo maps, MIDI sync, MP3 encoding, converting every free capture to WAV, multitrack/overdub/mixer/effects, always-on recording, background countdown notifications, user-defined imported sound packs, automated music-learning prescriptions beyond the explicitly approved optional LGE-1/LGE-2 contract, advanced predictive analytics, streaks, cloud accounts, Google Drive OAuth/sync/background upload, teacher/student/publisher products, band collaboration, desktop companion, marketplace or subscription services. These remain future ideas, not V1 acceptance blockers.
 
 **Transcribe boundary:** Manual listening/phrase practice and audio markers are approved; automatic audio-to-MIDI/transcription, AI note/solo identification, BPM/time-signature analysis, pitch shifting/transposition, video/streaming/YouTube, general PDF/image editing, notation rewriting/generation and freehand PDF annotations remain excluded. O1 adds the bounded Block-local practice layer after S2.
 
@@ -405,6 +427,10 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] P1 Intentional Practice Lifecycle delivered with scoped verification. See [current verification and delivery](CURRENT_STATE.md).
 - [x] P2 Block and Session Reflection implemented. See [current delivery and verification](CURRENT_STATE.md).
 - [x] G3 implemented in signed0.39.0/build112 with focused units and one API35 navigation check; actual time, historical nonduplicated Goal attribution and manual assessment. Owner phone acceptance pending; comprehensive regression deferred to separately authorized F1.
+- [ ] Stage4 practical-use review;0/10 documented real sessions, owner conclusions pending; no broad regression authorization.
+- [ ] LGE-1 approved future learning evidence/optional revisits; not implemented or assigned for implementation.
+- [ ] LGE-2 approved future explainable suggestions; depends on delivered LGE-1 and separate assignment.
+- [ ] Remaining owner-approved V1 features considered/completed before explicit F1 authorization.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
 - [ ] F2 permanent-key V1 release candidate, real-device acceptance and truthful final documentation.
 
@@ -420,13 +446,11 @@ Complete saves the placement outcome and a placement-keyed completion snapshot b
 
 Room 22 stores completion identity, timestamp, the Block's primary Goal at completion, and the active priority and color when applicable. First-positive-time Goal attribution stays separate. Completion facts and optional reviews use separate records. Complete ZIP v6 preserves both. Older archives restore without invented completions or answers. This phase supplies historical facts for future earned Blocks.
 
-## Deferred Practice Insights
+## Practice Insights — approved LGE scope and deferred extensions
 
-Log includes the Playground placeholder. Future rewards and collectible layout follow the [Playground specification](docs/PLAYGROUND_SPEC.md) after separate owner assignment. Schedule revisits, suggestions and statistics also require separate assignments.
-- **Flags and revisits.** A Block can be flagged Return Soon from review or the Block interface. The flag persists until explicitly cleared. Log flag changes as historical events. An optional Revisit in selector offers intervals such as 1, 2, 3, 4, 5, 7, 14 and 30 days. A deterministic rule can recommend an interval from security ratings and later revisit history. Users can override it. Store the due date, recommendation and chosen interval. Treat scheduled revisits as suggestions.
-- **Suggested Blocks.** In Block selection, prioritize manual Return Soon flags, then consider due revisits, security trends, time since last practice and underattended active Goals. Show an understandable reason for each suggestion. Rules stay local, transparent, deterministic and configurable where appropriate. AI coaching and LLM integration are outside scope.
-- **Statistics and insights.** Derive duration, frequency, Goal time, practice types, tags where available, per-Block activity, intentional prep, meaningful tool use, confidence trends, revisit effectiveness and weekly or longer patterns from shared persisted activity records. Preserve historical Goal attribution across reassignment and count each practice or preparation interval once in its own category. A dismissible weekly invitation can offer factual summaries and a writing prompt entirely offline.
-- **Teacher integration.** A later, non-V1 extension could let teachers assign Blocks and work, set their own revisit thresholds and rules, and review appropriate history and reflections. Multi-user infrastructure, sync and permissions are outside this handoff.
+[LGE-1 and LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are explicitly approved future V1 increments after Stage4. Their first-attempt, criterion comparability, delayed-retention, scheduling provenance and optional explainable suggestion contracts supersede the earlier confidence-driven revisit sketch. Do not infer intervals solely from security ratings. G3 time statistics are already delivered; do not schedule G3 after LGE or duplicate its accounting.
+
+Playground rewards/collectible layout retain the [separate specification](docs/PLAYGROUND_SPEC.md) and require their own implementation assignment among remaining owner-approved features. Broader analytics, weekly invitations, speculative tool-use inference, new tags, predictive models, season-management entities, prerequisite graphs and automated skill diagnosis remain deferred. Teacher/student, multi-user, sync and permissions infrastructure are outside these increments. All suggestions remain ignorable; inactivity is not failure and no mastery is inferred from minutes or attendance.
 
 ### Minimal prompt for each new Work instance
 

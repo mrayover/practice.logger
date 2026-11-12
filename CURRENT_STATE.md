@@ -2,6 +2,10 @@
 
 Updated November 12, 2026 (America/Los_Angeles). **Signed 0.39.0/build112 is delivered. G3 functionality and focused verification are complete; owner phone acceptance is pending.** Application/package source **58a13bda4fb5ac594fbfa70a1f237daaf918d01f**, branch **block-ux-stage1**, pushed after separate policy checkpoint **a8d4c9a1f60e3060ec143c08f2145a3dda6f0261**. Later documentation commits do not change the packaged app. Work is in C:\Users\mrove\Projects\practice.logger; the older OneDrive reference checkout was not synchronized or edited. Only the new delivery folder was added there.
 
+## November12 roadmap-only reconciliation
+
+Live starting branch/remote14749db86f959201e4058b3e88a8a40bf5ecd710 was clean; G3 was already complete, so no active development needed stopping. Integrated the owner-approved LGE-1/LGE-2 architecture and revised sequence, replacing stale next-phase instructions. This assignment changed documentation only: no production/schema/version/workflow changes, tests, compilation, emulator activity, APK generation or LGE implementation. Existing build112, app source58a13bd and all prior delivery/verification facts remain unchanged. Historical CI43257870444 is completed/success; it was inspected, not rerun.
+
 ## G3 delivery and integrity
 
 OneDrive → Documents → ChatGPT → Practice Log development → **G3 delivery → G3 build112**. APK **practice.logger-0.39.0-b112-58a13bd.apk**; ZIP **practice.logger-0.39.0-b112-58a13bd-g3-development.zip**. Local final package: dist/practice.logger-0.39.0-b112-58a13bd-g3-development. dist/LATEST.txt points to the same delivery. BUILD_INFO.json, VERIFICATION.json, INSTALL.txt, SIGNATURE.txt and SHA256SUMS.txt accompany it.
@@ -28,7 +32,7 @@ No comprehensive regression, full lint, historical migration/backup suite, devic
 
 Regression workflows android.yml/stage3-final.yml/multi-reference.yml now have no automatic push/PR triggers and require manual owner authorization. Existing tests/scripts remain. Branch API reports protected=false; no safeguards were changed. Comprehensive regression is deferred to separately authorized F1. G3 completion is not feature freeze. Owner must consider remaining check-ins/revisit suggestions, Playground and other work before F1. Stage3 scoped completion and pending physical acceptance remain as recorded below.
 
-**Exact next task:** owner install-over and focused G3 phone checklist for build112, alongside pending Stage3 physical checks. **Recommended next feature assignment:** a bounded check-in/revisit design and data contract before scheduling implementation. Do not begin it, Playground, new Goal algorithms or F1 without a separate assignment. [Permanent verification policy](docs/VERIFICATION_POLICY.md).
+**Exact next task:** Stage4 practical-use review using signed build112: owner install-over, focused G3/Stage3 phone observations and real-session records in EVALUATION.md (currently0/10). Stage4 is usability review, not broad regression. Record owner conclusions before a separate LGE-1 implementation assignment. Approved sequence: **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. LGE-1 and LGE-2 are approved future scope, not implemented. [Architecture and future focused acceptance](docs/LEARNING_GUIDANCE_EXTENSION.md). Each needs a separate implementation assignment; only the owner authorizes F1 after determining feature completion. [Permanent verification policy](docs/VERIFICATION_POLICY.md).
 
 ---
 

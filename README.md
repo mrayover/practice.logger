@@ -1,6 +1,6 @@
 # practice.logger
 
-Development source has Room24/ZIP8 ordered multiple-reference persistence, the completed Stage3C.1 collection editor and Stage3C.2 practice selectors with independent source state and awaited audio checkpoints. Android8/15 focused gates pass. Signed0.38.0/build111 is delivered after focused Android8/15 and actual permanent-key build110 upgrade checks. The owner stopped broad regression; full regression and physical acceptance remain incomplete. See [verification and remaining work](CURRENT_STATE.md).
+Stage3C.2 and scoped Stage3D are complete in signed build111. G3 Statistics is delivered in signed0.39.0/build112 with focused verification. Room24/ZIP8/JSON7 remain unchanged; phone acceptance and comprehensive regression remain pending. See [verification and remaining work](CURRENT_STATE.md).
 
 An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. See [CURRENT_STATE.md](CURRENT_STATE.md) for the latest permanent-key build, focused verification and phone acceptance.
 
@@ -8,7 +8,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Se
 
 P0–P5, L1–L3, K1, T1–T2 and T3A–T3D are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines the phase order and release gates. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; Stage4 records real owner usability evidence, not broad regression. [LGE-1/LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are approved future increments requiring separate implementation assignments. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 
 ## Appearance and Settings
 
