@@ -108,6 +108,57 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     private var player: MediaPlayer? = null
     private var loopTrack: AudioTrack? = null
+    private var playbackTake: BlockTake? = null
+    private var loopFrameCount = 0
+    private var loopOrigin = 0L
+    private var loopHeadAtSeek = 0L
+    private var cueId: String? = null
+    private var cueMs = 0L
+    private val selectedTakes = mutableMapOf<String, String>()
+    internal var committedSeeks = 0; private set
+
+    internal fun bindScrubber(slot: String, id: String?) {
+        val old = selectedTakes[slot]
+        if (old != id) {
+            if (old == playbackTake?.id) stopPlayback()
+            if (old == cueId) { cueId = null; cueMs = 0 }
+            if (id == null) selectedTakes.remove(slot) else selectedTakes[slot] = id
+        }
+    }
+    internal suspend fun waveform(take: BlockTake): AudioWaveform = withContext(Dispatchers.IO) {
+        RecordingWaveforms.load(repository.audioFile(take), take.durationMs)
+    }
+    internal fun playbackPosition(take: BlockTake): Long {
+        if (playbackTake?.id != take.id) return if (cueId == take.id) cueMs else 0
+        return runCatching {
+            loopTrack?.let {
+                val frames = (loopOrigin + ((it.playbackHeadPosition.toLong() and 0xffffffffL) - loopHeadAtSeek).coerceAtLeast(0)) % loopFrameCount.coerceAtLeast(1)
+                frames * 1000 / PhraseSpec.RATE
+            } ?: if (preparingId != null) cueMs else player?.currentPosition?.toLong() ?: 0
+        }.getOrDefault(0).coerceIn(0, take.durationMs)
+    }
+    internal fun seekSaved(slot: String, take: BlockTake, requestedMs: Long) {
+        if (selectedTakes[slot] != take.id || !foreground || !recordingScreenOpen ||
+            visibleBlockId != take.blockId || recording || reviewTake != null || captureOwner != null) return
+        val target = requestedMs.coerceIn(0, take.durationMs)
+        try {
+            if (playbackTake?.id == take.id) {
+                loopTrack?.let { track ->
+                    val resume = track.playState == AudioTrack.PLAYSTATE_PLAYING
+                    if (resume) track.pause()
+                    val frame = recordingFrame(target, loopFrameCount)
+                    check(track.setPlaybackHeadPosition(frame) == AudioTrack.SUCCESS)
+                    check(track.setLoopPoints(0, loopFrameCount, -1) == AudioTrack.SUCCESS)
+                    loopOrigin = frame.toLong()
+                    loopHeadAtSeek = track.playbackHeadPosition.toLong() and 0xffffffffL
+                    if (resume && foreground) track.play()
+                } ?: player?.let { if (preparingId == null) it.seekTo(target.coerceAtMost(it.duration.toLong()), MediaPlayer.SEEK_CLOSEST) }
+            }
+            cueId = take.id; cueMs = target; committedSeeks++
+        } catch (_: Exception) {
+            stopPlayback(); message = "Could not seek this recording. Tap Play to retry."
+        }
+    }
     private var phraseCapture: PhraseCapture? = null
     private var phraseJob: Job? = null
     private var audioGeneration = 0
@@ -393,7 +444,9 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     fun play(take: BlockTake) = work {
         if (reviewTake != null && reviewTake?.id != take.id) return@work
+        val startMs = if (cueId == take.id) cueMs else 0L
         stopPlayback()
+        cueId = take.id; cueMs = startMs
         val generation = audioGeneration
         val file = withContext(Dispatchers.IO) { repository.audioFile(take) }
         val samples = if (take.kind == TakeKind.RECORDED_LOOP) withContext(Dispatchers.IO) {
@@ -407,16 +460,21 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
         try {
             if (samples != null) {
                 loopTrack = phraseTrack(samples, true)
+                loopFrameCount = samples.size
+                val frame = recordingFrame(startMs, samples.size)
+                check(loopTrack!!.setPlaybackHeadPosition(frame) == AudioTrack.SUCCESS)
+                loopOrigin = frame.toLong(); loopHeadAtSeek = loopTrack!!.playbackHeadPosition.toLong() and 0xffffffffL
+                playbackTake = take
                 loopTrack!!.play(); playingId = take.id; message = "Looping · ${take.recordedBpm} BPM · ${take.beatCount} beats."
                 return@work
             }
             val audio = MediaPlayer()
-            player = audio; preparingId = take.id; message = null
+            player = audio; playbackTake = take; preparingId = take.id; message = null
             audio.setAudioAttributes(attributes); audio.setDataSource(file.absolutePath)
             audio.isLooping = take.kind == TakeKind.IMPORTED_LOOP
             audio.setOnPreparedListener {
                 if (player === it && foreground && recordingScreenOpen && visibleBlockId == take.blockId) {
-                    try { it.start(); preparingId = null; playingId = take.id; if (take.kind == TakeKind.IMPORTED_LOOP) message = "Looping imported audio · " + takeDuration(take) }
+                    try { if (cueId == take.id && cueMs > 0) it.seekTo(cueMs.coerceAtMost(it.duration.toLong()), MediaPlayer.SEEK_CLOSEST); it.start(); preparingId = null; playingId = take.id; if (take.kind == TakeKind.IMPORTED_LOOP) message = "Looping imported audio · " + takeDuration(take) }
                     catch (_: Exception) { stopPlayback(); message = "Playback could not start. Try again." }
                 }
             }
@@ -429,6 +487,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     }
     fun stopPlayback() {
         audioGeneration++
+        playbackTake = null; cueId = null; cueMs = 0
         val loop = loopTrack; loopTrack = null
         runCatching { loop?.pause(); loop?.flush(); loop?.release() }
         val audio = player; player = null; playingId = null; preparingId = null

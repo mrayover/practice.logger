@@ -350,7 +350,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
                 .weight(1f).padding(horizontal = 16.dp).testTag("practice-selection-panel")) {
                 val loop = transportPanel == "loop-list"
                 PracticeTakeSelection(if (loop) loopTakes else freeTakes, if (loop) loopId else freeId, loop,
-                    onSelect = { if (loop) loopId = it.id else freeId = it.id; transportPanel = null }, onClose = { transportPanel = null })
+                    onSelect = { recordings.bindScrubber(if (loop) "loop" else "free", it.id); if (loop) loopId = it.id else freeId = it.id; transportPanel = null }, onClose = { transportPanel = null })
             }
         if (recordings.reviewTake == null && transportPanel == "metronome") PracticeScrollPanel(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal=16.dp),tag="practice-metronome-panel") {

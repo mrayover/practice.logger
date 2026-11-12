@@ -458,6 +458,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp, androidx.compose.ui.Alignment.End)) { actions() }
         } else Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)) { selector(Modifier.weight(1f)); actions() }
+        RecordingScrubber(selected, type, vm, enabled && !vm.recording)
     }
 }
 

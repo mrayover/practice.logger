@@ -49,16 +49,7 @@ fun parseAudioSeconds(text: String): Long? = text.toDoubleOrNull()?.takeIf { it.
             val b = timeline.fraction(state.bMs) * size.width
             drawRect(primary.copy(alpha = .12f), Offset(a.coerceIn(0f, size.width), 0f), androidx.compose.ui.geometry.Size((b.coerceIn(0f, size.width) - a.coerceIn(0f, size.width)).coerceAtLeast(0f), size.height))
             drawLine(outline, Offset(0f, size.height / 2), Offset(size.width, size.height / 2))
-            waveform?.let { wave ->
-                for (x in 0 until size.width.toInt() step 2) {
-                    val start = (timeline.timeAt(x / size.width) / AudioWaveform.BIN_MS).toInt().coerceIn(wave.peaks.indices)
-                    val end = (timeline.timeAt((x + 2) / size.width) / AudioWaveform.BIN_MS).toInt().coerceIn(wave.peaks.indices)
-                    var peak = 0f
-                    for (i in start..end) peak = max(peak, wave.peaks[i])
-                    val height = peak * size.height * .43f
-                    drawLine(primary, Offset(x.toFloat(), size.height / 2 - height), Offset(x.toFloat(), size.height / 2 + height), 1.5f)
-                }
-            }
+            waveform?.let { drawAudioEnvelope(it, timeline, primary) }
             markers.forEach { marker ->
                 val x = timeline.fraction(marker.startMs) * size.width
                 if (x in 0f..size.width) drawLine(tertiary, Offset(x, 0f), Offset(x, size.height), 2f)
@@ -93,5 +84,20 @@ fun parseAudioSeconds(text: String): Long? = text.toDoubleOrNull()?.takeIf { it.
                 }
             }
         }
+    }
+}
+
+/** Shared amplitude rendering for Library and compact saved-recording transport. */
+internal fun androidx.compose.ui.graphics.drawscope.DrawScope.drawAudioEnvelope(
+    wave: AudioWaveform, timeline: AudioTimeline, color: androidx.compose.ui.graphics.Color
+) {
+    if (wave.peaks.isEmpty()) return
+    for (x in 0 until size.width.toInt() step 2) {
+        val start = (timeline.timeAt(x / size.width) / wave.binMs).toInt().coerceIn(wave.peaks.indices)
+        val end = (timeline.timeAt((x + 2) / size.width) / wave.binMs).toInt().coerceIn(wave.peaks.indices)
+        var peak = 0f
+        for (i in start..end) peak = max(peak, wave.peaks[i])
+        val height = peak * size.height * .43f
+        drawLine(color, Offset(x.toFloat(), size.height / 2 - height), Offset(x.toFloat(), size.height / 2 + height), 1.5f)
     }
 }

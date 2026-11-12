@@ -11,7 +11,7 @@ import kotlin.math.abs
 import kotlin.math.max
 
 /** Fixed 5ms source-time peak envelope: at most 180,001 floats (~704KiB), never full PCM. */
-data class AudioWaveform(val durationMs: Long, val peaks: FloatArray) {
+data class AudioWaveform(val durationMs: Long, val peaks: FloatArray, val binMs: Long = BIN_MS) {
     companion object { const val BIN_MS = 5L; const val MAX_BINS = 180001 }
 }
 
@@ -39,7 +39,7 @@ class AudioWaveformCache(private val repository: MediaLibraryRepository, private
                 val index = (timeUs / (AudioWaveform.BIN_MS * 1000)).toInt()
                 if (index in peaks.indices && amplitude.isFinite()) peaks[index] = max(peaks[index], abs(amplitude).coerceAtMost(1f))
             }
-            if (original.extension == "wav") wavePeaks(original, ::peak) else decodedPeaks(original, ::peak)
+            if (original.extension == "wav") wavePeaks(original, ::peak) else decodedPeaks(original, peak = ::peak)
             currentCoroutineContext().ensureActive()
             // A unique pending file prevents partially written cache reuse after interruption.
             val pending = File.createTempFile("wave-", ".pending", directory)
@@ -62,8 +62,12 @@ class AudioWaveformCache(private val repository: MediaLibraryRepository, private
     }
 }
 
-private suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
+internal suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
     RandomAccessFile(file, "r").use { input ->
+        require(input.length() >= 44)
+        require(ByteArray(4).also(input::readFully).toString(Charsets.US_ASCII) == "RIFF")
+        input.seek(8)
+        require(ByteArray(4).also(input::readFully).toString(Charsets.US_ASCII) == "WAVE")
         input.seek(12); var rate = 0; var channels = 0; var dataStart = 0L; var dataLength = 0L; var chunks = 0
         while (input.filePointer + 8 <= input.length()) {
             currentCoroutineContext().ensureActive()
@@ -73,15 +77,19 @@ private suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
             val start = input.filePointer
             require(length <= input.length() - start)
             if (tag == "fmt ") {
-                input.skipBytes(2); channels = java.lang.Short.reverseBytes(input.readShort()).toInt()
+                require(length >= 16)
+                require(java.lang.Short.reverseBytes(input.readShort()).toInt() == 1)
+                channels = java.lang.Short.reverseBytes(input.readShort()).toInt()
                 rate = Integer.reverseBytes(input.readInt())
+                input.skipBytes(6)
+                require(java.lang.Short.reverseBytes(input.readShort()).toInt() == 16)
             }
             if (tag == "data") {
                 dataStart = start; dataLength = length
             }
             input.seek(start + length + (length and 1))
         }
-        require(rate in 8000..96000 && channels in 1..2 && dataLength > 0)
+        require(rate in 8000..96000 && channels in 1..2 && dataLength > 0 && dataLength % (2 * channels) == 0L)
         input.seek(dataStart)
                 val bytes = ByteArray(32768); var left = dataLength; var sample = 0L
                 while (left > 0) {
@@ -96,7 +104,7 @@ private suspend fun wavePeaks(file: File, peak: (Long, Float) -> Unit) {
     }
 }
 
-private suspend fun decodedPeaks(file: File, peak: (Long, Float) -> Unit) {
+internal suspend fun decodedPeaks(file: File, maxDurationMs: Long = 900000, peak: (Long, Float) -> Unit) {
     val extractor = MediaExtractor(); var codec: MediaCodec? = null
     val deadline = SystemClock.elapsedRealtime() + 120000
     try {
@@ -133,7 +141,7 @@ private suspend fun decodedPeaks(file: File, peak: (Long, Float) -> Unit) {
                     buffer.position(info.offset); buffer.limit(info.offset + info.size)
                     val bytes = if (floating) 4 else 2
                     val samples = info.size / bytes
-                    require(frames + samples/channels <= rate.toLong() * 901)
+                    require(frames + samples/channels <= rate.toLong() * (maxDurationMs / 1000 + 1))
                     repeat(samples) { sample ->
                         val amplitude = if (floating) buffer.float else buffer.short / 32768f
                         peak(info.presentationTimeUs + (sample / channels) * 1_000_000L / rate, amplitude)

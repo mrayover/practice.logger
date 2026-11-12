@@ -1,3 +1,8 @@
+# RW1 implementation in progress — build115
+
+Owner-assigned recording waveform and scrubbing is implemented in the existing Focused Practice saved-recording transport. Initial compilation/release vital lint and two host checks pass; final focused verification, signing and delivery are pending. Room25/ZIP10/JSON7 unchanged. Exact next task: verify the final source and one API35 recording seek/scrub workflow, then sign, document and deliver RW1. No broad regression or F1 authorized. Previous delivered build114 remains below.
+
+---
 # Current state — LGE-2 signed development delivery, build114
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.41.0/build114 is delivered. LGE-2 implementation and focused checks are complete; owner-phone acceptance remains pending.** Application/package/test source **192d52087490551a2b1dc61c7f403e2ce98dce6c** on **block-ux-stage1**. Later documentation commits do not alter the signed application. The designated C:/Users/mrove/Projects/practice.logger checkout was used; the older OneDrive checkout was not edited or synchronized. Only a new delivery folder was added there.
