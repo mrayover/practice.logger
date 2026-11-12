@@ -151,7 +151,7 @@ class TranscribeRecordTakeTest {
     }
 
     @Test fun interruptionsStopBothStreamsAndKeepReview() {
-        openTranscribe()
+        val setup = openTranscribe()
         val before = runBlocking { db.takes().readAll() }
         clickTag("audio-play")
         clickTag("transcribe-record-take")
@@ -167,9 +167,14 @@ class TranscribeRecordTakeTest {
         waitForAudio()
         scenario.recreate()
         waitForReview()
+        // Recorder review can be ready before the reference's asynchronous restoration completes.
+        compose.waitUntil(15_000) {
+            player.state.value.let { it.mediaId == setup.audio.id && !it.preparing && it.durationMs > 0 }
+        }
         assertFalse(recordings.recording)
         assertFalse(player.state.value.playing)
         assertEquals(75, player.state.value.speedPercent)
+        assertEquals(75, runBlocking { db.blockAudio().state(setup.block, setup.audio.id)!!.speedPercent })
         assertTrue(player.state.value.repeatRange)
         clickTag("review-discard")
 
