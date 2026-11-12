@@ -130,21 +130,27 @@ internal fun recommendedBlocks(blocks: List<Block>, goals: List<GoalBundle>, eve
     zone: ZoneId): List<BlockRecommendation> {
     val indicators = GoalIndicators(goals)
     val active = activeGoals(goals)
+    val practicesByBlock = practices.groupBy { it.blockId }
+    val blockByPlacement = practices.associate { it.placementId to it.blockId }
+    val observationsByBlock = observations.groupBy { blockByPlacement[it.placementId] }
+    val eventsByBlock = events.groupBy { it.blockId }
     // Previous seven complete local dates. G3 retains its own unchanged accounting rules.
     val attended = facts.filter { it.activeMs > 0 && it.attribution in listOf("SNAPSHOT", "LEGACY_SESSION", "EXPLICIT") }.filter {
         val date = Instant.ofEpochMilli(it.startedAt).atZone(zone).toLocalDate()
         date >= today.minusDays(7) && date < today
     }.mapNotNullTo(hashSetOf()) { it.goalId }
     return blocks.distinctBy { it.id }.filter { !it.archived }.mapIndexedNotNull { index, b ->
-        val history = events.filter { it.blockId == b.id }.sortedByDescending { it.revision }
+        val history = eventsByBlock[b.id].orEmpty().sortedByDescending { it.revision }
         val state = history.firstOrNull()
         val flag = if (state?.returnSoon == true) history.firstOrNull { it.action == "FLAG_SET" } else null
         val due = state?.dueDate?.let(LocalDate::parse)?.takeIf { it <= today }
-        val difficulty = observations.filter { o ->
+        val blockObservations = observationsByBlock[b.id].orEmpty()
+        val blockPractices = practicesByBlock[b.id].orEmpty()
+        val difficulty = blockObservations.filter { o ->
             val date = Instant.ofEpochMilli(o.observedAt).atZone(zone).toLocalDate()
             date >= today.minusDays(13) && date <= today && o.outcome in listOf("PARTIAL", "NOT_YET")
         }.sortedWith(compareByDescending<LearningObservation> { it.observedAt }.thenBy { it.placementId }).firstOrNull {
-            returnSuggestion(b.id, observations, practices, today, now, it.placementId).elapsedMs != null
+            returnSuggestion(b.id, blockObservations, blockPractices, today, now, it.placementId).elapsedMs != null
         }
         val goal = active.firstOrNull { row -> row.goal.id !in attended && row.blocks.any { it.blockId == b.id } }
         val reasons = buildList {
