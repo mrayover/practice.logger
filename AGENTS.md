@@ -16,6 +16,8 @@ At the end of every session, including incomplete work: record factual work/resu
 
 ## Current app and data rules
 
+Stage3C.1 is complete: the editor stages ordered Visual/Audio collections using manifest v2, scalar-manifest upgrade, all-item receipts and exact source-difference saves. Retain its collection, local-work and stale-edit safeguards. Scalar-editor wording in the retained legacy guidance below describes the preceding Stage2/3B interface; scalar compatibility APIs still serve existing callers. Practice-screen selection/switching remains unimplemented Stage3C.2. No signed3C.1 package is distributed; build110 remains the owner baseline. See CURRENT_STATE.md for verification and the exact next assignment.
+
 Daily Log/Weekly View shipped in 0.13.0/build25; the current Focused Practice transport is a limited owner preview; consult CURRENT_STATE.md for the signed build, actual verification and owner acceptance. Blocks, independent sessions/history, integrated click, Block and standalone recordings, phrase loops, Tools/tuner/timers, saved Routines, Goals and safe permanent Block deletion are implemented. Do not restart Stage 0 or treat those capabilities as deferred. Stage 3 detailed phone acceptance is pending; Stage 4 remains 0/10 documented real sessions. New work requires an owner-assigned bounded increment under BUILD_PLAN.md and the V1 master plan; stop after that assignment.
 
 Keep Kotlin, Jetpack Compose, Room, Lifecycle and bundled Lato Regular/Bold throughout app-controlled text. Preserve default Light cream/green identity, central Light/Dark/System/Smooth/Sunny/Orchid roles, navigation and functioning controls. No destructive database fallback; retain schema exports and explicit data-preserving migrations.

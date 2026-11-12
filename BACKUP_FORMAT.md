@@ -4,7 +4,7 @@ Development source complete portable ZIP v8 preserves ordered multiple visual/au
 
 ## Stage3B portable compatibility
 
-Room24/ZIP8 and historical compatibility are implemented and verified on API26/API35; exact evidence/limits are in CURRENT_STATE.md. Collection controls await Stage3C. JSON7/readers1–7 are unchanged.
+Room24/ZIP8 and historical compatibility are implemented and verified on API26/API35; exact evidence/limits are in CURRENT_STATE.md. The Stage3C.1 collection editor is implemented and its newly saved collections round-trip through the unchanged ZIP8 format. Unsaved editor drafts remain excluded; practice switching awaits3C.2. JSON7/readers1–7 are unchanged.
 
 ## Format and records
 

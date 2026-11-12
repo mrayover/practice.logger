@@ -1,14 +1,34 @@
-# Stage 3C.1 — implementation under focused verification
+# Current state — Stage 3C.1 editor complete
 
-November 11, 2026: the Block Editor now stages independent ordered Visual and Audio collections before first Save. Compact rows provide preview, exact removal, Up/Down and a first-item Default label. Library/import/photo/gallery reuse existing ownership and validation. Manifest v2 upgrades scalar drafts, records complete ordered intent and commit receipts, rechecks saved collections and reviewed source-local work, and applies differences in the existing atomic Block/Goal/week/Builder transaction. Matching originals are reused; unchanged links are never removed/reinserted.
+Updated November 11, 2026 (America/Los_Angeles). Canonical checkout: C:/Users/mrove/Projects/practice.logger, branch block-ux-stage1. Baseline bb86f6db5886947ae3e83638f705e20254bb4711; final verified implementation/test source **49aae982420d4f4f59b2386511606d747465bb2b**. Later closeout changes are documentation only.
 
-Local focused collection tests and debug/release/test-package compilation have passed; final preservation and Android 8/15 gates are in progress. Stage3C.1 is NOT yet marked complete. This section supersedes the scalar-editor statements in the historical Stage3B record below. Practice-screen switching remains unimplemented and is reserved for Stage3C.2. Signed build110 stays the known working Room23/ZIP7 owner baseline; no signed APK or version increment is produced here.
+## Multiple-reference Block Editor
 
-Exact next task: finish Stage3C.1 focused Android collection, recovery, accessibility and portable-backup verification, resolve any failures, then publish factual completion status. Do not start Stage3C.2 or Stage3D.
+**Stage3C.1 is complete with focused engineering verification.** New and existing Blocks have independent ordered Visual and Audio collections, including mixed images/PDFs and an existing legacy visual. Compact ellipsized rows expose exact Preview/Remove/Up/Down and a subtle first-item Default label. Add offers Library/import and Visual Photo/Gallery. Multiple files can be staged, reordered, previewed and individually removed before one Save. Duplicate canonical/pending imports reuse verified originals, keep position/local work and report duplicate selection.
+
+Manifest v2 retains stable draft/creation identity, upgrades Stage2 scalar intent, records complete ordered baselines/intent and all-item receipts, and preserves unavailable pending items for removal/retry. Save validates intended originals, checks BOTH saved collections and reviewed exact-source loss snapshots, preserves unchanged links and commits Block/Goal/week/Builder/media differences together. Confirmed removal affects only that attachment, keeps shared originals, and rejects later local work changes. Saved visual previews retain existing PDF/overlay tools; pending previews use actual staged bytes. Isolated audio preview offers Play/Stop with focus, route-loss, background and disposal cleanup, without persistent associations or state writes. [Staging/recovery contract](docs/BLOCK_EDITOR_STAGING.md)
+
+## Verified Stage3C.1 gates
+
+- **63 focused host tests pass**, including six new collection checks, draft Save, migration/persistence, audio/overlays, deletion, backup, sessions, Routines, Goals and weeks. Debug/release/Android test assembly and release vital lint pass. Full lintDebug retains the **five unchanged baseline errors and30 warnings** recorded before this increment; no full-lint or full-host-suite pass is claimed.
+- [43135686543](https://github.com/mrayover/practice.logger/actions/runs/43135686543), source a3c7839:63 units/builds pass per job. API26 passes23 native checks; API35 passes all storage/recovery/week/migration/frozen archive/restore checks, with one new UI visibility failure. This includes a real process kill after first-file promotion, complete draft recovery and exactly-once Builder append; the editor-created four-reference collection also exports/restores through ZIP8 into an independent empty database.
+- [43136482999](https://github.com/mrayover/practice.logger/actions/runs/43136482999), reviewed product source317868f: both APIs pass6 shared preservation checks,5 native staging/ZIP checks, interrupted promotion recovery and2 established editor/Builder workflows. Each job has one collection-UI interaction failure. Captured evidence led to test keyboard-transition synchronization rather than product layout changes.
+- [43157782919](https://github.com/mrayover/practice.logger/actions/runs/43157782919), source a316d60: **all3 collection UI methods pass onAPI26/job130981640153**. API35 passes compact320dp/200% text in Light/Dark/Orchid and Prepare Week/default-practice; the extended saved-PDF assertion runs before asynchronous page loading finishes. The final test waits for the exact tagged Page2of2 result while retaining visibility/text assertions.
+- [43158444988](https://github.com/mrayover/practice.logger/actions/runs/43158444988), final source49aae98: **that exact UI method passes onAPI26/job130983766482 andAPI35/job130983766259**. All **24 distinct scoped native checks** therefore have passing evidence on EACH API across these recorded runs. Earlier failures remain part of the record; this is not a claim that every grouped attempt passed.
+
+Coverage includes multiple mixed visuals/audio, independent order/defaults, duplicates, pending/saved exact removal and confirmation, legacy coexistence, retained overlays/audio markers/master relationships, stale lists and late local-work rejection, all-item first Save/rollback/retry, scalar upgrade, recreation, missing pending originals, cancellation/shared-original protection, interrupted promotion and receipt replay. Native UI covers Library and pending selections, preview/background release, saved multipage PDF, save/reopen, Builder preservation, selected prior-week creation and deterministic first visual/audio in practice. Light/Dark/Orchid320dp/200% screenshots were visually inspected: titles ellipsize, actions wrap and Save stays pinned. Phone/provider/TalkBack/acoustic acceptance is not inferred.
+
+## Limits, owner baseline and exact next assignment
+
+Development remains **Room24, ZIP8/readers1–8, JSON7/readers1–7**. Schemas/migration, backup implementation, application version and practice/recording engines are unchanged by3C.1. **Signed0.37.0/build110 remains the known working Room23/ZIP7 owner baseline. No signed APK, owner distribution or version increment was produced.** A build110 downgrade cannot open committed Room24.
+
+Audio preview is a small audition dialog; waveform/speed/marker editing remain in existing workspaces. Android saved navigation/form state restores fields while the manifest restores media/order; force-stop without task restoration abandons a temporary draft to the established safe expiration policy. Physical collection checks remain in [MANUAL_TESTS](MANUAL_TESTS.md).
+
+**Exact next assignment: Stage3C.2 practice-screen reference selection/switching**, only after explicit owner assignment. Implement per-source visual/page/zoom state, awaited outgoing audio checkpoint and paused incoming state, stale callback/capture guards and Record Reference append-and-select. None is implemented here. Practice still opens the first ordered reference deterministically. **Stage3D** remains final integration, owner install-over/device acceptance and signed delivery. Stop after3C.1.
 
 ---
 
-# Current state — Stage 3B persistence complete
+# Stage 3B — verified persistence baseline (historical)
 
 Updated November11,2026 (America/Los_Angeles).
 
@@ -35,7 +55,7 @@ Regression: [43127710836](https://github.com/mrayover/practice.logger/actions/ru
 
 Full Windows host run:173 tests/19 failures before projection-expectation correction. Untouched ba267be reproduced17 matching media-promotion/provider/journal failures and two old schema18 assertions. Relevant migration tests now assert24 and compare every frozen old column. One newly exposed AudioImport journal-open failure occurs before schema creation while its exact baseline method passes; cause unestablished. No full-host-suite pass is claimed. Full lintDebug has the five documented error locations in unchanged files (30 warnings); release vital lint passes. Physical phone/provider/TalkBack/acoustic and signed owner install-over acceptance remain Stage3D work.
 
-**Exact next assignment: Stage3C; do not start automatically.** Add ordered visual/audio lists; individual preview/reorder/confirmed removal; versioned collection staging, old-manifest compatibility and all-item receipts; per-source PDF/page/zoom/overlays; awaited outgoing audio checkpoint, paused incoming state and stale-callback/capture guards; recording/Transcribe append-and-select. **Stage3D** completes final integration, owner install-over and signed delivery. Build110 cannot open committed Room24; APK downgrade is not rollback.
+The subsequent assignment split3C: editor collections/staging are complete in3C.1 above; practice selection/checkpoints/append-and-select remain3C.2. Stage3D retains final integration, owner install-over and signed delivery. Build110 cannot open committed Room24; APK downgrade is not rollback.
 
 Historical stage records below retain their original signed/preparation baselines; the current status and next assignment above supersede their former next-task statements.
 
