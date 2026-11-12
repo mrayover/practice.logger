@@ -1,8 +1,40 @@
-# Current state — LGE-1 implementation and focused verification
+# Current state — LGE-1 signed development delivery, build113
 
-Updated November12,2026. Owner separately assigned LGE-1 after deferring Stage4 sessions. Source targets0.40.0/build113, Room25/complete ZIP9/JSON7. First-attempt observations, immutable comparable criteria, optional manual revisit choices and restrictive history/backup ownership are implemented; signed delivery and one focused Android workflow check are pending. Build112 remains the current signed release until closeout. LGE-2 is not assigned or implemented.
+Updated November12,2026 (America/Los_Angeles). **Signed0.40.0/build113 is delivered. LGE-1 implementation and focused verification are complete; owner phone acceptance remains pending.** Application/package/test source **23e0b6660d2a5027421eff7a605869f119574c46**, branch **block-ux-stage1**. Later documentation commits do not change the packaged app. Existing checkout C:/Users/mrove/Projects/practice.logger was used; the older OneDrive reference checkout was not synchronized or edited. Only the new delivery folder was added there.
 
-**Exact current task:** complete focused LGE-1 validation and signed delivery; do not start LGE-2 or F1. The G3/Stage3 phone acceptance limitations below remain pending.
+## Delivery and integrity
+
+OneDrive → Documents → ChatGPT → Practice Log development → **LGE-1 delivery → LGE-1 build113**.
+[APK](dist/practice.logger-0.40.0-b113-23e0b66-lge1-development/practice.logger-0.40.0-b113-23e0b66.apk) · [ZIP](dist/practice.logger-0.40.0-b113-23e0b66-lge1-development.zip) · [Phone checklist](MANUAL_TESTS.md#lge-1--optional-learning-evidence-and-manual-revisits).
+Local final folder: dist/practice.logger-0.40.0-b113-23e0b66-lge1-development; dist/LATEST.txt points to this delivery. BUILD_INFO, VERIFICATION, INSTALL, PHONE_CHECKLIST, SIGNATURE and SHA256SUMS accompany the APK and incremental-signature companion.
+
+- Stable app ID com.mrayover.practicelogger.app; permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Package/version and signature verified with the existing permanent-key tools.
+- APK SHA256 **fa170d641216cda19374b34c6b7802d359fc7e9fa9458ec26b4e6e2a35da3869**.
+- ZIP SHA256 **698408b7a7fa6f8c9057a1d1c92d9e359218eb09d0b53f3e3ffba8c52d0b60f0**.
+- Final signing uses the exact Linux CI release: all148 unsigned payload entries match the signed APK. All8 final ZIP members and OneDrive copies match. All538 prior snapshotted APK/ZIP paths retain their hashes. The earlier locally signed candidate is preserved separately; it is not the final installation target. Cloud-sync completion was not independently observed.
+- Keep a complete pre-update backup; install over the permanent-key app **without uninstalling or clearing data**. Build112 cannot open Room25/read ZIP9; APK downgrade is not rollback. No owner phone installation or data alteration was performed.
+
+## Implemented scope
+
+Optional Learning & revisits controls in the practice description, saved Block editor and placement summary provide exact-placement first-attempt observations, explicit first-attempt/recollection/unknown context, immutable criterion snapshots and comparability tokens, and outcome/context corrections without changing original time/criteria. Missing observation differs from Not assessed. Repeated placements are independent. Confidence, manual Goal progress and G3 time remain separate.
+
+Return Soon and manually chosen local revisit dates are independent. Clear flag, Clear date and No scheduling have explicit behavior; declining retains prior choices. Append-only revisioned events retain operation identity, manual date/base/interval/origin and flag history. Completion never automatically clears flags. No reminders, adaptive interval calculation or LGE-2 suggestions are implemented. [Learning contract](docs/LEARNING_GUIDANCE_EXTENSION.md).
+
+Room25 adds only learning_observations and guidance_events with restrictive ownership; all27 existing table definitions and schemas1–24 remain unchanged. ZIP9 adds validated records, linear anchor ordering, revision/state checks and empty-target protection through the existing journal/witness/rollback pipeline. Frozen ZIP1–8 readers remain; no evidence is backfilled. JSON7/readers1–7 are unchanged and exclude LGE data. Use complete ZIP9 for recovery. Cleared scheduling history still prevents permanent Block deletion; Archive retains it. [Recovery format](BACKUP_FORMAT.md#complete-portable-zip-v9).
+
+## Focused verification and limitations
+
+- Windows:7 LearningRepositoryTest +9 unchanged PracticeStatisticsTest methods, **16 passed with zero failures/errors/skips**. Debug/release/instrumentation APK assembly and release vital lint pass. Explicit24→25 upgrade, independent placements, criteria/corrections, unassessed/skipped/unfinished practice, scheduling clear/decline/retries, archive/delete protections, reopen, ZIP9 record roundtrip, ZIP8 no-backfill and malformed evidence/events are covered.
+- [Manual focused preview43268142574](https://github.com/mrayover/practice.logger/actions/runs/43268142574), exact source23e0b66: **16/16 Linux tests**, debug/release/instrumentation compilation, launch smoke and **one API35 LearningWorkflowTest pass (12.429seconds)**. It verifies optional skip/save/context, manual flag/date/decline, unchanged live practice/metronome ownership, recreation, complete ZIP9 restore of learning/history and original PNG bytes, and injected pre-commit failure rollback. Screenshot inspected; Close remains visible with the keyboard open.
+- Initial test-only JSON-byte and unordered-relation assertions were corrected. Windows bitmap promotion and directory-fsync shadows prevented the newly attempted full journal/media JVM checks; those assertions run on actual Android instead. No media/storage engine was changed to satisfy that environment. These limitations and attempts are retained in WORK_LOG.
+
+No broad regression, full lint, historical migration/compatibility campaign, device matrix or physical-phone acceptance was run. Focused automation does not certify all audio routes, providers, enlarged-text/device combinations or existing Stage3/G3 phone checks. Those remain pending under MANUAL_TESTS; comprehensive regression remains reserved for explicitly owner-authorized F1.
+
+## Next bounded assignment
+
+**LGE-2 — Explainable Adaptive Suggestions**, only if separately assigned by the owner under the learning contract. LGE-1 is complete; no LGE-2 algorithm, Playground work or F1 campaign was begun. Stage4 remains0/10 real sessions, with the owner's November12 deferral recorded in EVALUATION.md; no practical-use review or phone acceptance is inferred.
+
+---
 
 ## Retained build112 delivery record
 

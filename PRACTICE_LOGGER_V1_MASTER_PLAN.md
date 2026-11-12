@@ -6,7 +6,7 @@ Comprehensive workflows are manual and require explicit owner authorization for 
 
 # practice.logger — V1 Master Build & Release Plan
 
-**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. Stage3C.2 and scoped Stage3D are complete in build111; G3 is complete in signed0.39.0/build112 with focused verification, with phone acceptance pending. Stage4 prerequisite is resolved by the November12 owner-approved deferral of all ten undocumented sessions (0/10; no practical-use review or phone acceptance claimed). See EVALUATION.md. Next recommended task: separately assign LGE-1 — Learning Evidence and Optional Revisits. LGE-1 and LGE-2 are explicitly approved, separately assignable future V1 increments; neither is implemented. [Current state and verification](CURRENT_STATE.md).
+**Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. Stage3C.2 and scoped Stage3D are complete in build111; G3 is complete in signed0.39.0/build112 with focused verification, with phone acceptance pending. Stage4 prerequisite is resolved by the November12 owner-approved deferral of all ten undocumented sessions (0/10; no practical-use review or phone acceptance claimed). See EVALUATION.md. Next recommended task: separately assign LGE-2 — Explainable Adaptive Suggestions. LGE-1 is complete in signed0.40.0/build113 with focused verification and phone acceptance pending; LGE-2 remains separately assignable future scope. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  
 **Starting reference:** `main` commit `5ebbd58b8705b0fc80f95b2443b9db464db07a75`; signed application source `cafa1bfad09cc4bcf3539902f2ddb1c8d49153b5`, **0.16.0/build 42**. Reinspect the live branch before each task; this reference is not a permanent assertion of current state.  
@@ -70,7 +70,7 @@ V1 is complete only when all required phases in §2 have owner-accepted delivera
 | **P2 Block and Session Reflection** | Optional check-ins and immutable completion Goal snapshots | After P1 and before G3. Signed candidate and focused lifecycle, storage and ZIP checks. | **High** |
 | **G3** | Accurate time attribution and concise statistics (complete) | Signed build112; focused verification complete, phone acceptance pending. | **High** |
 | **Stage 4** | Practical-use usability review | After G3; owner deferred all ten undocumented sessions on November12; prerequisite resolved,0/10 and no practical-use acceptance. See EVALUATION.md. No broad regression authorization. | Owner review |
-| **LGE-1** | Learning evidence and optional revisits (approved, not implemented) | After Stage4 review and separate implementation assignment; placement evidence, criteria, optional scheduling and focused migration/ZIP preservation. | **High** for data safety |
+| **LGE-1** | Learning evidence and optional revisits (complete in build113) | Delivered after owner-deferred Stage4; Room25/ZIP9, placement evidence/criteria/manual scheduling,16 scoped tests per Windows/Linux and one API35 workflow/recovery check. Phone acceptance pending. | **High** for data safety |
 | **LGE-2** | Explainable adaptive suggestions (approved, not implemented) | After delivered LGE-1 and separate assignment; deterministic comparable delayed-retention evidence and optional suggestions. | **Medium–High** |
 | **Remaining owner-approved V1 features** | Separately bounded features, including assigned Playground scope | After LGE-2; owner decides feature completion before authorizing F1. | Per assignment |
 | **F1–F2** | **V1 Finalization**: cleanup, full regression, physical-device tests, final signed APK | Required release gate | **Medium**, High only when justified |
@@ -428,7 +428,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] P2 Block and Session Reflection implemented. See [current delivery and verification](CURRENT_STATE.md).
 - [x] G3 implemented in signed0.39.0/build112 with focused units and one API35 navigation check; actual time, historical nonduplicated Goal attribution and manual assessment. Owner phone acceptance pending; comprehensive regression deferred to separately authorized F1.
 - [x] Stage4 sequencing decision: owner deferred all ten undocumented sessions on November12;0/10, practical-use review not performed, physical acceptance pending. This marks the deferral decision only; no broad regression authorization.
-- [ ] LGE-1 approved future learning evidence/optional revisits; not implemented or assigned for implementation.
+- [x] LGE-1 learning evidence/optional manual revisits delivered in signed0.40.0/build113 with focused verification; owner phone acceptance pending. See CURRENT_STATE.md.
 - [ ] LGE-2 approved future explainable suggestions; depends on delivered LGE-1 and separate assignment.
 - [ ] Remaining owner-approved V1 features considered/completed before explicit F1 authorization.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
@@ -448,7 +448,7 @@ Room 22 stores completion identity, timestamp, the Block's primary Goal at compl
 
 ## Practice Insights — approved LGE scope and deferred extensions
 
-[LGE-1 and LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are explicitly approved future V1 increments after Stage4. Their first-attempt, criterion comparability, delayed-retention, scheduling provenance and optional explainable suggestion contracts supersede the earlier confidence-driven revisit sketch. Do not infer intervals solely from security ratings. G3 time statistics are already delivered; do not schedule G3 after LGE or duplicate its accounting.
+[LGE-1](docs/LEARNING_GUIDANCE_EXTENSION.md) is delivered in build113 after the recorded Stage4 deferral; LGE-2 remains an approved future increment requiring separate assignment. Their first-attempt, criterion comparability, delayed-retention, scheduling provenance and optional explainable suggestion contracts supersede the earlier confidence-driven revisit sketch. Do not infer intervals solely from security ratings. G3 time statistics are already delivered; do not schedule G3 after LGE or duplicate its accounting.
 
 Playground rewards/collectible layout retain the [separate specification](docs/PLAYGROUND_SPEC.md) and require their own implementation assignment among remaining owner-approved features. Broader analytics, weekly invitations, speculative tool-use inference, new tags, predictive models, season-management entities, prerequisite graphs and automated skill diagnosis remain deferred. Teacher/student, multi-user, sync and permissions infrastructure are outside these increments. All suggestions remain ignorable; inactivity is not failure and no mastery is inferred from minutes or attendance.
 

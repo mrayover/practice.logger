@@ -1,6 +1,6 @@
-# Learning Guidance Extension — approved future architecture
+# Learning Guidance Extension — LGE-1 and future LGE-2
 
-Approved for the V1 roadmap on November 12, 2026. **LGE-1 separately assigned November12: implementation and focused delivery in progress. LGE-2 remains future scope and is not implemented or assigned.** This is the bounded approved addition to the earlier Deferred Practice Insights proposal. The [master plan](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) owns phase order; [CURRENT_STATE](../CURRENT_STATE.md) owns shipped facts.
+Approved for the V1 roadmap on November 12, 2026. **LGE-1 separately assigned November12: implementation and focused signed delivery complete in0.40.0/build113; physical acceptance remains pending. See CURRENT_STATE.md. LGE-2 remains future scope and is not implemented or assigned.** This is the bounded approved addition to the earlier Deferred Practice Insights proposal. The [master plan](../PRACTICE_LOGGER_V1_MASTER_PLAN.md) owns phase order; [CURRENT_STATE](../CURRENT_STATE.md) owns shipped facts.
 
 ## LGE-1 implementation contract
 
@@ -10,7 +10,7 @@ Room25 adds both tables without backfill. Complete ZIP9 adds their fixed typed c
 
 Learning & revisits is an optional dialog in the practice description, saved Block editor and placement summary. Closing without saving records no observation; Not assessed is explicit and distinct. New criteria prefill from placement instructions; reusing an earlier target requires confirming unchanged conditions. Old criteria cannot be edited through a correction. Saving invokes no timing or audio API. Dates are manual opportunities, not reminders.
 
-## Baseline and sequence
+## Roadmap baseline before LGE-1 and preserved sequence
 
 Live baseline inspected: block-ux-stage1 at14749db; Stage3C.2 and scoped Stage3D complete in signed build111; G3 complete in signed0.39.0/build112, application source58a13bd. Room24, complete ZIP8/readers1–8, legacy JSON7/readers1–7. G3/Stage3 phone acceptance is pending; Stage4 remains0/10 documented real sessions; the owner deferred all ten on November12, resolving the prerequisite without claiming a usability review or phone acceptance (see EVALUATION.md). No active local changes were present at reconciliation.
 
@@ -46,14 +46,14 @@ Offer optional **Return Soon**, a manually selected revisit date/interval, and e
 
 ### Smallest proposed persistence contract
 
-Two additive logical record types are sufficient for the initial design; table/field names are proposals to confirm during the separately assigned implementation:
+Two additive logical record types implement the initial design as learning_observations and guidance_events:
 
 1. **Placement learning observation:** one optional placement-keyed row, restrictive ownership through the existing placement. Store outcome, observation timestamp, first-attempt context, nullable criterion token/text snapshot and optional prior evidence identity used as a comparison anchor. Existing sourceBlockId/session/outcome/Goal data are resolved rather than duplicated. Saved criterion identity/text is immutable for the observation. An explicit outcome/context correction preserves identity and a correction timestamp, invalidates affected derived comparisons, and cannot silently revise criteria on other placements.
 2. **Block guidance event:** small append-only Block-keyed events for explicit flag/date changes, including clearing/declining and accepted suggested versus manual choices. Each event records the resulting flag/date state, recorded time, an ordered per-Block revision, chosen interval/base date, and suggestion provenance when applicable (policy, reason and the evidence identities/outcomes/delay used when accepted). Later observation corrections do not rewrite an accepted scheduling decision. Latest revision derives current state; no duplicate mutable scheduling store or recommendation cache. Criteria reuse is resolved from saved observation snapshots, without a separate criteria catalog. If implementation finds an unavoidable extra persisted concept, justify it before widening scope.
 
 History of flag changes remains available, as required by the earlier insights proposal. Use transactional writes and idempotent actions to avoid duplicate observations/events on rapid taps, retries or recreation. Block archive leaves all records intact. Restrictive event references must participate in dependency counts and atomic safe-delete checks; guidance history cannot be silently cascade-deleted merely because a flag is cleared. Use Archive when history prevents deletion. Session/placement deletion and empty-target restore checks must account for the new ownership before delivery.
 
-Expect one additive Room migration and one complete ZIP writer/records update in LGE-1, including the two record types, counts, bounded values, valid ownership, criterion/anchor references, schedule origin and event revision validation. **If baseline remains unchanged, the expected versions are Room25/ZIP9; these are proposals, not reserved or shipped versions.** Choose actual next versions from live state at implementation. Retain every existing schema/migration and ZIP1–8/JSON1–7 restore reader. Old data restores with no fabricated evidence, criteria, flags or dates. Keep JSON7 unchanged and document its exclusion of LGE data; complete ZIP is the recovery path. Preserve media inventory/bytes, lock order, atomic database witness, rollback and startup recovery. No media-format or ownership redesign.
+Expect one additive Room migration and one complete ZIP writer/records update in LGE-1, including the two record types, counts, bounded values, valid ownership, criterion/anchor references, schedule origin and event revision validation. **Implemented versions are Room25/ZIP9 in build113.** Their focused upgrade/recovery evidence is recorded in CURRENT_STATE.md. Retain every existing schema/migration and ZIP1–8/JSON1–7 restore reader. Old data restores with no fabricated evidence, criteria, flags or dates. Keep JSON7 unchanged and document its exclusion of LGE data; complete ZIP is the recovery path. Preserve media inventory/bytes, lock order, atomic database witness, rollback and startup recovery. No media-format or ownership redesign.
 
 ## LGE-2 — explainable adaptive suggestions
 
@@ -72,9 +72,9 @@ Deduplicate by Block ID without multiplying minutes; combine reasons and use sta
 
 Surface suggestions in existing Practice Now selection and This Week preparation, with optional explicit Add/select actions. Never change Goals or priorities, add Blocks to This Week, start sessions, schedule by default or create overdue obligations. No penalties, streaks or mastery percentage. Recompute locally on demand from persisted facts; no scheduler, cloud or generative engine. Prefer no new schema/ZIP change for LGE-2 if LGE-1 provenance suffices; any unavoidable change requires an explicit rationale and its focused preservation checks.
 
-## Future acceptance and verification boundaries
+## Acceptance and verification boundaries
 
-These are requirements for later assignments, **not checks run by this planning task**:
+LGE-1 focused verification is recorded in CURRENT_STATE.md; the architecture-only handoff did not run it. LGE-2 remains a future assignment:
 
 | Increment | Focused acceptance |
 |---|---|
