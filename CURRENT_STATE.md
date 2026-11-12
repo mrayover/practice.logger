@@ -1,3 +1,39 @@
+# Current state — G3 development release, build112
+
+Updated November 12, 2026 (America/Los_Angeles). **Signed 0.39.0/build112 is delivered. G3 functionality and focused verification are complete; owner phone acceptance is pending.** Application/package source **58a13bda4fb5ac594fbfa70a1f237daaf918d01f**, branch **block-ux-stage1**, pushed after separate policy checkpoint **a8d4c9a1f60e3060ec143c08f2145a3dda6f0261**. Later documentation commits do not change the packaged app. Work is in C:\Users\mrove\Projects\practice.logger; the older OneDrive reference checkout was not synchronized or edited. Only the new delivery folder was added there.
+
+## G3 delivery and integrity
+
+OneDrive → Documents → ChatGPT → Practice Log development → **G3 delivery → G3 build112**. APK **practice.logger-0.39.0-b112-58a13bd.apk**; ZIP **practice.logger-0.39.0-b112-58a13bd-g3-development.zip**. Local final package: dist/practice.logger-0.39.0-b112-58a13bd-g3-development. dist/LATEST.txt points to the same delivery. BUILD_INFO.json, VERIFICATION.json, INSTALL.txt, SIGNATURE.txt and SHA256SUMS.txt accompany it.
+
+- Stable app ID **com.mrayover.practicelogger.app**, permanent certificate SHA256 **f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830**; signature v2/v3, package and version verified with the existing permanent-key publisher.
+- APK SHA256 **eaa26e96ee1087c985bee71b338d1af9f51b49e594cdad0bda0f0ed11fa2abdc**.
+- ZIP SHA256 **92bba44c3b6c7d7cc4e3ac929de5daa366f22d66fa90d7cf446e598d3b603bee**.
+- All148 unsigned CI payload entries match the signed APK; all7 ZIP members match local files. OneDrive copies match. All520 earlier snapshotted APK/ZIP files, including5 build111 paths, retain their hashes; the prior OneDrive build111 APK also matches its recorded hash. Cloud-sync completion was not independently observed.
+- Retain a complete backup and install over the permanent-key app **without uninstalling or clearing data**. No phone installation or owner-data modification was performed.
+
+## Implemented G3 behavior
+
+Implemented shared actual-time accounting and Home → Statistics, accurate snapshot-based Goal time/history and optional manual assessment. Explicit No Goal blocks fallback; absent legacy snapshots use only explicit saved Goal-session associations, labeled separately. Unknown time remains unattributed. Unfinished sessions and overtime count; Prep/pause/background/playback do not. Completed standalone Transcribe counts once. No statistics tables or schema changes: Room24/ZIP8/JSON7 retained. [Accounting and date contract](docs/PRACTICE_STATISTICS.md).
+
+Statistics use the Journal's **Monday–Sunday local week**; the separate Sunday–Saturday planning calendar is unchanged. Placement time uses session start date and standalone time uses activity start date, without invented midnight splits. Recent ordering uses those starts, not a precise last-active timestamp; recent views show20 overall/12 Goal records. Stable IDs and confidence/security remain available for later features. JSON7 still excludes standalone activity history; complete ZIP8 preserves it.
+
+## Actual focused verification and limitations
+
+Windows: **9/9 PracticeStatisticsTest checks pass**, zero failures/errors/skips; debug/release/test APK assembly and release vital lint pass. [Manual preview43257870444](https://github.com/mrayover/practice.logger/actions/runs/43257870444), exact source58a13bd: **9/9 Linux scoped units**, debug/release/test compilation, API35 launch smoke and **one StatisticsNavigationTest pass**. Home link, empty state, weekly labels, scrolling, Android Back and banner return checked; screenshot inspected. Initial KSP failure and interim week-boundary unit failure are recorded in WORK_LOG; the final sequential run passes.
+
+No comprehensive regression, full lint, historical migration/backup suite, device matrix, broad accessibility or physical-phone test was run. G3 is a development release with focused verification, not V1 certification. Populated Statistics/Goal UI, enlarged-text acceptance and install-over on the owner's phone remain pending checks in MANUAL_TESTS.md.
+
+## Permanent testing policy and next assignment
+
+Regression workflows android.yml/stage3-final.yml/multi-reference.yml now have no automatic push/PR triggers and require manual owner authorization. Existing tests/scripts remain. Branch API reports protected=false; no safeguards were changed. Comprehensive regression is deferred to separately authorized F1. G3 completion is not feature freeze. Owner must consider remaining check-ins/revisit suggestions, Playground and other work before F1. Stage3 scoped completion and pending physical acceptance remain as recorded below.
+
+**Exact next task:** owner install-over and focused G3 phone checklist for build112, alongside pending Stage3 physical checks. **Recommended next feature assignment:** a bounded check-in/revisit design and data contract before scheduling implementation. Do not begin it, Playground, new Goal algorithms or F1 without a separate assignment. [Permanent verification policy](docs/VERIFICATION_POLICY.md).
+
+---
+
+## Prior build111 delivery record (retained)
+
 # Current state — Stage 3 scoped final delivery, build111
 
 Updated November 11, 2026 (America/Los_Angeles). **Signed0.38.0/build111** is delivered under the owner's revised scoped assignment: stop broad regression and finish using passing focused and signed-upgrade checks. **Stage3C.2 is complete. Stage3D scoped delivery is complete; the original broad regression and physical acceptance gates are NOT complete.** No later roadmap work started.

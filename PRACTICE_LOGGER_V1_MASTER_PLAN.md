@@ -341,7 +341,7 @@ Transcribe remains ordinary Block practice: no separate transcription statistics
 - **Time measures effort, not mastery.** Do not auto-compute a completion percentage from minutes. The current Goal editor requires manual 0–100%; adapt the presentation so percentage is **optional or only displayed when a meaningful measurable target exists**, retaining legacy entered values without erasing them. Status, notes, accumulated time and practice activity can be shown without a fabricated percent.
 - Reuse existing Goal/Block/session screens. Do not invent granular per-day split of a session across midnight where data does not support it; clearly label session-start-date-derived weekly totals if that is the available representation. No streak/gamification/social, broad AI analytics or separate reporting backend.
 
-**G3 exit:** signed candidate with tests for zero/one/multiple legacy links, current colors change with priority after Goal reorder/complete/reopen while earlier snapshots retain their original ranks, filter and search across the four G2 Block-selection contexts, repeated Block placement, different session start types, unfinished/paused/overtime/skip, Block reassignment after past practice, backup/restore of attribution and no duplicate total time. Goal time must never silently be displayed as skill mastery.
+**G3 exit (owner policy revised November12):** functional implementation and signed development delivery complete in build112; nine focused units pass on Windows/Linux and one API35 Statistics navigation test passes. Existing Goal colors/filtering, schemas and backups are preserved. Comprehensive cross-feature, historical migration/backup and multi-device verification belong to separately authorized F1. Physical checks remain pending. See [current evidence](CURRENT_STATE.md) and [accounting contract](docs/PRACTICE_STATISTICS.md). Goal time never determines skill mastery.
 
 ---
 
@@ -404,7 +404,7 @@ Mark these complete only on concrete evidence in `CURRENT_STATE.md` and the Work
 - [x] G2 Goal filter and text search in Manage Blocks, Session Builder, saved Routine editor, and Prepare Week.
 - [x] P1 Intentional Practice Lifecycle delivered with scoped verification. See [current verification and delivery](CURRENT_STATE.md).
 - [x] P2 Block and Session Reflection implemented. See [current delivery and verification](CURRENT_STATE.md).
-- [ ] G3 actual time statistics and historically accurate, nonduplicated Goal attribution; no fake progress.
+- [x] G3 implemented in signed0.39.0/build112 with focused units and one API35 navigation check; actual time, historical nonduplicated Goal attribution and manual assessment. Owner phone acceptance pending; comprehensive regression deferred to separately authorized F1.
 - [ ] F1 full final regression, migrations/backup compatibility, accessibility and failure triage.
 - [ ] F2 permanent-key V1 release candidate, real-device acceptance and truthful final documentation.
 

@@ -1,3 +1,7 @@
+## G3 — Truthful practice statistics
+
+**G3 functional implementation, focused verification and signed development delivery are complete in0.39.0/build112, source58a13bd.** Nine scoped units pass on Windows/Linux, with one API35 navigation check and launch smoke. Owner phone acceptance is pending; exact delivery evidence is in CURRENT_STATE.md. Shared time facts preserve snapshot-based Goal attribution, distinguish No Goal/unknown/legacy session time, include committed unfinished/overtime work and completed standalone Transcribe once, and expose Home Statistics and Goal history. [Data/UI contract](docs/PRACTICE_STATISTICS.md). Comprehensive regression belongs to separately owner-authorized F1; next feature selection follows G3 phone checks, not automatic feature freeze.
+
 ## Owner policy — development verification and F1 regression (2026-11-12)
 
 During ordinary development, compile the changed application and run only focused checks for the assigned feature, critical data integrity, and signed delivery. Comprehensive cross-feature regression, device matrices, historical migration/backup compatibility campaigns, broad UI/accessibility suites and baseline lint investigations are deferred to F1. Retain all tests and verification infrastructure. Investigate failures directly affecting the assigned change; document unrelated failures for F1.
