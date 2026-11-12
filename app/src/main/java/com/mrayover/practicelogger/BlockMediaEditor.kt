@@ -12,6 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,37 +46,51 @@ import kotlinx.coroutines.*
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) vm.editorImport(MediaRole.VISUAL, uri)
     }
-    val enabled = draft.ready && !busy && pendingPhoto == null
+    val enabled = draft.ready && !busy && !vm.busy && pendingPhoto == null
     Text("References", style = MaterialTheme.typography.titleMedium)
     for (role in MediaRole.entries) {
-        val asset = if (role == MediaRole.VISUAL) draft.visual else draft.audio
-        val label = if (role == MediaRole.VISUAL) "Visual" else "Audio"
-        val oldVisual = role == MediaRole.VISUAL && legacy != null && !draft.visualChanged
-        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(label, style = MaterialTheme.typography.labelMedium)
-                if (asset != null && role == MediaRole.AUDIO && draft.isStaged(asset)) Text("${asset.originalName} · audio",
-                    modifier = Modifier.testTag("block-AUDIO-title"), style = MaterialTheme.typography.bodyMedium)
-                else if (asset != null) TextButton(onClick = { if (role == MediaRole.VISUAL) preview = asset else audioPreview = asset }, enabled = enabled,
-                    contentPadding = PaddingValues(0.dp), modifier = Modifier.testTag("block-${role.name}-title")) {
-                    Text("${asset.originalName} · ${asset.category.lowercase()}")
-                } else if (oldVisual) TextButton(onClick = { legacyPreview = true }, enabled = enabled) {
-                    Text("Block-owned ${if (legacy?.mimeType == "application/pdf") "PDF" else "image"}")
-                } else Text("None selected", style = MaterialTheme.typography.bodySmall)
+        val items = draft.references(role)
+        Text(if (role == MediaRole.VISUAL) "Visual References" else "Audio References", style = MaterialTheme.typography.labelLarge)
+        items.forEachIndexed { index, item -> key(item.identity) {
+            Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth().testTag("reference-${role.name}-${item.identity}")) {
+                Column(Modifier.padding(horizontal = 8.dp)) {
+                    Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.fillMaxWidth().testTag(if (index == 0) "block-${role.name}-title" else "reference-title-${item.identity}"))
+                    Text("${index + 1} of ${items.size} · ${item.type}" + if (index == 0) " · Default" else "", style = MaterialTheme.typography.labelSmall)
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        TextButton(onClick = {
+                            if (item.legacy != null) legacyPreview = true
+                            else if (role == MediaRole.VISUAL) preview = item.asset else audioPreview = item.asset
+                        }, enabled = enabled, contentPadding = PaddingValues(horizontal = 8.dp),
+                            modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Preview ${item.title}" }.testTag("reference-preview-${item.identity}")) { Text("Preview") }
+                        TextButton(onClick = { vm.editorMove(role, item.identity, -1) }, enabled = enabled && index > 0,
+                            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
+                                .semantics { contentDescription = "Move ${item.title} up" }.testTag("reference-up-${item.identity}")) { Text("Up") }
+                        TextButton(onClick = { vm.editorMove(role, item.identity, 1) }, enabled = enabled && index < items.lastIndex,
+                            contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
+                                .semantics { contentDescription = "Move ${item.title} down" }.testTag("reference-down-${item.identity}")) { Text("Down") }
+                        TextButton(onClick = {
+                            if (item.asset?.let(draft::isStaged) == true || blockId == null) vm.editorRemove(role, item.identity, false)
+                            else { importRole = role.name; confirm = item.identity }
+                        }, enabled = enabled, contentPadding = PaddingValues(horizontal = 8.dp), modifier = Modifier.heightIn(min = 48.dp)
+                            .semantics { contentDescription = "Remove ${item.title}" }.testTag("reference-remove-${item.identity}")) { Text("Remove") }
+                    }
+                }
             }
-            TextButton(onClick = {
-                if (asset != null || oldVisual) confirm = role.name else options = role.name
-            }, enabled = enabled, modifier = Modifier.testTag("block-${role.name}-choose")) { Text(if (asset != null || oldVisual) "Change" else "Add") }
-        }
+        } }
+        TextButton(onClick = { options = role.name }, enabled = enabled,
+            modifier = Modifier.testTag("block-${role.name}-choose").heightIn(min = 48.dp)) { Text("Add ${if (role == MediaRole.VISUAL) "Visual" else "Audio"} Reference") }
     }
-    Text("One image or PDF, and one audio. Changes apply with Save Block.", style = MaterialTheme.typography.bodySmall)
+    Text("First in each list is the default. Changes apply with Save Block.", style = MaterialTheme.typography.bodySmall)
     if (vm.busy) Text("Preparing references…")
     vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error,
         modifier = Modifier.testTag("block-media-message").semantics { liveRegion = LiveRegionMode.Polite }) }
-    confirm?.let { role ->
-        AlertDialog(onDismissRequest = { confirm = null }, title = { Text("Change ${role.lowercase()} reference?") },
-            text = { Text("Replacing or removing this reference on Save discards this Block’s markings or local playback settings for it. Shared Library originals and other Blocks are kept. An old Block-owned original is retired only after Save succeeds.") },
-            confirmButton = { TextButton(onClick = { confirm = null; options = role }) { Text("Continue") } },
+    confirm?.let { identity ->
+        AlertDialog(onDismissRequest = { confirm = null }, title = { Text("Remove this reference?") },
+            text = { Text("Save will remove only this attachment and its Block markings or local audio settings and markers. Library originals, master markers and other attachments are kept. Review its preview before removing saved work.") },
+            confirmButton = { TextButton(onClick = { confirm = null; vm.editorRemove(MediaRole.valueOf(importRole), identity, true) }) { Text("Remove reference") } },
             dismissButton = { TextButton(onClick = { confirm = null }) { Text("Keep reference") } })
     }
     options?.let { value ->
@@ -96,7 +115,6 @@ import kotlinx.coroutines.*
                         catch (_: Exception) { vm.photoUnavailable() }
                     }) { Text("Choose from gallery") }
                 }
-                TextButton(onClick = { options = null; vm.editorRemove(role) }, modifier = Modifier.testTag("block-${role.name}-remove")) { Text("Remove reference") }
             } }, confirmButton = { TextButton(onClick = { options = null }) { Text("Cancel") } })
     }
     selection?.let { value ->
@@ -105,16 +123,49 @@ import kotlinx.coroutines.*
             onClose = { selection = null }, onChoose = { selection = null; vm.editorChoose(role, it) })
     }
     preview?.let { asset -> EditorVisualPreview(asset, blockId, vm, onClose = { preview = null }) }
-    audioPreview?.let { asset ->
-        Dialog(onDismissRequest = { audioPreview = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            Surface(Modifier.fillMaxSize()) { LibraryAudioScreen(asset, { audioPreview = null }) }
-        }
-    }
+    audioPreview?.let { asset -> EditorAudioPreview(asset, vm, onClose = { audioPreview = null }) }
     if (legacyPreview && legacy != null) Dialog(onDismissRequest = { legacyPreview = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize()) { Column(Modifier.safeDrawingPadding().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(16.dp)) {
             TextButton(onClick = { legacyPreview = false }) { Text("Close preview") }
             CollapsibleImageReference(legacy, vm, embeddedExpanded = true)
         } }
+    }
+}
+
+@Composable
+private fun EditorAudioPreview(asset: MediaAsset, vm: ImageReferenceViewModel, onClose: () -> Unit) {
+    val owner = LocalLifecycleOwner.current
+    var player by remember(asset.id) { mutableStateOf<android.media.MediaPlayer?>(null) }
+    var playing by remember(asset.id) { mutableStateOf(false) }
+    var preparing by remember(asset.id) { mutableStateOf(false) }
+    var error by remember(asset.id) { mutableStateOf<String?>(null) }
+    fun stop() { player?.release(); player = null; playing = false; preparing = false }
+    DisposableEffect(owner, asset.id) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) stop() }
+        owner.lifecycle.addObserver(observer)
+        onDispose { owner.lifecycle.removeObserver(observer); stop() }
+    }
+    Dialog(onDismissRequest = { stop(); onClose() }) {
+        Surface(shape = MaterialTheme.shapes.large) {
+            Column(Modifier.padding(16.dp).verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+                Text(asset.originalName, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                TextButton(onClick = {
+                    if (playing || preparing) stop() else try {
+                        stop(); error = null
+                        val preview = android.media.MediaPlayer()
+                        player = preview; preparing = true
+                        preview.setAudioAttributes(android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_MEDIA).setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                        preview.setDataSource(vm.editor.audioFile(asset).absolutePath)
+                        preview.setOnPreparedListener { if (player === it) { it.start(); playing = true; preparing = false } }
+                        preview.setOnCompletionListener { if (player === it) stop() }
+                        preview.setOnErrorListener { failed, _, _ -> if (player === failed) { stop(); error = "Could not preview this audio. Retry or select the original again." }; true }
+                        preview.prepareAsync()
+                    } catch (_: Exception) { stop(); error = "Could not preview this audio. Retry or select the original again." }
+                }, modifier = Modifier.testTag("editor-audio-play")) { Text(if (playing || preparing) "Stop preview" else "Play preview") }
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                TextButton(onClick = { stop(); onClose() }) { Text("Close preview") }
+            }
+        }
     }
 }
 

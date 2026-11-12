@@ -23,9 +23,10 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
     internal fun openEditor(token: String, id: String?, recovered: (String) -> Unit = {}) = work {
         editor.open(token, id); editor.completedId?.let(recovered)
     }
-    internal fun editorChoose(role: MediaRole, id: String) = work { editor.choose(role, id) }
-    internal fun editorRemove(role: MediaRole) = work { editor.select(role, null) }
-    internal fun editorImport(role: MediaRole, uri: Uri) = work { editor.import(role, uri) }
+    internal fun editorChoose(role: MediaRole, id: String) = work { if (!editor.choose(role, id)) message = "This reference is already attached. Its position was kept." }
+    internal fun editorRemove(role: MediaRole, identity: String, confirmed: Boolean) = work { editor.remove(role, identity, confirmed) }
+    internal fun editorMove(role: MediaRole, identity: String, delta: Int) = work { editor.move(role, identity, delta) }
+    internal fun editorImport(role: MediaRole, uri: Uri) = work { if (!editor.import(role, uri)) message = "This reference is already attached. Its position was kept." }
     internal fun editorPhoto(name: String) = work { editor.photo(photoCapture, name) }
     internal fun discardEditor(done: () -> Unit) = work { editor.discard(); done() }
     val links = associations.links.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

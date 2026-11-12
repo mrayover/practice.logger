@@ -1,4 +1,4 @@
-name: Stage 3B persistence and portable compatibility
+name: Multiple-reference editor and preservation
 on:
   push:
     branches: [block-ux-stage1]
@@ -45,7 +45,7 @@ jobs:
         run: bash scripts/Prepare-AudioFixtures.sh
       - name: Compile and preservation units
         if: ${{ !inputs.native_only }}
-        run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*MultiReference*Test' --tests '*BlockAudioTest' --tests '*PracticeOverlayRepositoryTest' --tests '*BlockDeletionTest' --tests '*BlockEditorSaveTest' --tests '*Backup*Test' --tests '*SessionRepositoryTest' --tests '*RoutineRepositoryTest' --tests '*GoalRepositoryTest' --tests '*Week*Test' --console=plain
+        run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest --tests '*MultiReference*Test' --tests '*BlockAudioTest' --tests '*PracticeOverlayRepositoryTest' --tests '*BlockDeletionTest' --tests '*BlockEditor*Test' --tests '*Backup*Test' --tests '*SessionRepositoryTest' --tests '*RoutineRepositoryTest' --tests '*GoalRepositoryTest' --tests '*Week*Test' --console=plain
       - name: Compile native regression packages
         if: ${{ inputs.native_only }}
         run: bash ./gradlew assembleDebug assembleDebugAndroidTest --console=plain

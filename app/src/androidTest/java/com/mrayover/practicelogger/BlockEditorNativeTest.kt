@@ -51,6 +51,13 @@ class BlockEditorNativeTest {
         val before = File(app.filesDir, "media-library").list()?.toSet().orEmpty()
         draft.stage(MediaRole.VISUAL, "Score.jpg", "image/jpeg") { jpeg().inputStream() }
         draft.stage(MediaRole.AUDIO, "Example.wav", "audio/wav") { wav().inputStream() }
+        draft.stage(MediaRole.VISUAL, "Pages.pdf", "application/pdf") { l1Fixture("references/score.pdf").inputStream() }
+        draft.stage(MediaRole.AUDIO, "Second.wav", "audio/wav") { wav().apply { this[44] = 1 }.inputStream() }
+        assertFalse(draft.stage(MediaRole.VISUAL, "Duplicate.jpg", "image/jpeg") { jpeg().inputStream() })
+        val visualOrder = draft.visualReferences.map { it.identity }.reversed()
+        val audioOrder = draft.audioReferences.map { it.identity }.reversed()
+        draft.move(MediaRole.VISUAL, visualOrder.first(), -1)
+        draft.move(MediaRole.AUDIO, audioOrder.first(), -1)
         val imageId = draft.visual!!.id; val audioId = draft.audio!!.id
         assertTrue(db.blocks().readAll().isEmpty()); assertTrue(db.media().readAll().isEmpty())
         assertEquals(before, File(app.filesDir, "media-library").list()?.toSet().orEmpty())
@@ -73,7 +80,8 @@ class BlockEditorNativeTest {
         // Simulate a proven uncommitted promotion left after interruption/failed cleanup.
         File(app.filesDir, "media-library/${draft.visual!!.fileName}").writeText("partial")
         val saved = draft.save(null, BlockDraft("One save", "Play"), week, true)
-        assertEquals(2, db.blockMedia().readAll().size); assertEquals(2, db.media().readAll().size)
+        assertEquals(4, db.blockMedia().readAll().size); assertEquals(4, db.media().readAll().size)
+        assertEquals(visualOrder, db.referenceOrder(saved, MediaRole.VISUAL)); assertEquals(audioOrder, db.referenceOrder(saved, MediaRole.AUDIO))
         assertEquals(saved, db.weekPlan().read(week.toString()).single().blockId)
         val lineup = db.sessions().find(session)!!.ordered
         assertEquals(listOf(previous, saved), lineup.map { it.sourceBlockId }); assertEquals(123_000L, lineup[0].configuredMs)
@@ -81,6 +89,19 @@ class BlockEditorNativeTest {
         assertEquals(saved, recovered.save(null, BlockDraft("One save", "Play"), week, true))
         assertEquals(2, db.sessions().find(session)!!.placements.size)
         assertTrue(library.available(db.media().find(imageId)!!)); assertTrue(library.available(db.media().find(audioId)!!))
+        // A complete ZIP8 made from the editor-created collections restores into an independent empty database.
+        val archive = File(app.cacheDir, "editor-${UUID.randomUUID()}.zip")
+        val restoreName = "editor-restore-${UUID.randomUUID()}.db"
+        val restoreFiles = File(app.cacheDir, UUID.randomUUID().toString()).apply { mkdirs() }
+        val restored = BlockDatabase.open(app, restoreName)
+        try {
+            PortableZip(app, db, app.filesDir).create(archive)
+            val restore = PortableRestore(app, restored, restoreFiles)
+            restore.restore(restore.stage(archive::inputStream))
+            assertEquals(db.blockMedia().readAll(), restored.blockMedia().readAll())
+            assertEquals(db.media().readAll(), restored.media().readAll())
+            restored.media().readAll().forEach { assertTrue(MediaLibraryRepository(restored, File(restoreFiles, "media-library")).available(it)) }
+        } finally { restored.close(); app.deleteDatabase(restoreName); restoreFiles.deleteRecursively(); archive.delete() }
         recovered.discard()
         db.openHelper.readableDatabase.query("PRAGMA foreign_key_check").use { assertEquals(0, it.count) }
     } }
@@ -133,11 +154,11 @@ class BlockEditorNativeTest {
         reject { editor.stage(MediaRole.VISUAL, "Wrong.pdf", "application/pdf") { "broken".byteInputStream() } }
         assertEquals(imageId, editor.visual!!.id)
         editor.stage(MediaRole.VISUAL, "Pages.pdf", "application/pdf") { l1Fixture("references/score.pdf").inputStream() }
-        val page = editor.preview(editor.visual!!, 1); assertEquals(2, page.pageCount); page.bitmap.recycle()
+        val page = editor.preview(editor.visualReferences.last().asset!!, 1); assertEquals(2, page.pageCount); page.bitmap.recycle()
         val root = File(app.filesDir, "block-editor-staging")
         val abandoned = File(root, UUID.randomUUID().toString()).apply { mkdirs(); File(this, "interrupted.pending").writeText("partial"); setLastModified(1) }
         val recovery = BlockEditorMedia(app, db, library, legacy, links); recovery.open(token, null)
-        assertFalse(abandoned.exists()); assertEquals("PDF", recovery.visual!!.category)
+        assertFalse(abandoned.exists()); assertEquals(listOf("IMAGE", "PDF"), recovery.visualReferences.map { it.asset!!.category })
         recovery.discard()
         assertFalse(File(root, token).exists()); assertTrue(db.media().readAll().isEmpty()); assertTrue(db.blocks().readAll().isEmpty())
     } }
@@ -156,5 +177,31 @@ class BlockEditorNativeTest {
             assertEquals(goal, db.goalAttribution().primaryGoalId(saved))
         }
         assertEquals(2, db.media().readAll().size)
+    } }
+
+    @Test fun pendingScalarUpgradeMissingItemRecoveryAndCancelKeepLibraryOriginals(): Unit = runBlocking { fixture { db, library, legacy, links ->
+        val canonical = library.import("Shared.jpg", "image/jpeg") { jpeg().inputStream() }
+        val token = UUID.randomUUID().toString()
+        val edit = BlockEditorMedia(app, db, library, legacy, links); edit.open(token, null)
+        assertTrue(edit.stage(MediaRole.VISUAL, "Same original.jpg", "image/jpeg") { jpeg().inputStream() })
+        assertEquals(canonical.id, edit.visual!!.id); assertFalse(edit.isStaged(edit.visual!!))
+        edit.stage(MediaRole.AUDIO, "Pending.wav", "audio/wav") { wav().inputStream() }
+        val pending = edit.audio!!
+        val directory = File(app.filesDir, "block-editor-staging/$token")
+        val manifest = File(directory, "draft.json")
+        val json = org.json.JSONObject(manifest.readText()).put("version", 1).put("visual", canonical.id).put("audio", pending.id)
+            .put("visualChanged", true).put("audioChanged", true).put("identity", "").put("markings", false)
+            .put("originalVisual", "").put("originalAudio", "")
+        json.remove("visuals"); json.remove("audios"); manifest.writeText(json.toString())
+        val restored = BlockEditorMedia(app, db, library, legacy, links); restored.open(token, null)
+        assertEquals(canonical.id, restored.visual!!.id); assertEquals(pending.id, restored.audio!!.id)
+        assertTrue(File(directory, pending.fileName).delete())
+        val missing = BlockEditorMedia(app, db, library, legacy, links); missing.open(token, null)
+        assertTrue(missing.ready); assertEquals(pending.id, missing.audio!!.id)
+        reject { missing.save(null, BlockDraft("Still pending", "Play"), null) }
+        missing.remove(MediaRole.AUDIO, "library:${pending.id}")
+        assertEquals(canonical.id, missing.visual!!.id)
+        missing.discard(); assertTrue(library.available(canonical)); assertTrue(db.blocks().readAll().isEmpty())
+        assertFalse(directory.exists())
     } }
 }

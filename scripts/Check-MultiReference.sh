@@ -36,6 +36,15 @@ for class in ${MULTI_REFERENCE_CLASSES//,/ }; do
     grep -Eq '^OK \(1 test\)' "$out/migration-process-recovery.txt"
     continue
   fi
+  if [ "$class" = editor-death ]; then
+    [[ "${GITHUB_ACTIONS:-}" == true && "$(adb shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]]
+    runner=com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner
+    timeout --kill-after=10s 120s adb shell am instrument -w -r -e stage3b_emulator_only true -e class com.mrayover.practicelogger.BlockEditorProcessDeathTest#dieAfterFirstOriginalPromotion "$runner" | tee "$out/editor-process-death.txt" || true
+    grep -F 'Process crashed' "$out/editor-process-death.txt"
+    timeout --kill-after=10s 180s adb shell am instrument -w -r -e class com.mrayover.practicelogger.BlockEditorProcessDeathTest#recoverAllPendingItemsAndSaveExactlyOnce "$runner" | tee "$out/editor-process-recovery.txt"
+    grep -Eq '^OK \(1 test\)' "$out/editor-process-recovery.txt"
+    continue
+  fi
   if [ "$class" = portable-install ]; then
     bash scripts/Check-PortableRoundTrip.sh
     cp app/build/targeted-s2-*.txt "$out/"

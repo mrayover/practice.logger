@@ -368,3 +368,15 @@ Use the [Stage3 architecture acceptance gates](docs/MULTI_REFERENCE_ARCHITECTURE
 - [ ] During recording/count-in/review, keep Stop/Save reachable and enforce source-switch safeguards; check narrow/200% text and themes.
 - [ ] Restore old ZIP1–7 and new ZIP8 into separate empty installs; verify ordered links, one copy per shared original and all local state. Reject corrupt/missing files and invalid duplicates/order. Interrupt restore and migration, then verify recovery.
 - [ ] Run cross-feature Goal/Routine/week/completed-history/deletion checks and record physical provider/audio/accessibility acceptance before3D signed delivery.
+
+## Stage3C.1 — multiple references in the Block Editor (phone checks pending)
+
+- Create a Block from Library, Prepare Week and Session Builder. Before first Save, add several visual references (mixed image and multipage PDF) and several supported audio files via Library/import; also exercise Photo/Gallery. Reorder each list independently, check first-item Default, remove one pending item, and save/reopen once. Confirm primary Goal/week and original Builder placements/durations are preserved, with only one append.
+- Attempt duplicate Library selection and import of identical bytes. Confirm feedback, original order and local work remain. Cancel a multi-file draft and verify no Block was created and shared Library originals still open.
+- Preview each image, every PDF page and pending/saved audio. Verify preview closes/stops on background; no extra association is created. Preview saved annotations; edit a Block name and verify every unchanged annotation/audio marker remains.
+- Edit a legacy visual Block: append canonical image/PDF, reorder around the legacy item, save/reopen. Confirm legacy pixels/overlays remain. Cancel removal confirmation; then confirm one exact visual/audio removal and save, verifying other attachments and shared Blocks keep their state/originals.
+- Rotate/background/reopen an unfinished draft. Check fields, selections and order. After an induced Save failure, retry once and check no duplicate Block/Builder entry. For a stale collection, confirm the error retains the draft and directs Cancel/reopen rather than overwriting changes.
+- At320dp width and200% text in Light, Dark and Orchid, check ellipsized titles, accessible Preview/Up/Down/Remove, scrolling and pinned Save with keyboard. Confirm no clipped or overlapping controls.
+- Open the saved Block in existing practice: verify the first ordered visual/audio resolves consistently. Practice switching is not present in3C.1. Export complete ZIP8 and restore into a separate empty installation; compare collections, order, annotations, markers and original bytes. Never install build110 over a migrated Room24 database.
+
+No signed3C.1 owner package is distributed; build110 remains the owner baseline until3D. Automated evidence is recorded separately in CURRENT_STATE.md; this checklist is not a claim of physical acceptance.

@@ -1,3 +1,11 @@
+# Stage 3C.1 editor increment — verification in progress
+
+Ordered collection staging and compact collection controls are implemented. Completion is gated on focused preservation, all-item recovery, Android 8/15 editor workflows, 320dp/200% text/theme usability and ZIP8 checks. Stage3B remains complete. Stage3C.2 practice-screen switching and Stage3D integration/install-over/owner acceptance/signed delivery remain upcoming and unimplemented by this increment.
+
+The current source and verified gate status are maintained in [CURRENT_STATE.md](CURRENT_STATE.md). Older milestone records below retain their historical meaning.
+
+---
+
 # practice.logger — Current approved build plan
 
 Updated 2026-11-11 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.

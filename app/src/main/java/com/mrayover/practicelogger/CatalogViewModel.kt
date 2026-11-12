@@ -56,7 +56,7 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             try { action(); done() }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { error = failureMessage }
+            catch (failure: Exception) { error = if (failure is IllegalStateException && failure.message?.contains("Your draft is retained") == true) failure.message else failureMessage }
             finally { busy = false }
         }
     }

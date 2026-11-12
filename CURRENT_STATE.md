@@ -1,3 +1,13 @@
+# Stage 3C.1 — implementation under focused verification
+
+November 11, 2026: the Block Editor now stages independent ordered Visual and Audio collections before first Save. Compact rows provide preview, exact removal, Up/Down and a first-item Default label. Library/import/photo/gallery reuse existing ownership and validation. Manifest v2 upgrades scalar drafts, records complete ordered intent and commit receipts, rechecks saved collections and reviewed source-local work, and applies differences in the existing atomic Block/Goal/week/Builder transaction. Matching originals are reused; unchanged links are never removed/reinserted.
+
+Local focused collection tests and debug/release/test-package compilation have passed; final preservation and Android 8/15 gates are in progress. Stage3C.1 is NOT yet marked complete. This section supersedes the scalar-editor statements in the historical Stage3B record below. Practice-screen switching remains unimplemented and is reserved for Stage3C.2. Signed build110 stays the known working Room23/ZIP7 owner baseline; no signed APK or version increment is produced here.
+
+Exact next task: finish Stage3C.1 focused Android collection, recovery, accessibility and portable-backup verification, resolve any failures, then publish factual completion status. Do not start Stage3C.2 or Stage3D.
+
+---
+
 # Current state — Stage 3B persistence complete
 
 Updated November11,2026 (America/Los_Angeles).
