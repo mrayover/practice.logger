@@ -419,3 +419,15 @@ Use the signed build113 update identified in CURRENT_STATE.md. Keep a complete p
 - Make a complete ZIP9. On a separate empty installation only, restore and reopen; compare observations, criterion identity, scheduling history, practice/Goal time and original media. JSON7 does not preserve LGE data. Never clear the main phone or downgrade to build112 as a recovery method.
 
 No LGE-2 adaptive suggestions, interval algorithm, automatic plan changes or F1 acceptance is included.
+
+## RW1 — saved recording waveform scrubbing
+
+Install build115 over the permanent-key app without uninstalling or clearing data. Physical-phone acceptance remains pending until the owner performs these checks.
+
+1. Open Focused Practice with saved Free Record and Loop Recordings. Select a take; check its amplitude waveform and elapsed/total timestamps. Selection must remain silent.
+2. Play a Free Record M4A, tap near the middle, and drag toward the end. During the drag, the cursor/timestamp follows your finger; release moves playback once. Stop, cue a point, then explicitly Play.
+3. Repeat with a recorded WAV loop and imported MP3, M4A and supported WAV. Listen after seeking and watch the cursor wrap at each repeat. Check that repeat remains enabled.
+4. Switch between two saved recordings while playing and during a drag. Old audio stops; the new waveform appears without autoplay or a stale seek.
+5. Background/return and rotate: audio must stay stopped. Confirm ordinary recording/review, practice time and metronome controls still behave as before. Check comfortable scrolling/touch access on the Galaxy S26 Ultra and a narrower layout.
+
+Report recording type and approximate seek location for any audible or cursor issue. Automated native engine checks do not establish physical acoustic acceptance or seamless imported-file repeats.

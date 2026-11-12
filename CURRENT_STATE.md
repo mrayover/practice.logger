@@ -1,9 +1,41 @@
-# RW1 implementation in progress — build115
+# Current state — RW1 recording waveform delivery, build115
 
-Owner-assigned recording waveform and scrubbing is implemented in the existing Focused Practice saved-recording transport. Initial compilation/release vital lint and two host checks pass; final focused verification, signing and delivery are pending. Room25/ZIP10/JSON7 unchanged. Exact next task: verify the final source and one API35 recording seek/scrub workflow, then sign, document and deliver RW1. No broad regression or F1 authorized. Previous delivered build114 remains below.
+Updated November12,2026 (America/Los_Angeles). **Signed0.42.0/build115 is delivered. RW1 implementation and focused verification are complete; physical owner-phone acceptance remains pending.** Exact application/package/test source **145ff9d0a61dff7aa1f26cfe79e91c148e124f7a** on **block-ux-stage1**. Later documentation commits do not change the signed application. Work used C:/Users/mrove/Projects/practice.logger; the older OneDrive checkout is untouched, with only a new delivery folder added beside it.
+
+## Delivery and integrity
+
+OneDrive → Documents → ChatGPT → Practice Log development → **RW1 delivery → RW1 build115**.
+[APK](dist/practice.logger-0.42.0-b115-145ff9d-rw1-development/practice.logger-0.42.0-b115-145ff9d.apk) · [ZIP](dist/practice.logger-0.42.0-b115-145ff9d-rw1-development.zip) · [Phone checklist](MANUAL_TESTS.md#rw1--saved-recording-waveform-scrubbing).
+Local final folder: dist/practice.logger-0.42.0-b115-145ff9d-rw1-development; dist/LATEST.txt points to the copied OneDrive delivery. BUILD_INFO, VERIFICATION, INSTALL, PHONE_CHECKLIST, SIGNATURE and SHA256SUMS accompany the APK and incremental-signature companion.
+
+- Stable app ID com.mrayover.practicelogger.app; unchanged permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Package/version/pinned identity/signature verified by the existing permanent-key publisher.
+- APK SHA256 **1f7bbbd590c163328ce1367a547edca07a029f77cbc03eafa56e66f3180ce613**.
+- ZIP SHA256 **2d0133eb79ddc7c90ae1a566e8cf50fdc99f88485f82c4f2458941940e93ffd8**.
+- Final APK uses the exact successful CI unsigned release. Every unsigned payload entry matches; APK/ZIP CRC and lengths, all8 ZIP member hashes, copied delivery files and all542 pre-session distribution APK/ZIP hashes pass. The earlier locally signed5e3dfc7 candidate is preserved separately. Cloud-sync completion is unobserved.
+- Install over the existing permanent-key app **without uninstalling or clearing data**. Keep a complete pre-update backup. Room25, complete ZIP10/readers1–10 and JSON7/readers1–7 are unchanged. No owner data or physical-phone installation was altered.
+
+## Implemented scope
+
+Existing Focused Practice saved Free/Loop Recording rows now include a compact48dp amplitude waveform touch area, visible cursor, elapsed/total timestamps and accessible seek controls. Waveform changes with the selected take; selection stays silent. Tap seeks immediately on release. Horizontal dragging previews cursor/time under the finger without audio seeks, then commits one source-bound seek; cancelled/changed-source gestures do not commit. Vertical scrolling remains available. Existing Play/Stop, explicit recording selection and temporary Review Take remain.
+
+Waveform extraction/rendering reuses the Library utilities without its player/state model. IO decoding is cancellable when selection/view changes; codec/extractor resources close on cancellation. A four-entry process-only LRU keys file path/length/mtime/duration. Adaptive bins retain at most180001 peaks per item, including long Free Record files; decoder work has the existing120second deadline. Missing/invalid/unreadable files show Waveform unavailable without affecting other takes or playback controls. No stored derivative/database entity is added.
+
+MediaPlayer seeks use the existing instance with valid-duration clamping and actual-position reporting; pending preparation and initial file-read requests are invalidated by source changes. Stopped seeks only cue the next explicit Play. Static recorded-loop AudioTrack seeks pause before setting the bounded PCM frame, restore existing full-loop repeat points, and resume only prior playback. Cursor position derives from actual consumed-frame deltas modulo original loop length; it wraps without a new playback engine. Stop/background/leave clear temporary cues. No timer, practice accounting, metronome, reference checkpoint, capture/review, media ownership or persistence changes.
+
+## Actual focused verification
+
+- Windows: **2/2 focused RecordingWaveformTest methods pass**, zero failures/errors/skips. Coordinate/duration/PCM-frame bounds, actual WAV amplitude peaks, unchanged-file cache, bounded long-take bins and corrupt/missing WAV rejection. Debug/release/instrumentation compilation and release vital lint pass; final native fixture revision also compiles locally.
+- [Manual focused preview43316281814](https://github.com/mrayover/practice.logger/actions/runs/43316281814), exact source145ff9d: **2/2 Linux host tests**, release vital lint and all three APK compilations pass. API35 install/launch smoke and **one RecordingWaveformWorkflowTest pass (5.955seconds)**. Verifies real waveform extraction and actual-engine seek for saved Free Record M4A, imported MP3/M4A/PCM16 WAV and recorded phrase WAV; repeat wrapping for imported/recorded loops; stopped cue then explicit Play; initial pending-play selection cancellation; drag finger-following/no seek until release/one commit; tap; stale gesture/source rejection; controller background stop/no resume; corrupt-file UI recovery; and actual compact-control visibility at320dp.
+- This native fixture isolates the recording controller and compact component; it is not a complete practice-screen/physical acoustic campaign. The screenshot shows the preceding isolated waveform fixture and is not accepted as final two-row visual evidence. Full Focused Practice phone appearance/scrolling/listening checks remain in the owner checklist. Existing capture/focus/recreation protections were retained; no new comprehensive claims are made for those paths.
+- Earlier focused runs43315410949 and43316140243 were cancelled before final native verification as the pending-play identity guard and fixture foreground setup were finalized. Their partial compilation/checks are not complete passes. Replacing Activity content disposes its normal foreground observer; the isolated native fixture explicitly restores foreground afterward. Production lifecycle ownership was not changed for the test.
+- No android.yml, stage3-final.yml, multi-reference.yml, full historical migration campaign, device matrix, broad lint investigation, comprehensive regression, Playground, F1 or F2 was run. No outstanding failure remains in the final focused gate. Physical Galaxy S26 Ultra/acoustic acceptance and seamless imported codec joins are not claimed.
+
+## Exact next task
+
+**Owner-phone RW1 waveform/scrubbing checklist.** RW1 engineering/delivery stops here. Any next feature and comprehensive F1 require separate explicit owner assignment. Prior Stage3/G3/LGE phone checks remain pending; Stage4 remains0/10 documented sessions with all ten owner-deferred on November12.
 
 ---
-# Current state — LGE-2 signed development delivery, build114
+# Previous LGE-2 signed delivery — build114 (historical record)
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.41.0/build114 is delivered. LGE-2 implementation and focused checks are complete; owner-phone acceptance remains pending.** Application/package/test source **192d52087490551a2b1dc61c7f403e2ce98dce6c** on **block-ux-stage1**. Later documentation commits do not alter the signed application. The designated C:/Users/mrove/Projects/practice.logger checkout was used; the older OneDrive checkout was not edited or synchronized. Only a new delivery folder was added there.
 
