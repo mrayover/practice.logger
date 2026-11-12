@@ -21,6 +21,26 @@ class LearningWorkflowTest {
     private fun shown(text: String) = compose.waitUntil(15000) {
         compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired=false).isNotEmpty()
     }
+    private fun settleKeyboard() {
+        compose.runOnIdle {
+            (compose.activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
+                .hideSoftInputFromWindow(compose.activity.window.decorView.windowToken,0)
+        }
+        compose.waitUntil(5000) {
+            androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
+        }
+        compose.waitForIdle()
+    }
+    private fun waitForDate(blockId: String) {
+        try { compose.waitUntil(15000) { runBlocking { db.learning().events(blockId).firstOrNull()?.dueDate != null } } }
+        catch (failure: Throwable) {
+            val folder=File(app.getExternalFilesDir(null),"home-preview").apply { mkdirs() }
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(folder,"learning-date-failure.png"))
+            File(folder,"learning-date-semantics.txt").writeText(compose.onNode(isDialog()).printToString())
+            throw failure
+        }
+    }
     @Test fun optionalObservationAndManualRevisitsLeavePracticeAndClickRunning() {
         val block=runBlocking {
             val b=BlockRepository(db).save(null,BlockDraft("Learning preview","Play bars 1–4 at 80"))
@@ -72,8 +92,10 @@ class LearningWorkflowTest {
         shown("Revisit choice saved.")
         compose.waitUntil(15000) { runBlocking { db.learning().events(p.sourceBlockId).firstOrNull()?.returnSoon == true } }
         compose.onNodeWithTag("learning-date").scrollIfNeeded().performTextReplacement(LocalDate.now().plusDays(7).toString())
-        compose.onNodeWithTag("learning-date-save").scrollIfNeeded().performClick()
-        compose.waitUntil(15000) { runBlocking { db.learning().events(p.sourceBlockId).firstOrNull()?.dueDate != null } }
+        compose.onNodeWithTag("learning-date").assertTextContains(LocalDate.now().plusDays(7).toString())
+        settleKeyboard()
+        compose.onNodeWithTag("learning-date-save").scrollIfNeeded().assertIsDisplayed().assertIsEnabled().performClick()
+        waitForDate(p.sourceBlockId)
         // An ordinary optional panel action never changes the live timing/audio owner.
         compose.runOnIdle { assertTrue(practice.running); assertTrue(practice.clicking) }
         val folder=File(app.getExternalFilesDir(null),"home-preview").apply { mkdirs() }
