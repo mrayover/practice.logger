@@ -56,6 +56,8 @@ class RecordingWaveformWorkflowTest {
         }
         compose.waitUntil(15000) { vm.ready }
         compose.runOnIdle {
+            // Replacing MainActivity content disposes its normal foreground observer.
+            vm.enterBlock(block); vm.setForeground(true)
             vm.play(takes.first())
             vm.bindScrubber("test", takes[1].id)
             selected.value = takes[1]
