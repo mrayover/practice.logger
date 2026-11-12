@@ -20,7 +20,8 @@ class BlockEditorWorkflowTest : WeekUiChecks() {
         captureStage3("editor-before-reference-touch")
         println("EDITOR REFERENCE BOUNDS " + target.fetchSemanticsNode().boundsInRoot)
         println("EDITOR TREE " + compose.onRoot(useUnmergedTree = true).printToString())
-        target.assertIsDisplayed().assertIsEnabled().performClick()
+        // Recheck scrolling after external screenshot/diagnostics before the real touch.
+        target.performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
         captureStage3("editor-reference-options")
         click("Choose from Library")
         waitForTag("media-library-list")

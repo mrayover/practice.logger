@@ -48,6 +48,9 @@ for class in ${MULTI_REFERENCE_CLASSES//,/ }; do
     failed=1
   fi
   if ! grep -Eq '^OK \([1-9][0-9]* tests?\)' "$out/${class##*.}.txt"; then
+    mkdir -p "$out/${class##*.}-failure"
+    adb logcat -d > "$out/${class##*.}-failure/logcat.txt" || true
+    adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/screenshots "$out/${class##*.}-failure/screenshots" || true
     [ "${MULTI_REFERENCE_CONTINUE:-false}" = true ] || exit 1
     failed=1
     group_failed=true

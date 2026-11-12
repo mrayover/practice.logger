@@ -39,7 +39,7 @@ class PracticeOverlayWorkflowTest {
         click("Blocks")
         compose.onNodeWithTag("block-library-list").performScrollToNode(hasText("Overlay score"))
         openLibraryBlockEditor(compose, "Overlay score")
-        click("Show reference")
+        compose.onNodeWithTag("block-VISUAL-title").scrollIfNeeded().assertIsDisplayed().performClick()
         tools("Edit markings")
         tools("Highlight")
         val layer = compose.onNodeWithTag("overlay-layer")
@@ -96,17 +96,25 @@ class PracticeOverlayWorkflowTest {
                 Offset(width * .12f, height * .22f), Offset(width * .88f, height * .78f))
         }
         compose.onNodeWithText("Reset PDF zoom").assertExists()
+        click("Close preview")
+        compose.onNodeWithTag("block-save").assertIsDisplayed().performClick()
+        shown(hasText("Block Library"))
         compose.runOnIdle { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
         compose.waitUntil(15_000) { compose.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE }
+        openLibraryBlockEditor(compose, "Overlay score")
+        compose.onNodeWithTag("block-VISUAL-title").scrollIfNeeded().assertIsDisplayed().performClick()
+        click("Next page")
         compose.waitUntil(15_000) { compose.onAllNodesWithText("Page 2 of 2").fetchSemanticsNodes().isNotEmpty() }
         assertEquals(3, shapes().size)
-        compose.onNodeWithTag("block-VISUAL-remove").scrollIfNeeded().performClick()
-        compose.waitUntil(15_000) { compose.onAllNodesWithText("This discards this Block’s saved markings", substring = true)
-            .fetchSemanticsNodes().isNotEmpty() }
-        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        click("Close preview")
+        compose.onNodeWithTag("block-VISUAL-choose").scrollIfNeeded().assertIsDisplayed().performClick()
+        click("Keep reference")
         assertEquals(3, shapes().size)
-        compose.onNodeWithTag("block-VISUAL-remove").scrollIfNeeded().performClick()
-        click("Remove reference")
+        compose.onNodeWithTag("block-VISUAL-choose").scrollIfNeeded().assertIsDisplayed().performClick()
+        click("Continue")
+        compose.onNodeWithTag("block-VISUAL-remove").scrollIfNeeded().assertIsDisplayed().performClick()
+        assertEquals(3, shapes().size) // Stage2 removal remains staged until Save.
+        compose.onNodeWithTag("block-save").assertIsDisplayed().performClick()
         count(0)
         assertEquals(3, shapes("score-copy").size)
         assertEquals(hash, l1Hash(file))
