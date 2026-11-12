@@ -1,4 +1,4 @@
-# Current state — Stage 3B persistence verified; final regression closeout
+# Current state — Stage 3B persistence complete
 
 Updated November11,2026 (America/Los_Angeles).
 
@@ -19,13 +19,15 @@ Coverage: all27 populated Room23 tables/old columns and original bytes after mig
 
 Regression: [43127710836](https://github.com/mrayover/practice.logger/actions/runs/43127710836) passed API26 editor2/builder3/week/Goal/Routine before an obsolete overlay selector. [43128700401](https://github.com/mrayover/practice.logger/actions/runs/43128700401) passed builder3/week/Goal/Routine/protected deletion/initial practice on BOTH APIs; missing WAV and wrong reopen filters were corrected. [43129177920](https://github.com/mrayover/practice.logger/actions/runs/43129177920) passes isolated editor and updated full overlay workflows on BOTH APIs. The unchanged baseline API35 editor method also passes in [43128635405](https://github.com/mrayover/practice.logger/actions/runs/43128635405); the grouped clipping cause remains unestablished. Test navigation/synchronization was corrected without product UI changes.
 
-**Audio/recording and correctly named cold-reopen regression closeout is running in43130057741. Overall Stage3B closeout awaits that result and final records publication.**
+[43130057741](https://github.com/mrayover/practice.logger/actions/runs/43130057741) passes Transcribe transport, concurrent playback/capture ownership, ordinary recording/export/reopen, deletion/reopen and all practice/recovery/history phases on BOTH APIs. One interruption assertion ran before asynchronous reference restoration was ready (75% expected, initial100% observed). Its exact method now waits for media identity/preparation readiness and also checks persisted75%; [43131094962](https://github.com/mrayover/practice.logger/actions/runs/43131094962) passes on API26/job130895136655 and API35/job130895137100. All19 relevant cross-feature native checks have passing results on EACH API across these recorded runs. **Stage3B acceptance is complete.**
 
 ### Limits and exact next task
 
 Full Windows host run:173 tests/19 failures before projection-expectation correction. Untouched ba267be reproduced17 matching media-promotion/provider/journal failures and two old schema18 assertions. Relevant migration tests now assert24 and compare every frozen old column. One newly exposed AudioImport journal-open failure occurs before schema creation while its exact baseline method passes; cause unestablished. No full-host-suite pass is claimed. Full lintDebug has the five documented error locations in unchanged files (30 warnings); release vital lint passes. Physical phone/provider/TalkBack/acoustic and signed owner install-over acceptance remain Stage3D work.
 
-Finish the in-flight regression and final publication in this session. After closeout, **Stage3C** must add ordered visual/audio lists; individual preview/reorder/confirmed removal; versioned collection staging, old-manifest compatibility and all-item receipts; per-source PDF/page/zoom/overlays; awaited outgoing audio checkpoint, paused incoming state and stale-callback/capture guards; recording/Transcribe append-and-select. **Stage3D** completes final integration, owner install-over and signed delivery. Build110 cannot open committed Room24; APK downgrade is not rollback.
+**Exact next assignment: Stage3C; do not start automatically.** Add ordered visual/audio lists; individual preview/reorder/confirmed removal; versioned collection staging, old-manifest compatibility and all-item receipts; per-source PDF/page/zoom/overlays; awaited outgoing audio checkpoint, paused incoming state and stale-callback/capture guards; recording/Transcribe append-and-select. **Stage3D** completes final integration, owner install-over and signed delivery. Build110 cannot open committed Room24; APK downgrade is not rollback.
+
+Historical stage records below retain their original signed/preparation baselines; the current status and next assignment above supersede their former next-task statements.
 
 # Stage 3A architecture and verification preparation (preceding baseline)
 

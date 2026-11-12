@@ -6,9 +6,9 @@ Updated 2026-11-11 (America/Los_Angeles). This records implemented scope and his
 
 **Stage3A — architecture and verification preparation complete:** [data contract, dependency inventory, migration sequence, backup/UI contracts, risks and acceptance gates](docs/MULTI_REFERENCE_ARCHITECTURE.md) and a populated frozen Room23 fixture are ready. All13 focused checks pass; no production schema, archive or UI behavior changes. [Actual checks and limitations](CURRENT_STATE.md#stage-3a-multiple-reference-preparation)
 
-**Stage3B persistence safety gates pass:** Room24 child-first migration, ordered exact associations/legacy union, source-local state, scalar adapters, ZIP8/frozen1–7 compatibility and Android8/15 migration/backup/recovery are implemented.57 focused units and32 native checks per API pass. Overall closeout awaits the last audio/history regression and final records; see CURRENT_STATE.md.
+**Stage3B — complete:** Room24 child-first migration, ordered exact associations/legacy union, source-local state, scalar adapters, ZIP8/frozen1–7 compatibility and Android8/15 migration/backup/recovery are implemented.57 focused units and32 native persistence checks per API pass. All19 relevant cross-feature native checks also have passing results per API; actual evidence and investigated failures are in CURRENT_STATE.md.
 
-Next after closeout: **Stage3C collection UI/staging**, then **Stage3D integration/install-over/device acceptance/signed delivery**. No collection controls or signed Stage3B package are claimed. Stage1/1.5/2/3A history is retained.
+Exact next assignment (not started): **Stage3C collection UI/staging**, then **Stage3D integration/install-over/device acceptance/signed delivery**. No collection controls or signed Stage3B package are claimed. Stage1/1.5/2/3A history is retained.
 
 Stage 1 implements the expandable Block pills and context actions in the Library, This Week and Prepare Week. Weekly markers read committed completion snapshots and leave Room and backup formats unchanged. See [implementation and verification](CURRENT_STATE.md#stage-1-source-and-verification) and the [forward dependency order](PRACTICE_LOGGER_V1_MASTER_PLAN.md#block-ux-normalization).
 
