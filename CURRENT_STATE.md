@@ -1,14 +1,43 @@
-# Current state — W2 implemented, focused delivery in progress
+# Current state — W2 weekly practice target delivered, build116
 
-November12,2026. W2 source is implemented in the canonical C:/Users/mrove/Projects/practice.logger checkout on block-ux-stage1 from clean baseline32b213a. Version0.43.0/build116, Room26, complete ZIP11/readers1–11, unchanged JSON7/readers1–7. Final focused verification and permanent-key delivery are pending; build115 below remains the latest delivered package until this record is finalized.
+Updated November12,2026 (America/Los_Angeles). **Signed 0.43.0/build116 is delivered. W2 engineering and focused verification are complete; physical owner-phone acceptance remains pending.** Exact application/package/test source **f8ebd95a4d625944ec07f2eb285a253d45dd20ac**, branch **block-ux-stage1**. Later documentation commits do not change the signed application. Canonical checkout C:/Users/mrove/Projects/practice.logger was used; the older OneDrive checkout is untouched, with only a new delivery folder beside it.
 
-One optional weekly target is separate from musical Goals and weekly Block assignments. Home retains cumulative Statistics and adds current Sunday–Saturday actual/target/bar/percentage/remaining-or-extra plus This Week editing. Current/future targets are explicit; historical targets are read-only, retained and never copied. Uses G3 committed time by session/activity start date; Journal/G3 Monday calendar remains. Complete ZIP preserves targets; JSON7 excludes them and target-only installations are protected from restore.
+## Delivery and integrity
 
-Exact next task: finish W2 focused checks, permanent-key signed APK/ZIP, documentation and remote publication. No Playground or F1. Physical-phone acceptance is pending.
+OneDrive → Documents → ChatGPT → Practice Log development → **W2 delivery → W2 build116**.
+[APK](dist/practice.logger-0.43.0-b116-f8ebd95-w2-development/practice.logger-0.43.0-b116-f8ebd95.apk) · [ZIP](dist/practice.logger-0.43.0-b116-f8ebd95-w2-development.zip) · [Phone checklist](MANUAL_TESTS.md#w2--weekly-practice-target).
+Local final folder: dist/practice.logger-0.43.0-b116-f8ebd95-w2-development; dist/LATEST.txt points to the verified OneDrive copy. BUILD_INFO, VERIFICATION, INSTALL, PHONE_CHECKLIST, SIGNATURE and SHA256SUMS accompany the APK and incremental-signature companion.
+
+- Stable app ID com.mrayover.practicelogger.app; unchanged permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Package/version/pinned identity/signature verified by scripts/Publish-LocalApk.ps1.
+- APK SHA256 **52544004b76dee45c22046538f56c171a282a52ffd0717d9d143669599fafb7d**.
+- ZIP SHA256 **7b15900b8d0749c65168a5c8adccfd830ed86c0ea8b1f787b507ce15acd613b9**.
+- Exact successful CI unsigned release payload matches the signed APK. APK/ZIP CRC and lengths, all 8 ZIP member hashes, local delivery-copy hashes and all 552 pre-session distribution APK/ZIP hashes pass. Cloud-sync completion is unobserved.
+- Install over the permanent-key app **without uninstalling or clearing data**; keep a complete pre-update backup. Room25→26 is additive; complete ZIP11 needs the new reader and build115 cannot open Room26. APK downgrade is not rollback. No owner phone was installed/reset or owner data altered.
+
+## Implemented W2 behavior
+
+Home previously had the cumulative Total practice → Statistics control only. It retains that control and adds a compact current-week actual/target summary, progress bar, uncapped percentage, remaining/extra minutes and Set/Edit route to This Week. This Week previously contained calendar navigation and Block preparation/assignment; it now has an independent compact target editor above those controls, with no Block preparation required.
+
+One optional target per canonical local Sunday week, positive whole 1–10,080 minutes. Explicit set/edit/clear for current and upcoming weeks; previous weeks are read-only. Historical targets survive reopening/rollover and are never inherited automatically. No daily obligations, counter, notification, mastery or manual Goal-progress changes; G3/LGE/RW1 remain.
+
+Actual practice reuses G3's existing persisted union: distinct placement activeMs, including partial/unfinished/overtime practice, plus completed standalone Transcribe once. No planned duration, Prep, pause, passive playback or Goal/Routine duplication. Placement time belongs to session start date, Transcribe to activity start date; no invented midnight split. W2 uses Sunday–Saturday local start-of-day boundaries with end exclusive and DST/time-zone handling. Journal/G3 remain Monday–Sunday. The existing lifecycle-aware 15-second poll now refreshes week and zone, checking immediately on foreground resume. Original milliseconds drive ratios; only visual fill caps 100%, while numeric progress and extra time remain uncapped. Display rounding never enters the calculation. [Accounting contract](docs/PRACTICE_STATISTICS.md#w2--weekly-practice-target).
+
+Room **26** adds only weekly_practice_targets(weekStart,targetMinutes) through explicit 25→26. All29 old entity definitions and schemas 1–25 are preserved. Complete ZIP writer **11**, readers **1–11**, adds required target rows/counts with canonical Sunday/date, integer/bounds and duplicate-week validation. Frozen ZIP 1–10 restore without fabricated targets. Legacy JSON **7**, readers **1–7**, unchanged/excludes targets. Target-only installs reject both restore paths, including transactional recheck after preview. Media ownership, file locks, journal, witness and recovery remain. [Backup contract](BACKUP_FORMAT.md#complete-portable-zip-v11--weekly-practice-targets).
+
+## Actual focused verification
+
+- Windows: **7/7 WeeklyPracticeTargetTest methods pass**, zero failures/errors/skips. CRUD/reopen/history/current/future/rollover, malformed/overflow bounds, under/exact/over/unset/partial precision, Sunday versus Monday and DST/time-zone boundaries, G3 persisted unfinished/repeated/overtime/completed Transcribe without double-counting, Room25 upgrade/preservation, ZIP11 actual archive round-trip, ZIP10 actual envelope/default, duplicate/malformed target rejection and JSON target-only guard. Debug/release/testAPK assembly and release vital lint pass.
+- [Manual W2 preview43326881686](https://github.com/mrayover/practice.logger/actions/runs/43326881686), exact sourcef8ebd95a4d625944ec07f2eb285a253d45dd20ac: **7/7 Linux host tests**, release vital lint and all three APK compilations pass. API35 install/launch smoke and **one WeeklyTargetWorkflowTest pass (11.386seconds)**: Home/This Week routes, cumulative Statistics, numeric invalid/set/edit/clear, live50%/150% progress, read-only historical/explicit upcoming target, recreation, real-filesystem PortableRestore precommit rollback/retry and target-only guards before stage/after preview. Home/This Week screenshots inspected.
+- Initial debug compile exposed public/internal progress-type visibility; corrected. Expanded Windows8-test attempt had7 passes and one Robolectric ShadowLinux directory-open EIO at syncPrivateDirectory (PortableRestore.kt254) during recovery finalization. The filesystem scenario moved to the same Android workflow; production recovery was not changed. Its initial transferred fixture lacked Flow.first import; corrected before CI. First native attempt43325357425 passed host/build/launch and initial target/Home checks but timed out at fixture keyboard dismissal during edit. The helper now uses Android Back for the visible dialog IME; final workflow passes, with no production recovery or input behavior change. Retained LGE fixture version/table expectations were mechanically updated; LGE suites were not rerun.
+- No full regression, historical compatibility/device matrix, broad lint investigation, media/LGE campaign, Playground, F1 or F2 was run. Narrow/enlarged-text/theme, actual Sunday transition, populated owner data and physical-phone acceptance remain on the phone checklist; deterministic calendar/recreation tests do not establish those physical results. Existing Stage3/G3/LGE/RW1 phone checks remain pending; Stage4 remains0/10 owner-deferred sessions.
+
+## Exact next task
+
+**Owner-phone W2 weekly-target checklist.** Stop W2 engineering here. Recommended next development milestone is a separately bounded owner assignment for Playground after reviewing remaining feature priorities; no Playground implementation, feature freeze or F1 is initiated.
 
 ---
 
-# Current state — RW1 recording waveform delivery, build115
+# Previous RW1 delivery — build115 (historical record)
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.42.0/build115 is delivered. RW1 implementation and focused verification are complete; physical owner-phone acceptance remains pending.** Exact application/package/test source **145ff9d0a61dff7aa1f26cfe79e91c148e124f7a** on **block-ux-stage1**. Later documentation commits do not change the signed application. Work used C:/Users/mrove/Projects/practice.logger; the older OneDrive checkout is untouched, with only a new delivery folder added beside it.
 

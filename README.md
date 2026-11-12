@@ -1,6 +1,6 @@
 # practice.logger
 
-W2 in0.43.0/build116 adds one optional weekly practice-time target, compact Home progress and This Week editing. G3 supplies committed actual time; weekly targets use Sunday–Saturday while Statistics/Journal retain Monday–Sunday. Room26/complete ZIP11 preserve targets; JSON7 remains unchanged and excludes them. See [current signed delivery and focused verification](CURRENT_STATE.md). Physical owner-phone acceptance and comprehensive F1 remain separate.
+Signed W2 in0.43.0/build116 delivers one optional weekly practice-time target, compact Home progress and This Week editing. G3 supplies committed actual time; weekly targets use Sunday–Saturday while Statistics/Journal retain Monday–Sunday. Room26/complete ZIP11 preserve targets; JSON7 remains unchanged and excludes them. See [current signed delivery and focused verification](CURRENT_STATE.md). Physical owner-phone acceptance and comprehensive F1 remain separate.
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 

@@ -20,7 +20,7 @@ Weekly statistics match Journal's Monday–Sunday local week. The separate Sunda
 Future check-ins can consume PracticeFact's stable placement/session/Block IDs, start date, completedAt when present, actual time, outcome, attribution and confidence/security. Those IDs resolve the existing Block current primary Goal, full Block/session reflections and timestamped/legacy notes through the established DAOs. No scheduling, recommendations, tracking tables or background jobs are added.
 
 Verification is focused on PracticeStatisticsTest and one StatisticsNavigationTest in the existing manual owner-preview workflow's statistics selector. All other test infrastructure is retained for separately authorized F1. Physical checks are in MANUAL_TESTS.md; exact executed outcomes and package provenance belong in CURRENT_STATE.md.
-LGE-1/LGE-2 are now explicitly approved future increments after Stage4 practical-use review; see the [Learning Guidance Extension contract](LEARNING_GUIDANCE_EXTENSION.md). Neither is implemented by G3 or by that planning assignment. G3 remains the single time/Goal accounting model; future evidence must not multiply its rows or infer retention from minutes/confidence.
+LGE-1/LGE-2 were later separately assigned and implemented in builds113/114 after the owner-deferred Stage4; see the [Learning Guidance Extension contract](LEARNING_GUIDANCE_EXTENSION.md). Their separate implementation preserves G3 as the shared time-accounting model. G3 remains the single time/Goal accounting model; future evidence must not multiply its rows or infer retention from minutes/confidence.
 
 
 ## W2 — weekly practice target
