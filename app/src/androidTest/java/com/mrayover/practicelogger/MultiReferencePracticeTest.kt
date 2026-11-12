@@ -20,8 +20,14 @@ class MultiReferencePracticeTest {
     private val db get() = BlockDatabase.appInstance(app)
     private val images get() = ViewModelProvider(compose.activity)[ImageReferenceViewModel::class.java]
     private val audio get() = ViewModelProvider(compose.activity)["practice-transcribe", LibraryAudioViewModel::class.java]
-    private fun tag(name: String) = compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
-    private fun click(text: String) = compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
+    private fun tag(name: String): SemanticsNodeInteraction {
+        compose.waitUntil(20_000) { compose.onAllNodesWithTag(name).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+        return compose.onNodeWithTag(name).scrollIfNeeded().assertIsDisplayed()
+    }
+    private fun click(text: String) {
+        compose.waitUntil(20_000) { compose.onAllNodes(hasText(text) and isEnabled()).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+        compose.onNodeWithText(text).scrollIfNeeded().assertIsDisplayed().performClick()
+    }
     private fun ready(id: String) = compose.waitUntil(20_000) {
         audio.controller.state.value.let { it.mediaId == id && !it.preparing && it.durationMs > 0 } && !audio.switching
     }

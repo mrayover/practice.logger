@@ -113,7 +113,7 @@ internal fun TranscribePanel(blockId: String, images: ImageReferenceViewModel, v
             reference.mediaId to (assets.find { it.id == reference.mediaId }?.title ?: "Unavailable audio")
         }, mediaId, canSwitch && !recordingReference) { id ->
             val incoming = assets.find { it.id == id }
-            if (incoming != null) vm.openBlock(blockId, id, incoming.durationMs ?: 1L) { selectedId = id }
+            if (incoming != null) vm.openBlock(blockId, id, incoming.durationMs ?: 1L) { selectedId = id; keptId = null }
         }
         if (audioBusy) Text("Finish recording, review or Save before switching audio.", style = MaterialTheme.typography.bodySmall)
         if (selectedId != null && references.none { it.mediaId == selectedId })
