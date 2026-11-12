@@ -65,6 +65,9 @@ class LearningWorkflowTest {
         assertEquals("FIRST_ATTEMPT",saved.context)
         assertEquals("HELD",saved.outcome)
         assertNotNull(saved.criterionToken)
+        // The picker fixture is already explicitly flagged; exercise both independent actions.
+        click("Clear flag")
+        compose.waitUntil(15000) { runBlocking { db.learning().events(p.sourceBlockId).firstOrNull()?.returnSoon == false } }
         click("Return Soon")
         shown("Revisit choice saved.")
         compose.waitUntil(15000) { runBlocking { db.learning().events(p.sourceBlockId).firstOrNull()?.returnSoon == true } }
