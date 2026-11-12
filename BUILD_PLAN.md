@@ -1,6 +1,6 @@
 ## LGE-1/LGE-2 — focused development delivery
 
-The owner assigned LGE-1 after the November12 Stage4 deferral. Signed0.40.0/build113 delivers Room25/ZIP9 with16 focused tests passing on each of Windows/Linux and one API35 workflow/media recovery check. Owner phone acceptance remains pending. Optional placement observations and manual scheduling reuse existing practice/history; G3 accounting and transport/media behavior remain unchanged. LGE-2 is owner-assigned and implemented in0.41.0/build114: deterministic comparable returns, optional picker suggestions and explicit accepted provenance in ZIP10, with Room25 unchanged. See CURRENT_STATE.md for actual verification and delivery.
+The owner assigned LGE-1 after the November12 Stage4 deferral. Signed0.40.0/build113 delivers Room25/ZIP9 with16 focused tests passing on each of Windows/Linux and one API35 workflow/media recovery check. Owner phone acceptance remains pending. Optional placement observations and manual scheduling reuse existing practice/history; G3 accounting and transport/media behavior remain unchanged. LGE-2 is owner-assigned and implemented in0.41.0/build114: deterministic comparable returns, optional picker suggestions and explicit accepted provenance in ZIP10, with Room25 unchanged. Its focused signed development delivery is complete. See CURRENT_STATE.md for actual verification and delivery.
 
 ## Approved next phases — Stage4 and Learning Guidance Extension
 

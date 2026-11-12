@@ -1,8 +1,42 @@
-# LGE-2 implementation — focused delivery in progress
+# Current state — LGE-2 signed development delivery, build114
 
-LGE-2 is implemented for0.41.0/build114; Windows32 focused tests, debug/release/testAPK assembly and release vital lint pass. Room25 unchanged; complete ZIP10 writes/readers1–10, JSON7 unchanged. Native picker/check-in workflow and signed delivery are pending. Next: run the single API35 owner-preview learning check, then complete permanent-key delivery. No broad regression or physical acceptance claimed.
+Updated November12,2026 (America/Los_Angeles). **Signed0.41.0/build114 is delivered. LGE-2 implementation and focused checks are complete; owner-phone acceptance remains pending.** Application/package/test source **192d52087490551a2b1dc61c7f403e2ce98dce6c** on **block-ux-stage1**. Later documentation commits do not alter the signed application. The designated C:/Users/mrove/Projects/practice.logger checkout was used; the older OneDrive checkout was not edited or synchronized. Only a new delivery folder was added there.
 
-# Current state — LGE-1 signed development delivery, build113
+## Delivery and integrity
+
+OneDrive → Documents → ChatGPT → Practice Log development → **LGE-2 delivery → LGE-2 build114**.
+[APK](dist/practice.logger-0.41.0-b114-192d520-lge2-development/practice.logger-0.41.0-b114-192d520.apk) · [ZIP](dist/practice.logger-0.41.0-b114-192d520-lge2-development.zip) · [Phone checklist](MANUAL_TESTS.md#lge-2--optional-explainable-suggestions).
+Local final folder: dist/practice.logger-0.41.0-b114-192d520-lge2-development; dist/LATEST.txt points to the copied OneDrive delivery. BUILD_INFO, VERIFICATION, INSTALL, PHONE_CHECKLIST, SIGNATURE and SHA256SUMS accompany the APK and incremental-signature companion.
+
+- Stable app ID com.mrayover.practicelogger.app; unchanged permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Package/version/signature/pinned identity verified with the existing permanent-key publisher.
+- APK SHA256 **36db3da364c17abbabbf6a5db840bea26dae3c1f557a121037c124bf26c3eddb**.
+- ZIP SHA256 **7ae876d79d455c8cab29555671e9eee6df6c1202ac3a942a3b5028dd211a0735**.
+- Final APK uses the exact successful CI unsigned release; every unsigned payload entry matches. APK/ZIP entry CRC and lengths, all8 final ZIP member hashes and copied delivery files pass. All532 pre-session distribution APK/ZIP files retain their hashes. The early0bca182 locally signed candidate is retained separately. Cloud-sync completion is unobserved.
+- Install over the existing permanent-key app **without uninstalling or clearing data**. Keep a complete pre-update backup. Room25 is unchanged; ZIP10 needs the new reader and an older APK is not a backup rollback method. No physical-phone installation or alteration of owner data was performed.
+
+## Implemented scope
+
+Pure versioned LGE2_INTERVAL_V1 uses the actual elapsed interval from the exact earlier completed Block placement to a later confirmed comparable first attempt. Same original Block/token/criterion/anchor, positive practice time, completed placements/sessions and consistent endpoint/session identities/timestamps are required. Minimum24hours; HELD uses ceil1.5, PARTIAL floor0.75, NOT_YET floor0.5, clamped1–30days. Insufficient evidence offers a clearly labeled3day starting suggestion. First attempts/conditions are musician-reported; external practice cannot be detected. Confidence and duration never establish retention. Corrections are read fresh. Exact endpoint calculations remain separate from G3 accounting.
+
+Learning & revisits shows reason, policy, criterion/evidence, actual delay/outcome and proposed local date. Accept is explicit and transactionally rechecks facts/date/current revision. Manual dates are retained until acceptance. Append-only idempotent provenance preserves independent Return Soon/date, Clear flag, Clear date and No scheduling. Browsing/calculation never writes.
+
+Optional Suggested views reuse Session Builder Add Blocks and Prepare Week Add existing Blocks. Reasons combine without duplicate stable Block IDs. Ordering: explicit flag, due date, recent14local-date comparable difficulty, then active Goal priority with no trustworthy attributed G3 practice in the previous7complete local dates. Existing search, Goal/No Goal filters, active eligibility, manual catalog ordering and explicit Add actions remain. Prepare Week excludes already assigned Blocks for the displayed week. No new navigation pill, automatic dates/plans/sessions/Goal changes, score, cache or background scheduler.
+
+Room **25** remains unchanged; compiler schema25 and all prior schema files match. Complete ZIP writer **10**, readers **1–10**. ZIP10 is required because frozen ZIP9 forbids suggestions; ZIP9 still rejects nonmanual origins/non-null provenance. Accepted snapshots validate bounded fixed-key provenance and immutable observation/endpoint interval, yet survive outcome/context corrections. Existing recovery/media/empty-target/ownership safeguards are unchanged. Legacy JSON **7**, readers **1–7**, remains unchanged/excludes learning/guidance. [Policy/architecture](docs/LEARNING_GUIDANCE_EXTENSION.md) · [Backup contract](BACKUP_FORMAT.md#complete-portable-zip-v10--accepted-lge-2-suggestions).
+
+## Actual focused verification
+
+- Windows **32/32 tests, zero failures/errors/skips** (10policy,6adaptive scheduling/provenance,7existing learning,9unchanged G3). Debug/release/instrumentation APK assembly and release vital lint pass. The exact corrected CI command also passes locally at the final tested source.
+- [Manual focused preview43279124139](https://github.com/mrayover/practice.logger/actions/runs/43279124139), exact source192d520: **32/32 Linux tests**, debug/release/testAPK compilation and release vital lint, install/launch smoke and **one API35 LearningWorkflowTest pass**. Covers original complete picker/unassessed exploration, optional Suggested, explicit Add/no implicit writes, optional observation/context/manual date/decline/accepted starting suggestion, independent flag, live timer/metronome preservation, recreation, ZIP10 original-PNG recovery and injected precommit rollback. Screenshot inspected.
+- Earlier attempts: initial JRE lacked a compiler; selected the existing full JDK. New exact-endpoint model needed public visibility for generated Room queries; corrected. Superseded43274488213 was canceled during compilation after the additional archive guard. CI43275300807 compiled all APKs, then failed before tests on workflow task-option ordering; corrected without application changes. CI43276069097 passed32tests/lint/compilation/launch, then the preflagged picker fixture showed Clear flag where the test expected Return Soon; the test now explicitly clears/asserts/sets the flag. The next43277387611 native run timed out at manual-date persistence. Added explicit field/visible/enabled checks, awaited IME settlement and failure diagnostics; the final workflow is the successful combination, without an independent keyboard-cause claim. The corrected native testAPK also compiles on Windows. These earlier attempts are not passing complete native results. Details in WORK_LOG.md.
+- No android.yml, stage3-final.yml, multi-reference.yml or comprehensive campaign; no historical device matrix, full lint, unrelated baseline investigation, F1/F2 or physical/acoustic/provider acceptance is claimed. The final focused gate has no outstanding failure. Actual permanent-key phone install-over and remaining Stage3/G3/LGE phone checks are pending.
+
+## Exact next recommended task
+
+**Owner decision on remaining V1 features, particularly Playground.** Implement any selected feature only after a separate bounded assignment. Comprehensive F1 requires separate explicit authorization after feature development is finished. Stage4 remains0/10 documented sessions with all ten owner-deferred on November12; no practical-use review or phone acceptance is inferred. Stop LGE-2 here.
+
+---
+# Previous LGE-1 delivery — build113 (historical record)
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.40.0/build113 is delivered. LGE-1 implementation and focused verification are complete; owner phone acceptance remains pending.** Application/package/test source **23e0b6660d2a5027421eff7a605869f119574c46**, branch **block-ux-stage1**. Later documentation commits do not change the packaged app. Existing checkout C:/Users/mrove/Projects/practice.logger was used; the older OneDrive reference checkout was not synchronized or edited. Only the new delivery folder was added there.
 
@@ -36,7 +70,7 @@ No broad regression, full lint, historical migration/compatibility campaign, dev
 
 ## Next bounded assignment
 
-**LGE-2 — Explainable Adaptive Suggestions**, only if separately assigned by the owner under the learning contract. LGE-1 is complete; no LGE-2 algorithm, Playground work or F1 campaign was begun. Stage4 remains0/10 real sessions, with the owner's November12 deferral recorded in EVALUATION.md; no practical-use review or phone acceptance is inferred.
+At the build113 closeout, the next recommended assignment was LGE-2. It has since been explicitly assigned and delivered in build114 above; Playground and F1 remain unstarted. Stage4 remains0/10 real sessions, with the owner's November12 deferral recorded in EVALUATION.md; no practical-use review or phone acceptance is inferred.
 
 ---
 
