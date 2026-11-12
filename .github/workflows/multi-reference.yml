@@ -41,6 +41,7 @@ jobs:
       - name: Native codec fixtures
         env:
           AUDIO_FIXTURE_DURATION: '4.0'
+          AUDIO_FIXTURE_WAV: 'true'
         run: bash scripts/Prepare-AudioFixtures.sh
       - name: Compile and preservation units
         if: ${{ !inputs.native_only }}

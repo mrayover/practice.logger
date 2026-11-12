@@ -21,3 +21,7 @@ timeout 15s "$ffmpeg_bin" -y -v error -f lavfi -i "sine=frequency=440:duration=$
 timeout 15s "$ffmpeg_bin" -y -v error -f lavfi -i "sine=frequency=330:duration=$duration" -ar 44100 -ac 1 -c:a aac "$out/backing.m4a"
 test -s "$out/backing.mp3"
 test -s "$out/backing.m4a"
+if [ "${AUDIO_FIXTURE_WAV:-false}" = true ]; then
+  timeout 15s "$ffmpeg_bin" -y -v error -f lavfi -i "sine=frequency=440:duration=$duration" -ar 44100 -ac 1 -c:a pcm_s16le "$out/backing.wav"
+  test -s "$out/backing.wav"
+fi
