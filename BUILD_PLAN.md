@@ -1,3 +1,9 @@
+# Owner-requested Home fit follow-up
+
+Home-only compact layout in0.46.1/build122: single-line Goals, Edit alongside heading, shorter gaps/buttons, paired secondary destinations for short screens, compact footer. Existing destinations and larger-text scrolling retained. Compile/vital lint pass; focused native fit/action proof and signed delivery pending. Stop after this correction; no F1.
+
+---
+
 # UI-C1 — complete focused development delivery
 
 Signed0.46.0/build121 delivered on block-ux-stage1. Centered primary headings and opt-in persistent Cosmic use the existing semantic theme/preferences/native architecture and one static procedural background. Eight focused checks pass on Windows/Linux, plus one API35 visual workflow and compilation/vital lint. Room27/ZIP12/JSON7 unchanged; physical acceptance pending. [Coverage/design](docs/COSMIC_UI.md) · [Exact delivery/evidence](CURRENT_STATE.md). Next: UI-C1 phone checklist. Stop after UI-C1; no automatic F1/main merge.

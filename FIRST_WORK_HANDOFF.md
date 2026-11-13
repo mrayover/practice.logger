@@ -1,3 +1,9 @@
+# Compact Home — active follow-up
+
+Owner asks Home fit on one screen with single-line Goals. Implementation0.46.1/build122 compiles; focused native verification and permanent-key delivery remain. Use canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1. CURRENT_STATE owns exact evidence and next task. Stop after this bounded correction.
+
+---
+
 # practice.logger — UI-C1 delivered handoff
 
 UI-C1 is delivered as permanent-key0.46.0/build121, exact application/test/package source 6e26000a66c3d5669ee330dafab0021d3f3c5d6a on block-ux-stage1. Eight focused checks pass on Windows/Linux; one API35 visual workflow passes, including320dp/200% dynamic headings, theme recreation/native mirrors, Playground sample and waveform/dialog surfaces. Initial Settings scrollbar-centering failure and correction are documented. Package/signature/payload/ZIP/copy checks pass;586 prior artifacts unchanged. Later closeout changes documentation only.

@@ -1,3 +1,9 @@
+# Compact Home follow-up — build122 verification pending
+
+Owner-requested follow-up implements one-line Goal names, tighter Home spacing, paired menu rows on shorter screens and compact statistics/weekly summary. Version0.46.1/build122 compiles; focused one-device layout/action check and permanent-key delivery pending. Exact next task: verify and deliver this Home-only correction. Previous UI-C1 evidence remains below.
+
+---
+
 # Current state — UI-C1 delivered, build121
 
 Updated November 12, 2026 (America/Los_Angeles). Signed **0.46.0/build121** delivered on **block-ux-stage1**. Exact application/test/package source **6e26000a66c3d5669ee330dafab0021d3f3c5d6a**; later closeout changes documentation only. Canonical C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.

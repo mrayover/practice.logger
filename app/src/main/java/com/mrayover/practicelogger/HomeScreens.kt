@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,61 +26,83 @@ import androidx.compose.ui.unit.sp
     Column(Modifier.fillMaxSize().testTag("home-menu").background(pageBackgroundColor())
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
-            val viewportHeight = maxHeight
-            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).heightIn(min = viewportHeight)
-                .padding(horizontal = 24.dp, vertical = 12.dp), verticalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Box(Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
-                        Text("Goals", modifier = Modifier.align(Alignment.Center).semantics { heading() },
-                            fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    }
-                    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp)).testTag("home-goals")) {
-                        val indicators = LocalGoalIndicators.current
-                        repeat(2) { index ->
-                            if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            val goal = homeGoals(goals).getOrNull(index)?.goal
-                            val marker = if (goal == null) Modifier else Modifier.goalEndCap(indicators.goal(goal.id))
-                            Column(Modifier.fillMaxWidth().then(marker).clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
-                                if (goal == null) onGoals() else onGoal(goal.id)
-                            }.heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}% manual", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
-                                if (goal != null) LinearProgressIndicator(
-                                    progress = { goal.progress / 100f }, color = MaterialTheme.colorScheme.primary,
-                                    trackColor = PracticeTheme.colors.scrollTrack,
-                                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Butt, gapSize = 0.dp,
-                                    drawStopIndicator = {},
-                                    modifier = Modifier.fillMaxWidth().height(3.dp).testTag("home-goal-progress-${goal.id}"))
-                            }
-                        }
-                    }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = onGoals,
-                            colors = ButtonDefaults.textButtonColors(disabledContentColor = MaterialTheme.colorScheme.primary)) {
-                            Text("Edit", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        HomeButton("Practice Now", onPractice)
-                        HomeButton("Blocks", onBlocks)
-                        HomeButton("Routines", onRoutines)
-                        HomeButton("Tools", onTools)
-                        HomeButton("Recording", onRecording)
-                        HomeButton("Log", onLog)
-                        HomeButton("Library", onLibrary)
+            // Keep the familiar vertical menu when it fits; shorter phones use paired rows.
+            val paired = maxHeight < 700.dp
+            val destinations = listOf(
+                "Practice Now" to onPractice, "Blocks" to onBlocks, "Routines" to onRoutines,
+                "Tools" to onTools, "Recording" to onRecording, "Log" to onLog, "Library" to onLibrary)
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).testTag("home-scroll")
+                .padding(horizontal = 16.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Box(Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    Text("Goals", modifier = Modifier.align(Alignment.Center).semantics { heading() },
+                        fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    TextButton(onClick = onGoals, modifier = Modifier.align(Alignment.CenterEnd)) {
+                        Text("Edit", fontWeight = FontWeight.Bold)
                     }
                 }
-                Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                    TextButton(onClick = onStatistics, modifier = Modifier.testTag("home-statistics")) {
-                        Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}")
-                    }
-                    WeeklyTargetSummary(weeklyProgress)
-                    TextButton(onClick = onWeekTarget, modifier = Modifier.testTag("home-weekly-target")) {
-                        Text(if (weeklyProgress?.targetMinutes == null) "Set weekly target" else "Edit target in This Week")
+                Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp)).testTag("home-goals")) {
+                    val indicators = LocalGoalIndicators.current
+                    repeat(2) { index ->
+                        if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        val goal = homeGoals(goals).getOrNull(index)?.goal
+                        val marker = if (goal == null) Modifier else Modifier.goalEndCap(indicators.goal(goal.id))
+                        Column(Modifier.fillMaxWidth().then(marker).clickable(onClickLabel = if (goal == null) "Add a Goal" else "Open ${goal.title}") {
+                            if (goal == null) onGoals() else onGoal(goal.id)
+                        }.heightIn(min = 48.dp).padding(horizontal = 12.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(if (goal == null) "${index + 1}. Add a Goal" else "${index + 1}. ${goal.title} · ${goal.progress}% manual",
+                                color = MaterialTheme.colorScheme.primary, fontSize = 16.sp,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.testTag("home-goal-title-$index"))
+                            if (goal != null) LinearProgressIndicator(
+                                progress = { goal.progress / 100f }, color = MaterialTheme.colorScheme.primary,
+                                trackColor = PracticeTheme.colors.scrollTrack,
+                                strokeCap = androidx.compose.ui.graphics.StrokeCap.Butt, gapSize = 0.dp,
+                                drawStopIndicator = {},
+                                modifier = Modifier.fillMaxWidth().height(3.dp).testTag("home-goal-progress-${goal.id}"))
+                        }
                     }
                 }
+                if (paired) {
+                    CompactHomeButton(destinations.first().first, destinations.first().second)
+                    destinations.drop(1).chunked(2).forEach { row ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            row.forEach { (label, action) -> CompactHomeButton(label, action, Modifier.weight(1f)) }
+                        }
+                    }
+                } else destinations.forEach { (label, action) -> CompactHomeButton(label, action) }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = onStatistics, modifier = Modifier.weight(1f).testTag("home-statistics"),
+                        contentPadding = PaddingValues(horizontal = 4.dp)) {
+                        Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}", maxLines = 2)
+                    }
+                    TextButton(onClick = onWeekTarget, modifier = Modifier.weight(1f).testTag("home-weekly-target"),
+                        contentPadding = PaddingValues(horizontal = 4.dp)) {
+                        Text(if (weeklyProgress?.targetMinutes == null) "Set weekly target" else "Edit weekly target", maxLines = 2)
+                    }
+                }
+                CompactHomeWeeklySummary(weeklyProgress)
             }
         }
+    }
+}
+
+/** Home alone uses compact controls; Tools and other menus retain their established sizes. */
+@Composable private fun CompactHomeButton(label: String, action: () -> Unit, modifier: Modifier = Modifier) {
+    Button(onClick = action, modifier = modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("home-nav-$label"),
+        shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+        Text(label, fontFamily = Lato, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 24.sp,
+            textAlign = TextAlign.Center)
+    }
+}
+
+@Composable private fun CompactHomeWeeklySummary(progress: WeeklyTargetProgress?) {
+    Column(Modifier.fillMaxWidth().testTag("weekly-target-summary"), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Text(if (progress == null) "This Week · Loading…"
+            else if (progress.targetMinutes == null) "This Week · ${targetMinuteText(progress.actualMs)} min practiced"
+            else "This Week · ${targetMinuteText(progress.actualMs)} / ${progress.targetMinutes} min · ${progress.percentage}",
+            style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (progress?.targetMinutes != null) LinearProgressIndicator(progress = { progress.fill },
+            modifier = Modifier.fillMaxWidth().height(4.dp), color = MaterialTheme.colorScheme.primary,
+            trackColor = PracticeTheme.colors.scrollTrack)
     }
 }
 

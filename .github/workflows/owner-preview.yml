@@ -5,7 +5,7 @@ on:
       check:
         description: Focused preview check
         type: choice
-        options: [cosmic-ui, recording-coverage, playground, weekly-target, waveform, learning, statistics, home, metronome, practice-refinement, practice-layout, loop-refinement]
+        options: [home-fit, cosmic-ui, recording-coverage, playground, weekly-target, waveform, learning, statistics, home, metronome, practice-refinement, practice-layout, loop-refinement]
         default: home
 permissions:
   contents: read
@@ -77,7 +77,7 @@ jobs:
           disable-animations: true
           script: bash scripts/Check-PreviewLaunch.sh
         env:
-          PREVIEW_TEST_CLASS: ${{ inputs.check == 'cosmic-ui' && 'CosmicUiWorkflowTest' || inputs.check == 'recording-coverage' && 'RecordingWaveformWorkflowTest,com.mrayover.practicelogger.RecordingCoverageWorkflowTest' || inputs.check == 'playground' && 'PlaygroundWorkflowTest' || inputs.check == 'weekly-target' && 'WeeklyTargetWorkflowTest' || inputs.check == 'waveform' && 'RecordingWaveformWorkflowTest' || inputs.check == 'learning' && 'LearningWorkflowTest' || inputs.check == 'statistics' && 'StatisticsNavigationTest' || inputs.check == 'loop-refinement' && 'LoopRecorderPreviewTest' || inputs.check == 'practice-layout' && 'PracticeRefinementPreviewTest' || inputs.check == 'practice-refinement' && 'PracticeRefinementPreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest' || inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
+          PREVIEW_TEST_CLASS: ${{ inputs.check == 'home-fit' && 'HomeFitWorkflowTest' || inputs.check == 'cosmic-ui' && 'CosmicUiWorkflowTest' || inputs.check == 'recording-coverage' && 'RecordingWaveformWorkflowTest,com.mrayover.practicelogger.RecordingCoverageWorkflowTest' || inputs.check == 'playground' && 'PlaygroundWorkflowTest' || inputs.check == 'weekly-target' && 'WeeklyTargetWorkflowTest' || inputs.check == 'waveform' && 'RecordingWaveformWorkflowTest' || inputs.check == 'learning' && 'LearningWorkflowTest' || inputs.check == 'statistics' && 'StatisticsNavigationTest' || inputs.check == 'loop-refinement' && 'LoopRecorderPreviewTest' || inputs.check == 'practice-layout' && 'PracticeRefinementPreviewTest' || inputs.check == 'practice-refinement' && 'PracticeRefinementPreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest' || inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
