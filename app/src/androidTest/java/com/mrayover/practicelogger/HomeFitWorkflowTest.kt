@@ -93,7 +93,17 @@ class HomeFitWorkflowTest {
                 val layouts=mutableListOf<TextLayoutResult>()
                 compose.onNodeWithText(label,useUnmergedTree=true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertEquals("Large-text navigation remains one line: $label",1,layouts.single().lineCount)
-                assertFalse(layouts.single().hasVisualOverflow)
+                val layout=layouts.single()
+                val detail="$label size=${layout.size} paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height} overflow=${layout.hasVisualOverflow} line=${layout.getLineLeft(0)}..${layout.getLineRight(0)} bottom=${layout.getLineBottom(0)}"
+                println("HOME_FIT: $detail")
+                assertFalse(detail,layout.isLineEllipsized(0))
+                // Use rendered line bounds with physical-pixel rounding, as in existing compact UI checks.
+                assertTrue(detail,layout.getLineRight(0)-layout.getLineLeft(0)<=layout.size.width+1f)
+                assertTrue(detail,layout.getLineBottom(0)<=layout.size.height+1f)
+                val textBounds=compose.onNodeWithText(label,useUnmergedTree=true).fetchSemanticsNode().boundsInRoot
+                val buttonBounds=node.fetchSemanticsNode().boundsInRoot
+                assertTrue(detail,textBounds.left>=buttonBounds.left-1 && textBounds.right<=buttonBounds.right+1 &&
+                    textBounds.top>=buttonBounds.top-1 && textBounds.bottom<=buttonBounds.bottom+1)
             }
             compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
             File(folder,"home-fit-320-200.png").outputStream().use { output ->
