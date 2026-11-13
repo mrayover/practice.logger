@@ -49,7 +49,7 @@ class PlaygroundWorkflowTest {
             waitFor("playground-details")
             compose.onNodeWithText("Historical square 0").assertIsDisplayed()
             compose.onNodeWithTag("playground-expand").performClick()
-            compose.onNodeWithText("Historical reflection").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Focus: Historical reflection").performScrollTo().assertIsDisplayed()
             compose.onNodeWithTag("playground-expand").performScrollTo().performClick()
             overview()
             // Fast drag crosses the obstacle's complete width; swept geometry must stop at x=-1.

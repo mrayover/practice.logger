@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -78,7 +79,8 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
     var preview by remember { mutableStateOf<PlaygroundLayout?>(null) }
     var camera by remember { mutableStateOf<PlaygroundCamera?>(null) }
     val layouts = content?.layouts.orEmpty().map { if (it.placementId == preview?.placementId) preview!! else it }
-    val world = playgroundWorld(content?.completions?.size ?: 0)
+    val completions = remember(content?.sessions) { content?.completions.orEmpty() }
+    val world = playgroundWorld(completions.size)
     val currentLayouts by rememberUpdatedState(layouts)
     val currentWorld by rememberUpdatedState(world)
     val currentSelected by rememberUpdatedState(selected)
@@ -95,7 +97,7 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
             Text(message, Modifier.weight(1f)); TextButton(onClick = vm::retry) { Text("Retry") }
         } }
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-            Canvas(Modifier.fillMaxSize().testTag("playground-canvas").pointerInput(Unit) {
+            Canvas(Modifier.fillMaxSize().clipToBounds().testTag("playground-canvas").pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     val cam = camera ?: return@awaitEachGesture
@@ -154,7 +156,7 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
                             if (row.placementId == selected) {
                                 for (i in 3 downTo 1) drawRect(glow.copy(alpha = 0.08f), center - Offset(0.5f + i * 0.025f, 0.5f + i * 0.025f), Size(1f + i * 0.05f, 1f + i * 0.05f))
                             }
-                            val color = content?.completions?.get(row.placementId)?.completion?.colorArgb?.let { Color(it) } ?: neutral
+                            val color = completions[row.placementId]?.completion?.colorArgb?.let { Color(it) } ?: neutral
                             drawRect(color, center - Offset(0.5f, 0.5f), Size(1f, 1f))
                         }
                     }
@@ -166,7 +168,7 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
             Text(if (selected == null) "Tap a square · Drag space to pan" else "Drag selected square · Twist to rotate", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
             TextButton(onClick = { camera = null }, modifier = Modifier.testTag("playground-overview")) { Text("Overview") }
         }
-        val earned = content?.completions?.get(selected)
+        val earned = completions[selected]
         val placement = content?.sessions?.flatMap { it.placements }?.find { it.id == selected }
         if (earned != null && placement != null) {
             Surface(tonalElevation = 3.dp, modifier = Modifier.fillMaxWidth().heightIn(max = if (expanded) 300.dp else 150.dp).testTag("playground-details")) {
