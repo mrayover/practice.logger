@@ -75,7 +75,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, onBack: () -> Unit, onW
         ActionButton("This Week", onWeek)
         if (sessions.unfinished.isNotEmpty()) {
             Button(onClick = onUnfinished, colors = ButtonDefaults.buttonColors(
-                containerColor = LightPalette.scheme.primary, contentColor = LightPalette.scheme.onPrimary),
+                containerColor = PracticeTheme.colors.resumeAction, contentColor = PracticeTheme.colors.onResumeAction),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("In Progress") }
         }
         ActionButton("Add Blocks", onBuilder)

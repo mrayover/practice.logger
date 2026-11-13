@@ -24,7 +24,8 @@ internal fun goalCompletionColor(priority: Int?): Int? = priority?.let { GoalPri
     val transportSurface: Color, val selectionContainer: Color, val onSelectionContainer: Color,
     val recording: Color, val onRecording: Color, val scrollThumb: Color, val scrollTrack: Color,
     val goalPriorities: List<Color> = GoalPriorityColors,
-    val unassignedGoalAccent: Color = Color.Black
+    val unassignedGoalAccent: Color = Color.Black,
+    val resumeAction: Color = PracticeGreen, val onResumeAction: Color = Color.White
 )
 @Immutable data class PracticePalette(val id: String, val scheme: ColorScheme, val colors: PracticeColors)
 private val lightScheme = lightColorScheme(
@@ -200,7 +201,8 @@ val CosmicPalette = PracticePalette("cosmic", cosmicScheme, PracticeColors(
     transportSurface = Color(0xFF232747),
     selectionContainer = Color(0xFF453963), onSelectionContainer = Color(0xFFE9DFFF),
     recording = cosmicScheme.error, onRecording = cosmicScheme.onError,
-    scrollThumb = cosmicScheme.primary, scrollTrack = Color(0xFF454B70)
+    scrollThumb = cosmicScheme.primary, scrollTrack = Color(0xFF454B70),
+    resumeAction = cosmicScheme.primary, onResumeAction = cosmicScheme.onPrimary
 ))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {

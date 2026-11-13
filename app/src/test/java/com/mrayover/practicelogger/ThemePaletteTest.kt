@@ -32,6 +32,7 @@ class ThemePaletteTest {
                 s.onErrorContainer to s.errorContainer, s.inverseOnSurface to s.inverseSurface,
                 c.onBanner to c.banner, c.onSelectionContainer to c.selectionContainer,
                 c.onRecording to c.recording, c.recording to s.surface,
+                c.onResumeAction to c.resumeAction,
                 s.primary to c.transportSurface, s.onSurface to c.transportSurface,
                 s.onSurfaceVariant to c.transportSurface).forEachIndexed { i,(fg,bg) -> pair("${p.id} text $i",fg,bg) }
             listOf(s.surface,s.surfaceContainerLow,s.surfaceContainer,s.surfaceContainerHigh,s.surfaceContainerHighest,c.transportSurface).forEach { bg ->

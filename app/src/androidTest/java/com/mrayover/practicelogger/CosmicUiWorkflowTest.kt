@@ -70,6 +70,12 @@ class CosmicUiWorkflowTest {
             shot("settings")
             compose.activityRule.scenario.recreate(); waitTag("cosmic-background")
             assertEquals(ThemeChoice.COSMIC, compose.activity.themePreferences.choice.value)
+            val nativeBackground=android.util.TypedValue()
+            assertTrue(compose.activity.theme.resolveAttribute(android.R.attr.colorBackground, nativeBackground, true))
+            assertEquals(CosmicPalette.scheme.background.toArgb(), nativeBackground.data)
+            val bars=androidx.core.view.WindowCompat.getInsetsController(compose.activity.window, compose.activity.window.decorView)
+            assertFalse(bars.isAppearanceLightStatusBars)
+            assertFalse(bars.isAppearanceLightNavigationBars)
             assertEquals(CosmicPalette.scheme.background.value, resolvePalette(ThemeChoice.COSMIC, false).scheme.background.value)
             home(); shot("home")
             // Restore existing appearance through the same preference path without replacing audio owners.
@@ -133,20 +139,25 @@ class CosmicUiWorkflowTest {
             compose.runOnIdle {
                 compose.activity.setContent {
                     PracticeTheme(ThemeChoice.COSMIC) {
+                        var dialog by remember { mutableStateOf(false) }
+                        if (dialog) AlertDialog(onDismissRequest={dialog=false}, title={Text("Cosmic dialog")}, text={Text("Readable dialog text on an opaque surface.")}, confirmButton={TextButton(onClick={dialog=false}) { Text("Close dialog") }})
                         ApplicationBackground {
+                            Surface(Modifier.fillMaxSize(), color=androidx.compose.ui.graphics.Color.Transparent, contentColor=MaterialTheme.colorScheme.onBackground) {
                             Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement=Arrangement.spacedBy(12.dp)) {
                                 PageHeading("Cosmic control surfaces")
                                 CompactRecordingWaveform("cosmic-visual", AudioWaveform(1000, FloatArray(201) { if(it%5==0) .8f else .3f }), 400, 1000, true, null, Modifier.testTag("cosmic-waveform")) {}
-                                Button(onClick={}) { Text("Primary action") }
+                                Button(onClick={dialog=true}) { Text("Open dialog") }
                                 OutlinedButton(onClick={}) { Text("Secondary action") }
                                 Text("Recording warning", color=PracticeTheme.colors.recording)
                                 OutlinedTextField("Readable input", {}, label={ Text("Label") })
+                            }
                             }
                         }
                     }
                 }
             }
             compose.onNodeWithTag("cosmic-waveform").assertIsDisplayed(); shot("waveform-input")
+            click("Open dialog"); shot("dialog"); click("Close dialog")
         } catch (failure: Throwable) {
             shot("failure")
             File(folder, "cosmic-failure.txt").writeText(compose.onRoot().printToString())

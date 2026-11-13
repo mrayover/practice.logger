@@ -62,7 +62,8 @@ class CountInPreferences(context: Context) {
     }
     PracticeScrollPanel(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal=16.dp), tag="audio-settings-scroll") {
     Column(Modifier.fillMaxWidth().padding(vertical=24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        PageHeading("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        // Balance the shared scroll panel's 12dp end gutter for this full-page title only.
+        PageHeading("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(start = 12.dp))
         AppearanceSettings()
         HorizontalDivider()
         StorageSettings()
