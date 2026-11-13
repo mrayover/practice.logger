@@ -1,6 +1,6 @@
-# UI-C1 — owner-assigned bounded visual increment
+# UI-C1 — complete focused development delivery
 
-Centered primary headings and Cosmic implemented for0.46.0/build121; focused verification and permanent-key development delivery in progress. Reuses existing semantic themes/preferences, native resources and one static procedural root background. Preserve audio/data/Playground geometry; Room27/ZIP12/JSON7 unchanged. [Coverage and design](docs/COSMIC_UI.md). Stop after UI-C1; no automatic F1/main merge.
+Signed0.46.0/build121 delivered on block-ux-stage1. Centered primary headings and opt-in persistent Cosmic use the existing semantic theme/preferences/native architecture and one static procedural background. Eight focused checks pass on Windows/Linux, plus one API35 visual workflow and compilation/vital lint. Room27/ZIP12/JSON7 unchanged; physical acceptance pending. [Coverage/design](docs/COSMIC_UI.md) · [Exact delivery/evidence](CURRENT_STATE.md). Next: UI-C1 phone checklist. Stop after UI-C1; no automatic F1/main merge.
 
 ---
 

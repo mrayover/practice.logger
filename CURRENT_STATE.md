@@ -1,10 +1,40 @@
-# UI-C1 — implementation complete, verification in progress
+# Current state — UI-C1 delivered, build121
 
-UI-C1 implements centered primary page headings and opt-in persistent Cosmic in0.46.0/build121. Canonical block-ux-stage1 checkout used. Eight focused Windows checks and debug/release/testAPK compilation plus release vital lint pass; single API35 visual workflow/signing/delivery pending. Room27/ZIP12/JSON7 unchanged. No F1 or physical acceptance claimed. Exact next task: complete the focused UI-C1 Android workflow and permanent-key delivery.
+Updated November 12, 2026 (America/Los_Angeles). Signed **0.46.0/build121** delivered on **block-ux-stage1**. Exact application/test/package source **6e26000a66c3d5669ee330dafab0021d3f3c5d6a**; later closeout changes documentation only. Canonical C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.
+
+## UI-C1 delivery and integrity
+
+OneDrive → Documents → ChatGPT → Practice Log development → **Cosmic UI-C1 delivery → Cosmic UI-C1 build121**.
+[APK](dist/practice.logger-0.46.0-b121-6e26000-uic1-development/practice.logger-0.46.0-b121-6e26000.apk) · [ZIP](dist/practice.logger-0.46.0-b121-6e26000-uic1-development.zip) · [Phone checklist](MANUAL_TESTS.md#ui-c1--cosmic-and-centered-page-headings) · [Coverage/design](docs/COSMIC_UI.md). dist/LATEST.txt points to this delivery.
+
+- APK SHA256: **34a7d860471a918048e64bfe4b65677656be4fb033494b9d6d41322f73f9e02b**.
+- ZIP SHA256: **5437f36e248dbc4547c95ebc6b5fbdea2778ab103774d7c83a4b4c2c6ac59887**.
+- Stable app ID com.mrayover.practicelogger.app; unchanged permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Publisher verifies package/version/signature/pinned certificate. Final signature recheck, exact unsigned payload, APK/ZIP CRC/length, all eight ZIP member hashes and copied file/ZIP hashes pass. All **586** prior APK/ZIP hashes match. Cloud-sync completion unobserved.
+- Install over the permanent-key app without uninstalling/clearing data. Room27/ZIP12/readers1–12 and JSON7/readers1–7 unchanged. No audio/timing/storage/backup/Playground geometry implementation changed.
+
+## Centered headings and Cosmic
+
+Shared PageHeading centers primary titles over the full content width with Lato and heading semantics. Coverage includes Home's existing centered Goals; Practice Now/unfinished/Ready/focused Block; Block Library/editor; Goals/detail/editor/associated Blocks; This Week/Prepare Week; session builder/picker and Routines/editor; Tools/tool pages/Piano; Recording/management; Transcribe; Media Library/pickers/audio/visual viewers; Inspirations/editor/detail; Log/Weekly View/Playground; Statistics; reflections/Session Summary; Backup and Settings. Audio Settings is a subsection of the existing Settings page, retaining its alignment. Banner branding, navigation controls and ordinary body/subsection/list text remain. Editor reserves equal measured side-control space; Settings balances its scrollbar gutter. Constrained dynamic titles wrap/ellipsize; compact practice timer retains its row, with a full-width single-line name and existing measured constraints/pinned actions.
+
+Cosmic joins the existing selector/preferences/resolver before System Default. Light-blue actions, lavender selections, pale-violet accents and readable dark surfaces sit over a quiet navy/violet gradient with 96 static deterministic pale stars and subtle glow. One cached noninteractive root drawing layer; no animation, timer, external assets or media interaction. Prior palettes/resume-button appearance, five historical Goal colors and recording/error roles are preserved. Native Cosmic style/window/system-bar handling uses the existing in-place mechanism; startup/recovery uses its deep background. Original media and specialized opaque surfaces remain.
+
+## Focused verification actually run
+
+- Windows **8/8**, zero failures/errors/skips: ThemePaletteTest4, ThemePreferencesTest3, CosmicBackgroundTest1. Covers semantic contrast including resume actions, unchanged Goal fills, explicit/System resolution, selector IDs/order, every choice surviving a new reader, commit rollback/retry and static-star bounds. Debug/release/testAPK assembly and release vital lint pass. Final source's native fixture compilation passes.
+- [Final focused CI43371397756](https://github.com/mrayover/practice.logger/actions/runs/43371397756) on the exact source above: the same **8/8 Linux checks**, debug/release/testAPK compilation, release vital lint, install/launch and **1/1 native workflow on one API35 configuration** pass.
+- Actual selector choice, recreation, native background/dark system-bar icon modes, Light switch-back and retained recording ViewModel identity pass. At a 320dp Compose viewport/200% text, shared full-width alignment/text-layout assertions pass for representative navigation, long Goal/Block names, editor and focused timer visibility. Earned Playground red pixel/selection/pan and shared waveform/input/dialog surfaces are sampled. This is a bounded viewport fixture, not a physical 320dp device or a device matrix.
+- Reviewed all 11 final captures plus the first-run failure: Settings/Home, narrow Practice Now/editor/dynamic Goal/Metronome/Media Library/Playground/focused Block and dialog. Stars are visible and restrained; sampled headings wrap/truncate without covering navigation. The dedicated waveform/input capture retained the preceding focused frame; the waveform visibility assertion passes and the subsequent dialog capture shows the synthetic waveform/input underneath its dim layer. No separate undimmed waveform screenshot or audio/listening claim.
+- Initial CI43370361898 on d2f2aa5 passed host/build stages but failed the new Settings alignment assertion: center524px versus page540px. Screenshot/semantics confirmed the 12dp end scrollbar gutter. Balancing only the title start inset fixes it; the assertion remains unchanged. Final audit also adds Cosmic-specific semantic resume colors while preserving the old green in earlier themes. No unrelated failure investigation or broad rerun.
+
+## Limitations and exact next task
+
+Physical install-over, TalkBack, vendor bars/display, landscape, real-phone large text, recording/reference interaction, full Playground pinch/rotation and cloud sync remain pending. Existing theme/audio/data workflows were preserved in source; this increment does not certify all cross-feature behavior. No broad UI/accessibility/audio/backup suite, historical migration matrix, comprehensive lint investigation or F1 was run. All earlier distributions remain; no merge to main.
+
+**Next: perform the UI-C1 build121 owner-phone checklist and report concrete issues. Stop after UI-C1; further features and F1 require separate assignment.**
 
 ---
 
-# Current state — RW2 delivered, build120
+# Previous RW2 delivery — build120
 
 Updated November12,2026 (America/Los_Angeles). Signed **0.45.0/build120** delivered on **block-ux-stage1**. Exact application/test/package source **c43546e1072aeb54965b02c4e477d056eadd50f6**; later closeout changes documentation only. Canonical C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.
 

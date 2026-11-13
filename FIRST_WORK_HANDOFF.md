@@ -1,10 +1,12 @@
-# UI-C1 — active handoff
+# practice.logger — UI-C1 delivered handoff
 
-Owner-assigned UI-C1 is implemented; focused Android verification and signed delivery remain. Use canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1. [Current state](CURRENT_STATE.md) owns exact evidence and next task; [visual contract](docs/COSMIC_UI.md). Eight focused Windows checks/builds pass. No F1/phone acceptance claimed. Stop after UI-C1.
+UI-C1 is delivered as permanent-key0.46.0/build121, exact application/test/package source 6e26000a66c3d5669ee330dafab0021d3f3c5d6a on block-ux-stage1. Eight focused checks pass on Windows/Linux; one API35 visual workflow passes, including320dp/200% dynamic headings, theme recreation/native mirrors, Playground sample and waveform/dialog surfaces. Initial Settings scrollbar-centering failure and correction are documented. Package/signature/payload/ZIP/copy checks pass;586 prior artifacts unchanged. Later closeout changes documentation only.
+
+Use canonical C:/Users/mrove/Projects/practice.logger; older OneDrive checkout untouched. Signed delivery: OneDrive/Practice Log development/Cosmic UI-C1 delivery/Cosmic UI-C1 build121. [Current evidence/hashes/limits](CURRENT_STATE.md) · [Coverage contract](docs/COSMIC_UI.md). Next: [UI-C1 phone checklist](MANUAL_TESTS.md#ui-c1--cosmic-and-centered-page-headings). Physical acceptance pending. Stop after UI-C1; no further feature, main merge or F1.
 
 ---
 
-# practice.logger — RW2 active handoff
+# Previous RW2 handoff
 
 RW2 is delivered as permanent-key **0.45.0/build120**, exact application/test/package sourcec43546e1072aeb54965b02c4e477d056eadd50f6 on block-ux-stage1. Six focused checks pass on Windows/Linux, plus two native workflows on one API35 configuration (CI43362804723). Package/version/certificate/signature/payload/ZIP/copy checks pass;580 previous APK/ZIP hashes unchanged. Later closeout is documentation only.
 
