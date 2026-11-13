@@ -1,6 +1,6 @@
 # practice.logger
 
-Signed W2 in0.43.0/build116 delivers one optional weekly practice-time target, compact Home progress and This Week editing. G3 supplies committed actual time; weekly targets use Sunday–Saturday while Statistics/Journal retain Monday–Sunday. Room26/complete ZIP11 preserve targets; JSON7 remains unchanged and excludes them. See [current signed delivery and focused verification](CURRENT_STATE.md). Physical owner-phone acceptance and comprehensive F1 remain separate.
+Signed PG1 in0.44.0/build118 replaces Log → Playground with an open canvas of completion-backed colored squares: select, drag, twist, pan/pinch and expand recorded practice details. Room27/complete ZIP12 preserve exact arrangement; JSON7 is unchanged.15 focused host checks pass on Windows/Linux plus one API35 workflow. Physical acceptance pending; see [current delivery and verification](CURRENT_STATE.md). W2 weekly targets, G3 statistics, LGE guidance and multiple references remain implemented.
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 
@@ -10,7 +10,7 @@ An offline Android practice app using Kotlin, Jetpack Compose, Room and Lato. Se
 
 P0–P5, L1–L3, K1, T1–T2 and T3A–T3D are implemented. P5 closed with full automated regression and owner acceptance on build67. The [Media Library integration specification](docs/MEDIA_LIBRARY_TRANSCRIBE_INTEGRATION_PLAN.md) covers shared originals, Reference Piano, Block Transcribe and local annotations.
 
-The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; the owner deferred all ten undocumented Stage4 sessions on November12, resolving that prerequisite without practical-use or phone acceptance. See [the decision](EVALUATION.md). [LGE-1/LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are implemented; next is the owner decision on remaining V1 features, especially Playground. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
+The [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) defines **G3 → Stage 4 practical-use review → LGE-1 → LGE-2 → remaining owner-approved V1 features → F1 → F2**. G3 is complete; the owner deferred all ten undocumented Stage4 sessions on November12, resolving that prerequisite without practical-use or phone acceptance. See [the decision](EVALUATION.md). [LGE-1/LGE-2](docs/LEARNING_GUIDANCE_EXTENSION.md) are implemented; PG1 is now implemented; next is its physical-phone acceptance and the owner decision on subsequent V1 scope. Comprehensive regression waits for explicit owner F1 authorization. The [Practice Overlay specification](docs/PRACTICE_OVERLAY_SPEC.md) defines O1, which follows S2. The [Standalone Transcribe plan](docs/T3_STANDALONE_TRANSCRIBE_PLAN.md) records the approved T3 milestones.
 
 ## Appearance and Settings
 
@@ -18,7 +18,7 @@ Home → **Library** offers **Media** and **Inspirations**. Media opens the cano
 
 The far-right shared-header **Settings** gear offers Light, Dark, **Smooth** (teal), **Sunny** (yellow/orange), **Orchid** (dark purple), **Submarine** (red night lighting), then **System Default**, with the same control states. Existing installs stay Light until changed. Choices persist locally; System Default follows the device. Lato, screen layout, recording ownership and original image/PDF pixels remain. The existing Tools → Audio Settings shortcut reaches the same settings page. Central palette definitions and semantic app roles live in Theme.kt. Owner confirmed the downloaded new app works in both Light and Dark and explicitly authorized certification as complete on2026-10-31. Exact installed build was not independently captured. Theme implementation is complete; P5 automated appearance checks pass on API26/API35. Detailed physical/System/audio/TalkBack acceptance remains pending. Exact evidence and limits are in CURRENT_STATE.
 
-Inspirations keeps a private collection of writings, PDFs and images, with five read-only included works. Add a piece by writing or pasting, taking a photo, or choosing a file. Complete ZIP backup preserves saved personal entries. Home → **Log** opens **Journal** and offers a **Playground** earned-square canvas (PG1 development verification pending). [Inspirations details](docs/INSPIRATIONS.md)
+Inspirations keeps a private collection of writings, PDFs and images, with five read-only included works. Add a piece by writing or pasting, taking a photo, or choosing a file. Complete ZIP backup preserves saved personal entries. Home → **Log** opens **Journal** and offers a **Playground** earned-square canvas. [Inspirations details](docs/INSPIRATIONS.md)
 
 ## Reference Piano
 

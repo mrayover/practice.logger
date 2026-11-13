@@ -2,7 +2,7 @@
 
 Room27/ZIP12 adds playground_layouts with placementId, x, y, rotationDegrees. Coordinates and angle are finite doubles; keys must be unique and refer to existing block_completions. The centered world derives capacity20/40/80/160… from completion count at15% theoretical coverage and3:2 aspect ratio. Validate rotated boundaries, bounded normalized angle and pairwise actual oriented nonintersection before restore. Contact is valid. Exact saved doubles survive round trip. Layouts can be absent for completions not yet viewed; derive deterministic missing positions when Playground opens. Never infer completion snapshots from older placement outcomes.
 
-Frozen ZIP1–11 readers remain; ZIP11 has no layouts and accepts only Room26 envelopes. ZIP12 requires Room27. JSON7/readers1–7 remain unchanged and exclude completions/layouts. Existing transactional empty-target restore, media locks/ownership, journal/witness rollback and recovery are retained. The sole26→27 migration adds the restrictive-parent-owned layout table; schemas1–26 remain. See [PG1 geometry and recovery](docs/PLAYGROUND_SPEC.md). Actual delivery verification is in CURRENT_STATE.
+Frozen ZIP1–11 readers remain; ZIP11 has no layouts and accepts only Room26 envelopes. ZIP12 requires Room27. JSON7/readers1–7 remain unchanged and exclude completions/layouts. Existing transactional empty-target restore, media locks/ownership, journal/witness rollback and recovery are retained. The sole26→27 migration adds the completion-owned layout table; schemas1–26 remain. See [PG1 geometry and recovery](docs/PLAYGROUND_SPEC.md). Actual delivery verification is in CURRENT_STATE.
 
 # Backup format and safety — current implementation
 
@@ -17,7 +17,7 @@ Room24/ZIP8 and historical compatibility are implemented and verified on API26/A
 
 ## Format and records
 
-Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **26**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
+Identifier: `practice.logger.backup`. Writer version **7**, readers **1–7**. UTF-8 JSON; independent of current Room schema **27**. Top-level fields are `format`, `version`, `blocks`, `sessions`, `placements`, `routines`, `routinePlacements`, `goals`, `goalBlocks`, `sessionGoals`, `logs`, `practiceNotes`. Required fields for the declared version include explicit JSON null for nullable values; unknown extra fields are ignored and unknown versions rejected. Stable IDs are preserved.
 
 | Array | Fields |
 |---|---|

@@ -1,3 +1,7 @@
+## PG1 Playground foundation
+
+PG1 is implemented in0.44.0/build118, Room27/complete ZIP12/readers1–12; JSON7 stays unchanged. Completion snapshots keyed by placementId are the sole earned source; layout rows store only x/y/angle. Never infer missing historical colors from current Goals or issue rewards from unsnapshotted placements. Entire square is colored and unprinted. Preserve centered proportional20/40/80 capacity, exact prior world coordinates, oriented contact/no-tunneling, stationary unselected squares, initial-target gesture ownership, clipped viewport and read-only historical details. See docs/PLAYGROUND_SPEC.md. Preserve schemas1–27, explicit26→27, frozen ZIP1–11 readers, exact collision-validated layouts and existing recovery/media/deletion safeguards. Physical acceptance remains pending. PG2/animation/templates/F1 need separate owner assignments.
+
 ## W2 weekly targets
 
 Room26/complete ZIP11 add only weekly_practice_targets(weekStart,targetMinutes). Keep schemas1–26, explicit25→26, frozen ZIP1–10 readers and unchanged JSON7. Canonical Sunday dates, whole1–10,080minutes, duplicate rejection and target-only nonempty restore guards are required. Reuse G3 persisted actual-time facts, session/activity start dates and local Sunday–Saturday boundaries; Journal/G3 remain Monday–Sunday. No cached counter, target inheritance or Goal/mastery calculation. Past targets are read-only; current/upcoming targets require explicit edits. Home cumulative Statistics remains. See CURRENT_STATE for delivery/evidence.
