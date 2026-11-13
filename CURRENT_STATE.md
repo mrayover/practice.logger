@@ -1,47 +1,38 @@
-# PG1.1 — implementation complete, focused delivery in progress
+# Current state — PG1.1 delivered, build119
 
-Owner-assigned visual/gesture refinement implemented for0.44.1/build119. Windows16/16 focused Playground checks and compilation pass. One API35 workflow and signing pending. Room27/ZIP12/JSON7 unchanged. Next: complete this focused gate and signed delivery; no PG2/F1.
+Updated November12,2026 (America/Los_Angeles). Signed **0.44.1/build119** delivered on **block-ux-stage1**. Exact application/test/package source **5ffdbaad83368ba6f4bb20125a9da1303c251415**; later closeout changes documentation only. Canonical checkout C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.
 
----
+## PG1.1 delivery and integrity
 
-# Current state — PG1 Playground delivered, build118
+OneDrive → Documents → ChatGPT → Practice Log development → **PG1.1 delivery → PG1.1 build119**.
+[APK](dist/practice.logger-0.44.1-b119-5ffdbaa-pg11-development/practice.logger-0.44.1-b119-5ffdbaa.apk) · [ZIP](dist/practice.logger-0.44.1-b119-5ffdbaa-pg11-development.zip) · [Phone checklist](MANUAL_TESTS.md#pg11--visual-and-interaction-refinements). dist/LATEST.txt points to the copied delivery.
 
-Updated November12,2026 (America/Los_Angeles). **Signed0.44.0/build118 is delivered. Both PG1 engineering checkpoints and focused verification are complete; physical owner-phone acceptance is pending.** Exact application/package/test source **f55a0c764e5a92743f51e152497d53766fcaae15**, branch **block-ux-stage1**. Later closeout commits change documentation only. Used the canonical checkout C:/Users/mrove/Projects/practice.logger; the older OneDrive checkout is untouched, with a new delivery folder beside it.
+- APK SHA256: **2ed2633fc2db1f5b0ce5a38af422e8ee461895bff1fc524a73c83f913fad3e83**.
+- ZIP SHA256: **75c7bf07583d2d85ba5a10339b3abe20dd7577259458713fc4adf2e6f2b73c32**.
+- Stable app ID com.mrayover.practicelogger.app; permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Publisher package/version/signature/pinned-certificate verification passes. Exact CI unsigned payload, APK/ZIP CRC/length, all8 ZIP member hashes and copied file hashes pass. All **574** earlier distribution APK/ZIP hashes match, including build118 and preserved build117 artifacts. Cloud-sync completion unobserved.
+- Install over the permanent-key app without uninstalling/clearing. Keep a complete ZIP backup. Room27/ZIP12/readers1–12 and JSON7/readers1–7 unchanged; no schema, repository, migration, archive writer or history change. No owner phone/data altered.
 
-## PG1 delivery and integrity
+## Playground behavior
 
-OneDrive → Documents → ChatGPT → Practice Log development → **PG1 delivery → PG1 build118**.
-[APK](dist/practice.logger-0.44.0-b118-f55a0c7-pg1-development/practice.logger-0.44.0-b118-f55a0c7.apk) · [ZIP](dist/practice.logger-0.44.0-b118-f55a0c7-pg1-development.zip) · [Phone checklist](MANUAL_TESTS.md#pg1--earned-squares-and-free-arrangement).
-Local final folder: dist/practice.logger-0.44.0-b118-f55a0c7-pg1-development; dist/LATEST.txt points to the verified OneDrive copy. BUILD_INFO, VERIFICATION, INSTALL, PHONE_CHECKLIST, SIGNATURE and SHA256SUMS accompany the APK and signature companion.
+PG1 remains completion-backed: one plain solid historically colored square per authoritative completion, immutable identity/color/history, deterministic placement, centered proportional20/40/80/160 expansion and one-unit oriented geometry. ZIP12 preserves exact world coordinates/angles. Missing historical Goal titles remain unavailable; no current Goal fallback or fabricated rewards. Read-only historical details, expandable panel and Journal navigation remain.
 
-- Stable app ID com.mrayover.practicelogger.app; unchanged permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Publisher verified package/version/pinned identity/signature.
-- APK SHA256 **a9e399982ac53191cdd4c8b31727d29192727c9bed8ee2d76753b03b27a7d2cc**.
-- ZIP SHA256 **28a9e1bf9c1c5db7ddc57cefbee3b62f4c63156d551da975c751d44821f988a1**.
-- Exact successful CI unsigned payload matches the signed APK. APK/ZIP CRC and lengths, all8 final ZIP member hashes, copied delivery files and all568 distribution APK/ZIP files present before final delivery retain their hashes (including all562 pre-session files and all build117 candidate/staging artifacts). Cloud-sync completion is unobserved.
-- Install over the permanent-key app **without uninstalling or clearing data**; keep a complete pre-update ZIP. Room26→27 is additive. Complete ZIP12 needs the new reader; older APKs cannot reopen Room27. APK downgrade is not rollback. No owner phone or owner app data was altered.
+PG1.1 adds faint neutral world-anchored dots behind squares, viewport/world-bounded rendering with power-of-two thinning only at extreme zoom-out, a20% closer initial camera and a stronger static external selection halo. Overview retains90%-fit full world. Pinch/free twist remain. Painted squares and collision bounds stay exactly one unit.
 
-## Implemented PG1 behavior
+Tap unselected square selects; empty tap deselects after touch-slop handling. Drag selected square or empty space while selected moves only the selected square by relative deltas. Without selection, background drag pans. Background pinch beginning before a drag owns zoom/pan even with selection. Ownership stays fixed until all pointers lift; adding a second finger after a remote drag begins does not transfer ownership. Selected-origin two-finger twist remains available.
 
-Log → Playground is an open rectangular canvas with one pure solid-colored square per immutable block_completions snapshot, keyed by placementId. Repeated placements earn separately; skip/prep/pending do not. Reopen/retry cannot duplicate. Existing completion snapshots appear automatically; older placement outcomes without authoritative snapshots do not invent earned facts. Color comes only from recorded colorArgb, otherwise neutral; no current-Goal fallback or second reward ledger.
+45°/Upright set exact absolute angles through the existing conservative shortest-arc validation and arrangement repository. Obstruction rejects the entire preset, preserving the previous angle and position with a more-space message. Existing swept translation stops at contact and world bounds, including fast background drags; other squares remain stationary. No snapping, pushing, physics or persistence changes.
 
-Centered3:2 world uses one-unit squares, capacity20/40/80/160/320… and15% theoretical coverage. Width/height scale by square root of capacity multiplier. Existing positions, angles and active camera do not shift on expansion. Deterministic sparse initial positions use completion time and identity; bounded failure reports Retry rather than overlap. No grid/snapping/packing.
+## Focused verification actually run
 
-Tap selection/glow and empty-space clearing; selected one-finger drag, selected-origin two-finger twist, empty-origin pinch zoom and pan. Gesture ownership stays fixed. Oriented-square SAT gives exact hit testing/contact; swept SAT prevents translation tunneling, conservative arc advancement prevents rotational tunneling. Unselected squares stay fixed. Canvas drawing clips to the viewport. Overview and compact/expandable historical details use existing theme/Lato, with no history management/editing. Goal ID is shown because historical titles were not captured. Saved placement notes and reflections are read directly.
+- Windows **16/16**, zero failures/errors/skips:11 PlaygroundGeometryTest methods (including exact45°/0°, repeat preset, wrapped shortest arc, obstacle/boundary/intermediate-arc rejection) and5 existing PlaygroundRepositoryTest data checks. Debug/release/testAPK compilation and release vital lint pass; extended native test compilation passes.
+- [Focused CI43359247460](https://github.com/mrayover/practice.logger/actions/runs/43359247460) on exact source above: **16/16 Linux checks**, debug/release/testAPK assembly and release vital lint; install/launch and **one API35 PlaygroundWorkflowTest pass**. Covers initial20% painted-width comparison, faint dot pixel checks and selection screenshots in Light/Dark/Smooth/Sunny/Orchid/Submarine, frozen colors, relative remote drag/no jump, stationary neighbors, fast remote collision, blocked preset message/unchanged angle, exact45°/0°, free twist, selected-background pinch, deselected pan, details/Journal and saved arrangement after recreation. Screenshots visually inspected.
+- Initial local command used an absent SDK path and stopped before compilation; corrected to the existing SDK. No broad regression, full lint, unrelated suite, device matrix or F1 run. Existing schema/backup production files are unchanged.
 
-Room **27** adds only playground_layouts(placementId,x,y,rotationDegrees) owned by the existing completion, with no earned-fact duplication or changed deletion actions. All schema files1–26 remain unchanged. Complete ZIP writer **12**, frozen readers **1–12**, validates finite bounded coordinates, unique completion references, world bounds and oriented nonintersection before transactional restore; exact arrangement round-trips. ZIP11 restores its actual completion facts and derives missing layouts on opening. JSON **7**, readers **1–7**, remains unchanged and excludes completion snapshots/layouts. Existing recovery/media/empty-target safeguards are retained. [PG1 contract](docs/PLAYGROUND_SPEC.md) · [Archive contract](BACKUP_FORMAT.md#complete-portable-zip-v12--playground-arrangement).
+## Limitations and exact next task
 
-## Actual focused PG1 verification
+Physical permanent-key install-over and gesture feel, enlarged text/landscape, actual-provider backup and cloud sync remain unverified. Camera/selection remain visit-only. Existing bounded placement/rotation may conservatively stop; no overlap is forced. Prior baseline PG1 build118 remains preserved (sourcef55a0c764e5a92743f51e152497d53766fcaae15; prior evidence in Git history).
 
-- **Windows15/15 checks, zero failures/errors/skips:**10 geometry/viewport checks and5 completion identity/repeated-Block/skip/pending/retry, actual Goal reorder/frozen color, database reopen, Room26 migration and complete ZIP12/exact layout/ZIP11 fallback checks. Includes proportional20→40→80 expansion, unchanged prior coordinates/angles, actual rotated hit testing/contact, fast swept movement, collision-limited rotation, numeric/orphan/duplicate/overlap rejection and pinch focus math. Debug/release/testAPK assembly and release vital lint pass.
-- [Focused CI43337928613](https://github.com/mrayover/practice.logger/actions/runs/43337928613), exact sourcef55a0c7: **Linux15/15 checks**, debug/release/instrumentation assembly and release vital lint pass; install/launch smoke and **one API35 PlaygroundWorkflowTest pass (5.33seconds)**. Covers actual Log/Playground/Journal navigation, original historical detail and reflection, select/clear, fast contact drag, two-finger rotation, empty-space pinch/pan, stationary unselected geometry and persisted arrangement through Activity recreation. Selected/overview screenshots inspected; rendered pixel assertions verify the frozen color and visible neutral squares.
-- Earlier attempts: native test initially failed compilation on the old GestureScope movePointerTo API; corrected to TouchInjectionScope updatePointerTo. First CI43335209393 passed all15 checks, compilation/lint and install/launch, then its native assertion searched for Historical reflection instead of the actual Focus: Historical reflection. Captured screenshot/semantics established that selector mismatch. The same screenshot exposed drawing outside the resized canvas, corrected with clipping; completion lookups are cached per session snapshot. The second run43336468529 passed its workflow, but final screenshot review exposed Light surfaceVariant matching the canvas, making neutral squares invisible. Signed build117 was preserved as a superseded candidate. Build118 uses the existing neutral outline role as solid fill and adds explicit pixel assertions for all three squares and the frozen color. The final successful run verifies these combined corrections. No native success is claimed for the first run.
-- W2/LGE test fixtures were mechanically updated for the new current schema/table; their unrelated suites were not rerun. No broad regression, historical device matrix, full lint investigation, F1, PG2, animations, templates or V1 certification was run/started. No unrelated baseline failure was investigated.
-
-## Known limitations and exact next assignment
-
-Physical permanent-key phone install-over, gesture feel/contact, landscape/large text/theme checks and actual-provider backup acceptance remain pending. Historical Goal titles and pre-snapshot completions are unavailable; no facts are fabricated. Camera/selection are visit-only. Initial placement and rotation have deterministic bounded work and may report/stop conservatively rather than force overlap. Cloud-sync completion is unobserved. Comprehensive F1 remains separately authorized.
-
-**Exact next recommended assignment: perform the PG1 owner-phone checklist on build118 and report concrete PG1 issues for a bounded correction. Stop here; do not begin PG2, animations, templates or F1.** Prior W2/G3/LGE/multiple-reference functionality is preserved; their outstanding physical acceptance remains separate.
+**Next: perform the PG1.1 build119 owner-phone checklist and report concrete issues. Stop after PG1.1; PG2, animations/templates and F1 require separate owner assignment.**
 
 ---
 

@@ -1,6 +1,6 @@
 # practice.logger
 
-Signed PG1 in0.44.0/build118 replaces Log → Playground with an open canvas of completion-backed colored squares: select, drag, twist, pan/pinch and expand recorded practice details. Room27/complete ZIP12 preserve exact arrangement; JSON7 is unchanged.15 focused host checks pass on Windows/Linux plus one API35 workflow. Physical acceptance pending; see [current delivery and verification](CURRENT_STATE.md). W2 weekly targets, G3 statistics, LGE guidance and multiple references remain implemented.
+Signed PG1.1 in0.44.1/build119 refines the existing Log → Playground: faint world-space dots,20% closer default view, stronger selection glow, absolute45°/Upright controls and relative dragging from empty canvas while selected. Full Overview, pinch/twist, collision safeguards and completion history remain. Room27/ZIP12/JSON7 unchanged.16 focused checks pass on Windows/Linux plus one API35 workflow; physical acceptance pending. See [current delivery and verification](CURRENT_STATE.md).
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 
