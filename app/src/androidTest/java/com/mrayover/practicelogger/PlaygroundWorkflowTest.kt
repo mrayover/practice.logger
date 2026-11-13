@@ -1,6 +1,8 @@
 package com.mrayover.practicelogger
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -44,6 +46,12 @@ class PlaygroundWorkflowTest {
             compose.onNodeWithText("Log").performScrollTo().performClick()
             compose.onNodeWithText("Playground", substring = false).performClick()
             waitFor("playground-canvas"); compose.waitForIdle()
+            overview()
+            val pixels = canvas().captureToImage().toPixelMap()
+            fun pixel(x: Double, y: Double): Int { val p = location(x, y); return pixels[p.x.toInt(), p.y.toInt()].toArgb() }
+            val background = pixel(-5.0, -2.0)
+            assertEquals(0xff4a9165.toInt(), pixel(-2.0, 0.0))
+            for ((x, y) in listOf(-2.0 to 0.0, 0.0 to 0.0, 3.0 to 2.0)) assertNotEquals("Every earned square must be visible", background, pixel(x, y))
             val stationary = rows().filter { it.placementId != "pg0" }
             canvas().performTouchInput { click(location(-2.0, 0.0)) }
             waitFor("playground-details")

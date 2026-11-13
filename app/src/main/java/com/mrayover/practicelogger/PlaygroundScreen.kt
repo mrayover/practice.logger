@@ -86,7 +86,7 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
     val currentSelected by rememberUpdatedState(selected)
     val canGesture by rememberUpdatedState(!vm.saving && vm.error == null)
     val outline = MaterialTheme.colorScheme.outlineVariant
-    val neutral = MaterialTheme.colorScheme.surfaceVariant
+    val neutral = MaterialTheme.colorScheme.outline
     val glow = MaterialTheme.colorScheme.primary
     Column(Modifier.fillMaxSize().safeDrawingPadding()) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {

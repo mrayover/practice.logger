@@ -6,7 +6,7 @@ Owner-approved November 12, 2026. This supersedes the earlier slit presentation 
 
 One persisted block_completions snapshot earns one solid-color square, keyed by placementId. Repeated reusable Blocks in different completed placements earn separate squares. Skipped, prepared and unfinished placements earn none. Retry, reopen and restart never issue duplicates. Existing historical completion snapshots appear automatically; older placements without authoritative completion evidence do not invent rewards. No separate reward ledger or counter exists.
 
-The entire visible square uses completion.colorArgb. Missing trustworthy color and explicit No Goal use the theme's neutral surface. Never derive historical color/priority from a current Goal, association or first-accrual snapshot. Goal ID/priority, original placement name/action, committed duration, date, outcome, session ID, saved notes and reflection answers are read from existing history; unavailable details are not fabricated. Goal titles were not captured, so the panel identifies the saved Goal ID without claiming a current title is historical.
+The entire visible square uses completion.colorArgb. Missing trustworthy color and explicit No Goal use the theme's neutral outline color as a solid fill (Light surfaceVariant equals the canvas and is unsuitable). Never derive historical color/priority from a current Goal, association or first-accrual snapshot. Goal ID/priority, original placement name/action, committed duration, date, outcome, session ID, saved notes and reflection answers are read from existing history; unavailable details are not fabricated. Goal titles were not captured, so the panel identifies the saved Goal ID without claiming a current title is historical.
 
 ## World and arrangement
 
