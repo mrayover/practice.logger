@@ -1,12 +1,44 @@
-# Current state — RW2 implementation, focused device verification pending
+# Current state — RW2 delivered, build120
 
-Owner assigned RW2 waveform and seekable playback coverage, including signed delivery and Git publication. Canonical clean baseline block-ux-stage1 at88ba69f63aa72ce79c1639be2b44b012975ad4df matched the actual remote; latest scoped CI43359247460 completed successfully. The prior signed baseline is0.44.1/build119. Older OneDrive checkout remains untouched.
+Updated November12,2026 (America/Los_Angeles). Signed **0.45.0/build120** delivered on **block-ux-stage1**. Exact application/test/package source **c43546e1072aeb54965b02c4e477d056eadd50f6**; later closeout changes documentation only. Canonical C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.
 
-RW2 implementation reuses the RW1 renderer/decoder/cache and existing recording engines. Both saved collections share deliberate Inspect take selection and one waveform; temporary Free/Loop and both Reference hosts share guarded review seeking. Pending review decoding and outgoing output are invalidated on lifecycle/source changes. No data-model, archive, ownership or canonical Library/Transcribe transport change. [Coverage and safety contract](docs/RECORDING_WAVEFORMS.md).
+## RW2 delivery and integrity
 
-Windows6/6 focused host tests pass (RecordingWaveformTest2, TakeReviewTest4); debug/release/testAPK assembly and release vital lint pass. Initial compilation caught a foreground property/JVM setter naming collision, corrected without API change. Version advanced to0.45.0/build120. Focused API35 workflow, permanent-key package verification, delivery and final publication evidence are pending. No comprehensive regression or F1 run.
+OneDrive → Documents → ChatGPT → Practice Log development → **RW2 delivery → RW2 build120**.
+[APK](dist/practice.logger-0.45.0-b120-c43546e-rw2-development/practice.logger-0.45.0-b120-c43546e.apk) · [ZIP](dist/practice.logger-0.45.0-b120-c43546e-rw2-development.zip) · [Owner-phone checklist](MANUAL_TESTS.md#rw2--waveform-and-seekable-recording-review). dist/LATEST.txt points to the verified copy. Signed candidate retained separately; use the final rw2-development package.
 
-Exact next task: run the RW2 scoped Android workflow, investigate only directly related failures, then sign/verify/deliver and close records. No owner phone acceptance claimed.
+- APK SHA256: **2f4e6a3cbb865d5af63190f3656ac054a2c8a038f5b88d0f8ae2f3396617e7f4**.
+- ZIP SHA256: **b9a31b8d933bb3899b5c7f883e8bdcbacc326e6a769c4485440ed1017ddb9654**.
+- Stable app ID com.mrayover.practicelogger.app; unchanged permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Publisher verified package/version/pinned certificate/signature. Final signature recheck, exact148 unsigned payload entries, APK/ZIP CRC/length, all8 ZIP member hashes and copied file/ZIP hashes pass. All **580** pre-session APK/ZIP hashes match. Cloud-sync completion unobserved.
+- Install over the permanent-key app without uninstalling or clearing data. Room27/ZIP12/readers1–12 and JSON7/readers1–7 unchanged. No schema, migration, repository/promotion, backup, stored media ownership or owner-phone data changed.
+
+## Actual waveform and transport coverage
+
+| Environment | RW2 result |
+|---|---|
+| Focused Practice saved Free and Loop | Existing RW1 waveform, cursor and deliberate seek retained |
+| Full Block Recordings | Deliberate Inspect take selection, one shared selected waveform/transport, no selection autoplay; Rename/Export/Delete retained |
+| Standalone Free Recordings | Same collection implementation and transport |
+| Temporary Free review | Shared compact review waveform/cursor/timestamps and stopped/playing seeks in TakeReviewControls |
+| Temporary Loop review | Same review waveform in inline Loop Review; existing complete-loop audition retained |
+| Block and standalone Record Reference | Same RecordReferenceDialog review waveform; existing canonical Keep and Block append-and-select semantics retained |
+| Media Library, Block and standalone Transcribe | Existing complete transport unchanged |
+
+Reuses RecordingScrubber/CompactRecordingWaveform, bounded cancellable decoding and four-entry process cache. Free/imported audio keeps MediaPlayer; recorded loops keep AudioTrack/repeat. No renderer/player/clock, waveform files or database is added. Temporary seeking requires the exact validated active review object, matching pending identity/file/Block context, foreground/open owner and no capture or controller work. seekSaved still rejects review. Selection and preparation use source/generation guards; Free validation also rejects a callback from a departed owner. Discard/Re-record/Save/Keep/leave cancel pending review decoding. Failed Save/Keep retains reviewable temporary bytes; successful promotion remains atomic. Capture/count-in/timers and existing actions remain. [Full reuse/safety contract](docs/RECORDING_WAVEFORMS.md).
+
+## Focused verification actually run
+
+- Windows **6/6**, zero failures/errors/skips: RecordingWaveformTest2 (timeline/frame bounds, real PCM/cache, bounded long envelope, corrupt/missing fallback) and TakeReviewTest4 (temporary ownership, complete/incomplete loops, rollback/retry, discard). Debug/release/testAPK assembly and release vital lint pass; final native test compilation passes. Initial compile exposed a property/JVM setter naming collision; corrected before checks.
+- [Focused CI43362804723](https://github.com/mrayover/practice.logger/actions/runs/43362804723) on the exact source above: the same **6/6 Linux host tests**, debug/release/testAPK assembly, release vital lint, install/launch and **2/2 native tests on one API35 configuration** pass. No rerun or native failure occurred.
+- Existing RecordingWaveformWorkflowTest covers real saved Free M4A, recorded Loop WAV and imported MP3/M4A/WAV; stopped/playing seeks and repeat; one drag seek on release; switching during prepare and drag; background stop; fallback and320dp compact practice controls.
+- RecordingCoverageWorkflowTest exercises both actual collection sheets at200% text, deliberate selection/cue/Play/switch and stale-seek rejection; real microphone Free/Loop and both Reference review paths; exact-object/saved-path guards, failed Save/Keep with same bytes, atomic promotion, Re-record/Discard, foreground and leave cleanup including pending decoder cancellation. The temporary Loop is exercised through the shared review surface; its inline host integration compiles but was not separately navigated on device. Reference Keep was checked in the dialog/recording controller; unchanged higher-level source-selection callbacks were not independently renavigated.
+- Reviewed captured collection/action and Reference/shared Loop review screenshots. The collection screenshots show the scrolled take rows rather than the waveform; waveform visibility itself was asserted by the native test. Emulator mic captures are silent/near-silent, so review envelopes may be flat. No physical acoustic inference is made.
+
+## Limitations and exact next task
+
+Physical install-over, actual listening/loop joins, TalkBack, focus/route interruption, narrow-phone/landscape/full inline Loop layout and provider/cloud sync remain owner acceptance work. No broad media suite, Android matrix, full lint campaign, historical migration checks, comprehensive regression or F1 was run. Earlier PG1.1 and all distributions remain preserved; no merge to main.
+
+**Next: perform the RW2 build120 owner-phone checklist and report concrete issues. Stop after RW2; F1 and further audio changes require separate assignment.**
 
 ---
 

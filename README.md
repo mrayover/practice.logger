@@ -1,6 +1,6 @@
 # practice.logger
 
-Signed PG1.1 in0.44.1/build119 refines the existing Log → Playground: faint world-space dots,20% closer default view, stronger selection glow, absolute45°/Upright controls and relative dragging from empty canvas while selected. Full Overview, pinch/twist, collision safeguards and completion history remain. Room27/ZIP12/JSON7 unchanged.16 focused checks pass on Windows/Linux plus one API35 workflow; physical acceptance pending. See [current delivery and verification](CURRENT_STATE.md).
+Signed RW2 in0.45.0/build120 extends waveform/cursor/timestamp seeking to the shared Block/standalone saved recording sheets and temporary Free, Loop and both Record Reference reviews. Reuses existing audio engines and RW1 rendering; exact temporary identity guards preserve explicit Save/Keep and Re-record/Discard. Library/Transcribe transport and capture remain. Room27/ZIP12/JSON7 unchanged. Six focused checks pass on Windows/Linux plus two native tests on one API35 configuration; physical acceptance pending. [Current delivery and verification](CURRENT_STATE.md) · [Recording waveform contract](docs/RECORDING_WAVEFORMS.md).
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 

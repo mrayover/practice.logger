@@ -469,7 +469,8 @@ Install build119 over the permanent-key app without uninstalling or clearing dat
 - Tap empty space to deselect; empty one-finger drag then pans. Begin a two-finger pinch on background with a selection to zoom/pan without moving the square. Twist beginning on the selected square still rotates.
 - Tap45° and Upright in clear space: exact45°/0° persist after reopen. Near an obstacle/boundary, a blocked preset leaves the prior valid orientation intact and asks for more space; nothing is repositioned.
 - Reopen and verify arrangement/history, expandable details and Journal navigation. No new earned squares or history changes.
-# RW2 — waveform and seekable recording review
+
+## RW2 — waveform and seekable recording review
 
 Install build120 over the permanent-key app without uninstalling or clearing data; retain a complete ZIP backup. Physical checks remain owner-only:
 

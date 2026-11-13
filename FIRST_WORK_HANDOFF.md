@@ -1,6 +1,10 @@
 # practice.logger — RW2 active handoff
 
-RW2 is the current owner assignment: complete shared waveform/seeking coverage for saved collections and temporary Free/Loop/Reference reviews. Implementation and6 scoped Windows checks pass; version0.45.0/build120. Android focused verification/signing/delivery pending. Use canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1; preserve the older OneDrive checkout and all previous distributions. [Current evidence and exact next task](CURRENT_STATE.md) · [Coverage contract](docs/RECORDING_WAVEFORMS.md). Stop after RW2; no F1 or unrelated audio work.
+RW2 is delivered as permanent-key **0.45.0/build120**, exact application/test/package sourcec43546e1072aeb54965b02c4e477d056eadd50f6 on block-ux-stage1. Six focused checks pass on Windows/Linux, plus two native workflows on one API35 configuration (CI43362804723). Package/version/certificate/signature/payload/ZIP/copy checks pass;580 previous APK/ZIP hashes unchanged. Later closeout is documentation only.
+
+Saved Block/standalone collections share one selected-take waveform; completed Free/Loop and both Reference reviews share exact-identity guarded review seeking. Capture/atomic promotion and canonical Library/Transcribe transport remain; Room27/ZIP12/JSON7 unchanged. Use canonical C:/Users/mrove/Projects/practice.logger; older OneDrive checkout untouched. Final signed files: OneDrive/Practice Log development/RW2 delivery/RW2 build120. [Current hashes/evidence and limits](CURRENT_STATE.md) · [Coverage contract](docs/RECORDING_WAVEFORMS.md).
+
+Next: [RW2 owner-phone checklist](MANUAL_TESTS.md#rw2--waveform-and-seekable-recording-review). Physical listening, accessibility, inline Loop/landscape and cloud-sync acceptance remain unverified. Stop after RW2; no F1, automatic main merge or unrelated audio work.
 
 ## Previous PG1.1 handoff (historical)
 
