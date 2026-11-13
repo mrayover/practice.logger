@@ -180,7 +180,7 @@ class BackupViewModel(app: Application, private val db: BlockDatabase) : Android
     val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::inspect) }
     BackHandler { if (!vm.navigationBlocked) { vm.cancel(); vm.cancelZip(); onHome() } }
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading("Backup and restore", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         Text("Complete ZIP backup", style = MaterialTheme.typography.titleLarge)
         Text("Includes practice history, settings, Inspirations, original media and recordings. Keep the archive somewhere private.")
         Button(onClick = vm::prepareZip, enabled = !vm.navigationBlocked && !vm.zipReady) { Text("Prepare complete ZIP") }

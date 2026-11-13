@@ -178,6 +178,30 @@ val SubmarinePalette = PracticePalette("submarine", submarineScheme, PracticeCol
     recording = submarineScheme.error, onRecording = submarineScheme.onError,
     scrollThumb = submarineScheme.primary, scrollTrack = Color(0xFF743139)
 ))
+// Quiet blue/violet night; historical Goal fills and warning roles remain unchanged.
+private val cosmicScheme = darkScheme.copy(
+    primary = Color(0xFFA9DCFF), onPrimary = Color(0xFF102E43),
+    primaryContainer = Color(0xFF304665), onPrimaryContainer = Color(0xFFD8EEFF), inversePrimary = Color(0xFF35617C),
+    secondary = Color(0xFFC8B6FF), onSecondary = Color(0xFF30244E),
+    secondaryContainer = Color(0xFF453963), onSecondaryContainer = Color(0xFFE9DFFF),
+    tertiary = Color(0xFFDAD0FF), onTertiary = Color(0xFF332B53),
+    tertiaryContainer = Color(0xFF494168), onTertiaryContainer = Color(0xFFF0E8FF),
+    background = Color(0xFF10162D), onBackground = Color(0xFFF0EEFF),
+    surface = Color(0xFF1B2141), onSurface = Color(0xFFF0EEFF),
+    surfaceVariant = Color(0xFF2A2D52), onSurfaceVariant = Color(0xFFCACCE6),
+    surfaceDim = Color(0xFF10162D), surfaceBright = Color(0xFF35395B),
+    surfaceContainerLowest = Color(0xFF10162D), surfaceContainerLow = Color(0xFF1B2141),
+    surfaceContainer = Color(0xFF232747), surfaceContainerHigh = Color(0xFF2A2D52), surfaceContainerHighest = Color(0xFF35395B),
+    inverseSurface = Color(0xFFE6E2F4), inverseOnSurface = Color(0xFF292740),
+    outline = Color(0xFF9DA6CC), outlineVariant = Color(0xFF505779), surfaceTint = Color(0xFFA9DCFF)
+)
+val CosmicPalette = PracticePalette("cosmic", cosmicScheme, PracticeColors(
+    banner = Color(0xFF202747), onBanner = Color(0xFFE8E8FF), bannerEdge = Color(0xFF394469),
+    transportSurface = Color(0xFF232747),
+    selectionContainer = Color(0xFF453963), onSelectionContainer = Color(0xFFE9DFFF),
+    recording = cosmicScheme.error, onRecording = cosmicScheme.onError,
+    scrollThumb = cosmicScheme.primary, scrollTrack = Color(0xFF454B70)
+))
 // New palettes need only a central definition and resolver/selector entry.
 fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = when (choice) {
     ThemeChoice.LIGHT -> LightPalette
@@ -186,6 +210,7 @@ fun resolvePalette(choice: ThemeChoice, systemDark: Boolean): PracticePalette = 
     ThemeChoice.SUNNY -> SunnyPalette
     ThemeChoice.ORCHID -> OrchidPalette
     ThemeChoice.SUBMARINE -> SubmarinePalette
+    ThemeChoice.COSMIC -> CosmicPalette
     ThemeChoice.SYSTEM -> if (systemDark) DarkPalette else LightPalette
 }
 private val LocalPracticeColors = staticCompositionLocalOf { LightPalette.colors }
@@ -204,6 +229,8 @@ val LatoTypography = Typography(
     systemDark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val palette = resolvePalette(choice, systemDark)
     CompositionLocalProvider(LocalPracticeColors provides palette.colors) {
-        MaterialTheme(colorScheme = palette.scheme, typography = LatoTypography, content = content)
+        CompositionLocalProvider(LocalCosmicBackground provides (choice == ThemeChoice.COSMIC)) {
+            MaterialTheme(colorScheme = palette.scheme, typography = LatoTypography, content = content)
+        }
     }
 }

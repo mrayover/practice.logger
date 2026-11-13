@@ -22,7 +22,7 @@ class ThemePaletteTest {
         assertTrue("$name contrast ${contrast(a,b)} < $minimum", contrast(a,b) >= minimum)
     }
     @Test fun textAndControlPairsRemainReadableAcrossAllPalettes() {
-        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette,SubmarinePalette).forEach { p ->
+        listOf(LightPalette,DarkPalette,SmoothPalette,SunnyPalette,OrchidPalette,SubmarinePalette,CosmicPalette).forEach { p ->
             val s=p.scheme; val c=p.colors
             listOf(s.onBackground to s.background, s.onSurface to s.surface,
                 s.onSurfaceVariant to s.surfaceVariant, s.onPrimary to s.primary,
@@ -63,6 +63,7 @@ class ThemePaletteTest {
             assertSame(SunnyPalette,resolvePalette(ThemeChoice.SUNNY,dark))
             assertSame(OrchidPalette,resolvePalette(ThemeChoice.ORCHID,dark))
             assertSame(SubmarinePalette,resolvePalette(ThemeChoice.SUBMARINE,dark))
+            assertSame(CosmicPalette,resolvePalette(ThemeChoice.COSMIC,dark))
             assertSame(if(dark) DarkPalette else LightPalette,resolvePalette(ThemeChoice.SYSTEM,dark))
         }
         assertEquals(ThemeChoice.LIGHT,ThemeChoice.fromId(null))

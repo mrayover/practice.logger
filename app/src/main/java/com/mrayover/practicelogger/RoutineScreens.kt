@@ -60,7 +60,7 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
     BackHandler(onBack = onBack)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Routines", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
+        PageHeading("Routines", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
         SavedRoutines(catalog, routines, practice)
     }
 }
@@ -75,7 +75,7 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = ::leave, enabled = !vm.busy) { Text("Back to Routines") }
-        Text(if (vm.editorId == null) "New Routine" else "Edit Routine", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading(if (vm.editorId == null) "New Routine" else "Edit Routine", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         OutlinedTextField(vm.name, vm::rename, enabled = !vm.busy, label = { Text("Routine name") }, singleLine = true,
             isError = vm.name.isNotEmpty() && !routineNameValid(vm.name), supportingText = { Text("1–120 characters") }, modifier = Modifier.fillMaxWidth())
         Text("Saved durations belong to this Routine. Practice uses the current Block details and starts paused.")

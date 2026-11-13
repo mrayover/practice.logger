@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (backLabel != "Back to Home") TextButton(onClick = back) { Text(backLabel) }
-        Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         content()
     }
 }

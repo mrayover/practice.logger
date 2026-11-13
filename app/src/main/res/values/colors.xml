@@ -12,4 +12,6 @@
     <color name="practice_orchid_accent">#D8B9FF</color>
     <color name="practice_submarine_background">#140C0D</color>
     <color name="practice_submarine_accent">#F0B1A5</color>
+    <color name="practice_cosmic_background">#10162D</color>
+    <color name="practice_cosmic_accent">#A9DCFF</color>
 </resources>

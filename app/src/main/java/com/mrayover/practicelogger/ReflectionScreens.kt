@@ -99,7 +99,7 @@ private fun ReflectionPage(title: String, content: @Composable ColumnScope.() ->
         Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+        PageHeading(title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
         content()
     }
 }

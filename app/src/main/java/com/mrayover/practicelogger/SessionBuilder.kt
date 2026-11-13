@@ -49,7 +49,7 @@ fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewM
             LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("builder-picker"), state = pickerScroll,
                 contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 item {
-                    Text("Add Blocks", style = MaterialTheme.typography.headlineSmall,
+                    PageHeading("Add Blocks", style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.semantics { heading() })
                 }
                 item {
@@ -95,7 +95,7 @@ fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewM
                 contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 item {
                     Column {
-                        Text("Build Session", style = MaterialTheme.typography.headlineSmall,
+                        PageHeading("Build Session", style = MaterialTheme.typography.headlineSmall,
                             modifier = Modifier.semantics { heading() })
                         Text(summary, modifier = Modifier.testTag("builder-summary"), style = MaterialTheme.typography.bodyMedium)
                     }

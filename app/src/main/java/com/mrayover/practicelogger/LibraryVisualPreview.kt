@@ -25,8 +25,9 @@ internal fun VisualDocumentPreview(
     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(8.dp)) {
         Row(Modifier.fillMaxWidth()) {
             TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp)) { Text(closeLabel) }
-            Text(title, modifier = Modifier.weight(1f).padding(8.dp), maxLines = 2, style = MaterialTheme.typography.titleMedium)
+
         }
+        PageHeading(title, style = MaterialTheme.typography.titleMedium, maxLines = 2)
         Column {
             if (pageCount != null) {
                 Text("Page ${page + 1} of $pageCount")

@@ -483,3 +483,16 @@ Install build120 over the permanent-key app without uninstalling or clearing dat
 - Confirm Media Library and Block/standalone Transcribe retain their complete transport. Missing/unavailable audio should show a fallback while another take remains usable.
 
 No comprehensive F1 acceptance is implied by this checklist.
+
+# UI-C1 — Cosmic and centered page headings
+
+Manual phone checks remain pending; record actual results rather than inferring acceptance.
+
+1. Install build121 over the permanent-key app without uninstalling/clearing data. Check saved Blocks, Goals, recordings and references remain available.
+2. Select Settings → Appearance → Cosmic, restart the app and rotate once. Confirm Cosmic remains selected, System Default stays last, and switching to each prior theme restores its usual appearance.
+3. Check quiet stable stars, light-blue actions/lavender selections, readable text/inputs/dialogs, coherent system bars and unchanged Goal colors. Scroll and leave the phone idle; stars should not move or animate.
+4. At normal and200% text, check primary titles on Home, Practice Now, Blocks/editor, long Goal detail, Week/Prepare Week, Routines/builder, Tools, Recording, Transcribe, Library/Inspirations, Journal/Playground, Statistics, Summary, Backup and Settings. Confirm full-width centering and reachable controls without overlap. Body text and subsection labels stay left aligned.
+5. Check a long Block name in Ready/Prep/Practice; timer, Start/Prep, recording Stop/Save and reference Reset remain reachable. Confirm waveforms/cursors and transport buttons remain visible. No new audio behavior is intended.
+6. In Playground, check dots, all earned square colors and halo; select, drag, pan, pinch and rotate. Check images/PDFs retain their original colors. Report device/font/orientation and any layout issue.
+
+No physical results are recorded yet. Comprehensive regression remains deferred to owner-authorized F1. Stop after UI-C1.

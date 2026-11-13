@@ -54,7 +54,7 @@ internal fun WeekWorkspace(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            Text(if (preparing) "Prepare Week" else "This Week", style = MaterialTheme.typography.headlineMedium,
+            PageHeading(if (preparing) "Prepare Week" else "This Week", style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.semantics { heading() })
             Text(weekRange(week) + if (isCurrent) " · Current week" else "")
             if (!preparing) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

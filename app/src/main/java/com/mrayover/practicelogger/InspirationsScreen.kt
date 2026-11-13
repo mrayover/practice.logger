@@ -84,7 +84,7 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
             item {
                 TextButton(onClick = { vm.leave(onHome) }, enabled = !vm.busy) { Text("Back") }
                 DestinationPills("Media", "Inspirations", true) { if (!it) back() }
-                Text("Inspirations", style = MaterialTheme.typography.headlineMedium)
+                PageHeading("Inspirations", style = MaterialTheme.typography.headlineMedium)
                 Button(onClick = vm::add, enabled = !vm.busy) { Text("Add Inspiration") }
                 if (vm.busy) Text("Opening…")
                 vm.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -104,7 +104,7 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
             .verticalScroll(rememberScrollState()).padding(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             TextButton(onClick = { back() }, enabled = !vm.busy) { Text("Back") }
-            Text(if (current == null) "Add Inspiration" else "Edit inspiration", style = MaterialTheme.typography.headlineSmall)
+            PageHeading(if (current == null) "Add Inspiration" else "Edit inspiration", style = MaterialTheme.typography.headlineSmall)
             if (vm.chooseMethod) {
                 Button(onClick = vm::write, enabled = !vm.busy) { Text("Write / Paste") }
                 OutlinedButton(onClick = { vm.launchCamera { camera.launch(it) } }, enabled = !vm.busy) { Text("Camera") }
@@ -145,7 +145,7 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
             verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 12.dp)) {
             item {
                 TextButton(onClick = { back() }, enabled = !vm.busy) { Text("Back to Inspirations") }
-                Text(selected?.title ?: current?.title.orEmpty(), style = MaterialTheme.typography.headlineSmall)
+                PageHeading(selected?.title ?: current?.title.orEmpty(), style = MaterialTheme.typography.headlineSmall)
                 (selected?.author ?: current?.author)?.takeIf(String::isNotBlank)?.let { Text(it) }
                 (selected?.source ?: current?.source)?.takeIf(String::isNotBlank)?.let { Text(it) }
                 current?.category?.takeIf(String::isNotBlank)?.let { Text(it) }

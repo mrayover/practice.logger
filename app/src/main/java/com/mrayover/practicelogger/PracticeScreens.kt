@@ -47,7 +47,7 @@ fun sessionDate(ms: Long): String = DateTimeFormatter.ofPattern("MMM d, h:mm a")
 @Composable fun PracticeOverview(catalog: Catalog, sessions: SessionCatalog, onPractice: () -> Unit, onLibrary: () -> Unit, onNew: () -> Unit, onSummary: (String) -> Unit, onBackup: () -> Unit, onHome: () -> Unit, routines: RoutineViewModel, practice: PracticeViewModel, onNewRoutine: () -> Unit, onEditRoutine: (String) -> Unit) {
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Routines", style = MaterialTheme.typography.headlineLarge)
+        PageHeading("Routines", style = MaterialTheme.typography.headlineLarge)
         SavedRoutines(catalog, routines, practice, onNewRoutine, onEditRoutine)
         ActionButton("Practice Now", onPractice)
         OutlinedButton(onClick = onLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Blocks") }
@@ -71,7 +71,7 @@ internal fun PracticeNowScreen(sessions: SessionCatalog, onBack: () -> Unit, onW
     BackHandler(onBack = onBack)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Practice Now", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.testTag("practice-now-title").semantics { heading() })
+        PageHeading("Practice Now", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.testTag("practice-now-title").semantics { heading() })
         ActionButton("This Week", onWeek)
         if (sessions.unfinished.isNotEmpty()) {
             Button(onClick = onUnfinished, colors = ButtonDefaults.buttonColors(
@@ -89,7 +89,7 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
     BackHandler(onBack = onBack)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Unfinished sessions", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading("Unfinished sessions", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         if (sessions.unfinished.isEmpty()) Text("No unfinished sessions.")
         sessions.unfinished.forEach { bundle ->
             CatalogPill(onClick = { practice.openSession(bundle.session.id) }, enabled = !practice.busy,
@@ -126,7 +126,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
     ) {
         Text("Block ${bundle.session.currentIndex + 1} of ${bundle.placements.size}",
             style = MaterialTheme.typography.labelLarge)
-        Text(if (upNext) "Up Next: ${current.name}" else current.name,
+        PageHeading(if (upNext) "Up Next: ${current.name}" else current.name,
             style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
         Text(practiceTime(current.configuredMs) + " planned")
         Button(
@@ -257,11 +257,11 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         else -> baseTransportHeight
     }
     Column(Modifier.fillMaxSize().padding(top = 4.dp)) {
-        if (!editingInShortPanel) Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading").onSizeChanged { headingHeight = with(density) { it.height.toDp() } }, horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        if (!editingInShortPanel) Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("practice-block-heading").onSizeChanged { headingHeight = with(density) { it.height.toDp() } }) {
+          Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Block " + (bundle.session.currentIndex + 1) + " of " + bundle.placements.size, style = MaterialTheme.typography.labelLarge)
                 goalName?.let { Text("Goal: " + it, style = MaterialTheme.typography.bodySmall) }
-                Text(current.name, style = MaterialTheme.typography.titleMedium)
                 if (vm.preparing) Text("Prep", style = MaterialTheme.typography.labelLarge)
             }
             Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.surfaceVariant) {
@@ -271,6 +271,8 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
 
                     })
             }
+        }
+          PageHeading(current.name, style = MaterialTheme.typography.titleMedium, maxLines = 1)
         }
         Box(Modifier.fillMaxWidth().then(when {
             editingInShortPanel -> Modifier.height(0.dp).clearAndSetSemantics { }
@@ -471,7 +473,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
         confirmButton = { TextButton(onClick = { bundle.ordered.forEach { notes.discardEdits(it.sourceBlockId) }; discard = false; onHome() }) { Text("Discard") } },
         dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading("Session Summary", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         goalName?.let { Text("Goal: " + it) }
         Text(sessionDate(bundle.session.startedAt))
         Text(practiceTime(bundle.activeMs) + " active practice", style = MaterialTheme.typography.headlineSmall)

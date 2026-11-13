@@ -157,7 +157,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                 }
             }
             item {
-                Text(if (blockId == null) "Free recordings" else "Block recordings", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+                PageHeading(if (blockId == null) "Free recordings" else "Block recordings", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
                 Text(blockName, style = MaterialTheme.typography.titleMedium)
                 TextButton(onClick = ::requestClose, modifier = Modifier.heightIn(min = 48.dp)) { Text("Close recordings") }
                 timer?.current?.let { placement ->

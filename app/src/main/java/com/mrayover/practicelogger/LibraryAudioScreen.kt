@@ -151,7 +151,7 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
                 TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) {
                     Text("Back to Practice Now")
                 }
-                Text(asset.title, style = MaterialTheme.typography.titleMedium)
+                PageHeading(asset.title, style = MaterialTheme.typography.titleMedium)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = onChangeAudio, modifier = Modifier.heightIn(min = 48.dp)) { Text("Change Audio") }
                     if (onRecordReference != null) TextButton(onClick = { player.pause(); onRecordReference() },
@@ -179,8 +179,9 @@ internal fun rememberAudioDisplayState(player: LibraryAudioController): State<Li
         Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 8.dp)) {
             Row(Modifier.fillMaxWidth()) {
                 TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp).testTag("audio-close")) { Text(if (compactHeight) "Back" else "Back to Library") }
-                Text(asset.title, Modifier.weight(1f).padding(8.dp), maxLines = if (compactHeight) 1 else 2, style = MaterialTheme.typography.titleMedium)
+
             }
+            PageHeading(asset.title, style = MaterialTheme.typography.titleMedium, maxLines = if (compactHeight) 1 else 2)
             if (!compactHeight) transport()
             BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                 val scrollDetails: @Composable (Modifier) -> Unit = { modifier ->

@@ -1,3 +1,9 @@
+# UI-C1 — implementation complete, verification in progress
+
+UI-C1 implements centered primary page headings and opt-in persistent Cosmic in0.46.0/build121. Canonical block-ux-stage1 checkout used. Eight focused Windows checks and debug/release/testAPK compilation plus release vital lint pass; single API35 visual workflow/signing/delivery pending. Room27/ZIP12/JSON7 unchanged. No F1 or physical acceptance claimed. Exact next task: complete the focused UI-C1 Android workflow and permanent-key delivery.
+
+---
+
 # Current state — RW2 delivered, build120
 
 Updated November12,2026 (America/Los_Angeles). Signed **0.45.0/build120** delivered on **block-ux-stage1**. Exact application/test/package source **c43546e1072aeb54965b02c4e477d056eadd50f6**; later closeout changes documentation only. Canonical C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.

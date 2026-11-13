@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
         .entries.sortedByDescending { (_, list) -> list.sumOf { it.activeMs } }
     LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().testTag("statistics-screen").padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 16.dp)) {
-        item { TextButton(onClick = onHome) { Text("Back to Home") }; StatisticsHeading("Statistics") }
+        item { TextButton(onClick = onHome) { Text("Back to Home") }; PageHeading("Statistics", style = MaterialTheme.typography.titleLarge) }
         when {
             error != null -> item { Text(error) }
             facts == null -> item { Text("Loading recorded practice…") }

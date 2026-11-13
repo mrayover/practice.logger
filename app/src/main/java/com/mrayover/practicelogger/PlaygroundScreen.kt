@@ -100,7 +100,7 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
     Column(Modifier.fillMaxSize().safeDrawingPadding()) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             DestinationPills("Journal", "Playground", true) { if (!it) onJournal() }
-            Text("Playground", style = MaterialTheme.typography.titleLarge)
+            PageHeading("Playground", style = MaterialTheme.typography.titleLarge)
         }
         vm.error?.let { message -> Row(Modifier.padding(horizontal = 16.dp)) {
             Text(message, Modifier.weight(1f)); TextButton(onClick = vm::retry) { Text("Retry") }

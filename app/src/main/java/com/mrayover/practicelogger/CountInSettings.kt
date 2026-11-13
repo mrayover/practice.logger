@@ -62,7 +62,7 @@ class CountInPreferences(context: Context) {
     }
     PracticeScrollPanel(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal=16.dp), tag="audio-settings-scroll") {
     Column(Modifier.fillMaxWidth().padding(vertical=24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         AppearanceSettings()
         HorizontalDivider()
         StorageSettings()

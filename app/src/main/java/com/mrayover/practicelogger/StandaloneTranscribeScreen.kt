@@ -37,7 +37,7 @@ internal fun StandaloneTranscribeScreen(
         Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             TextButton(onClick = ::leave, modifier = Modifier.heightIn(min = 48.dp)) { Text("Back to Practice Now") }
-            Text("Transcribe", style = MaterialTheme.typography.headlineLarge)
+            PageHeading("Transcribe", style = MaterialTheme.typography.headlineLarge)
             if (selectedId != null) {
                 Text(when {
                     media.readError -> "The Library could not load."

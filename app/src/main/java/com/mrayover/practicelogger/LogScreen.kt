@@ -54,7 +54,7 @@ import java.time.format.FormatStyle
                     vm.leave(onPlayground)
                 }
             }
-            Text(if (vm.weekly) "Weekly View" else "Log", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            PageHeading(if (vm.weekly) "Weekly View" else "Log", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             vm.error?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             if (vm.error != null || status.startsWith("Could not")) TextButton(onClick = vm::retry, enabled = !vm.busy) { Text("Retry") }
             if (!vm.weekly) {

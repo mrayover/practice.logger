@@ -48,7 +48,7 @@ import java.util.Locale
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = onTools, modifier = Modifier.align(Alignment.Start)) { Text("Back to Tools") }
-        Text(tool.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.headlineMedium,
+        PageHeading(tool.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.semantics { heading() })
         when (tool) {
             "metronome" -> {

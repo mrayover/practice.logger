@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
     onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null, onStatistics: () -> Unit = {}, weeklyProgress: WeeklyTargetProgress? = null, onWeekTarget: () -> Unit = {}) {
-    Column(Modifier.fillMaxSize().testTag("home-menu").background(MaterialTheme.colorScheme.background)
+    Column(Modifier.fillMaxSize().testTag("home-menu").background(pageBackgroundColor())
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
             val viewportHeight = maxHeight
@@ -98,7 +98,7 @@ import androidx.compose.ui.unit.sp
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Tools", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading("Tools", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Metronome") { onTool("metronome") }
         HomeButton("Tuner") { onTool("tuner") }
         HomeButton("Reference Piano") { onTool("piano") }
@@ -112,7 +112,7 @@ import androidx.compose.ui.unit.sp
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Recording", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+        PageHeading("Recording", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         HomeButton("Free recording") { onFree(true) }
         TextButton(onClick = { onFree(false) }) { Text("Saved free recordings") }
         Text("Choose a Block")

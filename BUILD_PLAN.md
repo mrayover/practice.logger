@@ -1,3 +1,9 @@
+# UI-C1 — owner-assigned bounded visual increment
+
+Centered primary headings and Cosmic implemented for0.46.0/build121; focused verification and permanent-key development delivery in progress. Reuses existing semantic themes/preferences, native resources and one static procedural root background. Preserve audio/data/Playground geometry; Room27/ZIP12/JSON7 unchanged. [Coverage and design](docs/COSMIC_UI.md). Stop after UI-C1; no automatic F1/main merge.
+
+---
+
 ## PG1 / PG1.1 — complete development delivery
 
 PG1 foundation and owner-assigned PG1.1 refinements are implemented; signed0.44.1/build119 delivered. PG1.1 adds world-space faint dots,20% closer default camera with full Overview, stronger selection halo, collision-validated absolute45°/0° presets and relative selected-square background dragging. Existing completion history, one-unit geometry, expansion, free rotation, pan/pinch and persistence remain. Room27/ZIP12/JSON7 unchanged.16 focused checks pass on Windows/Linux; compilation/vital lint and one API35 Playground workflow pass. Physical acceptance pending. [Actual delivery and limits](CURRENT_STATE.md) · [Contract](docs/PLAYGROUND_SPEC.md). Next: owner-phone PG1.1 checklist; stop here, no PG2/F1.

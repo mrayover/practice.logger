@@ -1,6 +1,6 @@
 # practice.logger
 
-Signed RW2 in0.45.0/build120 extends waveform/cursor/timestamp seeking to the shared Block/standalone saved recording sheets and temporary Free, Loop and both Record Reference reviews. Reuses existing audio engines and RW1 rendering; exact temporary identity guards preserve explicit Save/Keep and Re-record/Discard. Library/Transcribe transport and capture remain. Room27/ZIP12/JSON7 unchanged. Six focused checks pass on Windows/Linux plus two native tests on one API35 configuration; physical acceptance pending. [Current delivery and verification](CURRENT_STATE.md) · [Recording waveform contract](docs/RECORDING_WAVEFORMS.md).
+UI-C1 adds centered primary page headings and opt-in Cosmic: light-blue/lavender semantic accents over a subtle static starfield. Version0.46.0/build121; focused verification/delivery status is in [CURRENT_STATE](CURRENT_STATE.md). Existing recording, themes and Room27/ZIP12/JSON7 remain. [Visual contract](docs/COSMIC_UI.md). Physical acceptance remains separate; comprehensive regression waits for owner-authorized F1.
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 

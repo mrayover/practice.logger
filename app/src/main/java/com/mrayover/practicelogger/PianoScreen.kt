@@ -37,7 +37,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onTools) { Text("Back to Tools") }
-        Text("Reference Piano", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+        PageHeading("Reference Piano", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
         PianoKeyboard({ id, note -> engine.noteOn(id, note); Unit }, engine::noteOff, engine::stopAll,
             enabled = foreground, resetToken = reset)
         message?.let { Text(it) }

@@ -1,3 +1,9 @@
+# UI-C1 — active handoff
+
+Owner-assigned UI-C1 is implemented; focused Android verification and signed delivery remain. Use canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1. [Current state](CURRENT_STATE.md) owns exact evidence and next task; [visual contract](docs/COSMIC_UI.md). Eight focused Windows checks/builds pass. No F1/phone acceptance claimed. Stop after UI-C1.
+
+---
+
 # practice.logger — RW2 active handoff
 
 RW2 is delivered as permanent-key **0.45.0/build120**, exact application/test/package sourcec43546e1072aeb54965b02c4e477d056eadd50f6 on block-ux-stage1. Six focused checks pass on Windows/Linux, plus two native workflows on one API35 configuration (CI43362804723). Package/version/certificate/signature/payload/ZIP/copy checks pass;580 previous APK/ZIP hashes unchanged. Later closeout is documentation only.

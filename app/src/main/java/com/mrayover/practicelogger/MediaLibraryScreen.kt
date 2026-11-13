@@ -129,12 +129,13 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         state = listState, verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 12.dp)) {
         if (destinationPills != null) item { destinationPills() }
         item {
-            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = onBack) { Text(if (selectionRole == null) "Back" else "Cancel selection") }
-                Text(if (selectionRole == null) "Media Library" else if (selectionRole == MediaRole.VISUAL) "Choose visual reference" else "Choose audio reference", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(vertical = 8.dp))
+
                 if (selectionRole == null || allowAudioImport) Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
             }
         }
+        item { PageHeading(if (selectionRole == null) "Media Library" else if (selectionRole == MediaRole.VISUAL) "Choose visual reference" else "Choose audio reference", style = MaterialTheme.typography.headlineSmall) }
         item { Text("Library media and master annotations are stored locally and are not yet included in JSON backups. Keep your originals separately.", style = MaterialTheme.typography.bodySmall) }
         item {
             OutlinedTextField(query, { query = it }, label = { Text("Search title or filename") }, singleLine = true,

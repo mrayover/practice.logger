@@ -25,7 +25,7 @@ class ThemePreferencesTest {
         assertEquals(ThemeChoice.LIGHT,ThemePreferences(raw).choice.value)
     }
     @Test fun stableIdsAndSettingsOrderPreserveExistingPreferences() {
-        val ids = listOf("light", "dark", "smooth", "sunny", "orchid", "submarine", "system")
+        val ids = listOf("light", "dark", "smooth", "sunny", "orchid", "submarine", "cosmic", "system")
         assertEquals(ids, ThemeChoice.entries.map { it.id })
         val raw = raw()
         ids.forEach { id ->

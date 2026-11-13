@@ -29,6 +29,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import androidx.core.view.WindowCompat
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -92,6 +93,7 @@ class MainActivity : ComponentActivity() {
         SunnyPalette.id -> R.style.Theme_PracticeLogger_Sunny
         OrchidPalette.id -> R.style.Theme_PracticeLogger_Orchid
         SubmarinePalette.id -> R.style.Theme_PracticeLogger_Submarine
+        CosmicPalette.id -> R.style.Theme_PracticeLogger_Cosmic
         LightPalette.id -> R.style.Theme_PracticeLogger_Light
         else -> R.style.Theme_PracticeLogger_Dark
     }
@@ -243,7 +245,8 @@ class MainActivity : ComponentActivity() {
     }
     BackHandler(page == "library") { page = "home" }
     CompositionLocalProvider(LocalGoalIndicators provides goalIndicators) {
-    Surface(Modifier.fillMaxSize().testTag("app-surface")) {
+    ApplicationBackground {
+    Surface(Modifier.fillMaxSize().testTag("app-surface"), color = pageBackgroundColor(), contentColor = MaterialTheme.colorScheme.onBackground) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         fun openFromHeader(destination: String) {
             if (page == "backup") {
@@ -385,7 +388,7 @@ class MainActivity : ComponentActivity() {
                 val matches = matchingBlocks(catalog.blocks, query, archived, goalIndicators, goalFilter)
                 LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
-                    item { Text("Block Library", style = MaterialTheme.typography.headlineMedium) }
+                    item { PageHeading("Block Library", style = MaterialTheme.typography.headlineMedium) }
                     item { Button(onClick = { openEditor(null) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Block") } }
                     item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,
                         modifier = Modifier.fillMaxWidth().onFocusChanged { searchFocused = it.isFocused }) }
@@ -480,6 +483,7 @@ class MainActivity : ComponentActivity() {
 }
 
 }
+}
 
 @Composable private fun BlockEditor(block: Block?, busy: Boolean, images: ImageReferenceViewModel, onDelete: () -> Unit, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}, onSave: (BlockDraft) -> Unit, onArchive: (Boolean) -> Unit, onRecordings: () -> Unit) {
     val initial = remember { block?.let(BlockDraft::from) ?: BlockDraft() }
@@ -501,11 +505,13 @@ class MainActivity : ComponentActivity() {
     BackHandler { leave() }
     var notesExpanded by rememberSaveable { mutableStateOf(false) }
     var overflow by remember { mutableStateOf(false) }
+    val headingDensity = androidx.compose.ui.platform.LocalDensity.current
+    var headingControlWidth by remember { mutableStateOf(72.dp) }
     Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-            if (block != null) Box {
-                TextButton(onClick = { overflow = true }, enabled = !busy, modifier = Modifier.testTag("block-overflow")) { Text("More") }
+        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            PageHeading(if (block == null) "New Block" else "Edit Block", style = MaterialTheme.typography.titleLarge, maxLines = 2, modifier = Modifier.padding(horizontal = if (block == null) 0.dp else headingControlWidth + 8.dp))
+            if (block != null) Box(Modifier.align(androidx.compose.ui.Alignment.CenterEnd)) {
+                TextButton(onClick = { overflow = true }, enabled = !busy, modifier = Modifier.testTag("block-overflow").onSizeChanged { headingControlWidth = with(headingDensity) { it.width.toDp() } }) { Text("More") }
                 DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
                     DropdownMenuItem(text = { Text("Recordings") }, onClick = { overflow = false; onRecordings() })
                     DropdownMenuItem(text = { Text(if (block.archived) "Restore Block" else "Archive Block") }, onClick = { overflow = false; archiveConfirm = true })
