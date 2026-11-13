@@ -46,26 +46,37 @@ internal object RecordingWaveforms {
 internal fun recordingFrame(ms: Long, frames: Int): Int =
     (ms.coerceAtLeast(0).coerceAtMost(900000) * PhraseSpec.RATE / 1000).coerceIn(0, (frames - 1).coerceAtLeast(0).toLong()).toInt()
 
-@Composable internal fun RecordingScrubber(take: BlockTake?, slot: String, vm: RecordingViewModel, enabled: Boolean) {
-    DisposableEffect(slot, take?.id) {
+@Composable internal fun RecordingScrubber(take: BlockTake?, slot: String, vm: RecordingViewModel, enabled: Boolean,
+    reviewing: Boolean = false, bindSelection: Boolean = true) {
+    if (!reviewing && bindSelection) DisposableEffect(slot, take?.id) {
         vm.bindScrubber(slot, take?.id)
-        onDispose { vm.bindScrubber(slot, null) }
+        onDispose { vm.unbindScrubber(slot, take?.id) }
     }
     if (take == null) return
     var wave by remember(take.id, take.fileName) { mutableStateOf<AudioWaveform?>(null) }
     var failed by remember(take.id) { mutableStateOf(false) }
     var position by remember(take.id) { mutableLongStateOf(0) }
-    LaunchedEffect(take.id, take.fileName) {
-        try { wave = vm.waveform(take) }
+    LaunchedEffect(take.id, take.fileName, vm.foregroundActive) {
+        if (reviewing && !vm.foregroundActive) return@LaunchedEffect
+        failed = false
+        try { wave = if (reviewing) vm.reviewWaveform(take) else vm.waveform(take) }
         catch (cancelled: CancellationException) { throw cancelled }
         catch (_: Exception) { failed = true }
     }
     LaunchedEffect(take.id, vm.playingId, vm.preparingId) {
         while (isActive) { position = vm.playbackPosition(take); delay(50) }
     }
-    CompactRecordingWaveform(take.id, wave, position, take.durationMs, enabled,
+    CompactRecordingWaveform(take.id, wave, position, take.durationMs, enabled && vm.foregroundActive,
         if (failed) "Waveform unavailable" else if (wave == null) "Loading waveform…" else null,
-        Modifier.testTag("practice-$slot-waveform")) { vm.seekSaved(slot, take, it) }
+        Modifier.testTag("practice-$slot-waveform")) {
+            if (reviewing) vm.seekReview(take, it) else vm.seekSaved(slot, take, it)
+        }
+}
+
+/** One review surface for Free, Loop and both Reference workflows. */
+@Composable internal fun ReviewRecordingScrubber(vm: RecordingViewModel) {
+    val take = vm.reviewTake ?: return
+    RecordingScrubber(take, "review", vm, !vm.busy && !vm.recording, reviewing = true)
 }
 
 /** Gesture owns only a preview; release submits exactly one source-bound seek. */

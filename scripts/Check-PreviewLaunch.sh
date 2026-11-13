@@ -24,7 +24,9 @@ adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/home-preview
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/metronome-pulse app/build/preview-metronome-screens || true
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/practice-refinement app/build/preview-refinement-screens || true
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/loop-refinement app/build/preview-loop-screens || true
-if [ "${PREVIEW_TEST_CLASS:-}" = LoopRecorderPreviewTest ]; then
+if [[ "${PREVIEW_TEST_CLASS:-}" == RecordingWaveformWorkflowTest,* ]]; then
+  grep -q 'OK (2 tests)' app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = LoopRecorderPreviewTest ]; then
   grep -q 'OK (3 tests)' app/build/preview-home.txt
 elif [[ "${PREVIEW_TEST_CLASS:-}" == PracticeRefinementPreviewTest,* ]]; then
   grep -q 'OK (4 tests)' app/build/preview-home.txt

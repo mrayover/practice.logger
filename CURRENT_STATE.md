@@ -1,4 +1,16 @@
-# Current state — PG1.1 delivered, build119
+# Current state — RW2 implementation, focused device verification pending
+
+Owner assigned RW2 waveform and seekable playback coverage, including signed delivery and Git publication. Canonical clean baseline block-ux-stage1 at88ba69f63aa72ce79c1639be2b44b012975ad4df matched the actual remote; latest scoped CI43359247460 completed successfully. The prior signed baseline is0.44.1/build119. Older OneDrive checkout remains untouched.
+
+RW2 implementation reuses the RW1 renderer/decoder/cache and existing recording engines. Both saved collections share deliberate Inspect take selection and one waveform; temporary Free/Loop and both Reference hosts share guarded review seeking. Pending review decoding and outgoing output are invalidated on lifecycle/source changes. No data-model, archive, ownership or canonical Library/Transcribe transport change. [Coverage and safety contract](docs/RECORDING_WAVEFORMS.md).
+
+Windows6/6 focused host tests pass (RecordingWaveformTest2, TakeReviewTest4); debug/release/testAPK assembly and release vital lint pass. Initial compilation caught a foreground property/JVM setter naming collision, corrected without API change. Version advanced to0.45.0/build120. Focused API35 workflow, permanent-key package verification, delivery and final publication evidence are pending. No comprehensive regression or F1 run.
+
+Exact next task: run the RW2 scoped Android workflow, investigate only directly related failures, then sign/verify/deliver and close records. No owner phone acceptance claimed.
+
+---
+
+# Previous PG1.1 delivery — build119
 
 Updated November12,2026 (America/Los_Angeles). Signed **0.44.1/build119** delivered on **block-ux-stage1**. Exact application/test/package source **5ffdbaad83368ba6f4bb20125a9da1303c251415**; later closeout changes documentation only. Canonical checkout C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.
 

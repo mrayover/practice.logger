@@ -72,6 +72,7 @@ internal fun RecordReferenceDialog(
                     style = MaterialTheme.typography.titleLarge)
                 if (recorder.recording) Text("Recording · ${practiceDuration(recorder.elapsedMs)}")
                 if (review != null) Text("Duration · ${practiceDuration(review.durationMs)}")
+                if (review != null) ReviewRecordingScrubber(recorder)
                 if (recorder.busy) Text("Preparing reference…")
                 recorder.message?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -79,8 +80,8 @@ internal fun RecordReferenceDialog(
                         recorder.recording -> Button(onClick = { recorder.finishCapture() }) { Text("Stop and Review") }
                         review != null -> {
                             OutlinedButton(enabled = !recorder.busy, onClick = {
-                                if (recorder.playingId == review.id) recorder.stopPlayback() else recorder.previewReview()
-                            }) { Text(if (recorder.playingId == review.id) "Stop Preview" else "Play Preview") }
+                                if (recorder.playingId == review.id || recorder.preparingId == review.id) recorder.stopPlayback() else recorder.previewReview()
+                            }) { Text(if (recorder.playingId == review.id || recorder.preparingId == review.id) "Stop Preview" else "Play Preview") }
                             Button(enabled = !recorder.busy, onClick = { recorder.keepReference(previousAudioId, reviewedOrder = reviewedOrder, append = blockId != null) }) { Text("Keep") }
                             TextButton(enabled = !recorder.busy, onClick = {
                                 if (recorder.hasMicrophonePermission()) recorder.rerecordReview()

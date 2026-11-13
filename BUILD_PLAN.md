@@ -41,6 +41,10 @@ The current source and verified gate status are maintained in [CURRENT_STATE.md]
 
 # practice.logger — Current approved build plan
 
+## RW2 — complete waveform and seekable playback coverage
+
+Owner-assigned bounded integration after RW1: one selected-take waveform in the shared Block/standalone recording sheet, plus temporary Free/Loop and both Record Reference review waveforms with exact pending identity guards. Reuses existing rendering, bounded decoding/cache and MediaPlayer/AudioTrack paths. Capture, promotion, canonical Library/Transcribe transport, Room27/ZIP12/JSON7 remain. Focused host checks and one Android configuration only; full regression/F1 remains deferred. [Contract](docs/RECORDING_WAVEFORMS.md) · [Actual verification/delivery](CURRENT_STATE.md).
+
 Updated 2026-11-12 (America/Los_Angeles). This records implemented scope and historical deliveries; the [V1 master plan](PRACTICE_LOGGER_V1_MASTER_PLAN.md) is the authoritative forward roadmap. Planned phases are not implemented features and require an explicit assignment. **Increment 1 (0.13.0/build 25 Daily Log) is complete. Increment 2 (0.14.0/build 26 images) is complete and delivered, with actual verification/limits in CURRENT_STATE.md.** Exact artifacts, source/CI evidence and limitations are maintained in [CURRENT_STATE.md](CURRENT_STATE.md), not repeated here. Increment 3 is delivered in 0.15.0/build 30 with PDF and recording-sheet integration; full API26/API35 and enlarged-text gates pass. The original Stage 0 first-build task is complete.
 
 ## Block UX normalization

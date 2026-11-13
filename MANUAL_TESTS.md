@@ -469,3 +469,16 @@ Install build119 over the permanent-key app without uninstalling or clearing dat
 - Tap empty space to deselect; empty one-finger drag then pans. Begin a two-finger pinch on background with a selection to zoom/pan without moving the square. Twist beginning on the selected square still rotates.
 - Tap45° and Upright in clear space: exact45°/0° persist after reopen. Near an obstacle/boundary, a blocked preset leaves the prior valid orientation intact and asks for more space; nothing is repositioned.
 - Reopen and verify arrangement/history, expandable details and Journal navigation. No new earned squares or history changes.
+# RW2 — waveform and seekable recording review
+
+Install build120 over the permanent-key app without uninstalling or clearing data; retain a complete ZIP backup. Physical checks remain owner-only:
+
+- In Focused Practice, seek saved Free and Loop takes while stopped and playing; confirm imported loops still repeat.
+- In Block Recordings and standalone Saved free recordings, Inspect two different takes. Selection stays stopped; seeking cues the next Play. Switch while playing and confirm the outgoing take stops. Rename/Export/Delete remain available.
+- Stop a Free take, complete a Loop, and record a Reference in both Block and standalone Transcribe. Confirm waveform/cursor/timestamps, tap/drag seek and Play/Stop Preview. Free/Reference playback is deliberate; completed Loop retains its existing audition.
+- Re-record and Discard: old temporary audio/cursor must disappear. Save/Keep: reopen the retained audio and confirm it is unchanged. A failed Save/Keep should leave the take available to review and retry.
+- Background or leave during preview; return paused. Check count-in/mic Stop/Cancel and the practice timer still behave normally.
+- On a narrow phone at enlarged text, scroll to the waveform and all review/management actions. Try vertical scrolling starting over the waveform and accessible seeking with TalkBack. Listen for the actual seek position and loop repeat.
+- Confirm Media Library and Block/standalone Transcribe retain their complete transport. Missing/unavailable audio should show a fallback while another take remains usable.
+
+No comprehensive F1 acceptance is implied by this checklist.

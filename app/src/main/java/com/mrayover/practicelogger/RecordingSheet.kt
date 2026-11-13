@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +42,17 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
     val keyboard = LocalSoftwareKeyboardController.current
     val all by vm.takes.collectAsStateWithLifecycle()
     val takes = all.filter { it.blockId == blockId }
+    var selectedId by rememberSaveable(blockId) { mutableStateOf<String?>(null) }
+    val selectedTake = takes.find { it.id == selectedId }
+    // Keep transport ownership bound even when the shared waveform scrolls out of view.
+    DisposableEffect(vm, blockId, selectedTake?.id) {
+        vm.bindScrubber("collection", selectedTake?.id)
+        onDispose { vm.unbindScrubber("collection", selectedTake?.id) }
+    }
+    fun select(take: BlockTake) {
+        vm.bindScrubber("collection", take.id)
+        selectedId = take.id
+    }
     var renameId by rememberSaveable { mutableStateOf<String?>(null) }
     var label by rememberSaveable { mutableStateOf("") }
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -94,7 +106,13 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             else -> export.launch(name)
         }
     }
-    if (manageLifecycle) DisposableEffect(blockId, vm) { vm.enterBlock(blockId); onDispose { vm.leaveBlock() } }
+    val activity = LocalContext.current as? android.app.Activity
+    if (manageLifecycle) DisposableEffect(blockId, vm) {
+        vm.enterBlock(blockId)
+        onDispose {
+            if (activity?.isChangingConfigurations == true) vm.setForeground(false) else vm.leaveBlock()
+        }
+    }
     LaunchedEffect(pendingStart, vm.ready, vm.busy, lifecycleState) {
         if (pendingStart && vm.ready && !vm.busy && lifecycleState == Lifecycle.State.RESUMED) {
             pendingStart = false // Recreation/background must never restart capture automatically.
@@ -121,9 +139,23 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
             Button(onClick = { vm.finishCapture() }, enabled = vm.ready && !vm.busy,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (vm.phrasing) "Cancel phrase" else "Stop and review take") }
         }
-        if (vm.reviewTake != null) TakeReviewControls(vm, onBeforePlayback)
+        if (vm.reviewTake != null) TakeReviewControls(vm, onBeforePlayback, showWaveform = false)
         LazyColumn(Modifier.fillMaxWidth().weight(1f).testTag("take-list"),
             contentPadding = PaddingValues(bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item(key = "selected-waveform") {
+                if (vm.reviewTake != null) ReviewRecordingScrubber(vm)
+                else if (!vm.recording) selectedTake?.let { take ->
+                    Text(takeTitle(take), style = MaterialTheme.typography.titleMedium)
+                    RecordingScrubber(take, "collection", vm, vm.ready && !vm.busy, bindSelection = false)
+                    val playing = vm.playingId == take.id || vm.preparingId == take.id
+                    OutlinedButton(onClick = {
+                        if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.play(take) }
+                    }, enabled = vm.ready && !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                        .testTag("collection-play")) {
+                        Text(if (playing) "Stop playback" else if (take.isLoop) "Play loop" else "Play take")
+                    }
+                }
+            }
             item {
                 Text(if (blockId == null) "Free recordings" else "Block recordings", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
                 Text(blockName, style = MaterialTheme.typography.titleMedium)
@@ -174,10 +206,13 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                     val title = takeTitle(take)
                     Text(title, style = MaterialTheme.typography.titleMedium)
                     Text((takeDescription(take) + " · ") + takeDuration(take) + " · " + sessionDate(take.createdAt), style = MaterialTheme.typography.bodySmall)
+                    OutlinedSelectionChip(selected = selectedId == take.id, onClick = { select(take) },
+                        enabled = !vm.recording && vm.reviewTake == null,
+                        modifier = Modifier.testTag("inspect-" + take.id), label = { Text(if (selectedId == take.id) "Selected take" else "Inspect take") })
                     val playing = vm.playingId == take.id || vm.preparingId == take.id
                     if (vm.preparingId == take.id) Text("Preparing playback…")
                     OutlinedButton(onClick = {
-                        if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.play(take) }
+                        if (playing) vm.stopPlayback() else { select(take); onBeforePlayback(); vm.play(take) }
                     }, enabled = !vm.busy && !vm.recording && vm.reviewTake == null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                         .testTag("play-" + take.id).semantics { contentDescription = (if (playing) "Stop " else "Play ") + title }) {
                         Text(if (playing) "Stop playback" else if (take.isLoop) "Play loop" else "Play take")
@@ -346,6 +381,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
                         }
                     }
                 } else if (inline && review != null) {
+                    ReviewRecordingScrubber(vm)
                     Row(Modifier.fillMaxWidth().testTag("phrase-primary-actions"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = vm::saveReview, enabled = !vm.busy,
                             modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("review-save")) { Text("Keep") }
@@ -463,13 +499,18 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun TakeReviewControls(vm: RecordingViewModel, onBeforePlayback: () -> Unit) {
+@Composable fun TakeReviewControls(vm: RecordingViewModel, onBeforePlayback: () -> Unit) =
+    TakeReviewControls(vm, onBeforePlayback, showWaveform = true)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable fun TakeReviewControls(vm: RecordingViewModel, onBeforePlayback: () -> Unit, showWaveform: Boolean) {
     val take = vm.reviewTake ?: return
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), vm::permissionResult)
     val playing = vm.playingId == take.id || vm.preparingId == take.id
     Column(Modifier.fillMaxWidth().testTag("take-review"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Review Take", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
         Text(takeDescription(take) + " · " + practiceTime(take.durationMs) + " · Not saved", style = MaterialTheme.typography.bodySmall)
+        if (showWaveform) ReviewRecordingScrubber(vm)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { if (playing) vm.stopPlayback() else { onBeforePlayback(); vm.previewReview() } }, enabled = !vm.busy,
                 modifier = Modifier.heightIn(min = 48.dp).testTag("review-preview")) { Text(if (playing) "Stop Preview" else "Play Preview") }
