@@ -122,6 +122,7 @@ class AdaptiveSchedulingTest {
             assertEquals("NOT_YET",target.learning().observation("b")!!.outcome)
             val changed=JSONObject(verified.records.payload.toString()).put("version",10)
             changed.getJSONObject("tables").remove("weekly_practice_targets")
+            changed.getJSONObject("tables").remove("playground_layouts")
             val guidanceColumns=portableTables.first { it.name=="guidance_events" }.columns
             val forged=JSONObject(accepted.offeredSuggestion!!).put("elapsedMs",4*RETURN_DAY_MS+1).put("intervalDays",7).put("dueDate",date.plusDays(7).toString())
             changed.getJSONObject("tables").getJSONArray("guidance_events").getJSONArray(0)
@@ -130,6 +131,7 @@ class AdaptiveSchedulingTest {
             assertTrue(runCatching { PortableRecords(changed,10) }.isFailure)
             val old=JSONObject(verified.records.payload.toString()).put("version",9)
             old.getJSONObject("tables").remove("weekly_practice_targets")
+            old.getJSONObject("tables").remove("playground_layouts")
             assertTrue(runCatching { PortableRecords(old,9) }.isFailure)
             val manual=accepted.copy(origin="MANUAL",offeredSuggestion=null)
             validateGuidanceHistory(listOf(manual),adaptive=false)

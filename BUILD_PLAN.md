@@ -1,3 +1,7 @@
+## PG1 — assigned implementation
+
+PG1 foundation is implemented and undergoing focused verification: completion-backed solid squares, persistent free arrangement, proportional world expansion, oriented collision, drag/twist and pan/zoom, historical detail panel, Room27/ZIP12. Signed development delivery pending; see [actual status](CURRENT_STATE.md) and [contract](docs/PLAYGROUND_SPEC.md). This explicit assignment supersedes earlier Playground-not-assigned wording. Stop after PG1; PG2 and F1 remain separately assigned.
+
 ## W2 — weekly practice target (complete development delivery)
 
 Owner-assigned after completed G3/LGE and RW1. One optional target per Sunday–Saturday week; uses G3 committed actual time without affecting manual musical Goal progress. Compact Home progress retains cumulative Statistics; This Week sets/edits/clears current/future targets and preserves read-only past weeks. Signed 0.43.0/build116 delivered after7 scoped tests on each Windows/Linux, compilation/vital lint and one API35 UI/atomic-restore workflow. Room26/ZIP11, unchanged JSON7; physical acceptance pending. See [current verification and delivery](CURRENT_STATE.md) and [accounting contract](docs/PRACTICE_STATISTICS.md#w2--weekly-practice-target). Stop after W2; Playground/F1 require separate assignment.

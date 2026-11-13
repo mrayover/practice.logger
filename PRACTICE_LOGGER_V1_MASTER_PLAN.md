@@ -1,3 +1,7 @@
+## PG1 — assigned implementation
+
+PG1 foundation is implemented and undergoing focused verification: completion-backed solid squares, persistent free arrangement, proportional world expansion, oriented collision, drag/twist and pan/zoom, historical detail panel, Room27/ZIP12. Signed development delivery pending; see [actual status](CURRENT_STATE.md) and [contract](docs/PLAYGROUND_SPEC.md). This explicit assignment supersedes earlier Playground-not-assigned wording. Stop after PG1; PG2 and F1 remain separately assigned.
+
 ## Owner policy — development verification and F1 regression (2026-11-12)
 
 During ordinary development, compile the changed application and run only focused checks for the assigned feature, critical data integrity, and signed delivery. Comprehensive cross-feature regression, device matrices, historical migration/backup compatibility campaigns, broad UI/accessibility suites and baseline lint investigations are deferred to F1. Retain all tests and verification infrastructure. Investigate failures directly affecting the assigned change; document unrelated failures for F1.

@@ -142,7 +142,7 @@ class WeeklyPracticeTargetTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(26, db.openHelper.writableDatabase.version)
+            assertEquals(27, db.openHelper.writableDatabase.version)
             assertEquals("Keep", db.blocks().find("b")!!.notes)
             assertEquals(1200L, db.sessions().find("s")!!.current!!.activeMs)
             assertEquals(300L, db.sessions().find("s")!!.current!!.prepMs)
@@ -160,7 +160,7 @@ class WeeklyPracticeTargetTest {
             val zip = PortableZip(context, db, folder)
             val file = File(folder, "targets.zip"); zip.create(file)
             val verified = zip.verify(file)
-            assertEquals(11, verified.records.payload.getInt("version"))
+            assertEquals(PORTABLE_VERSION, verified.records.payload.getInt("version"))
             restored.withTransaction { verified.records.insertInto(restored.openHelper.writableDatabase) }
             assertEquals(db.weeklyTargets().observeAll().first(), restored.weeklyTargets().observeAll().first())
             assertFalse(portableTargetEmpty(restored.openHelper.writableDatabase))
@@ -169,6 +169,7 @@ class WeeklyPracticeTargetTest {
             assertTrue(runCatching { BackupRepository(restored).restore(BackupCodec.decode(json)) }.exceptionOrNull() is NonEmptyRestoreException)
             val historical = JSONObject(verified.records.payload.toString()).put("version", 10)
             historical.getJSONObject("tables").remove("weekly_practice_targets")
+            historical.getJSONObject("tables").remove("playground_layouts")
             val records = PortableRecords(historical, 10); records.validateRelationships(context)
             // Exercise the frozen ZIP10 envelope as well as its records (no media in this fixture).
             val oldFile = File(folder, "targets-v10.zip")
@@ -194,7 +195,7 @@ class WeeklyPracticeTargetTest {
                 JSONArray().put(JSONArray().put("2026-11-08").put(180)).put(JSONArray().put("2026-11-08").put(90)))) {
                 val bad = JSONObject(verified.records.payload.toString())
                 bad.getJSONObject("tables").put("weekly_practice_targets", rows)
-                assertTrue(runCatching { PortableRecords(bad, 11) }.isFailure)
+                assertTrue(runCatching { PortableRecords(bad, PORTABLE_VERSION) }.isFailure)
             }
         } finally { db.close(); restored.close(); old.close(); folder.deleteRecursively() }
     }

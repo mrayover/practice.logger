@@ -5,7 +5,7 @@ on:
       check:
         description: Focused preview check
         type: choice
-        options: [weekly-target, waveform, learning, statistics, home, metronome, practice-refinement, practice-layout, loop-refinement]
+        options: [playground, weekly-target, waveform, learning, statistics, home, metronome, practice-refinement, practice-layout, loop-refinement]
         default: home
 permissions:
   contents: read
@@ -27,6 +27,9 @@ jobs:
       - name: Prepare focused recording fixtures
         if: inputs.check == 'waveform'
         run: AUDIO_FIXTURE_DURATION=3 AUDIO_FIXTURE_WAV=true bash scripts/Prepare-AudioFixtures.sh
+      - name: Focused Playground geometry, migration and archive checks
+        if: inputs.check == 'playground'
+        run: bash ./gradlew lintVitalRelease testDebugUnitTest --tests 'com.mrayover.practicelogger.PlaygroundGeometryTest' --tests 'com.mrayover.practicelogger.PlaygroundRepositoryTest' --console=plain
       - name: Focused weekly target checks
         if: inputs.check == 'weekly-target'
         run: bash ./gradlew lintVitalRelease testDebugUnitTest --tests 'com.mrayover.practicelogger.WeeklyPracticeTargetTest' --console=plain
@@ -68,7 +71,7 @@ jobs:
           disable-animations: true
           script: bash scripts/Check-PreviewLaunch.sh
         env:
-          PREVIEW_TEST_CLASS: ${{ inputs.check == 'weekly-target' && 'WeeklyTargetWorkflowTest' || inputs.check == 'waveform' && 'RecordingWaveformWorkflowTest' || inputs.check == 'learning' && 'LearningWorkflowTest' || inputs.check == 'statistics' && 'StatisticsNavigationTest' || inputs.check == 'loop-refinement' && 'LoopRecorderPreviewTest' || inputs.check == 'practice-layout' && 'PracticeRefinementPreviewTest' || inputs.check == 'practice-refinement' && 'PracticeRefinementPreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest' || inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
+          PREVIEW_TEST_CLASS: ${{ inputs.check == 'playground' && 'PlaygroundWorkflowTest' || inputs.check == 'weekly-target' && 'WeeklyTargetWorkflowTest' || inputs.check == 'waveform' && 'RecordingWaveformWorkflowTest' || inputs.check == 'learning' && 'LearningWorkflowTest' || inputs.check == 'statistics' && 'StatisticsNavigationTest' || inputs.check == 'loop-refinement' && 'LoopRecorderPreviewTest' || inputs.check == 'practice-layout' && 'PracticeRefinementPreviewTest' || inputs.check == 'practice-refinement' && 'PracticeRefinementPreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest' || inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,3 +1,9 @@
+## Complete portable ZIP v12 — Playground arrangement
+
+Room27/ZIP12 adds playground_layouts with placementId, x, y, rotationDegrees. Coordinates and angle are finite doubles; keys must be unique and refer to existing block_completions. The centered world derives capacity20/40/80/160… from completion count at15% theoretical coverage and3:2 aspect ratio. Validate rotated boundaries, bounded normalized angle and pairwise actual oriented nonintersection before restore. Contact is valid. Exact saved doubles survive round trip. Layouts can be absent for completions not yet viewed; derive deterministic missing positions when Playground opens. Never infer completion snapshots from older placement outcomes.
+
+Frozen ZIP1–11 readers remain; ZIP11 has no layouts and accepts only Room26 envelopes. ZIP12 requires Room27. JSON7/readers1–7 remain unchanged and exclude completions/layouts. Existing transactional empty-target restore, media locks/ownership, journal/witness rollback and recovery are retained. The sole26→27 migration adds the restrictive-parent-owned layout table; schemas1–26 remain. See [PG1 geometry and recovery](docs/PLAYGROUND_SPEC.md). Actual delivery verification is in CURRENT_STATE.
+
 # Backup format and safety — current implementation
 
 W2 uses Room26 and complete ZIP11/readers1–11. ZIP11 adds only weekly practice targets; legacy JSON7/readers1–7 stays data-only and excludes targets. Current signed-delivery status is in [CURRENT_STATE](CURRENT_STATE.md).

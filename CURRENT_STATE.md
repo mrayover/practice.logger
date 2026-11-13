@@ -1,3 +1,9 @@
+# PG1 implementation in progress — build117 candidate
+
+Owner-assigned PG1 is implemented in the canonical checkout on block-ux-stage1, based on b427b246ab66. Version0.44.0/build117; Room27/complete ZIP12 readers1–12; JSON7 unchanged. First15 focused Windows tests and debug/release assembly pass. Focused Android workflow compilation, CI verification and permanent-key delivery are pending. This is not a completed or phone-accepted delivery. See [PG1 contract](docs/PLAYGROUND_SPEC.md) and WORK_LOG. Exact next task: finish the focused PG1 interaction workflow and signed development delivery; do not start PG2/F1.
+
+The following retained W2 delivery remains the last verified signed distribution until PG1 closeout.
+
 # Current state — W2 weekly practice target delivered, build116
 
 Updated November12,2026 (America/Los_Angeles). **Signed 0.43.0/build116 is delivered. W2 engineering and focused verification are complete; physical owner-phone acceptance remains pending.** Exact application/package/test source **f8ebd95a4d625944ec07f2eb285a253d45dd20ac**, branch **block-ux-stage1**. Later documentation commits do not change the signed application. Canonical checkout C:/Users/mrove/Projects/practice.logger was used; the older OneDrive checkout is untouched, with only a new delivery folder beside it.

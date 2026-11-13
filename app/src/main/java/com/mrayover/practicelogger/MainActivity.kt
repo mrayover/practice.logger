@@ -295,13 +295,7 @@ class MainActivity : ComponentActivity() {
             "inspirations" -> InspirationsScreen(inspirations, onMedia = { page = "media-library" }, onHome = { page = "home" })
             "playground" -> {
                 BackHandler { page = "log" }
-                Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    DestinationPills("Journal", "Playground", true) { if (!it) page = "log" }
-                    Text("Playground", style = MaterialTheme.typography.headlineMedium)
-                    Text("Coming Soon")
-                    TextButton(onClick = { page = "log" }) { Text("Back to Log") }
-                }
+                PlaygroundScreen(onJournal = { page = "log" })
             }
             "log" -> {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()

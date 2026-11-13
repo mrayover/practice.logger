@@ -444,3 +444,17 @@ Physical owner-phone checks remain pending. Install build116 over the permanent-
 - Check narrow/enlarged-text Home, editor/keyboard and This Week navigation in preferred themes; buttons/text remain readable and reachable.
 - Complete ZIP11 backup/restore into an empty separate install preserves current/past/future targets and actual history. ZIP10 restores no invented targets; JSON7 excludes targets. Target-only installs refuse restore. Never test destructive restore over owner data.
 - Local dates: Sunday–Saturday target totals can differ from Monday–Sunday Statistics/Journal. Started sessions/Transcribe keep their start date, including midnight and DST.
+
+## PG1 — earned squares and free arrangement
+
+Physical owner-phone acceptance pending. Install the permanent-key PG1 update over the existing app without uninstalling/clearing; keep a complete ZIP backup first.
+
+- Complete one placement, then repeated placements of the same Block: Log → Playground shows one pure square each. Skip/prep/unfinished work adds none; reopen does not duplicate. Historical completion colors stay frozen after Goal changes; missing color is neutral.
+- Tap/select/clear; More/Less shows original name/action, actual time, saved Goal ID/priority, notes and reflection. Check Light/Dark, landscape and large text, with scrollable details. No printed content on squares.
+- Select then drag slowly/quickly toward another square; stop at contact with no pushing/tunneling. Twist with two fingers over the selected square, including45degrees and collision/boundary limits. Move/rotate away again. Other squares stay fixed.
+- Pinch on empty space and pan; selection stays stable and square size in world coordinates stays fixed. Use Overview. Expand/collapse details without changing arrangement.
+- With21 then41 genuine completion snapshots, world expands20→40→80 while prior exact positions/angles and view remain stable. Empty space remains substantial.
+- Reopen and recreate/restart: valid completed moves/angles remain. Interrupt a gesture: no invalid partial commit.
+- Export complete ZIP12 and restore only to a spare empty installation: compare layout and original media/history. Older complete ZIP restores its actual completion evidence and default layout. Never clear the main app for a test. JSON7 excludes the arrangement.
+
+No PG2/animations/templates/F1 or V1 certification is included. Exact next assignment: PG1 physical-phone acceptance and any concrete PG1 fixes observed.

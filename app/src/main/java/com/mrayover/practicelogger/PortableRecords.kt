@@ -108,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 11
+internal const val PORTABLE_VERSION = 12
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -142,7 +142,8 @@ private val portableTablesV9 = portableTablesV8 + listOf(
     PortableTable("guidance_events", "id blockId revision:l recordedAt:l action returnSoon:b dueDate:s? baseDate:s? intervalDays:i? origin offeredSuggestion:s?")
 )
 
-internal val portableTables = portableTablesV9 + PortableTable("weekly_practice_targets", "weekStart targetMinutes:i")
+private val portableTablesV11 = portableTablesV9 + PortableTable("weekly_practice_targets", "weekStart targetMinutes:i")
+internal val portableTables = portableTablesV11 + PortableTable("playground_layouts", "placementId x:f y:f rotationDegrees:f")
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -159,6 +160,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         7 -> portableTablesV7
         8 -> portableTablesV8
         9, 10 -> portableTablesV9
+        11 -> portableTablesV11
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -175,7 +177,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         when (table) {
             OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE,
             COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE, INSPIRATION_STORE,
-            "learning_observations", "guidance_events", "weekly_practice_targets" -> rows[table].orEmpty()
+            "learning_observations", "guidance_events", "weekly_practice_targets", "playground_layouts" -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
     private val learningOrder: List<String>
@@ -288,6 +290,9 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
                 "Invalid completion Goal priority or color."
             }
         }
+        validatePlaygroundLayouts(this["playground_layouts"].map { row ->
+            PlaygroundLayout(row.getString("placementId"), row.getDouble("x"), row.getDouble("y"), row.getDouble("rotationDegrees"))
+        }, completions)
         fun answers(row: JSONObject, vararg fields: String) = fields.map { row.getString(it) }.also {
             require(it.all { answer -> answer.length <= REFLECTION_ANSWER_LIMIT }) { "Reflection answer is too long." }
         }
