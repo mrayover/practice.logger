@@ -1,10 +1,31 @@
-# Compact Home follow-up — build122 verification pending
+# Current state — compact Home delivered, build122
 
-Owner-requested follow-up implements one-line Goal names, tighter Home spacing, paired menu rows on shorter screens and compact statistics/weekly summary. Version0.46.1/build122 compiles; focused one-device layout/action check and permanent-key delivery pending. Exact next task: verify and deliver this Home-only correction. Previous UI-C1 evidence remains below.
+Updated November 12, 2026 (America/Los_Angeles). Owner-requested Home correction delivered as signed **0.46.1/build122** on **block-ux-stage1**. Exact application/package/focused-test source **a70d341901822a87ab3b5876541e35ab418af18f**. Later closeout changes documentation only; application/test source remains identical. Canonical checkout used; older OneDrive checkout untouched.
+
+## Signed delivery
+
+OneDrive → Practice Log development → **Home fit delivery → Home fit build122**.
+[APK](dist/practice.logger-0.46.1-b122-a70d341-homefit-development/practice.logger-0.46.1-b122-a70d341.apk) · [ZIP](dist/practice.logger-0.46.1-b122-a70d341-homefit-development.zip) · [Phone checklist](MANUAL_TESTS.md#compact-home-follow-up). dist/LATEST.txt points here.
+
+- APK SHA256 **0c302b6287b9129e1a1d59c8942f85679bd6056412ffe977c522e1b3539bef2e**.
+- ZIP SHA256 **5af21f5930225e9c600dd22cb1fb77af9b04d6c04d8308a5af689654e898425c**.
+- Stable ID com.mrayover.practicelogger.app, permanent certificate SHA256 f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Package/version/signature/pinned certificate, exact148 unsigned payload entries, APK/ZIP CRC/length, eight ZIP member hashes and OneDrive copied hashes verified. All **592** prior APK/ZIP files retain their hashes. Cloud-sync completion unobserved. Install over the existing permanent-key app without uninstalling/clearing data.
+
+## Home correction and actual checks
+
+Goals keep one line with ellipsis and full text semantics. Edit shares the centered Goals header. Home uses tighter4dp gaps, reduced padding and48dp buttons. At normal text below700dp available content height, full-width Practice Now is followed by paired Blocks/Routines, Tools/Recording and Log/Library rows; taller screens keep the vertical list. Statistics/weekly-target links share a row, above a compact one-line weekly summary/progress bar. This Week retains full target detail. Goal progress/clicks, all destinations, themes, other pages and audio/data/geometry remain. Room27/ZIP12/JSON7 unchanged. At150% and larger text, navigation and footer links stack at full width and can scroll to keep labels readable and controls reachable.
+
+- Windows release/testAPK compilation and release vital lint pass; final retained-test expected-text change also compiles. No host test suite or broad regression was run for this visual correction.
+- [Focused CI43375803182](https://github.com/mrayover/practice.logger/actions/runs/43375803182): debug/release/testAPK compilation, release vital lint, install/launch and **1/1 HomeFitWorkflowTest** pass on one API35 configuration. The initial CI43373972840 already passed normal fit; screenshot review prompted a focused enlarged-text refinement and this final-source rerun. At normal text, bounded320×640,411×731 and360×900 Compose viewports each have zero Home scroll range, single-line ellipsized long Goals, every control visible, and all12 Home callbacks invoked per layout (**36 callbacks**). At200% text, both Goal rows and all navigation labels remain one line without navigation overflow, and the weekly target remains reachable by scrolling. This is a focused layout fixture, not a device matrix or real-phone result.
+- Reviewed five final captures: the three normal-text Home layouts plus200% Goal/header and scrolled navigation/footer. Short/ordinary layouts show all destinations and footer in one view; tall layout retains the vertical menu. Screenshots use the rendered Compose image to avoid the prior native-frame capture race.
+- Intermediate CI43375007728 passed normal fit but failed a generic text-overflow flag at200%. The screenshot showed readable full-width labels. Final verification replaces that flag with rendered line bounds and text containment in each button, with at most one physical-pixel rounding allowance; one-line/no-ellipsis requirements remain. Those measured checks pass. Production layout is unchanged by this test correction; the precise generic-flag cause is not inferred.
+- Retained WeeklyTargetWorkflowTest now expects the compact Home summary (This Week ·90/180min·50%); the detailed This Week assertion remains intact. That older workflow was not rerun.
+
+**Next: install build122 and confirm Home fits on the owner's phone at normal text size; report model/font/orientation if anything clips.** Physical install-over, TalkBack, landscape and cloud sync remain pending. Stop after this Home-only correction; no F1 or merge to main.
 
 ---
 
-# Current state — UI-C1 delivered, build121
+# Previous UI-C1 delivery — build121
 
 Updated November 12, 2026 (America/Los_Angeles). Signed **0.46.0/build121** delivered on **block-ux-stage1**. Exact application/test/package source **6e26000a66c3d5669ee330dafab0021d3f3c5d6a**; later closeout changes documentation only. Canonical C:/Users/mrove/Projects/practice.logger used; older OneDrive checkout untouched. Physical acceptance pending.
 

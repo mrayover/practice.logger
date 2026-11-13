@@ -1,10 +1,12 @@
-# Compact Home — active follow-up
+# practice.logger — compact Home delivered
 
-Owner asks Home fit on one screen with single-line Goals. Implementation0.46.1/build122 compiles; focused native verification and permanent-key delivery remain. Use canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1. CURRENT_STATE owns exact evidence and next task. Stop after this bounded correction.
+Signed0.46.1/build122, exact application/package/focused-test source a70d341901822a87ab3b5876541e35ab418af18f, delivered on block-ux-stage1. Home Goal names stay one line, Edit shares their header, compact paired navigation fits short screens and Statistics/weekly actions remain. Three normal-text bounded layouts have zero scroll range;36 callbacks and200% single-line navigation/reachability pass in one API35 workflow. Application/test source remains identical after closeout; the retained weekly test expected text was mechanically updated and compiled, without running that older workflow. [Current evidence/hashes](CURRENT_STATE.md) · [Phone checks](MANUAL_TESTS.md#compact-home-follow-up).
+
+Use canonical C:/Users/mrove/Projects/practice.logger; OneDrive delivery: Practice Log development/Home fit delivery/Home fit build122. Next: confirm fit on the owner's phone. No physical acceptance, F1 or main merge claimed. Stop after this correction.
 
 ---
 
-# practice.logger — UI-C1 delivered handoff
+# Previous UI-C1 handoff
 
 UI-C1 is delivered as permanent-key0.46.0/build121, exact application/test/package source 6e26000a66c3d5669ee330dafab0021d3f3c5d6a on block-ux-stage1. Eight focused checks pass on Windows/Linux; one API35 visual workflow passes, including320dp/200% dynamic headings, theme recreation/native mirrors, Playground sample and waveform/dialog surfaces. Initial Settings scrollbar-centering failure and correction are documented. Package/signature/payload/ZIP/copy checks pass;586 prior artifacts unchanged. Later closeout changes documentation only.
 

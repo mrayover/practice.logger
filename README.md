@@ -1,6 +1,6 @@
 # practice.logger
 
-UI-C1 adds centered primary page headings and opt-in Cosmic: light-blue/lavender semantic accents over a subtle static starfield. Signed0.46.0/build121; focused verification/delivery status is in [CURRENT_STATE](CURRENT_STATE.md). Existing recording, themes and Room27/ZIP12/JSON7 remain. [Visual contract](docs/COSMIC_UI.md). Physical acceptance remains separate; comprehensive regression waits for owner-authorized F1.
+Signed0.46.1/build122 tightens Home: Goal names stay on one line, Edit sits beside Goals, and compact navigation rows fit shorter screens. Statistics and weekly targets stay available in a compact footer; enlarged text can scroll. Cosmic and centered page headings remain. [Current delivery and focused checks](CURRENT_STATE.md).
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 

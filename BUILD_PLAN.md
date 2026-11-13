@@ -1,6 +1,6 @@
-# Owner-requested Home fit follow-up
+# Compact Home — delivered follow-up
 
-Home-only compact layout in0.46.1/build122: single-line Goals, Edit alongside heading, shorter gaps/buttons, paired secondary destinations for short screens, compact footer. Existing destinations and larger-text scrolling retained. Compile/vital lint pass; focused native fit/action proof and signed delivery pending. Stop after this correction; no F1.
+Owner-requested Home fit correction delivered in signed0.46.1/build122: single-line Goals, Edit beside heading, compact spacing/buttons, paired secondary destinations on short screens and compact Statistics/weekly footer. One API35 fixture passes normal-text no-scroll fit at three sizes,36 callbacks and200% reachability. Local/CI compilation/vital lint pass. [Current delivery/evidence](CURRENT_STATE.md). Room27/ZIP12/JSON7 unchanged. Next: phone fit confirmation. Stop here; no F1.
 
 ---
 

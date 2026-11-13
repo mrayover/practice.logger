@@ -11,3 +11,8 @@ PageHeading centers primary titles across the complete content width, preserves 
 Editor titles reserve equal measured space on each side for More; new editors need no reservation. Media viewers place titles below existing Back controls. Long ordinary titles wrap naturally; constrained editor/viewer titles use at most two lines and ellipsis, and compact Focused Practice uses one line with full text retained in semantics. The timer remains on its existing row, before the full-width compact name; existing measured-header/transport constraints and pinned actions remain. No additional scrolling container is introduced.
 
 Verification is scoped to palette/preference/star bounds checks and one API35 visual workflow. It samples Settings/recreation/switch-back,320dp/200% representative navigation/dynamic titles, timer visibility, earned Playground color/selection/pan and shared waveform/input surfaces. It is not F1, a cross-feature regression, acoustic acceptance or a physical-phone signoff. Exact delivery evidence is maintained in [CURRENT_STATE](../CURRENT_STATE.md).
+
+
+## Owner-requested compact Home follow-up
+
+Build122 keeps Home Goal rows on one line with ellipsis/full semantics, moves Edit beside the centered Goals heading, tightens spacing and uses paired secondary navigation below full-width Practice Now on shorter screens. Statistics and weekly-target routes remain with a compact weekly summary; full details stay in This Week. Normal-text fit is checked without scrolling at three bounded viewport sizes; enlarged text retains scroll reachability. Other pages and Cosmic/the prior palettes remain unchanged. Exact evidence is in CURRENT_STATE.
