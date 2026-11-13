@@ -496,3 +496,7 @@ Manual phone checks remain pending; record actual results rather than inferring 
 6. In Playground, check dots, all earned square colors and halo; select, drag, pan, pinch and rotate. Check images/PDFs retain their original colors. Report device/font/orientation and any layout issue.
 
 No physical results are recorded yet. Comprehensive regression remains deferred to owner-authorized F1. Stop after UI-C1.
+
+# Compact Home follow-up
+
+Build122 phone checks (pending): install over the permanent-key app without uninstalling/clearing data. Open Home with long Goal names and an optional weekly target. Confirm both Goals occupy one line, Edit sits beside Goals, all seven navigation buttons plus Statistics and the weekly target fit without scrolling at normal text size. Short screens use paired buttons below Practice Now. Tap each destination and return. At enlarged text, verify Goal lines remain single and all controls remain reachable by scrolling. Other screens and themes should retain their existing appearance. Report phone model, font size and orientation if anything clips.

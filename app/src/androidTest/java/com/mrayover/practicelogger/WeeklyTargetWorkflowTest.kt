@@ -58,7 +58,7 @@ class WeeklyTargetWorkflowTest {
         save("180")
         compose.onNodeWithText("50% of target · 90 minutes remaining").assertIsDisplayed()
         home()
-        compose.onNodeWithText("50% of target · 90 minutes remaining").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("This Week · 90 / 180 min · 50%").performScrollTo().assertIsDisplayed()
         val folder = File(compose.activity.getExternalFilesDir(null), "home-preview").apply { mkdirs() }
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.takeScreenshot(File(folder, "w2-home.png"))

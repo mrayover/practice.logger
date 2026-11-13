@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +28,8 @@ import androidx.compose.ui.unit.sp
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
             // Keep the familiar vertical menu when it fits; shorter phones use paired rows.
-            val paired = maxHeight < 700.dp
+            val enlargedText = LocalDensity.current.fontScale >= 1.5f
+            val paired = maxHeight < 700.dp && !enlargedText
             val destinations = listOf(
                 "Practice Now" to onPractice, "Blocks" to onBlocks, "Routines" to onRoutines,
                 "Tools" to onTools, "Recording" to onRecording, "Log" to onLog, "Library" to onLibrary)
@@ -69,7 +71,14 @@ import androidx.compose.ui.unit.sp
                         }
                     }
                 } else destinations.forEach { (label, action) -> CompactHomeButton(label, action) }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (enlargedText) {
+                    TextButton(onClick = onStatistics, modifier = Modifier.fillMaxWidth().testTag("home-statistics")) {
+                        Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}")
+                    }
+                    TextButton(onClick = onWeekTarget, modifier = Modifier.fillMaxWidth().testTag("home-weekly-target")) {
+                        Text(if (weeklyProgress?.targetMinutes == null) "Set weekly target" else "Edit weekly target")
+                    }
+                } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = onStatistics, modifier = Modifier.weight(1f).testTag("home-statistics"),
                         contentPadding = PaddingValues(horizontal = 4.dp)) {
                         Text("Total practice · ${practiceMs?.let(::practiceDuration) ?: "Loading…"}", maxLines = 2)

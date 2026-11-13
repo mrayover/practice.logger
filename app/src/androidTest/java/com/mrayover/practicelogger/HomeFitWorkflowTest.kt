@@ -84,6 +84,17 @@ class HomeFitWorkflowTest {
                 compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertEquals(1,layouts.single().lineCount)
             }
+            File(folder,"home-fit-320-200-goals.png").outputStream().use { output ->
+                compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
+            }
+            // Large text switches to full-width labels to avoid mid-word breaks and clipped footer text.
+            for (label in listOf("Practice Now","Blocks","Routines","Tools","Recording","Log","Library")) {
+                val node=compose.onNodeWithTag("home-nav-$label").performScrollTo().assertIsDisplayed()
+                val layouts=mutableListOf<TextLayoutResult>()
+                compose.onNodeWithText(label,useUnmergedTree=true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                assertEquals("Large-text navigation remains one line: $label",1,layouts.single().lineCount)
+                assertFalse(layouts.single().hasVisualOverflow)
+            }
             compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
             File(folder,"home-fit-320-200.png").outputStream().use { output ->
                 compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
