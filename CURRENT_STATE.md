@@ -1,3 +1,9 @@
+# PG1.1 — implementation complete, focused delivery in progress
+
+Owner-assigned visual/gesture refinement implemented for0.44.1/build119. Windows16/16 focused Playground checks and compilation pass. One API35 workflow and signing pending. Room27/ZIP12/JSON7 unchanged. Next: complete this focused gate and signed delivery; no PG2/F1.
+
+---
+
 # Current state — PG1 Playground delivered, build118
 
 Updated November12,2026 (America/Los_Angeles). **Signed0.44.0/build118 is delivered. Both PG1 engineering checkpoints and focused verification are complete; physical owner-phone acceptance is pending.** Exact application/package/test source **f55a0c764e5a92743f51e152497d53766fcaae15**, branch **block-ux-stage1**. Later closeout commits change documentation only. Used the canonical checkout C:/Users/mrove/Projects/practice.logger; the older OneDrive checkout is untouched, with a new delivery folder beside it.

@@ -130,3 +130,13 @@ internal data class PlaygroundCamera(val scale: Double, val offset: WorldPoint) 
         return PlaygroundCamera(next, focus - world(focus) * next)
     }
 }
+
+/** Absolute preset is all-or-nothing: validate the entire shortest arc with existing rotation. */
+internal fun presetPlaygroundOrientation(s: PlaygroundLayout, target: Double, others: List<PlaygroundLayout>, w: PlaygroundWorld): PlaygroundLayout? {
+    require(target == 0.0 || target == 45.0)
+    val delta = ((target - normalizePlaygroundAngle(s.rotationDegrees) + 540.0) % 360.0) - 180.0
+    val reached = rotatePlaygroundSquare(s, delta, others, w)
+    val exact = s.copy(rotationDegrees = target)
+    val error = abs(((reached.rotationDegrees - target + 540.0) % 360.0) - 180.0)
+    return exact.takeIf { error < 1e-7 && validPlaygroundLayout(it, w) && others.none { other -> playgroundOverlaps(it, other) } }
+}

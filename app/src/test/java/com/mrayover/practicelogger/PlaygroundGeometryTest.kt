@@ -59,6 +59,16 @@ class PlaygroundGeometryTest {
         assertTrue(rotated.rotationDegrees < 45); assertTrue(validPlaygroundLayout(rotated, world))
         assertTrue(validPlaygroundLayout(movePlaygroundSquare(a.copy(rotationDegrees = 45.0), WorldPoint(100.0, 100.0), emptyList(), world), world))
     }
+    @Test fun absolutePresetsAreExactAndNeverMoveOrPartiallyTurnBlockedSquares() {
+        val turned = presetPlaygroundOrientation(a.copy(rotationDegrees = 350.0), 45.0, emptyList(), world)!!
+        assertEquals(a.copy(rotationDegrees = 45.0), turned)
+        assertEquals(a, presetPlaygroundOrientation(turned, 0.0, emptyList(), world))
+        assertEquals(turned, presetPlaygroundOrientation(turned, 45.0, emptyList(), world))
+        assertNull(presetPlaygroundOrientation(a, 45.0, listOf(b(1.1)), world))
+        assertNull(presetPlaygroundOrientation(a.copy(x = world.width / 2 - 0.55), 45.0, emptyList(), world))
+        // Both endpoints clear, but the intervening arc intersects: reject the whole operation.
+        assertNull(presetPlaygroundOrientation(a.copy(rotationDegrees = 315.0), 45.0, listOf(b(0.95, 0.95)), world))
+    }
     private fun completions(n: Int) = (1..n).map { BlockCompletion("p$it", "s", "b", it.toLong(), null, null, null) }
     @Test fun stableSparseInitialPlacementAndExpansionPreserveEveryExistingBit() {
         val first = initialPlaygroundLayouts(completions(20), emptyList())

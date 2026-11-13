@@ -78,6 +78,8 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
     var expanded by remember { mutableStateOf(false) }
     var preview by remember { mutableStateOf<PlaygroundLayout?>(null) }
     var camera by remember { mutableStateOf<PlaygroundCamera?>(null) }
+    var overviewRequested by remember { mutableStateOf(false) }
+    var orientationMessage by remember { mutableStateOf<String?>(null) }
     val layouts = content?.layouts.orEmpty().map { if (it.placementId == preview?.placementId) preview!! else it }
     val completions = remember(content?.sessions) { content?.completions.orEmpty() }
     val world = playgroundWorld(completions.size)
@@ -88,6 +90,13 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
     val outline = MaterialTheme.colorScheme.outlineVariant
     val neutral = MaterialTheme.colorScheme.outline
     val glow = MaterialTheme.colorScheme.primary
+    val dots = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.13f)
+    fun orient(degrees: Double) {
+        val row = layouts.find { it.placementId == selected } ?: return
+        val result = presetPlaygroundOrientation(row, degrees, layouts.filter { it.placementId != selected }, world)
+        if (result == null) orientationMessage = "More space is needed to turn this square."
+        else { orientationMessage = null; vm.save(result) { preview = null } }
+    }
     Column(Modifier.fillMaxSize().safeDrawingPadding()) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             DestinationPills("Journal", "Playground", true) { if (!it) onJournal() }
@@ -104,7 +113,10 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
                     if (!canGesture) return@awaitEachGesture
                     fun Offset.point() = WorldPoint(x.toDouble(), y.toDouble())
                     val hit = currentLayouts.lastOrNull { playgroundContains(it, cam.world(down.position.point())) }
-                    val moving = hit?.takeIf { it.placementId == currentSelected }
+                    val moving = if (hit == null) currentLayouts.find { it.placementId == currentSelected }
+                        else hit.takeIf { it.placementId == currentSelected }
+                    // Resolve ownership at drag/pinch start, then retain it until every pointer lifts.
+                    var cameraGesture: Boolean? = null
                     var candidate = moving
                     var multi = false; var moved = false; var cancelled = true
                     var travel = 0f
@@ -118,14 +130,15 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
                             travel += pan.getDistance()
                             if (travel > viewConfiguration.touchSlop || multi) moved = true
                             if (moved) {
+                                if (cameraGesture == null) cameraGesture = hit == null && (multi || moving == null)
                                 val c = camera ?: cam
                                 val obstacles = currentLayouts.filter { it.placementId != moving?.placementId }
-                                if (moving != null) {
+                                if (moving != null && cameraGesture == false) {
                                     if (multi) {
-                                        if (pressed >= 2) candidate = rotatePlaygroundSquare(candidate!!, event.calculateRotation().toDouble(), obstacles, currentWorld)
+                                        if (hit != null && pressed >= 2) candidate = rotatePlaygroundSquare(candidate!!, event.calculateRotation().toDouble(), obstacles, currentWorld)
                                     } else candidate = movePlaygroundSquare(candidate!!, pan.point() * (1 / c.scale), obstacles, currentWorld)
                                     preview = candidate
-                                } else if (hit == null) {
+                                } else if (cameraGesture == true) {
                                     val minimum = min(size.width / currentWorld.width, size.height / currentWorld.height) * 0.9
                                     if (pressed >= 2) {
                                         val focus = event.calculateCentroid(useCurrent = false)
@@ -139,22 +152,33 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
                             if (pressed == 0) { cancelled = false; break }
                         } while (true)
                         if (!cancelled) {
-                            if (!moved) { selected = hit?.placementId; expanded = false }
+                            if (!moved) { selected = hit?.placementId; expanded = false; orientationMessage = null }
                             else if (candidate != null && candidate != moving) vm.save(candidate!!) { preview = null }
                         }
                     } finally { if (cancelled || !vm.saving) preview = null }
                 }
             }) {
                 val overview = min(size.width / world.width, size.height / world.height) * 0.9
-                val c = camera ?: PlaygroundCamera(overview, WorldPoint(size.width / 2.0, size.height / 2.0)).also { camera = it }
+                val c = camera ?: PlaygroundCamera(overview * (if (overviewRequested) 1.0 else 1.2), WorldPoint(size.width / 2.0, size.height / 2.0)).also { camera = it }
                 withTransform({ translate(c.offset.x.toFloat(), c.offset.y.toFloat()); scale(c.scale.toFloat(), c.scale.toFloat(), Offset.Zero) }) {
                     drawRect(outline, Offset((-world.width / 2).toFloat(), (-world.height / 2).toFloat()),
                         Size(world.width.toFloat(), world.height.toFloat()), style = Stroke((1 / c.scale).toFloat()))
+                    // Clip iteration to the viewport AND world; expanded offscreen space costs no dots.
+                    val topLeft = c.world(WorldPoint(0.0, 0.0))
+                    val bottomRight = c.world(WorldPoint(size.width.toDouble(), size.height.toDouble()))
+                    val spacing = 0.5 * 2.0.pow(max(0.0, ceil(log2(12.0 / c.scale))))
+                    val left = ceil(max(-world.width / 2, topLeft.x) / spacing).toInt()
+                    val right = floor(min(world.width / 2, bottomRight.x) / spacing).toInt()
+                    val top = ceil(max(-world.height / 2, topLeft.y) / spacing).toInt()
+                    val bottom = floor(min(world.height / 2, bottomRight.y) / spacing).toInt()
+                    for (x in left..right) for (y in top..bottom) {
+                        drawCircle(dots, (1.dp.toPx() / c.scale).toFloat(), Offset((x * spacing).toFloat(), (y * spacing).toFloat()))
+                    }
                     layouts.forEach { row ->
                         val center = Offset(row.x.toFloat(), row.y.toFloat())
                         rotate(row.rotationDegrees.toFloat(), center) {
                             if (row.placementId == selected) {
-                                for (i in 3 downTo 1) drawRect(glow.copy(alpha = 0.08f), center - Offset(0.5f + i * 0.025f, 0.5f + i * 0.025f), Size(1f + i * 0.05f, 1f + i * 0.05f))
+                                for (i in 4 downTo 1) drawRect(glow.copy(alpha = 0.07f + (4 - i) * 0.035f), center - Offset(0.5f + i * 0.04f, 0.5f + i * 0.04f), Size(1f + i * 0.08f, 1f + i * 0.08f))
                             }
                             val color = completions[row.placementId]?.completion?.colorArgb?.let { Color(it) } ?: neutral
                             drawRect(color, center - Offset(0.5f, 0.5f), Size(1f, 1f))
@@ -165,8 +189,15 @@ class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
             if (content != null && layouts.isEmpty()) Text("Completed practice will earn squares here.", Modifier.padding(24.dp))
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(if (selected == null) "Tap a square · Drag space to pan" else "Drag selected square · Twist to rotate", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-            TextButton(onClick = { camera = null }, modifier = Modifier.testTag("playground-overview")) { Text("Overview") }
+            Text(if (selected == null) "Tap a square · Drag space to pan" else "Drag square or empty space · Pinch space to zoom", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+            TextButton(onClick = { overviewRequested = true; camera = null }, modifier = Modifier.testTag("playground-overview")) { Text("Overview") }
+        }
+        if (selected != null) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = { orient(45.0) }, enabled = canGesture, modifier = Modifier.testTag("playground-45")) { Text("45°") }
+                TextButton(onClick = { orient(0.0) }, enabled = canGesture, modifier = Modifier.testTag("playground-upright")) { Text("Upright") }
+            }
+            orientationMessage?.let { Text(it, Modifier.padding(horizontal = 16.dp).testTag("playground-orientation-message"), style = MaterialTheme.typography.bodySmall) }
         }
         val earned = completions[selected]
         val placement = content?.sessions?.flatMap { it.placements }?.find { it.id == selected }

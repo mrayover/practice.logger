@@ -1446,3 +1446,9 @@ Permanent publisher verifies stable package/version/pinned certificate/signature
 Updated PG1 specification, current/build/work/master records, backup/manual/README/handoff and durable invariants. Exact next assignment: PG1 build118 owner-phone checklist and bounded concrete PG1 fixes. Stop after PG1; no PG2, animations/templates, broad regression or F1. Git publication/actual remote SHA verified at handoff; signing/distributions remain intentionally ignored.
 
 Closeout consistency:286 local Markdown file links in touched records resolve; Git whitespace check passes. Final native method runtime5.33seconds. Final copied delivery uses build118; build117 and its staging/distribution artifacts remain preserved. dist/LATEST.txt and the PG1 delivery parent pointer identify118. No application changes followed final tested source f55a0c7.
+
+## 2026-11-12 — PG1.1 bounded refinements
+
+Reviewed required records, master plan, verification policy and mandatory efficiency procedure. Canonical checkout clean at46379706adac17e7e1a7ad1b6f7a3e5510a5a407, matching live block-ux-stage1. Reused existing camera, gesture loop, swept translation, conservative rotation and arrangement repository. Added viewport-bounded neutral dots,1.2x initial presentation with unchanged Overview, stronger static external halo, atomic absolute45°/0° presets and relative selected-square background dragging with stable camera/pinch ownership. Room27/ZIP12/JSON7, all persisted geometry/history and existing readers unchanged. No PG2/F1.
+
+Windows focused gate passes16/16 (11 geometry including exact/blocked presets,5 existing data checks), debug/release/testAPK compilation and release vital lint. Initial local invocation used an absent SDK path and stopped before compilation; corrected to the existing local SDK. Visual/gesture assertions extended within the existing single Playground workflow; final test compilation and API35 run pending. Signed0.44.1/build119 delivery pending.

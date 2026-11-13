@@ -1,4 +1,4 @@
-# Playground — PG1 contract
+# Playground — PG1 / PG1.1 contract
 
 Owner-approved November 12, 2026. This supersedes the earlier slit presentation and milestone thresholds. PG1 is a freely arranged celebration of completed practice, reached through Log → Playground, with Journal preserved.
 
@@ -10,7 +10,7 @@ The entire visible square uses completion.colorArgb. Missing trustworthy color a
 
 ## World and arrangement
 
-Every square is exactly one world unit on each side, with arbitrary angle and no printing, title, number, icon, duration, Goal label or badge. Selection adds only an external glow. No visual grid, snapping or packing. Empty space is intentional.
+Every square is exactly one world unit on each side, with arbitrary angle and no printing, title, number, icon, duration, Goal label or badge. Selection adds only a stronger, static four-layer external glow, retaining the historical fill and actual geometric bounds. A faint neutral dotted background provides world-space reference, with viewport/world-bounded drawing and power-of-two dot thinning only at extreme zoom-out. No connecting lines, labels, snapping or packing. Empty space is intentional.
 
 The centered rectangular world has fixed 3:2 aspect ratio and area capacity/0.15 square units: capacity20 through20 completions,40 through40,80 through80,160 through160,320 through320, continuing powers of two within archive record limits. Width and height each grow by sqrt(capacity multiplier). Origin, existing x/y/angle and active camera remain unchanged on expansion. Rotated boundary clearance is enforced.
 
@@ -20,11 +20,13 @@ Missing layouts are assigned in completedAt/placementId order using deterministi
 
 Tap selects and opens compact details; tapping empty canvas clears selection. Unselected squares never move, rotate, push, stack or animate in response to another square.
 
-One-finger drag initiated on the selected square moves only that square through the viewport transform. A two-finger gesture whose first touch starts on the selected square owns rotation around that square's center; subsequent pinch changes never resize it. Two fingers initiated on empty canvas own camera zoom and pan. One-finger empty-space drag pans. Touching an unselected square selects on tap; dragging it does not move it. Gesture ownership stays fixed until all pointers lift. Interrupted gestures roll back the preview; a valid completed gesture saves through a transaction. Failed saves retain the prior arrangement and show a retry message.
+One-finger drag initiated on the selected square or empty canvas while selected moves only that square by relative viewport-transformed deltas, without jumping to the touch origin. Empty taps wait for touch slop and still deselect. A two-finger gesture whose first touch starts on the selected square owns rotation around that square's center; subsequent pinch changes never resize it. Two fingers initiated on empty canvas own camera zoom and pan. One-finger empty-space drag pans when nothing is selected. Touching an unselected square selects on tap; dragging it does not move it. Gesture ownership resolves when drag slop is crossed or a second pointer begins, and stays fixed until all pointers lift. A background pinch beginning before a drag owns camera navigation even while selected; adding a second finger after a background drag starts does not transfer ownership or rotate the square. Interrupted gestures roll back the preview; a valid completed gesture saves through a transaction. Failed saves retain the prior arrangement and show a retry message.
 
 Oriented-square separating axes provide actual geometry, hit testing and boundary clearance. Swept SAT limits translation at the earliest contact even for a large drag. Rotation uses conservative advancement bounded by the maximum vertex travel along the requested arc, with a bounded2048 iterations and numerical-scale directional probes at contact; an update cannot rotate through an obstacle to a clear endpoint. Numerical penetration tolerance is1e-9 world unit; contact is allowed. Collision does not depend on zoom. No physics, velocity, friction, bouncing, inertia or spatial index.
 
-Pinch preserves the world point at its previous centroid and applies centroid pan. Minimum zoom is a90%-fit overview; maximum is at least12 times overview or160 pixels/world unit. Overview resets the camera. The camera and selection are visit-only. Panel expansion changes available viewport size without changing world geometry or camera transform.
+Pinch preserves the world point at its previous centroid and applies centroid pan. Minimum zoom is a90%-fit overview; maximum is at least12 times overview or160 pixels/world unit. Initial camera scale is 1.2 times the full-world overview, making normal squares20% larger without altering one-unit geometry. Overview resets to the90%-fit whole-world camera. The camera and selection are visit-only. Panel expansion changes available viewport size without changing world geometry or camera transform.
+
+45° and Upright controls set absolute45°/0° through existing conservative rotation validation along the shortest arc. A blocked arc or boundary leaves the prior orientation and position intact and reports that more space is needed. Clear presets save exact angles through the existing repository; free twist remains. No persistence changes.
 
 ## Information panel
 
@@ -42,4 +44,4 @@ Complete ZIP12 adds the same four layout fields with finite double wire values. 
 
 PG1 needs small deterministic geometry/data/migration/archive checks and one focused Android workflow for essential interactions and recreation. Actual results and signed provenance are in [CURRENT_STATE](../CURRENT_STATE.md). Physical acceptance is separate. Comprehensive regression and historical device matrices wait for explicit F1 assignment.
 
-PG1 excludes earning/expansion/collision animation, physics/pushing, snapping/grids, artistic auto-arrangement, templates, paint-by-numbers, shared artwork, backgrounds, milestone celebrations, special shapes/sizes, scores/mastery, AI guidance, reward accounts, extra databases/services or template infrastructure. Stop after PG1; PG2 and F1 require separate assignments.
+PG1 excludes earning/expansion/collision animation, physics/pushing, snapping/line grids, artistic auto-arrangement, templates, paint-by-numbers, shared artwork, artwork backgrounds, milestone celebrations, special shapes/sizes, scores/mastery, AI guidance, reward accounts, extra databases/services or template infrastructure. Stop after PG1; PG2 and F1 require separate assignments.

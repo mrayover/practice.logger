@@ -458,3 +458,14 @@ Physical owner-phone acceptance pending. Install the permanent-key PG1 update ov
 - Export complete ZIP12 and restore only to a spare empty installation: compare layout and original media/history. Older complete ZIP restores its actual completion evidence and default layout. Never clear the main app for a test. JSON7 excludes the arrangement.
 
 No PG2/animations/templates/F1 or V1 certification is included. Exact next assignment: PG1 physical-phone acceptance and any concrete PG1 fixes observed.
+
+## PG1.1 — visual and interaction refinements
+
+Install build119 over the permanent-key app without uninstalling or clearing data. Preserve a complete ZIP first. Physical results remain pending.
+
+- In Light, Dark and custom palettes, check faint world-anchored dots during pan/pinch, solid historical colors and a clearer static external selection glow.
+- Initial squares appear20% larger; Overview still fits the whole world. Existing arrangement and one-unit collision bounds stay unchanged.
+- Tap a square to select; drag it or empty canvas to move it relatively, with no jump. Background drag retains selection, stops at obstacles/boundaries and leaves neighbors fixed, including a rapid drag.
+- Tap empty space to deselect; empty one-finger drag then pans. Begin a two-finger pinch on background with a selection to zoom/pan without moving the square. Twist beginning on the selected square still rotates.
+- Tap45° and Upright in clear space: exact45°/0° persist after reopen. Near an obstacle/boundary, a blocked preset leaves the prior valid orientation intact and asks for more space; nothing is repositioned.
+- Reopen and verify arrangement/history, expandable details and Journal navigation. No new earned squares or history changes.
