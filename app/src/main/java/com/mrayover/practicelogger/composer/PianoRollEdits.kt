@@ -32,3 +32,9 @@ internal fun CompositionProject.withNotes(pattern: CompositionPattern, notes: Li
         ?: error("Notes would exceed the 16-bar pattern limit. Move the cursor earlier.")
     return replacePattern(pattern.copy(lengthBars = bars, notes = notes)).also(CompositionCodec::validate)
 }
+
+/** One immutable musical edit, invoked only when the velocity gesture completes. */
+internal fun List<CompositionNote>.withVelocity(selected: Set<String>, velocity: Int): List<CompositionNote> {
+    require(velocity in 1..127)
+    return map { if(it.id in selected) it.copy(velocity = velocity) else it }
+}

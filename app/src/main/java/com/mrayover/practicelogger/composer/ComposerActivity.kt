@@ -233,11 +233,12 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
                 ComposerControl("Save As", 4) { ComposerButton("Save As", !vm.busy) { copyTitle = project.title.take(115) + " Copy"; saveAs = true } },
                 ComposerControl("Loop", 10) { ComposerButton("Loop", selected = mode == "Loop") { mode = "Loop" } },
                 ComposerControl("Arrange", 10) { ComposerButton("Arrange", selected = mode == "Arrange") { mode = "Arrange" } },
+                ComposerControl("Mixer", 10) { ComposerButton("Mixer", selected = mode == "Mixer") { mode = "Mixer" } },
                 ComposerControl("Project Settings", 2) { ComposerButton("Project Settings", !vm.busy) { settings = true } },
                 ComposerControl("Return", 10) { ComposerButton("Return", !vm.busy) { back() } }
             ))
             if (portraitFallback) Text("Rotate or widen for the piano roll.", style = MaterialTheme.typography.bodySmall)
-            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode == "Loop", !vm.busy && vm.undoCount > 0, vm::undo) }
+            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo) }
             Text("${project.title} · ${project.tempoBpm} BPM · ${project.numerator}/${project.denominator} · ${vm.error ?: vm.status}",
                 color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall, maxLines = if (vm.error != null) 3 else 1,

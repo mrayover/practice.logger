@@ -1,3 +1,7 @@
+# C4C — velocity and functional multitrack Mixer
+
+Owner separately assigns functional velocity, Loop/Arrange/Mixer navigation, shared active patterns controlling actual playback, live Mute/Solo/Volume and platform Master Volume. Candidate implementation/local36 focused checks pass; bounded native/rendered verification and signed delivery follow. Stop before EQ/width/pan/FX/C5–C7/F1. [Current evidence](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C4C.md).
+
 # compose.logger C4B — delivered build140
 
 Signed 0.51.0/build140 delivers actual instrument identities plus compact256-pattern/eight-track management, logical Undo, arrangement dependency refusal and stable-ID session/snapshot channel mapping. Four-row layout, C4A/custom snapshots,960PPQ, strict project v1/v2 and practice data stay intact.34 focused host checks, compilation/vital lint, one API35 UI/playback/recreation workflow and exact cold reopening pass; rendered screenshots inspected. Application source d3d0ef4af16d91088b136d13913121af1a1bc5a2; test source d3d0ef4af16d91088b136d13913121af1a1bc5a2. [Authoritative delivery/evidence](CURRENT_STATE.md) · [Implementation](docs/COMPOSER_C4B.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c4b--owner-phone-check).

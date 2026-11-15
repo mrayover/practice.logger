@@ -1,3 +1,5 @@
+C4C candidate0.52.0/build141 adds velocity and a shared multitrack Mixer with functional pattern selection. [Current verification/delivery](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C4C.md).
+
 # practice.logger
 
 Signed **0.51.0/build140** shows actual instrument types/custom presets and adds expanded patterns with create/duplicate/rename/confirmed deletion, plus track naming/deletion.34 focused checks, compilation/vital lint, API35 workflow and exact cold reopening pass; landscape captures inspected. [Delivery and next phone check](CURRENT_STATE.md) · [C4B behavior](docs/COMPOSER_C4B.md). Composer projects/presets remain outside practice backups. C5–C7/F1 require separate assignment.

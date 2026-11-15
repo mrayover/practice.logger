@@ -603,3 +603,16 @@ Install the latest C4B permanent-key APK over the existing app; keep app data.
 7. Save, Return, reopen; rotate/recreate and cold-launch again. Check notes, sounds/custom preset, names and patterns. Confirm the four compact rows and C4A controls remain usable on the phone.
 
 Physical touch/audio/routing acceptance is the owner's check. Composer projects and presets remain outside practice ZIP/JSON recovery. No C5 Arrange functionality is included.
+
+## compose.logger C4C — owner phone check
+
+Install the permanent-key update without uninstalling or clearing data. Composer remains outside practice backups.
+
+1. With no notes selected set Velocity and insert; select one note and then several with mixed values. Change Velocity, Undo once, Save and reopen; confirm exact values, identities/timing and audible dynamics.
+2. Play in Loop, open Mixer and return: playback continues; instrument/pattern, scroll/zoom, selection and edit state remain. Arrange deliberately stops. Save/Save As/Settings/Return and initial entrance remain.
+3. Configure Piano A, Bass C, Drums B, Pad A directly in Mixer. Confirm selectors show each track's own names and actual playback uses those patterns/independent lengths. Switching while playing restarts at the beginning without stuck notes. Confirm the same selections in Loop and after rotation/recreation.
+4. Check live Mute, multiple Solo (Mute wins), channel Volume and Master0/23/100% through speaker/headphones. Stop/Play and audition retain Master. Reference Piano/system media volume remain normal.
+5. Check1/4/8 strips, horizontal channel navigation, pinned Master, narrower landscape, dropdowns, readable custom names and usable faders. Create/delete tracks/patterns in Loop; surviving track settings must stay attached to their UUIDs.
+6. Stop, leave/background and interrupt audio focus: no hanging notes or automatic resume. Return to Loop and audition. Confirm existing projects/custom presets and practice data are intact.
+
+No EQ/stereo width/channel pan/FX/Arrange playback/export claim. Physical acoustics/touch/routing remain owner checks.

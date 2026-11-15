@@ -27,6 +27,8 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     @Volatile internal var framesWritten=0L; private set
     @Volatile var playbackPlan: LoopPlan?=null; private set
     @Volatile private var frozenFrame=0L
+    @Volatile internal var masterGain=1f; private set
+    @Volatile internal var appliedMasterGain: Float?=null; private set
     private var handle=0L
     private var clock: LoopClock?=null
     @Volatile private var draining=false
@@ -125,6 +127,12 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
             }
         }
     }
+    fun masterVolume(value: Float) {
+        require(value.isFinite() && value in 0f..1f)
+        // Retain independently of output lifetime and command interruption.
+        masterGain=value
+        submit { output?.let { check(it.setVolume(masterGain)==AudioTrack.SUCCESS); appliedMasterGain=masterGain } }
+    }
     fun setForeground(value: Boolean) { foreground=value; if(!value) interrupt() }
     private fun interrupt() {
         if(closed) return
@@ -151,10 +159,12 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
             .setAudioFormat(AudioFormat.Builder().setSampleRate(48000).setChannelMask(AudioFormat.CHANNEL_OUT_STEREO).setEncoding(AudioFormat.ENCODING_PCM_16BIT).build())
             .setTransferMode(AudioTrack.MODE_STREAM).setBufferSizeInBytes(maxOf(minimum,3840)).setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY).build()
         check(audio.state==AudioTrack.STATE_INITIALIZED)
+        check(audio.setVolume(masterGain)==AudioTrack.SUCCESS)
+        appliedMasterGain=masterGain
         framesWritten=0; output=audio; audio.play()
     }
     private fun stopOutput() {
-        val old=output; output=null
+        val old=output; output=null; appliedMasterGain=null
         runCatching { old?.pause() }; runCatching { old?.flush() }; runCatching { old?.release() }
         main.post { if(output==null && !playing && focusOwned) { manager.abandonAudioFocusRequest(focus); focusOwned=false } }
     }

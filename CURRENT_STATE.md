@@ -1,4 +1,12 @@
-# Current state — compose.logger C4B delivered
+# Current state — compose.logger C4C candidate
+
+November15,2026 (America/Los_Angeles). C4C implements functional velocity and a shared Loop/Arrange/Mixer workspace in candidate0.52.0/build141. Local36 focused host checks, debug/release compilation, vital lint and native-test compilation pass. Emulator/rendered verification and signed final delivery are pending. No phone acceptance/full regression/F1 claim.
+
+Canonical C:/Users/mrove/Projects/practice.logger; initial clean local/live block-ux-stage1 fa1386f3eebe7a59da4b0ce931e81e67b716339c. Older OneDrive source checkout untouched. [C4C behavior](docs/COMPOSER_C4C.md). Exact next task: complete the bounded C4C workflow, inspect actual captures and deliver the verified permanent-key APK/ZIP.
+
+---
+
+# Retained C4B delivery — build140
 
 Updated November15,2026 (America/Los_Angeles). Signed **0.51.0/build140** corrects assigned instrument identities and delivers expanded pattern/track management. **34 focused host checks, compilation/vital lint, one API35 C4B workflow and exact cold-process project reopening pass.** Actual rendered landscape selectors/menus/rename/deletion dialogs inspected. Physical phone/audio acceptance remains pending; no full regression/F1.
 

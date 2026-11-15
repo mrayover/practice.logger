@@ -53,3 +53,5 @@ Actual results/failures/signed provenance belong in CURRENT_STATE/WORK_LOG. Host
 [Phone checklist](../MANUAL_TESTS.md#composelogger-c3--owner-phone-check). Practice ZIP/JSON still exclude Composer. Projects remain device-local until C7; do not uninstall/clear data. Stop before C4–C7/F1.
 
 C4B now supports the full256-pattern collection per track rather than only A/B/C, derives instrument identities from the registry, and maps current mixer controls to immutable snapshot track UUIDs during structural edits. [C4B](COMPOSER_C4B.md). No new clock or sound engine.
+
+C4C supersedes deferred Velocity and two-way navigation: [shared Mixer, velocity and active-pattern restart](COMPOSER_C4C.md). Earlier C3/C4B implementation descriptions remain historical where superseded.

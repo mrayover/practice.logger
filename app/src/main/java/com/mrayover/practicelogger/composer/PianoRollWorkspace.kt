@@ -61,7 +61,7 @@ private class RollTouch {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, loopMode: Boolean = true, canUndo: Boolean = false, undo: () -> Unit = {}) {
+@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}) {
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
     var selections by rememberSaveable { mutableStateOf(hashMapOf<String,String>()) }
     var muteById by rememberSaveable { mutableStateOf(hashMapOf<String,Boolean>()) }
@@ -71,7 +71,7 @@ private class RollTouch {
     val trackIndex = project.tracks.indexOf(track).coerceAtLeast(0)
     val pattern = track?.patterns?.find { it.id == selections[track.id] } ?: track?.patterns?.firstOrNull()
     val patternSelections = project.tracks.map { t -> t.patterns.find { it.id==selections[t.id] }?.id ?: t.patterns.firstOrNull()?.id.orEmpty() }
-    fun choosePattern(id: String) { track?.let { selections = HashMap(selections).also { values -> values[it.id] = id } } }
+
     val currentTrackIds by rememberUpdatedState(project.tracks.map { it.id }.toSet())
     val bank = track?.let { ComposerInstruments.index(it.instrument) } ?: 0
     val muted = BooleanArray(8) { muteById[project.tracks.getOrNull(it)?.id] == true }
@@ -83,6 +83,9 @@ private class RollTouch {
     var enteredTitle by rememberSaveable { mutableStateOf("") }
     var managementError by rememberSaveable { mutableStateOf<String?>(null) }
     fun manage(action: String) { targetTrack=track?.id.orEmpty(); targetPattern=pattern?.id.orEmpty(); enteredTitle=if(action=="Rename Track") track?.title.orEmpty() else pattern?.title.orEmpty(); managementError=null; management=action }
+    var masterVolume by rememberSaveable { mutableFloatStateOf(1f) }
+    var insertionVelocity by rememberSaveable { mutableIntStateOf(100) }
+    var velocityDrag by remember { mutableStateOf<Int?>(null) }
     var repeat by rememberSaveable { mutableStateOf(true) }
     var playing by remember { mutableStateOf(false) }
     var soundsReady by remember { mutableStateOf(false) }
@@ -98,6 +101,9 @@ private class RollTouch {
     var panX by rememberSaveable { mutableFloatStateOf(0f) }
     var panY by rememberSaveable { mutableFloatStateOf(0f) }
     var selected by remember { mutableStateOf(setOf<String>()) }
+    val selectedNotes = pattern?.notes?.filter { it.id in selected }.orEmpty()
+    val commonVelocity = selectedNotes.map { it.velocity }.distinct().singleOrNull()
+    val displayedVelocity = velocityDrag ?: commonVelocity ?: if(selectedNotes.isEmpty()) insertionVelocity else 100
     val hasSelection = pattern?.notes?.any { it.id in selected } == true
     var clipboard by remember { mutableStateOf(emptyList<CompositionNote>()) }
     var preview by remember { mutableStateOf<List<CompositionNote>?>(null) }
@@ -152,7 +158,27 @@ private class RollTouch {
         syncMixer(transportPlan?.trackIds?.takeIf { it.isNotEmpty() } ?: project.tracks.map { it.id })
     }
     LaunchedEffect(track?.id,trackIndex,track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
-    LaunchedEffect(loopMode) { if (!loopMode) { audio.stop(); audio.stopAll() } }
+    LaunchedEffect(masterVolume) { audio.masterVolume(masterVolume) }
+    var patternRestart by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    LaunchedEffect(mode) { if(mode == "Arrange") { patternRestart?.cancel(); audio.stop(); audio.stopAll() } }
+    fun chooseTrackPattern(owner: CompositionTrack, id: String) {
+        val previous = owner.patterns.find { it.id == selections[owner.id] } ?: owner.patterns.firstOrNull()
+        selections = HashMap(selections).also { it[owner.id] = id }
+        if(previous?.id == id || owner.patterns.none { it.id == id }) return
+        if(audio.playing || patternRestart?.isActive == true) {
+            patternRestart?.cancel(); audio.stop()
+            val choices = project.tracks.map { t -> selections[t.id].orEmpty() }
+            patternRestart = scope.launch {
+                try {
+                    val snapshot = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,choices) }
+                    syncMixer(snapshot.trackIds); audio.play(snapshot,repeat); cursor = 0; transportFrame = 0; message = null
+                } catch(cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch(failure: Exception) { message = failure.message }
+            }
+        }
+    }
+    fun choosePattern(id: String) { track?.let { chooseTrackPattern(it,id) } }
+    LaunchedEffect(pattern?.id,selected) { velocityDrag = null }
     val plan = transportPlan
     val region = plan?.regionTicks ?: project.tracks.mapIndexed { i,t ->
         t.patterns.find { it.id == patternSelections[i] }?.let(project::patternTicks) ?: t.patterns.firstOrNull()?.let(project::patternTicks) ?: project.barTicks()
@@ -189,7 +215,7 @@ private class RollTouch {
         }) { Text(if(deleting) "Confirm deletion" else "Save name") } },dismissButton={ TextButton(onClick={ management=null }) { Text("Cancel") } })
     }
     Column(modifier.fillMaxWidth()) {
-        ComposerToolbar("composer-context-row", buildList {
+        if(mode != "Mixer") ComposerToolbar("composer-context-row", buildList {
             add(ComposerControl("Instrument",10,240) {
                 RollChoice("Instrument",project.tracks.mapIndexed { i,t -> ComposerInstruments.trackLabel(t,i) },trackIndex,enabled,display = track?.let { ComposerInstruments.compactTrackLabel(it,trackIndex) } ?: "—",extra = { close ->
                     DropdownMenuItem(text={ Text("Rename Track") },enabled=enabled && track!=null,onClick={ close(); manage("Rename Track") })
@@ -228,15 +254,17 @@ private class RollTouch {
             add(ComposerControl("Edit Instrument",0) { ComposerButton("Edit Instrument",enabled && track != null) { audio.stop(); audio.stopAll(); instrumentEditor = true } })
         })
         ComposerToolbar("composer-performance-row", buildList {
-            add(ComposerControl("Play",10) { ComposerButton("Play", enabled && loopMode && soundsReady && !playing && project.tracks.isNotEmpty()) {
-                scope.launch {
+            add(ComposerControl("Play",10) { ComposerButton("Play", enabled && mode != "Arrange" && soundsReady && !playing && project.tracks.isNotEmpty()) {
+                patternRestart?.cancel()
+                patternRestart = scope.launch {
                     try { val snapshot = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,patternSelections.toList()) }; syncMixer(snapshot.trackIds); audio.play(snapshot,repeat); message = null }
+                    catch(cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
                     catch(failure: Exception) { message = failure.message }
                 }
             } })
-            add(ComposerControl("Stop",10) { ComposerButton("Stop") { audio.stop() } })
+            add(ComposerControl("Stop",10) { ComposerButton("Stop") { patternRestart?.cancel(); audio.stop() } })
             add(ComposerControl(if(repeat) "Repeat ☑" else "Repeat ☐",4) { ComposerButton(if(repeat) "Repeat ☑" else "Repeat ☐") { repeat = !repeat; audio.setLoop(repeat) } })
-            if(track != null) {
+            if(track != null && mode != "Mixer") {
                 add(ComposerControl(if(muted[trackIndex]) "Mute ☑" else "Mute ☐",3) { ComposerButton(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") { muteById = HashMap(muteById).also { it[track.id] = !muted[trackIndex] } } })
                 add(ComposerControl(if(solo[trackIndex]) "Solo ☑" else "Solo ☐",3) { ComposerButton(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") { soloById = HashMap(soloById).also { it[track.id] = !solo[trackIndex] } } })
                 add(ComposerControl("Volume",2,170) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -244,9 +272,17 @@ private class RollTouch {
                     Slider(value = volumes[trackIndex],onValueChange = { value -> volumeById = HashMap(volumeById).also { it[track.id] = value } },modifier = Modifier.width(100.dp).height(40.dp).testTag("composer-volume"))
                 } })
             }
-            add(ComposerControl("Velocity",0,170) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text("Velocity",style = MaterialTheme.typography.bodySmall,color = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f))
-                Slider(value = .78f,onValueChange = {},enabled = false,modifier = Modifier.width(100.dp).height(40.dp))
+            if(mode == "Loop") add(ComposerControl("Velocity",5,190) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text("Velocity " + if(velocityDrag == null && selectedNotes.isNotEmpty() && commonVelocity == null) "Mixed" else displayedVelocity.toString(),style = MaterialTheme.typography.bodySmall)
+                Slider(value = displayedVelocity.toFloat(),onValueChange = { velocityDrag = it.roundToInt() },
+                    onValueChangeFinished = {
+                        velocityDrag?.let { value ->
+                            if(selectedNotes.isEmpty()) insertionVelocity = value
+                            else commitNotes(pattern!!.notes.withVelocity(selected,value))
+                        }
+                        velocityDrag = null
+                    },valueRange = 1f..127f,steps = 125,enabled = enabled,
+                    modifier = Modifier.width(100.dp).height(40.dp).testTag("composer-velocity"))
             } })
             add(ComposerControl("↤",1) { var menu by remember { mutableStateOf(false) }; Box {
                 ComposerButton("↤") { menu = true }
@@ -255,7 +291,7 @@ private class RollTouch {
                 }
             } })
         })
-        ComposerToolbar("composer-editing-row", listOf(
+        if(mode != "Mixer") ComposerToolbar("composer-editing-row", listOf(
             ComposerControl("Tool: $tool",10) { RollChoice("Tool:",listOf("Draw","Select","Hand"),listOf("Draw","Select","Hand").indexOf(tool)) { tool = listOf("Draw","Select","Hand")[it] } },
             ComposerControl("Grid ${RollGrid.entries[gridIndex].label}",10) { RollChoice("Grid",RollGrid.entries.map { it.label },gridIndex) { gridIndex = it } },
             ComposerControl("Duration ${RollGrid.entries[durationIndex].label}",10) { RollChoice("Duration",RollGrid.entries.map { it.label },durationIndex) { durationIndex = it } },
@@ -281,7 +317,17 @@ private class RollTouch {
             ComposerControl("Undo",10) { ComposerButton("Undo",canUndo,click = undo) },
             ComposerControl(position,0) { Text(position,style = MaterialTheme.typography.bodySmall,maxLines = 1) }
         ))
-        if (!loopMode) {
+        if(mode == "Mixer") {
+            Text("Pattern changes restart playback from the beginning.",style = MaterialTheme.typography.bodySmall,modifier = Modifier.padding(horizontal=8.dp))
+            MixerWorkspace(project, selections, muteById, soloById, volumeById, masterVolume, enabled,
+                choosePattern = ::chooseTrackPattern,
+                mute = { id -> muteById = HashMap(muteById).also { it[id] = it[id] != true } },
+                solo = { id -> soloById = HashMap(soloById).also { it[id] = it[id] != true } },
+                volume = { id,value -> volumeById = HashMap(volumeById).also { it[id] = value } },
+                master = { masterVolume = it },modifier = Modifier.weight(1f))
+            return@Column
+        }
+        if (mode == "Arrange") {
             Box(Modifier.weight(1f).fillMaxWidth(),contentAlignment = androidx.compose.ui.Alignment.Center) { Text("Arrange · editing and playback arrive later.") }
             return@Column
         }
@@ -389,7 +435,7 @@ private class RollTouch {
                             if (touch.lastTap == note.id && event.eventTime-touch.lastTapTime in 1..300) { commitNotes(pattern.notes.filterNot { it.id == note.id }); selected -= note.id; touch.lastTap = null }
                             else { touch.lastTap = note.id; touch.lastTapTime = event.eventTime }
                         } else if (tool == "Draw") {
-                            val start = tick(event.x); val n = CompositionNote(newCompositionId(),pitch(event.y),start,RollGrid.entries[durationIndex].ticks.coerceAtMost(length-start),100)
+                            val start = tick(event.x); val n = CompositionNote(newCompositionId(),pitch(event.y),start,RollGrid.entries[durationIndex].ticks.coerceAtMost(length-start),insertionVelocity)
                             commitNotes(pattern.notes+n); selected = setOf(n.id); audition(n.pitch); touch.lastTap = null
                         } else selected = emptySet()
                     }

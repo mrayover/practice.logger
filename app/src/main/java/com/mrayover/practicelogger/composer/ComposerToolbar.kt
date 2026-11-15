@@ -18,11 +18,11 @@ internal data class ComposerControl(
     val content: @Composable () -> Unit
 )
 
-@Composable internal fun ComposerButton(label: String, enabled: Boolean = true, selected: Boolean = false, click: () -> Unit) {
+@Composable internal fun ComposerButton(label: String, enabled: Boolean = true, selected: Boolean = false, modifier: Modifier = Modifier, click: () -> Unit) {
     TextButton(onClick = click, enabled = enabled,
         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
         colors = ButtonDefaults.textButtonColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .22f) else androidx.compose.ui.graphics.Color.Transparent),
-        modifier = Modifier.heightIn(min = 40.dp).defaultMinSize(minWidth = 0.dp)) {
+        modifier = modifier.heightIn(min = 40.dp).defaultMinSize(minWidth = 0.dp)) {
         Text(label, fontSize = 13.sp, maxLines = 1, softWrap = false, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
     }
 }

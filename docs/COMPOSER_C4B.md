@@ -13,3 +13,5 @@ LoopPlan keeps snapshot track UUID order in memory. Musical edits keep the runni
 Focused host checks cover256 capacity, alphabet names, duplicate independence, title rules, arrangement refusals, scope/UUID retention, empty states/eight tracks, independent Loop snapshot data, v1/v2 persistence and existing store/preset/clipboard/Save As/PCM checks. The bounded API35 workflow exercises actual menus/dialogs, Undo, playback snapshots, track indexing, save/recreation and separate cold process reopening, with rendered landscape evidence. Actual outcomes/limitations belong in CURRENT_STATE. Physical owner-phone/audio acceptance remains separate. No broad regression/F1.
 
 Practice ZIP/JSON still exclude Composer projects and presets. C5 Arrange, C6 exports and C7 integration/recovery require separate assignments.
+
+C4C supersedes deferred Velocity and two-way navigation: [shared Mixer, velocity and active-pattern restart](COMPOSER_C4C.md). Earlier C3/C4B implementation descriptions remain historical where superseded.

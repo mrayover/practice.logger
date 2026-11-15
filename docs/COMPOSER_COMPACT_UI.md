@@ -13,3 +13,5 @@ Save As prefills a bounded title plus Copy and applies existing validation. It c
 Focused host checks cover remapping, original preservation, unsaved edits, independent saves, revision reset, recovery, title rejection and simulated precommit failure. The scoped native workflow checks real rendering, menus, Save As/keyboard, playback/mixer, Actions/Undo, navigation guards, library presence and exact documents after force-stop. See CURRENT_STATE for actual outcomes; no physical-phone/F1 acceptance is implied.
 
 C4B supersedes the earlier A/B/C-only Create Pattern and number/title selector descriptions: [instrument type/preset labels and compact management menus](COMPOSER_C4B.md) retain the same four rows. C4A has enabled Edit Instrument; Velocity remains deferred.
+
+C4C supersedes deferred Velocity and two-way navigation: [shared Mixer, velocity and active-pattern restart](COMPOSER_C4C.md). Earlier C3/C4B implementation descriptions remain historical where superseded.

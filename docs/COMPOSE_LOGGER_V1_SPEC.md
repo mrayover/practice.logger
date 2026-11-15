@@ -74,3 +74,7 @@ The owner assigns a dedicated landscape Edit Instrument workspace with factory/M
 ## C4B assignment — November15
 
 The owner assigns the instrument naming correction followed by expanded pattern/track management. [C4B behavior](COMPOSER_C4B.md) supersedes the earlier minimal A/B/C limitation and Instrument-number-only label. Preserve C4A/compact rows, safe references and coherent snapshots. No new project format or C5 functionality. Stop after C4B.
+
+## November15 C4C bounded assignment
+
+Owner separately authorizes functional note velocity and Loop/Arrange/Mixer with owned active-pattern selectors controlling real playback, live shared track mixing and Master Volume. Pattern changes during playback restart coherently from zero. Session state retains recreation; only note velocities persist as musical edits. See [C4C](COMPOSER_C4C.md). EQ/width/channel pan/FX/persistent mixer state/C5–C7 remain outside this increment.
