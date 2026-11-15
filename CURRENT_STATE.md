@@ -1,3 +1,15 @@
+# C4C — signed build142 delivered
+
+Owner requested immediate delivery at2% remaining usage. Signed0.52.0/build142 implements velocity and shared Loop/Arrange/Mixer, owned-pattern selectors controlling real playback with restart, live Mute/Solo/Volume and Composer-only AudioTrack Master Volume. Source 1ab3b10a94a8bf375e5b4e5b49190012c78860dd, branch block-ux-stage1.
+
+Delivery: C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C4C delivery/build142. Install over the existing app without uninstalling/clearing data. Permanent certificate/package/signature verified. [APK](dist/practice.logger-0.52.0-b142-1ab3b10/practice.logger-0.52.0-b142-1ab3b10.apk) · [ZIP](dist/practice.logger-0.52.0-b142-1ab3b10.zip) · [Behavior](docs/COMPOSER_C4C.md).
+
+Build142 local36 focused checks, release/native-test compilation and vital lint pass. Prior build141 workflow43774078361 passed velocity/Undo, actual pattern snapshots/restarts, bidirectional mixing, live master/reopen, recreation,1/4/8 tracks, narrow layout and exact Save, then timed out in final cleanup because its test used the audio owner replaced by screen-size recreation. Helper corrected; final cleanup and cold-process reopen were NOT rerun. Build142 compact strip spacing improves narrow fader height; it compiles but final rendered captures were NOT rerun. Prior actual screenshots inspected. No complete native pass or physical audio acceptance claimed. Earlier43773261508 stopped on float readout precision;43772882404 was cancelled after test-helper review.
+
+Session-only selections/mixing and existing project v1/v2 remain; velocities save normally. Practice backups still exclude Composer projects/presets. EQ/width/pan/FX/Arrange playback/exports remain excluded. Exact next task: install build142 and perform the C4C phone checklist; unresolved final native cleanup/cold-reopen and final spacing capture checks remain documented. No new increment/F1 authorized.
+
+---
+
 # Current state — compose.logger C4C candidate
 
 November15,2026 (America/Los_Angeles). C4C implements functional velocity and a shared Loop/Arrange/Mixer workspace in candidate0.52.0/build141. Local36 focused host checks, debug/release compilation, vital lint and native-test compilation pass. Emulator/rendered verification and signed final delivery are pending. No phone acceptance/full regression/F1 claim.

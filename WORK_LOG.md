@@ -1644,3 +1644,17 @@ C4C candidate141 is permanently signed and passes package/version/certificate/si
 C4C workflow43773261508 compiles and passes36 host checks/vital lint, then native check stops on a test precision assertion: Material Slider reports47.000004 for integer velocity47. Stored integer checks passed to this point. Corrected only the progress readout tolerance to0.001; musical integer assertions remain exact. No application change/new APK is needed; later native assertions and cold reopen remain unrun.
 
 C4C workflow43774078361 passes every assertion through exact Save and all eight rendered captures, then times out in final cleanup because the test keeps an audio instance replaced by wm-size Activity recreation. Corrected the helper to resolve the current audio owner after resize. Rendered review confirms normal/Mixer/menu/changed patterns/eight tracks, but exposes only~22dp vertical fader travel at640x360dp. Build142 applies the existing40dp compact minimum to strip buttons and28dp two-line instrument labels, recovering~58dp fader height. No sequencing/audio-engine change. Build141 is preserved; owner requests finishing with a stable build within remaining usage.
+
+## C4C immediate signed delivery — owner usage stop
+
+
+Owner requested immediate delivery at2% remaining usage. Signed0.52.0/build142 implements velocity and shared Loop/Arrange/Mixer, owned-pattern selectors controlling real playback with restart, live Mute/Solo/Volume and Composer-only AudioTrack Master Volume. Source 1ab3b10a94a8bf375e5b4e5b49190012c78860dd, branch block-ux-stage1.
+
+Delivery: C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C4C delivery/build142. Install over the existing app without uninstalling/clearing data. Permanent certificate/package/signature verified. [APK](dist/practice.logger-0.52.0-b142-1ab3b10/practice.logger-0.52.0-b142-1ab3b10.apk) · [ZIP](dist/practice.logger-0.52.0-b142-1ab3b10.zip) · [Behavior](docs/COMPOSER_C4C.md).
+
+Build142 local36 focused checks, release/native-test compilation and vital lint pass. Prior build141 workflow43774078361 passed velocity/Undo, actual pattern snapshots/restarts, bidirectional mixing, live master/reopen, recreation,1/4/8 tracks, narrow layout and exact Save, then timed out in final cleanup because its test used the audio owner replaced by screen-size recreation. Helper corrected; final cleanup and cold-process reopen were NOT rerun. Build142 compact strip spacing improves narrow fader height; it compiles but final rendered captures were NOT rerun. Prior actual screenshots inspected. No complete native pass or physical audio acceptance claimed. Earlier43773261508 stopped on float readout precision;43772882404 was cancelled after test-helper review.
+
+Session-only selections/mixing and existing project v1/v2 remain; velocities save normally. Practice backups still exclude Composer projects/presets. EQ/width/pan/FX/Arrange playback/exports remain excluded. Exact next task: install build142 and perform the C4C phone checklist; unresolved final native cleanup/cold-reopen and final spacing capture checks remain documented. No new increment/F1 authorized.
+
+---
+

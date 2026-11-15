@@ -1,3 +1,9 @@
+# C4C — signed build142 delivered
+
+Owner requested immediate delivery at2% remaining usage. Signed0.52.0/build142 implements velocity and shared Loop/Arrange/Mixer, owned-pattern selectors controlling real playback with restart, live Mute/Solo/Volume and Composer-only AudioTrack Master Volume. Source 1ab3b10a94a8bf375e5b4e5b49190012c78860dd, branch block-ux-stage1.
+
+Delivery: C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C4C delivery/build142. Install over the existing app without uninstalling/clearing data. Permanent certificate/package/signature verified. [APK](dist/practice.logger-0.52.0-b142-1ab3b10/practice.logger-0.52.0-b142-1ab3b10.apk) · [ZIP](dist/practice.logger-0.52.0-b142-1ab3b10.zip) · [Behavior](docs/COMPOSER_C4C.md).
+
 C4C candidate0.52.0/build141 adds velocity and a shared multitrack Mixer with functional pattern selection. [Current verification/delivery](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C4C.md).
 
 # practice.logger
