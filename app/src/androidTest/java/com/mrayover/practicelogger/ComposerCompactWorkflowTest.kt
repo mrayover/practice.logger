@@ -73,20 +73,23 @@ class ComposerCompactWorkflowTest {
         tap("Stop"); compose.waitUntil(10000) { !audio.playing }
         tap("↤"); tap("Beginning"); tap("Tool: Draw"); tap("Hand"); compose.onNodeWithTag("piano-roll").performTouchInput { swipe(Offset(20f,height*.8f),Offset(20f,height*.3f)) }
         tap("Tool: Hand"); tap("Draw"); tap("Zoom +"); tap("Zoom −"); tap("Snap ☑"); tap("Snap ☐")
-        compose.runOnIdle { vm().edit(vm().project!!.copy(tempoBpm=143)) }
+        compose.runOnIdle { val current=vm().project!!; val active=current.tracks.single().patterns.first(); vm().edit(current.replacePattern(active.copy(notes=active.notes + CompositionNote(newCompositionId(),77,1920,240,99))).copy(tempoBpm=143)) }
         tap("Save As"); shot("05-save-as-dialog")
         compose.onNodeWithTag("composer-copy-title").performClick().performTextReplacement("Compact copy")
         shot("06-save-as-keyboard"); device.pressBack(); tap("Create copy")
         compose.waitUntil(15000) { compose.onAllNodesWithText("Create copy").fetchSemanticsNodes(false).isEmpty() }
-        val copy=vm().project!!; assertNotEquals(original.id,copy.id); assertEquals(143,copy.tempoBpm); assertEquals(original,store.read(original.id))
+        val copy=vm().project!!; assertNotEquals(original.id,copy.id); assertEquals(143,copy.tempoBpm); assertEquals(3,copy.tracks.single().patterns.first().notes.size); assertEquals(99,copy.tracks.single().patterns.first().notes.last().velocity); assertEquals(original,store.read(original.id))
         assertEquals(0,vm().undoCount); assertFalse(vm().dirty)
         compose.runOnIdle { vm().edit(copy.copy(tempoBpm=145)) }; tap("Save")
         compose.waitUntil(15000) { !vm().busy }; val saved=store.read(copy.id); assertEquals(145,saved.tempoBpm); assertEquals(original,store.read(original.id))
         File(dir,"original.json").writeText(CompositionCodec.encode(original)); File(dir,"copy.json").writeText(CompositionCodec.encode(saved))
-        tap("Arrange"); shot("07-arrange"); tap("Loop"); assertSame(activity().auditionEngine,activity().auditionEngine)
+        val copyAudio=activity().auditionEngine; tap("Arrange"); shot("07-arrange"); tap("Loop"); assertSame(copyAudio,activity().auditionEngine)
+        val editor=activity(); inst.runOnMainSync { editor.recreate() }; awaitWorkspace(); assertEquals(saved,vm().project)
         dimensions("1080x1920",480); fit("08-narrow-loop")
         dimensions("1600x2560",320); fit("09-large-loop")
         dimensions("1080x1920",480); device.executeShellCommand("settings put system font_scale 1.6"); device.waitForIdle(); awaitWorkspace(); fit("10-large-text",false)
+        compose.onNode(hasText("More ▾") and hasAnyAncestor(hasTestTag("composer-performance-row"))).performClick()
+        compose.onNodeWithTag("composer-volume").assertIsDisplayed(); shot("10b-overflow-volume"); device.pressBack()
         device.executeShellCommand("settings put system font_scale 1.0"); dimensions("1440x3120",480)
         compose.runOnIdle { vm().edit(vm().project!!.copy(tempoBpm=146)) }; tap("Return"); tap("Keep editing"); tap("Undo")
         tap("Return")

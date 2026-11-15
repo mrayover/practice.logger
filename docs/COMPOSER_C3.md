@@ -1,5 +1,7 @@
 # compose.logger C3 — instruments and Loop playback
 
+The owner-assigned [compact landscape UI and Save As](COMPOSER_COMPACT_UI.md) supersede earlier scrolling toolbar/header descriptions below. C4, Arrange editing, velocity editing and exports remain deferred.
+
 [Current delivery/evidence](../CURRENT_STATE.md) · [C2 editor](COMPOSER_C2.md) · [V1 contract](COMPOSE_LOGGER_V1_SPEC.md)
 
 ## Audio ownership

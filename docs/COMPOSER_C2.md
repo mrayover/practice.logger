@@ -1,5 +1,7 @@
 # compose.logger C2 — touch piano roll
 
+The owner-assigned [compact landscape UI and Save As](COMPOSER_COMPACT_UI.md) supersede earlier scrolling toolbar/header descriptions below. C4, Arrange editing, velocity editing and exports remain deferred.
+
 [Delivery and verification](../CURRENT_STATE.md) · [V1 contract](COMPOSE_LOGGER_V1_SPEC.md) · [C1 storage foundation](COMPOSER_C1.md)
 
 The November15 assignment adds the three-second entrance, piano-roll gestures, selection, cross-pattern clipboard and project undo. Reference Piano audition and minimal A/B/C navigation/length controls are explicitly included to make C2 usable. C3 adds SoundFont audition and Loop playback; see [C3](COMPOSER_C3.md). Full C4 management, Arrange editing and exports remain deferred.

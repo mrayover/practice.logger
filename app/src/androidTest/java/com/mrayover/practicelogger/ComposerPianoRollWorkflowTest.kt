@@ -171,7 +171,7 @@ class ComposerPianoRollWorkflowTest {
         waitText("Pattern B")
         screenshot("recreated-saved-notes")
         assertEquals(exact,store.read(saved.id))
-        tap("Back")
+        tap("Return")
         // This directly launched test returns to MainActivity; C1 workflow covers library navigation.
         val coldDir=File(compose.activity.getExternalFilesDir(null),"composer-c2").apply { mkdirs() }
         File(coldDir,"cold-expected.json").writeText(CompositionCodec.encode(exact))

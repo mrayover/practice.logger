@@ -25,7 +25,7 @@ class ComposerFoundationWorkflowTest {
     private val device get() = UiDevice.getInstance(instrumentation)
     private fun waitText(text: String) {
         try {
-            compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+            compose.waitUntil(15000) { compose.onAllNodesWithText(text,substring = text in listOf("Retained draft","Renamed native etude","Unsaved settings","Saved on this device","146 BPM · 7/8")).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         } catch (failure: Throwable) {
             val dir = File(compose.activity.getExternalFilesDir(null), "composer-c1").apply { mkdirs() }
             device.takeScreenshot(File(dir, "failure.png"))
@@ -33,13 +33,13 @@ class ComposerFoundationWorkflowTest {
             File(dir, "failure-compose.txt").writeText(compose.onRoot().printToString())
             throw failure
         }
-        compose.onNodeWithText(text).assertIsDisplayed()
+        compose.onNodeWithText(text,substring = text in listOf("Retained draft","Renamed native etude","Unsaved settings","Saved on this device","146 BPM · 7/8")).assertIsDisplayed()
     }
     private fun dismissImmersiveTip() {
         device.wait(Until.findObject(By.text("Got it")), 1500)?.click()
         device.waitForIdle()
     }
-    private fun tap(text: String) { waitText(text); compose.onNodeWithText(text).performClick() }
+    private fun tap(text: String) { waitText(text); compose.onNodeWithText(text,substring = text in listOf("Retained draft","Renamed native etude","Unsaved settings","Saved on this device","146 BPM · 7/8")).performClick() }
     private fun field(label: String, text: String) {
         val node = compose.onNodeWithText(label)
         if (!node.isDisplayed()) node.performScrollTo()
@@ -101,7 +101,7 @@ class ComposerFoundationWorkflowTest {
         assertTrue("Capture must contain restrained white branding, without a system overlay",white in 100..(bitmap.width*bitmap.height/30))
         assertEquals(bitmap.width/2f,(left+right)/2f,bitmap.width*.03f)
         assertEquals(bitmap.height/2f,(top+bottom)/2f,bitmap.height*.04f)
-        waitText("Settings")
+        waitText("Project Settings")
         compose.waitUntil(3000) { entrance.workspaceFirstDrawMs > 0 }
         assertTrue("Branding must remain displayed for 3 seconds: ${entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs}", entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs >= 3000L)
         File(entranceDir,"transition-duration.txt").writeText("${entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs} ms from branded draw to workspace draw")
@@ -115,21 +115,21 @@ class ComposerFoundationWorkflowTest {
         assertTrue(original.tracks.isEmpty()); assertTrue(original.clips.isEmpty())
         compose.onNodeWithText("Undo").assertIsNotEnabled()
         screenshot("editor-loop")
-        tap("Arrange"); waitText("Arrange workspace · C1 foundation")
-        tap("Settings")
+        tap("Arrange"); waitText("Arrange · editing and playback arrive later.")
+        tap("Project Settings")
         field("Composition title", "Retained draft")
         field("Tempo (30–300 BPM)", "146")
         hideIme(); tap("Apply")
         waitText("Unsaved settings")
         val editor = resumed()
         instrumentation.runOnMainSync { editor.recreate() }
-        waitText("Settings"); waitText("Retained draft"); waitText("Arrange workspace · C1 foundation")
+        waitText("Project Settings"); waitText("Retained draft"); waitText("Arrange · editing and playback arrive later.")
         dismissImmersiveTip()
         device.pressBack(); waitText("Unsaved composition changes"); tap("Keep editing")
         tap("Save"); waitText("Saved on this device")
         assertEquals(original.id, store.list().projects.single().id)
         assertEquals(146, store.read(original.id).tempoBpm)
-        tap("Back"); waitText("Create New Composition")
+        tap("Return"); waitText("Create New Composition")
         waitText("Retained draft")
         val library = resumed()
         instrumentation.runOnMainSync { library.recreate() }
@@ -140,9 +140,9 @@ class ComposerFoundationWorkflowTest {
         waitText("Renamed native etude")
         screenshot("library-saved")
         assertEquals(original.id, store.list().projects.single().id)
-        tap("Open"); waitText("Settings"); waitText("Renamed native etude")
+        tap("Open"); waitText("Project Settings"); waitText("Renamed native etude")
         waitText("146 BPM · 7/8")
-        tap("Settings"); field("Composition title", "Discard this draft")
+        tap("Project Settings"); field("Composition title", "Discard this draft")
         hideIme(); tap("Apply")
         waitText("Unsaved settings")
         compose.onNodeWithText("Apply").assertDoesNotExist()

@@ -1,5 +1,7 @@
 # compose.logger C1 — project foundation
 
+The owner-assigned [compact landscape UI and Save As](COMPOSER_COMPACT_UI.md) supersede earlier scrolling toolbar/header descriptions below. C4, Arrange editing, velocity editing and exports remain deferred.
+
 This records the C1 foundation. [C2](COMPOSER_C2.md) supersedes the inactive editor/Undo/audition and settings-only draft descriptions below while retaining the project codec and storage protections.
 
 [Approved V1 contract and future phases](COMPOSE_LOGGER_V1_SPEC.md) · [Signed delivery, actual verification and next task](../CURRENT_STATE.md)

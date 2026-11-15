@@ -45,10 +45,11 @@ class ComposerSaveAsTest {
         val store=CompositionStore(File(app.filesDir,"composer/projects")); val original=store.create(music())
         val handle=SavedStateHandle(mapOf(ComposerActivity.PROJECT_ID to original.id))
         val vm=ComposerViewModel(app,handle); await { !vm.busy }
-        vm.edit(original.copy(tempoBpm=149)); assertTrue(vm.dirty); assertEquals(1,vm.undoCount)
+        val changedPattern=original.tracks.single().patterns.single().copy(notes=original.tracks.single().patterns.single().notes + CompositionNote(newCompositionId(),76,1920,320,103))
+        vm.edit(original.replacePattern(changedPattern).copy(tempoBpm=149)); assertTrue(vm.dirty); assertEquals(1,vm.undoCount)
         vm.saveAs("Draft copy"); await { !vm.busy }
         assertNull(vm.error); assertFalse(vm.dirty); assertEquals(0,vm.undoCount)
-        val copy=requireNotNull(vm.project); assertEquals(149,copy.tempoBpm); assertEquals(original,store.read(original.id))
+        val copy=requireNotNull(vm.project); assertEquals(149,copy.tempoBpm); assertEquals(2,copy.tracks.single().patterns.single().notes.size); assertEquals(103,copy.tracks.single().patterns.single().notes.last().velocity); assertEquals(original,store.read(original.id))
         assertEquals(copy.id,handle.get<String>(ComposerActivity.PROJECT_ID)); assertTrue(store.list().projects.contains(copy))
         val restored=ComposerViewModel(app,handle); await { !restored.busy }; assertEquals(copy,restored.project)
         restored.edit(copy.copy(tempoBpm=155)); restored.save(); await { !restored.busy }

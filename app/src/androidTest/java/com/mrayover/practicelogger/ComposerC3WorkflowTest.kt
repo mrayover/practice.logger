@@ -100,9 +100,9 @@ class ComposerC3WorkflowTest {
         diagnosticEngine=engine
         compose.waitUntil(30000) { engine.ready }
         tap("Pattern A"); tap("B")
-        tap("Instrument Keys"); tap("Electric")
+        tap("Instrument 1"); tap("2 · Electric")
         tap("Pattern A"); tap("B")
-        tap("Instrument Electric"); tap("Keys"); waitText("Pattern B")
+        tap("Instrument 2"); tap("1 · Keys"); waitText("Pattern B")
         tap("Sound Acoustic piano"); screenshot("sound-picker"); tap("Organ")
         compose.runOnIdle { assertEquals("organ",vm.project!!.tracks[0].instrument.instrumentId); assertEquals(saved.tracks[0].patterns,vm.project!!.tracks[0].patterns) }
         tap("Save"); waitText("Saved on this device")
@@ -150,7 +150,7 @@ class ComposerC3WorkflowTest {
         compose.onNodeWithTag("composer-volume").performScrollTo().performSemanticsAction(SemanticsActions.SetProgress) { it(0.35f) }
         assertEquals(exact,vm.project)
         tap("Stop"); compose.waitUntil(5000) { !engine.playing && engine.voiceCount()==0 }
-        tap("Beginning"); compose.waitUntil(3000) { engine.positionFrame()==0L }
+        tap("↤"); tap("Beginning"); compose.waitUntil(3000) { engine.positionFrame()==0L }
         tap("Repeat ☑"); tap("Play")
         compose.waitUntil(5000) { engine.playing }
         compose.waitUntil(10000) { !engine.playing && engine.voiceCount()==0 }
@@ -171,6 +171,6 @@ class ComposerC3WorkflowTest {
         // Saved expectations are checked after a separate force-stop by ComposerColdReopenTest.
         val dir=File(app.getExternalFilesDir(null),"composer-c3").apply { mkdirs() }
         File(dir,"cold-expected.json").writeText(CompositionCodec.encode(exact))
-        tap("Back")
+        tap("Return")
     }
 }

@@ -61,3 +61,7 @@ The owner explicitly includes the three-second displayed entrance, Reference Pia
 ## November15 C3 assignment
 
 The owner explicitly assigns TinySoundFont/curated redistributable instruments, real selected-track audition, synchronized multitrack Loop playback, basic mixer/picker and preceding C2 keyboard scrolling/Hand/dropdown repairs. [C3 behavior/provenance](COMPOSER_C3.md). No full C4 management, Arrange playback, exports, pack installation or Library integration.
+
+## November15 compact UI and Save As assignment
+
+The owner separately assigns measured four-row landscape consolidation, responsive explicit overflow, compact status and independent live-draft Save As after C3. Disabled Edit Instrument/Velocity reserve positions; C4–C7/F1 are not authorized. [Behavior and ownership](COMPOSER_COMPACT_UI.md).
