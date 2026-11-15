@@ -4,9 +4,7 @@ import android.graphics.Paint
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,18 +47,19 @@ private class RollTouch {
     val voices = mutableMapOf<Long,Int>()
 }
 
-@Composable private fun RollChoice(label: String, values: List<String>, selected: Int, choose: (Int) -> Unit) {
+@Composable private fun RollChoice(label: String, values: List<String>, selected: Int, enabled: Boolean = true, extra: (@Composable () -> Unit)? = null, display: String? = null, choose: (Int) -> Unit) {
     var open by remember { mutableStateOf(false) }
     Box {
-        TextButton(onClick = { open = true }) { Text("$label ${values.getOrElse(selected) { "—" }}") }
+        ComposerButton("$label ${display ?: values.getOrElse(selected) { "—" }}", enabled) { open = true }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             values.forEachIndexed { i, value -> DropdownMenuItem(text = { Text(value) }, onClick = { choose(i); open = false }) }
+            extra?.invoke()
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier) {
+@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, loopMode: Boolean = true, canUndo: Boolean = false, undo: () -> Unit = {}) {
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
     var patternSelections by rememberSaveable { mutableStateOf(ArrayList(List(8) { "" })) }
     val track = project.tracks.find { it.id == trackId } ?: project.tracks.firstOrNull()
@@ -123,68 +122,94 @@ private class RollTouch {
     }
     LaunchedEffect(muted,solo,volumes) { audio.mix(BooleanArray(8) { !muted[it] && (!solo.any { value -> value } || solo[it]) },volumes.copyOf()) }
     LaunchedEffect(track?.instrument) { audio.stopAll(); touch.voices.clear() }
+    LaunchedEffect(loopMode) { if (!loopMode) { audio.stop(); audio.stopAll() } }
+    val plan = transportPlan
+    val region = plan?.regionTicks ?: project.tracks.mapIndexed { i,t ->
+        t.patterns.find { it.id == patternSelections[i] }?.let(project::patternTicks) ?: t.patterns.firstOrNull()?.let(project::patternTicks) ?: project.barTicks()
+    }.maxOrNull() ?: project.barTicks()
+    val displayBar = plan?.barTicks ?: project.barTicks()
+    val displayBeat = plan?.beatTicks ?: (3840L/project.denominator)
+    val shownTick = if (playing && plan != null) plan.tick(transportFrame).toLong() else cursor
+    val local = shownTick % region
+    val position = "${local/displayBar+1}.${(local%displayBar)/displayBeat+1} · Region ${region/displayBar} bars"
     Column(modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            TextButton(enabled = enabled && soundsReady && !playing && project.tracks.isNotEmpty(),onClick = {
-                scope.launch {
-                    try { val plan = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,patternSelections.toList()) }; audio.play(plan,repeat); message = null }
-                    catch(failure: Exception) { message = failure.message }
-                }
-            }) { Text("Play") }
-            TextButton(onClick = { audio.stop() }) { Text("Stop") }
-            TextButton(onClick = { audio.beginning() }) { Text("Beginning") }
-            TextButton(onClick = { repeat = !repeat; audio.setLoop(repeat) }) { Text(if(repeat) "Repeat ☑" else "Repeat ☐") }
-            val plan = transportPlan
-            val shownTick = if(plan == null) 0L else plan.tick(transportFrame).toLong()
-            val region = plan?.regionTicks ?: project.tracks.mapIndexed { i,t ->
-                t.patterns.find { it.id == patternSelections[i] }?.let(project::patternTicks) ?: t.patterns.firstOrNull()?.let(project::patternTicks) ?: project.barTicks()
-            }.maxOrNull() ?: project.barTicks()
-            val local = shownTick % region
-            val displayBar = plan?.barTicks ?: project.barTicks()
-            val displayBeat = plan?.beatTicks ?: (3840L/project.denominator)
-            Text("${local/displayBar+1}.${(local%displayBar)/displayBeat+1} · Region ${region/displayBar} bars",style = MaterialTheme.typography.bodySmall,modifier = Modifier.padding(horizontal = 8.dp))
-            Text(if(!soundsReady) "Loading sounds…" else if(playing) "Playing ${plan?.tempo} BPM · edits apply next Play" else "Ready",style = MaterialTheme.typography.bodySmall)
-        }
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            if (track != null) RollChoice("Instrument",project.tracks.map { it.title },project.tracks.indexOf(track)) { trackId = project.tracks[it].id }
-            if (pattern != null && track != null) RollChoice("Pattern",track.patterns.map { it.title },track.patterns.indexOf(pattern)) { choosePattern(track.patterns[it].id) }
-            if (track != null && track.patterns.size < 3) TextButton(enabled = enabled,onClick = {
+        ComposerToolbar("composer-context-row", buildList {
+            add(ComposerControl("Instrument ${if(track == null) "—" else trackIndex+1}",10) {
+                if (track != null) RollChoice("Instrument",project.tracks.mapIndexed { i,t -> "${i+1} · ${t.title}" },trackIndex,enabled,display = "${trackIndex+1}") { trackId = project.tracks[it].id }
+                else ComposerButton("Instrument —",false) {}
+            })
+            add(ComposerControl("Pattern ${pattern?.title ?: "—"}",10) {
+                if (pattern != null && track != null) RollChoice("Pattern",track.patterns.map { it.title },track.patterns.indexOf(pattern),enabled,extra = {
+                    DropdownMenuItem(text = { Text("Create Pattern") }, enabled = enabled && track.patterns.size < 3, onClick = {
                 val title = listOf("A","B","C").first { slot -> track.patterns.none { it.title == slot } }
                 val added = CompositionPattern(newCompositionId(),title,4)
                 edit(project.copy(tracks = project.tracks.map { if (it.id == track.id) it.copy(patterns = it.patterns+added) else it }))
                 choosePattern(added.id)
-            }) { Text("+ Pattern") }
-            TextButton(enabled = enabled && project.tracks.size < 8, onClick = {
+
+                    })
+                }) { choosePattern(track.patterns[it].id) }
+                else ComposerButton("Pattern —",false) {}
+            })
+            add(ComposerControl("+ Instrument",3) { ComposerButton("+ Instrument", enabled && project.tracks.size < 8) {
                 val id = newCompositionId()
                 val patterns = listOf("A","B").map { CompositionPattern(newCompositionId(),it,4) }
                 edit(project.copy(tracks = project.tracks + CompositionTrack(id,"Piano ${project.tracks.size+1}",InstrumentReference(1,"reference-piano","default"),patterns)))
                 trackId = id; patternSelections = ArrayList(patternSelections).also { it[project.tracks.size] = patterns.first().id }
-            }) { Text(if (track == null) "Create piano patterns A/B" else "+ Instrument") }
-            if (pattern != null) RollChoice("Bars",listOf("1","2","4","8","16"),listOf(1,2,4,8,16).indexOf(pattern.lengthBars)) { index ->
+
+            } })
+            if(pattern != null) add(ComposerControl("Bars ${pattern.lengthBars}",2) {
+                RollChoice("Bars",listOf("1","2","4","8","16"),listOf(1,2,4,8,16).indexOf(pattern.lengthBars),enabled) { index ->
                 val bars = listOf(1,2,4,8,16)[index]
                 if (pattern.notes.any { it.startTick + it.durationTick > bars * project.barTicks() }) message = "Length kept: move or delete notes beyond the new end first."
                 else { edit(project.replacePattern(pattern.copy(lengthBars = bars))); cursor = cursor.coerceAtMost(bars * project.barTicks()-1) }
-            }
-            if(track != null) {
-                RollChoice("Sound",ComposerInstruments.all.map { it.title },bank) { index ->
+
+                }
+            })
+            if(track != null) add(ComposerControl("Sound ${ComposerInstruments.all[bank].title}",2) {
+                RollChoice("Sound",ComposerInstruments.all.map { it.title },bank,enabled) { index ->
                     edit(project.copy(tracks = project.tracks.map { if(it.id == track.id) it.copy(instrument = ComposerInstruments.all[index].reference) else it }))
                 }
-                TextButton(onClick = { muted = muted.copyOf().also { it[trackIndex] = !it[trackIndex] } }) { Text(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") }
-                TextButton(onClick = { solo = solo.copyOf().also { it[trackIndex] = !it[trackIndex] } }) { Text(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") }
-                Text("Volume",style = MaterialTheme.typography.bodySmall)
-                Slider(value = volumes[trackIndex],onValueChange = { value -> volumes = volumes.copyOf().also { it[trackIndex] = value } },modifier = Modifier.width(100.dp).testTag("composer-volume"))
+
+            })
+            add(ComposerControl("Edit Instrument",0) { ComposerButton("Edit Instrument",false) {} })
+        })
+        ComposerToolbar("composer-performance-row", buildList {
+            add(ComposerControl("Play",10) { ComposerButton("Play", enabled && loopMode && soundsReady && !playing && project.tracks.isNotEmpty()) {
+                scope.launch {
+                    try { val snapshot = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,patternSelections.toList()) }; audio.play(snapshot,repeat); message = null }
+                    catch(failure: Exception) { message = failure.message }
+                }
+            } })
+            add(ComposerControl("Stop",10) { ComposerButton("Stop") { audio.stop() } })
+            add(ComposerControl(if(repeat) "Repeat ☑" else "Repeat ☐",4) { ComposerButton(if(repeat) "Repeat ☑" else "Repeat ☐") { repeat = !repeat; audio.setLoop(repeat) } })
+            if(track != null) {
+                add(ComposerControl(if(muted[trackIndex]) "Mute ☑" else "Mute ☐",3) { ComposerButton(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") { muted = muted.copyOf().also { it[trackIndex] = !it[trackIndex] } } })
+                add(ComposerControl(if(solo[trackIndex]) "Solo ☑" else "Solo ☐",3) { ComposerButton(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") { solo = solo.copyOf().also { it[trackIndex] = !it[trackIndex] } } })
+                add(ComposerControl("Volume",2,170) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text("Volume",style = MaterialTheme.typography.bodySmall)
+                    Slider(value = volumes[trackIndex],onValueChange = { value -> volumes = volumes.copyOf().also { it[trackIndex] = value } },modifier = Modifier.width(100.dp).height(40.dp).testTag("composer-volume"))
+                } })
             }
-            Text("Cursor $cursor ticks", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
-        }
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            RollChoice("Tool:",listOf("Draw","Select","Hand"),listOf("Draw","Select","Hand").indexOf(tool)) { tool = listOf("Draw","Select","Hand")[it] }
-            RollChoice("Grid",RollGrid.entries.map { it.label },gridIndex) { gridIndex = it }
-            RollChoice("Duration",RollGrid.entries.map { it.label },durationIndex) { durationIndex = it }
-            TextButton(onClick = { snap = !snap }) { Text(if (snap) "Snap ☑" else "Snap ☐") }
-            TextButton(onClick = { zoom = (zoom / 1.5f).coerceAtLeast(.5f) }) { Text("Zoom −") }
-            TextButton(onClick = { zoom = (zoom * 1.5f).coerceAtMost(12f) }) { Text("Zoom +") }
-            Box {
-            TextButton(onClick = { actionsOpen = true }) { Text("Actions") }
+            add(ComposerControl("Velocity",0,170) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text("Velocity",style = MaterialTheme.typography.bodySmall,color = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f))
+                Slider(value = .78f,onValueChange = {},enabled = false,modifier = Modifier.width(100.dp).height(40.dp))
+            } })
+            add(ComposerControl("↤",1) { var menu by remember { mutableStateOf(false) }; Box {
+                ComposerButton("↤") { menu = true }
+                DropdownMenu(expanded = menu,onDismissRequest = { menu = false }) {
+                    DropdownMenuItem(text = { Text("Beginning") },onClick = { audio.beginning(); cursor = 0; menu = false })
+                }
+            } })
+        })
+        ComposerToolbar("composer-editing-row", listOf(
+            ComposerControl("Tool: $tool",10) { RollChoice("Tool:",listOf("Draw","Select","Hand"),listOf("Draw","Select","Hand").indexOf(tool)) { tool = listOf("Draw","Select","Hand")[it] } },
+            ComposerControl("Grid ${RollGrid.entries[gridIndex].label}",10) { RollChoice("Grid",RollGrid.entries.map { it.label },gridIndex) { gridIndex = it } },
+            ComposerControl("Duration ${RollGrid.entries[durationIndex].label}",10) { RollChoice("Duration",RollGrid.entries.map { it.label },durationIndex) { durationIndex = it } },
+            ComposerControl(if(snap) "Snap ☑" else "Snap ☐",10) { ComposerButton(if(snap) "Snap ☑" else "Snap ☐") { snap = !snap } },
+            ComposerControl("Zoom −",2) { ComposerButton("Zoom −") { zoom = (zoom / 1.5f).coerceAtLeast(.5f) } },
+            ComposerControl("Zoom +",2) { ComposerButton("Zoom +") { zoom = (zoom * 1.5f).coerceAtMost(12f) } },
+            ComposerControl("Actions",10) { Box {
+                ComposerButton("Actions") { actionsOpen = true }
             DropdownMenu(expanded = actionsOpen,onDismissRequest = { actionsOpen = false }) {
             DropdownMenuItem(text = { Text("Select All") },enabled = pattern?.notes?.isNotEmpty() == true,onClick = { selected = pattern!!.notes.map { it.id }.toSet(); actionsOpen = false })
             DropdownMenuItem(text = { Text("Copy") },enabled = hasSelection,onClick = { clipboard = pattern?.notes?.filter { it.id in selected } ?: emptyList(); actionsOpen = false })
@@ -198,7 +223,13 @@ private class RollTouch {
                 actionsOpen = false
             })
             }
-            }
+            } },
+            ComposerControl("Undo",10) { ComposerButton("Undo",canUndo,click = undo) },
+            ComposerControl(position,0) { Text(position,style = MaterialTheme.typography.bodySmall,maxLines = 1) }
+        ))
+        if (!loopMode) {
+            Box(Modifier.weight(1f).fillMaxWidth(),contentAlignment = androidx.compose.ui.Alignment.Center) { Text("Arrange · editing and playback arrive later.") }
+            return@Column
         }
         if (pattern == null) { Text("Create a piano instrument to begin drawing notes.",Modifier.padding(16.dp)); return@Column }
         val length = project.patternTicks(pattern)

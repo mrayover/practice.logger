@@ -24,6 +24,18 @@ data class CompositionProject(
     val ticksPerQuarter: Int = COMPOSER_PPQ, val tracks: List<CompositionTrack> = emptyList(),
     val clips: List<ArrangementClip> = emptyList(), val formatVersion: Int = COMPOSER_FORMAT_VERSION
 ) {
+    /** Save As copies the live draft and remaps every identity, including arrangement references. */
+    fun independentCopy(title: String, now: Long = System.currentTimeMillis()): CompositionProject {
+        CompositionCodec.validate(this)
+        val identities = mutableMapOf<String, String>()
+        fun fresh(id: String) = identities.getOrPut(id, ::newCompositionId)
+        val copiedTracks = tracks.map { track -> track.copy(id = fresh(track.id), patterns = track.patterns.map { pattern ->
+            pattern.copy(id = fresh(pattern.id), notes = pattern.notes.map { it.copy(id = fresh(it.id)) })
+        }) }
+        return copy(id = newCompositionId(), title = title.trim(), createdAt = now, modifiedAt = now, revision = 0,
+            tracks = copiedTracks, clips = clips.map { it.copy(id = fresh(it.id), trackId = identities.getValue(it.trackId), patternId = identities.getValue(it.patternId)) })
+            .also(CompositionCodec::validate)
+    }
     companion object {
         fun empty(title: String, tempo: Int = 120, numerator: Int = 4, denominator: Int = 4,
             id: String = newCompositionId(), now: Long = System.currentTimeMillis()): CompositionProject =

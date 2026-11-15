@@ -70,3 +70,11 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC3WorkflowTest ]; then
   adb shell am instrument -w -r -e composerC3 true -e class com.mrayover.practicelogger.ComposerColdReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c3-cold.txt
   grep -q 'OK (1 test)' app/build/preview-composer-c3-cold.txt
 fi
+
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerCompactWorkflowTest ]; then
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-compact app/build/preview-composer-compact-screens || true
+  grep -q 'OK (1 test)' app/build/preview-home.txt
+  adb shell am force-stop "$package"
+  adb shell am instrument -w -r -e compactCold true -e class com.mrayover.practicelogger.ComposerCompactWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-compact-cold.txt
+  grep -q 'OK (1 test)' app/build/preview-composer-compact-cold.txt
+fi

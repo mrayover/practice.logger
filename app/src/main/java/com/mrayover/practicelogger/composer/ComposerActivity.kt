@@ -13,7 +13,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
@@ -148,6 +150,26 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
             finally { busy = false }
         }
     }
+    fun saveAs(title: String, afterSave: () -> Unit = {}) {
+        if (busy) return
+        val source = project ?: return
+        val copy = try { source.independentCopy(title) } catch (failure: Exception) { error = failure.message; return }
+        busy = true; error = null
+        viewModelScope.launch {
+            try {
+                draftLock.withLock {
+                    val saved = withContext(Dispatchers.IO) { store.create(copy) }
+                    // Switch all document ownership together, only after the independent file is committed.
+                    state[ComposerActivity.PROJECT_ID] = saved.id; state["draft"] = null
+                    committed = saved; project = saved; history.clear(); undoCount = 0
+                    withContext(Dispatchers.IO) { draftFile.delete() }
+                }
+                status = "Saved on this device"; afterSave()
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (failure: Exception) { error = failure.message ?: "Save As failed. Your draft is retained; retry." }
+            finally { busy = false }
+        }
+    }
 }
 
 @Composable internal fun BrandedTransition() {
@@ -165,6 +187,8 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
     var mode by rememberSaveable { mutableStateOf("Loop") }
     var settings by rememberSaveable { mutableStateOf(false) }
     var leave by rememberSaveable { mutableStateOf(false) }
+    var saveAs by rememberSaveable { mutableStateOf(false) }
+    var copyTitle by rememberSaveable { mutableStateOf("") }
     fun back() { if (!vm.busy) { if (vm.dirty && vm.project != null) leave = true else onBack() } }
     BackHandler { back() }
     if (vm.entranceRemaining > 0) {
@@ -197,36 +221,41 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
     }
     val portraitFallback = LocalConfiguration.current.screenWidthDp < LocalConfiguration.current.screenHeightDp
     val activity = LocalContext.current as? ComposerActivity
+    SideEffect { activity?.intent?.putExtra(ComposerActivity.PROJECT_ID, project.id) }
     Surface(Modifier.fillMaxSize().drawWithContent {
         drawContent()
         if (activity != null && activity.workspaceFirstDrawMs == 0L) activity.workspaceFirstDrawMs = android.os.SystemClock.uptimeMillis()
     }) {
         Column(Modifier.fillMaxSize().safeDrawingPadding()) {
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
-                Text("compose.logger", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 8.dp))
-                TextButton(onClick = { vm.save() }, enabled = !vm.busy) { Text("Save") }
-                TextButton(onClick = vm::undo, enabled = !vm.busy && vm.undoCount > 0) { Text("Undo") }
-                TextButton(onClick = { back() }, enabled = !vm.busy) { Text("Back") }
-                listOf("Loop", "Arrange").forEach { value -> FilterChip(selected = mode == value, onClick = { mode = value }, label = { Text(value) }) }
-                TextButton(onClick = { settings = true }, enabled = !vm.busy) { Text("Settings") }
-
-            }
+            ComposerToolbar("composer-application-row", listOf(
+                ComposerControl("compose.logger", 1) { Text("compose.logger", fontSize = 13.sp, maxLines = 1) },
+                ComposerControl("Save", 10) { ComposerButton("Save", !vm.busy) { vm.save() } },
+                ComposerControl("Save As", 4) { ComposerButton("Save As", !vm.busy) { copyTitle = project.title.take(115) + " Copy"; saveAs = true } },
+                ComposerControl("Loop", 10) { ComposerButton("Loop", selected = mode == "Loop") { mode = "Loop" } },
+                ComposerControl("Arrange", 10) { ComposerButton("Arrange", selected = mode == "Arrange") { mode = "Arrange" } },
+                ComposerControl("Project Settings", 2) { ComposerButton("Project Settings", !vm.busy) { settings = true } },
+                ComposerControl("Return", 10) { ComposerButton("Return", !vm.busy) { back() } }
+            ))
             if (portraitFallback) Text("Rotate or widen for the piano roll.", style = MaterialTheme.typography.bodySmall)
-            if (mode == "Loop") PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f))
-            else Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Column { Text("Arrange workspace · C1 foundation"); Text("Arrangement editing and playback arrive later.") }
-            }
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp)) {
-                Text(project.title, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(end = 10.dp))
-                Text("${project.tempoBpm} BPM · ${project.numerator}/${project.denominator}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(end = 10.dp))
-                Text(vm.error ?: vm.status, color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
-                Text("  ·  Composer audio · Loop playback", style = MaterialTheme.typography.bodySmall)
-            }
+            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode == "Loop", !vm.busy && vm.undoCount > 0, vm::undo) }
+            Text("${project.title} · ${project.tempoBpm} BPM · ${project.numerator}/${project.denominator} · ${vm.error ?: vm.status}",
+                color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodySmall, maxLines = if (vm.error != null) 3 else 1,
+                overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 6.dp).testTag("composer-status"))
         }
     }
     if (settings) ProjectSettingsDialog("Project settings", project.title, project.tempoBpm, project.numerator, project.denominator, "Apply", { settings = false }) { title, tempo, n, d ->
         vm.settings(title, tempo, n, d); settings = false
     }
+    if (saveAs) AlertDialog(onDismissRequest = { if (!vm.busy) saveAs = false }, title = { Text("Save As") },
+        modifier = Modifier.imePadding(),
+        text = { Column(Modifier.verticalScroll(rememberScrollState())) {
+            OutlinedTextField(value = copyTitle, onValueChange = { copyTitle = it }, label = { Text("Composition title") }, singleLine = true, enabled = !vm.busy, modifier = Modifier.testTag("composer-copy-title"))
+            Text("Create an independent composition including your unsaved edits.", style = MaterialTheme.typography.bodySmall)
+            vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        } },
+        confirmButton = { TextButton(enabled = !vm.busy, onClick = { vm.saveAs(copyTitle) { saveAs = false } }) { Text("Create copy") } },
+        dismissButton = { TextButton(enabled = !vm.busy, onClick = { saveAs = false }) { Text("Cancel") } })
     if (leave) AlertDialog(onDismissRequest = { if (!vm.busy) leave = false }, title = { Text("Unsaved composition changes") },
         text = { Column { Text("Save your changes before returning to the composition library?"); vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
         confirmButton = { TextButton(onClick = { vm.save(onBack) }, enabled = !vm.busy) { Text("Save and return") } },
