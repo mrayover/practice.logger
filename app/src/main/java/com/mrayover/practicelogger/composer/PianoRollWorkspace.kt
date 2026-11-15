@@ -26,7 +26,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.mrayover.practicelogger.PianoAudioEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.*
@@ -61,9 +62,20 @@ private class RollTouch {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier) {
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
-    var patternId by rememberSaveable { mutableStateOf<String?>(null) }
+    var patternSelections by rememberSaveable { mutableStateOf(ArrayList(List(8) { "" })) }
     val track = project.tracks.find { it.id == trackId } ?: project.tracks.firstOrNull()
-    val pattern = track?.patterns?.find { it.id == patternId } ?: track?.patterns?.firstOrNull()
+    val trackIndex = project.tracks.indexOf(track).coerceAtLeast(0)
+    val pattern = track?.patterns?.find { it.id == patternSelections[trackIndex] } ?: track?.patterns?.firstOrNull()
+    fun choosePattern(id: String) { patternSelections = ArrayList(patternSelections).also { it[trackIndex] = id } }
+    val bank = track?.let { ComposerInstruments.index(it.instrument) } ?: 0
+    var muted by rememberSaveable { mutableStateOf(BooleanArray(8)) }
+    var solo by rememberSaveable { mutableStateOf(BooleanArray(8)) }
+    var volumes by rememberSaveable { mutableStateOf(FloatArray(8) { 1f }) }
+    var repeat by rememberSaveable { mutableStateOf(true) }
+    var playing by remember { mutableStateOf(false) }
+    var soundsReady by remember { mutableStateOf(false) }
+    var transportFrame by remember { mutableLongStateOf(0) }
+    var transportPlan by remember { mutableStateOf<LoopPlan?>(null) }
     var gridIndex by rememberSaveable { mutableIntStateOf(2) }
     var durationIndex by rememberSaveable { mutableIntStateOf(2) }
     var snap by rememberSaveable { mutableStateOf(true) }
@@ -83,7 +95,7 @@ private class RollTouch {
     val density = LocalDensity.current.density
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val audio = remember { PianoAudioEngine(context, interrupted = { message = it }) }
+    val audio = remember { ComposerAudio(context, interrupted = { message = it }) }
     SideEffect { (context as? ComposerActivity)?.auditionEngine = audio }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(audio,lifecycle) {
@@ -97,7 +109,7 @@ private class RollTouch {
     fun audition(pitch: Int) {
         audio.noteOff(auditionSerial)
         val token = ++auditionSerial
-        audio.noteOn(token,pitch); scope.launch { delay(180); audio.noteOff(token) }
+        audio.noteOn(token,pitch,bank,trackIndex); scope.launch { delay(180); audio.noteOff(token) }
     }
     fun commitNotes(notes: List<CompositionNote>) {
         if (pattern == null) return
@@ -105,26 +117,59 @@ private class RollTouch {
         catch (failure: Exception) { message = failure.message }
     }
     LaunchedEffect(pattern?.id) { selected = emptySet(); preview = null; marquee = null; cursor = 0; panX = 0f; touch.original = null; touch.lastTap = null; audio.stopAll() }
+    LaunchedEffect(audio) {
+        while(true) { soundsReady = audio.ready; playing = audio.playing; transportFrame = audio.positionFrame(); transportPlan = audio.playbackPlan; delay(30) }
+    }
+    LaunchedEffect(muted,solo,volumes) { audio.mix(BooleanArray(8) { !muted[it] && (!solo.any { value -> value } || solo[it]) },volumes.copyOf()) }
+    LaunchedEffect(track?.instrument) { audio.stopAll(); touch.voices.clear() }
     Column(modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            TextButton(enabled = enabled && soundsReady && !playing && project.tracks.isNotEmpty(),onClick = {
+                scope.launch {
+                    try { val plan = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,patternSelections.toList()) }; audio.play(plan,repeat); message = null }
+                    catch(failure: Exception) { message = failure.message }
+                }
+            }) { Text("Play") }
+            TextButton(onClick = { audio.stop() }) { Text("Stop") }
+            TextButton(onClick = { audio.beginning() }) { Text("Beginning") }
+            TextButton(onClick = { repeat = !repeat; audio.setLoop(repeat) }) { Text(if(repeat) "Repeat ☑" else "Repeat ☐") }
+            val plan = transportPlan
+            val shownTick = if(plan == null) 0L else plan.tick(transportFrame).toLong()
+            val region = plan?.regionTicks ?: project.tracks.mapIndexed { i,t ->
+                t.patterns.find { it.id == patternSelections[i] }?.let(project::patternTicks) ?: t.patterns.firstOrNull()?.let(project::patternTicks) ?: project.barTicks()
+            }.maxOrNull() ?: project.barTicks()
+            val local = shownTick % region
+            Text("${local/project.barTicks()+1}.${(local%project.barTicks())/(3840L/project.denominator)+1} · Region ${region/project.barTicks()} bars",style = MaterialTheme.typography.bodySmall,modifier = Modifier.padding(horizontal = 8.dp))
+            Text(if(!soundsReady) "Loading sounds…" else if(playing) "Playing · edits apply next Play" else "Ready",style = MaterialTheme.typography.bodySmall)
+        }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            if (track != null) RollChoice("Instrument",project.tracks.map { it.title },project.tracks.indexOf(track)) { trackId = project.tracks[it].id; patternId = null }
-            if (pattern != null && track != null) RollChoice("Pattern",track.patterns.map { it.title },track.patterns.indexOf(pattern)) { patternId = track.patterns[it].id }
+            if (track != null) RollChoice("Instrument",project.tracks.map { it.title },project.tracks.indexOf(track)) { trackId = project.tracks[it].id }
+            if (pattern != null && track != null) RollChoice("Pattern",track.patterns.map { it.title },track.patterns.indexOf(pattern)) { choosePattern(track.patterns[it].id) }
             if (track != null && track.patterns.size < 3) TextButton(enabled = enabled,onClick = {
                 val title = listOf("A","B","C").first { slot -> track.patterns.none { it.title == slot } }
                 val added = CompositionPattern(newCompositionId(),title,4)
                 edit(project.copy(tracks = project.tracks.map { if (it.id == track.id) it.copy(patterns = it.patterns+added) else it }))
-                patternId = added.id
+                choosePattern(added.id)
             }) { Text("+ Pattern") }
             TextButton(enabled = enabled && project.tracks.size < 8, onClick = {
                 val id = newCompositionId()
                 val patterns = listOf("A","B").map { CompositionPattern(newCompositionId(),it,4) }
                 edit(project.copy(tracks = project.tracks + CompositionTrack(id,"Piano ${project.tracks.size+1}",InstrumentReference(1,"reference-piano","default"),patterns)))
-                trackId = id; patternId = patterns.first().id
+                trackId = id; patternSelections = ArrayList(patternSelections).also { it[project.tracks.size] = patterns.first().id }
             }) { Text(if (track == null) "Create piano patterns A/B" else "+ Instrument") }
             if (pattern != null) RollChoice("Bars",listOf("1","2","4","8","16"),listOf(1,2,4,8,16).indexOf(pattern.lengthBars)) { index ->
                 val bars = listOf(1,2,4,8,16)[index]
                 if (pattern.notes.any { it.startTick + it.durationTick > bars * project.barTicks() }) message = "Length kept: move or delete notes beyond the new end first."
                 else { edit(project.replacePattern(pattern.copy(lengthBars = bars))); cursor = cursor.coerceAtMost(bars * project.barTicks()-1) }
+            }
+            if(track != null) {
+                RollChoice("Sound",ComposerInstruments.all.map { it.title },bank) { index ->
+                    edit(project.copy(tracks = project.tracks.map { if(it.id == track.id) it.copy(instrument = ComposerInstruments.all[index].reference) else it }))
+                }
+                TextButton(onClick = { muted = muted.copyOf().also { it[trackIndex] = !it[trackIndex] } }) { Text(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") }
+                TextButton(onClick = { solo = solo.copyOf().also { it[trackIndex] = !it[trackIndex] } }) { Text(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") }
+                Text("Volume",style = MaterialTheme.typography.bodySmall)
+                Slider(value = volumes[trackIndex],onValueChange = { value -> volumes = volumes.copyOf().also { it[trackIndex] = value } },modifier = Modifier.width(100.dp).testTag("composer-volume"))
             }
             Text("Cursor $cursor ticks", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
         }
@@ -175,7 +220,7 @@ private class RollTouch {
                     val token = event.getPointerId(i).toLong()+1
                     if (event.getX(i) < keyWidth && event.getY(i) >= rulerHeight) {
                         active += token; val p = pitch(event.getY(i))
-                        if (touch.voices[token] != p) { audio.noteOff(token); touch.voices[token] = p; audio.noteOn(token,p) }
+                        if (touch.voices[token] != p) { audio.noteOff(token); touch.voices[token] = p; audio.noteOn(token,p,bank,trackIndex) }
                     }
                 }
                 touch.voices.keys.toList().filterNot { it in active }.forEach { audio.noteOff(it); touch.voices.remove(it) }
@@ -279,16 +324,16 @@ private class RollTouch {
                 val y = rulerHeight+(84-p)*rowHeight-panY
                 if (y+rowHeight < rulerHeight || y>size.height) continue
                 val black = p%12 in listOf(1,3,6,8,10)
-                if (black) drawRect(Color(0x221F2D42),Offset(keyWidth,max(y,rulerHeight)),Size(max(0f,size.width-keyWidth),rowHeight))
+                if (black) drawRect(Color(0x221F2D42),Offset(keyWidth,max(y,rulerHeight)),Size(max(0f,size.width-keyWidth),min(y+rowHeight,size.height)-max(y,rulerHeight)))
                 drawLine(Color(0xFF26303D),Offset(keyWidth,y),Offset(size.width,y))
                 drawRect(if(black) Color(0xFF171C24) else Color(0xFFCCD2DC),Offset(0f,y),Size(keyWidth-2,rowHeight-1))
                 textPaint.textSize = 12*density; textPaint.color = if(black) android.graphics.Color.WHITE else android.graphics.Color.BLACK
-                val name = listOf("C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B")[p%12]+(p/12-1)
+                val name = if(ComposerInstruments.all.getOrNull(bank)?.drums == true) ComposerInstruments.drumName(p) else listOf("C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B")[p%12]+(p/12-1)
                 drawContext.canvas.nativeCanvas.drawText(name,6*density,y+18*density,textPaint)
             }
             (preview ?: pattern.notes).forEach { n ->
                 val x = noteLeft(n); val y = noteTop(n)
-                if (x+n.durationTick*pixelsPerTick >= keyWidth && x<size.width && y>=rulerHeight && y<size.height) {
+                if (x+n.durationTick*pixelsPerTick >= keyWidth && x<size.width && y+rowHeight>rulerHeight && y<size.height) {
                     val left = max(x,keyWidth); val width = max(2f,x+n.durationTick*pixelsPerTick-left)
                     drawRect(if(n.id in selected) Color(0xFFFFD475) else Color(0xFF64BBDF),Offset(left,y+2),Size(width,rowHeight-4))
                     if(n.id in selected) drawRect(Color.White,Offset(left,y+2),Size(width,rowHeight-4),style = Stroke(2*density))
@@ -307,6 +352,11 @@ private class RollTouch {
                         drawContext.canvas.nativeCanvas.drawText("${t/project.barTicks()+1}.${(t%project.barTicks())/beatTicks+1}",x+3,17*density,textPaint)
                     }
                 }
+            }
+            if(playing) {
+                val ticks = transportPlan?.tick(transportFrame) ?: 0.0
+                val x = keyWidth+(ticks%length)*pixelsPerTick-panX
+                if(x>=keyWidth && x<=size.width) drawLine(Color(0xFF7BF5B1),Offset(x.toFloat(),0f),Offset(x.toFloat(),size.height),2*density)
             }
             val playX = keyWidth+cursor*pixelsPerTick-panX
             if(playX>=keyWidth && playX<=size.width) drawLine(Color(0xFFFF7777),Offset(playX,0f),Offset(playX,size.height),2*density)

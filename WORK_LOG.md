@@ -1,3 +1,9 @@
+## 2026-11-15 — C2 corrections + C3 assigned (in progress)
+
+Reviewed required development records, Composer contract/master roadmap and mandatory efficiency procedure. Canonical C:/Users/mrove/Projects/practice.logger was clean on block-ux-stage1; local/live remote f7c353bfb79d03d409f94a23da40308b9ca96f11 matched. Prior C2 capture workflow43737994541 completed/success. Older OneDrive checkout untouched. Owner's current handoff authorizes C2 repairs plus C3, Git publication and permanent-key delivery; no C4/F1.
+
+Confirmed actual defect: keyboard ACTION_MOVE called keys() and changed pitches, never panY. Added threshold-owned vertical scroll with voice release, Hand navigation and Material3 Actions dropdown preserving existing command bodies/clipboard/undo. Fixed partial-row background/note clipping at the ruler. Local compile and focused composer host checks pass; isolated API35 C2 workflow43741378088/source2adccce is running. C3 implementation waits for this verification. Investigated pinned MIT TinySoundFont and nine explicitly CC0 FreePats banks; downloads and native toolchain are local/ignored pending integration.
+
 ## 2026-11-12 — RW2 recording coverage implementation
 
 Reviewed mandatory efficiency procedure, AGENTS, README, current state/build/work/handoff, V1 plan and existing recording/rendering/testing/delivery paths. Owner explicitly assigns bounded RW2 with Git publication and permanent-key delivery. Canonical checkout clean block-ux-stage1/local/remote88ba69f63aa72ce79c1639be2b44b012975ad4df; signed baseline0.44.1/build119 and successful latest scoped CI43359247460 verified. Older OneDrive checkout untouched. Recorded580 prior distribution hashes. GitHub CLI unavailable; existing authenticated local workflow helper used without exposing credentials.

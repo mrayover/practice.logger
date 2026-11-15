@@ -49,7 +49,7 @@ import java.nio.file.StandardCopyOption.*
 class ComposerActivity : ComponentActivity() {
     internal var brandFirstDrawMs = 0L
     internal var workspaceFirstDrawMs = 0L
-    internal var auditionEngine: com.mrayover.practicelogger.PianoAudioEngine? = null
+    internal var auditionEngine: ComposerAudio? = null
     companion object { const val PROJECT_ID = "compositionProjectId" }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -220,7 +220,7 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
                 Text(project.title, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(end = 10.dp))
                 Text("${project.tempoBpm} BPM · ${project.numerator}/${project.denominator}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(end = 10.dp))
                 Text(vm.error ?: vm.status, color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
-                Text("  ·  Audition only · loop playback arrives in C3", style = MaterialTheme.typography.bodySmall)
+                Text("  ·  Composer audio · Loop playback", style = MaterialTheme.typography.bodySmall)
             }
         }
     }

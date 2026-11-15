@@ -21,3 +21,6 @@ baseline-apk/
 /app/src/androidTest/assets/audio/backing.mp3
 /app/src/androidTest/assets/audio/backing.m4a
 /app/src/androidTest/assets/audio/backing.wav
+
+# Android native intermediate build state
+.cxx/

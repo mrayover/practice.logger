@@ -1,3 +1,7 @@
+## November15 C2 corrections and C3 assignment
+
+The current owner handoff explicitly assigns keyboard drag scrolling, Hand tool, compact selection dropdown, TinySoundFont/redistributable SF2 instrument audition and synchronized multi-track Loop playback, focused verification, permanent-key APK/ZIP and commit/push. Verify C2 corrections before C3 implementation. This supersedes older C2-only stop instructions below. Stop before C4–C7/F1; keep Composer independent from practice/Library audio and preserve Reference Piano elsewhere.
+
 ## November15 bounded C1/C2 assignment — delivered build129
 
 The current owner handoff explicitly authorizes three-second branded entrance refinement, functional C2 piano roll, Reference Piano audition, minimal cross-pattern/instrument navigation, focused verification, permanent-key signed delivery and commit/push on block-ux-stage1. C1 refinement/C2 are delivered in build129 with focused verification; owner phone acceptance is pending. This supersedes older C1-only scope below. Stop after C2. C3 sequencing, full C4 management, Arrange editing, exports and F1 remain excluded.

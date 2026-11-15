@@ -1,0 +1,92 @@
+[
+  {
+    "id": "piano",
+    "source": "https://freepats.zenvoid.org/Piano/UprightPianoKW/UprightPianoKW-small-SF2-20190703.7z",
+    "originalFile": "UprightPianoKW-small-20190703.sf2",
+    "bytes": 9456310,
+    "sha256": "cf2a98eb38a32c4954b4b6e2caae4112d62dd8e892eceefdd7942b0e7d01ac2f",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "fm-piano",
+    "source": "https://github.com/freepats/fm-piano2/releases/download/2016-11-12/FM-Piano2-SF2-20161112.7z",
+    "originalFile": "FM-Piano2 20161112.sf2",
+    "bytes": 15878656,
+    "sha256": "ef07538bb367694a0f0c52f829d342a58106f391446c374b9eb5f782b90ee83c",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "organ",
+    "source": "https://freepats.zenvoid.org/Organ/DrawbarOrganEmulation/DrawbarOrganEmulation-SF2-20190712.tar.xz",
+    "originalFile": "DrawbarOrganEmulation-20190712.sf2",
+    "bytes": 6505320,
+    "sha256": "200b7d762fb1d4d7dbee34760a768319c7548e94b1a6ba76108f0702888b33ce",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "electric-bass",
+    "source": "https://github.com/freepats/electric-bass-YR/releases/download/2019-09-30/FingerBassYR-SF2-20190930.7z",
+    "originalFile": "FingerBassYR 20190930.sf2",
+    "bytes": 4220300,
+    "sha256": "bd1332696f61c0cb254ce7f202fb6b945ff46ccb1dcdd62e345a50bde3afb165",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "synth-bass",
+    "source": "https://github.com/freepats/synth-bass-2/releases/download/2021-04-05/SynthBass2-SF2-20210405.7z",
+    "originalFile": "SynthBass2 20210405.sf2",
+    "bytes": 4635192,
+    "sha256": "4a6266c02a53fe823db0239a3cab4c90ec0acd0a2a38ec03247d6f882b8bb9e7",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "strings",
+    "source": "https://github.com/freepats/synth-strings-1/releases/download/2020-05-28/SynthStrings1-SF2-20200528.7z",
+    "originalFile": "SynthStrings1 20200528.sf2",
+    "bytes": 5910658,
+    "sha256": "7df5074a9ca497adfc3b63a3501a9244495dbb3334b05bba00789bf83cfe6cd4",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "lead",
+    "source": "https://github.com/freepats/synth-bass-lead/releases/download/2020-05-22/SynthBassLead-SF2-20200522.7z",
+    "originalFile": "SynthBassLead 20200522.sf2",
+    "bytes": 8542812,
+    "sha256": "a7936ffd3626324505916f652710bbd21ea8d84649a2d94ca81c4cea15868a80",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "pad",
+    "source": "https://github.com/freepats/sweep-pad/releases/download/2019-08-13/SweepPad-SF2-20190813.7z",
+    "originalFile": "SweepPad 20190813.sf2",
+    "bytes": 8414208,
+    "sha256": "5a09a1d8ab60d236907572a46af8b4211881e2f8c7325e75f782ad5d7acce433",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  },
+  {
+    "id": "drums",
+    "source": "https://freepats.zenvoid.org/Percussion/SynthesizerPercussion/SynthesizerPercussion-SF2-20220718.7z",
+    "originalFile": "SynthesizerPercussion-20220718.sf2",
+    "bytes": 1653770,
+    "sha256": "b732f685ec460dc18e88a45dd150240d3bf50198d6a09f09483babd6a9fb4c31",
+    "license": "CC0-1.0",
+    "presetBank": 0,
+    "presetProgram": 0
+  }
+]

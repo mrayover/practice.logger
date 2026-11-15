@@ -10,16 +10,19 @@ plugins {
 android {
     namespace = "com.mrayover.practicelogger"
     compileSdk = 36
+    ndkVersion = "27.2.12479018"
     defaultConfig {
         applicationId = "com.mrayover.practicelogger.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 129
-        versionName = "0.48.0"
+        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 130
+        versionName = "0.49.0"
+        externalNativeBuild { cmake { cppFlags += "-std=c++17" } }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes { release { isMinifyEnabled = false } }
     buildFeatures { compose = true }
+    externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt"); version = "3.22.1" } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
     testOptions { unitTests.isIncludeAndroidResources = true }
