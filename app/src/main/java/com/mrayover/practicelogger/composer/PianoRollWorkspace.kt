@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clipToBounds
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -106,6 +107,12 @@ private class RollTouch {
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             if (track != null) RollChoice("Instrument",project.tracks.map { it.title },project.tracks.indexOf(track)) { trackId = project.tracks[it].id; patternId = null }
             if (pattern != null && track != null) RollChoice("Pattern",track.patterns.map { it.title },track.patterns.indexOf(pattern)) { patternId = track.patterns[it].id }
+            if (track != null && track.patterns.size < 3) TextButton(enabled = enabled,onClick = {
+                val title = listOf("A","B","C").first { slot -> track.patterns.none { it.title == slot } }
+                val added = CompositionPattern(newCompositionId(),title,4)
+                edit(project.copy(tracks = project.tracks.map { if (it.id == track.id) it.copy(patterns = it.patterns+added) else it }))
+                patternId = added.id
+            }) { Text("+ Pattern") }
             TextButton(enabled = enabled && project.tracks.size < 8, onClick = {
                 val id = newCompositionId()
                 val patterns = listOf("A","B").map { CompositionPattern(newCompositionId(),it,4) }
@@ -134,7 +141,7 @@ private class RollTouch {
             }) { Text("Paste") }
             TextButton(enabled = enabled && selected.isNotEmpty(),onClick = { commitNotes(pattern!!.notes.filterNot { it.id in selected }); selected = emptySet() }) { Text("Delete selected") }
             TextButton(enabled = enabled && selected.isNotEmpty(),onClick = {
-                commitNotes(pattern!!.notes.map { n -> if (n.id in selected) n.copy(startTick = snapTick(n.startTick.toDouble(),RollGrid.entries[gridIndex],true).coerceIn(0,project.patternTicks(pattern)-n.durationTick)) else n })
+                commitNotes(pattern!!.notes.map { n -> if (n.id in selected) n.copy(startTick = boundedTick(n.startTick.toDouble(),0,project.patternTicks(pattern)-n.durationTick,RollGrid.entries[gridIndex],true)) else n })
             }) { Text("Quantize selected") }
         }
         if (pattern == null) { Text("Create a piano instrument to begin drawing notes.",Modifier.padding(16.dp)); return@Column }
@@ -145,11 +152,11 @@ private class RollTouch {
         val pixelsPerTick = .11f*density*zoom
         // Vertical navigation covers all MIDI pitches; audition uses Reference Piano's C1–C7 range.
         fun pitch(y: Float) = (84 - floor((y-rulerHeight+panY)/rowHeight).toInt()).coerceIn(0,127)
-        fun tick(x: Float) = snapTick(((x-keyWidth+panX)/pixelsPerTick).toDouble(),RollGrid.entries[gridIndex],snap).coerceIn(0,length-1)
+        fun tick(x: Float) = boundedTick(((x-keyWidth+panX)/pixelsPerTick).toDouble(),0,length-1,RollGrid.entries[gridIndex],snap)
         fun noteLeft(n: CompositionNote) = keyWidth+n.startTick*pixelsPerTick-panX
         fun noteTop(n: CompositionNote) = rulerHeight+(84-n.pitch)*rowHeight-panY
         val textPaint = remember { Paint(Paint.ANTI_ALIAS_FLAG).apply { color = android.graphics.Color.LTGRAY; typeface = androidx.core.content.res.ResourcesCompat.getFont(context,com.mrayover.practicelogger.R.font.lato_regular) } }
-        Canvas(Modifier.weight(1f).fillMaxWidth().background(Color(0xFF11151C)).testTag("piano-roll").pointerInteropFilter { event ->
+        Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().background(Color(0xFF11151C)).testTag("piano-roll").pointerInteropFilter { event ->
             if (!enabled) return@pointerInteropFilter true
             fun centroid() = Offset((0 until event.pointerCount).sumOf { event.getX(it).toDouble() }.toFloat()/event.pointerCount,(0 until event.pointerCount).sumOf { event.getY(it).toDouble() }.toFloat()/event.pointerCount)
             fun distance() = if (event.pointerCount >= 2) hypot(event.getX(0)-event.getX(1),event.getY(0)-event.getY(1)) else 0f
@@ -203,12 +210,12 @@ private class RollTouch {
                         val note = touch.note
                         if (note != null) {
                             if (touch.resize) {
-                                val duration = snapTick(note.durationTick+(event.x-touch.down.x)/pixelsPerTick.toDouble(),RollGrid.entries[gridIndex],snap).coerceIn(1,length-note.startTick)
+                                val duration = boundedTick(note.durationTick+(event.x-touch.down.x)/pixelsPerTick.toDouble(),1,length-note.startTick,RollGrid.entries[gridIndex],snap,length-note.startTick)
                                 preview = original.notes.map { if (it.id == note.id) it.copy(durationTick = duration) else it }
                             } else {
                                 val group = original.notes.filter { it.id in selected }
-                                val dx = snapTick(note.startTick+(event.x-touch.down.x)/pixelsPerTick.toDouble(),RollGrid.entries[gridIndex],snap)-note.startTick
-                                val dt = dx.coerceIn(-group.minOf { it.startTick },length-group.maxOf { it.startTick+it.durationTick })
+                                val target = boundedTick(note.startTick+(event.x-touch.down.x)/pixelsPerTick.toDouble(),note.startTick-group.minOf { it.startTick },note.startTick+length-group.maxOf { it.startTick+it.durationTick },RollGrid.entries[gridIndex],snap,note.startTick)
+                                val dt = target-note.startTick
                                 val dp = (pitch(event.y)-pitch(touch.down.y)).coerceIn(-group.minOf { it.pitch },127-group.maxOf { it.pitch })
                                 val changedPitch = note.pitch+dp
                                 if (preview?.find { it.id == note.id }?.pitch != changedPitch) audition(changedPitch)

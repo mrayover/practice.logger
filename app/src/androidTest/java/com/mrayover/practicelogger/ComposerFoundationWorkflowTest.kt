@@ -91,6 +91,16 @@ class ComposerFoundationWorkflowTest {
         listOf(.15f,.85f).forEach { x -> listOf(.20f,.80f).forEach { y ->
             assertEquals(android.graphics.Color.BLACK,bitmap.getPixel((bitmap.width*x).toInt(),(bitmap.height*y).toInt()))
         } }
+        var white = 0; var left = bitmap.width; var right = 0; var top = bitmap.height; var bottom = 0
+        for(y in 0 until bitmap.height) for(x in 0 until bitmap.width) {
+            val pixel = bitmap.getPixel(x,y)
+            if(android.graphics.Color.red(pixel)>220 && android.graphics.Color.green(pixel)>220 && android.graphics.Color.blue(pixel)>220) {
+                white++; left=minOf(left,x); right=maxOf(right,x); top=minOf(top,y); bottom=maxOf(bottom,y)
+            }
+        }
+        assertTrue("Capture must contain restrained white branding, without a system overlay",white in 100..(bitmap.width*bitmap.height/30))
+        assertEquals(bitmap.width/2f,(left+right)/2f,bitmap.width*.03f)
+        assertEquals(bitmap.height/2f,(top+bottom)/2f,bitmap.height*.04f)
         waitText("Settings")
         compose.waitUntil(3000) { entrance.workspaceFirstDrawMs > 0 }
         assertTrue("Branding must remain displayed for 3 seconds: ${entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs}", entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs >= 3000L)

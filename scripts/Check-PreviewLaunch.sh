@@ -3,6 +3,8 @@ set -euo pipefail
 package=com.mrayover.practicelogger.app
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb logcat -c
+# Suppress Android first-use education so captures measure the app surface, not its system overlay.
+adb shell settings put secure immersive_mode_confirmations confirmed
 adb shell am start -W -n "$package/com.mrayover.practicelogger.MainActivity" | tee app/build/preview-launch.txt
 grep -q 'Status: ok' app/build/preview-launch.txt
 sleep 5
@@ -34,6 +36,9 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerFoundationWorkflowTest ]; then
     adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerPianoRollWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c2.txt
     adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c2 app/build/preview-composer-c2-screens || true
     grep -q 'OK (1 test)' app/build/preview-composer-c2.txt
+    adb shell am force-stop "$package"
+    adb shell am instrument -w -r -e composerC2 true -e class com.mrayover.practicelogger.ComposerColdReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c2-cold.txt
+    grep -q 'OK (1 test)' app/build/preview-composer-c2-cold.txt
   fi
 fi
 if [[ "${PREVIEW_TEST_CLASS:-}" == RecordingWaveformWorkflowTest,* ]]; then

@@ -53,3 +53,7 @@ Proven technical dependencies may justify sequencing changes, never silent assig
 Use focused assigned-feature and critical-data-safety checks, compile changed applications and use existing signed-delivery procedures. Preserve production data, all existing tests/infrastructure, recordings/media, identity and signing key. No comprehensive regression, historical restore campaign, device matrix or V1 certification during ordinary development; those await an explicitly authorized F1 gate.
 
 C1 specifically checks document operations, serialization/IDs, atomic/rejected saves, reopen/settings, Activity recreation/process recovery, enter/exit and one relevant landscape emulator configuration. Review rendered library, branded-transition and editor screenshots. Deliver the signed development APK/ZIP with exact source/remote provenance, actual results/limitations and owner-phone instructions. Never require uninstalling/clearing the production installation.
+
+## November15 C2 assignment clarification
+
+The owner explicitly includes the three-second displayed entrance, Reference Piano keyboard/note audition, minimal cross-instrument A/B/C selection/creation,1/2/4/8/16-bar lengths and cursor controls in C2 so cross-pattern editing is usable. These bounded prerequisites do not authorize the C3 SoundFont/sequencer or full C4 management. [C2 behavior and ownership](COMPOSER_C2.md).

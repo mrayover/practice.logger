@@ -10,6 +10,13 @@ internal fun CompositionProject.barTicks() = numerator * 3840L / denominator
 internal fun CompositionProject.patternTicks(pattern: CompositionPattern) = barTicks() * pattern.lengthBars
 internal fun snapTick(value: Double, grid: RollGrid, snap: Boolean): Long =
     if (snap) (value / grid.ticks).roundToLong() * grid.ticks else value.roundToLong()
+/** Clamp to a valid grid point, rather than clamping a snapped value off the grid at an edge. */
+internal fun boundedTick(value: Double, minimum: Long, maximum: Long, grid: RollGrid, snap: Boolean, fallback: Long = minimum): Long {
+    if (!snap) return value.roundToLong().coerceIn(minimum,maximum)
+    val low = ((minimum + grid.ticks - 1) / grid.ticks) * grid.ticks
+    val high = (maximum / grid.ticks) * grid.ticks
+    return if (low <= high) snapTick(value,grid,true).coerceIn(low,high) else fallback.coerceIn(minimum,maximum)
+}
 internal fun CompositionProject.replacePattern(pattern: CompositionPattern) = copy(tracks = tracks.map { track ->
     track.copy(patterns = track.patterns.map { if (it.id == pattern.id) pattern else it })
 })

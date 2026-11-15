@@ -22,6 +22,13 @@ class ComposerPianoRollWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val device get() = UiDevice.getInstance(instrumentation)
+    @get:Rule val failureCapture = object : org.junit.rules.TestWatcher() {
+        override fun failed(e: Throwable?, description: org.junit.runner.Description?) {
+            val dir=File(instrumentation.targetContext.getExternalFilesDir(null),"composer-c2").apply { mkdirs() }
+            device.takeScreenshot(File(dir,"failure.png")); device.dumpWindowHierarchy(File(dir,"failure.xml"))
+            if (::vm.isInitialized) File(dir,"failure-project.json").writeText(CompositionCodec.encode(vm.project!!))
+        }
+    }
     private lateinit var vm: ComposerViewModel
     private fun waitText(text: String) {
         compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(false).isNotEmpty() }
@@ -74,6 +81,19 @@ class ComposerPianoRollWorkflowTest {
         // Add a second voice, select both, copy across A/B, preserve exact values.
         roll.performTouchInput { advanceEventTime(400); click(point(248f,119f)) }
         assertEquals(2,notes().size)
+        val unchanged=notes().toList()
+        tap("Grid 1/16"); tap("1/32T")
+        tap("Duration 1/16"); tap("1/8T")
+        tap("Snap ☑")
+        roll.performTouchInput { advanceEventTime(400); click(point(200f,171f)) }
+        compose.runOnIdle { val free=notes().last(); assertEquals(320L,free.durationTick); assertTrue(free.startTick % 80 != 0L) }
+        tap("Undo"); assertEquals(unchanged,notes())
+        tap("Snap ☐"); tap("Grid 1/32T"); tap("1/16"); tap("Duration 1/8T"); tap("1/16")
+        assertEquals(unchanged,notes())
+        tap("Tool: Draw")
+        roll.performTouchInput { swipe(point(130f,75f),point(300f,135f),600) }
+        tap("Delete selected"); assertTrue(notes().isEmpty())
+        tap("Undo"); assertEquals(unchanged,notes())
         val source=notes().toList()
         tap("Select All"); tap("Copy"); tap("Pattern A"); tap("B")
         roll.performTouchInput { click(point(167.6f,14f)) }
@@ -100,16 +120,33 @@ class ComposerPianoRollWorkflowTest {
         assertEquals(beforeNav,vm.project)
         compose.waitUntil(3000) { editor!!.auditionEngine!!.nonZeroFramesWritten > 0 && editor!!.auditionEngine!!.voiceCount() == 0 }
         screenshot("piano-roll-landscape")
+        tap("+ Instrument"); tap("Paste")
+        compose.runOnIdle {
+            val copies=vm.project!!.tracks[1].patterns[0].notes
+            assertEquals(2,copies.size); assertEquals(0L,copies.minOf { it.startTick })
+            assertEquals(source.map { it.pitch },copies.map { it.pitch }); assertEquals(source.map { it.velocity },copies.map { it.velocity })
+        }
+        tap("Undo"); assertTrue(vm.project!!.tracks[1].patterns[0].notes.isEmpty())
+        tap("Undo"); assertEquals(1,vm.project!!.tracks.size)
+        tap("Pattern A"); tap("B")
+        val unsaved=vm.project
+        instrumentation.runOnMainSync { editor!!.recreate() }
+        waitText("Pattern B")
+        instrumentation.runOnMainSync {
+            editor=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).single() as ComposerActivity
+            vm=ViewModelProvider(editor!!)[ComposerViewModel::class.java]
+        }
+        compose.runOnIdle { assertEquals(unsaved,vm.project); assertTrue(vm.dirty) }
         tap("Save"); waitText("Saved on this device")
         val exact=store.read(saved.id)
         assertEquals(vm.project,exact)
         instrumentation.runOnMainSync { editor!!.recreate() }
-        waitText("Pattern A")
-        tap("Pattern A"); tap("B")
+        waitText("Pattern B")
         screenshot("recreated-saved-notes")
         assertEquals(exact,store.read(saved.id))
         tap("Back")
         // This directly launched test returns to MainActivity; C1 workflow covers library navigation.
-        store.delete(exact)
+        val coldDir=File(compose.activity.getExternalFilesDir(null),"composer-c2").apply { mkdirs() }
+        File(coldDir,"cold-expected.json").writeText(CompositionCodec.encode(exact))
     }
 }

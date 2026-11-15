@@ -538,3 +538,16 @@ Stop at C1. Piano roll/audio/pattern management/Arrange editing/export/Library i
 
 ---
 
+
+## compose.logger C2 — owner phone check
+
+Install the new signed APK over the existing app; do not uninstall or clear data. Composer is device-local and remains outside practice backups.
+
+1. Open Tools → compose.logger; create or open a composition. Confirm centered white compose.logger on solid black for at least three seconds, followed by the dark landscape workspace. Background during the entrance and return; it should finish its visible time safely.
+2. Choose Create piano patterns A/B. Tap empty grid to draw several pitches; tap/hold two piano keys and release them. Listen for matching pitches, chords and clean release. Background while holding a key; it must stop and remain silent on return.
+3. Tap a note, drag its body in both directions and across pitches, then drag the right end. Zoom in for short notes. Double-tap a note to delete it and press Undo. Each completed move/resize should undo in one step.
+4. Change Grid through straight/triplet values; choose a different Duration. Check independent duration, snap-on alignment, free timing with Snap off and that changing the grid leaves old notes in place.
+5. Toggle Tool: Draw to Select. Box-select notes from empty grid space; verify no new notes appear. Try Select All, Copy, Delete selected and Undo. Copy from A, switch to B, move the red ruler cursor and Paste. Try + Instrument and paste into its pattern. Source notes should remain, and Undo should reverse destination edits across switches.
+6. Pan and pinch with two fingers, including adding a second finger during a note drag. It should navigate without committing a note change. Use Zoom+/− and scroll the control strips to reach the remaining actions.
+7. Change Bars. A shortening that would exclude notes should keep the existing length with an explanation. Save, return to the library and reopen. Close/relaunch the app and confirm the same notes, pitches, lengths, timing and patterns remain. Try dirty Back → Keep editing, then Save and return or Discard deliberately.
+8. Confirm the landscape grid is usable at your normal and enlarged text/display sizes. Report your phone/model, app build, problematic gesture and any stuck/missing audio. Loop playback, Arrange editing, final instrument sounds and exports are future assignments.

@@ -29,6 +29,13 @@ class PianoRollEditsTest {
         val p=fixture(); assertEquals(3360L,p.barTicks())
         assertEquals(p,CompositionCodec.decode(CompositionCodec.encode(p)))
     }
+    @Test fun snappingAtPatternEdgesStaysOnGridAndFreeTicksRemainExact() {
+        assertEquals(3120L,boundedTick(3360.0,0,3359,RollGrid.SIXTEENTH,true))
+        assertEquals(240L,boundedTick(-400.0,1,1000,RollGrid.SIXTEENTH,true,1000))
+        assertEquals(80L,boundedTick(1.0,1,79+1L,RollGrid.THIRTY_SECOND_TRIPLET,true,80))
+        assertEquals(137L,boundedTick(137.0,0,3359,RollGrid.QUARTER,false))
+        assertEquals(1L,boundedTick(-400.0,1,1000,RollGrid.QUARTER,false))
+    }
     @Test fun crossTrackPastePreservesValuesAndSourceWithFreshIdsAndGrowsWithoutOverwriting() {
         val p=fixture(); val a=p.tracks[0].patterns[0]
         val copies=pastedNotes(a.notes,13000)

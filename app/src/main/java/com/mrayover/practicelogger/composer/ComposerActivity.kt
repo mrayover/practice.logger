@@ -170,13 +170,15 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
     if (vm.entranceRemaining > 0) {
         BrandedTransition()
         val lifecycle = LocalLifecycleOwner.current.lifecycle
+        val entranceActivity = LocalContext.current as? ComposerActivity
         LaunchedEffect(vm, lifecycle) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 withFrameNanos { }
                 withFrameNanos { }; var previous = android.os.SystemClock.uptimeMillis()
                 while (vm.entranceRemaining > 0) {
                     delay(32); val now = android.os.SystemClock.uptimeMillis()
-                    vm.entranceFrame(now - previous); previous = now
+                    if (entranceActivity?.hasWindowFocus() != false) vm.entranceFrame(now - previous)
+                    previous = now
                 }
             }
         }
