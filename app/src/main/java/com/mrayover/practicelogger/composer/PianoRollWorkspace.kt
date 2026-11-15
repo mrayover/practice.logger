@@ -139,8 +139,10 @@ private class RollTouch {
                 t.patterns.find { it.id == patternSelections[i] }?.let(project::patternTicks) ?: t.patterns.firstOrNull()?.let(project::patternTicks) ?: project.barTicks()
             }.maxOrNull() ?: project.barTicks()
             val local = shownTick % region
-            Text("${local/project.barTicks()+1}.${(local%project.barTicks())/(3840L/project.denominator)+1} · Region ${region/project.barTicks()} bars",style = MaterialTheme.typography.bodySmall,modifier = Modifier.padding(horizontal = 8.dp))
-            Text(if(!soundsReady) "Loading sounds…" else if(playing) "Playing · edits apply next Play" else "Ready",style = MaterialTheme.typography.bodySmall)
+            val displayBar = plan?.barTicks ?: project.barTicks()
+            val displayBeat = plan?.beatTicks ?: (3840L/project.denominator)
+            Text("${local/displayBar+1}.${(local%displayBar)/displayBeat+1} · Region ${region/displayBar} bars",style = MaterialTheme.typography.bodySmall,modifier = Modifier.padding(horizontal = 8.dp))
+            Text(if(!soundsReady) "Loading sounds…" else if(playing) "Playing ${plan?.tempo} BPM · edits apply next Play" else "Ready",style = MaterialTheme.typography.bodySmall)
         }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
             if (track != null) RollChoice("Instrument",project.tracks.map { it.title },project.tracks.indexOf(track)) { trackId = project.tracks[it].id }
@@ -203,7 +205,7 @@ private class RollTouch {
         val rulerHeight = 28f*density
         val rowHeight = 26f*density
         val pixelsPerTick = .11f*density*zoom
-        // Vertical navigation covers all MIDI pitches; audition uses Reference Piano's C1–C7 range.
+        // One viewport transform keeps keys, labels, hit testing and notes aligned for MIDI 0–127.
         fun pitch(y: Float) = (84 - floor((y-rulerHeight+panY)/rowHeight).toInt()).coerceIn(0,127)
         fun tick(x: Float) = boundedTick(((x-keyWidth+panX)/pixelsPerTick).toDouble(),0,length-1,RollGrid.entries[gridIndex],snap)
         fun noteLeft(n: CompositionNote) = keyWidth+n.startTick*pixelsPerTick-panX

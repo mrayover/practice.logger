@@ -15,6 +15,13 @@ extern "C" JNIEXPORT jboolean JNICALL Java_com_mrayover_practicelogger_composer_
     auto f=tsf_load_memory(data,env->GetArrayLength(bytes));
     env->ReleaseByteArrayElements(bytes,data,JNI_ABORT);
     if(!f) return false;
+    // Extend melodic edge zones without altering bank bytes or stored pitches.
+    // Extreme MIDI notes transpose the nearest sampled zone; quality is source-limited.
+    if(bank!=8) {
+        auto& preset=f->presets[0]; int low=127,high=0;
+        for(int i=0;i<preset.regionNum;i++) { low=std::min(low,(int)preset.regions[i].lokey); high=std::max(high,(int)preset.regions[i].hikey); }
+        for(int i=0;i<preset.regionNum;i++) { auto& r=preset.regions[i]; if(r.lokey==low) r.lokey=0; if(r.hikey==high) r.hikey=127; }
+    }
     tsf_set_output(f,TSF_STEREO_INTERLEAVED,48000,-12.0f);
     if(!tsf_set_max_voices(f,128)) { tsf_close(f); return false; }
     for(int c=0;c<16;c++) if(!tsf_channel_set_presetindex(f,c,tsf_get_presetindex(f,0,0))) { tsf_close(f); return false; }
@@ -23,6 +30,21 @@ extern "C" JNIEXPORT jboolean JNICALL Java_com_mrayover_practicelogger_composer_
 }
 extern "C" JNIEXPORT jlong JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_on(JNIEnv*,jobject,jlong h,jint bank,jint channel,jint pitch,jint velocity) {
     auto f=engine(h)->banks[bank];
+    if(bank==8) {
+        // FreePats' source kit is chromatic 48–66. Expose stable GM percussion keys.
+        switch(pitch) {
+            case 36: pitch=48;break; case 35: pitch=49;break;
+            case 38: pitch=50;break; case 40: pitch=51;break;
+            case 42: pitch=52;break; case 44: pitch=53;break; case 46: pitch=54;break;
+            case 49: pitch=55;break; case 51: pitch=56;break;
+            case 41: pitch=57;break; case 43: pitch=58;break;
+            case 45: pitch=59;break; case 47: pitch=60;break;
+            case 48: pitch=61;break; case 50: pitch=62;break;
+            case 39: pitch=63;break; case 70: pitch=64;break;
+            case 82: pitch=65;break; case 75: pitch=66;break;
+            default: return -1;
+        }
+    }
     // Pin the TSF play index so overlapping identical pitches release independently.
     unsigned int id=f->voicePlayIndex;
     tsf_channel_note_on(f,channel,pitch,velocity/127.0f);

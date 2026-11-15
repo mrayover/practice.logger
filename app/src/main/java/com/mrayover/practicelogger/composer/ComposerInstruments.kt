@@ -24,7 +24,7 @@ internal object ComposerInstruments {
     fun title(ref: InstrumentReference) = all.getOrNull(index(ref))?.title ?: "Unavailable sound (${ref.instrumentId})"
     fun drumName(pitch: Int): String = when(pitch) {
         35,36 -> "Kick"; 38,40 -> "Snare"; 39 -> "Clap"; 42 -> "Closed hat"; 44 -> "Pedal hat"; 46 -> "Open hat"
-        41,43,45,47,48,50 -> "Tom"; 49,57 -> "Crash"; 51,59 -> "Ride"; else -> "Drum $pitch"
+        41,43,45,47,48,50 -> "Tom"; 49 -> "Cymbal 1"; 51 -> "Cymbal 2"; 70,82 -> "Shaker"; 75 -> "Claves"; else -> "— $pitch"
     }
 }
 

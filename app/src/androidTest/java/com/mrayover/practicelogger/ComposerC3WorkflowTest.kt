@@ -61,6 +61,12 @@ class ComposerC3WorkflowTest {
                 val soft=energy(40); val loud=energy(110)
                 assertTrue("Audible PCM ${sound.title}",loud>10000)
                 assertTrue("Velocity response ${sound.title}: $soft / $loud",loud>soft)
+                if(!sound.drums) for(pitch in listOf(0,127)) {
+                    ComposerSynth.clear(synth,0,15); ComposerSynth.on(synth,i,0,pitch,110)
+                    var peak=0
+                    repeat(80) { ComposerSynth.render(synth,buffer,0,240); for(s in buffer) peak=maxOf(peak,kotlin.math.abs(s.toInt())) }
+                    assertTrue("MIDI $pitch on ${sound.title}",peak>0)
+                }
                 ComposerSynth.clear(synth,0,15)
             }
             val first=ComposerSynth.on(synth,0,0,60,100)
@@ -102,6 +108,16 @@ class ComposerC3WorkflowTest {
         val d=editor!!.resources.displayMetrics.density
         val roll=compose.onNodeWithTag("piano-roll")
         fun point(x: Float,y: Float)=Offset(x*d,y*d)
+        // Both viewport bounds use the same key/note transforms; no invalid rows.
+        roll.performTouchInput { swipe(point(20f,80f),point(20f,5000f),500) }
+        roll.performTouchInput { click(point(350f,40f)) }
+        assertEquals(127,vm.project!!.tracks[0].patterns[1].notes.last().pitch)
+        screenshot("highest-pitch-alignment"); tap("Undo")
+        roll.performTouchInput { swipe(point(20f,80f),point(20f,-5000f),500) }
+        val bottom=roll.fetchSemanticsNode().size.height/d-13f
+        roll.performTouchInput { click(point(350f,bottom)) }
+        assertEquals(0,vm.project!!.tracks[0].patterns[1].notes.last().pitch)
+        screenshot("lowest-pitch-alignment"); tap("Undo")
         roll.performTouchInput { down(0,point(20f,70f)); down(1,point(20f,122f)) }
         compose.waitUntil(5000) { engine.voiceCount()>0 }
         roll.performTouchInput { up(1); moveTo(0,point(20f,145f),300); up(0) }
