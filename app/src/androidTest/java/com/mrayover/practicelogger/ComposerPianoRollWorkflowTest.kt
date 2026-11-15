@@ -34,6 +34,7 @@ class ComposerPianoRollWorkflowTest {
         compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(false).isNotEmpty() }
     }
     private fun tap(text: String) {
+        if (text in listOf("Select All","Copy","Paste","Delete Selected","Quantize Selected")) tap("Actions")
         waitText(text)
         val n=compose.onNodeWithText(text)
         if (!n.isDisplayed()) n.performScrollTo()
@@ -89,6 +90,21 @@ class ComposerPianoRollWorkflowTest {
         roll.performTouchInput { doubleClick(point(146f,93f)) }
         compose.runOnIdle { assertTrue(notes().isEmpty()) }
         tap("Undo"); assertEquals(id,notes().single().id)
+        val beforeScroll=vm.project
+        roll.performTouchInput { down(point(20f,140f)); moveTo(point(20f,60f),300) }
+        compose.waitUntil(3000) { editor!!.auditionEngine!!.voiceCount() == 0 }
+        roll.performTouchInput { up() }
+        assertEquals(beforeScroll,vm.project)
+        roll.performTouchInput { click(point(350f,93f)) }
+        assertEquals(79,notes().last().pitch)
+        screenshot("keyboard-scrolled-aligned")
+        tap("Undo"); assertEquals(beforeScroll,vm.project)
+        roll.performTouchInput { swipe(point(20f,60f),point(20f,140f),400) }
+        tap("Tool: Draw"); tap("Hand")
+        roll.performTouchInput { swipe(point(310f,140f),point(260f,100f),400) }
+        assertEquals(beforeScroll,vm.project)
+        roll.performTouchInput { swipe(point(260f,100f),point(310f,140f),400) }
+        tap("Tool: Hand"); tap("Draw")
         // Add a second voice, select both, copy across A/B, preserve exact values.
         roll.performTouchInput { advanceEventTime(400); click(point(248f,119f)) }
         assertEquals(2,notes().size)
@@ -101,9 +117,9 @@ class ComposerPianoRollWorkflowTest {
         tap("Undo"); assertEquals(unchanged,notes())
         tap("Snap ☐"); tap("Grid 1/32T"); tap("1/16"); tap("Duration 1/8T"); tap("1/16")
         assertEquals(unchanged,notes())
-        tap("Tool: Draw")
+        tap("Tool: Draw"); tap("Select")
         roll.performTouchInput { swipe(point(130f,75f),point(300f,135f),600) }
-        tap("Delete selected"); assertTrue(notes().isEmpty())
+        tap("Delete Selected"); assertTrue(notes().isEmpty())
         tap("Undo"); assertEquals(unchanged,notes())
         val source=notes().toList()
         tap("Select All"); tap("Copy"); tap("Pattern A"); tap("B")

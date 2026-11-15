@@ -40,6 +40,7 @@ private class RollTouch {
     var moved = false
     var navigation = false
     var keyboard = false
+    var keyboardScroll = false
     var ruler = false
     var distance = 0f
     var lastTap: String? = null
@@ -66,7 +67,8 @@ private class RollTouch {
     var gridIndex by rememberSaveable { mutableIntStateOf(2) }
     var durationIndex by rememberSaveable { mutableIntStateOf(2) }
     var snap by rememberSaveable { mutableStateOf(true) }
-    var selectTool by rememberSaveable { mutableStateOf(false) }
+    var tool by rememberSaveable { mutableStateOf("Draw") }
+    var actionsOpen by remember { mutableStateOf(false) }
     var cursor by rememberSaveable { mutableLongStateOf(0) }
     var zoom by rememberSaveable { mutableFloatStateOf(1f) }
     var panX by rememberSaveable { mutableFloatStateOf(0f) }
@@ -127,22 +129,28 @@ private class RollTouch {
             Text("Cursor $cursor ticks", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
         }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-            TextButton(onClick = { selectTool = !selectTool }) { Text(if (selectTool) "Tool: Select" else "Tool: Draw") }
+            RollChoice("Tool:",listOf("Draw","Select","Hand"),listOf("Draw","Select","Hand").indexOf(tool)) { tool = listOf("Draw","Select","Hand")[it] }
             RollChoice("Grid",RollGrid.entries.map { it.label },gridIndex) { gridIndex = it }
             RollChoice("Duration",RollGrid.entries.map { it.label },durationIndex) { durationIndex = it }
             TextButton(onClick = { snap = !snap }) { Text(if (snap) "Snap ☑" else "Snap ☐") }
             TextButton(onClick = { zoom = (zoom / 1.5f).coerceAtLeast(.5f) }) { Text("Zoom −") }
             TextButton(onClick = { zoom = (zoom * 1.5f).coerceAtMost(12f) }) { Text("Zoom +") }
-            TextButton(onClick = { selected = pattern?.notes?.map { it.id }?.toSet() ?: emptySet() }) { Text("Select All") }
-            TextButton(enabled = selected.isNotEmpty(),onClick = { clipboard = pattern?.notes?.filter { it.id in selected } ?: emptyList() }) { Text("Copy") }
-            TextButton(enabled = enabled && clipboard.isNotEmpty() && pattern != null,onClick = {
+            Box {
+            TextButton(onClick = { actionsOpen = true }) { Text("Actions") }
+            DropdownMenu(expanded = actionsOpen,onDismissRequest = { actionsOpen = false }) {
+            DropdownMenuItem(text = { Text("Select All") },enabled = pattern?.notes?.isNotEmpty() == true,onClick = { selected = pattern!!.notes.map { it.id }.toSet(); actionsOpen = false })
+            DropdownMenuItem(text = { Text("Copy") },enabled = selected.isNotEmpty(),onClick = { clipboard = pattern?.notes?.filter { it.id in selected } ?: emptyList(); actionsOpen = false })
+            DropdownMenuItem(text = { Text("Paste") },enabled = enabled && clipboard.isNotEmpty() && pattern != null,onClick = {
                 val copies = pastedNotes(clipboard,cursor)
-                commitNotes(pattern!!.notes + copies); selected = copies.map { it.id }.toSet()
-            }) { Text("Paste") }
-            TextButton(enabled = enabled && selected.isNotEmpty(),onClick = { commitNotes(pattern!!.notes.filterNot { it.id in selected }); selected = emptySet() }) { Text("Delete selected") }
-            TextButton(enabled = enabled && selected.isNotEmpty(),onClick = {
+                commitNotes(pattern!!.notes + copies); selected = copies.map { it.id }.toSet(); actionsOpen = false
+            })
+            DropdownMenuItem(text = { Text("Delete Selected") },enabled = enabled && selected.isNotEmpty(),onClick = { commitNotes(pattern!!.notes.filterNot { it.id in selected }); selected = emptySet(); actionsOpen = false })
+            DropdownMenuItem(text = { Text("Quantize Selected") },enabled = enabled && selected.isNotEmpty(),onClick = {
                 commitNotes(pattern!!.notes.map { n -> if (n.id in selected) n.copy(startTick = boundedTick(n.startTick.toDouble(),0,project.patternTicks(pattern)-n.durationTick,RollGrid.entries[gridIndex],true)) else n })
-            }) { Text("Quantize selected") }
+                actionsOpen = false
+            })
+            }
+            }
         }
         if (pattern == null) { Text("Create a piano instrument to begin drawing notes.",Modifier.padding(16.dp)); return@Column }
         val length = project.patternTicks(pattern)
@@ -174,21 +182,22 @@ private class RollTouch {
             }
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    touch.down = Offset(event.x,event.y); touch.last = touch.down; touch.original = pattern; touch.moved = false; touch.navigation = false
+                    touch.down = Offset(event.x,event.y); touch.last = touch.down; touch.original = pattern; touch.moved = false; touch.navigation = false; touch.keyboardScroll = false
                     touch.keyboard = event.x < keyWidth && event.y >= rulerHeight; touch.ruler = event.y < rulerHeight
                     touch.note = null; preview = null; marquee = null
                     if (touch.keyboard) keys()
                     else if (touch.ruler) cursor = tick(event.x)
+                    else if (tool == "Hand") touch.navigation = true
                     else {
                         val hit = pattern.notes.asReversed().find { n -> event.y in noteTop(n)..(noteTop(n)+rowHeight) && event.x >= noteLeft(n) && event.x <= noteLeft(n)+n.durationTick*pixelsPerTick+12*density }
                         touch.note = hit
                         touch.resize = hit != null && event.x > noteLeft(hit)+max(hit.durationTick*pixelsPerTick*.55f,hit.durationTick*pixelsPerTick-22*density)
                         if (hit != null) { if (hit.id !in selected) selected = setOf(hit.id); audition(hit.pitch) }
-                        else if (!selectTool) selected = emptySet()
+                        else if (tool == "Draw") selected = emptySet()
                     }
                 }
                 MotionEvent.ACTION_POINTER_DOWN -> {
-                    if (touch.keyboard && (0 until event.pointerCount).all { event.getX(it) < keyWidth }) keys()
+                    if (touch.keyboard && !touch.keyboardScroll && (0 until event.pointerCount).all { event.getX(it) < keyWidth }) keys()
                     else { touch.navigation = true; preview = null; marquee = null; audio.stopAll(); touch.voices.clear(); touch.last = centroid(); touch.distance = distance(); touch.lastTap = null }
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -200,9 +209,18 @@ private class RollTouch {
                             val anchor = (touch.last.x-keyWidth+panX)/oldScale
                             panX = (anchor*(.11f*density*newZoom) - (center.x-keyWidth)).coerceAtLeast(0f)
                             zoom = newZoom; panY += touch.last.y-center.y
+                        } else if (!touch.keyboard) {
+                            panX = (panX+touch.last.x-center.x).coerceAtLeast(0f); panY += touch.last.y-center.y
                         }
                         touch.last = center; touch.distance = d
-                    } else if (touch.keyboard) keys()
+                    } else if (touch.keyboard) {
+                        if (!touch.keyboardScroll && abs(event.y-touch.down.y) > android.view.ViewConfiguration.get(context).scaledTouchSlop) {
+                            touch.keyboardScroll = true; touch.moved = true
+                            touch.voices.keys.toList().forEach(audio::noteOff); touch.voices.clear()
+                        }
+                        if (touch.keyboardScroll) panY += touch.last.y-event.y
+                        touch.last = Offset(event.x,event.y)
+                    }
                     else if (touch.ruler) { cursor = tick(event.x); touch.moved = true }
                     else if ((Offset(event.x,event.y)-touch.down).getDistance() > 6*density || touch.moved) {
                         touch.moved = true; touch.lastTap = null
@@ -221,12 +239,12 @@ private class RollTouch {
                                 if (preview?.find { it.id == note.id }?.pitch != changedPitch) audition(changedPitch)
                                 preview = original.notes.map { if (it.id in selected) it.copy(startTick = it.startTick+dt,pitch = it.pitch+dp) else it }
                             }
-                        } else if (selectTool) marquee = touch.down to Offset(event.x,event.y)
+                        } else if (tool == "Select") marquee = touch.down to Offset(event.x,event.y)
                     }
                 }
-                MotionEvent.ACTION_POINTER_UP -> { if (touch.keyboard && !touch.navigation) keys() else { touch.last = centroid(); touch.distance = 0f } }
+                MotionEvent.ACTION_POINTER_UP -> { if (touch.keyboard && !touch.navigation && !touch.keyboardScroll) keys() else { touch.last = centroid(); touch.distance = 0f } }
                 MotionEvent.ACTION_UP -> {
-                    if (touch.keyboard) keys()
+                    if (touch.keyboard) { touch.voices.keys.toList().forEach(audio::noteOff); touch.voices.clear() }
                     else if (!touch.navigation && !touch.ruler && touch.original?.id == pattern.id) {
                         val note = touch.note
                         if (touch.moved) {
@@ -237,7 +255,7 @@ private class RollTouch {
                         } else if (note != null) {
                             if (touch.lastTap == note.id && event.eventTime-touch.lastTapTime in 1..300) { commitNotes(pattern.notes.filterNot { it.id == note.id }); selected -= note.id; touch.lastTap = null }
                             else { touch.lastTap = note.id; touch.lastTapTime = event.eventTime }
-                        } else if (!selectTool) {
+                        } else if (tool == "Draw") {
                             val start = tick(event.x); val n = CompositionNote(newCompositionId(),pitch(event.y),start,RollGrid.entries[durationIndex].ticks.coerceAtMost(length-start),100)
                             commitNotes(pattern.notes+n); selected = setOf(n.id); audition(n.pitch); touch.lastTap = null
                         } else selected = emptySet()
