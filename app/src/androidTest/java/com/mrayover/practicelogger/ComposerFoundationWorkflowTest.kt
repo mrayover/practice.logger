@@ -60,7 +60,7 @@ class ComposerFoundationWorkflowTest {
         assertEquals(Configuration.ORIENTATION_PORTRAIT, resumed().resources.configuration.orientation)
         screenshot("library-empty")
         tap("Create New Composition")
-        compose.onNodeWithText("Create", useUnmergedTree = true).assertIsNotEnabled()
+        compose.onNodeWithText("Create").assertIsNotEnabled()
         field("Composition title", "C1 native etude")
         field("Tempo (30–300 BPM)", "137")
         field("Time signature (e.g. 4/4)", "7/8")

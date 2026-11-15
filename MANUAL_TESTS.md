@@ -524,3 +524,17 @@ Owner reported phone confirmation on November14,2026. This is general functional
 - Check numeric/date/search fields, and that Home keeps build124’s opening layout.
 
 Two focused host checks verify actual Android input flags and preserved numeric/Done behavior; physical IME/language/settings/punctuation behavior remains unverified. No full regression is authorized.
+# compose.logger C1 — owner-phone check
+
+Install the current C1 permanent-key APK from [CURRENT_STATE.md](CURRENT_STATE.md) over the existing app. Do not uninstall or clear app data. Keep a practice ZIP for existing practice data; **it does not include Composer projects yet**.
+
+1. Open Tools → compose.logger. Confirm the portrait library, centered heading and recovery warning. Create a named empty composition with137 BPM and7/8; invalid/empty entries must not enable Create.
+2. Check the black centered compose.logger transition and dark landscape editor. Confirm title/settings, Save, inactive Undo and clearly labeled Loop/Arrange foundation workspaces. No music playback/editing/export is expected.
+3. Change title/tempo in Project settings → Apply. Back should offer save/discard/keep. Keep editing, Save, then return to the library; reopen and verify settings/identity remain. Close/reopen the app and check again.
+4. Rename in the library, reopen, then cancel a deletion. Create a disposable second project and confirm its deletion removes only that project. Verify existing practice data/media remain available.
+5. Return to Tools and confirm ordinary appearance/orientation. On a tablet/foldable or constrained window, verify the fallback remains usable if Android overrides the landscape request. Report device/Android version and any clipped controls or unexpected rotation.
+
+Stop at C1. Piano roll/audio/pattern management/Arrange editing/export/Library integration and portable Composer recovery require later phases.
+
+---
+
