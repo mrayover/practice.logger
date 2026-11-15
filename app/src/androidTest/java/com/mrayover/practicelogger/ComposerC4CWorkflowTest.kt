@@ -100,7 +100,7 @@ class ComposerC4CWorkflowTest {
         compose.onNodeWithTag("mixer-master").assertIsDisplayed(); val masterBounds=compose.onNodeWithTag("mixer-master").fetchSemanticsNode().boundsInWindow; assertTrue(masterBounds.height>48*density)
         inst.runOnMainSync { editVm.edit(four.copy(tracks=four.tracks.take(1))) }; compose.waitForIdle(); shot("08-one-track")
         inst.runOnMainSync { editVm.edit(four) }; compose.waitForIdle(); save(); val exact=current(); File(dir,"project.json").writeText(CompositionCodec.encode(exact)); assertEquals(exact,store.read(exact.id))
-        tap("Play"); compose.waitUntil(10000) { recreated.playing }; inst.runOnMainSync { recreated.setForeground(false) }; compose.waitUntil(10000) { !recreated.playing && recreated.voiceCount()==0 }; inst.runOnMainSync { recreated.setForeground(true) }
+        val finalAudio=activity().auditionEngine!!; compose.waitUntil(30000) { finalAudio.ready }; tap("Play"); compose.waitUntil(10000) { finalAudio.playing }; inst.runOnMainSync { finalAudio.setForeground(false) }; compose.waitUntil(10000) { !finalAudio.playing && finalAudio.voiceCount()==0 }; inst.runOnMainSync { finalAudio.setForeground(true) }
         File(dir,"result.txt").writeText("PASS velocity default/single/multiple/mixed/Undo, shared audio/patterns/mix, live restart and independent lengths, platform master gain/reopen, recreation, 1/4/8 tracks and narrow layout. Physical audio acceptance remains separate. Cold reopen runs separately.\n")
     }
 }

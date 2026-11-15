@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
 /** Only this channel area scrolls; transport and the master remain pinned. */
@@ -29,6 +30,7 @@ import kotlin.math.roundToInt
     choosePattern: (CompositionTrack,String) -> Unit, mute: (String) -> Unit, solo: (String) -> Unit,
     volume: (String,Float) -> Unit, master: (Float) -> Unit, modifier: Modifier = Modifier
 ) {
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 40.dp) {
     Row(modifier.fillMaxWidth().padding(4.dp),horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.weight(1f).fillMaxHeight().horizontalScroll(rememberScrollState()),horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             project.tracks.forEachIndexed { index,track -> key(track.id) {
@@ -36,7 +38,7 @@ import kotlin.math.roundToInt
                 var menu by remember { mutableStateOf(false) }
                 Column(Modifier.width(122.dp).fillMaxHeight().background(Color(0xFF20232D)).padding(4.dp).testTag("mixer-strip-${track.id}"),horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Track ${index+1}",style = MaterialTheme.typography.labelSmall)
-                    Text(ComposerInstruments.trackLabel(track,index).substringAfter(" · "),style = MaterialTheme.typography.bodySmall,maxLines = 2,overflow = TextOverflow.Ellipsis,modifier = Modifier.height(34.dp))
+                    Text(ComposerInstruments.trackLabel(track,index).substringAfter(" · "),style = MaterialTheme.typography.bodySmall.copy(lineHeight = 14.sp),maxLines = 2,overflow = TextOverflow.Ellipsis,modifier = Modifier.height(28.dp))
                     Box {
                         ComposerButton("Pattern ${pattern?.title ?: "None"}",enabled && track.patterns.isNotEmpty(),modifier = Modifier.testTag("mixer-pattern-${track.id}")) { menu = true }
                         DropdownMenu(expanded = menu,onDismissRequest = { menu = false }) {
@@ -56,6 +58,7 @@ import kotlin.math.roundToInt
             MixerFader(masterVolume,enabled,"Master Volume",Modifier.weight(1f).testTag("mixer-master"),master)
             Text("${(masterVolume*100).roundToInt()}%",style = MaterialTheme.typography.bodySmall)
         }
+    }
     }
 }
 
