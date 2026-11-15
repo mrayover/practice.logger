@@ -1,6 +1,6 @@
-# compose.logger C1 — assigned implementation
+# compose.logger C1 — delivered; owner phone confirmation
 
-[Approved contract](docs/COMPOSE_LOGGER_V1_SPEC.md). November14 owner clarification authorizes registration plus C1 implementation/delivery/publication. C1 covers Tools library, create/open/rename/confirmed delete, black transition, separate landscape shell, independent versioned model and durable saving/lifecycle. C2–C7 remain future separate assignments: piano roll → audio → patterns/instruments → Arrange → exports → Library/recovery. No full regression/F1. Existing ZIP12/JSON7 exclude Composer; C7 must complete recovery before V1 acceptance. [Actual results and next task](CURRENT_STATE.md).
+Signed0.47.0/build127 delivers C1. Owner reports it works and requests closeout. Ten host checks and compilation/signing/integrity pass; native functional assertions complete but final synthetic capture assertion fails, so cold-process phase is unrun. No complete automated pass claimed. [Approved contract](docs/COMPOSE_LOGGER_V1_SPEC.md). November14 owner clarification authorizes registration plus C1 implementation/delivery/publication. C1 covers Tools library, create/open/rename/confirmed delete, black transition, separate landscape shell, independent versioned model and durable saving/lifecycle. C2–C7 remain future separate assignments: piano roll → audio → patterns/instruments → Arrange → exports → Library/recovery. No full regression/F1. Existing ZIP12/JSON7 exclude Composer; C7 must complete recovery before V1 acceptance. [Actual results and next task](CURRENT_STATE.md).
 
 ---
 

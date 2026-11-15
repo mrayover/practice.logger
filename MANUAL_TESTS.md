@@ -529,7 +529,7 @@ Two focused host checks verify actual Android input flags and preserved numeric/
 Install the current C1 permanent-key APK from [CURRENT_STATE.md](CURRENT_STATE.md) over the existing app. Do not uninstall or clear app data. Keep a practice ZIP for existing practice data; **it does not include Composer projects yet**.
 
 1. Open Tools → compose.logger. Confirm the portrait library, centered heading and recovery warning. Create a named empty composition with137 BPM and7/8; invalid/empty entries must not enable Create.
-2. Check the black centered compose.logger transition and dark landscape editor. Confirm title/settings, Save, inactive Undo and clearly labeled Loop/Arrange foundation workspaces. No music playback/editing/export is expected.
+2. Check the black centered compose.logger transition and dark landscape editor. If Android shows its first-use “Viewing full screen” tip, tap Got it. Confirm title/settings, Save, inactive Undo and clearly labeled Loop/Arrange foundation workspaces. No music playback/editing/export is expected.
 3. Change title/tempo in Project settings → Apply. Back should offer save/discard/keep. Keep editing, Save, then return to the library; reopen and verify settings/identity remain. Close/reopen the app and check again.
 4. Rename in the library, reopen, then cancel a deletion. Create a disposable second project and confirm its deletion removes only that project. Verify existing practice data/media remain available.
 5. Return to Tools and confirm ordinary appearance/orientation. On a tablet/foldable or constrained window, verify the fallback remains usable if Android overrides the landscape request. Report device/Android version and any clipped controls or unexpected rotation.
