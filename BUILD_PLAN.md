@@ -1,6 +1,8 @@
-# C4A final label verification — build137
+# C4A instrument editor — delivered build137
 
-Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Signed build134 is retained as an initial candidate; its first Android workflow was cancelled after instrumentation did not return. Build135 passed native PCM/editor/preset/chord/recreation checks before a final test-readiness failure; actual screenshots exposed narrow-value and naming-IME clipping. Build136 fixes those visual issues and strengthens bounds/readiness checks. Build136 now passes its complete native/UI/cold-reopen gate and corrected screenshots. Build137 corrects the remaining composition Sound display to the saved preset name; final label verification and closeout are pending. Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
+The November15 owner assignment is implemented and delivered with six functional per-voice controls, independent immutable preset storage, explicit compatible projectv2 sound snapshots and the reused keyboard in a full-screen overlay. Four-row piano roll, single audio owner, notes/identities/960PPQ and practice data remain.29 focused checks, compilation/vital lint, API35 native PCM/UI/lifecycle and exact project/preset cold reopen pass; actual screenshots inspected. [Authoritative delivery/verification](CURRENT_STATE.md) · [C4A implementation](docs/COMPOSER_C4A.md).
+
+Next: C4A owner-phone acceptance. Stop before expanded C4B patterns, C5 Arrange, C6 exports, C7 Library/recovery and F1. Composer projects and presets remain excluded from practice ZIP/JSON. No preset rename/delete/overwrite system or effects processing was added.
 
 ---
 

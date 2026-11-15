@@ -1,8 +1,41 @@
-# C4A final label verification — build137
+# Current state — compose.logger C4A delivered
 
-Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Signed build134 is retained as an initial candidate; its first Android workflow was cancelled after instrumentation did not return. Build135 passed native PCM/editor/preset/chord/recreation checks before a final test-readiness failure; actual screenshots exposed narrow-value and naming-IME clipping. Build136 fixes those visual issues and strengthens bounds/readiness checks. Build136 now passes its complete native/UI/cold-reopen gate and corrected screenshots. Build137 corrects the remaining composition Sound display to the saved preset name; final label verification and closeout are pending. Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
+Updated November15,2026 (America/Los_Angeles). Signed **0.50.0/build137** delivers the dedicated instrument editor, real six-parameter sound shaping, immutable custom preset library and reused polyphonic preview keyboard. **29 focused host checks, compilation/vital lint, API35 C4A workflow and exact project/preset cold reopen pass.** Actual rendered primary/narrow/enlarged/IME captures inspected. Physical Galaxy S26 Ultra/audio/routing acceptance remains pending; no full regression/F1.
+
+Canonical C:/Users/mrove/Projects/practice.logger on **block-ux-stage1**; older OneDrive source checkout untouched. Initial clean local/live remote **3c55c2986ce5ed8d4a7f090bb9f0addecff5413a**. Application/APK source **58439a13a10584ed880892439cc41d4300e23e01**; final focused test source **58439a13a10584ed880892439cc41d4300e23e01**. Closing documentation publication is verified separately at handoff; no main merge.
+
+[APK](dist/practice.logger-0.50.0-b137-58439a1/practice.logger-0.50.0-b137-58439a1.apk) · [ZIP](dist/practice.logger-0.50.0-b137-58439a1.zip) · [Delivery report](dist/practice.logger-0.50.0-b137-58439a1/DELIVERY_REPORT.md) · [Technical ownership/storage/limits](docs/COMPOSER_C4A.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c4a--owner-phone-check).
+
+Delivery copies: **OneDrive / Practice Log development / Compose C4A delivery / build137**. Install over the existing permanent-key app without uninstalling/clearing data. Local copies match; cloud-sync completion is unobserved. dist/LATEST.txt points to them.
+
+- APK SHA256 **33b376971a8fddbb1856190cea6dc372e7f4eced79cc0f126f7dd29e6a2ff1d7**; ZIP SHA256 **f50a757408729fbe93c45901e726d2cd2756692b049b9fd0831449be03ad5f64**.
+- Stable package com.mrayover.practicelogger.app, version/build, pinned certificate f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830 and signature verified. **106** unsigned payload entries and all nine original SF2 hashes match. ZIP exact-byte round trip and delivery-copy hashes pass. **648** previous APK/ZIP hashes unchanged, including initial signed134/135 candidates and verified136; all distributions retained.
+
+## Implemented behavior
+
+Edit Instrument opens a full-screen landscape overlay inside the existing Composer Activity. The four-row roll stays mounted with its audio owner, selected track/pattern and view position; no branded entrance repeats. Entry deliberately stops Loop. Back/preset changes protect unsaved sound changes. Save New Preset creates an immutable validated UUID/private file. Factory and My Presets are distinct groups; factory data is never overwritten. Use on Track applies a saved selection only to the current draft, preserving notes, velocities and identities; composition Save commits it.
+
+Attack0–3000ms, Release10–5000ms, logarithmic Cutoff40–18000Hz, ResonanceQ0.5–4, Sustain0–100% held amplitude and equal-power PanL/Center/R affect actual SF2 output. Attack starts on next note; release determines the next release transition. Numeric entry/default/accessibility supplement160dp vertical knob travel. Factory bypass preserves original per-zone sound; its dials explicitly show editor starting defaults until a control is changed. Custom envelope has bounded fixed SF2 decay rate; sample natural decay/end still applies. Existing track Volume remains live. No effects chain or sample editing.
+
+The existing Reference Piano component provides chords, note labels, octave/semitone movement, release/cancel and accessibility, routed exclusively to Composer SF2 audio. Focus loss/background/reset, range/preset switching, editor disposal and recreation release preview. One audio worker owns16 independent channel snapshots and private voice-region copies; shared SF2 regions/assets and vendored tsf.h are unchanged. Preview uses channels8–15; Loop uses0–7 and an immutable per-track sound snapshot on next Play. The existing960PPQ clock, mixer and playback ownership remain.
+
+Normal landscape keeps all six numeric values and the keyboard visible. Short headers use40dp controls. Enlarged text/orientation restrictions scroll the control body with80dp keys pinned below it. Naming/numeric dialogs account for the software keyboard and scroll their content. Native bounds checks use original/unclipped values, and Save is physically tapped with IME visible. Physical safe-inset/touch/latency acceptance remains separate.
+
+Private preset format1 records base instrument, UUID, readable title and versioned sound parameters via synced temporary files and atomic rename. Existing project v1 reads/writes unchanged, including reference-piano/default and nine C3 identities. Explicit project v2 embeds nullable factory fields or a complete immutable custom identity/title/settings snapshot. Unknown fields/versions remain rejected. Custom projects play without a library-file dependency and Save As preserves the sound. Other compositions never change when a preset is created. Room27/ZIP12/JSON7 and practice data are unchanged.
+
+## Focused evidence and limitations
+
+- [Final C4A workflow 43762786936](https://github.com/mrayover/practice.logger/actions/runs/43762786936), source58439a13a10584ed880892439cc41d4300e23e01:29 focused checks with zero failures/errors/skips, debug/release/instrumentation compilation/vital lint, one API35 workflow and cold-process exact project/preset reopening pass. Native PCM demonstrates attack/release/sustain/filter/Q/pan, same-bank channel isolation, polyphony and clear silence. UI exercises knob dragging/precise values, save/factory/custom reselection, actual chords/range, track/Loop snapshot preservation, dirty warnings/recreation, narrow/enlarged layout, keyboard-visible Save, focus/exit cleanup and persisted reopening.
+- Initial43758391137 passed build/29 checks/launch then instrumentation did not return; cancelled after over10minutes and logs/artifact retained. Its exact cause was not established. Follow-up43759998847 passed native PCM and most UI, then a final enabled-key readiness assertion failed; the test now awaits actual enabled semantics. Screenshots from that run exposed genuine narrow-value and IME button clipping, corrected in136. No failed assertion was removed. Verified136 workflow43761365333 passed; final137 adds the saved custom preset name to the composition Sound display and checks it after application/cold reopening. The enlarged-controls capture is actual1.6x evidence; the early enlarged-header capture caught the preceding scale frame. Detailed evidence and compiler corrections are in WORK_LOG.
+- PCM generation/emulator interaction does not establish physical speaker/headphone/Bluetooth quality, latency or owner acceptance. No API26 matrix, full regression or F1 certification.
+
+**Practice ZIP/JSON still exclude Composer projects AND presets.** Complete recovery remains later C7/export work. Custom rename/delete/shared overwrite/version management, expanded C4B patterns, Arrange, exports, Library integration and effects remain unimplemented by design. Earlier SoundFont drum subset/sample limits remain.
+
+**Exact next task: install build137 over the existing app and perform the C4A owner-phone checklist. Stop before C4B–C7/F1.**
 
 ---
+
+# Historical build133 delivery
 
 # Current state — compact compose.logger and Save As delivered
 
