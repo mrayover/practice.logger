@@ -46,7 +46,7 @@ jobs:
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - name: Focused Composer persistence checks
         if: inputs.check == 'composer-c1'
-        run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.composer.CompositionStoreTest' lintVitalRelease --console=plain
+        run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.composer.*Test' lintVitalRelease --console=plain
       - name: Focused LGE data, suggestions and accounting checks
         if: inputs.check == 'learning'
         run: bash ./gradlew lintVitalRelease testDebugUnitTest --tests 'com.mrayover.practicelogger.LearningRepositoryTest' --tests 'com.mrayover.practicelogger.LearningSuggestionsTest' --tests 'com.mrayover.practicelogger.AdaptiveSchedulingTest' --tests 'com.mrayover.practicelogger.PracticeStatisticsTest' --console=plain

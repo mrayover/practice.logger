@@ -112,6 +112,13 @@ class ComposerLibraryViewModel(app: Application, private val state: SavedStateHa
         state["pendingOpen"] = null; state["pendingCreate"] = null
         refresh()
     }
+    fun launched() {
+        // The result launcher owns the active editor now. A recreated underlying library must not
+        // replay this launch when Android restores its stack after process loss.
+        openId = null
+        state["pendingOpen"] = null
+        state["pendingCreate"] = null
+    }
     fun rename(project: CompositionProject, title: String) = work {
         withContext(Dispatchers.IO) { store.rename(project, title) }
         listing = withContext(Dispatchers.IO) { store.list() }
@@ -134,6 +141,7 @@ class ComposerLibraryViewModel(app: Application, private val state: SavedStateHa
         vm.openId?.let { id ->
             // Let the library draw black before the separate Activity rotates the display.
             withFrameNanos { }; withFrameNanos { }
+            vm.launched()
             launcher.launch(Intent(context, ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID, id))
         }
     }

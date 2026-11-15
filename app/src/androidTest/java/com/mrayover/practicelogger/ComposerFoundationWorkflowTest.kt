@@ -26,7 +26,11 @@ class ComposerFoundationWorkflowTest {
         compose.onNodeWithText(text).assertIsDisplayed()
     }
     private fun tap(text: String) { waitText(text); compose.onNodeWithText(text).performClick() }
-    private fun field(label: String, text: String) { compose.onNodeWithText(label).performClick().performTextReplacement(text) }
+    private fun field(label: String, text: String) {
+        val node = compose.onNodeWithText(label)
+        if (!node.isDisplayed()) node.performScrollTo()
+        node.performClick().performTextReplacement(text)
+    }
     private fun hideIme() {
         val activity = resumed()
         var visible = false
