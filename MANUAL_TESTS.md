@@ -567,3 +567,12 @@ Install the signed development APK over the existing permanent-key app. Do not u
 9. Save, leave, force-close normally and reopen. Verify exact notes/IDs visually, sound assignments, pattern lengths and tempo. Existing Reference Piano in Tools and normal practice data should remain available. Report any stuck note, silence, timing issue or gesture mismatch with the sound, track/pattern, action and phone/audio route.
 
 C4 management, Arrange playback, exports and Library integration are outside this build. Existing Composer backup limitation remains until C7.
+
+## compose.logger compact UI and Save As — owner phone check
+
+1. Install the delivered signed APK over the existing practice.logger app. Keep existing data; do not uninstall or clear storage.
+2. Tools → compose.logger → open a composition. After the branded entrance, check the four landscape rows, readable controls and larger interactive piano roll. Menus need no sideways scrolling. On a smaller window or enlarged text, use each row's More menu.
+3. Open Instrument, Pattern (including Create Pattern), Sound, Bars, Tool, Grid, Duration and Actions. Try Play/Stop, Repeat, ↤ → Beginning, Mute/Solo/Volume, Snap, Zoom and Undo. Audition keys, scroll the keyboard, and insert/move/resize a note. Confirm menus and Volume do not reset playback.
+4. Save the original, add a distinguishable note without saving, then Save As. Enter a new title with the keyboard open and create the copy. The new composition must contain that unsaved note. Return to the portrait library and confirm both titles exist. Reopen the original: it must retain its earlier saved notes. Edit/save only the copy, close the app completely and reopen both; they must stay independent.
+5. Make an unsaved edit and Return. Keep editing, Save and return, and Discard should retain their established safeguards. Confirm Loop/Arrange selection is clear; Arrange remains a placeholder. Edit Instrument and Velocity are visibly disabled.
+6. Report any clipped/overlapping control, difficult touch target, hidden error, keyboard-dialog problem or sound/output issue. Emulator evidence does not establish Galaxy S26 Ultra touch/acoustic acceptance. Practice ZIP/JSON still exclude Composer projects.

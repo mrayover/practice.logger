@@ -1,3 +1,37 @@
+# Current state — compact compose.logger and Save As delivered
+
+Updated November 15, 2026 (America/Los_Angeles). Signed **0.49.1/build133** consolidates Composer into four compact measured landscape rows, expands the piano roll, and implements independent live-draft Save As. **27 focused host checks, compilation/vital lint, and the API35 compact workflow plus exact original/copy cold reopening pass.** Actual rendered screenshots were inspected. Physical Galaxy S26 Ultra touch/fit/audio acceptance remains pending; no comprehensive regression/F1.
+
+Canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1; older OneDrive source checkout untouched. Clean initial local/live remote da6289813f7138b759d9cfd41e1a87202b41c8f3. Application/APK source **f5ddeea2595392a296889e170c0a4ce80fa4765b**; final focused test source **127f98fcede20d4115983e69834fe9fa11895c69**. Application/build source is byte-identical between them; subsequent changes are tests/docs. Final documentation publication is verified at closeout; no main merge.
+
+[APK](dist/practice.logger-0.49.1-b133-f5ddeea/practice.logger-0.49.1-b133-f5ddeea.apk) · [ZIP](dist/practice.logger-0.49.1-b133-f5ddeea.zip) · [Delivery report](dist/practice.logger-0.49.1-b133-f5ddeea/DELIVERY_REPORT.md) · [Behavior/ownership](docs/COMPOSER_COMPACT_UI.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-compact-ui-and-save-as--owner-phone-check).
+
+Delivery copies: **OneDrive / Practice Log development / Compose Compact UI delivery / build133**. Install over the existing permanent-key app without uninstalling/clearing data. File hashes match locally; cloud-sync completion is unobserved. dist/LATEST.txt points to the copies.
+
+- APK SHA256 **ff3bd05cfd1eb30de7bf27fdf766c98922f5879e4a6089df63d1235c73418bf0**; ZIP SHA256 **ffc2b475f8615c30abe4dea23e811f2d75cb3cce64cbc0d900a76bb9bf5b8876**.
+- Package com.mrayover.practicelogger.app, version/build and pinned permanent certificate f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830 verified. 106 unsigned payload entries and all nine unchanged SF2 hashes match. ZIP content/round-trip hashes and delivery copies pass. Build129/132 APK/ZIP hashes unchanged; earlier distributions retained.
+
+## Implemented behavior
+
+Application row: identity, Save/Save As, selected Loop/Arrange, Project Settings, Return. Context row: numbered Instrument selector (number/title entries), Pattern with Create Pattern, + Instrument/eight-track cap, Bars, nine-bank Sound and disabled Edit Instrument. Performance row: Play/Stop/Repeat/Mute/Solo/Volume, disabled Velocity and compact ↤ menu for Beginning. Editing row: Tool/Grid/Duration/Snap/Zoom/Actions/Undo and musical position/region. Actual text measurements at current font scale select explicit More overflow before controls exceed row width. No primary control row has horizontal scrolling. The unchanged musical canvas still pans/zooms and receives remaining height. One compact status line replaces static audio descriptions; contextual errors remain visible.
+
+Four rows measure40dp each. Primary1040x480dp canvas304dp (**63.3%** of screen height); narrow640x360dp canvas184dp (**51.1%**); large1280x800dp canvas624dp (**78.0%**). At640x360dp/1.6x text, More provides the accessible fallback; some lower-priority/critical controls move there when all cannot fit. Menus/dialog/software keyboard and actual key/grid pixels were visually inspected. Android transient status/navigation bars appear in the primary handoff/keyboard captures; later normal captures are unobstructed. Existing immersive overlay behavior remains, with physical safe-inset acceptance pending. These are emulated viewports, not physical Galaxy measurements.
+
+Save As validates the title and copies current unsaved notes/velocities, tempo/meter, sound assignments, patterns and arrangement content. Project/track/pattern/note/clip IDs are regenerated and clip references remapped; metadata/revision history starts fresh. Atomic create succeeds before ViewModel saved-state/Intent identity changes and source Undo/clipboard/checkpoint retirement. Original saved bytes remain unchanged. Failure retains recoverable source draft state. Save As is device-local composition creation; practice ZIP/JSON still exclude Composer until C7.
+
+PianoRollWorkspace keeps one audio/editor-state owner while menus, mixer and layout change. Mode changes stop playback deliberately while preserving session editing state. Save As intentionally replaces the workspace/audio owner for the new document. Existing canvas geometry/gestures, sound banks/TinySoundFont, practice data, Room/ZIP/JSON and entrance behavior are unchanged. Edit Instrument/Velocity stay disabled; Arrange is a placeholder. No C4–C7/F1 scope is claimed.
+
+## Focused evidence and limits
+
+- [Final workflow 43754884820](https://github.com/mrayover/practice.logger/actions/runs/43754884820), source127f98fcede20d4115983e69834fe9fa11895c69, passes27 host checks with zero failures/errors/skips, debug/release/instrumentation compilation and vital lint. Native workflow checks four rows, menus, actual visible keyboard/keys, three normal landscape sizes and1.6x text/overflow Volume; selected patterns, Play/Stop/Repeat/Beginning/mixer and stable audio owner through menus; Actions Copy/Paste/Undo; tool/grid/snap/zoom and keyboard scrolling; unsaved-note/velocity Save As, independent edits/Save, new-document recreation, dirty Return/Keep editing/Undo, portrait library and both exact documents after force-stop.
+- First workflow43754024479 passed27 checks and both native executions, but first primary capture caught branding and its keyboard-named capture had no software keyboard. Final capture test waits for committed frames, asserts actual keyboard pixels and requires IME visibility. No product change was needed for this evidence correction. Later test source explicitly includes unsaved-note assertions, new-project recreation and enlarged-text overflow.
+- Local debug/release/vital/native compilation and27 focused host checks pass; strengthened3-check Save As class passes locally. Earlier C1–C3 workflows retain their tests/assertions with current labels, but were not broadly rerun. No full regression, historical matrix, physical speaker/headphone/Bluetooth or phone acceptance is claimed.
+
+**Exact next task: install build133 over the existing app and perform the compact UI/Save As owner-phone checklist. Stop before C4–C7/F1.**
+
+---
+# Historical C3 delivery — build132
+
 # Current state — compose.logger C2 corrections + C3 delivered
 
 Updated November 15, 2026 (America/Los_Angeles). Signed **0.49.0/build132** delivers keyboard scrolling/Hand/Actions and nine SoundFont instruments with synchronized multitrack Loop playback. **24/24 focused host checks and the final API35 audio/editing/lifecycle workflow plus exact saved cold reopen pass.** Actual landscape captures reviewed. Physical touch/audio/routing acceptance remains pending; no F1/full regression.

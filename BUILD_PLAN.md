@@ -1,3 +1,9 @@
+# Compact Composer UI and Save As — delivered build133
+
+Four measured rows and explicit overflow consolidate the existing C3 editor; Save As copies the live draft into an independent editable composition. Disabled Edit Instrument/Velocity reserve positions. No C4, Arrange editing, exports, engine changes or F1. [Behavior/ownership](docs/COMPOSER_COMPACT_UI.md) · [Actual signed delivery and verification](CURRENT_STATE.md). Signed0.49.1/build133 passes focused host/native/visual/cold-reopen verification. Exact next task: owner phone checklist; no C4–C7/F1.
+
+Earlier phase entries below are historical where superseded by CURRENT_STATE.
+
 # compose.logger C2 corrections + C3 — delivered
 
 Signed0.49.0/build132 delivers keyboard drag scrolling/Hand/Actions and nine CC0 SF2 instruments through TinySoundFont, selected-instrument audition and synchronized multitrack Loop playback. C2 was verified before C3; final24 host checks, compilation and API35 audio/lifecycle workflow plus exact cold reopen pass. Source2d6a95e; focused test source72b8239/CI43745345404. [Authoritative delivery/results/limits](CURRENT_STATE.md) · [C3/licenses](docs/COMPOSER_C3.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c3--owner-phone-check). Owner phone touch/acoustic acceptance is next. Stop before C4–C7/F1. Existing practice backups exclude Composer. Earlier handoffs below are historical.

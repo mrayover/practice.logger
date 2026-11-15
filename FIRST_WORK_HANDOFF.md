@@ -1,3 +1,11 @@
+# Compact Composer UI and Save As — delivered build133
+
+Use canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1. The older OneDrive source checkout remains unchanged. Signed0.49.1/build133 delivers four-row landscape consolidation and independent live-draft Save As with27 focused checks and visual/document/cold-reopen verification; C4–C7/F1 remain excluded. [Authoritative signed delivery/results/next task](CURRENT_STATE.md) · [Behavior/ownership](docs/COMPOSER_COMPACT_UI.md) · [Phone checks](MANUAL_TESTS.md#composelogger-compact-ui-and-save-as--owner-phone-check).
+
+Exact next task: owner build133 phone checklist; stop before C4–C7/F1. Read AGENTS and the WORK_LOG mandatory efficiency procedure. The implementation preserves the existing model/store, musical canvas and TinySoundFont engine. Actual visual outcomes and publication status are in CURRENT_STATE; earlier next-task handoffs below are historical.
+
+---
+
 # Current handoff — C3 delivered; phone acceptance next
 
 Signed0.49.0/build132 delivers keyboard drag scrolling/Hand/Actions and nine CC0 SF2 instruments through TinySoundFont, selected-instrument audition and synchronized multitrack Loop playback. C2 was verified before C3; final24 host checks, compilation and API35 audio/lifecycle workflow plus exact cold reopen pass. Source2d6a95e; focused test source72b8239/CI43745345404. [Authoritative delivery/results/limits](CURRENT_STATE.md) · [C3/licenses](docs/COMPOSER_C3.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c3--owner-phone-check). Owner phone touch/acoustic acceptance is next. Stop before C4–C7/F1. Existing practice backups exclude Composer. Earlier handoffs below are historical.
