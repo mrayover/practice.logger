@@ -8,6 +8,7 @@ import java.util.UUID
 const val COMPOSER_FORMAT_VERSION = 1
 const val COMPOSER_PPQ = 960
 const val COMPOSER_MAX_TRACKS = 8
+const val COMPOSER_MAX_PATTERNS = 256
 internal fun newCompositionId(): String = UUID.randomUUID().toString()
 internal fun validCompositionId(value: String): Boolean =
     runCatching { UUID.fromString(value).toString() == value }.getOrDefault(false)
@@ -72,7 +73,7 @@ object CompositionCodec {
             listOf(track.instrument.instrumentId, track.instrument.presetId).forEach {
                 require(it.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9._:-]{0,119}")))
             }
-            require(track.patterns.size <= 256)
+            require(track.patterns.size <= COMPOSER_MAX_PATTERNS)
             track.patterns.forEach { pattern ->
                 identity(pattern.id); title(pattern.title)
                 require(pattern.lengthBars in setOf(1, 2, 4, 8, 16))
@@ -120,7 +121,7 @@ object CompositionCodec {
                 t.fields("id,title,instrument,patterns")
                 val i = t.getJSONObject("instrument").also { it.fields(if(root.long("formatVersion")==1L) "registryVersion,instrumentId,presetId" else "registryVersion,instrumentId,presetId,sound,presetTitle") }
                 CompositionTrack(t.string("id"), t.string("title"), InstrumentReference(i.int("registryVersion"), i.string("instrumentId"), i.string("presetId"), if(i.has("sound") && !i.isNull("sound")) ComposerSound.decode(i.getJSONObject("sound")) else null, if(i.has("presetTitle") && !i.isNull("presetTitle")) i.string("presetTitle") else null),
-                    t.objects("patterns", 256).map { pat ->
+                    t.objects("patterns", COMPOSER_MAX_PATTERNS).map { pat ->
                         pat.fields("id,title,lengthBars,notes")
                         CompositionPattern(pat.string("id"), pat.string("title"), pat.int("lengthBars"), pat.objects("notes", 100000).map { n ->
                             n.fields("id,pitch,startTick,durationTick,velocity")

@@ -1,3 +1,9 @@
+# C4B implementation — build138 verification in progress
+
+November15 owner handoff authorizes instrument identity correction and bounded pattern/track management. C4A is owner-reported working. Naming was corrected and checked before C4B. Canonical checkout clean baseline/live remote 4f5d1236ed2fb0f640e58c1206e76d9df178604b on block-ux-stage1. Mandatory efficiency procedure reviewed. 34 focused host checks, debug/release/native-test compilation and vital lint pass locally. Android workflow/rendered evidence and signed delivery closeout remain pending. No C5–C7/F1. [Implementation](docs/COMPOSER_C4B.md).
+
+---
+
 # Current state — compose.logger C4A delivered
 
 Updated November15,2026 (America/Los_Angeles). Signed **0.50.0/build137** delivers the dedicated instrument editor, real six-parameter sound shaping, immutable custom preset library and reused polyphonic preview keyboard. **29 focused host checks, compilation/vital lint, API35 C4A workflow and exact project/preset cold reopen pass.** Actual rendered primary/narrow/enlarged/IME captures inspected. Physical Galaxy S26 Ultra/audio/routing acceptance remains pending; no full regression/F1.

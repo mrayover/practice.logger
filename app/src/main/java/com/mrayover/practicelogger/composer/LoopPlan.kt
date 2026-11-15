@@ -4,7 +4,7 @@ import kotlin.math.roundToLong
 
 internal data class LoopEvent(val tick: Long,val note: Int,val on: Boolean)
 internal data class LoopTrack(val bank: Int,val length: Long,val notes: List<CompositionNote>,val events: List<LoopEvent>,val sound: ComposerSound? = null)
-internal data class LoopPlan(val tempo: Int,val barTicks: Long,val beatTicks: Long,val regionTicks: Long,val tracks: List<LoopTrack>) {
+internal data class LoopPlan(val tempo: Int,val barTicks: Long,val beatTicks: Long,val regionTicks: Long,val tracks: List<LoopTrack>,val trackIds: List<String> = emptyList()) {
     fun frame(tick: Long): Long = (tick * (48000.0 * 60 / (tempo * COMPOSER_PPQ))).roundToLong()
     fun tick(frame: Long): Double = frame * (tempo * COMPOSER_PPQ) / (48000.0 * 60)
     companion object {
@@ -20,7 +20,7 @@ internal data class LoopPlan(val tempo: Int,val barTicks: Long,val beatTicks: Lo
                         .sortedWith(compareBy<LoopEvent> { it.tick }.thenBy { it.on }),t.instrument.sound)
             }
             // Supported lengths are powers of two, so the longest is also their LCM.
-            return LoopPlan(project.tempoBpm,project.barTicks(),3840L/project.denominator,tracks.maxOfOrNull { it.length } ?: project.barTicks(),tracks)
+            return LoopPlan(project.tempoBpm,project.barTicks(),3840L/project.denominator,tracks.maxOfOrNull { it.length } ?: project.barTicks(),tracks,project.tracks.map { it.id })
         }
     }
 }

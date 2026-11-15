@@ -1,3 +1,9 @@
+# C4B implementation — build138 verification in progress
+
+November15 owner handoff authorizes instrument identity correction and bounded pattern/track management. C4A is owner-reported working. Naming was corrected and checked before C4B. Canonical checkout clean baseline/live remote 4f5d1236ed2fb0f640e58c1206e76d9df178604b on block-ux-stage1. Mandatory efficiency procedure reviewed. 34 focused host checks, debug/release/native-test compilation and vital lint pass locally. Android workflow/rendered evidence and signed delivery closeout remain pending. No C5–C7/F1. [Implementation](docs/COMPOSER_C4B.md).
+
+---
+
 # C4A instrument editor — delivered build137
 
 The November15 owner assignment is implemented and delivered with six functional per-voice controls, independent immutable preset storage, explicit compatible projectv2 sound snapshots and the reused keyboard in a full-screen overlay. Four-row piano roll, single audio owner, notes/identities/960PPQ and practice data remain.29 focused checks, compilation/vital lint, API35 native PCM/UI/lifecycle and exact project/preset cold reopen pass; actual screenshots inspected. [Authoritative delivery/verification](CURRENT_STATE.md) · [C4A implementation](docs/COMPOSER_C4A.md).

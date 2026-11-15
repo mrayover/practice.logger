@@ -23,7 +23,7 @@ internal data class ComposerControl(
         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
         colors = ButtonDefaults.textButtonColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .22f) else androidx.compose.ui.graphics.Color.Transparent),
         modifier = Modifier.heightIn(min = 40.dp).defaultMinSize(minWidth = 0.dp)) {
-        Text(label, fontSize = 13.sp, maxLines = 1, softWrap = false)
+        Text(label, fontSize = 13.sp, maxLines = 1, softWrap = false, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
     }
 }
 

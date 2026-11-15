@@ -1,3 +1,9 @@
+# C4B implementation — build138 verification in progress
+
+November15 owner handoff authorizes instrument identity correction and bounded pattern/track management. C4A is owner-reported working. Naming was corrected and checked before C4B. Canonical checkout clean baseline/live remote 4f5d1236ed2fb0f640e58c1206e76d9df178604b on block-ux-stage1. Mandatory efficiency procedure reviewed. 34 focused host checks, debug/release/native-test compilation and vital lint pass locally. Android workflow/rendered evidence and signed delivery closeout remain pending. No C5–C7/F1. [Implementation](docs/COMPOSER_C4B.md).
+
+---
+
 # compose.logger C4A — delivered build137
 
 Canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1; OneDrive source checkout untouched. Signed0.50.0/build137, application source58439a13a10584ed880892439cc41d4300e23e01, final test source58439a13a10584ed880892439cc41d4300e23e01, delivers the dedicated synth editor, six actual sound controls, immutable custom presets and reused preview keyboard.29 focused checks, compilation/vital lint, native PCM/UI/lifecycle and exact project/preset cold reopen pass. Actual primary/narrow/enlarged/keyboard-visible dialog captures inspected. [Authoritative delivery/evidence](CURRENT_STATE.md) · [Ownership/format/limits](docs/COMPOSER_C4A.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c4a--owner-phone-check).

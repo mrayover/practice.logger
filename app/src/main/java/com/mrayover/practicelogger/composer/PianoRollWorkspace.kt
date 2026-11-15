@@ -3,6 +3,8 @@ package com.mrayover.practicelogger.composer
 import android.graphics.Paint
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -47,13 +49,13 @@ private class RollTouch {
     val voices = mutableMapOf<Long,Int>()
 }
 
-@Composable private fun RollChoice(label: String, values: List<String>, selected: Int, enabled: Boolean = true, extra: (@Composable () -> Unit)? = null, display: String? = null, choose: (Int) -> Unit) {
+@Composable private fun RollChoice(label: String, values: List<String>, selected: Int, enabled: Boolean = true, extra: (@Composable (() -> Unit) -> Unit)? = null, display: String? = null, choose: (Int) -> Unit) {
     var open by remember { mutableStateOf(false) }
     Box {
         ComposerButton("$label ${display ?: values.getOrElse(selected) { "—" }}", enabled) { open = true }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             values.forEachIndexed { i, value -> DropdownMenuItem(text = { Text(value) }, onClick = { choose(i); open = false }) }
-            extra?.invoke()
+            extra?.invoke { open = false }
         }
     }
 }
@@ -61,15 +63,25 @@ private class RollTouch {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, loopMode: Boolean = true, canUndo: Boolean = false, undo: () -> Unit = {}) {
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
-    var patternSelections by rememberSaveable { mutableStateOf(ArrayList(List(8) { "" })) }
+    var selections by rememberSaveable { mutableStateOf(hashMapOf<String,String>()) }
+    var muteById by rememberSaveable { mutableStateOf(hashMapOf<String,Boolean>()) }
+    var soloById by rememberSaveable { mutableStateOf(hashMapOf<String,Boolean>()) }
+    var volumeById by rememberSaveable { mutableStateOf(hashMapOf<String,Float>()) }
     val track = project.tracks.find { it.id == trackId } ?: project.tracks.firstOrNull()
     val trackIndex = project.tracks.indexOf(track).coerceAtLeast(0)
-    val pattern = track?.patterns?.find { it.id == patternSelections[trackIndex] } ?: track?.patterns?.firstOrNull()
-    fun choosePattern(id: String) { patternSelections = ArrayList(patternSelections).also { it[trackIndex] = id } }
+    val pattern = track?.patterns?.find { it.id == selections[track.id] } ?: track?.patterns?.firstOrNull()
+    val patternSelections = project.tracks.map { t -> t.patterns.find { it.id==selections[t.id] }?.id ?: t.patterns.firstOrNull()?.id.orEmpty() }
+    fun choosePattern(id: String) { track?.let { selections = HashMap(selections).also { values -> values[it.id] = id } } }
     val bank = track?.let { ComposerInstruments.index(it.instrument) } ?: 0
-    var muted by rememberSaveable { mutableStateOf(BooleanArray(8)) }
-    var solo by rememberSaveable { mutableStateOf(BooleanArray(8)) }
-    var volumes by rememberSaveable { mutableStateOf(FloatArray(8) { 1f }) }
+    val muted = BooleanArray(8) { muteById[project.tracks.getOrNull(it)?.id] == true }
+    val solo = BooleanArray(8) { soloById[project.tracks.getOrNull(it)?.id] == true }
+    val volumes = FloatArray(8) { volumeById[project.tracks.getOrNull(it)?.id] ?: 1f }
+    var management by rememberSaveable { mutableStateOf<String?>(null) }
+    var targetTrack by rememberSaveable { mutableStateOf("") }
+    var targetPattern by rememberSaveable { mutableStateOf("") }
+    var enteredTitle by rememberSaveable { mutableStateOf("") }
+    var managementError by rememberSaveable { mutableStateOf<String?>(null) }
+    fun manage(action: String) { targetTrack=track?.id.orEmpty(); targetPattern=pattern?.id.orEmpty(); enteredTitle=if(action=="Rename Track") track?.title.orEmpty() else pattern?.title.orEmpty(); managementError=null; management=action }
     var repeat by rememberSaveable { mutableStateOf(true) }
     var playing by remember { mutableStateOf(false) }
     var soundsReady by remember { mutableStateOf(false) }
@@ -121,8 +133,22 @@ private class RollTouch {
     LaunchedEffect(audio) {
         while(true) { soundsReady = audio.ready; playing = audio.playing; transportFrame = audio.positionFrame(); transportPlan = audio.playbackPlan; delay(30) }
     }
-    LaunchedEffect(muted,solo,volumes) { audio.mix(BooleanArray(8) { !muted[it] && (!solo.any { value -> value } || solo[it]) },volumes.copyOf()) }
-    LaunchedEffect(track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
+    LaunchedEffect(project.tracks.map { it.id to it.patterns.map { pat -> pat.id } }) {
+        val ids=project.tracks.map { it.id }.toSet()
+        selections=HashMap(selections.filter { (id,pat) -> project.tracks.find { it.id==id }?.patterns?.any { it.id==pat } == true })
+        muteById=HashMap(muteById.filterKeys { it in ids }); soloById=HashMap(soloById.filterKeys { it in ids }); volumeById=HashMap(volumeById.filterKeys { it in ids })
+        if(trackId !in ids) trackId=project.tracks.firstOrNull()?.id
+        audio.stopAll(); touch.voices.clear()
+    }
+    LaunchedEffect(muteById,soloById,volumeById,project.tracks.map { it.id },transportPlan) {
+        // Running sequence channels keep the snapshot order; preview channels follow the current editor order.
+        val ids=transportPlan?.trackIds?.takeIf { it.isNotEmpty() } ?: project.tracks.map { it.id }
+        val existing=project.tracks.map { it.id }.toSet()
+        val anySolo=soloById.any { it.key in existing && it.value }
+        audio.mix(BooleanArray(8) { i -> ids.getOrNull(i)?.let { it in existing && muteById[it]!=true && (!anySolo || soloById[it]==true) } ?: false },
+            FloatArray(8) { volumeById[ids.getOrNull(it)] ?: 1f },volumes)
+    }
+    LaunchedEffect(track?.id,trackIndex,track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
     LaunchedEffect(loopMode) { if (!loopMode) { audio.stop(); audio.stopAll() } }
     val plan = transportPlan
     val region = plan?.regionTicks ?: project.tracks.mapIndexed { i,t ->
@@ -137,30 +163,50 @@ private class RollTouch {
         edit(project.copy(formatVersion = if(ref.sound != null) 2 else project.formatVersion,tracks = project.tracks.map { if(it.id == track.id) it.copy(instrument = ref) else it }))
         instrumentEditor = false
     },onClose = { instrumentEditor = false })
+    management?.let { action ->
+        val deleting=action.startsWith("Delete")
+        val owner=project.tracks.find { it.id==targetTrack }
+        val subject=if(action.endsWith("Track")) owner?.title else owner?.patterns?.find { it.id==targetPattern }?.title
+        AlertDialog(onDismissRequest={ management=null },modifier=Modifier.imePadding(),title={ Text(action) },text={
+            Column(Modifier.heightIn(max=220.dp).verticalScroll(rememberScrollState())) {
+                if(deleting) Text(if(action.endsWith("Track")) "Delete instrument track “$subject” and all its patterns and notes? Other tracks are kept. This can be undone." else "Delete pattern “$subject” and its notes? The containing instrument track is kept. This can be undone.")
+                else OutlinedTextField(value=enteredTitle,onValueChange={ enteredTitle=it; managementError=null },label={ Text("Name (1–120 characters)") },singleLine=true,modifier=Modifier.testTag("management-name"))
+                managementError?.let { Text(it,color=MaterialTheme.colorScheme.error) }
+            }
+        },confirmButton={ TextButton(enabled=enabled,onClick={
+            try {
+                val changed=when(action) {
+                    "Rename Track" -> ComposerManagement.renameTrack(project,targetTrack,enteredTitle)
+                    "Rename Pattern" -> ComposerManagement.renamePattern(project,targetTrack,targetPattern,enteredTitle)
+                    "Delete Track" -> ComposerManagement.deleteTrack(project,targetTrack)
+                    else -> ComposerManagement.deletePattern(project,targetTrack,targetPattern)
+                }
+                edit(changed); management=null
+            } catch(e: Exception) { managementError=e.message }
+        }) { Text(if(deleting) "Confirm deletion" else "Save name") } },dismissButton={ TextButton(onClick={ management=null }) { Text("Cancel") } })
+    }
     Column(modifier.fillMaxWidth()) {
         ComposerToolbar("composer-context-row", buildList {
-            add(ComposerControl("Instrument ${if(track == null) "—" else trackIndex+1}",10) {
-                if (track != null) RollChoice("Instrument",project.tracks.mapIndexed { i,t -> "${i+1} · ${t.title}" },trackIndex,enabled,display = "${trackIndex+1}") { trackId = project.tracks[it].id }
-                else ComposerButton("Instrument —",false) {}
+            add(ComposerControl("Instrument",10,240) {
+                RollChoice("Instrument",project.tracks.mapIndexed { i,t -> ComposerInstruments.trackLabel(t,i) },trackIndex,enabled,display = track?.let { ComposerInstruments.trackLabel(it,trackIndex) } ?: "—",extra = { close ->
+                    DropdownMenuItem(text={ Text("Rename Track") },enabled=enabled && track!=null,onClick={ close(); manage("Rename Track") })
+                    DropdownMenuItem(text={ Text("Delete Track") },enabled=enabled && track!=null,onClick={ close(); manage("Delete Track") })
+                }) { trackId=project.tracks[it].id }
             })
-            add(ComposerControl("Pattern ${pattern?.title ?: "—"}",10) {
-                if (pattern != null && track != null) RollChoice("Pattern",track.patterns.map { it.title },track.patterns.indexOf(pattern),enabled,extra = {
-                    DropdownMenuItem(text = { Text("Create Pattern") }, enabled = enabled && track.patterns.size < 3, onClick = {
-                val title = listOf("A","B","C").first { slot -> track.patterns.none { it.title == slot } }
-                val added = CompositionPattern(newCompositionId(),title,4)
-                edit(project.copy(tracks = project.tracks.map { if (it.id == track.id) it.copy(patterns = it.patterns+added) else it }))
-                choosePattern(added.id)
-
+            add(ComposerControl("Pattern "+(pattern?.title ?: "—"),10,130) {
+                RollChoice("Pattern",track?.patterns?.map { it.title } ?: emptyList(),track?.patterns?.indexOf(pattern) ?: -1,enabled && track!=null,display=pattern?.title ?: "—",extra={ close ->
+                    DropdownMenuItem(text={ Text("Create Pattern") },enabled=enabled && track!=null && track.patterns.size<COMPOSER_MAX_PATTERNS,onClick={
+                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id); edit(changed); choosePattern(changed.tracks[trackIndex].patterns.last().id) } catch(e: Exception) { message=e.message }
                     })
-                }) { choosePattern(track.patterns[it].id) }
-                else ComposerButton("Pattern —",false) {}
+                    DropdownMenuItem(text={ Text("Duplicate Pattern") },enabled=enabled && pattern!=null && track!!.patterns.size<COMPOSER_MAX_PATTERNS,onClick={
+                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id,pattern!!.id); edit(changed); choosePattern(changed.tracks[trackIndex].patterns.last().id) } catch(e: Exception) { message=e.message }
+                    })
+                    DropdownMenuItem(text={ Text("Rename Pattern") },enabled=enabled && pattern!=null,onClick={ close(); manage("Rename Pattern") })
+                    DropdownMenuItem(text={ Text("Delete Pattern") },enabled=enabled && pattern!=null,onClick={ close(); manage("Delete Pattern") })
+                }) { choosePattern(track!!.patterns[it].id) }
             })
-            add(ComposerControl("+ Instrument",3) { ComposerButton("+ Instrument", enabled && project.tracks.size < 8) {
-                val id = newCompositionId()
-                val patterns = listOf("A","B").map { CompositionPattern(newCompositionId(),it,4) }
-                edit(project.copy(tracks = project.tracks + CompositionTrack(id,"Piano ${project.tracks.size+1}",InstrumentReference(1,"reference-piano","default"),patterns)))
-                trackId = id; patternSelections = ArrayList(patternSelections).also { it[project.tracks.size] = patterns.first().id }
-
+            add(ComposerControl("+ Instrument",3) { ComposerButton("+ Instrument",enabled && project.tracks.size<COMPOSER_MAX_TRACKS) {
+                try { val changed=ComposerManagement.addTrack(project); edit(changed); trackId=changed.tracks.last().id } catch(e: Exception) { message=e.message }
             } })
             if(pattern != null) add(ComposerControl("Bars ${pattern.lengthBars}",2) {
                 RollChoice("Bars",listOf("1","2","4","8","16"),listOf(1,2,4,8,16).indexOf(pattern.lengthBars),enabled) { index ->
@@ -188,11 +234,11 @@ private class RollTouch {
             add(ComposerControl("Stop",10) { ComposerButton("Stop") { audio.stop() } })
             add(ComposerControl(if(repeat) "Repeat ☑" else "Repeat ☐",4) { ComposerButton(if(repeat) "Repeat ☑" else "Repeat ☐") { repeat = !repeat; audio.setLoop(repeat) } })
             if(track != null) {
-                add(ComposerControl(if(muted[trackIndex]) "Mute ☑" else "Mute ☐",3) { ComposerButton(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") { muted = muted.copyOf().also { it[trackIndex] = !it[trackIndex] } } })
-                add(ComposerControl(if(solo[trackIndex]) "Solo ☑" else "Solo ☐",3) { ComposerButton(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") { solo = solo.copyOf().also { it[trackIndex] = !it[trackIndex] } } })
+                add(ComposerControl(if(muted[trackIndex]) "Mute ☑" else "Mute ☐",3) { ComposerButton(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") { muteById = HashMap(muteById).also { it[track.id] = !muted[trackIndex] } } })
+                add(ComposerControl(if(solo[trackIndex]) "Solo ☑" else "Solo ☐",3) { ComposerButton(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") { soloById = HashMap(soloById).also { it[track.id] = !solo[trackIndex] } } })
                 add(ComposerControl("Volume",2,170) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text("Volume",style = MaterialTheme.typography.bodySmall)
-                    Slider(value = volumes[trackIndex],onValueChange = { value -> volumes = volumes.copyOf().also { it[trackIndex] = value } },modifier = Modifier.width(100.dp).height(40.dp).testTag("composer-volume"))
+                    Slider(value = volumes[trackIndex],onValueChange = { value -> volumeById = HashMap(volumeById).also { it[track.id] = value } },modifier = Modifier.width(100.dp).height(40.dp).testTag("composer-volume"))
                 } })
             }
             add(ComposerControl("Velocity",0,170) { Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -236,7 +282,7 @@ private class RollTouch {
             Box(Modifier.weight(1f).fillMaxWidth(),contentAlignment = androidx.compose.ui.Alignment.Center) { Text("Arrange · editing and playback arrive later.") }
             return@Column
         }
-        if (pattern == null) { Text("Create a piano instrument to begin drawing notes.",Modifier.padding(16.dp)); return@Column }
+        if (pattern == null) { Text("Create an instrument or pattern to begin drawing notes.",Modifier.padding(16.dp)); return@Column }
         val length = project.patternTicks(pattern)
         val keyWidth = 62f*density
         val rulerHeight = 28f*density

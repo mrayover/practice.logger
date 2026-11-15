@@ -22,6 +22,15 @@ internal object ComposerInstruments {
         return all.indexOfFirst { it.id == ref.instrumentId }
     }
     fun title(ref: InstrumentReference) = ref.presetTitle ?: all.getOrNull(index(ref))?.title ?: "Unavailable sound (${ref.instrumentId})"
+    fun identity(ref: InstrumentReference): String {
+        val type = all.getOrNull(index(ref))?.title ?: "Unavailable sound (${ref.instrumentId})"
+        return ref.presetTitle?.let { "$type — $it" } ?: type
+    }
+    fun trackLabel(track: CompositionTrack, index: Int): String {
+        // Legacy automatic titles are display hints, never instrument identities. Keep saved bytes intact.
+        val name = track.title.takeUnless { it.matches(Regex("(?:Piano|Track) [1-9][0-9]*")) }
+        return "${index+1} · " + (name?.let { "$it — " } ?: "") + identity(track.instrument)
+    }
     fun drumName(pitch: Int): String = when(pitch) {
         35,36 -> "Kick"; 38,40 -> "Snare"; 39 -> "Clap"; 42 -> "Closed hat"; 44 -> "Pedal hat"; 46 -> "Open hat"
         41,43,45,47,48,50 -> "Tom"; 49 -> "Cymbal 1"; 51 -> "Cymbal 2"; 70,82 -> "Shaker"; 75 -> "Claves"; else -> "— $pitch"
