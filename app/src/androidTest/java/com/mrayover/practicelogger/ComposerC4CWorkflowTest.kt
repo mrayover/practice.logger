@@ -94,12 +94,12 @@ class ComposerC4CWorkflowTest {
         val four=current(); var eight=four
         repeat(4) { eight=ComposerManagement.addTrack(eight) }
         val last=eight.tracks.last(); eight=eight.copy(tracks=eight.tracks.map { if(it.id==last.id) it.copy(patterns=emptyList()) else it })
-        val eightFinal=eight; inst.runOnMainSync { vm().edit(eightFinal) }; compose.waitForIdle(); shot("05-eight-strips")
+        val eightFinal=eight; val editVm=vm(); inst.runOnMainSync { editVm.edit(eightFinal) }; compose.waitForIdle(); shot("05-eight-strips")
         compose.onNodeWithTag("mixer-strip-${last.id}").performScrollTo(); compose.onNodeWithTag("mixer-pattern-${last.id}").assertIsNotEnabled(); shot("06-eight-empty-last")
         device.executeShellCommand("wm size 1080x1920"); device.executeShellCommand("wm density 480"); compose.waitForIdle(); Thread.sleep(800); shot("07-narrow-mixer")
         compose.onNodeWithTag("mixer-master").assertIsDisplayed(); val masterBounds=compose.onNodeWithTag("mixer-master").fetchSemanticsNode().boundsInWindow; assertTrue(masterBounds.height>48*density)
-        inst.runOnMainSync { vm().edit(four.copy(tracks=four.tracks.take(1))) }; compose.waitForIdle(); shot("08-one-track")
-        inst.runOnMainSync { vm().edit(four) }; compose.waitForIdle(); save(); val exact=current(); File(dir,"project.json").writeText(CompositionCodec.encode(exact)); assertEquals(exact,store.read(exact.id))
+        inst.runOnMainSync { editVm.edit(four.copy(tracks=four.tracks.take(1))) }; compose.waitForIdle(); shot("08-one-track")
+        inst.runOnMainSync { editVm.edit(four) }; compose.waitForIdle(); save(); val exact=current(); File(dir,"project.json").writeText(CompositionCodec.encode(exact)); assertEquals(exact,store.read(exact.id))
         tap("Play"); compose.waitUntil(10000) { recreated.playing }; inst.runOnMainSync { recreated.setForeground(false) }; compose.waitUntil(10000) { !recreated.playing && recreated.voiceCount()==0 }; inst.runOnMainSync { recreated.setForeground(true) }
         File(dir,"result.txt").writeText("PASS velocity default/single/multiple/mixed/Undo, shared audio/patterns/mix, live restart and independent lengths, platform master gain/reopen, recreation, 1/4/8 tracks and narrow layout. Physical audio acceptance remains separate. Cold reopen runs separately.\n")
     }
