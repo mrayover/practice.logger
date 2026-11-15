@@ -23,11 +23,23 @@ class ComposerCompactWorkflowTest {
     private val dir get()=File(inst.targetContext.getExternalFilesDir(null),"composer-compact").apply { mkdirs() }
     @get:Rule val capture=object: org.junit.rules.TestWatcher() {
         override fun failed(e: Throwable?,d: org.junit.runner.Description?) { device.takeScreenshot(File(dir,"failure.png")); device.dumpWindowHierarchy(File(dir,"failure.xml")) }
-        override fun finished(d: org.junit.runner.Description?) { device.executeShellCommand("wm size reset"); device.executeShellCommand("wm density reset"); device.executeShellCommand("settings put system font_scale 1.0") }
+        override fun finished(d: org.junit.runner.Description?) { device.executeShellCommand("wm size reset"); device.executeShellCommand("wm density reset"); device.executeShellCommand("settings put system font_scale 1.0"); device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0") }
     }
     private fun waitText(s: String) { compose.waitUntil(25000) { compose.onAllNodesWithText(s).fetchSemanticsNodes(false).isNotEmpty() } }
     private fun tap(s: String) { waitText(s); compose.onNodeWithText(s).assertIsDisplayed().performClick() }
-    private fun shot(s: String) { compose.waitForIdle(); device.waitForIdle(); assertTrue(device.takeScreenshot(File(dir,"$s.png"))) }
+    private fun shot(s: String) {
+        compose.waitForIdle(); device.waitForIdle()
+        // Semantics can precede the compositor's presented frame during an Activity handoff.
+        val frame=java.util.concurrent.CountDownLatch(1)
+        inst.runOnMainSync {
+            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).single().window.decorView.apply {
+                viewTreeObserver.registerFrameCommitCallback { frame.countDown() }; invalidate()
+            }
+        }
+        assertTrue("Committed screenshot frame",frame.await(5,java.util.concurrent.TimeUnit.SECONDS))
+        android.os.SystemClock.sleep(200)
+        assertTrue(device.takeScreenshot(File(dir,"$s.png")))
+    }
     private fun activity(): ComposerActivity { var a: ComposerActivity?=null; val get = { a=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<ComposerActivity>().single() }; if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper()) get() else inst.runOnMainSync { get() }; return requireNotNull(a) }
     private fun vm(): ComposerViewModel { var result: ComposerViewModel?=null; val get = { result=ViewModelProvider(activity())[ComposerViewModel::class.java] }; if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper()) get() else inst.runOnMainSync { get() }; return requireNotNull(result) }
     private fun awaitWorkspace() { compose.waitUntil(25000) { compose.onAllNodesWithTag("piano-roll").fetchSemanticsNodes(false).isNotEmpty() } }
@@ -43,6 +55,13 @@ class ComposerCompactWorkflowTest {
         if(half) assertTrue("Canvas should occupy half usable screen: $root",root.height>=(root.bottom+20-rows.first().boundsInRoot.top)/2)
         File(dir,"$name-bounds.txt").writeText("rows=${rows.map { it.boundsInRoot }}\ncanvas=$root\ncanvas fraction=${root.height/(root.bottom+20)}")
         shot(name)
+        val bitmap=android.graphics.BitmapFactory.decodeFile(File(dir,"$name.png").path)
+        var visibleKeys=0
+        for(y in (root.top+80).toInt() until root.bottom.toInt() step 8) {
+            val pixel=bitmap.getPixel(25,y.coerceAtMost(bitmap.height-1))
+            if(android.graphics.Color.red(pixel)>150 && android.graphics.Color.green(pixel)>150) visibleKeys++
+        }
+        bitmap.recycle(); assertTrue("Actual keyboard pixels in $name",visibleKeys>5)
     }
     @Test fun compactRowsMenusSaveAsAndIndependentReopen() {
         val store=CompositionStore(File(inst.targetContext.filesDir,"composer/projects"))
@@ -56,6 +75,7 @@ class ComposerCompactWorkflowTest {
             return
         }
         device.executeShellCommand("wm size 1440x3120"); device.executeShellCommand("wm density 480")
+        device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 1")
         val pattern=CompositionPattern(newCompositionId(),"A",4,listOf(CompositionNote(newCompositionId(),80,0,720,100),CompositionNote(newCompositionId(),83,960,240,87)))
         val track=CompositionTrack(newCompositionId(),"Piano 1",ComposerInstruments.all[0].reference,listOf(pattern,pattern.copy(id=newCompositionId(),title="B",notes=emptyList())))
         val original=store.create(CompositionProject.empty("Compact original",120,7,8).copy(tracks=listOf(track)))
@@ -76,6 +96,15 @@ class ComposerCompactWorkflowTest {
         compose.runOnIdle { val current=vm().project!!; val active=current.tracks.single().patterns.first(); vm().edit(current.replacePattern(active.copy(notes=active.notes + CompositionNote(newCompositionId(),77,1920,240,99))).copy(tempoBpm=143)) }
         tap("Save As"); shot("05-save-as-dialog")
         compose.onNodeWithTag("composer-copy-title").performClick().performTextReplacement("Compact copy")
+        compose.waitUntil(10000) {
+            var shown=false
+            inst.runOnMainSync {
+                shown=android.view.inspector.WindowInspector.getGlobalWindowViews().any { root ->
+                    root.rootWindowInsets?.let { androidx.core.view.WindowInsetsCompat.toWindowInsetsCompat(it).isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) } == true
+                }
+            }
+            shown
+        }
         shot("06-save-as-keyboard"); device.pressBack(); tap("Create copy")
         compose.waitUntil(15000) { compose.onAllNodesWithText("Create copy").fetchSemanticsNodes(false).isEmpty() }
         val copy=vm().project!!; assertNotEquals(original.id,copy.id); assertEquals(143,copy.tempoBpm); assertEquals(3,copy.tracks.single().patterns.first().notes.size); assertEquals(99,copy.tracks.single().patterns.first().notes.last().velocity); assertEquals(original,store.read(original.id))
