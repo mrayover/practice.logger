@@ -8,6 +8,8 @@ import org.robolectric.annotation.Config
 import android.app.Application
 import android.os.Looper
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import androidx.test.core.app.ApplicationProvider
 import org.robolectric.Shadows.shadowOf
 import java.io.File
@@ -72,6 +74,9 @@ class PianoRollEditsTest {
         vm.edit(p.withNotes(a,moved))
         val draftId=state.get<String>("draftFile")!!
         val file=File(app.filesDir,"composer/drafts/$draftId.json")
+        // Earlier and final edits can have identical values. Do not mistake an
+        // intermediate matching file for completion while queued writes still drain.
+        await { vm.viewModelScope.coroutineContext[Job]!!.children.none { it.isActive } }
         await { file.isFile && runCatching { CompositionCodec.decode(file.readText())==vm.project }.getOrDefault(false) }
         assertNull(state.get<String>("draft"))
         val restored=ComposerViewModel(app,SavedStateHandle(mapOf(ComposerActivity.PROJECT_ID to p.id,"draftFile" to draftId)))
