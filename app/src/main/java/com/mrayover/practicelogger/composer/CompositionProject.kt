@@ -12,7 +12,7 @@ internal fun newCompositionId(): String = UUID.randomUUID().toString()
 internal fun validCompositionId(value: String): Boolean =
     runCatching { UUID.fromString(value).toString() == value }.getOrDefault(false)
 
-data class InstrumentReference(val registryVersion: Int, val instrumentId: String, val presetId: String)
+data class InstrumentReference(val registryVersion: Int, val instrumentId: String, val presetId: String, val sound: ComposerSound? = null, val presetTitle: String? = null)
 data class CompositionNote(val id: String, val pitch: Int, val startTick: Long, val durationTick: Long, val velocity: Int)
 data class CompositionPattern(val id: String, val title: String, val lengthBars: Int, val notes: List<CompositionNote> = emptyList())
 data class CompositionTrack(val id: String, val title: String, val instrument: InstrumentReference,
@@ -49,7 +49,7 @@ object CompositionCodec {
     const val MAX_BYTES = 8 * 1024 * 1024
     private const val MAX_TICK = 960L * 4 * 1_000_000
     fun validate(p: CompositionProject) {
-        require(p.formatVersion == COMPOSER_FORMAT_VERSION) { "Unsupported Composer project version." }
+        require(p.formatVersion in 1..2) { "Unsupported Composer project version." }
         val ids = mutableSetOf<String>()
         fun identity(id: String) { require(validCompositionId(id) && ids.add(id)) { "Invalid or repeated project identity." } }
         fun title(value: String) { require(value.isNotBlank() && value == value.trim() && value.length <= 120 && value.none { it.isISOControl() }) { "Use a title of 1–120 characters." } }
@@ -63,6 +63,12 @@ object CompositionCodec {
         p.tracks.forEach { track ->
             identity(track.id); title(track.title)
             require(track.instrument.registryVersion == 1)
+            val ref = track.instrument
+            if (ref.sound != null) {
+                require(p.formatVersion == 2 && validCompositionId(ref.presetId) && ComposerInstruments.index(ref) >= 0)
+                ref.sound.validate()
+                require(ref.presetTitle != null && ref.presetTitle.isNotBlank() && ref.presetTitle.length <= 60 && ref.presetTitle == ref.presetTitle.trim() && ref.presetTitle.none { it.isISOControl() })
+            } else require(ref.presetTitle == null)
             listOf(track.instrument.instrumentId, track.instrument.presetId).forEach {
                 require(it.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9._:-]{0,119}")))
             }
@@ -95,7 +101,7 @@ object CompositionCodec {
             .put("tempoBpm", p.tempoBpm).put("numerator", p.numerator).put("denominator", p.denominator)
             .put("ticksPerQuarter", p.ticksPerQuarter)
             .put("tracks", array(p.tracks.map { t -> JSONObject().put("id", t.id).put("title", t.title)
-                .put("instrument", JSONObject().put("registryVersion", t.instrument.registryVersion).put("instrumentId", t.instrument.instrumentId).put("presetId", t.instrument.presetId))
+                .put("instrument", JSONObject().put("registryVersion", t.instrument.registryVersion).put("instrumentId", t.instrument.instrumentId).put("presetId", t.instrument.presetId).also { if(p.formatVersion == 2) { it.put("sound",t.instrument.sound?.json() ?: JSONObject.NULL); it.put("presetTitle",t.instrument.presetTitle ?: JSONObject.NULL) } })
                 .put("patterns", array(t.patterns.map { pat -> JSONObject().put("id", pat.id).put("title", pat.title).put("lengthBars", pat.lengthBars)
                     .put("notes", array(pat.notes.map { n -> JSONObject().put("id", n.id).put("pitch", n.pitch).put("startTick", n.startTick).put("durationTick", n.durationTick).put("velocity", n.velocity) })) })) }))
             .put("clips", array(p.clips.map { c -> JSONObject().put("id", c.id).put("trackId", c.trackId).put("patternId", c.patternId).put("startTick", c.startTick) }))
@@ -106,14 +112,14 @@ object CompositionCodec {
         val parser = JSONTokener(text)
         val root = parser.nextValue() as? JSONObject ?: error("Invalid composition document")
         require(parser.nextClean() == '\u0000') { "Unexpected content after composition document." }
-        require(root.long("formatVersion") == COMPOSER_FORMAT_VERSION.toLong()) { "Unsupported Composer project version. This file has been preserved." }
+        require(root.long("formatVersion") in 1L..2L) { "Unsupported Composer project version. This file has been preserved." }
         root.fields("formatVersion,id,title,createdAt,modifiedAt,revision,tempoBpm,numerator,denominator,ticksPerQuarter,tracks,clips")
         return CompositionProject(root.string("id"), root.string("title"), root.long("createdAt"), root.long("modifiedAt"),
             root.long("revision"), root.int("tempoBpm"), root.int("numerator"), root.int("denominator"), root.int("ticksPerQuarter"),
             root.objects("tracks", 8).map { t ->
                 t.fields("id,title,instrument,patterns")
-                val i = t.getJSONObject("instrument").also { it.fields("registryVersion,instrumentId,presetId") }
-                CompositionTrack(t.string("id"), t.string("title"), InstrumentReference(i.int("registryVersion"), i.string("instrumentId"), i.string("presetId")),
+                val i = t.getJSONObject("instrument").also { it.fields(if(root.long("formatVersion")==1L) "registryVersion,instrumentId,presetId" else "registryVersion,instrumentId,presetId,sound,presetTitle") }
+                CompositionTrack(t.string("id"), t.string("title"), InstrumentReference(i.int("registryVersion"), i.string("instrumentId"), i.string("presetId"), if(i.has("sound") && !i.isNull("sound")) ComposerSound.decode(i.getJSONObject("sound")) else null, if(i.has("presetTitle") && !i.isNull("presetTitle")) i.string("presetTitle") else null),
                     t.objects("patterns", 256).map { pat ->
                         pat.fields("id,title,lengthBars,notes")
                         CompositionPattern(pat.string("id"), pat.string("title"), pat.int("lengthBars"), pat.objects("notes", 100000).map { n ->
@@ -124,7 +130,7 @@ object CompositionCodec {
             }, root.objects("clips", 10000).map { c ->
                 c.fields("id,trackId,patternId,startTick")
                 ArrangementClip(c.string("id"), c.string("trackId"), c.string("patternId"), c.long("startTick"))
-            }).also(::validate)
+            }, formatVersion = root.int("formatVersion")).also(::validate)
     }
     private fun JSONObject.fields(names: String) { require(keys().asSequence().toSet() == names.split(',').toSet()) { "Unrecognized or missing project fields. File preserved." } }
     private fun JSONObject.string(name: String): String = (get(name) as? String) ?: error("Invalid $name")

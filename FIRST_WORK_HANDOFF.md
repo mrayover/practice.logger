@@ -1,3 +1,9 @@
+# C4A implementation in progress — build134
+
+Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
+
+---
+
 # Compact Composer UI and Save As — delivered build133
 
 Use canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1. The older OneDrive source checkout remains unchanged. Signed0.49.1/build133 delivers four-row landscape consolidation and independent live-draft Save As with27 focused checks and visual/document/cold-reopen verification; C4–C7/F1 remain excluded. [Authoritative signed delivery/results/next task](CURRENT_STATE.md) · [Behavior/ownership](docs/COMPOSER_COMPACT_UI.md) · [Phone checks](MANUAL_TESTS.md#composelogger-compact-ui-and-save-as--owner-phone-check).

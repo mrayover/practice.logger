@@ -6,7 +6,28 @@
 #include "tsf.h"
 
 // All access, including destruction, belongs to ComposerAudio's worker.
-struct Engine { tsf* banks[9]{}; float mix[512]{}; };
+struct Shape { bool enabled=false; float attack=10,release=300,cutoff=18000,q=.707f,sustain=.8f,pan=0; };
+struct Engine { tsf* banks[9]{}; float mix[512]{}; Shape shapes[16]{}; tsf_region regions[9][128]{}; };
+// Each native voice gets a private region. Shared preset/sample data is never edited.
+static void shapeVoice(Engine* e,int bank,tsf_voice& v,int slot,bool fresh) {
+    const auto& s=e->shapes[v.playingChannel]; if(!s.enabled) return;
+    auto f=e->banks[bank]; auto& r=e->regions[bank][slot];
+    if(fresh) { r=*v.region; v.region=&r; }
+    r.modEnvToFilterFc=0; r.modLfoToFilterFc=0;
+    r.initialFilterFc=static_cast<int>(1200*std::log2(s.cutoff/8.176f));
+    r.initialFilterQ=static_cast<int>(200*std::log10(s.q));
+    r.ampenv.attack=s.attack/1000; r.ampenv.release=s.release/1000;
+    r.ampenv.delay=0; r.ampenv.hold=0; r.ampenv.decay=.3f; r.ampenv.sustain=s.sustain;
+    r.ampenv.keynumToHold=0; r.ampenv.keynumToDecay=0;
+    if(fresh) tsf_voice_envelope_setup(&v.ampenv,&r.ampenv,v.playingKey,v.ampenv.midiVelocity,TSF_TRUE,f->outSampleRate);
+    else {
+        v.ampenv.parameters.release=r.ampenv.release; v.ampenv.parameters.sustain=s.sustain;
+        if(v.ampenv.segment==TSF_SEGMENT_SUSTAIN) v.ampenv.level=s.sustain;
+    }
+    v.lowpass.QInv=1.0/s.q; v.lowpass.active=TSF_TRUE;
+    tsf_voice_lowpass_setup(&v.lowpass,s.cutoff/f->outSampleRate);
+    v.panFactorLeft=std::sqrt((1-s.pan)*.5f); v.panFactorRight=std::sqrt((1+s.pan)*.5f);
+}
 static Engine* engine(jlong h) { return reinterpret_cast<Engine*>(h); }
 extern "C" JNIEXPORT jlong JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_create(JNIEnv*,jobject) { return reinterpret_cast<jlong>(new Engine()); }
 extern "C" JNIEXPORT jboolean JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_load(JNIEnv* env,jobject,jlong h,jint bank,jbyteArray bytes) {
@@ -48,6 +69,7 @@ extern "C" JNIEXPORT jlong JNICALL Java_com_mrayover_practicelogger_composer_Com
     // Pin the TSF play index so overlapping identical pitches release independently.
     unsigned int id=f->voicePlayIndex;
     tsf_channel_note_on(f,channel,pitch,velocity/127.0f);
+    for(int i=0;i<f->voiceNum;i++) { auto& v=f->voices[i]; if(v.playingPreset!=-1 && v.playIndex==id) shapeVoice(engine(h),bank,v,i,true); }
     return static_cast<jlong>(id);
 }
 extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_off(JNIEnv*,jobject,jlong h,jint bank,jlong id) {
@@ -74,4 +96,16 @@ extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_Comp
 }
 extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_destroy(JNIEnv*,jobject,jlong h) {
     auto e=engine(h); for(auto f:e->banks) if(f) tsf_close(f); delete e;
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_shape(JNIEnv*,jobject,jlong h,jint channel,jboolean enabled,jfloat attack,jfloat release,jfloat cutoff,jfloat q,jfloat sustain,jfloat pan) {
+    if(channel<0 || channel>15 || !std::isfinite(attack) || !std::isfinite(release) || !std::isfinite(cutoff) || !std::isfinite(q) || !std::isfinite(sustain) || !std::isfinite(pan)) return;
+    auto e=engine(h); auto& s=e->shapes[channel]; bool wasEnabled=s.enabled;
+    s={enabled==JNI_TRUE,std::clamp(attack,0.f,3000.f),std::clamp(release,10.f,5000.f),std::clamp(cutoff,40.f,18000.f),std::clamp(q,.5f,4.f),std::clamp(sustain,0.f,1.f),std::clamp(pan,-1.f,1.f)};
+    for(int b=0;b<9;b++) if(auto f=e->banks[b]) for(int i=0;i<f->voiceNum;i++) {
+        auto& v=f->voices[i]; if(v.playingPreset==-1 || v.playingChannel!=channel) continue;
+        // Switching back to untouched factory state releases preview rather than mutating regions.
+        if(!s.enabled || !wasEnabled) v.playingPreset=-1;
+        else shapeVoice(e,b,v,i,false);
+    }
 }

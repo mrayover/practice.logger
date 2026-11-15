@@ -576,3 +576,16 @@ C4 management, Arrange playback, exports and Library integration are outside thi
 4. Save the original, add a distinguishable note without saving, then Save As. Enter a new title with the keyboard open and create the copy. The new composition must contain that unsaved note. Return to the portrait library and confirm both titles exist. Reopen the original: it must retain its earlier saved notes. Edit/save only the copy, close the app completely and reopen both; they must stay independent.
 5. Make an unsaved edit and Return. Keep editing, Save and return, and Discard should retain their established safeguards. Confirm Loop/Arrange selection is clear; Arrange remains a placeholder. Edit Instrument and Velocity are visibly disabled.
 6. Report any clipped/overlapping control, difficult touch target, hidden error, keyboard-dialog problem or sound/output issue. Emulator evidence does not establish Galaxy S26 Ultra touch/acoustic acceptance. Practice ZIP/JSON still exclude Composer projects.
+
+## compose.logger C4A — owner-phone check
+
+Install the C4A permanent-key APK over the existing app without uninstalling or clearing data. Composer projects and custom presets are not included in practice ZIP/JSON backups yet.
+
+1. Open an existing composition, select a track/pattern, scroll/zoom, and open Edit Instrument. Confirm the dark landscape header, six readable rotary controls and playable keyboard. Back must restore the same roll position without branding.
+2. Play chords, release fingers, slide between keys, move the range by octave and drag its handle by semitone. Confirm pitch labels and no stuck notes. Try speaker/headphones/Bluetooth as available; emulator PCM does not establish acoustic quality or latency.
+3. Turn Attack/Release/Cutoff/Resonance/Sustain/Pan and audition. Attack changes on the next note. Sustain is amplitude after a fixed300ms decay, not pedal sustain. Test Pan in stereo. Tap a value, enter a precise number and test Default and invalid-value rejection.
+4. Save New Preset with a name. Find it in My Presets, switch to a factory sound and reopen the custom sound with its exact numbers. Try Back or preset switching with unsaved adjustments: Keep editing retains them, Discard changes leaves the composition unchanged.
+5. Choose Use on Track, then Save the composition. Play the existing multitrack Loop; confirm timing, notes, velocities, Mute/Solo/Volume and other tracks remain intact. Close/reopen the composition and restart the app; confirm the custom sound and My Presets still work.
+6. Rotate/recreate, background/return and interrupt audio while auditioning. No notes may remain sounding or restart automatically. Check landscape fit on the Galaxy S26 Ultra and enlarged text; the fallback scrolls the knob panel while retaining the keyboard.
+
+Stop after C4A. Expanded patterns, Arrange, exports, Library integration and complete Composer recovery remain separate work.

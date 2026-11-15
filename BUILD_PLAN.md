@@ -1,3 +1,9 @@
+# C4A implementation in progress — build134
+
+Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
+
+---
+
 # Compact Composer UI and Save As — delivered build133
 
 Four measured rows and explicit overflow consolidate the existing C3 editor; Save As copies the live draft into an independent editable composition. Disabled Edit Instrument/Velocity reserve positions. No C4, Arrange editing, exports, engine changes or F1. [Behavior/ownership](docs/COMPOSER_COMPACT_UI.md) · [Actual signed delivery and verification](CURRENT_STATE.md). Signed0.49.1/build133 passes focused host/native/visual/cold-reopen verification. Exact next task: owner phone checklist; no C4–C7/F1.

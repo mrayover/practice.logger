@@ -52,6 +52,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
         else app.registerReceiver(noisy,IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
         Thread(::run,"composer-soundfont").start()
     }
+    internal val interruptionToken get() = epoch
     internal fun voiceCount()=voiceTotal
     fun positionFrame(): Long = if(playing || draining) minOf(output?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: frozenFrame,framesWritten) else frozenFrame
     private fun report(message: String?) { main.post { if(!closed) interrupted(message) } }
@@ -76,6 +77,11 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
         }
         return true
     }
+    private fun configure(channel: Int,sound: ComposerSound?) {
+        val v=sound ?: ComposerSound()
+        ComposerSynth.shape(handle,channel,sound!=null,v.attackMs,v.releaseMs,v.cutoffHz,v.resonanceQ,v.sustain,v.pan)
+    }
+    fun previewSound(track: Int,sound: ComposerSound?) { sound?.validate(); submit { configure(8+track,sound) } }
     fun noteOff(token: Long) { submit { releaseToken(token) } }
     private fun releaseToken(token: Long) {
         val i=auditionTokens.indexOf(token)
@@ -87,6 +93,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
         if(!focus()) return
         submit {
             stopOutput(); ComposerSynth.clear(handle,0,15); auditionTokens.fill(Long.MIN_VALUE)
+            plan.tracks.forEachIndexed { i,t -> configure(i,t.sound) }
             clock=LoopClock(plan); playbackPlan=plan; frozenFrame=0; looping=repeat; draining=false
             stopAtFrame=if(repeat) Long.MAX_VALUE else plan.frame(plan.regionTicks)
             startOutput(); playing=true

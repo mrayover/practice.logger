@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable fun PianoKeyboard(onNoteOn: (Long, Int) -> Unit, onNoteOff: (Long) -> Unit,
-    onStopAll: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, resetToken: Int = 0, keyHeight: androidx.compose.ui.unit.Dp = 184.dp) {
+    onStopAll: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, resetToken: Int = 0, keyHeight: androidx.compose.ui.unit.Dp = 184.dp, compact: Boolean = false) {
     var savedFirst by rememberSaveable { mutableIntStateOf(60) }
     val latestOn by rememberUpdatedState(onNoteOn)
     val latestOff by rememberUpdatedState(onNoteOff)
@@ -77,7 +77,7 @@ import kotlinx.coroutines.launch
             release(id)
             if (note != null && enabled) { held[id] = note; latestOn(id, note) }
         }
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(if(compact) 2.dp else 8.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = { shift(-12) }, enabled = first - 12 >= 24,
                     modifier = Modifier.semantics { contentDescription = "Previous octave" }) { Text("−8ve") }
@@ -102,7 +102,7 @@ import kotlinx.coroutines.launch
                 TextButton(onClick = { shift(12) }, enabled = first + 12 <= maxFirst,
                     modifier = Modifier.semantics { contentDescription = "Next octave" }) { Text("+8ve") }
             }
-            Text(held.values.distinct().sorted().joinToString(" · ", transform = ::pianoNoteName).ifEmpty { "—" },
+            if(!compact) Text(held.values.distinct().sorted().joinToString(" · ", transform = ::pianoNoteName).ifEmpty { "—" },
                 Modifier.testTag("piano-notes"), style = MaterialTheme.typography.labelLarge)
             key(first, last, enabled, resetToken) {
                 var tracking by remember { mutableStateOf(false) }

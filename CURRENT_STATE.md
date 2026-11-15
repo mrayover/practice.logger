@@ -1,3 +1,9 @@
+# C4A implementation in progress — build134
+
+Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
+
+---
+
 # Current state — compact compose.logger and Save As delivered
 
 Updated November 15, 2026 (America/Los_Angeles). Signed **0.49.1/build133** consolidates Composer into four compact measured landscape rows, expands the piano roll, and implements independent live-draft Save As. **27 focused host checks, compilation/vital lint, and the API35 compact workflow plus exact original/copy cold reopening pass.** Actual rendered screenshots were inspected. Physical Galaxy S26 Ultra touch/fit/audio acceptance remains pending; no comprehensive regression/F1.

@@ -95,6 +95,7 @@ private class RollTouch {
     val density = LocalDensity.current.density
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var instrumentEditor by rememberSaveable { mutableStateOf(false) }
     val audio = remember { ComposerAudio(context, interrupted = { message = it }) }
     SideEffect { (context as? ComposerActivity)?.auditionEngine = audio }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -121,7 +122,7 @@ private class RollTouch {
         while(true) { soundsReady = audio.ready; playing = audio.playing; transportFrame = audio.positionFrame(); transportPlan = audio.playbackPlan; delay(30) }
     }
     LaunchedEffect(muted,solo,volumes) { audio.mix(BooleanArray(8) { !muted[it] && (!solo.any { value -> value } || solo[it]) },volumes.copyOf()) }
-    LaunchedEffect(track?.instrument) { audio.stopAll(); touch.voices.clear() }
+    LaunchedEffect(track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
     LaunchedEffect(loopMode) { if (!loopMode) { audio.stop(); audio.stopAll() } }
     val plan = transportPlan
     val region = plan?.regionTicks ?: project.tracks.mapIndexed { i,t ->
@@ -132,6 +133,10 @@ private class RollTouch {
     val shownTick = if (playing && plan != null) plan.tick(transportFrame).toLong() else cursor
     val local = shownTick % region
     val position = "${local/displayBar+1}.${(local%displayBar)/displayBeat+1} · Region ${region/displayBar} bars"
+    if(instrumentEditor && track != null) InstrumentEditor(track.instrument,track.title,trackIndex,audio,soundsReady,onUse = { ref ->
+        edit(project.copy(formatVersion = if(ref.sound != null) 2 else project.formatVersion,tracks = project.tracks.map { if(it.id == track.id) it.copy(instrument = ref) else it }))
+        instrumentEditor = false
+    },onClose = { instrumentEditor = false })
     Column(modifier.fillMaxWidth()) {
         ComposerToolbar("composer-context-row", buildList {
             add(ComposerControl("Instrument ${if(track == null) "—" else trackIndex+1}",10) {
@@ -165,13 +170,13 @@ private class RollTouch {
 
                 }
             })
-            if(track != null) add(ComposerControl("Sound ${ComposerInstruments.all[bank].title}",2) {
+            if(track != null) add(ComposerControl("Sound ${ComposerInstruments.title(track.instrument)}",2) {
                 RollChoice("Sound",ComposerInstruments.all.map { it.title },bank,enabled) { index ->
                     edit(project.copy(tracks = project.tracks.map { if(it.id == track.id) it.copy(instrument = ComposerInstruments.all[index].reference) else it }))
                 }
 
             })
-            add(ComposerControl("Edit Instrument",0) { ComposerButton("Edit Instrument",false) {} })
+            add(ComposerControl("Edit Instrument",0) { ComposerButton("Edit Instrument",enabled && track != null) { audio.stop(); audio.stopAll(); instrumentEditor = true } })
         })
         ComposerToolbar("composer-performance-row", buildList {
             add(ComposerControl("Play",10) { ComposerButton("Play", enabled && loopMode && soundsReady && !playing && project.tracks.isNotEmpty()) {
