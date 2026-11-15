@@ -19,6 +19,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -125,6 +130,8 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
     LaunchedEffect(draftSound,base) { audio.previewSound(trackIndex,sound) }
     DisposableEffect(audio) { onDispose { audio.stopAll(); audio.previewSound(trackIndex,reference.sound) } }
     Dialog(onDismissRequest=::close,properties=DialogProperties(usePlatformDefaultWidth=false,decorFitsSystemWindows=false,dismissOnClickOutside=false)) {
+        val window=(LocalView.current.parent as? DialogWindowProvider)?.window
+        LaunchedEffect(window) { window?.decorView?.post { WindowCompat.getInsetsController(window,window.decorView).apply { systemBarsBehavior=WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE; hide(WindowInsetsCompat.Type.systemBars()) } } }
         BackHandler { close() }
         Surface(Modifier.fillMaxSize().testTag("instrument-editor"),color=Color(0xFF101216)) {
             BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
@@ -132,13 +139,15 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
                 val narrow=maxWidth<760.dp
                 val largeText=LocalDensity.current.fontScale>1.3f
                 val fallback=maxWidth<maxHeight || largeText || maxHeight<330.dp
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides if(editorHeight<400.dp && !largeText) 40.dp else 48.dp) {
                 Column(Modifier.fillMaxSize().padding(horizontal=8.dp)) {
-                    Column(Modifier.fillMaxWidth().then(if(fallback) Modifier.heightIn(max=170.dp).verticalScroll(rememberScrollState()) else Modifier)) {
+                  Column(Modifier.weight(1f).fillMaxWidth().then(if(fallback) Modifier.verticalScroll(rememberScrollState()) else Modifier).testTag("instrument-editor-body")) {
+                    Column(Modifier.fillMaxWidth()) {
                         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                             TextButton(onClick=::close,enabled=!saving) { Text("Back") }
                             Column(Modifier.weight(1f).padding(horizontal=6.dp)) {
                                 Text(presetTitle,style=MaterialTheme.typography.titleMedium,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                Text(if(dirty) "Unsaved sound changes" else if(sound==null) "Factory · dials show editor defaults" else "My Presets · saved",style=MaterialTheme.typography.bodySmall,color=Color(0xFFC9B6FF))
+                                Text(if(dirty) "Unsaved sound changes" else if(sound==null) "Factory · dials show editor defaults" else "My Presets · saved · next Play",style=MaterialTheme.typography.bodySmall,color=Color(0xFFC9B6FF),maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                             }
                             if(!narrow && !fallback) EditorActions(!saving && !loading,dirty, { name="$presetTitle copy".take(60); naming=true }, { audio.stopAll(); onUse(InstrumentReference(1,base,presetId,sound,if(sound==null) null else presetTitle)) })
                         }
@@ -157,11 +166,10 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
                             if(narrow || fallback) EditorActions(!saving && !loading,dirty,{ name="$presetTitle copy".take(60); naming=true },{ audio.stopAll(); onUse(InstrumentReference(1,base,presetId,sound,if(sound==null) null else presetTitle)) })
                             else Text("$trackTitle · Live preview; track uses saved sound on next Play",style=MaterialTheme.typography.bodySmall)
                         }
-                        if(narrow || fallback) Text(if(sound==null) "Factory unchanged · turn a knob to use editor defaults" else "Live preview · save changes before Use on Track · next Play",style=MaterialTheme.typography.bodySmall)
                         error?.let { Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall) }
                     }
                     val shown=sound ?: ComposerSound()
-                    Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).testTag("instrument-knobs"),verticalArrangement=Arrangement.Center) {
+                    Column(Modifier.fillMaxWidth().then(if(fallback) Modifier else Modifier.weight(1f).verticalScroll(rememberScrollState())).testTag("instrument-knobs"),verticalArrangement=Arrangement.Center) {
                         val columns=if(fallback) 3 else 6
                         soundDials.chunked(columns).forEachIndexed { row,items ->
                             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceEvenly) {
@@ -173,17 +181,19 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
                             }
                         }
                     }
+                  }
                     // Same geometry/multitouch/range gestures as Reference Piano, Composer callbacks only.
                     PianoKeyboard(onNoteOn={ token,pitch -> audio.noteOn(token,pitch,ComposerInstruments.all.indexOfFirst { it.id==base },trackIndex) },
                         onNoteOff=audio::noteOff,onStopAll=audio::stopAll,enabled=ready,resetToken=resetSignal,compact=true,
-                        keyHeight=if(fallback) 100.dp else (editorHeight*.29f).coerceIn(96.dp,180.dp),modifier=Modifier.testTag("instrument-keyboard"))
+                        keyHeight=if(fallback) 80.dp else (editorHeight*.29f).coerceIn(96.dp,180.dp),modifier=Modifier.testTag("instrument-keyboard"))
+                }
                 }
             }
         }
     }
     if(confirm) AlertDialog(onDismissRequest={ confirm=false; pending=null },title={ Text("Discard unsaved sound changes?") },text={ Text("Save New Preset first to keep this sound. The track has not changed.") },
         confirmButton={ TextButton(onClick={ confirm=false; pending?.invoke(); pending=null }) { Text("Discard changes") } },dismissButton={ TextButton(onClick={ confirm=false; pending=null }) { Text("Keep editing") } })
-    if(naming) AlertDialog(onDismissRequest={ if(!saving) naming=false },title={ Text("Save New Preset") },text={ Column {
+    if(naming) AlertDialog(modifier=Modifier.imePadding(),onDismissRequest={ if(!saving) naming=false },title={ Text("Save New Preset") },text={ Column(Modifier.verticalScroll(rememberScrollState())) {
         OutlinedTextField(value=name,onValueChange={ name=it },singleLine=true,label={ Text("Preset name") },modifier=Modifier.testTag("preset-name"))
         Text("Creates a new sound; factory presets stay read-only.",style=MaterialTheme.typography.bodySmall)
         error?.let { Text(it,color=MaterialTheme.colorScheme.error) }
@@ -197,7 +207,7 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
         val d=soundDials[numeric]; val percent=numeric==4
         val raw=number.toFloatOrNull()?.let { if(percent) it/100 else it }
         val valid=raw!=null && raw.isFinite() && raw in d.min..d.max
-        AlertDialog(onDismissRequest={ numeric=-1 },title={ Text("${d.name} · precise value") },text={ Column {
+        AlertDialog(modifier=Modifier.imePadding(),onDismissRequest={ numeric=-1 },title={ Text("${d.name} · precise value") },text={ Column(Modifier.verticalScroll(rememberScrollState())) {
             OutlinedTextField(value=number,onValueChange={ number=it },singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=if(numeric==5) KeyboardType.Ascii else KeyboardType.Decimal),label={ Text(if(percent) "Percent (0–100)" else "${d.min}–${d.max} ${d.unit}") },modifier=Modifier.testTag("parameter-number"))
             Text(if(numeric==0) "Attack starts on the next note." else if(numeric==4) "Held amplitude after attack/decay; not a sustain pedal." else "Changes are heard in the preview keyboard.",style=MaterialTheme.typography.bodySmall)
         } },confirmButton={ TextButton(onClick={ draftSound=(sound ?: ComposerSound()).withValue(numeric,raw!!).json().toString(); numeric=-1 },enabled=valid) { Text("Set value") } },dismissButton={ Row {

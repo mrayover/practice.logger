@@ -30,7 +30,7 @@ class ComposerC4AWorkflowTest {
     private fun stage(message: String) { File(dir,"progress.txt").appendText("$message\n"); android.util.Log.i("C4A",message) }
     private fun activity(): ComposerActivity { var a: ComposerActivity?=null; inst.runOnMainSync { a=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<ComposerActivity>().single() }; return a!! }
     private fun vm()=ViewModelProvider(activity())[ComposerViewModel::class.java]
-    private fun tap(t: String) { compose.waitUntil(20000) { compose.onAllNodesWithText(t).fetchSemanticsNodes(false).isNotEmpty() }; compose.onNodeWithText(t).performClick() }
+    private fun tap(t: String) { compose.waitUntil(20000) { compose.onAllNodesWithText(t).fetchSemanticsNodes(false).any { !it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled) } }; val node=compose.onNodeWithText(t); if(!node.isDisplayed()) node.performScrollTo(); node.performClick() }
     private fun shot(name: String) { compose.waitForIdle(); device.waitForIdle(); Thread.sleep(350); assertTrue(device.takeScreenshot(File(dir,"$name.png"))) }
     private fun workspace() { compose.waitUntil(30000) { compose.onAllNodesWithTag("piano-roll").fetchSemanticsNodes(false).isNotEmpty() }; compose.waitForIdle() }
     private fun precise(dial: String,value: String) {
@@ -96,10 +96,15 @@ class ComposerC4AWorkflowTest {
         compose.onNodeWithTag("value-Attack").assert(!hasText("10 ms"))
         precise("Attack","125"); precise("Release","1500"); precise("Cutoff","850"); precise("Resonance","2.4"); precise("Sustain","65"); precise("Pan","-0.4")
         shot("02-modified"); stage("All parameters edited"); tap("Back"); tap("Keep editing")
-        tap("Save New Preset"); compose.onNodeWithTag("preset-name").performClick().performTextReplacement("Velvet organ"); shot("03-save-dialog"); device.pressBack(); tap("Save preset")
+        tap("Save New Preset"); compose.onNodeWithTag("preset-name").performClick().performTextReplacement("Velvet organ"); compose.waitUntil(10000) {
+            var visible=false
+            inst.runOnMainSync { visible=android.view.inspector.WindowInspector.getGlobalWindowViews().any { root -> root.rootWindowInsets?.let { androidx.core.view.WindowInsetsCompat.toWindowInsetsCompat(it).isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) }==true } }
+            visible
+        }
+        shot("03-save-dialog"); compose.onNodeWithText("Save preset").performTouchInput { click() }
         compose.waitUntil(15000) { compose.onAllNodesWithText("Save preset").fetchSemanticsNodes(false).isEmpty() }
         stage("Preset saved"); tap("Presets ▾"); tap("Organ"); compose.onNodeWithTag("value-Cutoff").assertTextEquals("18000 Hz")
-        tap("Presets ▾"); compose.onNodeWithText("My Presets").performScrollTo().assertIsDisplayed(); shot("04-my-presets")
+        tap("Presets ▾"); compose.onAllNodesWithText("Velvet organ").onLast().performScrollTo().assertIsDisplayed(); shot("04-my-presets")
         compose.onAllNodesWithText("Velvet organ").onLast().performScrollTo().performClick(); compose.onNodeWithTag("value-Cutoff").assertTextEquals("850 Hz")
         compose.onNodeWithContentDescription("Next octave").performClick(); shot("05-upper-range")
         compose.onNodeWithContentDescription("Previous octave").performClick()
@@ -126,17 +131,18 @@ class ComposerC4AWorkflowTest {
         compose.onNodeWithTag("value-Attack").assertTextEquals("200 ms"); tap("Back"); tap("Discard changes"); workspace()
         tap("Edit Instrument"); compose.onNodeWithTag("value-Attack").assertTextEquals("125 ms")
         device.executeShellCommand("wm size 720x1280"); device.executeShellCommand("wm density 320"); compose.waitForIdle(); shot("06-narrow-landscape"); stage("Narrow captured")
-        val keyTop=compose.onNodeWithTag("instrument-keyboard").fetchSemanticsNode().boundsInRoot.top
+        val keyTop=compose.onNodeWithTag("instrument-keyboard").getUnclippedBoundsInRoot().top
         for(dial in listOf("Attack","Release","Cutoff","Resonance","Sustain","Pan")) {
-            val node=compose.onNodeWithTag("value-$dial").assertIsDisplayed().fetchSemanticsNode()
-            assertTrue("Unclipped $dial",node.boundsInRoot.bottom<=keyTop+1)
+            val node=compose.onNodeWithTag("value-$dial").assertIsDisplayed().getUnclippedBoundsInRoot()
+            assertTrue("Unclipped $dial: $node above keyboard $keyTop",node.bottom<=keyTop+androidx.compose.ui.unit.Dp(1f))
         }
         compose.onNodeWithTag("piano-key-60",useUnmergedTree=true).assertIsDisplayed()
-        device.executeShellCommand("settings put system font_scale 1.6"); compose.waitForIdle(); shot("07-enlarged-fallback"); stage("Enlarged captured")
-        compose.onNodeWithTag("value-Pan").performScrollTo().assertIsDisplayed(); tap("Back"); workspace()
+        device.executeShellCommand("settings put system font_scale 1.6"); compose.waitForIdle(); shot("07-enlarged-header")
+        compose.onNodeWithTag("value-Pan").performScrollTo().assertIsDisplayed(); shot("07b-enlarged-controls"); stage("Enlarged captured"); tap("Back"); workspace()
         device.executeShellCommand("settings put system font_scale 1.0"); device.executeShellCommand("wm size 1440x3120"); device.executeShellCommand("wm density 480"); compose.waitForIdle()
         tap("Save"); compose.waitUntil(15000) { !vm().busy }; val saved=store.read(original.id); File(dir,"project.json").writeText(CompositionCodec.encode(saved))
         tap("Edit Instrument"); val owner=activity().auditionEngine!!; compose.waitUntil(30000) { owner.ready }
+        compose.waitUntil(10000) { compose.onNodeWithTag("piano-key-60",useUnmergedTree=true).fetchSemanticsNode().config.contains(androidx.compose.ui.semantics.SemanticsActions.OnClick) }
         compose.onNodeWithTag("piano-key-60",useUnmergedTree=true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
         compose.waitUntil(10000) { owner.voiceCount()>0 }
         val manager=inst.targetContext.getSystemService(AudioManager::class.java)
