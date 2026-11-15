@@ -15,7 +15,7 @@ Nine untouched factory sounds are grouped separately from My Presets. Factory so
 
 Vertical knob dragging spans 160dp for the full range. Tapping its numeric value opens bounded precise entry and Default; accessibility supports set-progress, precise entry and restore-default actions. Parameters affect the preview immediately, except attack which starts with the next note and release which determines the next release transition. No Apply is needed to hear the keyboard. Track Volume remains in the existing mixer and scales both preview and Loop channels. Custom filtering replaces factory filter modulation; the original sample, tuning and other bank behavior remain. No extra effects or sample editor are provided. Extreme resonance can increase level; existing final PCM limiting remains.
 
-The unchanged Reference Piano component supplies MIDI labels, chords, glissando, cancellation, octave buttons, semitone range drag and accessibility. Its callbacks use the selected Composer SF2 bank and edited settings, never the Reference Piano tone. Range is the existing C1–C7 bounded component behavior. Focus loss/background clears audio and resets held-key input; closing, preset/range switching and recreation release audition voices. Keyboard range/drafts survive ordinary Activity recreation. A new explicit editor visit starts from the track's applied sound; closing without Use on Track leaves the track unchanged even if a new preset was saved.
+The reused Reference Piano component (with an optional compact layout; other callers keep their existing defaults) supplies MIDI labels, chords, glissando, cancellation, octave buttons, semitone range drag and accessibility. Its callbacks use the selected Composer SF2 bank and edited settings, never the Reference Piano tone. Range is the existing C1–C7 bounded component behavior. Drums retain the C3 mapped19-key subset: shift down to C2 for kick/snare; one-shot samples naturally end even with a long envelope. Focus loss/background clears audio and resets held-key input; closing, preset/range switching and recreation release audition voices. Keyboard range/drafts survive ordinary Activity recreation. A new explicit editor visit starts from the track's applied sound; closing without Use on Track leaves the track unchanged even if a new preset was saved.
 
 ## Native ownership
 
@@ -31,6 +31,8 @@ Composer project v1 continues to read/write unchanged, including reference-piano
 
 Practice ZIP/JSON backups still exclude Composer projects **and presets**. Complete recovery remains later C7/export work; this increment does not change that backup system.
 
-## Verification boundary
+## Layout and verification boundary
+
+Normal short landscape uses40dp header controls and retains all six values above the keyboard. The full-screen Dialog follows Composer immersive system-bar behavior. At enlarged text or orientation restrictions, the control body scrolls while80dp keys stay pinned; numeric/naming content scrolls and respects IME insets. Native screenshot tests verify original/unclipped value bounds and physically tap Save while the software keyboard is visible.
 
 Use the focused C4A host/native workflow and actual screenshots recorded in CURRENT_STATE.md. PCM differences prove signal processing, not physical speaker/headphone/Bluetooth sound quality or latency. Owner Galaxy S26 Ultra acceptance remains separate. C4B patterns, C5 Arrange, C6 exports, C7 Library/recovery and F1 remain outside this increment.

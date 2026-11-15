@@ -79,7 +79,7 @@ class ComposerC4AWorkflowTest {
             val ref=exact.tracks[0].instrument
             assertEquals(ref,ComposerPresetStore(File(inst.targetContext.filesDir,"composer/presets")).read(ref.presetId).reference)
             inst.runOnMainSync { compose.activity.startActivity(Intent(compose.activity,ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID,exact.id)) }
-            workspace(); tap("Edit Instrument"); compose.onNodeWithTag("value-Cutoff").assertTextEquals("850 Hz"); shot("09-cold-reopened-custom")
+            workspace(); compose.onNodeWithText("Sound Velvet organ").assertIsDisplayed(); tap("Edit Instrument"); compose.onNodeWithTag("value-Cutoff").assertTextEquals("850 Hz"); shot("09-cold-reopened-custom")
             tap("Back"); val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }; tap("Play"); compose.waitUntil(30000) { audio.playing && audio.nonZeroFramesWritten>0 }; tap("Stop")
             return
         }
@@ -119,7 +119,7 @@ class ComposerC4AWorkflowTest {
         compose.waitUntil(10000) { audio.voiceCount()>=2 }
         keyboard.performTouchInput { up(1); up(0) }
         compose.waitUntil(10000) { audio.voiceCount()==0 }
-        stage("Chord passed"); tap("Use on Track"); workspace()
+        stage("Chord passed"); tap("Use on Track"); workspace(); compose.onNodeWithText("Sound Velvet organ").assertIsDisplayed()
         assertEquals(original.tracks[0].patterns,vm().project!!.tracks[0].patterns); assertEquals(original.tracks[0].id,vm().project!!.tracks[0].id); assertEquals(original.tracks[1],vm().project!!.tracks[1])
         val ref=vm().project!!.tracks[0].instrument; assertTrue(validCompositionId(ref.presetId)); assertEquals(850f,ref.sound!!.cutoffHz)
         tap("Play"); compose.waitUntil(10000) { audio.playing }; assertEquals(ref.sound,audio.playbackPlan!!.tracks[0].sound); tap("Stop")

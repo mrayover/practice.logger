@@ -171,7 +171,7 @@ private class RollTouch {
                 }
             })
             if(track != null) add(ComposerControl("Sound ${ComposerInstruments.title(track.instrument)}",2) {
-                RollChoice("Sound",ComposerInstruments.all.map { it.title },bank,enabled) { index ->
+                RollChoice("Sound",ComposerInstruments.all.map { it.title },bank,enabled,display = ComposerInstruments.title(track.instrument)) { index ->
                     edit(project.copy(tracks = project.tracks.map { if(it.id == track.id) it.copy(instrument = ComposerInstruments.all[index].reference) else it }))
                 }
 
