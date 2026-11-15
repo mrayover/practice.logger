@@ -1,3 +1,7 @@
+## November15 bounded C1/C2 assignment
+
+The current owner handoff explicitly authorizes three-second branded entrance refinement, functional C2 piano roll, Reference Piano audition, minimal cross-pattern/instrument navigation, focused verification, permanent-key signed delivery and commit/push on block-ux-stage1. This supersedes older C1-only scope below. Stop after C2. C3 sequencing, full C4 management, Arrange editing, exports and F1 remain excluded.
+
 ## compose.logger Phase 1
 
 Follow [the approved Composer V1 contract](docs/COMPOSE_LOGGER_V1_SPEC.md). November14 owner clarification explicitly authorizes registration plus C1 implementation, focused verification, permanent-key delivery and commit/push; the supplied documentation-only handoff is the earlier assignment. Stop after C1; C2–C7 and F1 need separate assignments. Keep Composer model/storage in a bounded independent package, files/composer/projects, stable IDs,960 PPQ/eight tracks, without practice tables/media/audio/timer dependencies. Existing ZIP/JSON backups exclude Composer; C7 owns portable recovery. Preserve production identity/data/signing; no uninstall/data clearing. [Actual status](CURRENT_STATE.md).

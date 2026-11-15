@@ -31,7 +31,7 @@ internal class PianoPcm(private val rate: Int = 48_000) {
     private val releaseFrames = (rate * .045).toInt()
     private fun level(v: Voice) = min(1.0, v.age / attack) * (.65 + .35 * exp(-v.age / (rate * .18)))
     @Synchronized fun noteOn(token: Long, note: Int): Boolean {
-        require(note in 24..96)
+        require(note in 0..127)
         if (voices.any { it.token == token && it.release < 0 } || voices.size >= 16) return false
         voices.add(Voice(token, note)); return true
     }

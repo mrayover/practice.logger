@@ -80,7 +80,21 @@ class ComposerFoundationWorkflowTest {
         field("Time signature (e.g. 4/4)", "7/8")
         hideIme()
         tap("Create")
-        waitText("Project settings")
+        // Observe the real dedicated Activity, without replacing MainActivity's content.
+        compose.waitUntil(5000) { runCatching { resumed() is ComposerActivity }.getOrDefault(false) }
+        val entrance = resumed() as ComposerActivity
+        device.wait(Until.findObject(By.text("Got it")),300)?.click()
+        val entranceDir = File(compose.activity.getExternalFilesDir(null), "composer-c1").apply { mkdirs() }
+        assertTrue(device.takeScreenshot(File(entranceDir,"transition-real.png")))
+        val bitmap = android.graphics.BitmapFactory.decodeFile(File(entranceDir,"transition-real.png").path)
+        // Sample interior corners, away from system bars and centered white branding.
+        listOf(.15f,.85f).forEach { x -> listOf(.20f,.80f).forEach { y ->
+            assertEquals(android.graphics.Color.BLACK,bitmap.getPixel((bitmap.width*x).toInt(),(bitmap.height*y).toInt()))
+        } }
+        waitText("Settings")
+        compose.waitUntil(3000) { entrance.workspaceFirstDrawMs > 0 }
+        assertTrue("Branding must remain displayed for 3 seconds: ${entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs}", entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs >= 3000L)
+        File(entranceDir,"transition-duration.txt").writeText("${entrance.workspaceFirstDrawMs-entrance.brandFirstDrawMs} ms from branded draw to workspace draw")
         dismissImmersiveTip()
         assertTrue(resumed() is ComposerActivity)
         assertEquals(Configuration.ORIENTATION_LANDSCAPE, resumed().resources.configuration.orientation)
@@ -92,20 +106,20 @@ class ComposerFoundationWorkflowTest {
         compose.onNodeWithText("Undo").assertIsNotEnabled()
         screenshot("editor-loop")
         tap("Arrange"); waitText("Arrange workspace · C1 foundation")
-        tap("Project settings")
+        tap("Settings")
         field("Composition title", "Retained draft")
         field("Tempo (30–300 BPM)", "146")
         hideIme(); tap("Apply")
         waitText("Unsaved settings")
         val editor = resumed()
         instrumentation.runOnMainSync { editor.recreate() }
-        waitText("Project settings"); waitText("Retained draft"); waitText("Arrange workspace · C1 foundation")
+        waitText("Settings"); waitText("Retained draft"); waitText("Arrange workspace · C1 foundation")
         dismissImmersiveTip()
-        device.pressBack(); waitText("Unsaved composition settings"); tap("Keep editing")
+        device.pressBack(); waitText("Unsaved composition changes"); tap("Keep editing")
         tap("Save"); waitText("Saved on this device")
         assertEquals(original.id, store.list().projects.single().id)
         assertEquals(146, store.read(original.id).tempoBpm)
-        tap("Back to composition library"); waitText("Create New Composition")
+        tap("Back"); waitText("Create New Composition")
         waitText("Retained draft")
         val library = resumed()
         instrumentation.runOnMainSync { library.recreate() }
@@ -116,9 +130,9 @@ class ComposerFoundationWorkflowTest {
         waitText("Renamed native etude")
         screenshot("library-saved")
         assertEquals(original.id, store.list().projects.single().id)
-        tap("Open"); waitText("Project settings"); waitText("Renamed native etude")
+        tap("Open"); waitText("Settings"); waitText("Renamed native etude")
         waitText("146 BPM · 7/8")
-        tap("Project settings"); field("Composition title", "Discard this draft")
+        tap("Settings"); field("Composition title", "Discard this draft")
         hideIme(); tap("Apply")
         waitText("Unsaved settings")
         compose.onNodeWithText("Apply").assertDoesNotExist()
@@ -135,11 +149,6 @@ class ComposerFoundationWorkflowTest {
         assertEquals(Configuration.ORIENTATION_PORTRAIT, resumed().resources.configuration.orientation)
         val cold = store.create(CompositionProject.empty("Cold recovery fixture", 91, 3, 4))
         File(compose.activity.getExternalFilesDir(null), "composer-c1/cold-id.txt").writeText(cold.id)
-        // Capture the exact transition composable without racing its intentionally short readiness interval.
-        compose.runOnIdle { compose.activity.setContent { PracticeTheme(ThemeChoice.DARK) { BrandedTransition() } } }
-        waitText("compose.logger")
-        val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
-        assertEquals(android.graphics.Color.BLACK, bitmap.getPixel(1, 1))
-        File(compose.activity.getExternalFilesDir(null), "composer-c1/transition-render.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+
     }
 }

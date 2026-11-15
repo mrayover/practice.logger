@@ -36,7 +36,7 @@ class PianoAudioEngine(context: Context, private val reference: LibraryAudioCont
         else app.registerReceiver(noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
     }
     fun noteOn(token: Long, note: Int): Boolean {
-        require(note in 24..96)
+        require(note in 0..127)
         if (closed || !foreground) return false
         if (track == null && !start()) return false
         return pcm.noteOn(token, note)

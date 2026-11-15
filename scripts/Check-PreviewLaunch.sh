@@ -30,6 +30,11 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerFoundationWorkflowTest ]; then
   adb shell am force-stop "$package"
   adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerColdReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-cold.txt
   grep -q 'OK (1 test)' app/build/preview-composer-cold.txt
+  if [ "${COMPOSER_C2:-false}" = true ]; then
+    adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerPianoRollWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c2.txt
+    adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c2 app/build/preview-composer-c2-screens || true
+    grep -q 'OK (1 test)' app/build/preview-composer-c2.txt
+  fi
 fi
 if [[ "${PREVIEW_TEST_CLASS:-}" == RecordingWaveformWorkflowTest,* ]]; then
   grep -q 'OK (2 tests)' app/build/preview-home.txt

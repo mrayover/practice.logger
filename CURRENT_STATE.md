@@ -1,3 +1,6 @@
+# Active assignment — C1 transition refinement and C2 piano roll
+
+November15,2026: Owner explicitly assigned C1 three-second transition refinement and C2 touch piano-roll editing, selection/cross-pattern clipboard/undo, minimal A/B navigation and Reference Piano audition. This supersedes the prior C1-only stop for this increment. Stop after C2; C3–C7/F1 remain unassigned. Implementation and focused verification are in progress. No new signed delivery or native pass is claimed yet. See WORK_LOG and the retained C1 baseline below.
 # Current state — compose.logger C1 delivered, build127
 
 Updated November14,2026 (America/Los_Angeles). **Owner reported “It works I just checked, now finish up.”** General phone confirmation is recorded; exact installed version/device and individual checklist observations were not independently captured. No further test runs were started after that direction. Signed **0.47.0/build127** delivers the C1 foundation and [approved V1 specification](docs/COMPOSE_LOGGER_V1_SPEC.md). The complete automated workflow is **not passing**: its last synthetic screenshot assertion fails after the functional assertions complete. Cold-process native verification remains unperformed. This is not F1/V1 certification.
