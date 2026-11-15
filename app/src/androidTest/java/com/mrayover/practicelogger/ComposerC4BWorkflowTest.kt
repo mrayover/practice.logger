@@ -60,6 +60,7 @@ class ComposerC4BWorkflowTest {
         tap("Sound Synth pad"); tap("Electronic drums"); compose.onNodeWithText("Instrument 1 · Electronic drums").assertIsDisplayed()
         val beforeRename=current(); action("Rename Track",true); shot("04-rename-track"); compose.onNodeWithTag("management-name").performTextReplacement("Countermelody"); device.pressBack(); tap("Save name")
         compose.onNodeWithText("Instrument 1 · Countermelody — Electronic drums").assertIsDisplayed(); undoTo(beforeRename); rename("Rename Track","Countermelody",true)
+        tap("Sound Electronic drums"); tap("Organ"); compose.onNodeWithText("Instrument 1 · Countermelody — Organ").assertIsDisplayed(); tap("Sound Organ"); tap("Electronic drums")
         val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }
         tap("Play"); compose.waitUntil(10000) { audio.playing }; val plan=audio.playbackPlan!!; assertEquals(8*initial.barTicks(),plan.regionTicks)
         repeat(4) { val before=current(); action("Create Pattern"); assertEquals(before.tracks[0].patterns.size+1,current().tracks[0].patterns.size); if(it==0) { undoTo(before); action("Create Pattern") } }
@@ -69,11 +70,11 @@ class ComposerC4BWorkflowTest {
         val duplicate=current().tracks[0].patterns.last(); assertNotEquals(source.id,duplicate.id); assertEquals(source.notes[0].copy(id=duplicate.notes[0].id),duplicate.notes[0]); undoTo(beforeCopy); action("Duplicate Pattern")
         val beforePatternRename=current(); rename("Rename Pattern","Variation"); assertEquals("Variation",current().tracks[0].patterns.last().title); undoTo(beforePatternRename); rename("Rename Pattern","Variation")
         val beforeDelete=current(); action("Delete Pattern"); shot("07-delete-pattern-confirmation"); tap("Cancel"); assertEquals(beforeDelete,current()); action("Delete Pattern"); tap("Confirm deletion"); assertEquals(beforeDelete.tracks[0].patterns.size-1,current().tracks[0].patterns.size); undoTo(beforeDelete)
-        action("Delete Pattern"); tap("Confirm deletion")
+        pattern(); tap("Variation"); action("Delete Pattern"); tap("Confirm deletion")
         // The source and all its note identities remain unchanged through independent duplication/deletion.
         assertEquals(source,current().tracks[0].patterns.first()); assertSame(plan,audio.playbackPlan); tap("Stop")
         val beforeAdd=current(); tap("+ Instrument"); assertEquals(4,current().tracks.size); undoTo(beforeAdd); tap("+ Instrument")
-        val beforeTrackDelete=current(); action("Delete Track",true); shot("08-delete-track-confirmation"); tap("Cancel"); assertEquals(beforeTrackDelete,current()); action("Delete Track",true); tap("Confirm deletion"); undoTo(beforeTrackDelete); action("Delete Track",true); tap("Confirm deletion")
+        val beforeTrackDelete=current(); action("Delete Track",true); shot("08-delete-track-confirmation"); tap("Cancel"); assertEquals(beforeTrackDelete,current()); action("Delete Track",true); tap("Confirm deletion"); undoTo(beforeTrackDelete); instrument(); tap("4 · Acoustic piano"); action("Delete Track",true); tap("Confirm deletion")
         instrument(); tap("2 · Electric bass"); tap("Mute ☐"); tap("Solo ☐")
         tap("Play"); compose.waitUntil(10000) { audio.playing }; val deletionPlan=audio.playbackPlan!!
         action("Delete Track",true); tap("Confirm deletion"); assertTrue(audio.playing); assertSame(deletionPlan,audio.playbackPlan)
