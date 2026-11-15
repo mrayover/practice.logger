@@ -1,6 +1,6 @@
-# C4B implementation — build138 verification in progress
+# C4B implementation — build139 verification in progress
 
-November15 owner handoff authorizes instrument identity correction and bounded pattern/track management. C4A is owner-reported working. Naming was corrected and checked before C4B. Canonical checkout clean baseline/live remote 4f5d1236ed2fb0f640e58c1206e76d9df178604b on block-ux-stage1. Mandatory efficiency procedure reviewed. 34 focused host checks, debug/release/native-test compilation and vital lint pass locally. Android workflow/rendered evidence and signed delivery closeout remain pending. No C5–C7/F1. [Implementation](docs/COMPOSER_C4B.md).
+November15 owner handoff authorizes instrument identity correction and bounded pattern/track management. C4A is owner-reported working. Naming was corrected and checked before C4B. Canonical checkout clean baseline/live remote 4f5d1236ed2fb0f640e58c1206e76d9df178604b on block-ux-stage1. Mandatory efficiency procedure reviewed. 34 focused host checks, debug/release/native-test compilation and vital lint pass locally. Signed138 is retained as an initial candidate. Build139 synchronizes mixer channel mapping before first audio onset on next Play after track deletion. Android workflow/rendered evidence and final signed delivery closeout remain pending. No C5–C7/F1. [Implementation](docs/COMPOSER_C4B.md).
 
 ---
 

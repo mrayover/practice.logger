@@ -70,3 +70,7 @@ The owner separately assigns measured four-row landscape consolidation, responsi
 ## C4A assignment — November15
 
 The owner assigns a dedicated landscape Edit Instrument workspace with factory/My Presets selector, saved custom UUIDs, numeric rotary Attack/Release/Cutoff/Resonance/Sustain/Pan controls and the existing Reference Piano input routed through Composer SoundFont audio. Preserve four-row piano roll, independent tracks, strict compatible project reading, atomic private presets and the existing audio owner. Deliver focused PCM/UI/persistence checks and a permanent-key APK/ZIP. [C4A behavior and limits](COMPOSER_C4A.md). Stop before C4B–C7/F1. Composer projects and presets remain outside practice ZIP/JSON recovery.
+
+## C4B assignment — November15
+
+The owner assigns the instrument naming correction followed by expanded pattern/track management. [C4B behavior](COMPOSER_C4B.md) supersedes the earlier minimal A/B/C limitation and Instrument-number-only label. Preserve C4A/compact rows, safe references and coherent snapshots. No new project format or C5 functionality. Stop after C4B.

@@ -36,3 +36,5 @@ Practice ZIP/JSON backups still exclude Composer projects **and presets**. Compl
 Normal short landscape uses40dp header controls and retains all six values above the keyboard. The full-screen Dialog follows Composer immersive system-bar behavior. At enlarged text or orientation restrictions, the control body scrolls while80dp keys stay pinned; numeric/naming content scrolls and respects IME insets. Native screenshot tests verify original/unclipped value bounds and physically tap Save while the software keyboard is visible.
 
 Use the focused C4A host/native workflow and actual screenshots recorded in CURRENT_STATE.md. PCM differences prove signal processing, not physical speaker/headphone/Bluetooth sound quality or latency. Owner Galaxy S26 Ultra acceptance remains separate. C4B patterns, C5 Arrange, C6 exports, C7 Library/recovery and F1 remain outside this increment.
+
+C4B adds instrument-type/preset identification in the compact selector and pattern/track management while retaining this editor and immutable custom snapshots unchanged. [C4B](COMPOSER_C4B.md).

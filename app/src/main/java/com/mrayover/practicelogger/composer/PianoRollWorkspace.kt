@@ -140,13 +140,15 @@ private class RollTouch {
         if(trackId !in ids) trackId=project.tracks.firstOrNull()?.id
         audio.stopAll(); touch.voices.clear()
     }
-    LaunchedEffect(muteById,soloById,volumeById,project.tracks.map { it.id },transportPlan) {
-        // Running sequence channels keep the snapshot order; preview channels follow the current editor order.
-        val ids=transportPlan?.trackIds?.takeIf { it.isNotEmpty() } ?: project.tracks.map { it.id }
+    fun syncMixer(ids: List<String>) {
         val existing=project.tracks.map { it.id }.toSet()
         val anySolo=soloById.any { it.key in existing && it.value }
         audio.mix(BooleanArray(8) { i -> ids.getOrNull(i)?.let { it in existing && muteById[it]!=true && (!anySolo || soloById[it]==true) } ?: false },
             FloatArray(8) { volumeById[ids.getOrNull(it)] ?: 1f },volumes)
+    }
+    LaunchedEffect(muteById,soloById,volumeById,project.tracks.map { it.id },transportPlan) {
+        // Running sequence channels keep snapshot order; preview follows current editor order.
+        syncMixer(transportPlan?.trackIds?.takeIf { it.isNotEmpty() } ?: project.tracks.map { it.id })
     }
     LaunchedEffect(track?.id,trackIndex,track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
     LaunchedEffect(loopMode) { if (!loopMode) { audio.stop(); audio.stopAll() } }
@@ -227,7 +229,7 @@ private class RollTouch {
         ComposerToolbar("composer-performance-row", buildList {
             add(ComposerControl("Play",10) { ComposerButton("Play", enabled && loopMode && soundsReady && !playing && project.tracks.isNotEmpty()) {
                 scope.launch {
-                    try { val snapshot = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,patternSelections.toList()) }; audio.play(snapshot,repeat); message = null }
+                    try { val snapshot = withContext(Dispatchers.Default) { LoopPlan.snapshot(project,patternSelections.toList()) }; syncMixer(snapshot.trackIds); audio.play(snapshot,repeat); message = null }
                     catch(failure: Exception) { message = failure.message }
                 }
             } })

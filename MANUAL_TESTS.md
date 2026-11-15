@@ -589,3 +589,17 @@ Install the C4A permanent-key APK over the existing app without uninstalling or 
 6. Rotate/recreate, background/return and interrupt audio while auditioning. No notes may remain sounding or restart automatically. Check landscape fit on the Galaxy S26 Ultra and enlarged text; the fallback scrolls the control body while retaining the keyboard. For electronic drums, shift down to C2 for kick/snare; the existing mapped subset and sample-length limits remain.
 
 Stop after C4A. Expanded patterns, Arrange, exports, Library integration and complete Composer recovery remain separate work.
+
+## compose.logger C4B — owner-phone check
+
+Install the latest C4B permanent-key APK over the existing app; keep app data.
+
+1. Open an existing composition. Check that Piano N legacy tracks show their actual assigned piano/bass/pad/drum/organ type. Change Sound and verify the selector updates immediately.
+2. Instrument dropdown → Rename Track. Give it a descriptive name, change Sound again and verify both name and instrument type remain visible in the dropdown. Select an existing My Presets sound through Edit Instrument and check its type and preset name.
+3. Pattern → Create Pattern past C. Duplicate a populated pattern; edit the duplicate and verify the original notes/velocity/length remain. Rename it and use Undo.
+4. Try Bars1/2/4/8/16. Shortening across notes must refuse. Give two instruments different lengths/pattern selections, switch between them, then Play and check independent loops and longest region.
+5. Delete Pattern: Cancel keeps it; Confirm removes only that pattern. Undo restores it. Delete Track must separately confirm all owned patterns/notes; another track's notes/sound stay intact. Arrangement-referenced items must refuse deletion.
+6. Add Instrument up to eight; further addition disables. Delete a middle populated track during playback, then Stop/Play. Check surviving tracks retain their own mute/solo/volume and deleted voices cease. Delete all tracks, then add a new instrument.
+7. Save, Return, reopen; rotate/recreate and cold-launch again. Check notes, sounds/custom preset, names and patterns. Confirm the four compact rows and C4A controls remain usable on the phone.
+
+Physical touch/audio/routing acceptance is the owner's check. Composer projects and presets remain outside practice ZIP/JSON recovery. No C5 Arrange functionality is included.

@@ -132,3 +132,7 @@ Private staged copy/validation is bounded and off the UI thread; release decoder
 ## Reference Piano reuse (K1)
 
 K1 delivers one PianoPcm/PianoAudioEngine and callback-based PianoKeyboard; PianoScreen is only a standalone Tools owner. Reuse these in T1, never duplicate the instrument or navigate through Tools to embed it. Embedded mode currently borrows a playing LibraryAudioController's focus and companion interruption cleanup; it must not request/abandon conflicting focus or close/seek the reference. Pass foreground/reset signals and dispose only the keyboard's own output when collapsing. Paused-reference solo audition needs explicit owner focus support if added in T1. Preserve actual16-voice/attack/release/range/touch cleanup and current Room14/JSON7/media ownership. See docs/REFERENCE_PIANO.md and CURRENT_STATE for exact scoped evidence and pending physical acoustic checks.
+
+## November15 C4B assignment
+
+The current owner handoff separately authorizes actual instrument identities plus expanded pattern/track management, focused checks and permanent-key APK/ZIP/source publication. Preserve four-row layout, C4A, eight tracks,256 patterns per track,960PPQ, compatible v1/v2 persistence, logical Undo and coherent Loop snapshots. Explicit confirmations and arrangement dependency refusals protect deletion. Stop after C4B; C5–C7/F1 remain separate assignments. [Implementation](docs/COMPOSER_C4B.md) · [Actual status](CURRENT_STATE.md).
