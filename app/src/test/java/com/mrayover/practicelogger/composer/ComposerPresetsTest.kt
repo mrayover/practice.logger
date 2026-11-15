@@ -40,6 +40,9 @@ class ComposerPresetsTest {
         val preset=ComposerPresetStore(directory).create("Soft","acoustic-piano",ComposerSound(cutoffHz=900f))
         val edited=p.copy(formatVersion=2,tracks=p.tracks.mapIndexed { i,t -> if(i==0) t.copy(instrument=preset.reference) else t })
         val reopened=CompositionCodec.decode(CompositionCodec.encode(edited)); assertEquals(edited,reopened)
+        val projects=File(folder.root,"projects"); val projectStore=CompositionStore(projects); projectStore.create(edited)
+        rejects { CompositionStore(projects) { error("Atomic project failure") }.save(edited.copy(title="Failed change")) }
+        assertEquals(edited,projectStore.read(edited.id))
         assertEquals(p.tracks[0].patterns,reopened.tracks[0].patterns); assertEquals(p.tracks[1],reopened.tracks[1])
         File(directory,"${preset.id}.json").delete() // Project playback never depends on the library file.
         val plan=LoopPlan.snapshot(reopened,listOf(track.patterns[0].id,""))

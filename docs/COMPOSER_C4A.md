@@ -10,7 +10,7 @@ Nine untouched factory sounds are grouped separately from My Presets. Factory so
 - Release: 10–5000 ms, TinySoundFont amplitude release after note-off; samples can end sooner.
 - Cutoff: 40–18000 Hz, logarithmic knob, actual per-voice two-pole low-pass filter.
 - Resonance: Q 0.5–4.0, bounded filter resonance.
-- Sustain: 0–100% amplitude level after a fixed 300 ms decay, never MIDI pedal sustain. Sample natural decay/length still applies.
+- Sustain: 0–100% held amplitude after attack/decay, never MIDI pedal sustain. The fixed SF2 decay parameter is 300 ms toward near-zero; TSF enters sustain sooner when it reaches the target. Sample natural decay/length still applies.
 - Pan: -1 (left) to +1 (right), equal-power stereo placement; center is 0.
 
 Vertical knob dragging spans 160dp for the full range. Tapping its numeric value opens bounded precise entry and Default; accessibility supports set-progress, precise entry and restore-default actions. Parameters affect the preview immediately, except attack which starts with the next note and release which determines the next release transition. No Apply is needed to hear the keyboard. Track Volume remains in the existing mixer and scales both preview and Loop channels. Custom filtering replaces factory filter modulation; the original sample, tuning and other bank behavior remain. No extra effects or sample editor are provided. Extreme resonance can increase level; existing final PCM limiting remains.

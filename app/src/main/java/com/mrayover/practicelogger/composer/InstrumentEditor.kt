@@ -138,11 +138,11 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
                             TextButton(onClick=::close,enabled=!saving) { Text("Back") }
                             Column(Modifier.weight(1f).padding(horizontal=6.dp)) {
                                 Text(presetTitle,style=MaterialTheme.typography.titleMedium,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                Text(if(dirty) "Unsaved sound changes" else if(sound==null) "Factory preset · read-only" else "My Presets · saved",style=MaterialTheme.typography.bodySmall,color=Color(0xFFC9B6FF))
+                                Text(if(dirty) "Unsaved sound changes" else if(sound==null) "Factory · dials show editor defaults" else "My Presets · saved",style=MaterialTheme.typography.bodySmall,color=Color(0xFFC9B6FF))
                             }
                             if(!narrow && !fallback) EditorActions(!saving && !loading,dirty, { name="$presetTitle copy".take(60); naming=true }, { audio.stopAll(); onUse(InstrumentReference(1,base,presetId,sound,if(sound==null) null else presetTitle)) })
                         }
-                        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        FlowRow(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.Center) {
                             Box {
                                 TextButton(onClick={ menu=true },enabled=!loading && !saving) { Text("Presets ▾") }
                                 DropdownMenu(expanded=menu,onDismissRequest={ menu=false }) {
@@ -198,8 +198,8 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
         val raw=number.toFloatOrNull()?.let { if(percent) it/100 else it }
         val valid=raw!=null && raw.isFinite() && raw in d.min..d.max
         AlertDialog(onDismissRequest={ numeric=-1 },title={ Text("${d.name} · precise value") },text={ Column {
-            OutlinedTextField(value=number,onValueChange={ number=it },singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),label={ Text(if(percent) "Percent (0–100)" else "${d.min}–${d.max} ${d.unit}") },modifier=Modifier.testTag("parameter-number"))
-            Text(if(numeric==0) "Attack starts on the next note." else if(numeric==4) "Amplitude level after a fixed 300 ms decay; not a sustain pedal." else "Changes are heard in the preview keyboard.",style=MaterialTheme.typography.bodySmall)
+            OutlinedTextField(value=number,onValueChange={ number=it },singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=if(numeric==5) KeyboardType.Ascii else KeyboardType.Decimal),label={ Text(if(percent) "Percent (0–100)" else "${d.min}–${d.max} ${d.unit}") },modifier=Modifier.testTag("parameter-number"))
+            Text(if(numeric==0) "Attack starts on the next note." else if(numeric==4) "Held amplitude after attack/decay; not a sustain pedal." else "Changes are heard in the preview keyboard.",style=MaterialTheme.typography.bodySmall)
         } },confirmButton={ TextButton(onClick={ draftSound=(sound ?: ComposerSound()).withValue(numeric,raw!!).json().toString(); numeric=-1 },enabled=valid) { Text("Set value") } },dismissButton={ Row {
             TextButton(onClick={ draftSound=(sound ?: ComposerSound()).withValue(numeric,d.default).json().toString(); numeric=-1 }) { Text("Default") }
             TextButton(onClick={ numeric=-1 }) { Text("Cancel") }
@@ -210,4 +210,3 @@ private fun ComposerSound.withValue(i: Int,v: Float): ComposerSound = when(i) {
     TextButton(onClick=save,enabled=enabled) { Text("Save New Preset") }
     TextButton(onClick=use,enabled=enabled && !dirty) { Text("Use on Track") }
 }
-

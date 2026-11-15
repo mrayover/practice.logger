@@ -1,6 +1,6 @@
 # compose.logger Phase 1 — approved V1 contract
 
-Owner-approved November 14, 2026. This is the authoritative forward specification for an offline MIDI composition workstation inside practice.logger, with eventual extraction into an independent Android application named **compose.logger**. Approval of this contract does not authorize every implementation phase. C1/C2 are delivered. The November15 owner handoff separately assigns C2 scrolling/Hand/Actions corrections plus C3 instruments and Loop playback. C4–C7 require separate assignments. [Current implementation and evidence](../CURRENT_STATE.md).
+Owner-approved November 14, 2026. This is the authoritative forward specification for an offline MIDI composition workstation inside practice.logger, with eventual extraction into an independent Android application named **compose.logger**. Approval of this contract does not authorize every implementation phase. C1/C2 are delivered. The November15 owner handoff separately assigns C2 scrolling/Hand/Actions corrections plus C3 instruments and Loop playback. The November15 C4A handoff separately assigns the dedicated instrument editor, sound controls, custom presets and reused keyboard. C4B–C7 require separate assignments. [Current implementation and evidence](../CURRENT_STATE.md).
 
 ## Identity, navigation and ownership
 
@@ -41,7 +41,8 @@ The sole required initial integration is explicit **Save Rendered WAV to Library
 | C1 | Composition library/launcher; black branded transition; separate landscape Activity and Loop/Arrange shell; versioned project model; create/open/rename/confirmed delete/save/reopen and lifecycle foundation. |
 | C2 | Piano-roll editing, note gestures, grids/snap, selection, cross-pattern clipboard and undo. |
 | C3 | SoundFont engine, instrument selection, keyboard audition and loop playback. |
-| C4 | Multiple pattern slots, pattern lengths, duplication and instrument management. |
+| C4A | Dedicated instrument editor, actual sound shaping, immutable custom presets and preview keyboard. |
+| C4B | Expanded pattern slots, pattern lengths, duplication and remaining instrument management. |
 | C5 | Arrange timeline, clip placement/duplication, Make Unique and song playback. |
 | C6 | Offline WAV rendering; MIDI, MusicXML and native project export. |
 | C7 | Explicit rendered WAV import into Media Library and complete Composer portable recovery. |
@@ -65,3 +66,7 @@ The owner explicitly assigns TinySoundFont/curated redistributable instruments, 
 ## November15 compact UI and Save As assignment
 
 The owner separately assigns measured four-row landscape consolidation, responsive explicit overflow, compact status and independent live-draft Save As after C3. Disabled Edit Instrument/Velocity reserve positions; C4–C7/F1 are not authorized. [Behavior and ownership](COMPOSER_COMPACT_UI.md).
+
+## C4A assignment — November15
+
+The owner assigns a dedicated landscape Edit Instrument workspace with factory/My Presets selector, saved custom UUIDs, numeric rotary Attack/Release/Cutoff/Resonance/Sustain/Pan controls and the existing Reference Piano input routed through Composer SoundFont audio. Preserve four-row piano roll, independent tracks, strict compatible project reading, atomic private presets and the existing audio owner. Deliver focused PCM/UI/persistence checks and a permanent-key APK/ZIP. [C4A behavior and limits](COMPOSER_C4A.md). Stop before C4B–C7/F1. Composer projects and presets remain outside practice ZIP/JSON recovery.

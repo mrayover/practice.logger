@@ -27,14 +27,16 @@ class ComposerC4AWorkflowTest {
     @get:Rule val failure=object: org.junit.rules.TestWatcher() {
         override fun failed(e: Throwable?,d: org.junit.runner.Description?) { device.takeScreenshot(File(dir,"failure.png")); device.dumpWindowHierarchy(File(dir,"failure.xml")) }
     }
+    private fun stage(message: String) { File(dir,"progress.txt").appendText("$message\n"); android.util.Log.i("C4A",message) }
     private fun activity(): ComposerActivity { var a: ComposerActivity?=null; inst.runOnMainSync { a=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<ComposerActivity>().single() }; return a!! }
     private fun vm()=ViewModelProvider(activity())[ComposerViewModel::class.java]
     private fun tap(t: String) { compose.waitUntil(20000) { compose.onAllNodesWithText(t).fetchSemanticsNodes(false).isNotEmpty() }; compose.onNodeWithText(t).performClick() }
     private fun shot(name: String) { compose.waitForIdle(); device.waitForIdle(); Thread.sleep(350); assertTrue(device.takeScreenshot(File(dir,"$name.png"))) }
     private fun workspace() { compose.waitUntil(30000) { compose.onAllNodesWithTag("piano-roll").fetchSemanticsNodes(false).isNotEmpty() }; compose.waitForIdle() }
     private fun precise(dial: String,value: String) {
+        stage("Precise $dial starting")
         compose.onNodeWithTag("value-$dial").performClick()
-        compose.onNodeWithTag("parameter-number").performClick().performTextReplacement(value); device.pressBack(); tap("Set value")
+        compose.onNodeWithTag("parameter-number").performClick().performTextReplacement(value); device.pressBack(); tap("Set value"); stage("Precise $dial complete")
     }
     private fun nativeSoundChecks() {
         val h=ComposerSynth.create(); val pcm=ShortArray(480)
@@ -81,44 +83,56 @@ class ComposerC4AWorkflowTest {
             tap("Back"); val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }; tap("Play"); compose.waitUntil(30000) { audio.playing && audio.nonZeroFramesWritten>0 }; tap("Stop")
             return
         }
-        nativeSoundChecks()
+        stage("Native PCM starting"); nativeSoundChecks(); stage("Native PCM passed")
         device.executeShellCommand("wm size 1440x3120"); device.executeShellCommand("wm density 480")
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 1")
         val pattern=CompositionPattern(newCompositionId(),"A",4,listOf(CompositionNote(newCompositionId(),60,0,960,87)))
         val track=CompositionTrack(newCompositionId(),"Keys",ComposerInstruments.all[2].reference,listOf(pattern))
         val original=store.create(CompositionProject.empty("C4A synth").copy(tracks=listOf(track,track.copy(id=newCompositionId(),title="Other",patterns=emptyList()))))
-        inst.runOnMainSync { compose.activity.startActivity(Intent(compose.activity,ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID,original.id)) }; workspace()
-        val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }; tap("Edit Instrument"); shot("01-factory")
+        inst.runOnMainSync { compose.activity.startActivity(Intent(compose.activity,ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID,original.id)) }; workspace(); stage("Workspace ready")
+        val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }; tap("Edit Instrument"); shot("01-factory"); stage("Factory editor captured")
         assertSame(audio,activity().auditionEngine)
+        compose.onNodeWithTag("dial-Attack").performTouchInput { swipe(center,center-Offset(0f,40f),400) }
+        compose.onNodeWithTag("value-Attack").assert(!hasText("10 ms"))
         precise("Attack","125"); precise("Release","1500"); precise("Cutoff","850"); precise("Resonance","2.4"); precise("Sustain","65"); precise("Pan","-0.4")
-        shot("02-modified"); tap("Back"); tap("Keep editing")
+        shot("02-modified"); stage("All parameters edited"); tap("Back"); tap("Keep editing")
         tap("Save New Preset"); compose.onNodeWithTag("preset-name").performClick().performTextReplacement("Velvet organ"); shot("03-save-dialog"); device.pressBack(); tap("Save preset")
         compose.waitUntil(15000) { compose.onAllNodesWithText("Save preset").fetchSemanticsNodes(false).isEmpty() }
-        tap("Presets ▾"); compose.onNodeWithText("My Presets").assertExists(); shot("04-my-presets"); device.pressBack()
+        stage("Preset saved"); tap("Presets ▾"); tap("Organ"); compose.onNodeWithTag("value-Cutoff").assertTextEquals("18000 Hz")
+        tap("Presets ▾"); compose.onNodeWithText("My Presets").performScrollTo().assertIsDisplayed(); shot("04-my-presets")
+        compose.onAllNodesWithText("Velvet organ").onLast().performScrollTo().performClick(); compose.onNodeWithTag("value-Cutoff").assertTextEquals("850 Hz")
         compose.onNodeWithContentDescription("Next octave").performClick(); shot("05-upper-range")
         compose.onNodeWithContentDescription("Previous octave").performClick()
-        val keyboard=compose.onNodeWithTag("instrument-keyboard"); val kb=keyboard.fetchSemanticsNode().boundsInRoot
+        val range=compose.onNodeWithTag("piano-range-handle").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsActions.CustomActions]
+        compose.runOnIdle { assertTrue(range.first { it.label=="Shift up one semitone" }.action()) }; shot("05b-semitone-range")
+        val down=compose.onNodeWithTag("piano-range-handle").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsActions.CustomActions].first { it.label=="Shift down one semitone" }
+        compose.runOnIdle { assertTrue(down.action()) }
+        stage("Keyboard range complete"); val keyboard=compose.onNodeWithTag("instrument-keyboard"); val kb=keyboard.fetchSemanticsNode().boundsInRoot
         val c=compose.onNodeWithTag("piano-key-60",useUnmergedTree=true).fetchSemanticsNode().boundsInRoot.center
         val e=compose.onNodeWithTag("piano-key-64",useUnmergedTree=true).fetchSemanticsNode().boundsInRoot.center
         keyboard.performTouchInput { down(0,c-kb.topLeft); down(1,e-kb.topLeft) }
         compose.waitUntil(10000) { audio.voiceCount()>=2 }
         keyboard.performTouchInput { up(1); up(0) }
         compose.waitUntil(10000) { audio.voiceCount()==0 }
-        tap("Use on Track"); workspace()
+        stage("Chord passed"); tap("Use on Track"); workspace()
         assertEquals(original.tracks[0].patterns,vm().project!!.tracks[0].patterns); assertEquals(original.tracks[0].id,vm().project!!.tracks[0].id); assertEquals(original.tracks[1],vm().project!!.tracks[1])
         val ref=vm().project!!.tracks[0].instrument; assertTrue(validCompositionId(ref.presetId)); assertEquals(850f,ref.sound!!.cutoffHz)
         tap("Play"); compose.waitUntil(10000) { audio.playing }; assertEquals(ref.sound,audio.playbackPlan!!.tracks[0].sound); tap("Stop")
         tap("Edit Instrument"); compose.onNodeWithTag("value-Cutoff").assertTextEquals("850 Hz")
         // Ordinary recreation retains pending sound values without restarting branding.
         precise("Attack","200")
-        val a=activity(); inst.runOnMainSync { a.recreate() }
+        stage("Recreation starting"); val a=activity(); inst.runOnMainSync { a.recreate() }
         compose.waitUntil(30000) { compose.onAllNodesWithTag("value-Attack").fetchSemanticsNodes(false).isNotEmpty() }
         compose.onNodeWithTag("value-Attack").assertTextEquals("200 ms"); tap("Back"); tap("Discard changes"); workspace()
         tap("Edit Instrument"); compose.onNodeWithTag("value-Attack").assertTextEquals("125 ms")
-        device.executeShellCommand("wm size 720x1280"); device.executeShellCommand("wm density 320"); compose.waitForIdle(); shot("06-narrow-landscape")
-        for(dial in listOf("Attack","Release","Cutoff","Resonance","Sustain","Pan")) compose.onNodeWithTag("value-$dial").assertIsDisplayed()
+        device.executeShellCommand("wm size 720x1280"); device.executeShellCommand("wm density 320"); compose.waitForIdle(); shot("06-narrow-landscape"); stage("Narrow captured")
+        val keyTop=compose.onNodeWithTag("instrument-keyboard").fetchSemanticsNode().boundsInRoot.top
+        for(dial in listOf("Attack","Release","Cutoff","Resonance","Sustain","Pan")) {
+            val node=compose.onNodeWithTag("value-$dial").assertIsDisplayed().fetchSemanticsNode()
+            assertTrue("Unclipped $dial",node.boundsInRoot.bottom<=keyTop+1)
+        }
         compose.onNodeWithTag("piano-key-60",useUnmergedTree=true).assertIsDisplayed()
-        device.executeShellCommand("settings put system font_scale 1.6"); compose.waitForIdle(); shot("07-enlarged-fallback")
+        device.executeShellCommand("settings put system font_scale 1.6"); compose.waitForIdle(); shot("07-enlarged-fallback"); stage("Enlarged captured")
         compose.onNodeWithTag("value-Pan").performScrollTo().assertIsDisplayed(); tap("Back"); workspace()
         device.executeShellCommand("settings put system font_scale 1.0"); device.executeShellCommand("wm size 1440x3120"); device.executeShellCommand("wm density 480"); compose.waitForIdle()
         tap("Save"); compose.waitUntil(15000) { !vm().busy }; val saved=store.read(original.id); File(dir,"project.json").writeText(CompositionCodec.encode(saved))
@@ -129,6 +143,6 @@ class ComposerC4AWorkflowTest {
         val focus=AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE).setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).build()).setOnAudioFocusChangeListener { }.build()
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED,manager.requestAudioFocus(focus)); compose.waitUntil(10000) { owner.voiceCount()==0 }; manager.abandonAudioFocusRequest(focus)
         tap("Back"); compose.waitUntil(10000) { owner.voiceCount()==0 }; shot("08-return-composition")
-        assertEquals(saved,store.read(original.id))
+        assertEquals(saved,store.read(original.id)); stage("Workflow complete")
     }
 }

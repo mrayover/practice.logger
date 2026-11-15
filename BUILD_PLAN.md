@@ -1,6 +1,6 @@
-# C4A implementation in progress — build134
+# C4A verification in progress — build135
 
-Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
+Owner-assigned November15 instrument editor, immutable custom presets, reused preview keyboard and functional native shaping are implemented; focused Android verification and signed delivery pending. Local compilation and29 focused host checks pass. [Behavior/storage/native details](docs/COMPOSER_C4A.md). Signed build134 is retained as an initial candidate; its first Android workflow was cancelled after instrumentation did not return. Build135 adds layout refinements and bounded diagnostics; Android completion and visual acceptance remain pending. Prior build133 remains the verified install target until C4A closeout. Stop after C4A; C4B–C7/F1 are excluded.
 
 ---
 

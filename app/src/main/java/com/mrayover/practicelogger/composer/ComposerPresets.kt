@@ -7,7 +7,7 @@ import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption.ATOMIC_MOVE
 
-/** Absolute amplitude envelope; fixed 300ms decay to sustain, never the MIDI pedal. */
+/** Absolute amplitude envelope with bounded SF2 decay; never the MIDI pedal. */
 data class ComposerSound(val attackMs: Float = 10f, val releaseMs: Float = 300f,
     val cutoffHz: Float = 18000f, val resonanceQ: Float = .707f,
     val sustain: Float = .8f, val pan: Float = 0f) {
@@ -50,7 +50,7 @@ internal class ComposerPresetStore(private val directory: File,private val befor
         val parser=JSONTokener(Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(file.readBytes())).toString())
         val o=parser.nextValue() as JSONObject; require(parser.nextClean()=='\u0000')
         require(o.keys().asSequence().toSet()==setOf("version","id","title","instrumentId","sound")); require(o.get("version")==1)
-        ComposerPreset(o.getString("id"),o.getString("title"),o.getString("instrumentId"),ComposerSound.decode(o.getJSONObject("sound"))).also { validate(it); require(it.id==id) }
+        ComposerPreset(o.get("id") as? String ?: error("Invalid preset identity"),o.get("title") as? String ?: error("Invalid preset title"),o.get("instrumentId") as? String ?: error("Invalid preset instrument"),ComposerSound.decode(o.getJSONObject("sound"))).also { validate(it); require(it.id==id) }
     }
     fun create(title: String,instrumentId: String,sound: ComposerSound): ComposerPreset = synchronized(lock) {
         val p=ComposerPreset(newCompositionId(),title.trim(),instrumentId,sound); validate(p)

@@ -21,7 +21,20 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 
 # One targeted navigation/layout preview; no full regression matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
+  function c4a_diagnostics() {
+    timeout 15s adb exec-out screencap -p > app/build/preview-c4a-final.png || true
+    timeout 15s adb shell uiautomator dump /sdcard/c4a-final.xml || true
+    timeout 15s adb pull /sdcard/c4a-final.xml app/build/preview-c4a-final.xml || true
+    timeout 15s adb shell kill -3 "$(adb shell pidof "$package")" || true
+    timeout 15s adb logcat -d > app/build/preview-c4a-logcat.txt || true
+    timeout 20s adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4a app/build/preview-composer-c4a-screens || true
+  }
+  trap c4a_diagnostics EXIT
+  timeout 360s adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+else
+  adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+fi
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/home-preview app/build/preview-home-screens || true
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/metronome-pulse app/build/preview-metronome-screens || true
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/practice-refinement app/build/preview-refinement-screens || true
@@ -83,7 +96,7 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
   adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4a app/build/preview-composer-c4a-screens || true
   grep -q 'OK (1 test)' app/build/preview-home.txt
   adb shell am force-stop "$package"
-  adb shell am instrument -w -r -e c4aCold true -e class com.mrayover.practicelogger.ComposerC4AWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4a-cold.txt
+  timeout 120s adb shell am instrument -w -r -e c4aCold true -e class com.mrayover.practicelogger.ComposerC4AWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4a-cold.txt
   adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4a app/build/preview-composer-c4a-screens || true
   grep -q 'OK (1 test)' app/build/preview-composer-c4a-cold.txt
 fi

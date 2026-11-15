@@ -44,7 +44,7 @@ data class CompositionProject(
     }
 }
 
-/** Bounded, strict v1 codec. Reject unknown fields/versions rather than lose unrecognized musical data. */
+/** Bounded, strict v1/v2 codec. Reject unknown fields/versions rather than lose unrecognized musical data. */
 object CompositionCodec {
     const val MAX_BYTES = 8 * 1024 * 1024
     private const val MAX_TICK = 960L * 4 * 1_000_000
