@@ -1,8 +1,37 @@
-# C4B implementation — build140 final visual verification
+# Current state — compose.logger C4B delivered
 
-November15 owner handoff authorizes instrument identity correction and bounded pattern/track management. C4A is owner-reported working. Naming was corrected and checked before C4B. Canonical checkout clean baseline/live remote 4f5d1236ed2fb0f640e58c1206e76d9df178604b on block-ux-stage1. Mandatory efficiency procedure reviewed. 34 focused host checks, debug/release/native-test compilation and vital lint pass locally. Signed138 is retained as an initial candidate. Build139 synchronizes mixer channel mapping before first audio onset on next Play after track deletion. Build139 now passes its complete API35 workflow/cold reopening; rendered evidence prompted type-first closed labels in140. Final build140 focused checks and signed closeout follow. No C5–C7/F1. [Implementation](docs/COMPOSER_C4B.md).
+Updated November15,2026 (America/Los_Angeles). Signed **0.51.0/build140** corrects assigned instrument identities and delivers expanded pattern/track management. **34 focused host checks, compilation/vital lint, one API35 C4B workflow and exact cold-process project reopening pass.** Actual rendered landscape selectors/menus/rename/deletion dialogs inspected. Physical phone/audio acceptance remains pending; no full regression/F1.
+
+Canonical C:/Users/mrove/Projects/practice.logger on **block-ux-stage1**; older OneDrive source checkout untouched. Initial clean local/live remote **4f5d1236ed2fb0f640e58c1206e76d9df178604b**. Application/APK source **d3d0ef4af16d91088b136d13913121af1a1bc5a2**; focused test source **d3d0ef4af16d91088b136d13913121af1a1bc5a2**, byte-identical application/build sources. Closing documentation publication is verified separately at closeout; no main merge. Owner reports C4A working without individual physical-check results.
+
+[APK](dist/practice.logger-0.51.0-b140-d3d0ef4/practice.logger-0.51.0-b140-d3d0ef4.apk) · [ZIP](dist/practice.logger-0.51.0-b140-d3d0ef4.zip) · [Delivery report](dist/practice.logger-0.51.0-b140-d3d0ef4/DELIVERY_REPORT.md) · [Rendered evidence](dist/practice.logger-0.51.0-b140-d3d0ef4/evidence/preview-composer-c4b-screens/01-correct-legacy-selector.png) · [Implementation](docs/COMPOSER_C4B.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c4b--owner-phone-check).
+
+Delivery copies: **OneDrive / Practice Log development / Compose C4B delivery / build140**. Install over the existing permanent-key app without uninstalling/clearing data. Copies match locally; cloud-sync completion is unobserved. dist/LATEST.txt points to them.
+
+- APK SHA256 **6971c47272b2ea4076ef5db28d9f4e2c56ee0d29d03e69fa72ddfe016586c6c7**; ZIP SHA256 **32cef0ec7143e7fb7c516a155997e8c30b17a916d994388c0b66963a9f98c30f**.
+- Package com.mrayover.practicelogger.app, version/build, pinned permanent certificate f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830 and signature verified. **106** unsigned payload entries and all nine original SF2 hashes match. ZIP exact-byte round trip and delivery-copy hashes pass. **662** previous APK/ZIP hashes unchanged, including initial138/139; all earlier distributions retained.
+
+## Implemented behavior
+
+Instrument labels derive from the existing registry and show numbered actual type, descriptive track name when present, and custom preset identity. Legacy automatic Piano N titles do not mask sounds or get rewritten. New tracks use neutral Track N names. Sound changes immediately update identity while preserving names, UUIDs, notes and sound data. C4A editor/preset library and native synthesis remain unchanged; existing custom presets are selected through Edit Instrument.
+
+The existing second-row Pattern dropdown supports ordinary vertical lists up to the existing256-per-track model limit, create with unique A–Z/AA onward names, independent duplication with fresh pattern/note UUIDs, validated rename and explicit confirmed deletion. Eight-track Add/Select/Rename/Delete remain compact. Deletion refuses arrangement dependencies, removes only owned objects and permits empty projects/empty tracks. Pattern lengths1/2/4/8/16 and refusal to truncate notes remain. All seven structural operations use one validated project edit/Undo/checkpoint each. No persisted field or project-format migration was added; existing v1/v2 and Save As stay compatible.
+
+Selected patterns and session mute/solo/volume follow track UUIDs through changes/recreation. Deleted selections/mixer entries are pruned; restored musical tracks get default session mixer settings after Undo. Loop retains the current coherent musical snapshot, independent lengths and longest region until Stop/next Play. Deleted track sequence voices are cleared; surviving mixer controls map to frozen snapshot UUID order. Preview channels follow current track order. Next Play installs current mixer mapping before first onset. The960PPQ timing engine and four-row layout stay intact.
+
+## Focused evidence and limitations
+
+- [Final workflow 43767877375](https://github.com/mrayover/practice.logger/actions/runs/43767877375), source d3d0ef4af16d91088b136d13913121af1a1bc5a2:34 focused host checks with zero failures/errors/skips, debug/release/native-test compilation and vital lint pass. One API35 workflow checks actual legacy/factory/custom labels and sound/name changes, more-than-three patterns and retained per-track selections, create/duplicate/rename/delete/Cancel/Undo, active coherent snapshots, middle-track deletion/next Play indexing, save/recreation and exact saved project/custom identity after a separate cold process. Rendered landscape captures show names, dropdowns, custom presets, expanded pattern/menu and rename/deletion confirmations. Native output writes pass on cold reopening. No physical acoustic/touch acceptance is inferred.
+- Local34 checks and compilation/vital lint pass. Host checks include256 capacity/A–Z/AA naming, duplication musical values/UUIDs/source independence, title rejection, clip reference integrity/refusals, eight-track/empty states, length validation, per-track Loop data and v1/v2 atomic persistence, plus existing Composer/PCM checks.
+- Superseded43766183935 was cancelled during compilation after test selection assumptions were corrected. Run43766287034 passed34 host checks/compilation, then failed an Undo assertion helper that called runOnMainSync from the main thread. Exact stack retained; test lookup corrected without removing assertions. Superseded43766594159 was cancelled during compilation after that test correction. Final test source adds independent selection and rendered menu scrolling. Initial signed138 and verified139 remain preserved. Application140 puts type before descriptive names based on inspected139 captures, and uses current topology when asynchronous Play installs its mixer mapping. No comprehensive regression, historical/device matrix or F1 was run.
+
+**Practice ZIP/JSON still exclude Composer projects AND presets.** C5 Arrange, C6 exports and C7 integration/recovery are unimplemented and require separate assignment.
+
+**Exact next task: install build140 over the existing app and perform the C4B owner-phone checklist. Stop before C5–C7/F1.**
 
 ---
+
+# Historical C4A delivery
 
 # Current state — compose.logger C4A delivered
 
