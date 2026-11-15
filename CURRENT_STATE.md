@@ -1,4 +1,38 @@
-# Current state — compose.logger C2 delivered, build129
+# Current state — compose.logger C2 corrections + C3 delivered
+
+Updated November 15, 2026 (America/Los_Angeles). Signed **0.49.0/build132** delivers keyboard scrolling/Hand/Actions and nine SoundFont instruments with synchronized multitrack Loop playback. **24/24 focused host checks and the final API35 audio/editing/lifecycle workflow plus exact saved cold reopen pass.** Actual landscape captures reviewed. Physical touch/audio/routing acceptance remains pending; no F1/full regression.
+
+Canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1; older OneDrive checkout untouched. Clean starting local/live remote f7c353bfb79d03d409f94a23da40308b9ca96f11. Application source **2d6a95e01587335b4594db16e182b42edb1e1246**; successful focused test source **72b8239c77efcecf824351a50d5d55806379a6b8**, verified live remotely before documentation closeout. Application/build configuration are byte-identical between those commits; only the draft-recovery fixture differs. Final documentation publication SHA is reported in the closing handoff/PUBLICATION.txt; no main merge.
+
+[APK](dist/practice.logger-0.49.0-b132-2d6a95e/practice.logger-0.49.0-b132-2d6a95e.apk) · [ZIP](dist/practice.logger-0.49.0-b132-2d6a95e.zip) · [Nine-part delivery report](dist/practice.logger-0.49.0-b132-2d6a95e/DELIVERY_REPORT.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c3--owner-phone-check) · [C3 technical behavior and bank licenses](docs/COMPOSER_C3.md).
+
+Delivery copies: **OneDrive / Practice Log development / Compose C3 delivery / build132**. Install over the permanent-key app without uninstalling or clearing data. Local copies verified; cloud-sync completion unobserved. dist/LATEST.txt points to these files.
+
+- APK SHA256 **92749f4b34a12e0289d380fd36e15ebaa542ae45662cc6985a604f553641542c**; ZIP SHA256 **83872b23a937bc83c3fd89bea903abc8dc8861329baf973f147db3aa36f7a551**.
+- Package com.mrayover.practicelogger.app and permanent certificate f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830 verified. All **106** unsigned payload entries and all nine unchanged SF2 hashes/notices verified. ZIP CRC/size/exact round-trip bytes pass for29 files; delivery hashes match. Build129 APK/ZIP hashes unchanged; intermediate130/131 and earlier packages retained.
+
+## Implemented behavior
+
+The actual defect was keyboard ACTION_MOVE routing to key audition instead of panY. Vertical movement beyond Android touch slop now releases held audition and owns scrolling until lift; keys, labels, note rectangles and hit testing share the clamped0–127 transform. Partial rows clip correctly. Hand pans the grid with one finger; Draw/Select and two-finger pan/zoom remain. Actions holds all five selection operations in order, with actual-note selection/clipboard/editability states, dismissal and unchanged musical/Undo algorithms.
+
+Pinned MIT TinySoundFont v0.9 and nine explicitly CC0 FreePats banks provide acoustic piano, FM electric piano, organ, electric bass, synth bass/lead/pad/strings and electronic drums. Total **65,217,226bytes (62.20MiB)**; [exact sizes/sources/download identities/licenses/ranges](docs/COMPOSER_C3.md#bank-provenance-and-licenses). One worker preloads/owns native operations and stereo output; queued controls never race rendering. Keyboard/note-drag audition uses the selected sound, velocity, polyphony and independent release tokens. Focus/background/noisy/disposal clear output. Existing Reference Piano outside Composer is unchanged.
+
+Loop uses one audio-frame clock derived from stored960PPQ, per-track selected-pattern streams, independent repeat lengths, explicit longest-pattern region, off-before-on boundaries, Play/Stop/Beginning/Repeat and consumed-audio green playhead/bar-beat. Mute/Solo/Volume apply live. Musical edits/instrument/pattern/tempo changes apply on next Play through a coherent snapshot. View/session pattern and mixer state survive recreation; durable instrument assignments use compatible existing v1 references with reference-piano alias, without changing notes/UUIDs. Room/practice audio/data/backup formats remain unchanged.
+
+## Focused evidence and limits
+
+- C2 was verified before C3: [workflow43741378088](https://github.com/mrayover/practice.logger/actions/runs/43741378088), source2adccce, passes native scroll release/alignment, Hand separation, existing edit/clipboard/Undo/recreation and exact cold reopening. Actual scrolled G5 key/note screenshot reviewed; partial-row drawing correction compiled before C3.
+- [Final C3 workflow43745345404](https://github.com/mrayover/practice.logger/actions/runs/43745345404), source72b8239, passes24 host checks with zero failures/errors/skips, compilation/vital lint and two native executions on one API35 configuration. Actual packaged bank hashes/loading, all bank velocity/PCM, melodic MIDI extremes, independent overlapping release/clear silence, both viewport bounds, dropdown disabled states/quantize Undo, instrument save/retained per-track B selection, repeated multitrack output, mixer interactions, Stop/Beginning/one-shot/restart, focus loss, recreation and exact saved cold reopen pass. Final dropdown/playhead/recreated instrument captures and earlier highest/lowest/sound-picker captures were reviewed.
+- Local debug/release/instrumentation/vital compilation and24 focused host checks pass; all four native ABIs compile. No physical speaker/headphone/Bluetooth acceptance or comprehensive/device-matrix regression.
+- Earlier43743180310 was cancelled after source drum mapping inspection.43743548252 reached Stop after passing banks/bounds/loop/mixer, then exposed a stale cached voice count after output disposal; worker command completion now publishes the cleared native count.43744436123 compiled and passed23/24 host checks, then the recovery fixture read an intermediate matching file while writers drained. Test-only72b8239 waits for writer completion, retaining every exact-value assertion; isolated4-check class and final24-check gate pass. No unresolved failure remains in the completed focused gate.
+
+Extreme melodic pitches transpose edge samples; electronic drums expose a documented19-hit subset with other keys silent. Mixer/pattern choices and clipboard/Undo are view/session state; instrument assignments and musical data persist. Explicit Save remains the durability boundary for recent asynchronously checkpointed edits. **Practice ZIP/JSON still exclude Composer until C7.** No Arrange playback, full C4 management, export, Library integration or pack installation.
+
+**Exact next task: owner installs build132 over the existing app and follows the C3 phone checklist, especially touch scrolling and audible multitrack timing/Stop/output routing. Stop before C4–C7/F1.**
+
+---
+# Historical C2 delivery — build129
+# compose.logger C2 delivered, build129
 
 Updated November15,2026 (America/Los_Angeles). Signed **0.48.0/build129** delivers the C1 three-second branded entrance refinement and functional C2 landscape piano roll. **19/19 focused host checks and four native workflow executions on one API35 configuration pass.** Actual branded/landscape screenshots reviewed. Physical phone/acoustic acceptance remains pending; no F1/V1 certification or C3 sequencing claim.
 

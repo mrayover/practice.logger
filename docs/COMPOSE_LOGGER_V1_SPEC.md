@@ -1,6 +1,6 @@
 # compose.logger Phase 1 — approved V1 contract
 
-Owner-approved November 14, 2026. This is the authoritative forward specification for an offline MIDI composition workstation inside practice.logger, with eventual extraction into an independent Android application named **compose.logger**. Approval of this contract does not authorize every implementation phase. The current assignment is **C1 only**; C2–C7 require separate assignments. [Current implementation and evidence](../CURRENT_STATE.md).
+Owner-approved November 14, 2026. This is the authoritative forward specification for an offline MIDI composition workstation inside practice.logger, with eventual extraction into an independent Android application named **compose.logger**. Approval of this contract does not authorize every implementation phase. C1/C2 are delivered. The November15 owner handoff separately assigns C2 scrolling/Hand/Actions corrections plus C3 instruments and Loop playback. C4–C7 require separate assignments. [Current implementation and evidence](../CURRENT_STATE.md).
 
 ## Identity, navigation and ownership
 
@@ -57,3 +57,7 @@ C1 specifically checks document operations, serialization/IDs, atomic/rejected s
 ## November15 C2 assignment clarification
 
 The owner explicitly includes the three-second displayed entrance, Reference Piano keyboard/note audition, minimal cross-instrument A/B/C selection/creation,1/2/4/8/16-bar lengths and cursor controls in C2 so cross-pattern editing is usable. These bounded prerequisites do not authorize the C3 SoundFont/sequencer or full C4 management. [C2 behavior and ownership](COMPOSER_C2.md).
+
+## November15 C3 assignment
+
+The owner explicitly assigns TinySoundFont/curated redistributable instruments, real selected-track audition, synchronized multitrack Loop playback, basic mixer/picker and preceding C2 keyboard scrolling/Hand/dropdown repairs. [C3 behavior/provenance](COMPOSER_C3.md). No full C4 management, Arrange playback, exports, pack installation or Library integration.

@@ -1,6 +1,6 @@
-## November15 C2 corrections and C3 assignment
+## November15 C2 corrections and C3 — delivered build132
 
-The current owner handoff explicitly assigns keyboard drag scrolling, Hand tool, compact selection dropdown, TinySoundFont/redistributable SF2 instrument audition and synchronized multi-track Loop playback, focused verification, permanent-key APK/ZIP and commit/push. Verify C2 corrections before C3 implementation. This supersedes older C2-only stop instructions below. Stop before C4–C7/F1; keep Composer independent from practice/Library audio and preserve Reference Piano elsewhere.
+The current owner handoff explicitly assigns keyboard drag scrolling, Hand tool, compact selection dropdown, TinySoundFont/redistributable SF2 instrument audition and synchronized multi-track Loop playback, focused verification, permanent-key APK/ZIP and commit/push. Verify C2 corrections before C3 implementation. Signed0.49.0/build132 is delivered with24 focused host checks and API35 audio/lifecycle/cold-reopen verification; owner phone acceptance is next (see CURRENT_STATE). This supersedes older C2-only stop instructions below. Stop before C4–C7/F1; keep Composer independent from practice/Library audio and preserve Reference Piano elsewhere.
 
 ## November15 bounded C1/C2 assignment — delivered build129
 

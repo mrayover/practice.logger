@@ -1,3 +1,9 @@
+# Current handoff — C3 delivered; phone acceptance next
+
+Signed0.49.0/build132 delivers keyboard drag scrolling/Hand/Actions and nine CC0 SF2 instruments through TinySoundFont, selected-instrument audition and synchronized multitrack Loop playback. C2 was verified before C3; final24 host checks, compilation and API35 audio/lifecycle workflow plus exact cold reopen pass. Source2d6a95e; focused test source72b8239/CI43745345404. [Authoritative delivery/results/limits](CURRENT_STATE.md) · [C3/licenses](docs/COMPOSER_C3.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c3--owner-phone-check). Owner phone touch/acoustic acceptance is next. Stop before C4–C7/F1. Existing practice backups exclude Composer. Earlier handoffs below are historical.
+
+---
+
 # compose.logger C1 refinement + C2 — delivered
 
 Signed0.48.0/build129 implements the three-second displayed entrance and functional touch piano roll, grids/snap/free ticks, selection/cross-pattern and cross-instrument clipboard, project Undo, minimal A/B/C navigation/lengths and Reference Piano audition. Strict v1/960-PPQ atomic projects remain compatible; note drafts checkpoint outside Activity bundles.19 host checks and four native workflow executions on one API35 configuration pass; actual screenshots reviewed. Source 359383ac27612ef7e26d3e36139c896b3fc506c9; CI43736793657. [Authoritative delivery/verification/limits](CURRENT_STATE.md) · [Technical behavior](docs/COMPOSER_C2.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c2--owner-phone-check).
