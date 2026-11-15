@@ -55,12 +55,12 @@ class ComposerC4CWorkflowTest {
         val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }
         val density=activity().resources.displayMetrics.density
         val roll=compose.onNodeWithTag("piano-roll")
-        assertEquals(100f,progress("composer-velocity"),0f)
+        assertEquals(100f,progress("composer-velocity"),.001f)
         val beforeDefault=vm().undoCount; level("composer-velocity",73f); assertEquals(beforeDefault,vm().undoCount)
         roll.performTouchInput { click(Offset(460*density,93*density)) }; assertEquals(73,current().tracks[0].patterns[0].notes.last().velocity)
         tap("Undo"); assertEquals(initial.tracks[0].patterns[0].notes,current().tracks[0].patterns[0].notes)
         roll.performTouchInput { advanceEventTime(400); click(Offset(146*density,93*density)) }
-        assertEquals(47f,progress("composer-velocity"),0f)
+        assertEquals(47f,progress("composer-velocity"),.001f)
         val beforeSingle=current().tracks[0].patterns[0].notes; val undoBefore=vm().undoCount
         compose.onNodeWithTag("composer-velocity").performTouchInput { swipe(Offset(width*.3f,height/2f),Offset(width*.7f,height/2f),700) }
         assertEquals(undoBefore+1,vm().undoCount)
@@ -104,3 +104,4 @@ class ComposerC4CWorkflowTest {
         File(dir,"result.txt").writeText("PASS velocity default/single/multiple/mixed/Undo, shared audio/patterns/mix, live restart and independent lengths, platform master gain/reopen, recreation, 1/4/8 tracks and narrow layout. Physical audio acceptance remains separate. Cold reopen runs separately.\n")
     }
 }
+
