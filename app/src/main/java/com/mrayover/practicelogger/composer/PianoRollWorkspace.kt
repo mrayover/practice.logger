@@ -86,6 +86,7 @@ private class RollTouch {
     var panX by rememberSaveable { mutableFloatStateOf(0f) }
     var panY by rememberSaveable { mutableFloatStateOf(0f) }
     var selected by remember { mutableStateOf(setOf<String>()) }
+    val hasSelection = pattern?.notes?.any { it.id in selected } == true
     var clipboard by remember { mutableStateOf(emptyList<CompositionNote>()) }
     var preview by remember { mutableStateOf<List<CompositionNote>?>(null) }
     var marquee by remember { mutableStateOf<Pair<Offset,Offset>?>(null) }
@@ -186,13 +187,13 @@ private class RollTouch {
             TextButton(onClick = { actionsOpen = true }) { Text("Actions") }
             DropdownMenu(expanded = actionsOpen,onDismissRequest = { actionsOpen = false }) {
             DropdownMenuItem(text = { Text("Select All") },enabled = pattern?.notes?.isNotEmpty() == true,onClick = { selected = pattern!!.notes.map { it.id }.toSet(); actionsOpen = false })
-            DropdownMenuItem(text = { Text("Copy") },enabled = selected.isNotEmpty(),onClick = { clipboard = pattern?.notes?.filter { it.id in selected } ?: emptyList(); actionsOpen = false })
+            DropdownMenuItem(text = { Text("Copy") },enabled = hasSelection,onClick = { clipboard = pattern?.notes?.filter { it.id in selected } ?: emptyList(); actionsOpen = false })
             DropdownMenuItem(text = { Text("Paste") },enabled = enabled && clipboard.isNotEmpty() && pattern != null,onClick = {
                 val copies = pastedNotes(clipboard,cursor)
                 commitNotes(pattern!!.notes + copies); selected = copies.map { it.id }.toSet(); actionsOpen = false
             })
-            DropdownMenuItem(text = { Text("Delete Selected") },enabled = enabled && selected.isNotEmpty(),onClick = { commitNotes(pattern!!.notes.filterNot { it.id in selected }); selected = emptySet(); actionsOpen = false })
-            DropdownMenuItem(text = { Text("Quantize Selected") },enabled = enabled && selected.isNotEmpty(),onClick = {
+            DropdownMenuItem(text = { Text("Delete Selected") },enabled = enabled && hasSelection,onClick = { commitNotes(pattern!!.notes.filterNot { it.id in selected }); selected = emptySet(); actionsOpen = false })
+            DropdownMenuItem(text = { Text("Quantize Selected") },enabled = enabled && hasSelection,onClick = {
                 commitNotes(pattern!!.notes.map { n -> if (n.id in selected) n.copy(startTick = boundedTick(n.startTick.toDouble(),0,project.patternTicks(pattern)-n.durationTick,RollGrid.entries[gridIndex],true)) else n })
                 actionsOpen = false
             })

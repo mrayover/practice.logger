@@ -21,6 +21,7 @@ import java.io.File
 import java.security.MessageDigest
 
 class ComposerC3WorkflowTest {
+    private var diagnosticEngine: ComposerAudio?=null
     @get:Rule val compose=createAndroidComposeRule<MainActivity>()
     private val instrumentation get()=InstrumentationRegistry.getInstrumentation()
     private val device get()=UiDevice.getInstance(instrumentation)
@@ -28,6 +29,7 @@ class ComposerC3WorkflowTest {
         override fun failed(e: Throwable?,description: org.junit.runner.Description?) {
             val dir=File(instrumentation.targetContext.getExternalFilesDir(null),"composer-c3").apply { mkdirs() }
             device.takeScreenshot(File(dir,"failure.png")); device.dumpWindowHierarchy(File(dir,"failure.xml"))
+            diagnosticEngine?.let { File(dir,"audio-state.txt").writeText("ready=${it.ready}, playing=${it.playing}, voices=${it.voiceCount()}, frame=${it.positionFrame()}, written=${it.framesWritten}, nonzero=${it.nonZeroFramesWritten}") }
         }
     }
     private fun waitText(text: String) { compose.waitUntil(20000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(false).isNotEmpty() } }
@@ -95,6 +97,7 @@ class ComposerC3WorkflowTest {
             vm=ViewModelProvider(editor!!)[ComposerViewModel::class.java]
         }
         val engine=editor!!.auditionEngine!!
+        diagnosticEngine=engine
         compose.waitUntil(30000) { engine.ready }
         tap("Pattern A"); tap("B")
         tap("Instrument Keys"); tap("Electric")
@@ -118,6 +121,15 @@ class ComposerC3WorkflowTest {
         roll.performTouchInput { click(point(350f,bottom)) }
         assertEquals(0,vm.project!!.tracks[0].patterns[1].notes.last().pitch)
         screenshot("lowest-pitch-alignment"); tap("Undo")
+        tap("Actions")
+        compose.onNodeWithText("Copy").assertIsNotEnabled()
+        compose.onNodeWithText("Paste").assertIsNotEnabled()
+        compose.onNodeWithText("Delete Selected").assertIsNotEnabled()
+        compose.onNodeWithText("Quantize Selected").assertIsNotEnabled()
+        screenshot("selection-actions-disabled")
+        tap("Select All")
+        tap("Actions"); tap("Quantize Selected")
+        tap("Undo"); assertEquals(exact,vm.project)
         roll.performTouchInput { down(0,point(20f,70f)); down(1,point(20f,122f)) }
         compose.waitUntil(5000) { engine.voiceCount()>0 }
         roll.performTouchInput { up(1); moveTo(0,point(20f,145f),300); up(0) }

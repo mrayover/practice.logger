@@ -167,6 +167,8 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
                 if(output==null) commands.take().invoke()
                 while(true) { val command=commands.poll() ?: break; command() }
                 if(closed) break
+                // Stop can dispose output before another render; publish the cleared state now.
+                voiceTotal=ComposerSynth.voices(handle)
                 val audio=output ?: continue
                 var offset=0
                 while(offset<240) {
