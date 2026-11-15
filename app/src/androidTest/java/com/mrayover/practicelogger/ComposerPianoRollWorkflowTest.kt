@@ -41,8 +41,19 @@ class ComposerPianoRollWorkflowTest {
     }
     private fun notes() = vm.project!!.tracks[0].patterns[0].notes
     private fun screenshot(name: String) {
+        compose.waitForIdle(); device.waitForIdle()
         val dir=File(compose.activity.getExternalFilesDir(null),"composer-c2").apply { mkdirs() }
-        device.takeScreenshot(File(dir,"$name.png"))
+        val file=File(dir,"$name.png")
+        assertTrue(device.takeScreenshot(file))
+        val bitmap=android.graphics.BitmapFactory.decodeFile(file.path)
+        val bounds=compose.onNodeWithTag("piano-roll").fetchSemanticsNode().boundsInWindow
+        val d=compose.activity.resources.displayMetrics.density
+        var lightKeys=0
+        for(y in (bounds.top+32*d).toInt() until (bounds.bottom-4*d).toInt() step 4) {
+            val pixel=bitmap.getPixel((bounds.left+20*d).toInt(),y)
+            if(android.graphics.Color.red(pixel)>140 && android.graphics.Color.green(pixel)>140 && android.graphics.Color.blue(pixel)>140) lightKeys++
+        }
+        assertTrue("Rendered keyboard must remain visible after navigation/recreation ($name)",lightKeys>20)
     }
     @Test fun touchEditingClipboardUndoAndExactSave() {
         val store=CompositionStore(File(compose.activity.filesDir,"composer/projects"))
