@@ -32,6 +32,17 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
   }
   trap c4a_diagnostics EXIT
   timeout 360s adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4BWorkflowTest ]; then
+  function c4b_diagnostics() {
+    local result=$?
+    if [ "$result" -ne 0 ]; then
+      timeout 15s adb exec-out screencap -p > app/build/preview-c4b-final.png || true
+      timeout 15s adb logcat -d > app/build/preview-c4b-logcat.txt || true
+      timeout 20s adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4b app/build/preview-composer-c4b-screens || true
+    fi
+  }
+  trap c4b_diagnostics EXIT
+  timeout 360s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC4BWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 else
   adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 fi

@@ -1,6 +1,6 @@
 # compose.logger C4B — instrument identities, patterns and tracks
 
-The compact four-row piano roll retains Instrument and Pattern in its context row. Both selectors expose secondary management actions in vertically scrolling dropdowns. Closed identities and pattern titles have bounded widths/ellipsis; dropdown entries retain full names. The C4A editor, custom preset store and native sound engine remain intact. [Delivery/evidence](../CURRENT_STATE.md).
+The compact four-row piano roll retains Instrument and Pattern in its context row. Both selectors expose secondary management actions in vertically scrolling dropdowns. Closed identities put the actual sound type first, then optional preset/track names, with bounded widths/ellipsis; dropdown entries retain full descriptive-name/type/preset identities. The C4A editor, custom preset store and native sound engine remain intact. [Delivery/evidence](../CURRENT_STATE.md).
 
 Instrument labels derive from the existing registry and immutable preset metadata: number, descriptive track name when present, factory type, and custom preset title. Legacy automatic Piano N and neutral Track N titles do not override the assigned type. Stored titles/UUIDs are never rewritten by display. New tracks use unique neutral Track N names. Rename Track updates descriptive title only; changing Sound leaves it intact. Factory sounds remain in Sound; existing custom presets remain available through Edit Instrument → Presets → My Presets → Use on Track.
 

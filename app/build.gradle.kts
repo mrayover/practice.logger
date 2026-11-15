@@ -15,7 +15,7 @@ android {
         applicationId = "com.mrayover.practicelogger.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 139
+        versionCode = providers.gradleProperty("versionCodeOverride").orNull?.toInt() ?: 140
         versionName = "0.51.0"
         externalNativeBuild { cmake { cppFlags += "-std=c++17" } }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

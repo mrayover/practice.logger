@@ -16,6 +16,8 @@ class ComposerManagementTest {
         val ref=ComposerPreset(newCompositionId(),"Warm Sweep","synth-pad",ComposerSound()).reference
         assertEquals("3 · Synth pad — Warm Sweep",ComposerInstruments.trackLabel(t.copy(instrument=ref),2))
         assertEquals("3 · Countermelody — Synth pad — Warm Sweep",ComposerInstruments.trackLabel(t.copy(title="Countermelody",instrument=ref),2))
+        assertEquals("3 · Synth pad — Warm Sweep — Countermelody",ComposerInstruments.compactTrackLabel(t.copy(title="Countermelody",instrument=ref),2))
+        assertTrue(ComposerInstruments.compactTrackLabel(t.copy(title="x".repeat(120),instrument=ComposerInstruments.all[8].reference),2).startsWith("3 · Electronic drums"))
         assertEquals("Piano 3",t.title)
         assertEquals("Acoustic piano",ComposerInstruments.identity(InstrumentReference(1,"reference-piano","default")))
     }

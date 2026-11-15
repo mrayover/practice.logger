@@ -39,7 +39,7 @@ class ComposerC4BWorkflowTest {
         if(InstrumentationRegistry.getArguments().getString("c4bCold")=="true") {
             val expected=CompositionCodec.decode(File(dir,"project.json").readText()); assertEquals(expected,store.read(expected.id))
             inst.runOnMainSync { compose.activity.startActivity(Intent(compose.activity,ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID,expected.id)) }; workspace()
-            compose.onNodeWithText("Instrument 1 · Countermelody — Electronic drums").assertIsDisplayed()
+            compose.onNodeWithText("Instrument 1 · Electronic drums — Countermelody").assertIsDisplayed()
             instrument(); compose.onNodeWithText("3 · Synth pad — Warm Sweep").assertIsDisplayed(); shot("10-cold-instruments"); device.pressBack()
             val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }; tap("Play"); compose.waitUntil(15000) { audio.playing && audio.nonZeroFramesWritten>0 }; tap("Stop")
             return
@@ -59,8 +59,8 @@ class ComposerC4BWorkflowTest {
         instrument(); tap("1 · Synth pad")
         tap("Sound Synth pad"); tap("Electronic drums"); compose.onNodeWithText("Instrument 1 · Electronic drums").assertIsDisplayed()
         val beforeRename=current(); action("Rename Track",true); shot("04-rename-track"); compose.onNodeWithTag("management-name").performTextReplacement("Countermelody"); device.pressBack(); tap("Save name")
-        compose.onNodeWithText("Instrument 1 · Countermelody — Electronic drums").assertIsDisplayed(); undoTo(beforeRename); rename("Rename Track","Countermelody",true)
-        tap("Sound Electronic drums"); tap("Organ"); compose.onNodeWithText("Instrument 1 · Countermelody — Organ").assertIsDisplayed(); tap("Sound Organ"); tap("Electronic drums")
+        compose.onNodeWithText("Instrument 1 · Electronic drums — Countermelody").assertIsDisplayed(); undoTo(beforeRename); rename("Rename Track","Countermelody",true)
+        tap("Sound Electronic drums"); tap("Organ"); compose.onNodeWithText("Instrument 1 · Organ — Countermelody").assertIsDisplayed(); tap("Sound Organ"); tap("Electronic drums")
         val audio=activity().auditionEngine!!; compose.waitUntil(30000) { audio.ready }
         tap("Play"); compose.waitUntil(10000) { audio.playing }; val plan=audio.playbackPlan!!; assertEquals(8*initial.barTicks(),plan.regionTicks)
         repeat(4) { val before=current(); action("Create Pattern"); assertEquals(before.tracks[0].patterns.size+1,current().tracks[0].patterns.size); if(it==0) { undoTo(before); action("Create Pattern") } }
@@ -83,7 +83,7 @@ class ComposerC4BWorkflowTest {
         tap("Undo"); assertEquals(listOf(t.id,bass.id,pad.id),current().tracks.map { it.id })
         instrument(); tap("1 · Countermelody — Electronic drums")
         save(); val exact=current(); File(dir,"project.json").writeText(CompositionCodec.encode(exact)); assertEquals(exact,store.read(exact.id))
-        val act=activity(); inst.runOnMainSync { act.recreate() }; workspace(); assertEquals(exact,current()); compose.onNodeWithText("Instrument 1 · Countermelody — Electronic drums").assertIsDisplayed(); shot("09-recreated")
+        val act=activity(); inst.runOnMainSync { act.recreate() }; workspace(); assertEquals(exact,current()); compose.onNodeWithText("Instrument 1 · Electronic drums — Countermelody").assertIsDisplayed(); shot("09-recreated")
         assertEquals(preset.reference,ComposerPresetStore(File(inst.targetContext.filesDir,"composer/presets")).read(preset.id).reference)
         File(dir,"result.txt").writeText("PASS naming, factory/custom identities, structural operations/Undo, cancellation, snapshot retention, deleted-track indexing, save/recreation. Cold reopen is a separate execution.\n")
     }

@@ -72,6 +72,7 @@ private class RollTouch {
     val pattern = track?.patterns?.find { it.id == selections[track.id] } ?: track?.patterns?.firstOrNull()
     val patternSelections = project.tracks.map { t -> t.patterns.find { it.id==selections[t.id] }?.id ?: t.patterns.firstOrNull()?.id.orEmpty() }
     fun choosePattern(id: String) { track?.let { selections = HashMap(selections).also { values -> values[it.id] = id } } }
+    val currentTrackIds by rememberUpdatedState(project.tracks.map { it.id }.toSet())
     val bank = track?.let { ComposerInstruments.index(it.instrument) } ?: 0
     val muted = BooleanArray(8) { muteById[project.tracks.getOrNull(it)?.id] == true }
     val solo = BooleanArray(8) { soloById[project.tracks.getOrNull(it)?.id] == true }
@@ -141,7 +142,7 @@ private class RollTouch {
         audio.stopAll(); touch.voices.clear()
     }
     fun syncMixer(ids: List<String>) {
-        val existing=project.tracks.map { it.id }.toSet()
+        val existing=currentTrackIds
         val anySolo=soloById.any { it.key in existing && it.value }
         audio.mix(BooleanArray(8) { i -> ids.getOrNull(i)?.let { it in existing && muteById[it]!=true && (!anySolo || soloById[it]==true) } ?: false },
             FloatArray(8) { volumeById[ids.getOrNull(it)] ?: 1f },volumes)
@@ -190,7 +191,7 @@ private class RollTouch {
     Column(modifier.fillMaxWidth()) {
         ComposerToolbar("composer-context-row", buildList {
             add(ComposerControl("Instrument",10,240) {
-                RollChoice("Instrument",project.tracks.mapIndexed { i,t -> ComposerInstruments.trackLabel(t,i) },trackIndex,enabled,display = track?.let { ComposerInstruments.trackLabel(it,trackIndex) } ?: "—",extra = { close ->
+                RollChoice("Instrument",project.tracks.mapIndexed { i,t -> ComposerInstruments.trackLabel(t,i) },trackIndex,enabled,display = track?.let { ComposerInstruments.compactTrackLabel(it,trackIndex) } ?: "—",extra = { close ->
                     DropdownMenuItem(text={ Text("Rename Track") },enabled=enabled && track!=null,onClick={ close(); manage("Rename Track") })
                     DropdownMenuItem(text={ Text("Delete Track") },enabled=enabled && track!=null,onClick={ close(); manage("Delete Track") })
                 }) { trackId=project.tracks[it].id }
