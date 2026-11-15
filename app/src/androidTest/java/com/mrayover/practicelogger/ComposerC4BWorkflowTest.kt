@@ -33,7 +33,7 @@ class ComposerC4BWorkflowTest {
     private fun shot(name: String) { compose.waitForIdle(); device.waitForIdle(); Thread.sleep(350); assertTrue(device.takeScreenshot(File(dir,"$name.png"))) }
     private fun rename(action: String,name: String,track: Boolean=false) { action(action,track); compose.onNodeWithTag("management-name").performTextReplacement(name); device.pressBack(); tap("Save name") }
     private fun save() { tap("Save"); compose.waitUntil(15000) { !vm().busy && !vm().dirty } }
-    private fun undoTo(p: CompositionProject) { tap("Undo"); compose.runOnIdle { assertEquals(p,current()) } }
+    private fun undoTo(p: CompositionProject) { tap("Undo"); assertEquals(p,current()) }
     @Test fun namingPatternTrackUndoSnapshotAndColdReopen() {
         val store=CompositionStore(File(inst.targetContext.filesDir,"composer/projects"))
         if(InstrumentationRegistry.getArguments().getString("c4bCold")=="true") {
@@ -65,7 +65,8 @@ class ComposerC4BWorkflowTest {
         tap("Play"); compose.waitUntil(10000) { audio.playing }; val plan=audio.playbackPlan!!; assertEquals(8*initial.barTicks(),plan.regionTicks)
         repeat(4) { val before=current(); action("Create Pattern"); assertEquals(before.tracks[0].patterns.size+1,current().tracks[0].patterns.size); if(it==0) { undoTo(before); action("Create Pattern") } }
         assertSame(plan,audio.playbackPlan); assertTrue(audio.playing)
-        pattern(); compose.onNodeWithText("E").assertIsDisplayed(); shot("05-expanded-patterns"); shot("06-management-menu"); tap("A")
+        instrument(); tap("2 · Electric bass"); compose.onNodeWithText("Pattern A").assertIsDisplayed(); instrument(); tap("1 · Countermelody — Electronic drums"); compose.onNodeWithText("Pattern E").assertIsDisplayed()
+        pattern(); compose.onNodeWithText("E").assertIsDisplayed(); shot("05-expanded-patterns"); compose.onNodeWithText("Delete Pattern").performScrollTo(); shot("06-management-menu"); tap("A")
         val source=current().tracks[0].patterns[0]; val beforeCopy=current(); action("Duplicate Pattern")
         val duplicate=current().tracks[0].patterns.last(); assertNotEquals(source.id,duplicate.id); assertEquals(source.notes[0].copy(id=duplicate.notes[0].id),duplicate.notes[0]); undoTo(beforeCopy); action("Duplicate Pattern")
         val beforePatternRename=current(); rename("Rename Pattern","Variation"); assertEquals("Variation",current().tracks[0].patterns.last().title); undoTo(beforePatternRename); rename("Rename Pattern","Variation")
