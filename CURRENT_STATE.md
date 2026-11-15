@@ -7,7 +7,7 @@ Canonical C:/Users/mrove/Projects/practice.logger, **block-ux-stage1**; older On
 [APK](dist/practice.logger-0.47.0-b127-2c9068b/practice.logger-0.47.0-b127-2c9068b.apk) · [ZIP](dist/practice.logger-0.47.0-b127-2c9068b.zip) · [Optional phone checklist](MANUAL_TESTS.md#composelogger-c1--owner-phone-check) · [Architecture/format/limits](docs/COMPOSER_C1.md).
 Delivery: **OneDrive / Practice Log development / Compose C1 delivery / build127**. dist/LATEST.txt points here. Install over the permanent-key app without uninstalling or clearing data. Cloud-sync completion is unobserved.
 
-- APK SHA256 **be72ef90a1b4234e4c9704accd9bfad0e8bcac67db4a9950d9c8a9bdec4d6ab9**; ZIP SHA256 **48015583bcc3ec6c19a664c0252a65f1a5bd52fa4aac30ce04571b715277d5c5**.
+- APK SHA256 **be72ef90a1b4234e4c9704accd9bfad0e8bcac67db4a9950d9c8a9bdec4d6ab9**; ZIP SHA256 **65af0b24482242e7dfff408b3d76fa3890ab9c743a4172a9f3cf4e4bc08374e0**.
 - Stable ID com.mrayover.practicelogger.app; permanent certificate f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830. Publisher verifies signature, pinned identity, package/version and ZIP round trip. All **74** unsigned non-META-INF payload entries match the signed APK; final ZIP entry hashes and delivery copies match. Earlier distributions including candidate126 remain preserved. Build125's APK/ZIP hashes were rechecked unchanged; no historical hash campaign.
 
 ## Implemented C1 scope
