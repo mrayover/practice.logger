@@ -1,7 +1,11 @@
-# Active assignment — C1 transition refinement and C2 piano roll
+# compose.logger C1 refinement + C2 — delivered
 
-November15,2026: Owner explicitly assigned C1 three-second transition refinement and C2 touch piano-roll editing, selection/cross-pattern clipboard/undo, minimal A/B navigation and Reference Piano audition. This supersedes the prior C1-only stop for this increment. Stop after C2; C3–C7/F1 remain unassigned. Implementation and focused verification are in progress. No new signed delivery or native pass is claimed yet. See WORK_LOG and the retained C1 baseline below.
-# practice.logger — compose.logger C1 delivered
+Signed0.48.0/build129 implements the three-second displayed entrance and functional touch piano roll, grids/snap/free ticks, selection/cross-pattern and cross-instrument clipboard, project Undo, minimal A/B/C navigation/lengths and Reference Piano audition. Strict v1/960-PPQ atomic projects remain compatible; note drafts checkpoint outside Activity bundles.19 host checks and four native workflow executions on one API35 configuration pass; actual screenshots reviewed. Source 359383ac27612ef7e26d3e36139c896b3fc506c9; CI43736793657. [Authoritative delivery/verification/limits](CURRENT_STATE.md) · [Technical behavior](docs/COMPOSER_C2.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c2--owner-phone-check).
+
+Delivery: OneDrive/Practice Log development/Compose C2 delivery/build129. Physical acceptance pending. Exact next task: owner phone checklist and concrete C2 fixes only. Stop after C2; no C3/F1/main merge. Practice backups still exclude Composer. Historical handoffs below are superseded for current scope/status.
+
+---
+# Historical C1 handoff — build127
 
 Signed0.47.0/build127 delivered to OneDrive/Practice Log development/Compose C1 delivery/build127. Owner reported it works and requested closeout. Ten host checks and compilation/signing/integrity pass. Latest native CI43682564605 completes behavior assertions but fails final synthetic capture; cold-process phase unrun. Application source 2c9068bd064b4bc3c4f048e7dea19c1f05ab319a. No complete automated/F1 pass claimed. Exact next task: await next bounded assignment; C2 not started. Use canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1. Starting clean local/live remote b953c7f4ed95a1db40ba9f36a057936f8fa8c4d0; signed baseline0.46.4/build125 has general owner-reported phone confirmation. Owner clarified “Register specification and complete C1.” [New authoritative specification](docs/COMPOSE_LOGGER_V1_SPEC.md) defines C1–C7. [Actual verification and next task](CURRENT_STATE.md) supersede historical handoffs below. Stop after C1; no C2/F1/main merge. Practice backups exclude Composer; no uninstall/data clearing.
 

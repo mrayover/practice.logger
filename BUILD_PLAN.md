@@ -1,9 +1,13 @@
-# Active assignment — C1 transition refinement and C2 piano roll
+# compose.logger C1 refinement + C2 — delivered
 
-November15,2026: Owner explicitly assigned C1 three-second transition refinement and C2 touch piano-roll editing, selection/cross-pattern clipboard/undo, minimal A/B navigation and Reference Piano audition. This supersedes the prior C1-only stop for this increment. Stop after C2; C3–C7/F1 remain unassigned. Implementation and focused verification are in progress. No new signed delivery or native pass is claimed yet. See WORK_LOG and the retained C1 baseline below.
-# compose.logger C1 — delivered; owner phone confirmation
+Signed0.48.0/build129 implements the three-second displayed entrance and functional touch piano roll, grids/snap/free ticks, selection/cross-pattern and cross-instrument clipboard, project Undo, minimal A/B/C navigation/lengths and Reference Piano audition. Strict v1/960-PPQ atomic projects remain compatible; note drafts checkpoint outside Activity bundles.19 host checks and four native workflow executions on one API35 configuration pass; actual screenshots reviewed. Source 359383ac27612ef7e26d3e36139c896b3fc506c9; CI43736793657. [Authoritative delivery/verification/limits](CURRENT_STATE.md) · [Technical behavior](docs/COMPOSER_C2.md) · [Phone checklist](MANUAL_TESTS.md#composelogger-c2--owner-phone-check).
 
-Signed0.47.0/build127 delivers C1. Owner reports it works and requests closeout. Ten host checks and compilation/signing/integrity pass; native functional assertions complete but final synthetic capture assertion fails, so cold-process phase is unrun. No complete automated pass claimed. [Approved contract](docs/COMPOSE_LOGGER_V1_SPEC.md). November14 owner clarification authorizes registration plus C1 implementation/delivery/publication. C1 covers Tools library, create/open/rename/confirmed delete, black transition, separate landscape shell, independent versioned model and durable saving/lifecycle. C2–C7 remain future separate assignments: piano roll → audio → patterns/instruments → Arrange → exports → Library/recovery. No full regression/F1. Existing ZIP12/JSON7 exclude Composer; C7 must complete recovery before V1 acceptance. [Actual results and next task](CURRENT_STATE.md).
+Delivery: OneDrive/Practice Log development/Compose C2 delivery/build129. Physical acceptance pending. Exact next task: owner phone checklist and concrete C2 fixes only. Stop after C2; no C3/F1/main merge. Practice backups still exclude Composer. Historical handoffs below are superseded for current scope/status.
+
+---
+# Historical C1 delivery — build127
+
+Signed0.47.0/build127 delivers C1. Owner reports it works and requests closeout. Ten host checks and compilation/signing/integrity pass; native functional assertions complete but final synthetic capture assertion fails, so cold-process phase is unrun. No complete automated pass claimed. [Approved contract](docs/COMPOSE_LOGGER_V1_SPEC.md). November14 owner clarification authorizes registration plus C1 implementation/delivery/publication. C1 covers Tools library, create/open/rename/confirmed delete, black transition, separate landscape shell, independent versioned model and durable saving/lifecycle. C2 was unassigned at this C1 delivery and is now delivered above; C3–C7 remain future separate assignments. No full regression/F1. Existing ZIP12/JSON7 exclude Composer; C7 must complete recovery before V1 acceptance. [Actual results and next task](CURRENT_STATE.md).
 
 ---
 

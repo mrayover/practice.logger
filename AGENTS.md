@@ -1,6 +1,6 @@
-## November15 bounded C1/C2 assignment
+## November15 bounded C1/C2 assignment — delivered build129
 
-The current owner handoff explicitly authorizes three-second branded entrance refinement, functional C2 piano roll, Reference Piano audition, minimal cross-pattern/instrument navigation, focused verification, permanent-key signed delivery and commit/push on block-ux-stage1. This supersedes older C1-only scope below. Stop after C2. C3 sequencing, full C4 management, Arrange editing, exports and F1 remain excluded.
+The current owner handoff explicitly authorizes three-second branded entrance refinement, functional C2 piano roll, Reference Piano audition, minimal cross-pattern/instrument navigation, focused verification, permanent-key signed delivery and commit/push on block-ux-stage1. C1 refinement/C2 are delivered in build129 with focused verification; owner phone acceptance is pending. This supersedes older C1-only scope below. Stop after C2. C3 sequencing, full C4 management, Arrange editing, exports and F1 remain excluded.
 
 ## compose.logger Phase 1
 

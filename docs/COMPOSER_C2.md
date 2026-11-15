@@ -6,7 +6,7 @@ The November15 assignment adds the three-second entrance, piano-roll gestures, s
 
 ## Editing on a landscape phone
 
-Open Tools → compose.logger, create/open a composition and wait through the centered white identity on black. The dedicated Activity requests landscape. The entrance counts at least3,000ms of resumed displayed time, beginning after initial rendering; recomposition does not reset it. Saved remaining time survives ordinary recreation. Background time does not count. Back uses the normal dirty-project barrier and file loading is independent of entrance rendering.
+Open Tools → compose.logger, create/open a composition and wait through the centered white identity on black. The dedicated Activity requests landscape. The entrance counts at least3,000ms of resumed, focused displayed time, beginning after initial rendering; recomposition does not reset it. Saved remaining time survives ordinary recreation. Background time and loss of window focus do not count. Back uses the normal dirty-project barrier and file loading is independent of entrance rendering.
 
 For an empty C1 project, choose **Create piano patterns A/B**. Instrument selectors and Pattern A/B switch the visible editor. **+ Pattern** adds only a missing A/B/C slot; **+ Instrument** adds another Reference Piano track with A/B, up to the model's eight-track limit. These are minimal C2 navigation controls, without a sound-bank picker or track-management system. Existing track/pattern IDs and instrument references are preserved.
 
