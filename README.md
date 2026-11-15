@@ -1,5 +1,7 @@
 # practice.logger
 
+**compose.logger Phase 1 is approved for V1.** [Authoritative contract and C1–C7 sequence](docs/COMPOSE_LOGGER_V1_SPEC.md). C1 is assigned: Tools launcher, separate landscape workspace, branded transition and persistent project foundation. [Actual status](CURRENT_STATE.md). Build125 predates Composer. Later editing/audio/arrangement/export/Library work needs separate assignments. Current practice ZIP/JSON backups exclude Composer; complete recovery belongs to C7.
+
 Signed0.46.4/build125 requests Android sentence capitalization and autocorrect for prose entry throughout the app. Your keyboard/language settings control corrections and punctuation shortcuts; existing text and numeric/date/search inputs retain their behavior. Home keeps build124’s composition. Compilation/signing and2 focused input-connection checks pass; owner phone confirmation received November14; source recorded on block-ux-stage1. [Current delivery](CURRENT_STATE.md).
 
 Screenshot-directed Home correction is delivered as signed0.46.3/build124: full-size separated buttons, percentage-only Goal summaries and a minimal weekly footer. Focused host-rendered checks confirm zero opening scroll at360x800 and411x886 with reserved system-bar space;200% text remains reachable. Local release/vital lint/instrumentation assembly pass. Phone acceptance and Git publication remain pending. [Delivery/evidence](CURRENT_STATE.md).

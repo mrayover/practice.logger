@@ -24,6 +24,13 @@ adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/home-preview
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/metronome-pulse app/build/preview-metronome-screens || true
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/practice-refinement app/build/preview-refinement-screens || true
 adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/loop-refinement app/build/preview-loop-screens || true
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerFoundationWorkflowTest ]; then
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c1 app/build/preview-composer-screens
+  grep -q 'OK (1 test)' app/build/preview-home.txt
+  adb shell am force-stop "$package"
+  adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerColdReopenTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-cold.txt
+  grep -q 'OK (1 test)' app/build/preview-composer-cold.txt
+fi
 if [[ "${PREVIEW_TEST_CLASS:-}" == RecordingWaveformWorkflowTest,* ]]; then
   grep -q 'OK (2 tests)' app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = LoopRecorderPreviewTest ]; then

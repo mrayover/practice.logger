@@ -10,6 +10,10 @@ Comprehensive workflows are manual and require explicit owner authorization for 
 
 # practice.logger — V1 Master Build & Release Plan
 
+## Approved addition — compose.logger Phase 1
+
+[The authoritative contract](docs/COMPOSE_LOGGER_V1_SPEC.md) adds an offline, standalone-style Composer to remaining owner-approved V1 features before F1/F2. Sequence: **C1 launcher/landscape/persistence → C2 piano roll/clipboard/undo → C3 SoundFont/audition/loop playback → C4 patterns/instruments → C5 Arrange → C6 WAV/MIDI/MusicXML/native export → C7 explicit Library WAV import and complete Composer recovery**. Only C1 is currently assigned (November14 owner clarification includes specification registration). C2–C7 need separate assignments; do not silently widen phases. Preserve independent ownership, production data/signing and focused-development verification. [Actual status and next task](CURRENT_STATE.md).
+
 **Status:** Owner-approved authoritative forward roadmap. P5 is owner accepted. T3A–T3D, S1, O0, S2, O1, G1, W1 and G2 are delivered. P1 Intentional Practice Lifecycle and P2 Block and Session Reflection are implemented ahead of G3. Stage3C.2 and scoped Stage3D are complete in build111; G3 is complete in signed0.39.0/build112 with focused verification, with phone acceptance pending. Stage4 prerequisite is resolved by the November12 owner-approved deferral of all ten undocumented sessions (0/10; no practical-use review or phone acceptance claimed). See EVALUATION.md. Next recommended task: PG1 build118 owner-phone acceptance; PG1 is now implemented. LGE-1 is complete in signed0.40.0/build113 with focused verification and phone acceptance pending; LGE-2 is separately assigned and implemented in0.41.0/build114 with optional deterministic suggestions and ZIP10/Room25; exact focused delivery evidence is in CURRENT_STATE. [Current state and verification](CURRENT_STATE.md).
 **Prepared:** 2026-10-30 (America/Los_Angeles).  
 **Repository:** https://github.com/mrayover/practice.logger  

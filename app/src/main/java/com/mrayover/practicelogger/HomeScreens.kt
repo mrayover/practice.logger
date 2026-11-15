@@ -139,6 +139,10 @@ import androidx.compose.ui.unit.sp
         HomeButton("Metronome") { onTool("metronome") }
         HomeButton("Tuner") { onTool("tuner") }
         HomeButton("Reference Piano") { onTool("piano") }
+        val context = androidx.compose.ui.platform.LocalContext.current
+        HomeButton("compose.logger") {
+            context.startActivity(android.content.Intent(context, com.mrayover.practicelogger.composer.ComposerLibraryActivity::class.java))
+        }
         HomeButton("Timer") { onTool("timer") }
         HomeButton("Backup and restore", onBackup)
         HomeButton("Audio Settings") { onTool("audio-settings") }

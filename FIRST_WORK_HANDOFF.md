@@ -1,4 +1,10 @@
-# practice.logger — compact Home delivered
+# practice.logger — compose.logger C1 in progress
+
+Use canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1. Starting clean local/live remote b953c7f4ed95a1db40ba9f36a057936f8fa8c4d0; signed baseline0.46.4/build125 has general owner-reported phone confirmation. Owner clarified “Register specification and complete C1.” [New authoritative specification](docs/COMPOSE_LOGGER_V1_SPEC.md) defines C1–C7. [Actual verification and next task](CURRENT_STATE.md) supersede historical handoffs below. Stop after C1; no C2/F1/main merge. Practice backups exclude Composer; no uninstall/data clearing.
+
+---
+
+# Historical handoff — compact Home delivered
 
 Signed0.46.1/build122, exact application/package/focused-test source a70d341901822a87ab3b5876541e35ab418af18f, delivered on block-ux-stage1. Home Goal names stay one line, Edit shares their header, compact paired navigation fits short screens and Statistics/weekly actions remain. Three normal-text bounded layouts have zero scroll range;36 callbacks and200% single-line navigation/reachability pass in one API35 workflow. Application/test source remains identical after closeout; the retained weekly test expected text was mechanically updated and compiled, without running that older workflow. [Current evidence/hashes](CURRENT_STATE.md) · [Phone checks](MANUAL_TESTS.md#compact-home-follow-up).
 

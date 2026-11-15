@@ -1,3 +1,9 @@
+# compose.logger C1 — assigned implementation
+
+[Approved contract](docs/COMPOSE_LOGGER_V1_SPEC.md). November14 owner clarification authorizes registration plus C1 implementation/delivery/publication. C1 covers Tools library, create/open/rename/confirmed delete, black transition, separate landscape shell, independent versioned model and durable saving/lifecycle. C2–C7 remain future separate assignments: piano roll → audio → patterns/instruments → Arrange → exports → Library/recovery. No full regression/F1. Existing ZIP12/JSON7 exclude Composer; C7 must complete recovery before V1 acceptance. [Actual results and next task](CURRENT_STATE.md).
+
+---
+
 # Native typing assistance — build125
 
 Owner-assigned quality-of-life increment: shared Android sentence-capitalization/autocorrect options applied to20 prose field/helper declarations, with structured/search input options retained. No text rewriting/dependencies/storage changes. Local release/vital lint/instrumentation assembly and2 focused Android input-connection checks pass. Owner-reported phone confirmation received November14; all pending Home/typing changes and records are committed together on block-ux-stage1. Individual physical checklist results were not supplied. Home retains build124. [Current delivery and exact next task](CURRENT_STATE.md). No F1 or further scope.

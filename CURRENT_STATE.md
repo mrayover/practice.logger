@@ -1,4 +1,16 @@
-# Current state — Android typing assistance, build125
+# Current state — compose.logger C1 in progress
+
+November14,2026 (America/Los_Angeles). Owner approved [compose.logger Phase 1](docs/COMPOSE_LOGGER_V1_SPEC.md) and clarified that this assignment registers the missing specification **and completes C1**. Canonical checkout/live block-ux-stage1 both started clean at b953c7f4ed95a1db40ba9f36a057936f8fa8c4d0. Older OneDrive checkout untouched. Latest relevant focused CI43375803182 is completed/success on a70d341; no success inferred at the documentation baseline. Build125 remains current signed delivery until C1 packaging.
+
+C1 is being verified: Tools entry, portrait composition library, empty creation/open/rename/confirmed delete, black branded transition and separate landscape editor; Loop/Arrange placeholders, editable project settings, Save/dirty-exit protection; independent versioned960-PPQ/eight-track model and atomic files/composer/projects storage. No piano roll, synthesis, playback, arrangement editing, exports or Library integration. Room27/ZIP12/JSON7 and audio owners unchanged. **Practice ZIP/JSON backups exclude Composer.** Projects remain device-local; uninstall/data clearing loses them. C7 owns complete recovery.
+
+Initial compile failed on ambiguous R import, corrected with explicit application import. Focused storage checks/release/native compilation in progress; emulator/screenshot verification and new signed delivery pending. No new phone acceptance or full regression claimed.
+
+**Next: finish C1 focused verification, signed delivery and publication; stop before C2.**
+
+---
+
+# Previous delivery — Android typing assistance, build125
 
 Updated November14,2026 (America/Los_Angeles). **Owner-reported phone confirmation received November14** for the current delivery; individual checklist observations and keyboard/device details were not supplied. Signed **0.46.4/build125** adds native keyboard sentence capitalization/autocorrect requests for prose. Canonical C:/Users/mrove/Projects/practice.logger on block-ux-stage1; existing Home correction and all prior working changes preserved. The owner explicitly authorized committing all pending changes on November14. Home refinement, typing assistance, focused interface checks and related records are recorded together on block-ux-stage1, based on 88ce207d594eb25090de6fcb23bdddf209df89a0. Publication SHA and remote verification are reported in the closing handoff. No CI dispatch or merge to main. Older OneDrive repository untouched.
 
