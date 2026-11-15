@@ -25,7 +25,7 @@ class ComposerFoundationWorkflowTest {
     private val device get() = UiDevice.getInstance(instrumentation)
     private fun waitText(text: String) {
         try {
-            compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         } catch (failure: Throwable) {
             val dir = File(compose.activity.getExternalFilesDir(null), "composer-c1").apply { mkdirs() }
             device.takeScreenshot(File(dir, "failure.png"))
