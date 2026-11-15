@@ -10,6 +10,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 import com.mrayover.practicelogger.composer.*
 import org.junit.Assert.*
 import org.junit.Rule
@@ -22,8 +24,20 @@ class ComposerFoundationWorkflowTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val device get() = UiDevice.getInstance(instrumentation)
     private fun waitText(text: String) {
-        compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+        try {
+            compose.waitUntil(15000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+        } catch (failure: Throwable) {
+            val dir = File(compose.activity.getExternalFilesDir(null), "composer-c1").apply { mkdirs() }
+            device.takeScreenshot(File(dir, "failure.png"))
+            device.dumpWindowHierarchy(File(dir, "failure-window.xml"))
+            File(dir, "failure-compose.txt").writeText(compose.onRoot().printToString())
+            throw failure
+        }
         compose.onNodeWithText(text).assertIsDisplayed()
+    }
+    private fun dismissImmersiveTip() {
+        device.wait(Until.findObject(By.text("Got it")), 1500)?.click()
+        device.waitForIdle()
     }
     private fun tap(text: String) { waitText(text); compose.onNodeWithText(text).performClick() }
     private fun field(label: String, text: String) {
@@ -67,6 +81,7 @@ class ComposerFoundationWorkflowTest {
         hideIme()
         tap("Create")
         waitText("Project settings")
+        dismissImmersiveTip()
         assertTrue(resumed() is ComposerActivity)
         assertEquals(Configuration.ORIENTATION_LANDSCAPE, resumed().resources.configuration.orientation)
         val store = CompositionStore(File(compose.activity.filesDir, "composer/projects"))
@@ -85,6 +100,7 @@ class ComposerFoundationWorkflowTest {
         val editor = resumed()
         instrumentation.runOnMainSync { editor.recreate() }
         waitText("Project settings"); waitText("Retained draft"); waitText("Arrange workspace · C1 foundation")
+        dismissImmersiveTip()
         device.pressBack(); waitText("Unsaved composition settings"); tap("Keep editing")
         tap("Save"); waitText("Saved on this device")
         assertEquals(original.id, store.list().projects.single().id)
