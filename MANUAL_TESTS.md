@@ -500,3 +500,27 @@ No physical results are recorded yet. Comprehensive regression remains deferred 
 # Compact Home follow-up
 
 Build122 phone checks (pending): install over the permanent-key app without uninstalling/clearing data. Open Home with long Goal names and an optional weekly target. Confirm both Goals occupy one line, Edit sits beside Goals, all seven navigation buttons plus Statistics and the weekly target fit without scrolling at normal text size. Short screens use paired buttons below Practice Now. Tap each destination and return. At enlarged text, verify Goal lines remain single and all controls remain reachable by scrolling. Other screens and themes should retain their existing appearance. Report phone model, font size and orientation if anything clips.
+
+## Home screenshot correction — build124
+
+- Install over the permanent-key app without uninstalling/clearing data.
+- At normal font size, compare with the owner's screenshot: both Goal percentages, all seven full-width buttons and the weekly footer must be visible on opening, with no scroll tail or clipped text.
+- Goal rows have single-line names, separate percentages and right priority caps; no Goal progress bars. Open each Goal and Edit for full details.
+- Keep button labels centered and full-sized, with8–10dp gaps. Practice Now remains brighter than the secondary Cosmic blue.
+- Footer shows only This Week, actual/target minutes, percentage, Edit weekly target and the weekly bar. Tap This Week for Statistics and Edit weekly target for the existing target destination.
+- Check that footer text has no rounded overlay/mask and that the weekly bar ends are square. Navigation-bar space remains reserved for Android.
+- At200% text, scroll to verify every control remains readable/reachable. Check real system bars/rotation and switch back to Light.
+
+Host-rendered fixtures pass normal zero-scroll fit at360x800 (24/24dp reserved bars) and411x886 (24/48dp), plus200% reachability. Physical phone results remain pending. No broad regression authorized.
+
+## Native typing assistance — build125
+
+Owner reported phone confirmation on November14,2026. This is general functional acceptance; individual checklist observations and keyboard/device details were not supplied.
+
+- Install over the permanent-key app, retaining data. Enable your keyboard’s auto-capitalization/autocorrect if disabled.
+- In Log, start a sentence, then type a period and space followed by another sentence. Check capitals and try a misspelling, correction/undo and your keyboard’s punctuation shortcut.
+- Repeat in new/edited practice notes, reflections, and Block/Goal descriptions/names. Save/reopen and check your chosen text.
+- Enter musical names/chord symbols; verify manual case and correction undo stay available.
+- Check numeric/date/search fields, and that Home keeps build124’s opening layout.
+
+Two focused host checks verify actual Android input flags and preserved numeric/Done behavior; physical IME/language/settings/punctuation behavior remains unverified. No full regression is authorized.

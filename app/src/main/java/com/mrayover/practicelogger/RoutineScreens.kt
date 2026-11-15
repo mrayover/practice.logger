@@ -76,7 +76,7 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = ::leave, enabled = !vm.busy) { Text("Back to Routines") }
         PageHeading(if (vm.editorId == null) "New Routine" else "Edit Routine", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-        OutlinedTextField(vm.name, vm::rename, enabled = !vm.busy, label = { Text("Routine name") }, singleLine = true,
+        OutlinedTextField(vm.name, vm::rename, enabled = !vm.busy, keyboardOptions = ProseKeyboardOptions, label = { Text("Routine name") }, singleLine = true,
             isError = vm.name.isNotEmpty() && !routineNameValid(vm.name), supportingText = { Text("1–120 characters") }, modifier = Modifier.fillMaxWidth())
         Text("Saved durations belong to this Routine. Practice uses the current Block details and starts paused.")
         if (vm.entries.isEmpty()) Text("Add a Block below to begin.")
@@ -147,7 +147,7 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
     if (open) AlertDialog(onDismissRequest = { if (!vm.busy) open = false }, title = { Text("Save as Routine") },
         text = { Column {
             Text("Save this ordered selection and its durations. Your session draft and Blocks stay unchanged.")
-            OutlinedTextField(name, { name = it }, label = { Text("Routine name") }, enabled = !vm.busy, singleLine = true,
+            OutlinedTextField(name, { name = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Routine name") }, enabled = !vm.busy, singleLine = true,
                 isError = name.isNotEmpty() && !routineNameValid(name), supportingText = { Text("1–120 characters") })
         } }, confirmButton = { TextButton(onClick = { vm.saveDraft(name) }, enabled = !vm.busy && !practiceBusy && routineNameValid(name)) { Text("Save Routine") } },
         dismissButton = { TextButton(onClick = { open = false }, enabled = !vm.busy) { Text("Cancel") } })

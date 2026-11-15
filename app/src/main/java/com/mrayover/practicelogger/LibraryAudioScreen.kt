@@ -274,8 +274,8 @@ internal fun AudioMarkerDialog(marker: MasterAudioMarker?, state: LibraryAudioSt
     }
     AlertDialog(onDismissRequest = { if (!saving) close() }, title = { Text(title) }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(label, { label = it }, label = { Text("Label") }, modifier = Modifier.testTag("marker-label"))
-            OutlinedTextField(note, { note = it }, label = { Text("Note (optional)") }, modifier = Modifier.testTag("marker-note"))
+            OutlinedTextField(label, { label = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Label") }, modifier = Modifier.testTag("marker-label"))
+            OutlinedTextField(note, { note = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Note (optional)") }, modifier = Modifier.testTag("marker-note"))
             OutlinedTextField(start, { start = it }, label = { Text("Start seconds") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.testTag("marker-start"))
             if (isSection) OutlinedTextField(end, { end = it }, label = { Text("End seconds") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.testTag("marker-end"))
             message?.let { Text(it, color = MaterialTheme.colorScheme.error) }

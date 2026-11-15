@@ -90,7 +90,7 @@ import java.time.format.FormatStyle
           Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             header()
             if (!vm.ready) Text("Loading Log…")
-            OutlinedTextField(vm.text, vm::edit, enabled = vm.ready && !vm.busy,
+            OutlinedTextField(vm.text, vm::edit, enabled = vm.ready && !vm.busy, keyboardOptions = ProseKeyboardOptions,
                 modifier = Modifier.fillMaxWidth().height(editorHeight).testTag("log-editor"),
                 textStyle = MaterialTheme.typography.bodyLarge)
             Text(if (vm.busy) "Loading…" else status, style = MaterialTheme.typography.bodySmall,

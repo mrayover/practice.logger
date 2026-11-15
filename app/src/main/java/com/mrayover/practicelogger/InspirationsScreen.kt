@@ -1,5 +1,7 @@
 package com.mrayover.practicelogger
 
+import androidx.compose.foundation.text.KeyboardOptions
+
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -121,14 +123,14 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
                     Text("Attachment · $attachment")
                     OutlinedButton(onClick = { confirmRemoval = true }, enabled = enabled) { Text("Remove attachment") }
                 } else {
-                    OutlinedTextField(draft.body, { vm.draft = draft.copy(body = it) }, label = { Text("Text") },
+                    OutlinedTextField(draft.body, { vm.draft = draft.copy(body = it) }, keyboardOptions = ProseKeyboardOptions, label = { Text("Text") },
                         enabled = enabled, minLines = 6, maxLines = 12, modifier = Modifier.fillMaxWidth().testTag("inspiration-body"))
                 }
                 InspirationField("Author", details.author, enabled) { vm.draft = draft.copy(details = details.copy(author = it)) }
-                InspirationField("Source", details.source, enabled) { vm.draft = draft.copy(details = details.copy(source = it)) }
+                InspirationField("Source", details.source, enabled, keyboardOptions = KeyboardOptions.Default) { vm.draft = draft.copy(details = details.copy(source = it)) }
                 InspirationCategory(details.category, enabled) { vm.draft = draft.copy(details = details.copy(category = it)) }
                 OutlinedTextField(details.note, { vm.draft = draft.copy(details = details.copy(note = it)) },
-                    label = { Text("Personal note") }, enabled = enabled, maxLines = 5, modifier = Modifier.fillMaxWidth())
+                    keyboardOptions = ProseKeyboardOptions, label = { Text("Personal note") }, enabled = enabled, maxLines = 5, modifier = Modifier.fillMaxWidth())
                 Button(onClick = {
                     focus.clearFocus()
                     keyboard?.hide()
@@ -198,8 +200,8 @@ private fun InspirationCard(title: String, author: String, enabled: Boolean, ope
 }
 
 @Composable
-private fun InspirationField(label: String, value: String, enabled: Boolean, change: (String) -> Unit) {
-    OutlinedTextField(value, change, label = { Text(label) }, singleLine = true, enabled = enabled,
+private fun InspirationField(label: String, value: String, enabled: Boolean, keyboardOptions: KeyboardOptions = ProseKeyboardOptions, change: (String) -> Unit) {
+    OutlinedTextField(value, change, label = { Text(label) }, singleLine = true, enabled = enabled, keyboardOptions = keyboardOptions,
         modifier = Modifier.fillMaxWidth())
 }
 

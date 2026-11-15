@@ -493,7 +493,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
             HorizontalDivider()
         }
         notes.message?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-        OutlinedTextField(note, { note = it; vm.noteChanged() }, label = { Text("Session note (optional)") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(note, { note = it; vm.noteChanged() }, keyboardOptions = ProseKeyboardOptions, label = { Text("Session note (optional)") }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { vm.saveNote(bundle.session.id, note) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save note") }
         if (vm.noteSaved && note.trim() == bundle.session.note) Text("Note saved")
     }

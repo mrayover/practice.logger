@@ -1,6 +1,8 @@
 # practice.logger
 
-Signed0.46.1/build122 tightens Home: Goal names stay on one line, Edit sits beside Goals, and compact navigation rows fit shorter screens. Statistics and weekly targets stay available in a compact footer; enlarged text can scroll. Cosmic and centered page headings remain. [Current delivery and focused checks](CURRENT_STATE.md).
+Signed0.46.4/build125 requests Android sentence capitalization and autocorrect for prose entry throughout the app. Your keyboard/language settings control corrections and punctuation shortcuts; existing text and numeric/date/search inputs retain their behavior. Home keeps build124’s composition. Compilation/signing and2 focused input-connection checks pass; owner phone confirmation received November14; source recorded on block-ux-stage1. [Current delivery](CURRENT_STATE.md).
+
+Screenshot-directed Home correction is delivered as signed0.46.3/build124: full-size separated buttons, percentage-only Goal summaries and a minimal weekly footer. Focused host-rendered checks confirm zero opening scroll at360x800 and411x886 with reserved system-bar space;200% text remains reachable. Local release/vital lint/instrumentation assembly pass. Phone acceptance and Git publication remain pending. [Delivery/evidence](CURRENT_STATE.md).
 
 G3, LGE-1/LGE-2 and RW1 remain implemented. W2 does not change manual Goal progress or learning recommendations.
 

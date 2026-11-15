@@ -574,6 +574,6 @@ private fun ConfirmBlockArchive(archived: Boolean, dirty: Boolean = false, onDis
 @Composable private fun EditorField(label: String, value: String, changed: (String) -> Unit, error: String?, busy: Boolean, singleLine: Boolean = false, numeric: Boolean = false) {
     OutlinedTextField(value, changed, label = { Text(label) }, enabled = !busy, isError = error != null,
         supportingText = { if (error != null) Text(error) }, singleLine = singleLine, minLines = 1,
-        keyboardOptions = KeyboardOptions(keyboardType = if (numeric) KeyboardType.Number else KeyboardType.Text),
+        keyboardOptions = if (numeric) KeyboardOptions(keyboardType = KeyboardType.Number) else ProseKeyboardOptions,
         modifier = Modifier.fillMaxWidth().testTag(label))
 }

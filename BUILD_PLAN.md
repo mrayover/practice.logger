@@ -1,3 +1,15 @@
+# Native typing assistance — build125
+
+Owner-assigned quality-of-life increment: shared Android sentence-capitalization/autocorrect options applied to20 prose field/helper declarations, with structured/search input options retained. No text rewriting/dependencies/storage changes. Local release/vital lint/instrumentation assembly and2 focused Android input-connection checks pass. Owner-reported phone confirmation received November14; all pending Home/typing changes and records are committed together on block-ux-stage1. Individual physical checklist results were not supplied. Home retains build124. [Current delivery and exact next task](CURRENT_STATE.md). No F1 or further scope.
+
+---
+
+# Screenshot-directed Home correction — build124
+
+The later owner screenshot supersedes build123. Percentage-only compact Goals, seven full-width buttons with56dp minimum heights/8–10dp gaps and a minimal weekly footer now fit normal opening layouts at360x800 and411x886 in focused host-rendered checks, including reserved system bars. No footer clipping mask; square-ended weekly bar. Local release/vital lint/instrumentation assembly and3/3 focused checks pass; previews inspected. Phone acceptance/publication pending. Room27/ZIP12/JSON7 unchanged. [Current evidence and next task](CURRENT_STATE.md). Stop at Home; no F1.
+
+---
+
 # Compact Home — delivered follow-up
 
 Owner-requested Home fit correction delivered in signed0.46.1/build122: single-line Goals, Edit beside heading, compact spacing/buttons, paired secondary destinations on short screens and compact Statistics/weekly footer. One API35 fixture passes normal-text no-scroll fit at three sizes,36 callbacks and200% reachability. Local/CI compilation/vital lint pass. [Current delivery/evidence](CURRENT_STATE.md). Room27/ZIP12/JSON7 unchanged. Next: phone fit confirmation. Stop here; no F1.

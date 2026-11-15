@@ -153,7 +153,7 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
     Column(modifier.testTag("practice-notes-panel")) {
         PracticeScrollPanel(Modifier.weight(1f).fillMaxWidth(), tag = "practice-notes-content") {
             Text("Add New Note", style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { heading() })
-            OutlinedTextField(draft, onDraft, label = { Text("New note") }, enabled = !busy, minLines = 2, maxLines = 5,
+            OutlinedTextField(draft, onDraft, keyboardOptions = ProseKeyboardOptions, label = { Text("New note") }, enabled = !busy, minLines = 2, maxLines = 5,
                 modifier = Modifier.fillMaxWidth().testTag("practice-new-note"))
             message?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             if (entries.isEmpty()) Text("No saved practice notes for this Block.", style = MaterialTheme.typography.bodySmall)
@@ -186,7 +186,7 @@ fun practiceTransportMessage(message: String?): String? = message?.takeUnless {
             Text(if (expanded || editing) "Collapse" else "Expand", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
         }
         if (editing) {
-            OutlinedTextField(editText, { editModel.changeEdit(entry, it) }, label = { Text("Edit note") }, enabled = !busy,
+            OutlinedTextField(editText, { editModel.changeEdit(entry, it) }, keyboardOptions = ProseKeyboardOptions, label = { Text("Edit note") }, enabled = !busy,
                 minLines = 2, maxLines = 5, modifier = Modifier.fillMaxWidth().testTag("practice-note-editor-${entry.id}"))
             FlowRow {
                 TextButton(onClick = { editModel.saveEdit(entry); expanded = true }, enabled = !busy && editText.isNotBlank(),

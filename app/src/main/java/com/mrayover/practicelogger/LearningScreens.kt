@@ -234,7 +234,7 @@ private fun ObservationEditor(placement: Placement, saved: LearningObservation?,
         FilterChip(selected = context == value, onClick = { context = value }, enabled = enabled, label = { Text(label) })
     }
     OutlinedTextField(criterion, { if (it.length <= LEARNING_TEXT_LIMIT) { criterion = it; anchor = null } },
-        enabled = enabled && saved == null, label = { Text("Intended target / criterion (optional)") },
+        enabled = enabled && saved == null, keyboardOptions = ProseKeyboardOptions, label = { Text("Intended target / criterion (optional)") },
         modifier = Modifier.fillMaxWidth().testTag("learning-criterion"))
     if (saved == null) {
         Text("Changed passage, tempo, difficulty, assistance or success threshold needs a new criterion. Matching text alone does not confirm comparability.",

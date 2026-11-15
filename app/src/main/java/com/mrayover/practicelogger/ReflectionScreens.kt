@@ -80,7 +80,7 @@ internal fun SessionReflectionScreen(
     BackHandler { skip() }
     ReflectionPage("Session Reflection") {
         Text("Your practice is saved. Answer any questions you like.")
-        OutlinedTextField(note, { note = it }, enabled = !busy, label = { Text("Session note (optional)") },
+        OutlinedTextField(note, { note = it }, enabled = !busy, keyboardOptions = ProseKeyboardOptions, label = { Text("Session note (optional)") },
             modifier = Modifier.fillMaxWidth())
         TextButton(onClick = { expanded = !expanded }, enabled = !busy) {
             Text(if (expanded) "Hide optional questions" else "Show optional questions")
@@ -113,7 +113,7 @@ private fun ReflectionPrompts(
             if (value.length <= REFLECTION_ANSWER_LIMIT) {
                 onChange(ArrayList(answers).apply { this[index] = value })
             }
-        }, enabled = !busy, label = { Text(label) }, modifier = Modifier.fillMaxWidth())
+        }, enabled = !busy, keyboardOptions = ProseKeyboardOptions, label = { Text(label) }, modifier = Modifier.fillMaxWidth())
     }
 }
 

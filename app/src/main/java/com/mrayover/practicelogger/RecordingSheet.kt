@@ -271,7 +271,7 @@ fun takeTitle(take: BlockTake): String = take.label.ifBlank { "Take " + sessionD
 
     all.find { it.id == renameId }?.let { take ->
         AlertDialog(onDismissRequest = { renameId = null }, title = { Text("Rename take") }, text = {
-            OutlinedTextField(label, { label = it }, label = { Text("Take label (optional)") }, isError = label.trim().length > 120,
+            OutlinedTextField(label, { label = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Take label (optional)") }, isError = label.trim().length > 120,
                 supportingText = { Text("Up to 120 characters. Leave blank to use the date.") })
         }, confirmButton = { TextButton(onClick = { vm.rename(take, label); renameId = null }, enabled = !vm.busy && label.trim().length <= 120) { Text("Save take label") } },
             dismissButton = { TextButton(onClick = { renameId = null }) { Text("Cancel") } })

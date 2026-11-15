@@ -183,7 +183,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     renameId?.let { id ->
         val valid = runCatching { MediaLibraryRepository.title(renameText) }.isSuccess
         AlertDialog(onDismissRequest = { renameId = null }, title = { Text("Rename Library item") },
-            text = { OutlinedTextField(renameText, { renameText = it }, label = { Text("Title") }, isError = !valid, supportingText = { Text("1–255 characters") }, modifier = Modifier.testTag("media-rename-title")) },
+            text = { OutlinedTextField(renameText, { renameText = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Title") }, isError = !valid, supportingText = { Text("1–255 characters") }, modifier = Modifier.testTag("media-rename-title")) },
             confirmButton = { TextButton(onClick = { vm.rename(id, renameText); renameId = null }, enabled = enabled && valid) { Text("Save title") } },
             dismissButton = { if (selectionRole == null) TextButton(onClick = { renameId = null }) { Text("Cancel") } })
     }

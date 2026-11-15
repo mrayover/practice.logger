@@ -23,10 +23,10 @@ import java.io.File
 
 class HomeFitWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    @Test fun longGoalsAndAllHomeActionsFitAtNormalTextAndRemainReachableAtLargeText() {
+    @Test fun referenceHomeFitsAtNormalTextAndRemainsReachableAtLargeText() {
         val device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val folder=File(compose.activity.getExternalFilesDir(null),"home-preview").apply { mkdirs() }
-        val goals=(1..2).map { GoalBundle(Goal("fit-$it", "A very long musical Goal name that must stay on exactly one line on Home $it", progress=45, priority=it-1, createdAt=1,updatedAt=1), emptyList()) }
+        val goals=(1..2).map { GoalBundle(Goal("fit-$it", "A very long musical Goal name available in full when opened $it", progress=45, priority=it-1, createdAt=1,updatedAt=1), emptyList()) }
         var clicks=0
         fun mount(width: Int, height: Int, scale: Float, theme: ThemeChoice, target: Int?) {
             compose.runOnIdle {
@@ -35,9 +35,9 @@ class HomeFitWorkflowTest {
                         Box(Modifier.width(width.dp).height(height.dp).testTag("home-fit-viewport")) {
                             PracticeTheme(theme) { ApplicationBackground {
                                 androidx.compose.material3.Surface(color=pageBackgroundColor(),contentColor=androidx.compose.material3.MaterialTheme.colorScheme.onBackground) {
-                                    Column(Modifier.fillMaxSize()) {
+                                    Column(Modifier.fillMaxSize().padding(top = 24.dp, bottom = 24.dp)) {
                                         PracticeBanner(onHome={},onSettings={})
-                                        PracticeHome(onPractice={clicks++},onBlocks={clicks++},onRoutines={clicks++},onTools={clicks++},onRecording={clicks++},onLog={clicks++},onLibrary={clicks++},goals=goals,onGoals={clicks++},onGoal={clicks++},practiceMs=60000,onStatistics={clicks++},weeklyProgress=WeeklyTargetProgress(120000,target),onWeekTarget={clicks++})
+                                        PracticeHome(onPractice={clicks++},onBlocks={clicks++},onRoutines={clicks++},onTools={clicks++},onRecording={clicks++},onLog={clicks++},onLibrary={clicks++},goals=goals,onGoals={clicks++},onGoal={clicks++},practiceMs=73_142_000,onStatistics={clicks++},weeklyProgress=WeeklyTargetProgress(120000,target),onWeekTarget={clicks++})
                                     }
                                 }
                             } }
@@ -49,29 +49,34 @@ class HomeFitWorkflowTest {
         }
         try {
             for ((width,height,theme,target) in listOf(
-                Case(320,640,ThemeChoice.COSMIC,60), Case(411,731,ThemeChoice.LIGHT,null), Case(360,900,ThemeChoice.COSMIC,60))) {
+                Case(360,800,ThemeChoice.COSMIC,60), Case(411,886,ThemeChoice.LIGHT,null), Case(411,886,ThemeChoice.COSMIC,60))) {
                 mount(width,height,1f,theme,target)
                 val scroll=compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
-                assertEquals("Home must fit $width x $height without scrolling",0f,scroll.maxValue(),1f)
+                assertEquals("Opening Home has zero scroll range",0f,scroll.maxValue(),0f)
                 for (i in 0..1) {
                     val layouts=mutableListOf<TextLayoutResult>()
                     compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                     assertEquals(1,layouts.single().lineCount)
-                    assertTrue(layouts.single().isLineEllipsized(0))
+                    assertFalse("First title line remains readable",layouts.single().isLineEllipsized(0))
                 }
-                val view=compose.onNodeWithTag("home-fit-viewport").fetchSemanticsNode().boundsInRoot
+                compose.onNodeWithTag("home-goal-progress-fit-1").assertDoesNotExist()
+                compose.onNodeWithText("Total practice").assertDoesNotExist()
+                val view=compose.onNodeWithTag("home-scroll").fetchSemanticsNode().boundsInRoot
                 for (label in listOf("Practice Now","Blocks","Routines","Tools","Recording","Log","Library")) {
-                    val node=compose.onNodeWithTag("home-nav-$label").assertIsDisplayed()
+                    val node=compose.onNodeWithTag("home-nav-$label").performScrollTo().assertIsDisplayed()
                     val bounds=node.fetchSemanticsNode().boundsInRoot
                     assertTrue("$label fully within Home", bounds.top>=view.top && bounds.bottom<=view.bottom)
+                    assertTrue("Full width navigation", bounds.width >= view.width - 65f)
+                    assertTrue("Comfortable touch height", bounds.height >= 112f)
                     node.performClick()
                 }
-                compose.onNodeWithTag("home-statistics").assertIsDisplayed().performClick()
-                compose.onNodeWithTag("home-weekly-target").assertIsDisplayed().performClick()
-                compose.onNodeWithText("Edit").assertIsDisplayed().performClick()
-                compose.onNodeWithTag("home-goal-title-0",true).performTouchInput { click() }
-                compose.onNodeWithTag("home-goal-title-1",true).performTouchInput { click() }
-                compose.onNodeWithTag("weekly-target-summary").assertIsDisplayed()
+                compose.onNodeWithTag("home-statistics").performScrollTo().assertIsDisplayed()
+                    .performClick()
+                compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed().performClick()
+                compose.onNodeWithText("Edit").performScrollTo().assertIsDisplayed().performClick()
+                compose.onNodeWithTag("home-goal-title-0",true).performScrollTo().performTouchInput { click() }
+                compose.onNodeWithTag("home-goal-title-1",true).performScrollTo().performTouchInput { click() }
+                compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
                 // Capture the Compose root after its rendered frame, avoiding a stale native frame.
                 File(folder,"home-fit-$width-$height.png").outputStream().use { output ->
                     compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
@@ -87,7 +92,7 @@ class HomeFitWorkflowTest {
             File(folder,"home-fit-320-200-goals.png").outputStream().use { output ->
                 compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
             }
-            // Large text switches to full-width labels to avoid mid-word breaks and clipped footer text.
+            // Full-width controls grow naturally; enlarged text scrolls without clipping.
             for (label in listOf("Practice Now","Blocks","Routines","Tools","Recording","Log","Library")) {
                 val node=compose.onNodeWithTag("home-nav-$label").performScrollTo().assertIsDisplayed()
                 val layouts=mutableListOf<TextLayoutResult>()

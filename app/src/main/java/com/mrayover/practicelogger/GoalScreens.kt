@@ -127,12 +127,12 @@ import androidx.compose.ui.unit.dp
         }
     }
     GoalPage(::leave, "Cancel Goal editing", if (goal == null) "New Goal" else "Edit Goal") {
-        OutlinedTextField(title, { title = it }, label = { Text("Goal title") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(description, { description = it }, label = { Text("Desired outcome (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(title, { title = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Goal title") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(description, { description = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Desired outcome (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(progress, { progress = it }, label = { Text("Manual progress (0–100%)") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
         Text("Your assessment of musical progress. Practice time is tracked separately.")
-        OutlinedTextField(notes, { notes = it }, label = { Text("Goal notes (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(notes, { notes = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Goal notes (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
         Button(onClick = { vm.save(goal?.id, title, description, progress, notes) }, enabled = !vm.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Goal") }
     }
