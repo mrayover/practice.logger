@@ -16,6 +16,8 @@ internal fun songNativeChecks(result: File) {
     val plan=LoopPlan.songSnapshot(p);val handle=ComposerSynth.create()
     try {
         listOf(5,4).forEach { bank -> assertTrue(ComposerSynth.load(handle,bank,context.assets.open("composer/sounds/${ComposerInstruments.all[bank].asset}.sf2").use { it.readBytes() })) }
+        // Test scheduling silence with an explicit20ms release; factory SF2 release tails are musical sound data.
+        for(channel in 0..1) ComposerSynth.shape(handle,channel,true,1f,20f,18000f,.707f,.8f,0f)
         val clock=LoopClock(plan,false);val pcm=ShortArray(480)
         val energy=LongArray(4);var gap=0L;var ons=0;var offs=0;val velocities=mutableListOf<Int>()
         val emit: (Int,LoopEvent)->Unit={ t,e ->
