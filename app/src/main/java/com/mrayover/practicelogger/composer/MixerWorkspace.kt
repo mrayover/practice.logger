@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
@@ -111,12 +112,14 @@ import kotlin.math.roundToInt
 @Composable private fun MixerPan(value: Float, enabled: Boolean, label: String, modifier: Modifier, change: (Float) -> Unit, finished: (Float) -> Unit) {
     var width by remember { mutableIntStateOf(1) }
     var gestureValue by remember { mutableFloatStateOf(value) }
+    val disallowIntercept=remember { RequestDisallowInterceptTouchEvent() }
     Canvas(modifier.height(40.dp).onSizeChanged { width=it.width }.semantics {
         contentDescription=label; progressBarRangeInfo=ProgressBarRangeInfo(value,-1f..1f)
         if(!enabled) disabled()
         setProgress { requested -> if(enabled && requested.isFinite()) { val v=requested.coerceIn(-1f,1f);change(v);finished(v) }; enabled }
-    }.pointerInteropFilter { event ->
+    }.pointerInteropFilter(disallowIntercept) { event ->
         if(!enabled) false else {
+            if(event.actionMasked==MotionEvent.ACTION_DOWN) disallowIntercept(true)
             when(event.actionMasked) {
                 MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE,MotionEvent.ACTION_UP -> {
                     val inset=minOf(12f,width/4f)
