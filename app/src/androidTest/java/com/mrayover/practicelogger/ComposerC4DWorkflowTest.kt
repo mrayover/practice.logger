@@ -67,7 +67,7 @@ class ComposerC4DWorkflowTest {
         val old=activity();inst.runOnMainSync { old.recreate() };waitTag("mixer-master");assertEquals(.23f,progress("mixer-master"),.001f);assertEquals(-1f,progress("mixer-pan-${tracks[0].id}"),.001f)
         save();val original=current();assertEquals(original,store.read(original.id))
         tap("Save As");compose.onNodeWithTag("composer-copy-title").performTextReplacement("C4D independent copy");tap("Create copy")
-        compose.waitUntil(15000) { !vm().busy && current().id!=original.id };waitTag("piano-roll");tap("Mixer")
+        compose.waitUntil(15000) { !vm().busy && current().id!=original.id };waitTag("mixer-master")
         val copy=current();assertEquals(original,store.read(original.id));assertEquals(copy,store.read(copy.id));assertEquals(original.tracks[0].mixer,copy.tracks[0].mixer)
         assertNotEquals(original.tracks[1].mixer.selectedPatternId,copy.tracks[1].mixer.selectedPatternId);assertEquals(copy.tracks[1].patterns.last().id,copy.tracks[1].mixer.selectedPatternId)
         val copyVm=vm();var eight=copy;repeat(4) { eight=ComposerManagement.addTrack(eight) };val eightFinal=eight
