@@ -1,12 +1,10 @@
-# C4D — isolated mixer channels and durable settings (verification in progress)
+# C4D — delivered build145
 
-Owner assigns C4D only: close C4C verification, independent per-channel rendering, live Mixer Pan, durable track/master settings and Save As compatibility. Candidate 0.53.0/build143. Stop before EQ, width, FX, Arrange or exports; C4E is the next separately authorized phase. [Technical behavior](docs/COMPOSER_C4D.md).
+Signed0.53.0/build145 delivers isolated channels, separate live Mixer Pan, durable track/master mixing and Save As ownership. C4C final verification gap is closed. Focused host/native/UI/cold-reopen/touch checks pass; actual Mixer screenshots inspected. Sourcefa6b5625152f4c4c01c378370168493e68252496. [Authoritative evidence/delivery](CURRENT_STATE.md) · [Technical behavior](docs/COMPOSER_C4D.md).
 
-Canonical C:/Users/mrove/Projects/practice.logger, branch block-ux-stage1. Initial clean local/live remote 6e7ee4ca993850b4a1fc5b23716b809c6ee5b365. Older OneDrive source checkout untouched.
+Canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1. Delivery: OneDrive/Practice Log development/Compose C4D delivery/build145. Install over the existing app without uninstalling/clearing data. Phone acceptance/cloud sync unobserved. v1/v2 read with defaults; mixer edits use v3. Composer projects/presets remain outside practice ZIP/JSON until C7. Earlier signed distributions preserved.
 
-C4C baseline workflow43786034370 at6e7ee4c passes36 focused host checks, build/vital lint, complete API35 workflow including corrected final cleanup and exact cold-process reopening. Actual final four-channel/narrow Mixer screenshots inspected. This closes the documented build142 gap; earlier interrupted runs remain historical failures. No physical-phone or comprehensive regression/F1 claim.
-
-C4D implementation uses sixteen bounded native channel buffers, once-only per-voice advancement, post-instrument stereo Pan, strict compatible project v3 and one Undo entry per completed gesture. Local compilation/focused host checks, native PCM/performance, bounded Android workflow, actual screenshots and signed delivery are being verified. No C4D pass is claimed yet. Exact next task: complete focused C4D verification and signed delivery.
+Exact next task: await a separate C4E assignment. Stop before the next separately authorized C4E four-band EQ/stereo width, FX, C5 Arrange, exports or F1. Read AGENTS and mandatory WORK_LOG efficiency procedure before new work.
 
 ---
 

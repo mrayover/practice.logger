@@ -1,3 +1,7 @@
+# Current delivery — compose.logger C4D build145
+
+Signed0.53.0/build145 adds independent channel Pan and saved mixer settings, preserving compatible older projects and Save As. Focused audio/persistence/UI checks pass; ready for ordinary owner use. [Download/evidence](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C4D.md). Earlier release notices below are historical.
+
 # C4C — signed build142 delivered
 
 Owner requested immediate delivery at2% remaining usage. Signed0.52.0/build142 implements velocity and shared Loop/Arrange/Mixer, owned-pattern selectors controlling real playback with restart, live Mute/Solo/Volume and Composer-only AudioTrack Master Volume. Source 1ab3b10a94a8bf375e5b4e5b49190012c78860dd, branch block-ux-stage1.
