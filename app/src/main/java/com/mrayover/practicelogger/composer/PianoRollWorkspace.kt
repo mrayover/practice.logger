@@ -117,6 +117,7 @@ private class RollTouch {
     var velocityDrag by remember { mutableStateOf<Int?>(null) }
     var repeat by rememberSaveable { mutableStateOf(true) }
     var playing by remember { mutableStateOf(false) }
+    var transportRepeating by remember { mutableStateOf(false) }
     var soundsReady by remember { mutableStateOf(false) }
     var transportFrame by remember { mutableLongStateOf(0) }
     var transportPlan by remember { mutableStateOf<LoopPlan?>(null) }
@@ -167,7 +168,7 @@ private class RollTouch {
     }
     LaunchedEffect(pattern?.id) { selected = emptySet(); preview = null; marquee = null; cursor = 0; panX = 0f; touch.original = null; touch.lastTap = null; audio.stopAll() }
     LaunchedEffect(audio) {
-        while(true) { soundsReady = audio.ready; playing = audio.playing; transportFrame = audio.positionFrame(); transportPlan = audio.playbackPlan; delay(30) }
+        while(true) { soundsReady = audio.ready; playing = audio.playing; transportRepeating = audio.looping; transportFrame = audio.positionFrame(); transportPlan = audio.playbackPlan; delay(30) }
     }
     LaunchedEffect(project.tracks.map { it.id to it.patterns.map { pat -> pat.id } }) {
         val ids=project.tracks.map { it.id }.toSet()
@@ -191,12 +192,20 @@ private class RollTouch {
     LaunchedEffect(track?.id,trackIndex,track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
     LaunchedEffect(masterVolume) { audio.masterVolume(masterVolume) }
     var patternRestart by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
-    LaunchedEffect(mode) { if(mode == "Arrange") { patternRestart?.cancel(); audio.stop(); audio.stopAll() } }
+    LaunchedEffect(mode) {
+        if((mode == "Arrange" && audio.playbackPlan?.song != true) || (mode == "Loop" && audio.playbackPlan?.song == true)) {
+            patternRestart?.cancel(); audio.stop(); audio.stopAll()
+        }
+    }
+    // Mixer-only changes preserve the coherent song snapshot and its output clock.
+    LaunchedEffect(project.clips,project.tracks.map { Triple(it.id,it.instrument,it.patterns) },project.tempoBpm,project.numerator,project.denominator) {
+        if(audio.playbackPlan?.song == true) { patternRestart?.cancel(); audio.stop() }
+    }
     fun chooseTrackPattern(owner: CompositionTrack, id: String) {
         val previous = owner.patterns.find { it.id == selections[owner.id] } ?: owner.patterns.firstOrNull()
         if(previous?.id == id || owner.patterns.none { it.id == id }) return
         mixer(owner.id) { it.copy(selectedPatternId = id) }
-        if(audio.playing || patternRestart?.isActive == true) {
+        if(audio.playbackPlan?.song != true && (audio.playing || patternRestart?.isActive == true)) {
             patternRestart?.cancel(); audio.stop()
             val choices = project.tracks.map { t -> if(t.id == owner.id) id else selections[t.id].orEmpty() }
             patternRestart = scope.launch {
@@ -246,7 +255,21 @@ private class RollTouch {
         }) { Text(if(deleting) "Confirm deletion" else "Save name") } },dismissButton={ TextButton(onClick={ management=null }) { Text("Cancel") } })
     }
     if(mode == "Arrange") {
-        ArrangeWorkspace(project,enabled,canUndo,undo,editLatest,modifier)
+        ArrangeWorkspace(project,enabled,canUndo,
+            undo={ patternRestart?.cancel(); audio.stop(); undo() },
+            editLatest={ transform -> patternRestart?.cancel(); audio.stop(); editLatest(transform) },
+            ready=soundsReady,playing=playing,playheadTick=transportPlan?.takeIf { it.song }?.let {
+                val tick=it.tick(transportFrame)
+                if(audio.looping) tick % it.regionTicks else tick.coerceAtMost(it.regionTicks.toDouble())
+            },play={
+                patternRestart?.cancel()
+                patternRestart=scope.launch {
+                    try {
+                        val snapshot=withContext(Dispatchers.Default) { LoopPlan.songSnapshot(project) }
+                        syncMixer(snapshot.trackIds); audio.play(snapshot,false); message=null
+                    } catch(e: Exception) { message=e.message }
+                }
+            },stop={ patternRestart?.cancel(); audio.stop() },beginning={ audio.beginning() },transportMessage=message,modifier=modifier)
         return
     }
     Column(modifier.fillMaxWidth()) {
@@ -298,7 +321,10 @@ private class RollTouch {
                 }
             } })
             add(ComposerControl("Stop",10) { ComposerButton("Stop") { patternRestart?.cancel(); audio.stop() } })
-            add(ComposerControl(if(repeat) "Repeat ☑" else "Repeat ☐",4) { ComposerButton(if(repeat) "Repeat ☑" else "Repeat ☐") { repeat = !repeat; audio.setLoop(repeat) } })
+            val repeatShown=if(plan?.song == true) transportRepeating else repeat
+            add(ComposerControl(if(repeatShown) "Repeat ☑" else "Repeat ☐",4) { ComposerButton(if(repeatShown) "Repeat ☑" else "Repeat ☐") {
+                if(plan?.song == true) audio.setLoop(!transportRepeating) else { repeat = !repeat; audio.setLoop(repeat) }
+            } })
             if(track != null && mode != "Mixer") {
                 add(ComposerControl(if(muted[trackIndex]) "Mute ☑" else "Mute ☐",3) { ComposerButton(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") { mixer(track.id) { it.copy(mute = !it.mute) } } })
                 add(ComposerControl(if(solo[trackIndex]) "Solo ☑" else "Solo ☐",3) { ComposerButton(if(solo[trackIndex]) "Solo ☑" else "Solo ☐") { mixer(track.id) { it.copy(solo = !it.solo) } } })

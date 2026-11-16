@@ -21,7 +21,10 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 
 # One targeted navigation/layout preview; no full regression matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5AWorkflowTest ]; then
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5BWorkflowTest ]; then
+  trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c5b app/build/preview-composer-c5b-screens || true; adb logcat -d > app/build/preview-c5b-logcat.txt || true' EXIT
+  timeout 240s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC5BWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5AWorkflowTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c5a app/build/preview-composer-c5a-screens || true; adb logcat -d > app/build/preview-c5a-logcat.txt || true' EXIT
   timeout 240s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC5AWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4EWorkflowTest ]; then
@@ -189,4 +192,10 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5AWorkflowTest ]; then
   adb shell am force-stop "$package"
   timeout 120s adb shell am instrument -w -r -e c5aCold true -e class com.mrayover.practicelogger.ComposerC5AWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c5a-cold.txt
   grep -q "OK (1 test)" app/build/preview-composer-c5a-cold.txt
+fi
+
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5BWorkflowTest ]; then
+  adb shell am force-stop "$package"
+  timeout 120s adb shell am instrument -w -r -e c5bCold true -e class com.mrayover.practicelogger.ComposerC5BWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c5b-cold.txt
+  grep -q "OK (1 test)" app/build/preview-composer-c5b-cold.txt
 fi

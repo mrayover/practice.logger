@@ -26,7 +26,7 @@ internal object ComposerInstruments {
         val type = all.getOrNull(index(ref))?.title ?: "Unavailable sound (${ref.instrumentId})"
         return ref.presetTitle?.let { "$type — $it" } ?: type
     }
-    private fun descriptiveName(track: CompositionTrack) = track.title.takeUnless { it.matches(Regex("(?:Piano|Track) [1-9][0-9]*")) }
+    fun descriptiveName(track: CompositionTrack) = track.title.takeUnless { it.matches(Regex("(?:Piano|Track) [1-9][0-9]*")) }
     fun compactTrackLabel(track: CompositionTrack, index: Int): String =
         "${index+1} · " + identity(track.instrument) + (descriptiveName(track)?.let { " — $it" } ?: "")
     fun trackLabel(track: CompositionTrack, index: Int): String {

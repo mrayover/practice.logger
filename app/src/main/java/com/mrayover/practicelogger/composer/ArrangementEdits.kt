@@ -23,6 +23,15 @@ internal object ArrangementEdits {
         return p.copy(clips=p.clips.map { if(it.id==id) it.copy(startTick=tick) else it }).also(CompositionCodec::validate)
     }
     fun delete(p: CompositionProject, id: String) = p.copy(clips=p.clips.filterNot { it.id==id }).also(CompositionCodec::validate)
+    /** Validate the complete batch in a private snapshot; callers commit exactly once. */
+    fun repeat(p: CompositionProject, id: String, additional: Int): CompositionProject {
+        require(additional in 1..8) { "Choose 2–8 additional instances, or Duplicate for one copy." }
+        val source=p.clips.single { it.id==id }
+        val length=p.patternTicks(pattern(p,source))
+        var result=p
+        for(i in 1..additional) result=add(result,source.trackId,source.patternId,source.startTick+i*length)
+        return result
+    }
     fun checkLength(before: CompositionProject, after: CompositionProject, patternId: String) {
         after.clips.filter { it.patternId==patternId }.forEach { c ->
             after.clips.filter { it.id!=c.id && it.trackId==c.trackId }.forEach { other ->

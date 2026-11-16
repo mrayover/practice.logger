@@ -96,7 +96,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
         submit {
             stopOutput(); ComposerSynth.clear(handle,0,15); auditionTokens.fill(Long.MIN_VALUE)
             plan.tracks.forEachIndexed { i,t -> configure(i,t.sound) }
-            clock=LoopClock(plan); playbackPlan=plan; frozenFrame=0; looping=repeat; draining=false
+            clock=LoopClock(plan,!plan.song || repeat); playbackPlan=plan; frozenFrame=0; looping=repeat; draining=false
             stopAtFrame=if(repeat) Long.MAX_VALUE else plan.frame(plan.regionTicks)
             startOutput(); playing=true
         }
@@ -104,6 +104,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     fun setLoop(value: Boolean) { submit {
         looping=value
         val c=clock
+        if(c?.plan?.song == true) c.repeatEvents=value
         stopAtFrame=if(value || c==null) Long.MAX_VALUE else c.plan.frame((c.plan.tick(c.frame).toLong()/c.plan.regionTicks+1)*c.plan.regionTicks)
     } }
     fun stop() { submit {
@@ -113,7 +114,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     fun beginning() { submit {
         val plan=playbackPlan; val wasPlaying=playing
         playing=false; draining=false; stopOutput(); ComposerSynth.clear(handle,0,15); auditionTokens.fill(Long.MIN_VALUE)
-        frozenFrame=0; clock=if(wasPlaying && plan!=null) LoopClock(plan) else null
+        frozenFrame=0; clock=if(wasPlaying && plan!=null) LoopClock(plan,!plan.song || looping) else null
         stopAtFrame=if(looping || plan==null) Long.MAX_VALUE else plan.frame(plan.regionTicks)
         if(wasPlaying) { startOutput(); playing=true }
     } }
@@ -203,7 +204,8 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
                     if(playing && c!=null) {
                         val end=stopAtFrame
                         if(!looping && c.frame>=end) {
-                            ComposerSynth.clear(handle,0,7); playing=false; draining=true; clock=null; frozenFrame=end
+                            if(c.plan.song) c.dispatch(emit) else ComposerSynth.clear(handle,0,7)
+                            playing=false; draining=true; clock=null; frozenFrame=end
                             continue
                         }
                         c.dispatch(emit)
