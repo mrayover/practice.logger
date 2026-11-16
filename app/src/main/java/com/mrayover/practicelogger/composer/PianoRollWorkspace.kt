@@ -245,6 +245,10 @@ private class RollTouch {
             } catch(e: Exception) { managementError=e.message }
         }) { Text(if(deleting) "Confirm deletion" else "Save name") } },dismissButton={ TextButton(onClick={ management=null }) { Text("Cancel") } })
     }
+    if(mode == "Arrange") {
+        ArrangeWorkspace(project,enabled,canUndo,undo,editLatest,modifier)
+        return
+    }
     Column(modifier.fillMaxWidth()) {
         if(mode != "Mixer") ComposerToolbar("composer-context-row", buildList {
             add(ComposerControl("Instrument",10,240) {
@@ -272,7 +276,7 @@ private class RollTouch {
                 RollChoice("Bars",listOf("1","2","4","8","16"),listOf(1,2,4,8,16).indexOf(pattern.lengthBars),enabled) { index ->
                 val bars = listOf(1,2,4,8,16)[index]
                 if (pattern.notes.any { it.startTick + it.durationTick > bars * project.barTicks() }) message = "Length kept: move or delete notes beyond the new end first."
-                else { edit(project.replacePattern(pattern.copy(lengthBars = bars))); cursor = cursor.coerceAtMost(bars * project.barTicks()-1) }
+                else try { edit(project.replacePattern(pattern.copy(lengthBars = bars))); cursor = cursor.coerceAtMost(bars * project.barTicks()-1) } catch(e: Exception) { message=e.message }
 
                 }
             })
@@ -358,10 +362,6 @@ private class RollTouch {
                 processing = { processingTrack = it },
                 pan = { id,value -> panDrag[id] = value }, panFinished = ::commitPan,
                 master = { masterDrag = it }, masterFinished = { value -> editLatest { it.copy(formatVersion=maxOf(3,it.formatVersion),masterVolume=value) }; masterDrag=null },modifier = Modifier.weight(1f))
-            return@Column
-        }
-        if (mode == "Arrange") {
-            Box(Modifier.weight(1f).fillMaxWidth(),contentAlignment = androidx.compose.ui.Alignment.Center) { Text("Arrange · editing and playback arrive later.") }
             return@Column
         }
         if (pattern == null) { Text("Create an instrument or pattern to begin drawing notes.",Modifier.padding(16.dp)); return@Column }

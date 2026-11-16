@@ -19,7 +19,10 @@ internal fun boundedTick(value: Double, minimum: Long, maximum: Long, grid: Roll
 }
 internal fun CompositionProject.replacePattern(pattern: CompositionPattern) = copy(tracks = tracks.map { track ->
     track.copy(patterns = track.patterns.map { if (it.id == pattern.id) pattern else it })
-})
+}).also { changed ->
+    val previous=tracks.flatMap { it.patterns }.find { it.id==pattern.id }
+    if(previous != null && previous.lengthBars != pattern.lengthBars) ArrangementEdits.checkLength(this,changed,pattern.id)
+}
 
 /** Clipboard stores values, never source ownership; each paste receives fresh identities. */
 internal fun pastedNotes(notes: List<CompositionNote>, destination: Long): List<CompositionNote> {

@@ -21,7 +21,10 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 
 # One targeted navigation/layout preview; no full regression matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4EWorkflowTest ]; then
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5AWorkflowTest ]; then
+  trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c5a app/build/preview-composer-c5a-screens || true; adb logcat -d > app/build/preview-c5a-logcat.txt || true' EXIT
+  timeout 240s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC5AWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4EWorkflowTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4e app/build/preview-composer-c4e-screens || true; adb logcat -d > app/build/preview-c4e-logcat.txt || true' EXIT
   adb shell am instrument -w -r -e c4eSkipNative "${C4E_SKIP_NATIVE:-false}" -e class com.mrayover.practicelogger.ComposerC4EWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
@@ -180,4 +183,10 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4EWorkflowTest ]; then
   timeout 120s adb shell am instrument -w -r -e c4eCold true -e class com.mrayover.practicelogger.ComposerC4EWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4e-cold.txt
   grep -q 'OK (1 test)' app/build/preview-composer-c4e-cold.txt
   adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4e app/build/preview-composer-c4e-screens
+fi
+
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5AWorkflowTest ]; then
+  adb shell am force-stop "$package"
+  timeout 120s adb shell am instrument -w -r -e c5aCold true -e class com.mrayover.practicelogger.ComposerC5AWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c5a-cold.txt
+  grep -q "OK (1 test)" app/build/preview-composer-c5a-cold.txt
 fi
