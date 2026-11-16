@@ -1,12 +1,26 @@
-# Current state — C4E implementation, focused verification in progress
+# Current state — C4E signed build146; testing stopped at owner request
 
-November15,2026. C4E adds four-band EQ, bypass and stereo width on the C4D channel buffers, compact EQ editor and strict v4 per-track persistence/Undo. Build146 (0.54.0) is the next delivery. Local C4D/C4E six focused host checks, release compilation/vital lint and device-test compilation pass. Deterministic native DSP and one API35 workflow/cold reopen are next; no phone acceptance or signed delivery is claimed yet. Canonical block-ux-stage1 baseline ffa7703; older OneDrive source untouched. [Behavior](docs/COMPOSER_C4E.md).
+November15,2026 (America/Los_Angeles). Signed **0.54.0/build146** implements four-band per-channel EQ, bypass,0–200% stereo width, compact channel editor, strict project v4 persistence and completed-gesture Undo on the existing C4D foundation. Owner says “it works” and asks to stop, with further testing later. No build-specific installation/acoustic observations are inferred. [Behavior](docs/COMPOSER_C4E.md).
 
-Practice backups exclude Composer until C7; no practice data/schema changes. Stop after signed C4E publication. Next exact task: complete focused verification and permanent-key build146 delivery.
+Canonical C:/Users/mrove/Projects/practice.logger, branch **block-ux-stage1**. Initial clean local/live remote ffa7703b36264ba82bf6ced0164effa4103d2c87. Application/APK source **70a6ab3d9332eef65571d71312d356982c3bbf4d**. Corrected UI test source **c2d2a33bf6ced8ceed48c9f3a1d5a5b7d6a03ab8**; only EOF whitespace changed in application source after the APK commit. Older OneDrive source checkout untouched; no main merge.
+
+[APK](dist/practice.logger-0.54.0-b146-70a6ab3/practice.logger-0.54.0-b146-70a6ab3.apk) · [ZIP](dist/practice.logger-0.54.0-b146-70a6ab3.zip) · [Delivery report](dist/practice.logger-0.54.0-b146-70a6ab3/DELIVERY_REPORT.md).
+
+Delivery: **C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C4E delivery/build146**. Install over the existing app without uninstalling or clearing data. dist/LATEST.txt updated. Previous distributions preserved. OneDrive cloud-sync completion unobserved.
+
+- APK SHA256 **88042cf4393f188d92389ad1c1fd89afac2d3ad5130cd655297cd48f9e4ee9e4**; ZIP SHA256 **ee0f4dd5cbbf0b71c3afe4fb30380d8bc2125965e0a5fd828dc41042f26a83be**.
+- Permanent certificate/package/version/signature,106 unsigned payload entries,nine original SoundFont hashes and690 earlier APK/ZIP hashes verified before the owner stop. Signing publisher verified the initial ZIP/APK round trip. Final packaging adds evidence and status; no further tests run after the stop.
+- Six local C4D/C4E persistence methods pass: v1–v3 defaults/no read rewrite, strict v4 validation, exact save/reopen, Save As ownership, deletion/pattern duplication and unchanged musical timing. Retained future-version method initially treats supported v4 as future; changed both fixtures to v5 and reran only that method: pass. Release/device-test compilation and vital lint pass.
+- [Initial focused run43793227786](https://github.com/mrayover/practice.logger/actions/runs/43793227786) passes C++ band response, exact neutral/bypass,width0/100/200,mono,state isolation,reset,nonfinite/stability,Pan ordering and performance. Eight-channel DSP mean **0.085512ms per5ms block**. Packaged native renderer checks complete before UI reaches Play. Then the test times out waiting for playback at line45, before EQ UI assertions. Unlike established C4D tests, its helper clicks without waiting for enabled UI after worker readiness. Corrected to reuse the enabled-state barrier; diagnostic evidence retained.
+- [UI-only follow-up43793976290](https://github.com/mrayover/practice.logger/actions/runs/43793976290) skips passed audio checks and was **cancelled during compilation at the owner's stop request**. New EQ rendered UI/actual gesture Undo/Save As/cold-process workflow remains uncompleted; no rendered screenshots inspected or passing UI outcome claimed. Host persistence/model assertions are distinct from this open native UI coverage. No broad regression/F1.
+
+v1–v3 retain neutral defaults and saved files are not rewritten on read; processing edits advance the draft to v4. Save As preserves processing and remaps identities. Avoid downgrading after saving v4. Processing does not restart Loop. Existing Pan/master/volume paths remain; no practice schema/data changes. **Composer projects/presets remain outside practice ZIP/JSON until C7.** No FX/Arrange playback/export.
+
+**Exact next task: resume the deferred C4E UI/cold verification only when requested.** C5A Arrange timeline foundation remains the next separately scoped development direction; do not start automatically. No owner checklist required.
 
 ---
 
-# Current state — compose.logger C4D delivered
+# Retained C4D delivery — build145
 
 Updated November15,2026 (America/Los_Angeles). Signed **0.53.0/build145** delivers independent channel rendering, live Mixer Pan, durable Volume/Pan/Mute/Solo/active-pattern and Master settings, compatible project v3 and remapped Save As. The owner-requested C4C verification gap is closed. **16 scoped host checks, compilation/vital lint, native PCM/performance, API35 UI/save coverage, remaining tail/cold reopen and isolated Pan touch checks are completed across targeted runs.** Actual four/eight-channel, left/center/right, Master and narrow-landscape screenshots inspected. Physical phone acoustics/touch/routing acceptance remains pending. No comprehensive regression/device matrix/F1.
 

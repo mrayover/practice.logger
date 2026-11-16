@@ -1,3 +1,5 @@
+C4E follow-up: signed build146 adds EQ/bypass/width and strict v4. The original scope below is historical. [C4E](COMPOSER_C4E.md) · [Current verification and owner stop](../CURRENT_STATE.md).
+
 # compose.logger C4D — isolated channels, Pan and durable mixing
 
 C4D is limited to closing C4C verification, independent channel processing, track Pan and persistent mixer settings. EQ, width, FX, Arrange and exports remain unimplemented; C4E is a separate assignment. Practice ZIP/JSON still exclude Composer projects and custom presets until C7. Install updates without uninstalling or clearing app data.

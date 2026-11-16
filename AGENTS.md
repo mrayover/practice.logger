@@ -1,6 +1,8 @@
-## November15 bounded C4E assignment
+C4E build146 signed delivery is complete. Owner reports it works and explicitly stops further testing; new EQ UI/cold workflow remains incomplete. Resume only on request; no C5/FX/F1 started. CURRENT_STATE.md is authoritative.
 
-Owner assigns functional four-band channel EQ, bypass,0–200% stereo width, strict v4 persistence/Undo, focused verification, permanent-key APK/ZIP and commit/push on block-ux-stage1. C4D rendering/clock/mixing remains the foundation. Stop after delivery; C5A Arrange foundation requires a separate assignment. No FX/F1 or practice storage changes. [C4E](docs/COMPOSER_C4E.md) · [Actual status](CURRENT_STATE.md).
+## November15 C4E — signed build146, owner testing stop
+
+Owner assigned functional four-band channel EQ, bypass,0–200% stereo width, strict v4 persistence/Undo, focused verification, permanent-key APK/ZIP and commit/push on block-ux-stage1. C4D rendering/clock/mixing remains the foundation. Stop after delivery; C5A Arrange foundation requires a separate assignment. No FX/F1 or practice storage changes. [C4E](docs/COMPOSER_C4E.md) · [Actual status](CURRENT_STATE.md).
 
 ## November15 bounded C4D assignment
 
