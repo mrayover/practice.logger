@@ -61,7 +61,7 @@ private class RollTouch {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}) {
+@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}, editLatest: ((CompositionProject) -> CompositionProject) -> Unit = { edit(it(project)) }) {
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
     val selections = project.tracks.associate { it.id to (it.mixer.selectedPatternId ?: it.patterns.firstOrNull()?.id.orEmpty()) }
     val volumeDrag = remember { mutableStateMapOf<String,Float>() }
@@ -71,9 +71,11 @@ private class RollTouch {
     val volumeById = project.tracks.associate { it.id to (volumeDrag[it.id] ?: it.mixer.volume) }
     val panById = project.tracks.associate { it.id to (panDrag[it.id] ?: it.mixer.pan) }
     fun mixer(id: String, transform: (TrackMixer) -> TrackMixer) {
-        val original=project.tracks.find { it.id==id } ?: return
-        if(transform(original.mixer)==original.mixer) return
-        edit(project.copy(formatVersion = 3, tracks = project.tracks.map { if(it.id == id) it.copy(mixer = transform(it.mixer)) else it }))
+        editLatest { current ->
+            val original=current.tracks.find { it.id==id } ?: return@editLatest current
+            if(transform(original.mixer)==original.mixer) current
+            else current.copy(formatVersion = 3, tracks = current.tracks.map { if(it.id == id) it.copy(mixer = transform(it.mixer)) else it })
+        }
     }
     fun commitVolume(id: String, value: Float) { mixer(id) { it.copy(volume = value) }; volumeDrag.remove(id) }
     fun commitPan(id: String, value: Float) { mixer(id) { it.copy(pan = value) }; panDrag.remove(id) }
@@ -336,7 +338,7 @@ private class RollTouch {
                 solo = { id -> mixer(id) { it.copy(solo = !it.solo) } },
                 volume = { id,value -> volumeDrag[id] = value }, volumeFinished = ::commitVolume,
                 pan = { id,value -> panDrag[id] = value }, panFinished = ::commitPan,
-                master = { masterDrag = it }, masterFinished = { edit(project.copy(formatVersion=3,masterVolume=it)); masterDrag=null },modifier = Modifier.weight(1f))
+                master = { masterDrag = it }, masterFinished = { value -> editLatest { it.copy(formatVersion=3,masterVolume=value) }; masterDrag=null },modifier = Modifier.weight(1f))
             return@Column
         }
         if (mode == "Arrange") {

@@ -44,7 +44,7 @@ class ComposerC4DWorkflowTest {
             val audio=activity().auditionEngine!!;compose.waitUntil(30000) { audio.ready };tap("Play");compose.waitUntil(15000) { audio.playing && audio.nonZeroFramesWritten>0 && audio.appliedMasterGain==exact.masterVolume }
             assertEquals(exact.tracks[1].patterns.last().notes,audio.playbackPlan!!.tracks[1].notes);tap("Stop");return
         }
-        c4dNativeChecks(File(dir,"native-result.txt"))
+        if(InstrumentationRegistry.getArguments().getString("c4dSkipNative")!="true") c4dNativeChecks(File(dir,"native-result.txt"))
         device.executeShellCommand("wm size 1440x3120");device.executeShellCommand("wm density 480")
         val tracks=(0..3).map { i -> CompositionTrack(newCompositionId(),"Track ${i+1}",ComposerInstruments.all[i].reference,(0..1).map { j ->
             CompositionPattern(newCompositionId(),if(j==0) "A" else "B",if(i%2==0) 4 else 8,listOf(CompositionNote(newCompositionId(),48+i+j,0,960,80+j))) }) }

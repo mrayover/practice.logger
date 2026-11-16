@@ -94,6 +94,7 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
             updateDraft(value)
         } catch (failure: Exception) { error = failure.message }
     }
+    fun editLatest(transform: (CompositionProject) -> CompositionProject) { project?.let { edit(transform(it)) } }
     private fun updateDraft(value: CompositionProject) {
         project = value; status = if (dirty) "Unsaved changes" else "Saved on this device"; error = null
         // Note arrays stay out of the Activity bundle; serialize ordered atomic checkpoints on IO.
@@ -238,7 +239,7 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
                 ComposerControl("Return", 10) { ComposerButton("Return", !vm.busy) { back() } }
             ))
             if (portraitFallback) Text("Rotate or widen for the piano roll.", style = MaterialTheme.typography.bodySmall)
-            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo) }
+            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo, vm::editLatest) }
             Text("${project.title} · ${project.tempoBpm} BPM · ${project.numerator}/${project.denominator} · ${vm.error ?: vm.status}",
                 color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall, maxLines = if (vm.error != null) 3 else 1,

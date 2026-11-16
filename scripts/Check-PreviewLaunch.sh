@@ -42,7 +42,7 @@ elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4DWorkflowTest ]; then
     fi
   }
   trap c4d_diagnostics EXIT
-  timeout 360s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC4DWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+  timeout 360s adb shell am instrument -w -r -e c4dSkipNative "${C4D_SKIP_NATIVE:-false}" -e class com.mrayover.practicelogger.ComposerC4DWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4CWorkflowTest ]; then
   function c4c_diagnostics() {
     local result=$?
