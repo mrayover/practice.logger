@@ -75,6 +75,7 @@ class ComposerC4DWorkflowTest {
         compose.onNodeWithTag("mixer-strip-${eight.tracks.last().id}").performScrollTo();shot("03-eight-tracks-end-master")
         device.executeShellCommand("wm size 1080x1920");device.executeShellCommand("wm density 480");compose.waitForIdle();Thread.sleep(800);shot("04-narrow-landscape")
         compose.onNodeWithTag("mixer-master").assertIsDisplayed()
+        compose.onNodeWithTag("mixer-strip-${eight.tracks.last().id}").performScrollTo();compose.waitForIdle()
         val bounds=compose.onNodeWithTag("mixer-volume-${eight.tracks.last().id}").fetchSemanticsNode().boundsInWindow
         assertTrue("Narrow vertical fader remains usable",bounds.height>=48*activity().resources.displayMetrics.density)
         val finalVm=vm();inst.runOnMainSync { finalVm.edit(copy) };compose.waitForIdle();save()
