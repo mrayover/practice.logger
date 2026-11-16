@@ -1,3 +1,11 @@
+# Current state — C4E implementation, focused verification in progress
+
+November15,2026. C4E adds four-band EQ, bypass and stereo width on the C4D channel buffers, compact EQ editor and strict v4 per-track persistence/Undo. Build146 (0.54.0) is the next delivery. Local C4D/C4E six focused host checks, release compilation/vital lint and device-test compilation pass. Deterministic native DSP and one API35 workflow/cold reopen are next; no phone acceptance or signed delivery is claimed yet. Canonical block-ux-stage1 baseline ffa7703; older OneDrive source untouched. [Behavior](docs/COMPOSER_C4E.md).
+
+Practice backups exclude Composer until C7; no practice data/schema changes. Stop after signed C4E publication. Next exact task: complete focused verification and permanent-key build146 delivery.
+
+---
+
 # Current state — compose.logger C4D delivered
 
 Updated November15,2026 (America/Los_Angeles). Signed **0.53.0/build145** delivers independent channel rendering, live Mixer Pan, durable Volume/Pan/Mute/Solo/active-pattern and Master settings, compatible project v3 and remapped Save As. The owner-requested C4C verification gap is closed. **16 scoped host checks, compilation/vital lint, native PCM/performance, API35 UI/save coverage, remaining tail/cold reopen and isolated Pan touch checks are completed across targeted runs.** Actual four/eight-channel, left/center/right, Master and narrow-landscape screenshots inspected. Physical phone acoustics/touch/routing acceptance remains pending. No comprehensive regression/device matrix/F1.

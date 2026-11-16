@@ -66,6 +66,9 @@ private class RollTouch {
     val selections = project.tracks.associate { it.id to (it.mixer.selectedPatternId ?: it.patterns.firstOrNull()?.id.orEmpty()) }
     val volumeDrag = remember { mutableStateMapOf<String,Float>() }
     val panDrag = remember { mutableStateMapOf<String,Float>() }
+    val processingDrag = remember { mutableStateMapOf<String,ChannelProcessing>() }
+    var processingTrack by rememberSaveable { mutableStateOf<String?>(null) }
+    val processingById = project.tracks.associate { it.id to (processingDrag[it.id] ?: it.mixer.processing) }
     val muteById = project.tracks.associate { it.id to it.mixer.mute }
     val soloById = project.tracks.associate { it.id to it.mixer.solo }
     val volumeById = project.tracks.associate { it.id to (volumeDrag[it.id] ?: it.mixer.volume) }
@@ -74,11 +77,24 @@ private class RollTouch {
         editLatest { current ->
             val original=current.tracks.find { it.id==id } ?: return@editLatest current
             if(transform(original.mixer)==original.mixer) current
-            else current.copy(formatVersion = 3, tracks = current.tracks.map { if(it.id == id) it.copy(mixer = transform(it.mixer)) else it })
+            else current.copy(formatVersion = maxOf(3,current.formatVersion), tracks = current.tracks.map { if(it.id == id) it.copy(mixer = transform(it.mixer)) else it })
         }
     }
     fun commitVolume(id: String, value: Float) { mixer(id) { it.copy(volume = value) }; volumeDrag.remove(id) }
     fun commitPan(id: String, value: Float) { mixer(id) { it.copy(pan = value) }; panDrag.remove(id) }
+    fun commitProcessing(id: String, value: ChannelProcessing) {
+        editLatest { current ->
+            val t = current.tracks.find { it.id == id }
+            if(t == null || t.mixer.processing == value) current else current.copy(formatVersion = 4,
+                tracks = current.tracks.map { if(it.id == id) it.copy(mixer = it.mixer.copy(processing = value)) else it })
+        }
+        processingDrag.remove(id)
+    }
+    project.tracks.find { it.id == processingTrack }?.let { owner ->
+        ChannelProcessingDialog(owner,processingById.getValue(owner.id),enabled,
+            change = { processingDrag[owner.id] = it }, finished = { commitProcessing(owner.id,it) },
+            close = { processingDrag[owner.id]?.let { commitProcessing(owner.id,it) }; processingTrack = null })
+    }
     val track = project.tracks.find { it.id == trackId } ?: project.tracks.firstOrNull()
     val trackIndex = project.tracks.indexOf(track).coerceAtLeast(0)
     val pattern = track?.patterns?.find { it.id == selections[track.id] } ?: track?.patterns?.firstOrNull()
@@ -155,7 +171,7 @@ private class RollTouch {
     }
     LaunchedEffect(project.tracks.map { it.id to it.patterns.map { pat -> pat.id } }) {
         val ids=project.tracks.map { it.id }.toSet()
-        volumeDrag.keys.retainAll(ids); panDrag.keys.retainAll(ids)
+        volumeDrag.keys.retainAll(ids); panDrag.keys.retainAll(ids); processingDrag.keys.retainAll(ids)
         if(trackId !in ids) trackId=project.tracks.firstOrNull()?.id
         audio.stopAll(); touch.voices.clear()
     }
@@ -165,8 +181,10 @@ private class RollTouch {
         audio.mix(BooleanArray(8) { i -> ids.getOrNull(i)?.let { it in existing && muteById[it]!=true && (!anySolo || soloById[it]==true) } ?: false },
             FloatArray(8) { volumeById[ids.getOrNull(it)] ?: 1f },volumes,
             FloatArray(8) { panById[ids.getOrNull(it)] ?: 0f },FloatArray(8) { panById[project.tracks.getOrNull(it)?.id] ?: 0f })
+        audio.processing(List(8) { processingById[ids.getOrNull(it)] ?: ChannelProcessing() },
+            List(8) { processingById[project.tracks.getOrNull(it)?.id] ?: ChannelProcessing() })
     }
-    LaunchedEffect(muteById,soloById,volumeById,panById,project.tracks.map { it.id },transportPlan) {
+    LaunchedEffect(muteById,soloById,volumeById,panById,processingById,project.tracks.map { it.id },transportPlan) {
         // Running sequence channels keep snapshot order; preview follows current editor order.
         syncMixer(transportPlan?.trackIds?.takeIf { it.isNotEmpty() } ?: project.tracks.map { it.id })
     }
@@ -238,10 +256,10 @@ private class RollTouch {
             add(ComposerControl("Pattern "+(pattern?.title ?: "—"),10,130) {
                 RollChoice("Pattern",track?.patterns?.map { it.title } ?: emptyList(),track?.patterns?.indexOf(pattern) ?: -1,enabled && track!=null,display=pattern?.title ?: "—",extra={ close ->
                     DropdownMenuItem(text={ Text("Create Pattern") },enabled=enabled && track!=null && track.patterns.size<COMPOSER_MAX_PATTERNS,onClick={
-                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id); edit(changed.copy(formatVersion=3,tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
+                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id); edit(changed.copy(formatVersion=maxOf(3,changed.formatVersion),tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
                     })
                     DropdownMenuItem(text={ Text("Duplicate Pattern") },enabled=enabled && pattern!=null && track!!.patterns.size<COMPOSER_MAX_PATTERNS,onClick={
-                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id,pattern!!.id); edit(changed.copy(formatVersion=3,tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
+                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id,pattern!!.id); edit(changed.copy(formatVersion=maxOf(3,changed.formatVersion),tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
                     })
                     DropdownMenuItem(text={ Text("Rename Pattern") },enabled=enabled && pattern!=null,onClick={ close(); manage("Rename Pattern") })
                     DropdownMenuItem(text={ Text("Delete Pattern") },enabled=enabled && pattern!=null,onClick={ close(); manage("Delete Pattern") })
@@ -337,8 +355,9 @@ private class RollTouch {
                 mute = { id -> mixer(id) { it.copy(mute = !it.mute) } },
                 solo = { id -> mixer(id) { it.copy(solo = !it.solo) } },
                 volume = { id,value -> volumeDrag[id] = value }, volumeFinished = ::commitVolume,
+                processing = { processingTrack = it },
                 pan = { id,value -> panDrag[id] = value }, panFinished = ::commitPan,
-                master = { masterDrag = it }, masterFinished = { value -> editLatest { it.copy(formatVersion=3,masterVolume=value) }; masterDrag=null },modifier = Modifier.weight(1f))
+                master = { masterDrag = it }, masterFinished = { value -> editLatest { it.copy(formatVersion=maxOf(3,it.formatVersion),masterVolume=value) }; masterDrag=null },modifier = Modifier.weight(1f))
             return@Column
         }
         if (mode == "Arrange") {
@@ -512,3 +531,4 @@ private class RollTouch {
         message?.let { Text(it,style = MaterialTheme.typography.bodySmall,color = MaterialTheme.colorScheme.error) }
     }
 }
+

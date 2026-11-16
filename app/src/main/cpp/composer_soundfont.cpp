@@ -4,10 +4,11 @@
 #include <cstring>
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
+#include "channel_dsp.h"
 
 // All access, including destruction, belongs to ComposerAudio's worker.
 struct Shape { bool enabled=false; float attack=10,release=300,cutoff=18000,q=.707f,sustain=.8f,pan=0; };
-struct Engine { tsf* banks[9]{}; float mix[512]{}; float channels[16][512]{}; float panStay[16]; float panCross[16]{}; Engine() { std::fill_n(panStay,16,1.f); } Shape shapes[16]{}; tsf_region regions[9][128]{}; };
+struct Engine { ChannelDsp processing[16]; tsf* banks[9]{}; float mix[512]{}; float channels[16][512]{}; float panStay[16]; float panCross[16]{}; Engine() { std::fill_n(panStay,16,1.f); } Shape shapes[16]{}; tsf_region regions[9][128]{}; };
 // Each native voice gets a private region. Shared preset/sample data is never edited.
 static void shapeVoice(Engine* e,int bank,tsf_voice& v,int slot,bool fresh) {
     const auto& s=e->shapes[v.playingChannel]; if(!s.enabled) return;
@@ -78,8 +79,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_Comp
 }
 extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_clear(JNIEnv*,jobject,jlong h,jint first,jint last) {
     for(auto f:engine(h)->banks) if(f) for(int i=0;i<f->voiceNum;i++) { auto& v=f->voices[i]; if(v.playingChannel>=first && v.playingChannel<=last) v.playingPreset=-1; }
+    for(int c=std::max(0,first);c<=std::min(15,last);c++) engine(h)->processing[c].reset();
 }
 extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_volume(JNIEnv*,jobject,jlong h,jint channel,jfloat gain) {
+    if(channel<0 || channel>15 || !std::isfinite(gain)) return;
+    if(gain==0) engine(h)->processing[channel].reset();
     for(auto f:engine(h)->banks) if(f) tsf_channel_set_volume(f,channel,gain);
 }
 extern "C" JNIEXPORT jint JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_voices(JNIEnv*,jobject,jlong h) {
@@ -97,7 +101,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_Comp
         if(v.playingPreset!=-1) tsf_voice_render(f,&v,e->channels[v.playingChannel],frames);
     }
     for(int c=0;c<16;c++) for(int i=0;i<frames*2;i+=2) {
-        const float l=e->channels[c][i],r=e->channels[c][i+1],cross=e->panCross[c],stay=e->panStay[c];
+        float l=e->channels[c][i],r=e->channels[c][i+1];
+        e->processing[c].frame(l,r);
+        const float cross=e->panCross[c],stay=e->panStay[c];
         // Stereo pan matrix: center is identity; at either extreme both source
         // components reach that side. Each moved component uses equal-power gains.
         e->mix[i] += cross>=0 ? stay*l : l-cross*r;
@@ -128,4 +134,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_Comp
     const float p=std::clamp(value,-1.f,1.f), angle=std::abs(p)*1.57079632679f;
     auto e=engine(h); e->panStay[channel]=std::abs(p)==1 ? 0.f : std::cos(angle);
     e->panCross[channel]=std::copysign(std::sin(angle),p);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_processing(JNIEnv*,jobject,jlong h,jint channel,jfloat low,jfloat lowMid,jfloat highMid,jfloat high,jboolean enabled,jfloat width) {
+    if(channel<0 || channel>15) return;
+    const float db[4]{low,lowMid,highMid,high};engine(h)->processing[channel].set(db,enabled==JNI_TRUE,width);
 }

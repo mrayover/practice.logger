@@ -16,7 +16,15 @@ internal fun validCompositionId(value: String): Boolean =
 data class InstrumentReference(val registryVersion: Int, val instrumentId: String, val presetId: String, val sound: ComposerSound? = null, val presetTitle: String? = null)
 data class CompositionNote(val id: String, val pitch: Int, val startTick: Long, val durationTick: Long, val velocity: Int)
 data class CompositionPattern(val id: String, val title: String, val lengthBars: Int, val notes: List<CompositionNote> = emptyList())
-data class TrackMixer(val volume: Float = 1f, val pan: Float = 0f, val mute: Boolean = false, val solo: Boolean = false, val selectedPatternId: String? = null)
+data class ChannelProcessing(val lowDb: Float = 0f, val lowMidDb: Float = 0f, val highMidDb: Float = 0f,
+    val highDb: Float = 0f, val eqEnabled: Boolean = true, val width: Float = 1f) {
+    fun validate() {
+        require(listOf(lowDb,lowMidDb,highMidDb,highDb).all { it.isFinite() && it in -12f..12f })
+        require(width.isFinite() && width in 0f..2f)
+    }
+}
+
+data class TrackMixer(val volume: Float = 1f, val pan: Float = 0f, val mute: Boolean = false, val solo: Boolean = false, val selectedPatternId: String? = null, val processing: ChannelProcessing = ChannelProcessing())
 
 data class CompositionTrack(val id: String, val title: String, val instrument: InstrumentReference,
     val patterns: List<CompositionPattern> = emptyList(), val mixer: TrackMixer = TrackMixer())
@@ -48,12 +56,12 @@ data class CompositionProject(
     }
 }
 
-/** Bounded, strict v1–v3 codec. Reject unknown fields/versions rather than lose unrecognized musical data. */
+/** Bounded, strict v1–v4 codec. Reject unknown fields/versions rather than lose unrecognized musical data. */
 object CompositionCodec {
     const val MAX_BYTES = 8 * 1024 * 1024
     private const val MAX_TICK = 960L * 4 * 1_000_000
     fun validate(p: CompositionProject) {
-        require(p.formatVersion in 1..3) { "Unsupported Composer project version." }
+        require(p.formatVersion in 1..4) { "Unsupported Composer project version." }
         require(p.masterVolume.isFinite() && p.masterVolume in 0f..1f)
         require(p.formatVersion >= 3 || (p.masterVolume == 1f && p.tracks.all { it.mixer == TrackMixer() }))
         val ids = mutableSetOf<String>()
@@ -62,13 +70,15 @@ object CompositionCodec {
         identity(p.id); title(p.title)
         require(p.createdAt > 0 && p.modifiedAt >= p.createdAt && p.revision in 0 until Long.MAX_VALUE)
         require(p.tempoBpm in 30..300) { "Tempo must be a whole number from 30 to 300 BPM." }
-        require(p.numerator in 1..32 && p.denominator in setOf(1, 2, 4, 8, 16, 32)) { "Use a meter such as 4/4 or 6/8 (1–32 beats; denominator 1, 2, 4, 8, 16 or 32)." }
+        require(p.numerator in 1..42 && p.denominator in setOf(1, 2, 4, 8, 16, 32)) { "Use a meter such as 4/4 or 6/8 (1–32 beats; denominator 1, 2, 4, 8, 16 or 32)." }
         require(p.ticksPerQuarter == COMPOSER_PPQ)
         require(p.tracks.size <= COMPOSER_MAX_TRACKS && p.clips.size <= 10000)
         var noteCount = 0
         p.tracks.forEach { track ->
             identity(track.id); title(track.title)
             val m = track.mixer
+            m.processing.validate()
+            require(p.formatVersion >= 4 || m.processing == ChannelProcessing())
             require(m.volume.isFinite() && m.volume in 0f..1f && m.pan.isFinite() && m.pan in -1f..1f)
             require(m.selectedPatternId == null || track.patterns.any { it.id == m.selectedPatternId }) { "Selected pattern must belong to its track." }
             require(track.instrument.registryVersion == 1)
@@ -109,7 +119,7 @@ object CompositionCodec {
             .put("createdAt", p.createdAt).put("modifiedAt", p.modifiedAt).put("revision", p.revision)
             .put("tempoBpm", p.tempoBpm).put("numerator", p.numerator).put("denominator", p.denominator)
             .put("ticksPerQuarter", p.ticksPerQuarter).also { if(p.formatVersion >= 3) it.put("masterVolume", p.masterVolume) }
-            .put("tracks", array(p.tracks.map { t -> JSONObject().put("id", t.id).put("title", t.title).also { if(p.formatVersion >= 3) it.put("mixer", JSONObject().put("volume",t.mixer.volume).put("pan",t.mixer.pan).put("mute",t.mixer.mute).put("solo",t.mixer.solo).put("selectedPatternId",t.mixer.selectedPatternId ?: JSONObject.NULL)) }
+            .put("tracks", array(p.tracks.map { t -> JSONObject().put("id", t.id).put("title", t.title).also { if(p.formatVersion >= 3) it.put("mixer", JSONObject().put("volume",t.mixer.volume).put("pan",t.mixer.pan).put("mute",t.mixer.mute).put("solo",t.mixer.solo).put("selectedPatternId",t.mixer.selectedPatternId ?: JSONObject.NULL).also { m -> if(p.formatVersion >= 4) m.put("processing", JSONObject().put("lowDb",t.mixer.processing.lowDb).put("lowMidDb",t.mixer.processing.lowMidDb).put("highMidDb",t.mixer.processing.highMidDb).put("highDb",t.mixer.processing.highDb).put("eqEnabled",t.mixer.processing.eqEnabled).put("width",t.mixer.processing.width)) }) }
                 .put("instrument", JSONObject().put("registryVersion", t.instrument.registryVersion).put("instrumentId", t.instrument.instrumentId).put("presetId", t.instrument.presetId).also { if(p.formatVersion >= 2) { it.put("sound",t.instrument.sound?.json() ?: JSONObject.NULL); it.put("presetTitle",t.instrument.presetTitle ?: JSONObject.NULL) } })
                 .put("patterns", array(t.patterns.map { pat -> JSONObject().put("id", pat.id).put("title", pat.title).put("lengthBars", pat.lengthBars)
                     .put("notes", array(pat.notes.map { n -> JSONObject().put("id", n.id).put("pitch", n.pitch).put("startTick", n.startTick).put("durationTick", n.durationTick).put("velocity", n.velocity) })) })) }))
@@ -121,7 +131,7 @@ object CompositionCodec {
         val parser = JSONTokener(text)
         val root = parser.nextValue() as? JSONObject ?: error("Invalid composition document")
         require(parser.nextClean() == '\u0000') { "Unexpected content after composition document." }
-        require(root.long("formatVersion") in 1L..3L) { "Unsupported Composer project version. This file has been preserved." }
+        require(root.long("formatVersion") in 1L..4L) { "Unsupported Composer project version. This file has been preserved." }
         val v = root.int("formatVersion")
         root.fields("formatVersion,id,title,createdAt,modifiedAt,revision,tempoBpm,numerator,denominator,ticksPerQuarter,tracks,clips" + if(v >= 3) ",masterVolume" else "")
         return CompositionProject(root.string("id"), root.string("title"), root.long("createdAt"), root.long("modifiedAt"),
@@ -137,15 +147,18 @@ object CompositionCodec {
                             CompositionNote(n.string("id"), n.int("pitch"), n.long("startTick"), n.long("durationTick"), n.int("velocity"))
                         })
                     }, if(v >= 3) t.getJSONObject("mixer").let { m ->
-                        m.fields("volume,pan,mute,solo,selectedPatternId")
-                        TrackMixer(m.number("volume"),m.number("pan",-1.0),m.boolean("mute"),m.boolean("solo"),if(m.isNull("selectedPatternId")) null else m.string("selectedPatternId"))
+                        m.fields("volume,pan,mute,solo,selectedPatternId" + if(v >= 4) ",processing" else "")
+                        TrackMixer(m.number("volume"),m.number("pan",-1.0),m.boolean("mute"),m.boolean("solo"),if(m.isNull("selectedPatternId")) null else m.string("selectedPatternId"), if(v >= 4) m.getJSONObject("processing").let { f ->
+                            f.fields("lowDb,lowMidDb,highMidDb,highDb,eqEnabled,width")
+                            ChannelProcessing(f.number("lowDb",-12.0,12.0),f.number("lowMidDb",-12.0,12.0),f.number("highMidDb",-12.0,12.0),f.number("highDb",-12.0,12.0),f.boolean("eqEnabled"),f.number("width",0.0,2.0))
+                        } else ChannelProcessing())
                     } else TrackMixer())
             }, root.objects("clips", 10000).map { c ->
                 c.fields("id,trackId,patternId,startTick")
                 ArrangementClip(c.string("id"), c.string("trackId"), c.string("patternId"), c.long("startTick"))
             }, formatVersion = v, masterVolume = if(v >= 3) root.number("masterVolume") else 1f).also(::validate)
     }
-    private fun JSONObject.number(name: String, minimum: Double = 0.0): Float = (get(name) as? Number)?.toDouble()?.also { require(it.isFinite() && it in minimum..1.0) }?.toFloat() ?: error("Invalid number $name")
+    private fun JSONObject.number(name: String, minimum: Double = 0.0, maximum: Double = 1.0): Float = (get(name) as? Number)?.toDouble()?.also { require(it.isFinite() && it in minimum..maximum) }?.toFloat() ?: error("Invalid number $name")
     private fun JSONObject.boolean(name: String): Boolean = (get(name) as? Boolean) ?: error("Invalid boolean $name")
     private fun JSONObject.fields(names: String) { require(keys().asSequence().toSet() == names.split(',').toSet()) { "Unrecognized or missing project fields. File preserved." } }
     private fun JSONObject.string(name: String): String = (get(name) as? String) ?: error("Invalid $name")

@@ -1,3 +1,7 @@
+## November15 bounded C4E assignment
+
+Owner assigns functional four-band channel EQ, bypass,0–200% stereo width, strict v4 persistence/Undo, focused verification, permanent-key APK/ZIP and commit/push on block-ux-stage1. C4D rendering/clock/mixing remains the foundation. Stop after delivery; C5A Arrange foundation requires a separate assignment. No FX/F1 or practice storage changes. [C4E](docs/COMPOSER_C4E.md) · [Actual status](CURRENT_STATE.md).
+
 ## November15 bounded C4D assignment
 
 Current owner handoff authorizes C4C focused verification closure, independent channel rendering, Mixer Pan, durable track/master mixing, Save As, focused verification, permanent-key delivery and source/remote publication. Stop before EQ, width, FX, Arrange and exports. C4E needs separate assignment. Preserve previous distributions and production data. [C4D](docs/COMPOSER_C4D.md) · [Actual status](CURRENT_STATE.md).

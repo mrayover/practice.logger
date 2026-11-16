@@ -31,6 +31,7 @@ import kotlin.math.roundToInt
     choosePattern: (CompositionTrack,String) -> Unit, mute: (String) -> Unit, solo: (String) -> Unit,
     volume: (String,Float) -> Unit, volumeFinished: (String,Float) -> Unit,
     pan: (String,Float) -> Unit, panFinished: (String,Float) -> Unit,
+    processing: (String) -> Unit,
     master: (Float) -> Unit, masterFinished: (Float) -> Unit, modifier: Modifier = Modifier
 ) {
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 40.dp) {
@@ -40,7 +41,10 @@ import kotlin.math.roundToInt
                 val pattern = track.patterns.find { it.id == selections[track.id] } ?: track.patterns.firstOrNull()
                 var menu by remember { mutableStateOf(false) }
                 Column(Modifier.width(122.dp).fillMaxHeight().background(Color(0xFF20232D)).padding(4.dp).testTag("mixer-strip-${track.id}"),horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) { Text("Track ${index+1}",style = MaterialTheme.typography.labelSmall); Text("EQ later",color=Color(0xFF939099),style=MaterialTheme.typography.labelSmall) }
+                    Row(Modifier.height(20.dp),verticalAlignment=Alignment.CenterVertically) {
+                        Text("Track ${index+1}",style = MaterialTheme.typography.labelSmall,modifier=Modifier.weight(1f))
+                        TextButton(onClick={ processing(track.id) },enabled=enabled,contentPadding=PaddingValues(horizontal=4.dp),modifier=Modifier.testTag("mixer-eq-${track.id}")) { Text("EQ",style=MaterialTheme.typography.labelSmall) }
+                    }
                     Text(ComposerInstruments.trackLabel(track,index).substringAfter(" · "),style = MaterialTheme.typography.bodySmall.copy(lineHeight = 14.sp),maxLines = 2,overflow = TextOverflow.Ellipsis,modifier = Modifier.height(28.dp))
                     Box {
                         ComposerButton("Pattern ${pattern?.title ?: "None"}",enabled && track.patterns.isNotEmpty(),modifier = Modifier.testTag("mixer-pattern-${track.id}")) { menu = true }

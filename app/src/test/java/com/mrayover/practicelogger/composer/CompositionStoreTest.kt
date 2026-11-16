@@ -56,7 +56,7 @@ class CompositionStoreTest {
         val encoded = JSONObject(CompositionCodec.encode(p))
         rejected { CompositionCodec.decode(encoded.put("tempoBpm", "137").toString()) }
         rejected { CompositionCodec.decode(CompositionCodec.encode(p).dropLast(1)) }
-        rejected { CompositionCodec.decode(JSONObject(CompositionCodec.encode(p)).put("formatVersion", 4).toString()) }
+        rejected { CompositionCodec.decode(JSONObject(CompositionCodec.encode(p)).put("formatVersion", 5).toString()) }
         rejected { CompositionCodec.decode(JSONObject(CompositionCodec.encode(p)).put("newMusicalField", true).toString()) }
         assertEquals(p, store().read(p.id))
     }

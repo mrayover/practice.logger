@@ -128,6 +128,15 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
             }
         }
     }
+    fun processing(sequence: List<ChannelProcessing>, preview: List<ChannelProcessing>) {
+        (sequence + preview).forEach { it.validate() }
+        submit {
+            for(i in 0..15) {
+                val p = (if(i < 8) sequence.getOrNull(i) else preview.getOrNull(i-8)) ?: ChannelProcessing()
+                ComposerSynth.processing(handle,i,p.lowDb,p.lowMidDb,p.highMidDb,p.highDb,p.eqEnabled,p.width)
+            }
+        }
+    }
     fun masterVolume(value: Float) {
         require(value.isFinite() && value in 0f..1f)
         // Retain independently of output lifetime and command interruption.

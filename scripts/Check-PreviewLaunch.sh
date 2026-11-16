@@ -170,3 +170,11 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4DTailTest ]; then
   timeout 120s adb shell am instrument -w -r -e c4dCold true -e class com.mrayover.practicelogger.ComposerC4DWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4d-cold.txt
   grep -q 'OK (1 test)' app/build/preview-composer-c4d-cold.txt
 fi
+
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4EWorkflowTest ]; then
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4e app/build/preview-composer-c4e-screens
+  adb shell am force-stop "$package"
+  timeout 120s adb shell am instrument -w -r -e c4eCold true -e class com.mrayover.practicelogger.ComposerC4EWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4e-cold.txt
+  grep -q 'OK (1 test)' app/build/preview-composer-c4e-cold.txt
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4e app/build/preview-composer-c4e-screens
+fi
