@@ -117,12 +117,13 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
         stopAtFrame=if(looping || plan==null) Long.MAX_VALUE else plan.frame(plan.regionTicks)
         if(wasPlaying) { startOutput(); playing=true }
     } }
-    fun mix(enabled: BooleanArray,volume: FloatArray,previewVolume: FloatArray = volume) {
+    fun mix(enabled: BooleanArray,volume: FloatArray,previewVolume: FloatArray = volume,pan: FloatArray = FloatArray(8),previewPan: FloatArray = pan) {
         submit {
             for(i in 0..7) {
                 val active=enabled.getOrElse(i) { true }
                 if(!active && allowed[i]) ComposerSynth.clear(handle,i,i)
                 allowed[i]=active; gains[i]=volume.getOrElse(i) { 1f }.coerceIn(0f,1f)
+                ComposerSynth.pan(handle,i,pan.getOrElse(i) { 0f }); ComposerSynth.pan(handle,8+i,previewPan.getOrElse(i) { 0f })
                 ComposerSynth.volume(handle,i,gains[i]); ComposerSynth.volume(handle,8+i,previewVolume.getOrElse(i) { 1f }.coerceIn(0f,1f))
             }
         }

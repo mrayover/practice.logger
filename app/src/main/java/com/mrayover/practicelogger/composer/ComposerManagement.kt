@@ -28,7 +28,7 @@ internal object ComposerManagement {
     fun deletePattern(p: CompositionProject,trackId: String,patternId: String): CompositionProject {
         val t=track(p,trackId); pattern(t,patternId)
         require(p.clips.none { it.trackId==trackId && it.patternId==patternId }) { "Cannot delete: this pattern is referenced by arrangement clips." }
-        return update(p,t.copy(patterns=t.patterns.filterNot { it.id==patternId }))
+        return update(p,t.copy(patterns=t.patterns.filterNot { it.id==patternId },mixer=t.mixer.copy(selectedPatternId=t.mixer.selectedPatternId?.takeUnless { it==patternId })))
     }
     fun renameTrack(p: CompositionProject,trackId: String,title: String): CompositionProject = update(p,track(p,trackId).copy(title=title.trim()))
     fun addTrack(p: CompositionProject): CompositionProject {

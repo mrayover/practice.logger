@@ -1,3 +1,7 @@
+## November15 bounded C4D assignment
+
+Current owner handoff authorizes C4C focused verification closure, independent channel rendering, Mixer Pan, durable track/master mixing, Save As, focused verification, permanent-key delivery and source/remote publication. Stop before EQ, width, FX, Arrange and exports. C4E needs separate assignment. Preserve previous distributions and production data. [C4D](docs/COMPOSER_C4D.md) · [Actual status](CURRENT_STATE.md).
+
 ## November15 compact Composer UI and Save As — delivered build133
 
 The owner separately assigns four measured compact landscape rows, explicit responsive overflow, larger unchanged piano roll, compact status and independent live-draft Save As after C3, including focused visual/functional checks, permanent-key delivery and commit/push. Disabled Edit Instrument/Velocity reserve future positions. Signed0.49.1/build133 passes focused host/native/visual/cold-reopen verification; owner phone acceptance is next. This supersedes earlier post-C3 phone-check-only next-task wording. Stop before C4–C7/F1; preserve TinySoundFont and existing practice data/audio. [Behavior](docs/COMPOSER_COMPACT_UI.md) · [Actual status](CURRENT_STATE.md).

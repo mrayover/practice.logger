@@ -475,3 +475,5 @@ Owner-assigned bounded increment after completed G3/LGE and RW1. One positive wh
 W2 measures commitment to practicing and is not a replacement for manual Goal progress, musical mastery or LGE evidence. No daily schedule, streak, notifications, automatic goals or separate analytics counter. Preserve Playground and other owner-approved future scope; neither W2 nor its focused delivery starts feature freeze or F1. [Actual status](CURRENT_STATE.md).
 
 November15 separately assigned C4C adds functional velocity and shared multitrack Mixer before C5. See [bounded scope](docs/COMPOSER_C4C.md) and [actual status](CURRENT_STATE.md); advanced mixer processing/C5–C7/F1 remain separately authorized.
+
+November15 separately assigned C4D establishes isolated channel rendering, Mixer Pan and persistent mixer settings, including C4C verification closure. C4E four-band EQ/stereo width is the next separately authorized phase before C5 Arrange. [C4D behavior](docs/COMPOSER_C4D.md); actual verification in CURRENT_STATE.

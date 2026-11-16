@@ -52,11 +52,11 @@ class CompositionStoreTest {
     }
     @Test fun invalidAndFutureInputCannotReplaceValidSavedProject() {
         val p = store().create(project())
-        listOf(p.copy(title = " "), p.copy(tempoBpm = 0), p.copy(denominator = 3), p.copy(formatVersion = 3), p.copy(ticksPerQuarter = 480)).forEach { bad -> rejected { store().save(bad) } }
+        listOf(p.copy(title = " "), p.copy(tempoBpm = 0), p.copy(denominator = 3), p.copy(formatVersion = 4), p.copy(ticksPerQuarter = 480)).forEach { bad -> rejected { store().save(bad) } }
         val encoded = JSONObject(CompositionCodec.encode(p))
         rejected { CompositionCodec.decode(encoded.put("tempoBpm", "137").toString()) }
         rejected { CompositionCodec.decode(CompositionCodec.encode(p).dropLast(1)) }
-        rejected { CompositionCodec.decode(JSONObject(CompositionCodec.encode(p)).put("formatVersion", 3).toString()) }
+        rejected { CompositionCodec.decode(JSONObject(CompositionCodec.encode(p)).put("formatVersion", 4).toString()) }
         rejected { CompositionCodec.decode(JSONObject(CompositionCodec.encode(p)).put("newMusicalField", true).toString()) }
         assertEquals(p, store().read(p.id))
     }

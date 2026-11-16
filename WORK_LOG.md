@@ -1658,3 +1658,10 @@ Session-only selections/mixing and existing project v1/v2 remain; velocities sav
 
 ---
 
+
+## 2026-11-15 — C4D implementation and C4C verification closure
+
+Reviewed mandatory efficiency procedure and required active records/model/native/audio/store/UI sources. Canonical checkout clean on block-ux-stage1 at local/live remote6e7ee4ca993850b4a1fc5b23716b809c6ee5b365; older OneDrive source checkout untouched. Owner explicitly limits regression/retesting. One baseline C4C workflow43786034370 passes36 focused hosts, compilation/vital lint, API35 active navigation/recreation/master reopening/final cleanup and exact cold reopening. Final four-strip/narrow screenshots inspected. Confirmed prior helper resolves current audio after resize. No product C4C defect found.
+
+C4D reuses native per-voice rendering with bounded16-channel scratch buffers, existing tokens/shapes/clock, separate live track Pan and explicit project v3 with v1/v2 defaults. Settings embed in stable track identities; Save As remaps selections, pattern deletion clears stale selection and Undo restores immutable settings. Transient gestures commit one project edit on completion. First application compilation succeeds; new native-test compilation found Int/Float coordinate error, corrected before execution. Focused build/host/native/rendered/signing results follow. No broad regression/F1, new banks, EQ/width/FX/Arrange/export or practice storage changes.
+C4D focused result: 15/16 scoped host checks passed initially; the sole failure expected future format3 to be rejected. Since v3 is now explicitly supported, advanced that retained future-version assertion to4 and reran only that method: pass. All16 scoped checks now pass across these two runs; release/native-test compilation and vital lint pass. No passing check rerun.

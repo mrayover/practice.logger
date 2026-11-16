@@ -616,3 +616,7 @@ Install the permanent-key update without uninstalling or clearing data. Composer
 6. Stop, leave/background and interrupt audio focus: no hanging notes or automatic resume. Return to Loop and audition. Confirm existing projects/custom presets and practice data are intact.
 
 No EQ/stereo width/channel pan/FX/Arrange playback/export claim. Physical acoustics/touch/routing remain owner checks.
+
+## compose.logger C4D — owner phone check
+
+Install the signed build over the existing app without uninstalling or clearing data. Open an existing composition, Play and switch Loop/Mixer. Move a channel Pan left/center/right and its Volume while listening; only the intended track should change and playback should continue. Try Mute/Solo and Master, then Stop/Play. Select a different pattern (deliberate restart), Save, return and reopen; mixer settings/patterns should match. Close the app and reopen to confirm durability. Save As, change the copy and confirm the original is unchanged. Inspect four/eight strips, narrow landscape, touch targets and pinned Master/header. Use headphones for stereo separation; preset Pan and track Pan should combine. Verify custom sounds and note release. Composer projects/presets remain outside practice ZIP backup until C7. No EQ/width/FX/Arrange/export is included.

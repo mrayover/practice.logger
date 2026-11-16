@@ -50,6 +50,7 @@ internal object ComposerSynth {
     external fun clear(handle: Long,firstChannel: Int,lastChannel: Int)
     external fun volume(handle: Long,channel: Int,gain: Float)
     external fun shape(handle: Long,channel: Int,enabled: Boolean,attack: Float,release: Float,cutoff: Float,q: Float,sustain: Float,pan: Float)
+    external fun pan(handle: Long,channel: Int,value: Float)
     external fun voices(handle: Long): Int
     external fun render(handle: Long,output: ShortArray,offsetFrames: Int,frames: Int)
     external fun destroy(handle: Long)

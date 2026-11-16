@@ -17,3 +17,5 @@ composer_soundfont.cpp currently calls tsf_render_float for each bank into one s
 Future channel processing can include separate channel pan, actual stereo width, four-band low shelf / low-mid peak / high-mid peak / high shelf EQ and effects slots. Channel pan is distinct from C4A preset sound-shaping pan. Persistent channel/master settings require a later explicit project-format decision. None are C4C controls or implementations. Arrange playback/exports/Composer portable recovery remain C5/C6/C7. Practice ZIP/JSON still exclude Composer projects and custom presets.
 
 Actual focused results, signed provenance and outstanding phone checks: [CURRENT_STATE](../CURRENT_STATE.md).
+
+C4D follow-up: workflow43786034370 on unchanged build142 sources completes corrected final cleanup, exact cold reopening and final compact screenshots. The outstanding verification gap is closed. [C4D](COMPOSER_C4D.md) supersedes session-only settings and shared-sum rendering with durable mixing, isolated channels and Mixer Pan.

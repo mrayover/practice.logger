@@ -32,6 +32,17 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
   }
   trap c4a_diagnostics EXIT
   timeout 360s adb shell am instrument -w -r -e class com.mrayover.practicelogger.${PREVIEW_TEST_CLASS:-HomeNavigationPreviewTest} com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4DWorkflowTest ]; then
+  function c4d_diagnostics() {
+    local result=$?
+    if [ "$result" -ne 0 ]; then
+      timeout 15s adb exec-out screencap -p > app/build/preview-c4d-final.png || true
+      timeout 15s adb logcat -d > app/build/preview-c4d-logcat.txt || true
+      timeout 20s adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4d app/build/preview-composer-c4d-screens || true
+    fi
+  }
+  trap c4d_diagnostics EXIT
+  timeout 360s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC4DWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4CWorkflowTest ]; then
   function c4c_diagnostics() {
     local result=$?
@@ -139,4 +150,12 @@ if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4CWorkflowTest ]; then
   timeout 120s adb shell am instrument -w -r -e c4cCold true -e class com.mrayover.practicelogger.ComposerC4CWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4c-cold.txt
   adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4c app/build/preview-composer-c4c-screens || true
   grep -q 'OK (1 test)' app/build/preview-composer-c4c-cold.txt
+fi
+
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4DWorkflowTest ]; then
+  adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4d app/build/preview-composer-c4d-screens || true
+  grep -q 'OK (1 test)' app/build/preview-home.txt
+  adb shell am force-stop "$package"
+  timeout 120s adb shell am instrument -w -r -e c4dCold true -e class com.mrayover.practicelogger.ComposerC4DWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-composer-c4d-cold.txt
+  grep -q 'OK (1 test)' app/build/preview-composer-c4d-cold.txt
 fi
