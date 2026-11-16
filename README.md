@@ -1,4 +1,8 @@
-# Current increment — compose.logger C5A Arrange
+# Current increment — compose.logger C5B Arrange
+
+Signed 0.56.0/build149 adds song playback, audio-clock playhead, compact lanes for all composition tracks, direct lane-specific pattern placement and atomic Duplicate/Repeat. [Delivery and verification](CURRENT_STATE.md) · [Arrange guide](docs/COMPOSER_C5B.md). Stop before C5C.
+
+# Retained C5A increment
 
 0.55.0/build147 adds a musical timeline with shared pattern placement, bar-snapped clip movement, deletion and Undo. Existing Save/Save As persist the arrangement. No song playback until C5B. [Current delivery and verification](CURRENT_STATE.md) · [Arrange guide](docs/COMPOSER_C5A.md). Earlier notices below are retained history.
 

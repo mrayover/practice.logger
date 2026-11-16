@@ -1,3 +1,5 @@
+**Historical C5A foundation. C5B supersedes lane visibility,labels,placement and transport; see [current Arrange behavior](COMPOSER_C5B.md).**
+
 # compose.logger C5A — Arrange timeline foundation
 
 Arrange is a dedicated bounded canvas within the existing mounted Composer workspace. Loop, Arrange and Mixer share the document and one audio owner. Entering Arrange stops Loop; arrangement playback belongs to C5B. The application header, Save, Save As, Settings and Return retain existing paths. Loop editor viewport and selected patterns remain mounted across mode switches.

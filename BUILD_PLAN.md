@@ -1,4 +1,14 @@
-# C5A completed — Arrange timeline foundation
+# C5B complete — signed build149
+
+Signed **0.56.0/build149** delivers compact all-track Arrange, direct instrument-filtered lane placement, actual song playback/audio-clock playhead, existing live mixer, Duplicate / 2–8 Repeat and existing Undo/persistence. [Behavior](docs/COMPOSER_C5B.md) · [Authoritative source/delivery/checks/limitations](CURRENT_STATE.md).
+
+13 focused host checks, compilation/vital lint, packaged native PCM, bounded API35 editing/playback/Mixer/save/Save As/recreation, cold reopening and isolated rendered transport checks pass. Two-track/eight-track/scrolled/narrow layouts inspected. Initial silence-window test error and cancelled probe are recorded; final 149 changes only version and Loop Repeat owner gating relative to the passed148 workflow. Physical phone acceptance/cloud sync unobserved.
+
+Mandatory efficiency procedure reviewed and applied: signed 149 prepared early; passed checks reused; unresolved rendered playhead isolated. Canonical checkout/branch preserved; older OneDrive source untouched. Prior distributions/signing/data preserved. Composer projects/presets remain outside practice backups until C7. Exact next task: owner-phone C5B acceptance. Stop before separately authorized **C5C — Make Unique and Edit Pattern from Arrangement Clip**. Deferred C4E testing stays stopped; no broad regression/F1.
+
+---
+
+# Retained C5A handoff — build147
 
 Signed **0.55.0/build147** implements numbered-bar Arrange timeline, existing-pattern placement, populated instrument lanes, whole-bar same-track drag preview/commit, deletion, Undo and existing atomic save/reopen. Reuses ArrangementClip and supported project v1–v4. No new format/audio owner. [Behavior](docs/COMPOSER_C5A.md) · [Authoritative delivery/source/tests](CURRENT_STATE.md).
 

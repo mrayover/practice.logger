@@ -477,3 +477,5 @@ W2 measures commitment to practicing and is not a replacement for manual Goal pr
 November15 separately assigned C4C adds functional velocity and shared multitrack Mixer before C5. See [bounded scope](docs/COMPOSER_C4C.md) and [actual status](CURRENT_STATE.md); advanced mixer processing/C5–C7/F1 remain separately authorized.
 
 November15 separately assigned C4D establishes isolated channel rendering, Mixer Pan and persistent mixer settings, including C4C verification closure. C4E four-band EQ/stereo width is the next separately authorized phase before C5 Arrange. [C4D behavior](docs/COMPOSER_C4D.md); actual verification in CURRENT_STATE.
+
+November 15 separately assigned C5B delivers compact complete composition lanes, direct instrument-filtered placement, song playback through the existing audio/mixer, audio-clock playhead and atomic Duplicate/Repeat. [Behavior](docs/COMPOSER_C5B.md) · [Actual delivery/verification](CURRENT_STATE.md). Stop before C5C Make Unique/Edit Pattern, which requires separate authorization.
