@@ -21,7 +21,10 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 
 # One targeted navigation/layout preview; no full regression matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4EWorkflowTest ]; then
+  trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c4e app/build/preview-composer-c4e-screens || true; adb logcat -d > app/build/preview-c4e-logcat.txt || true' EXIT
+  adb shell am instrument -w -r -e c4eSkipNative "${C4E_SKIP_NATIVE:-false}" -e class com.mrayover.practicelogger.ComposerC4EWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC4AWorkflowTest ]; then
   function c4a_diagnostics() {
     timeout 15s adb exec-out screencap -p > app/build/preview-c4a-final.png || true
     timeout 15s adb shell uiautomator dump /sdcard/c4a-final.xml || true

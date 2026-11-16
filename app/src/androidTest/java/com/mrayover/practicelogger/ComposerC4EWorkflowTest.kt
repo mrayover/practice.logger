@@ -26,7 +26,10 @@ class ComposerC4EWorkflowTest {
     }
     private fun activity(): ComposerActivity { var a: ComposerActivity?=null;inst.runOnMainSync { a=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<ComposerActivity>().single() };return a!! }
     private fun vm()=ViewModelProvider(activity())[ComposerViewModel::class.java]
-    private fun tap(text:String) { compose.onNodeWithText(text).performClick();compose.waitForIdle() }
+    private fun tap(text:String) {
+        compose.waitUntil(20000) { compose.onAllNodesWithText(text).fetchSemanticsNodes(false).any { !it.config.contains(SemanticsProperties.Disabled) } }
+        compose.onNodeWithText(text).performClick();compose.waitForIdle()
+    }
     private fun tag(tag:String) { compose.waitUntil(30000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(false).isNotEmpty() };compose.waitForIdle() }
     private fun level(tag:String,value:Float) { compose.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.SetProgress) { it(value) };compose.waitForIdle() }
     private fun shot(name:String) { compose.waitForIdle();device.waitForIdle();assertTrue(device.takeScreenshot(File(dir,"$name.png"))) }
@@ -38,7 +41,7 @@ class ComposerC4EWorkflowTest {
                 listOf(CompositionPattern(newCompositionId(),"A",if(i%2==0) 4 else 8,listOf(CompositionNote(newCompositionId(),48+i,0,1920,85))))) }
             store.create(CompositionProject.empty("C4E Mixer").copy(tracks=tracks))
         }
-        if(!cold) c4dNativeChecks(File(dir,"native-c4d-path.txt"))
+        if(!cold && InstrumentationRegistry.getArguments().getString("c4eSkipNative")!="true") c4dNativeChecks(File(dir,"native-c4d-path.txt"))
         device.executeShellCommand("wm size 1080x1920");device.executeShellCommand("wm density 480")
         inst.runOnMainSync { compose.activity.startActivity(Intent(compose.activity,ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID,initial.id)) }
         tag("piano-roll");val model=vm();val audio=activity().auditionEngine!!

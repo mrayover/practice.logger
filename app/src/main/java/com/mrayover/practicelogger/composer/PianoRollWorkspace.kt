@@ -531,4 +531,3 @@ private class RollTouch {
         message?.let { Text(it,style = MaterialTheme.typography.bodySmall,color = MaterialTheme.colorScheme.error) }
     }
 }
-
