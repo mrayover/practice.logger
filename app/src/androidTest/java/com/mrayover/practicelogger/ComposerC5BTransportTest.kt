@@ -56,7 +56,12 @@ class ComposerC5BTransportTest {
         assertEquals(plan.frame(plan.regionTicks),audio.positionFrame())
         compose.onNodeWithText("Play").assertIsEnabled();device.takeScreenshot(File(dir,"03-natural-end.png"))
         compose.onNodeWithText("Stop").performClick();compose.waitUntil(10000) { audio.voiceCount()==0 }
-        File(dir,"result.txt").writeText("PASS visible green playhead at x=$first then x=$second, aligned with consumed AudioTrack frames, meaningful renamed lane, disabled Play while running, natural non-repeating endpoint=${plan.regionTicks} ticks/${plan.frame(plan.regionTicks)} frames, reenabled Play and Stop voice release. Compose test clock explicitly advances delayed polling.\n")
+        compose.onNodeWithText("Loop").performClick();compose.mainClock.advanceTimeBy(100)
+        compose.onNodeWithText("Repeat ☑").assertExists().performClick();compose.onNodeWithText("Repeat ☐").assertExists()
+        compose.onNodeWithText("Play").performClick();compose.waitUntil(10000) { audio.playing && audio.playbackPlan?.song == false }
+        assertFalse("Loop Repeat selection is independent of the previous song",audio.looping)
+        compose.onNodeWithText("Stop").performClick()
+        File(dir,"result.txt").writeText("PASS visible green playhead at x=$first then x=$second, aligned with consumed AudioTrack frames, meaningful renamed lane, disabled Play while running, natural non-repeating endpoint=${plan.regionTicks} ticks/${plan.frame(plan.regionTicks)} frames, reenabled Play and Stop voice release, independent Loop Repeat state after song. Compose test clock explicitly advances delayed polling.\n")
     }
 }
 

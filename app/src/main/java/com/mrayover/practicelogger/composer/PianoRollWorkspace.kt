@@ -321,9 +321,9 @@ private class RollTouch {
                 }
             } })
             add(ComposerControl("Stop",10) { ComposerButton("Stop") { patternRestart?.cancel(); audio.stop() } })
-            val repeatShown=if(plan?.song == true) transportRepeating else repeat
+            val repeatShown=if(mode == "Mixer" && plan?.song == true) transportRepeating else repeat
             add(ComposerControl(if(repeatShown) "Repeat ☑" else "Repeat ☐",4) { ComposerButton(if(repeatShown) "Repeat ☑" else "Repeat ☐") {
-                if(plan?.song == true) audio.setLoop(!transportRepeating) else { repeat = !repeat; audio.setLoop(repeat) }
+                if(mode == "Mixer" && plan?.song == true) audio.setLoop(!transportRepeating) else { repeat = !repeat; audio.setLoop(repeat) }
             } })
             if(track != null && mode != "Mixer") {
                 add(ComposerControl(if(muted[trackIndex]) "Mute ☑" else "Mute ☐",3) { ComposerButton(if(muted[trackIndex]) "Mute ☑" else "Mute ☐") { mixer(track.id) { it.copy(mute = !it.mute) } } })
