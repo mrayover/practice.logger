@@ -1,3 +1,13 @@
+# C5A completed — Arrange timeline foundation
+
+Signed **0.55.0/build147** implements numbered-bar Arrange timeline, existing-pattern placement, populated instrument lanes, whole-bar same-track drag preview/commit, deletion, Undo and existing atomic save/reopen. Reuses ArrangementClip and supported project v1–v4. No new format/audio owner. [Behavior](docs/COMPOSER_C5A.md) · [Authoritative delivery/source/tests](CURRENT_STATE.md).
+
+Five focused host methods, compilation/vital lint, one API35 editing/save/recreation workflow and exact cold-process reopen pass. Normal/narrow landscape screenshots inspected. Save As remapping is host-tested. Physical phone acceptance/cloud sync unobserved. Canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1; app/test sourcef290561f1a2b843b0e30910b880b516ade03bbf6. Delivery: OneDrive/Practice Log development/Compose C5A delivery/build147. Older OneDrive source unchanged; distributions/signing/data preserved.
+
+Mandatory efficiency procedure reviewed. C4E deferred UI testing remains stopped. Composer projects/presets remain outside practice ZIP/JSON until C7. Exact next task: await owner feedback on C5A build147. **Stop before C5B**; song playback, duplicate/repeat, Make Unique and pattern editing from clips require separate authorization. No broad regression/F1.
+
+---
+
 C4E build146 signed delivery is complete. Owner reports it works and explicitly stops further testing; new EQ UI/cold workflow remains incomplete. Resume only on request; no C5/FX/F1 started. CURRENT_STATE.md is authoritative.
 
 ## November15 C4E — signed build146, owner testing stop

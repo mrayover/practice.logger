@@ -11,3 +11,5 @@ Delete Clip removes only the selected instance. Add, completed Move and Delete e
 No song playback, repeat/copy commands, Make Unique, clip resizing, cross-track dragging, underlying-pattern editor, export, new audio processing or practice data changes. Composer projects/custom presets remain outside practice ZIP/JSON recovery until C7.
 
 Verification and signed delivery: [CURRENT_STATE](../CURRENT_STATE.md). Physical phone acceptance remains separate from automated checks.
+
+Signed build147 and focused verification are complete. Five host checks and one bounded API35 editing/save/recreation workflow plus separate exact cold reopen pass in [run43795631203](https://github.com/mrayover/practice.logger/actions/runs/43795631203). Actual normal/narrow screenshots inspected. Save As remapping is host-tested. Physical phone acceptance remains pending. Arrange viewport/selection are visit-local; long lane names clip in their fixed header. See CURRENT_STATE for exact provenance, hashes and delivery. Stop before C5B.

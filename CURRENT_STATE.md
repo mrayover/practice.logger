@@ -1,4 +1,25 @@
-# Current state — C4E signed build146; testing stopped at owner request
+# Current state — C5A Arrange delivered as signed build147
+
+November15,2026 (America/Los_Angeles). **0.55.0/build147** delivers a horizontal musical timeline with numbered bars, populated-pattern placement, dynamic instrument lanes, whole-bar clip drag/preview, deletion, Undo and exact existing save/reopen. Shared patterns remain references; same-track overlap and newly colliding pattern-length edits are refused. Loop/Mixer share the mounted document/audio owner. [Behavior](docs/COMPOSER_C5A.md).
+
+Canonical C:/Users/mrove/Projects/practice.logger, branch **block-ux-stage1**. Initial clean local/live remote **2248c358c5c9c90a4ead649cfd56719436472bbb**. Application/APK and focused-test source **f290561f1a2b843b0e30910b880b516ade03bbf6**, pushed and verified against the live remote before documentation closeout. Final publication adds records only; its remote SHA is verified at session close. Older OneDrive source checkout untouched; no main merge.
+
+[APK](dist/practice.logger-0.55.0-b147-f290561/practice.logger-0.55.0-b147-f290561.apk) · [ZIP](dist/practice.logger-0.55.0-b147-f290561.zip) · [Delivery report](dist/practice.logger-0.55.0-b147-f290561/DELIVERY_REPORT.md) · [Phone checklist](dist/practice.logger-0.55.0-b147-f290561/PHONE_CHECKLIST.txt).
+
+Delivery: **C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C5A delivery/build147**. Install over the existing permanent-key app without uninstalling or clearing data. dist/LATEST.txt points here. Local delivery copies match; OneDrive cloud-sync completion unobserved. All prior distributions retained.
+
+- APK SHA256 **23feea33fde43638efd876e100d748fa516edff91967693744f4369fd430b991**; ZIP SHA256 **0024e34d60b76497449c9215ada8819e43b6762ad42765f414d77f17b37daf03**.
+- Package/version/signature and pinned permanent certificate f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830 verified. All106 unsigned payload entries, nine original SF2 hashes,692 previous APK/ZIP hashes and ZIP exact-byte round trip pass.
+- Five focused host methods pass locally and in [API35 run43795631203](https://github.com/mrayover/practice.logger/actions/runs/43795631203): fresh UUID/shared references, snap/bounds, same/different-track placement, move/delete snapshots, shared names, pattern-length collisions, legacy overlaps, Save As remapping and exact atomic save/reopen for supported v1–v4,7/8 meter,16-bar patterns and far placement. Release/vital lint and Android-test compilation pass locally; remote debug/release/test assembly and vital lint also pass.
+- One bounded Android workflow passes placement at Bars1/5, actual drag preview with no premature edit and one Undo on release, move Undo, Delete/Undo, last-clip lane removal, fixed-label Hand scrolling, Loop/Mixer switching with the same audio owner, Save→Return→reopen and Activity recreation. Separate force-stop/cold-process reopen passes exact project equality. Main method19.138s; cold phase7.464s. Actual empty/two-lane/preview/deleted/restored/scrolled/narrow/cold landscape screenshots inspected. Save As reference remapping is host-tested; no new Save As UI workflow is claimed.
+
+No new project format, practice schema/data changes, synthesis/mixer changes or arrangement playback. No broad regression/device matrix/F1, and no C4E deferred tests resumed. Physical phone acceptance remains pending. Arrange viewport/selection are visit-local; Loop editor state stays mounted across modes. Long lane names clip within the fixed label area. **Composer projects/custom presets remain outside practice ZIP/JSON recovery until C7.**
+
+**Exact next task: await owner feedback on C5A build147.** Stop here; C5B song playback, duplication/repetition, Make Unique and clip-to-pattern editing require a separate assignment.
+
+---
+
+# Retained C4E build146 — testing stopped at owner request
 
 November15,2026 (America/Los_Angeles). Signed **0.54.0/build146** implements four-band per-channel EQ, bypass,0–200% stereo width, compact channel editor, strict project v4 persistence and completed-gesture Undo on the existing C4D foundation. Owner says “it works” and asks to stop, with further testing later. No build-specific installation/acoustic observations are inferred. [Behavior](docs/COMPOSER_C4E.md).
 

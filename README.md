@@ -1,3 +1,7 @@
+# Current increment — compose.logger C5A Arrange
+
+0.55.0/build147 adds a musical timeline with shared pattern placement, bar-snapped clip movement, deletion and Undo. Existing Save/Save As persist the arrangement. No song playback until C5B. [Current delivery and verification](CURRENT_STATE.md) · [Arrange guide](docs/COMPOSER_C5A.md). Earlier notices below are retained history.
+
 # Current delivery — compose.logger C4D build145
 
 Signed0.53.0/build145 adds independent channel Pan and saved mixer settings, preserving compatible older projects and Save As. Focused audio/persistence/UI checks pass; ready for ordinary owner use. [Download/evidence](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C4D.md). Earlier release notices below are historical.
