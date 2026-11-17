@@ -1,3 +1,15 @@
+# C6A — Offline backing-track export (verification in progress)
+
+November16,2026 (America/Los_Angeles). Owner assigns offline Current Loop and Full Arrangement export as AAC-LC M4A (default, stereo48kHz/192kbps) or PCM16 RIFF WAV (stereo48kHz). Reuse existing LoopPlan/LoopClock, TinySoundFont assets and channel processing, isolated native ownership, explicit offline Master Volume and bounded streaming. Standard Android document destination; no Library import or musical document mutation.
+
+Canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1. Initial clean local/live remote f511afa4763d1b3350b1b1463a223be18fa7cc65; baseline signed0.57.0/build152. Older OneDrive source checkout untouched. Candidate0.58.0/build153: five focused host methods pass; release/vital lint and Android-test assembly pass. Native AAC decode, real picker workflow and final signed delivery remain pending. No physical-phone acceptance is claimed.
+
+[Export implementation and limits](docs/COMPOSER_C6A.md). Current owner clarification: **MusicXML is deferred from embedded compose.logger V1 planning**; historical approval records are retained. C6B Standard MIDI File Type1 is the next separately authorized phase. No Library/effects/portable recovery or broad regression. Composer projects/custom presets remain outside practice ZIP/JSON backup until C7.
+
+Exact next task: run the bounded API35 C6A export workflow and finish permanent-key signed delivery.
+
+---
+
 # Current state — C5C delivered as signed build152
 
 November16,2026 (America/Los_Angeles). Signed **0.57.0/build152** adds selected-clip **Edit Pattern** and **Make Unique** to Arrange Actions. Edit Pattern directly targets the referenced instrument/pattern in the existing Loop editor without changing the document or adding Undo. Make Unique uses existing deep-copy semantics and a single validated edit; one Undo removes the variation and restores the reference. Arrange zoom, horizontal/vertical position and clip selection survive mode navigation. [Behavior](docs/COMPOSER_C5C.md).

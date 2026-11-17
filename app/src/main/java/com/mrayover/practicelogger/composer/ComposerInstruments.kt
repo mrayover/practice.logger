@@ -53,6 +53,7 @@ internal object ComposerSynth {
     external fun processing(handle: Long, channel: Int, low: Float, lowMid: Float, highMid: Float, high: Float, enabled: Boolean, width: Float)
     external fun pan(handle: Long,channel: Int,value: Float)
     external fun voices(handle: Long): Int
+    external fun releaseBound(handle: Long): Float
     external fun render(handle: Long,output: ShortArray,offsetFrames: Int,frames: Int)
     external fun destroy(handle: Long)
 }

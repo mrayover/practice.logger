@@ -63,6 +63,12 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     }
     internal val interruptionToken get() = epoch
     internal fun voiceCount()=voiceTotal
+    internal suspend fun pauseForExport() {
+        setForeground(false)
+        kotlinx.coroutines.withTimeout(10000) {
+            while(output!=null || playing || voiceTotal!=0) kotlinx.coroutines.delay(10)
+        }
+    }
     fun positionFrame(): Long = if(playing || draining) minOf(output?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: frozenFrame,framesWritten) else frozenFrame
     private fun report(message: String?) { main.post { if(!closed) interrupted(message) } }
     private fun focus(): Boolean {

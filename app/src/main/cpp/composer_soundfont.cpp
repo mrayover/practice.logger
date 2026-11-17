@@ -30,6 +30,14 @@ static void shapeVoice(Engine* e,int bank,tsf_voice& v,int slot,bool fresh) {
     v.panFactorLeft=std::sqrt((1-s.pan)*.5f); v.panFactorRight=std::sqrt((1+s.pan)*.5f);
 }
 static Engine* engine(jlong h) { return reinterpret_cast<Engine*>(h); }
+// Read installed factory envelopes and custom channel releases, in seconds.
+extern "C" JNIEXPORT jfloat JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_releaseBound(JNIEnv*,jobject,jlong h) {
+    auto e=engine(h); float seconds=TSF_FASTRELEASETIME;
+    for(auto f:e->banks) if(f) for(int p=0;p<f->presetNum;p++)
+        for(int r=0;r<f->presets[p].regionNum;r++) seconds=std::max(seconds,f->presets[p].regions[r].ampenv.release);
+    for(const auto& s:e->shapes) if(s.enabled) seconds=std::max(seconds,s.release/1000.f);
+    return seconds;
+}
 extern "C" JNIEXPORT jlong JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_create(JNIEnv*,jobject) { return reinterpret_cast<jlong>(new Engine()); }
 extern "C" JNIEXPORT jboolean JNICALL Java_com_mrayover_practicelogger_composer_ComposerSynth_load(JNIEnv* env,jobject,jlong h,jint bank,jbyteArray bytes) {
     if(bank<0 || bank>=9) return false;

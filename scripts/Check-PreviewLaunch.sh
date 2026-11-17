@@ -21,7 +21,10 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 
 # One targeted navigation/layout preview; no full regression matrix.
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-if [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5CWorkflowTest ]; then
+if [ "${PREVIEW_TEST_CLASS:-}" = ComposerExportWorkflowTest ]; then
+  trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-export app/build/preview-composer-export || true; adb logcat -d > app/build/preview-export-logcat.txt || true' EXIT
+  timeout 240s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerExportWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5CWorkflowTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c5c app/build/preview-composer-c5c || true; adb logcat -d > app/build/preview-c5c-logcat.txt || true' EXIT
   timeout 180s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC5CWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerLoopLiveTest ]; then

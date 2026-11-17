@@ -1,3 +1,5 @@
+> November16 owner scope clarification: MusicXML is deferred from embedded compose.logger V1 planning. C6A is offline WAV + M4A/AAC backing-track export; C6B Standard MIDI File Type1 remains the next separately authorized phase. Earlier MusicXML approval wording below is historical and is not authorization to implement it. Selected-range export is outside C6A.
+
 # compose.logger Phase 1 — approved V1 contract
 
 Owner-approved November 14, 2026. This is the authoritative forward specification for an offline MIDI composition workstation inside practice.logger, with eventual extraction into an independent Android application named **compose.logger**. Approval of this contract does not authorize every implementation phase. C1/C2 are delivered. The November15 owner handoff separately assigns C2 scrolling/Hand/Actions corrections plus C3 instruments and Loop playback. The November15 C4A handoff separately assigns the dedicated instrument editor, sound controls, custom presets and reused keyboard. C4B–C7 require separate assignments. [Current implementation and evidence](../CURRENT_STATE.md).
