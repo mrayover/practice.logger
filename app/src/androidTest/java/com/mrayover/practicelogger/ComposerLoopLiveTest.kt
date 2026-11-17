@@ -66,7 +66,8 @@ class ComposerLoopLiveTest {
         } finally { ComposerSynth.destroy(h) }
     }
     @Test fun liveWorkerAndMeasuredViewport() {
-        if(InstrumentationRegistry.getArguments().getString("loopLiveSkipNative")!="true") nativeUpdates()
+        val tail=InstrumentationRegistry.getArguments().getString("loopLiveTail")=="true"
+        if(!tail && InstrumentationRegistry.getArguments().getString("loopLiveSkipNative")!="true") nativeUpdates()
         device.executeShellCommand("wm size 1440x3120");device.executeShellCommand("wm density 480")
         val a=CompositionPattern(newCompositionId(),"A",4,listOf(CompositionNote(newCompositionId(),81,0,960,80)))
         val b=CompositionPattern(newCompositionId(),"B",16)
@@ -91,9 +92,10 @@ class ComposerLoopLiveTest {
             File(dir,"$name-roll.png").outputStream().use { image.asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) }
             device.takeScreenshot(File(dir,"$name.png"))
         }
-        fit("01-one-bar-4-4")
+        if(!tail) fit("01-one-bar-4-4")
         // Exact adjacent hit targets: create two short notes, select the first close to its end.
         val width=canvas().fetchSemanticsNode().size.width.toFloat();val scale=(width-key-2)/3840
+        if(!tail) {
         canvas().performTouchInput { click(Offset(key+1200*scale,ruler+4.5f*row)) }
         compose.waitUntil(10000) { vm.project!!.tracks[0].patterns[0].notes.size==2 }
         val drawn=vm.project!!.tracks[0].patterns[0].notes.last();assertEquals(1200L,drawn.startTick)
@@ -114,6 +116,7 @@ class ComposerLoopLiveTest {
         compose.mainClock.advanceTimeBy(100);compose.waitUntil(12000) { audio.appliedNoteUpdates>count };assertTrue(audio.playing)
         tap("Stop");compose.waitUntil(10000) { !audio.playing && audio.voiceCount()==0 }
         inst.runOnMainSync { vm.edit(vm.project!!.replacePattern(a)) };compose.mainClock.advanceTimeBy(100)
+        }
         tap("Zoom +")
         val zoomed=canvas().captureToImage();tap("Mixer");tap("Loop")
         val restored=canvas().captureToImage();assertEquals(zoomed.width,restored.width)
@@ -134,6 +137,6 @@ class ComposerLoopLiveTest {
         inst.runOnMainSync { val pat=vm.project!!.tracks[0].patterns[1];vm.edit(vm.project!!.replacePattern(pat.copy(notes=listOf(a.notes[0].copy(id=newCompositionId(),durationTick=840))))) }
         compose.mainClock.advanceTimeBy(100);fit("02-one-bar-7-8-sixteen-bars")
         device.executeShellCommand("wm size 1440x2400");compose.waitForIdle();compose.mainClock.advanceTimeBy(200);fit("03-narrow-7-8")
-        File(dir,"result.txt").writeText("PASS native scheduled PCM, real running worker add/Undo/empty updates without restart, measured fit 4/4 + 7/8 narrow, 4/16-bar patterns, draw/move/pitch/resize, zoom/pinch and Mixer view retention. Physical acoustics remain owner acceptance.\n")
+        File(dir,"result.txt").writeText(if(tail) "PASS isolated pinch/scroll/Mixer view retention, selected pattern initial fit, 7/8 sixteen-bar pattern and narrow measured fit. Earlier native/live worker/touch/4-4 checks retained from prior runs.\n" else "PASS native scheduled PCM, real running worker add/Undo/empty updates without restart, measured fit 4/4 + 7/8 narrow, 4/16-bar patterns, draw/move/pitch/resize, zoom/pinch and Mixer view retention. Physical acoustics remain owner acceptance.\n")
     }
 }

@@ -464,9 +464,10 @@ private class RollTouch {
                     if (touch.navigation) {
                         val center = centroid(); val d = distance()
                         if (event.pointerCount >= 2) {
-                            val oldScale = pixelsPerTick
+                            // Android can batch moves before recomposition; read the current gesture zoom.
+                            val oldScale = rollPixelsPerTick(viewportWidth,keyWidth,project.barTicks(),zoom)
                             val newZoom = (zoom * if (touch.distance > 0) d/touch.distance else 1f).coerceIn(.0625f,32f)
-                            val anchor = (touch.last.x-keyWidth+panX)/oldScale
+                            val anchor = panTick+(touch.last.x-keyWidth)/oldScale
                             val newScale=rollPixelsPerTick(viewportWidth,keyWidth,project.barTicks(),newZoom)
                             panTick = (anchor-(center.x-keyWidth)/newScale).coerceIn(0f,rollMaxPan(length,viewportWidth,keyWidth,newScale))
                             zoom = newZoom; panY += touch.last.y-center.y
