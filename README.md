@@ -1,3 +1,9 @@
+# Current increment — Loop live notes and one-bar fit
+
+Signed0.56.1/build151 applies note edits on each track's next cycle during Loop Repeat and fits one complete bar by default, preserving zoom/scroll. [Delivery and actual checks](CURRENT_STATE.md) · [Behavior and Repeat-off limits](docs/COMPOSER_LOOP_LIVE.md). Stop before C5C.
+
+---
+
 # Current increment — compose.logger C5B Arrange
 
 Signed 0.56.0/build149 adds song playback, audio-clock playhead, compact lanes for all composition tracks, direct lane-specific pattern placement and atomic Duplicate/Repeat. [Delivery and verification](CURRENT_STATE.md) · [Arrange guide](docs/COMPOSER_C5B.md). Stop before C5C.

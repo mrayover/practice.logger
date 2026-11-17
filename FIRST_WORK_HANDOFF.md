@@ -1,10 +1,13 @@
-# Loop UX mini-increment — verification in progress
+# Loop UX mini-increment complete — signed build151
 
-November16,2026. Bounded live Loop note updates and measured one-bar default fit are implemented for candidate0.56.1/build150. Initial checkout/live remote29486421b96da4ca1ffafa6340b0b8f2d56ea034. Compilation passes; focused host coverage passes after correcting a duplicate-ID test fixture (initial13/14, isolated corrected6/6; unchanged LoopPlan5/SongPlan3 already passed). Release/vital lint and one bounded API35 native PCM/touch/viewport workflow remain pending. No verified delivery or phone acceptance claimed yet. [Implementation and limits](docs/COMPOSER_LOOP_LIVE.md).
+Signed **0.56.1/build151** adds independent next-cycle live notes during Loop Repeat and measured one-bar default fit, retaining relative zoom/scroll, existing gestures, mixer and song snapshots. [Behavior](docs/COMPOSER_LOOP_LIVE.md) · [Authoritative delivery/results/limitations](CURRENT_STATE.md).
 
-Exact next task: finish focused verification and permanent-key APK/ZIP delivery for this increment. Stop before C5C/exports; deferred C4E tests remain stopped. Historical deliveries below remain retained.
+Fourteen focused host methods pass across initial/corrected runs; release/vital lint and Android-test assembly pass. Native scheduled PCM and retained real-worker/touch checks pass; final isolated151 pinch/7/8/narrow viewport44013141015 passes15.271s. Screenshots inspected. Fixture/CI failures and reused passed portions are recorded. Source f35f7e40ef2ed85247c568578ce4e3209b6f0085; final viewport test dc73178fc78d5c1a0186333429f94ee58fdfa620. Canonical checkout/block-ux-stage1 preserved; permanent-key APK/ZIP and evidence copied to OneDrive/Practice Log development/Compose Loop UX delivery/build151. Phone acceptance/cloud sync unobserved.
+
+Mandatory efficiency procedure reviewed; early signed150/151 retained and focused failure isolation used. Signing, data, projects/presets and711 prior package hashes preserved. Repeat-off edits may wait for next Play; Arrange remains snapshot-based. No format change, deferred C4E campaign or F1. **Exact next task: owner acceptance of this Loop increment. Hard stop before C5C or exports.**
 
 ---
+
 # C5B complete — signed build149
 
 Signed **0.56.0/build149** delivers compact all-track Arrange, direct instrument-filtered lane placement, actual song playback/audio-clock playhead, existing live mixer, Duplicate / 2–8 Repeat and existing Undo/persistence. [Behavior](docs/COMPOSER_C5B.md) · [Authoritative source/delivery/checks/limitations](CURRENT_STATE.md).

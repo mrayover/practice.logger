@@ -14,7 +14,7 @@ Live updates require Loop Repeat. With Repeat disabled, edits may wait until the
 
 Measured canvas width minus the fixed 62dp keyboard and a two-pixel boundary margin spans exactly project.barTicks() at relative zoom 1.0. This follows the actual meter, including 7/8 and unusual valid meters. Every horizontal note/grid/ruler/cursor/playhead/hit/drag/resize calculation shares that scale. Vertical note rows remain 26dp.
 
-Relative zoom and horizontal scroll in musical ticks are saved per pattern for the editor visit and Activity recreation. New patterns start at one-bar fit. Note edits and Loop/Mixer navigation preserve intentional adjustments. Resizing recomputes the scale while retaining relative zoom and clamping visible scroll. Existing buttons and pinch remain; bounds are relative 1/16×–32×. Exact note rectangles own hit testing, removing the old extra 12dp overlap into adjacent short notes; the existing internal right-edge handle stays available.
+Relative zoom and horizontal scroll in musical ticks are saved per pattern for the editor visit and Activity recreation. New patterns start at one-bar fit. Note edits and Loop/Mixer navigation preserve intentional adjustments. Resizing recomputes the scale while retaining relative zoom and clamping visible scroll. Existing buttons and pinch remain; bounds are relative 1/16×–32×. Pinch reads current relative zoom for each batched touch move, keeping its musical anchor in tick coordinates. Exact note rectangles own hit testing, removing the old extra 12dp overlap into adjacent short notes; the existing internal right-edge handle stays available.
 
 ## Verification
 
