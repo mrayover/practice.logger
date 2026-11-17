@@ -58,7 +58,7 @@ jobs:
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - name: Compile isolated Loop viewport tail
         if: inputs.check == 'composer-loop-live-tail'
-        run: bash ./gradlew assembleDebug assembleDebugAndroidTest -Pandroid.injected.build.abi=x86_64 --stacktrace
+        run: bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
       - name: Focused Composer persistence checks
         if: inputs.check == 'composer-c4c' || inputs.check == 'composer-c4b' || inputs.check == 'composer-c4a' || inputs.check == 'composer-compact' || inputs.check == 'composer-c1' || inputs.check == 'composer-c2' || inputs.check == 'composer-c3'
         run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.composer.*Test' --tests 'com.mrayover.practicelogger.PianoPcmTest' lintVitalRelease --console=plain
