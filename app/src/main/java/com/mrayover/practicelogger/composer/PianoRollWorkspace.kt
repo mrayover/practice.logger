@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +33,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.*
+import kotlin.reflect.KProperty
+
+private class RollValue(val read: () -> Float,val write: (Float) -> Unit) {
+    operator fun getValue(owner: Any?,property: KProperty<*>) = read()
+    operator fun setValue(owner: Any?,property: KProperty<*>,value: Float) = write(value)
+}
 
 private class RollTouch {
     var down = Offset.Zero
@@ -127,8 +135,13 @@ private class RollTouch {
     var tool by rememberSaveable { mutableStateOf("Draw") }
     var actionsOpen by remember { mutableStateOf(false) }
     var cursor by rememberSaveable { mutableLongStateOf(0) }
-    var zoom by rememberSaveable { mutableFloatStateOf(1f) }
-    var panX by rememberSaveable { mutableFloatStateOf(0f) }
+    val views = rememberSaveable(saver = mapSaver(
+        save = { it.toMap() }, restore = { saved -> mutableStateMapOf<String,Float>().apply { saved.forEach { (k,v) -> put(k,v as Float) } } }
+    )) { mutableStateMapOf<String,Float>() }
+    val viewKey=pattern?.id.orEmpty()
+    var zoom by RollValue({ views["$viewKey:zoom"] ?: 1f },{ views["$viewKey:zoom"]=it })
+    var panTick by RollValue({ views["$viewKey:tick"] ?: 0f },{ views["$viewKey:tick"]=it })
+    var viewportWidth by remember { mutableFloatStateOf(0f) }
     var panY by rememberSaveable { mutableFloatStateOf(0f) }
     var selected by remember { mutableStateOf(setOf<String>()) }
     val selectedNotes = pattern?.notes?.filter { it.id in selected }.orEmpty()
@@ -166,7 +179,7 @@ private class RollTouch {
         try { edit(project.withNotes(pattern,notes)); message = null }
         catch (failure: Exception) { message = failure.message }
     }
-    LaunchedEffect(pattern?.id) { selected = emptySet(); preview = null; marquee = null; cursor = 0; panX = 0f; touch.original = null; touch.lastTap = null; audio.stopAll() }
+    LaunchedEffect(pattern?.id) { selected = emptySet(); preview = null; marquee = null; cursor = 0; touch.original = null; touch.lastTap = null; audio.stopAll() }
     LaunchedEffect(audio) {
         while(true) { soundsReady = audio.ready; playing = audio.playing; transportRepeating = audio.looping; transportFrame = audio.positionFrame(); transportPlan = audio.playbackPlan; delay(30) }
     }
@@ -191,6 +204,13 @@ private class RollTouch {
     }
     LaunchedEffect(track?.id,trackIndex,track?.instrument) { audio.stopAll(); audio.previewSound(trackIndex,track?.instrument?.sound); touch.voices.clear() }
     LaunchedEffect(masterVolume) { audio.masterVolume(masterVolume) }
+    LaunchedEffect(project,transportPlan,transportRepeating) {
+        val running=transportPlan
+        if(running!=null && !running.song && transportRepeating) {
+            val updates=withContext(Dispatchers.Default) { running.noteUpdates(project,patternSelections) }
+            audio.updateNotes(running,updates)
+        }
+    }
     var patternRestart by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     LaunchedEffect(mode) {
         if((mode == "Arrange" && audio.playbackPlan?.song != true) || (mode == "Loop" && audio.playbackPlan?.song == true)) {
@@ -357,8 +377,8 @@ private class RollTouch {
             ComposerControl("Grid ${RollGrid.entries[gridIndex].label}",10) { RollChoice("Grid",RollGrid.entries.map { it.label },gridIndex) { gridIndex = it } },
             ComposerControl("Duration ${RollGrid.entries[durationIndex].label}",10) { RollChoice("Duration",RollGrid.entries.map { it.label },durationIndex) { durationIndex = it } },
             ComposerControl(if(snap) "Snap ☑" else "Snap ☐",10) { ComposerButton(if(snap) "Snap ☑" else "Snap ☐") { snap = !snap } },
-            ComposerControl("Zoom −",2) { ComposerButton("Zoom −") { zoom = (zoom / 1.5f).coerceAtLeast(.5f) } },
-            ComposerControl("Zoom +",2) { ComposerButton("Zoom +") { zoom = (zoom * 1.5f).coerceAtMost(12f) } },
+            ComposerControl("Zoom −",2) { ComposerButton("Zoom −") { zoom = (zoom / 1.5f).coerceAtLeast(.0625f) } },
+            ComposerControl("Zoom +",2) { ComposerButton("Zoom +") { zoom = (zoom * 1.5f).coerceAtMost(32f) } },
             ComposerControl("Actions",10) { Box {
                 ComposerButton("Actions") { actionsOpen = true }
             DropdownMenu(expanded = actionsOpen,onDismissRequest = { actionsOpen = false }) {
@@ -395,14 +415,16 @@ private class RollTouch {
         val keyWidth = 62f*density
         val rulerHeight = 28f*density
         val rowHeight = 26f*density
-        val pixelsPerTick = .11f*density*zoom
+        val pixelsPerTick = rollPixelsPerTick(viewportWidth,keyWidth,project.barTicks(),zoom)
+        var panX by RollValue({ panTick.coerceIn(0f,rollMaxPan(length,viewportWidth,keyWidth,pixelsPerTick))*pixelsPerTick },
+            { panTick=(it/pixelsPerTick).coerceIn(0f,rollMaxPan(length,viewportWidth,keyWidth,pixelsPerTick)) })
         // One viewport transform keeps keys, labels, hit testing and notes aligned for MIDI 0–127.
         fun pitch(y: Float) = (84 - floor((y-rulerHeight+panY)/rowHeight).toInt()).coerceIn(0,127)
         fun tick(x: Float) = boundedTick(((x-keyWidth+panX)/pixelsPerTick).toDouble(),0,length-1,RollGrid.entries[gridIndex],snap)
         fun noteLeft(n: CompositionNote) = keyWidth+n.startTick*pixelsPerTick-panX
         fun noteTop(n: CompositionNote) = rulerHeight+(84-n.pitch)*rowHeight-panY
         val textPaint = remember { Paint(Paint.ANTI_ALIAS_FLAG).apply { color = android.graphics.Color.LTGRAY; typeface = androidx.core.content.res.ResourcesCompat.getFont(context,com.mrayover.practicelogger.R.font.lato_regular) } }
-        Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().background(Color(0xFF11151C)).testTag("piano-roll").pointerInteropFilter { event ->
+        Canvas(Modifier.weight(1f).fillMaxWidth().onSizeChanged { viewportWidth=it.width.toFloat() }.clipToBounds().background(Color(0xFF11151C)).testTag("piano-roll").pointerInteropFilter { event ->
             if (!enabled) return@pointerInteropFilter true
             fun centroid() = Offset((0 until event.pointerCount).sumOf { event.getX(it).toDouble() }.toFloat()/event.pointerCount,(0 until event.pointerCount).sumOf { event.getY(it).toDouble() }.toFloat()/event.pointerCount)
             fun distance() = if (event.pointerCount >= 2) hypot(event.getX(0)-event.getX(1),event.getY(0)-event.getY(1)) else 0f
@@ -427,7 +449,7 @@ private class RollTouch {
                     else if (touch.ruler) cursor = tick(event.x)
                     else if (tool == "Hand") touch.navigation = true
                     else {
-                        val hit = pattern.notes.asReversed().find { n -> event.y in noteTop(n)..(noteTop(n)+rowHeight) && event.x >= noteLeft(n) && event.x <= noteLeft(n)+n.durationTick*pixelsPerTick+12*density }
+                        val hit = pattern.notes.asReversed().find { n -> event.y >= noteTop(n) && event.y < noteTop(n)+rowHeight && event.x >= noteLeft(n) && event.x < noteLeft(n)+n.durationTick*pixelsPerTick }
                         touch.note = hit
                         touch.resize = hit != null && event.x > noteLeft(hit)+max(hit.durationTick*pixelsPerTick*.55f,hit.durationTick*pixelsPerTick-22*density)
                         if (hit != null) { if (hit.id !in selected) selected = setOf(hit.id); audition(hit.pitch) }
@@ -443,9 +465,10 @@ private class RollTouch {
                         val center = centroid(); val d = distance()
                         if (event.pointerCount >= 2) {
                             val oldScale = pixelsPerTick
-                            val newZoom = (zoom * if (touch.distance > 0) d/touch.distance else 1f).coerceIn(.5f,12f)
+                            val newZoom = (zoom * if (touch.distance > 0) d/touch.distance else 1f).coerceIn(.0625f,32f)
                             val anchor = (touch.last.x-keyWidth+panX)/oldScale
-                            panX = (anchor*(.11f*density*newZoom) - (center.x-keyWidth)).coerceAtLeast(0f)
+                            val newScale=rollPixelsPerTick(viewportWidth,keyWidth,project.barTicks(),newZoom)
+                            panTick = (anchor-(center.x-keyWidth)/newScale).coerceIn(0f,rollMaxPan(length,viewportWidth,keyWidth,newScale))
                             zoom = newZoom; panY += touch.last.y-center.y
                         } else if (!touch.keyboard) {
                             panX = (panX+touch.last.x-center.x).coerceAtLeast(0f); panY += touch.last.y-center.y
@@ -504,7 +527,6 @@ private class RollTouch {
             }
             true
         }) {
-            panX = panX.coerceIn(0f,max(0f,length*pixelsPerTick-(size.width-keyWidth)))
             panY = panY.coerceIn(-43*rowHeight,max(-43*rowHeight,85*rowHeight-(size.height-rulerHeight)))
             val firstTick = max(0L,((panX/pixelsPerTick)/RollGrid.entries[gridIndex].ticks).toLong()*RollGrid.entries[gridIndex].ticks)
             val endTick = min(length,((panX+size.width)/pixelsPerTick).toLong())

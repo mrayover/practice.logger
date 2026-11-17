@@ -1,3 +1,10 @@
+# Loop UX mini-increment — verification in progress
+
+November16,2026. Bounded live Loop note updates and measured one-bar default fit are implemented for candidate0.56.1/build150. Initial checkout/live remote29486421b96da4ca1ffafa6340b0b8f2d56ea034. Compilation passes; focused host coverage passes after correcting a duplicate-ID test fixture (initial13/14, isolated corrected6/6; unchanged LoopPlan5/SongPlan3 already passed). Release/vital lint and one bounded API35 native PCM/touch/viewport workflow remain pending. No verified delivery or phone acceptance claimed yet. [Implementation and limits](docs/COMPOSER_LOOP_LIVE.md).
+
+Exact next task: finish focused verification and permanent-key APK/ZIP delivery for this increment. Stop before C5C/exports; deferred C4E tests remain stopped. Historical deliveries below remain retained.
+
+---
 # C5B complete — signed build149
 
 Signed **0.56.0/build149** delivers compact all-track Arrange, direct instrument-filtered lane placement, actual song playback/audio-clock playhead, existing live mixer, Duplicate / 2–8 Repeat and existing Undo/persistence. [Behavior](docs/COMPOSER_C5B.md) · [Authoritative source/delivery/checks/limitations](CURRENT_STATE.md).

@@ -25,6 +25,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     @Volatile private var voiceTotal=0
     @Volatile internal var nonZeroFramesWritten=0L; private set
     @Volatile internal var framesWritten=0L; private set
+    @Volatile internal var appliedNoteUpdates=0L; private set
     @Volatile var playbackPlan: LoopPlan?=null; private set
     @Volatile private var frozenFrame=0L
     @Volatile internal var masterGain=1f; private set
@@ -39,7 +40,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     private val auditionBanks=IntArray(64)
     private val auditionVoices=LongArray(64)
     private val emit: (Int,LoopEvent) -> Unit = { track,event ->
-        val c=clock!!; val t=c.plan.tracks[track]
+        val c=clock!!; val t=c.track(track)
         if(event.on) {
             c.voices[track][event.note]=if(allowed[track]) ComposerSynth.on(handle,t.bank,track,t.notes[event.note].pitch,t.notes[event.note].velocity) else -1
         } else {
@@ -47,6 +48,12 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
             if(voice>=0) ComposerSynth.off(handle,t.bank,voice)
             c.voices[track][event.note]=-1
         }
+    }
+    private val releaseSequence: (Int) -> Unit = { track ->
+        val c=clock!!; val t=c.track(track)
+        for(voice in c.voices[track]) if(voice>=0) ComposerSynth.off(handle,t.bank,voice)
+        c.voices[track].fill(-1L)
+        appliedNoteUpdates++
     }
     private val noisy=object : BroadcastReceiver() { override fun onReceive(context: Context?,intent: Intent?) { interrupt() } }
     init {
@@ -104,8 +111,15 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     fun setLoop(value: Boolean) { submit {
         looping=value
         val c=clock
+        if(!value) c?.clearUpdates()
         if(c?.plan?.song == true) c.repeatEvents=value
         stopAtFrame=if(value || c==null) Long.MAX_VALUE else c.plan.frame((c.plan.tick(c.frame).toLong()/c.plan.regionTicks+1)*c.plan.regionTicks)
+    } }
+    fun updateNotes(expected: LoopPlan,updates: List<LoopNoteUpdate>?) { submit {
+        val c=clock
+        if(playing && looping && c?.plan===expected && !expected.song) {
+            if(updates==null) c.clearUpdates() else for(update in updates) c.offer(update)
+        }
     } }
     fun stop() { submit {
         frozenFrame=positionFrame(); playing=false; draining=false; clock=null
@@ -208,7 +222,7 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
                             playing=false; draining=true; clock=null; frozenFrame=end
                             continue
                         }
-                        c.dispatch(emit)
+                        c.dispatch(emit,releaseSequence)
                         val next=if(looping) c.nextFrame() else minOf(c.nextFrame(),end)
                         val count=minOf((240-offset).toLong(),next-c.frame).coerceAtLeast(1).toInt()
                         ComposerSynth.render(handle,pcm,offset,count); c.advance(count); offset+=count
