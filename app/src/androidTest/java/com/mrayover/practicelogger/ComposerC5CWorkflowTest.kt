@@ -86,10 +86,11 @@ class ComposerC5CWorkflowTest {
         compose.waitUntil(10000) { current().tracks[3].patterns.last().notes.size==2 }
         assertEquals(a,current().tracks[3].patterns[0]);assertEquals(uniqueId,current().tracks[3].patterns.last().id)
         shot("03-edit-variation-one-bar-fit")
-        tap("Play");compose.waitUntil(10000) { audio.playing && !audio.playbackPlan!!.song }
-        assertEquals(uniqueId,audio.playbackPlan!!.tracks[3].patternId);tap("Stop")
+        // Compare with unchanged transport; Loop playback intentionally replaces the song playhead.
         tap("Arrange");assertTrue("zoom, both scroll axes and clip selection restored",view.sameAs(timeline().captureToImage().asAndroidBitmap()))
         assertEquals(entrance,activity().brandFirstDrawMs);shot("04-returned-same-view")
+        tap("Loop");tap("Play");compose.waitUntil(10000) { audio.playing && !audio.playbackPlan!!.song }
+        assertEquals(uniqueId,audio.playbackPlan!!.tracks[3].patternId);tap("Stop");tap("Arrange")
         // Shared edit opens the original by clip identity, despite Loop previously targeting the variation.
         timeline().performTouchInput { click(Offset((156+8*70.4f-24+20)*density,166*density)) }
         val beforeShared=current();tap("Actions");tap("Edit Pattern");assertEquals(beforeShared,current())
