@@ -116,6 +116,36 @@ class ComposerExportWorkflowTest {
         File(dir,"native-results.txt").writeText("Loop $frames frames / ${wave.length()} bytes; Arrange $songFrames frames; AAC $aacFrames frames / ${aac.length()} bytes; decoded $decoded; custom tail $tailFrames frames. Mixer, silence, cancellation and retry pass.")
     }
     private fun activity(): ComposerActivity { var a: ComposerActivity?=null;inst.runOnMainSync { a=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<ComposerActivity>().single() };return a!! }
+    @Test fun destinationFailureAndEncoderSetupFailureCleanOnlyExportFiles() {
+        val source=fixture();val before=CompositionCodec.encode(source)
+        val store=androidx.lifecycle.ViewModelStore()
+        lateinit var export: ComposerExportViewModel
+        inst.runOnMainSync {
+            export=ComposerExportViewModel(context.applicationContext as android.app.Application,androidx.lifecycle.SavedStateHandle())
+            store.put("export-safety",export)
+            export.prepare(source,emptyList(),false,ComposerExportFormat.WAV)
+        }
+        try {
+            compose.waitUntil(15000) { export.request!=null }
+            inst.runOnMainSync { export.destination(android.net.Uri.parse("content://missing.c6a.provider/export")) {} }
+            compose.waitUntil(30000) { !export.active }
+            assertTrue(export.message!!.startsWith("Export failed:"))
+            assertTrue(ComposerOfflineExport.directory(context).listFiles().orEmpty().isEmpty())
+            inst.runOnMainSync { export.prepare(source,emptyList(),false,ComposerExportFormat.WAV) }
+            compose.waitUntil(15000) { export.request!=null }
+            inst.runOnMainSync { export.destination(android.net.Uri.parse("content://missing.c6a.provider/cancel")) { delay(60000) } }
+            assertTrue(export.rendering)
+            inst.runOnMainSync { export.cancel() }
+            compose.waitUntil(10000) { !export.active && !export.rendering }
+            assertTrue(export.message!!.startsWith("Export cancelled."))
+            val invalid=File(dir,"encoder-invalid-directory").apply { mkdirs() }
+            assertTrue(runCatching { ComposerAacSink(invalid) {}.use { it.finish() } }.isFailure)
+            // A new real encoder still works after configuration/muxer setup failure.
+            assertTrue(decode(render(source,"encoder-after-failure",format=ComposerExportFormat.M4A).first).energy>0)
+            assertEquals(before,CompositionCodec.encode(source))
+            File(dir,"failure-cleanup.txt").writeText("Destination failure and AAC setup failure release resources; private export staging empty; source unchanged; encoder retry decodes.")
+        } finally { inst.runOnMainSync { store.clear() } }
+    }
     private fun vm()=ViewModelProvider(activity())[ComposerViewModel::class.java]
     private fun tap(text: String) { compose.onNodeWithText(text).performClick();compose.waitForIdle() }
     private fun exportAction() {
@@ -136,7 +166,8 @@ class ComposerExportWorkflowTest {
         inst.runOnMainSync { compose.activity.startActivity(Intent(compose.activity,ComposerActivity::class.java).putExtra(ComposerActivity.PROJECT_ID,saved.id)) }
         compose.waitUntil(30000) { compose.onAllNodesWithTag("piano-roll").fetchSemanticsNodes(false).isNotEmpty() }
         val audio=activity().auditionEngine!!;compose.waitUntil(30000) { audio.ready }
-        inst.runOnMainSync { vm().editLatest { it.copy(masterVolume=.43f,title="C6A unsaved backing") } }
+        val editor=vm()
+        inst.runOnMainSync { editor.editLatest { it.copy(masterVolume=.43f,title="C6A unsaved backing") } }
         val draft=vm().project!!;val undo=vm().undoCount
         exportAction();compose.onNodeWithText("M4A · compact backing-track file").assertExists();shot("export-dialog")
         tap("Choose destination");savePicker("c6a-owner-loop.m4a")

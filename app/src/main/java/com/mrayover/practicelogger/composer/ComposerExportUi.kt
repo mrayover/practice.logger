@@ -30,14 +30,25 @@ internal class ComposerExportViewModel(app: Application, private val state: Save
     var format=ComposerExportFormat.M4A; private set
     var pickerLaunched=false
     private var job: Job?=null
+    private var recoveryError: String?=null
     private val recovery: Job
     init {
         // A killed process cannot finish its export. Recover only export-owned staging/destination.
-        recovery=viewModelScope.launch(Dispatchers.IO) {
-            ComposerOfflineExport.directory(app).listFiles()?.filter { it.name.startsWith("render-") }?.forEach { it.delete() }
-            state.get<String>("exportDestination")?.let { uri ->
-                runCatching { DocumentsContract.deleteDocument(app.contentResolver,Uri.parse(uri)) }
+        recovery=viewModelScope.launch {
+            try {
+                val interrupted=state.get<String>("exportDestination")
+                val removed=withContext(Dispatchers.IO) {
+                    ComposerOfflineExport.directory(app).listFiles()?.filter { it.name.startsWith("render-") }?.forEach {
+                        check(it.delete() || !it.exists()) { "Could not remove an interrupted export's temporary file." }
+                    }
+                    interrupted==null || runCatching { DocumentsContract.deleteDocument(app.contentResolver,Uri.parse(interrupted)) }.getOrDefault(false)
+                }
                 state["exportDestination"]=null
+                if(!removed) message="An interrupted export could not be removed from its destination. Delete the incomplete file from the chosen folder."
+            } catch(cancelled: CancellationException) { throw cancelled }
+            catch(failure: Exception) {
+                recoveryError="Export recovery failed: ${failure.message}. Free temporary storage and reopen Composer."
+                message=recoveryError
             }
         }
     }
@@ -47,6 +58,7 @@ internal class ComposerExportViewModel(app: Application, private val state: Save
         job=viewModelScope.launch {
             try {
                 recovery.join()
+                check(recoveryError==null) { recoveryError.orEmpty() }
                 val captured=withContext(Dispatchers.Default) { ComposerExportSnapshot.capture(project,selections,arrangement) }
                 withContext(Dispatchers.IO) { ComposerOfflineExport.checkStorage(ComposerOfflineExport.directory(getApplication()),ComposerOfflineExport.estimatedBytes(captured,format)) }
                 request=captured
@@ -92,13 +104,15 @@ internal class ComposerExportViewModel(app: Application, private val state: Save
             } catch(cancelled: CancellationException) { message="Export cancelled." }
             catch(failure: Exception) { message="Export failed: ${failure.message ?: "Could not write audio."}" }
             finally {
-                withContext(NonCancellable+Dispatchers.IO) {
-                    stage?.delete()
-                    if(!success) cleanupFailed=runCatching { DocumentsContract.deleteDocument(getApplication<Application>().contentResolver,uri) }.getOrDefault(false).not()
+                withContext(NonCancellable) {
+                    withContext(Dispatchers.IO) {
+                        stage?.delete()
+                        if(!success) cleanupFailed=runCatching { DocumentsContract.deleteDocument(getApplication<Application>().contentResolver,uri) }.getOrDefault(false).not()
+                    }
+                    state["exportDestination"]=null
+                    if(cleanupFailed) message="${message.orEmpty()} The provider could not remove the incomplete destination; delete it from the chosen folder."
+                    rendering=false; active=false
                 }
-                state["exportDestination"]=null
-                if(cleanupFailed) message="${message.orEmpty()} The provider could not remove the incomplete destination; delete it from the chosen folder."
-                rendering=false; active=false
             }
         }
     }

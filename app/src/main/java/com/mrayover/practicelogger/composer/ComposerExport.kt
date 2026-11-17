@@ -46,7 +46,10 @@ internal class ComposerWaveSink(file: File) : ComposerPcmSink {
     private val output=RandomAccessFile(file,"rw")
     private val bytes=ByteBuffer.allocate(1024).order(ByteOrder.LITTLE_ENDIAN)
     var frames=0L; private set
-    init { output.setLength(0); output.write(ByteArray(44)) }
+    init {
+        try { output.setLength(0); output.write(ByteArray(44)) }
+        catch(failure: Throwable) { output.close(); throw failure }
+    }
     override fun write(pcm: ShortArray, frames: Int) {
         require(frames in 1..256 && this.frames+frames<=MAX_EXPORT_FRAMES)
         bytes.clear(); for(i in 0 until frames*2) bytes.putShort(pcm[i])
@@ -175,8 +178,10 @@ internal object ComposerOfflineExport {
                 ComposerSynth.processing(handle,i,p.lowDb,p.lowMidDb,p.highMidDb,p.highDb,p.eqEnabled,p.width)
             }
             val tailSeconds=ComposerSynth.releaseBound(handle)
-            check(tailSeconds.isFinite() && tailSeconds<=30f) { "Instrument release exceeds the supported 30-second tail limit." }
-            val tailLimit=ceil(tailSeconds*48000.0).toLong()+4800 // bounded DSP settling margin
+            check(tailSeconds.isFinite() && tailSeconds>=0f) { "Instrument release envelope is invalid." }
+            // Some one-shot percussion banks declare a long release but end with their sample.
+            // Let active voices finish naturally, with a documented 30-second safety ceiling.
+            val tailLimit=ceil(minOf(tailSeconds,30f)*48000.0).toLong()+4800
             val clock=LoopClock(plan,!plan.song)
             val pcm=ShortArray(512)
             val emit: (Int,LoopEvent) -> Unit = { i,event ->
