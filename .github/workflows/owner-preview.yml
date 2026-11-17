@@ -5,7 +5,7 @@ on:
       check:
         description: Focused preview check
         type: choice
-        options: [composer-c6a-device, composer-c6a, composer-c5c-device, composer-c5c, composer-loop-live-tail, composer-loop-live-ui, composer-loop-live, composer-c5b-transport, composer-c5b-device, composer-c5b, composer-c5a, composer-c4e-ui, composer-c4e, composer-c4d-tail, composer-c4d-workspace, composer-c4d-touch, composer-c4d, composer-c4c, composer-c4b, composer-c4a, composer-compact, composer-c3, composer-c2-editor, composer-c2, composer-c1, home-fit, cosmic-ui, recording-coverage, playground, weekly-target, waveform, learning, statistics, home, metronome, practice-refinement, practice-layout, loop-refinement]
+        options: [composer-c6a-ui, composer-c6a-device, composer-c6a, composer-c5c-device, composer-c5c, composer-loop-live-tail, composer-loop-live-ui, composer-loop-live, composer-c5b-transport, composer-c5b-device, composer-c5b, composer-c5a, composer-c4e-ui, composer-c4e, composer-c4d-tail, composer-c4d-workspace, composer-c4d-touch, composer-c4d, composer-c4c, composer-c4b, composer-c4a, composer-compact, composer-c3, composer-c2-editor, composer-c2, composer-c1, home-fit, cosmic-ui, recording-coverage, playground, weekly-target, waveform, learning, statistics, home, metronome, practice-refinement, practice-layout, loop-refinement]
         default: home
 permissions:
   contents: read
@@ -54,10 +54,10 @@ jobs:
           g++ -std=c++17 -O2 -Wall -Wextra app/src/test/cpp/channel_dsp_test.cpp -o /tmp/c4e-dsp
           /tmp/c4e-dsp | tee c4e-dsp-result.txt
       - name: Compile owner-test preview (full regression pending)
-        if: inputs.check != 'composer-loop-live-tail' && inputs.check != 'composer-c5c-device' && inputs.check != 'composer-c6a-device'
+        if: inputs.check != 'composer-loop-live-tail' && inputs.check != 'composer-c5c-device' && inputs.check != 'composer-c6a-device' && inputs.check != 'composer-c6a-ui'
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - name: Compile isolated Loop viewport tail
-        if: inputs.check == 'composer-loop-live-tail' || inputs.check == 'composer-c5c-device' || inputs.check == 'composer-c6a-device'
+        if: inputs.check == 'composer-loop-live-tail' || inputs.check == 'composer-c5c-device' || inputs.check == 'composer-c6a-device' || inputs.check == 'composer-c6a-ui'
         run: bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
       - name: Focused Composer persistence checks
         if: inputs.check == 'composer-c4c' || inputs.check == 'composer-c4b' || inputs.check == 'composer-c4a' || inputs.check == 'composer-compact' || inputs.check == 'composer-c1' || inputs.check == 'composer-c2' || inputs.check == 'composer-c3'
@@ -72,7 +72,7 @@ jobs:
         if: inputs.check == 'loop-refinement'
         run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.PhraseAudioTest' --tests 'com.mrayover.practicelogger.PhraseRepositoryTest'
       - uses: actions/upload-artifact@v4
-        if: inputs.check != 'composer-loop-live-tail' && inputs.check != 'composer-c5c-device' && inputs.check != 'composer-c6a-device'
+        if: inputs.check != 'composer-loop-live-tail' && inputs.check != 'composer-c5c-device' && inputs.check != 'composer-c6a-device' && inputs.check != 'composer-c6a-ui'
         with:
           name: practice-logger-unsigned-release
           path: app/build/outputs/apk/release/app-release-unsigned.apk
@@ -96,12 +96,13 @@ jobs:
           disable-animations: true
           script: bash scripts/Check-PreviewLaunch.sh
         env:
+          C6A_UI_ONLY: ${{ inputs.check == 'composer-c6a-ui' }}
           LOOP_LIVE_TAIL: ${{ inputs.check == 'composer-loop-live-tail' }}
           LOOP_LIVE_SKIP_NATIVE: ${{ inputs.check == 'composer-loop-live-ui' }}
           C4E_SKIP_NATIVE: ${{ inputs.check == 'composer-c4e-ui' }}
           C4D_SKIP_NATIVE: ${{ inputs.check == 'composer-c4d-workspace' }}
           COMPOSER_C2: ${{ inputs.check == 'composer-c2' }}
-          PREVIEW_TEST_CLASS: ${{ (inputs.check == 'composer-c6a' || inputs.check == 'composer-c6a-device') && 'ComposerExportWorkflowTest' || (inputs.check == 'composer-c5c' || inputs.check == 'composer-c5c-device') && 'ComposerC5CWorkflowTest' || (inputs.check == 'composer-loop-live' || inputs.check == 'composer-loop-live-ui' || inputs.check == 'composer-loop-live-tail') && 'ComposerLoopLiveTest' || inputs.check == 'composer-c5b-transport' && 'ComposerC5BTransportTest' || (inputs.check == 'composer-c5b' || inputs.check == 'composer-c5b-device') && 'ComposerC5BWorkflowTest' || inputs.check == 'composer-c5a' && 'ComposerC5AWorkflowTest' || (inputs.check == 'composer-c4e' || inputs.check == 'composer-c4e-ui') && 'ComposerC4EWorkflowTest' || inputs.check == 'composer-c4d-tail' && 'ComposerC4DTailTest' || inputs.check == 'composer-c4d-touch' && 'ComposerC4DTouchTest' || (inputs.check == 'composer-c4d' || inputs.check == 'composer-c4d-workspace') && 'ComposerC4DWorkflowTest' || inputs.check == 'composer-c4c' && 'ComposerC4CWorkflowTest' || inputs.check == 'composer-c4b' && 'ComposerC4BWorkflowTest' || inputs.check == 'composer-c4a' && 'ComposerC4AWorkflowTest' || inputs.check == 'composer-compact' && 'ComposerCompactWorkflowTest' || inputs.check == 'composer-c3' && 'ComposerC3WorkflowTest' || inputs.check == 'composer-c2-editor' && 'ComposerPianoRollWorkflowTest' || (inputs.check == 'composer-c1' || inputs.check == 'composer-c2') && 'ComposerFoundationWorkflowTest' || inputs.check == 'home-fit' && 'HomeFitWorkflowTest' || inputs.check == 'cosmic-ui' && 'CosmicUiWorkflowTest' || inputs.check == 'recording-coverage' && 'RecordingWaveformWorkflowTest,com.mrayover.practicelogger.RecordingCoverageWorkflowTest' || inputs.check == 'playground' && 'PlaygroundWorkflowTest' || inputs.check == 'weekly-target' && 'WeeklyTargetWorkflowTest' || inputs.check == 'waveform' && 'RecordingWaveformWorkflowTest' || inputs.check == 'learning' && 'LearningWorkflowTest' || inputs.check == 'statistics' && 'StatisticsNavigationTest' || inputs.check == 'loop-refinement' && 'LoopRecorderPreviewTest' || inputs.check == 'practice-layout' && 'PracticeRefinementPreviewTest' || inputs.check == 'practice-refinement' && 'PracticeRefinementPreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest' || inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
+          PREVIEW_TEST_CLASS: ${{ (inputs.check == 'composer-c6a' || inputs.check == 'composer-c6a-device' || inputs.check == 'composer-c6a-ui') && 'ComposerExportWorkflowTest' || (inputs.check == 'composer-c5c' || inputs.check == 'composer-c5c-device') && 'ComposerC5CWorkflowTest' || (inputs.check == 'composer-loop-live' || inputs.check == 'composer-loop-live-ui' || inputs.check == 'composer-loop-live-tail') && 'ComposerLoopLiveTest' || inputs.check == 'composer-c5b-transport' && 'ComposerC5BTransportTest' || (inputs.check == 'composer-c5b' || inputs.check == 'composer-c5b-device') && 'ComposerC5BWorkflowTest' || inputs.check == 'composer-c5a' && 'ComposerC5AWorkflowTest' || (inputs.check == 'composer-c4e' || inputs.check == 'composer-c4e-ui') && 'ComposerC4EWorkflowTest' || inputs.check == 'composer-c4d-tail' && 'ComposerC4DTailTest' || inputs.check == 'composer-c4d-touch' && 'ComposerC4DTouchTest' || (inputs.check == 'composer-c4d' || inputs.check == 'composer-c4d-workspace') && 'ComposerC4DWorkflowTest' || inputs.check == 'composer-c4c' && 'ComposerC4CWorkflowTest' || inputs.check == 'composer-c4b' && 'ComposerC4BWorkflowTest' || inputs.check == 'composer-c4a' && 'ComposerC4AWorkflowTest' || inputs.check == 'composer-compact' && 'ComposerCompactWorkflowTest' || inputs.check == 'composer-c3' && 'ComposerC3WorkflowTest' || inputs.check == 'composer-c2-editor' && 'ComposerPianoRollWorkflowTest' || (inputs.check == 'composer-c1' || inputs.check == 'composer-c2') && 'ComposerFoundationWorkflowTest' || inputs.check == 'home-fit' && 'HomeFitWorkflowTest' || inputs.check == 'cosmic-ui' && 'CosmicUiWorkflowTest' || inputs.check == 'recording-coverage' && 'RecordingWaveformWorkflowTest,com.mrayover.practicelogger.RecordingCoverageWorkflowTest' || inputs.check == 'playground' && 'PlaygroundWorkflowTest' || inputs.check == 'weekly-target' && 'WeeklyTargetWorkflowTest' || inputs.check == 'waveform' && 'RecordingWaveformWorkflowTest' || inputs.check == 'learning' && 'LearningWorkflowTest' || inputs.check == 'statistics' && 'StatisticsNavigationTest' || inputs.check == 'loop-refinement' && 'LoopRecorderPreviewTest' || inputs.check == 'practice-layout' && 'PracticeRefinementPreviewTest' || inputs.check == 'practice-refinement' && 'PracticeRefinementPreviewTest,com.mrayover.practicelogger.MetronomeButtonPulseTest' || inputs.check == 'metronome' && 'MetronomeButtonPulseTest' || 'HomeNavigationPreviewTest' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

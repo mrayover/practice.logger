@@ -24,12 +24,14 @@ adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 if [ "${PREVIEW_TEST_CLASS:-}" = ComposerExportWorkflowTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-export app/build/preview-composer-export || true; adb logcat -d > app/build/preview-export-logcat.txt || true' EXIT
   : > app/build/preview-home.txt
-  for method in nativeFilesMixerTailCancellationAndRetry destinationFailureAndEncoderSetupFailureCleanOnlyExportFiles realPickerUnsavedDraftFilesAndPlaybackSurviveExport; do
+  methods='nativeFilesMixerTailCancellationAndRetry destinationFailureAndEncoderSetupFailureCleanOnlyExportFiles realPickerUnsavedDraftFilesAndPlaybackSurviveExport'
+  if [ "${C6A_UI_ONLY:-false}" = true ]; then methods=realPickerUnsavedDraftFilesAndPlaybackSurviveExport; fi
+  for method in $methods; do
     timeout 180s adb shell am instrument -w -r -e class "com.mrayover.practicelogger.ComposerExportWorkflowTest#$method" com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee "app/build/preview-export-$method.txt"
     cat "app/build/preview-export-$method.txt" >> app/build/preview-home.txt
     grep -q 'OK (1 test)' "app/build/preview-export-$method.txt"
   done
-  echo 'PASS: 3 isolated C6A export methods' >> app/build/preview-home.txt
+  if [ "${C6A_UI_ONLY:-false}" = true ]; then echo 'PASS: C6A export picker workflow' >> app/build/preview-home.txt; else echo 'PASS: 3 isolated C6A export methods' >> app/build/preview-home.txt; fi
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5CWorkflowTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c5c app/build/preview-composer-c5c || true; adb logcat -d > app/build/preview-c5c-logcat.txt || true' EXIT
   timeout 180s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC5CWorkflowTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt

@@ -162,7 +162,15 @@ class ComposerExportWorkflowTest {
         return output
     }
     private fun savePicker(name: String) {
-        pickerDownloads()
+        device.wait(Until.hasObject(By.clazz("android.widget.EditText")),10000)
+        device.waitForIdle()
+        if(!device.hasObject(By.text("Downloads"))) {
+            device.wait(Until.findObject(By.desc("Show roots")),10000)!!.click()
+            val entry=device.wait(Until.findObject(By.text("Downloads")),10000)!!.visibleBounds
+            device.click(entry.centerX(),entry.centerY())
+            device.waitForIdle()
+        }
+        assertTrue(device.wait(Until.hasObject(By.text("Downloads")),10000))
         device.wait(Until.findObject(By.clazz("android.widget.EditText")),10000)!!.text=name
         device.wait(Until.findObject(By.text(Pattern.compile("SAVE",Pattern.CASE_INSENSITIVE))),10000)!!.click()
         compose.waitUntil(30000) { compose.onAllNodesWithTag("composer-export-result").fetchSemanticsNodes(false).isNotEmpty() }
@@ -188,8 +196,9 @@ class ComposerExportWorkflowTest {
         exportAction();tap("Choose destination");device.wait(Until.hasObject(By.clazz("android.widget.EditText")),10000);device.pressBack()
         compose.waitUntil(15000) { compose.onAllNodesWithText("Export cancelled.").fetchSemanticsNodes(false).isNotEmpty() };tap("OK")
         assertEquals(draft,vm().project);assertEquals(undo,vm().undoCount)
-        tap("Play");compose.waitUntil(15000) { audio.playing && audio.playbackPlan!!.song };tap("Stop")
-        tap("Loop");tap("Play");compose.waitUntil(15000) { audio.playing && audio.playbackPlan?.song==false };tap("Stop")
+        val resumedAudio=activity().auditionEngine!!;compose.waitUntil(30000) { resumedAudio.ready }
+        tap("Play");compose.waitUntil(15000) { resumedAudio.playing && resumedAudio.playbackPlan!!.song };tap("Stop")
+        tap("Loop");tap("Play");compose.waitUntil(15000) { resumedAudio.playing && resumedAudio.playbackPlan?.song==false };tap("Stop")
         assertEquals(draft,vm().project);assertEquals(undo,vm().undoCount)
         assertTrue(ComposerOfflineExport.directory(context).listFiles().orEmpty().isEmpty());shot("returned-draft")
     }
