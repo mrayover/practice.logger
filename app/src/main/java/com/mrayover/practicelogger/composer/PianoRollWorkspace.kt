@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.Modifier
@@ -69,9 +70,14 @@ private class RollTouch {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}, editLatest: ((CompositionProject) -> CompositionProject) -> Unit = { edit(it(project)) }) {
+@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}, editLatest: ((CompositionProject) -> CompositionProject) -> Unit = { edit(it(project)) }, openLoop: () -> Unit = {}) {
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
-    val selections = project.tracks.associate { it.id to (it.mixer.selectedPatternId ?: it.patterns.firstOrNull()?.id.orEmpty()) }
+    // Clip navigation is visit state, not a musical/mixer edit or an Undo entry.
+    val clipTargets = rememberSaveable(saver = mapSaver(
+        save = { it.toMap() }, restore = { saved -> mutableStateMapOf<String,String>().apply { saved.forEach { (k,v) -> put(k,v as String) } } }
+    )) { mutableStateMapOf<String,String>() }
+    val arrangeState=rememberSaveableStateHolder()
+    val selections = project.tracks.associate { t -> t.id to (clipTargets[t.id]?.takeIf { id -> t.patterns.any { it.id==id } } ?: t.mixer.selectedPatternId ?: t.patterns.firstOrNull()?.id.orEmpty()) }
     val volumeDrag = remember { mutableStateMapOf<String,Float>() }
     val panDrag = remember { mutableStateMapOf<String,Float>() }
     val processingDrag = remember { mutableStateMapOf<String,ChannelProcessing>() }
@@ -224,6 +230,7 @@ private class RollTouch {
     fun chooseTrackPattern(owner: CompositionTrack, id: String) {
         val previous = owner.patterns.find { it.id == selections[owner.id] } ?: owner.patterns.firstOrNull()
         if(previous?.id == id || owner.patterns.none { it.id == id }) return
+        clipTargets.remove(owner.id)
         mixer(owner.id) { it.copy(selectedPatternId = id) }
         if(audio.playbackPlan?.song != true && (audio.playing || patternRestart?.isActive == true)) {
             patternRestart?.cancel(); audio.stop()
@@ -275,6 +282,7 @@ private class RollTouch {
         }) { Text(if(deleting) "Confirm deletion" else "Save name") } },dismissButton={ TextButton(onClick={ management=null }) { Text("Cancel") } })
     }
     if(mode == "Arrange") {
+        arrangeState.SaveableStateProvider("arrange") {
         ArrangeWorkspace(project,enabled,canUndo,
             undo={ patternRestart?.cancel(); audio.stop(); undo() },
             editLatest={ transform -> patternRestart?.cancel(); audio.stop(); editLatest(transform) },
@@ -289,7 +297,15 @@ private class RollTouch {
                         syncMixer(snapshot.trackIds); audio.play(snapshot,false); message=null
                     } catch(e: Exception) { message=e.message }
                 }
-            },stop={ patternRestart?.cancel(); audio.stop() },beginning={ audio.beginning() },transportMessage=message,modifier=modifier)
+            },stop={ patternRestart?.cancel(); audio.stop() },beginning={ audio.beginning() },transportMessage=message,
+            editPattern={ clip ->
+                val owner=project.tracks.find { it.id==clip.trackId }
+                if(owner?.patterns?.any { it.id==clip.patternId } == true) {
+                    patternRestart?.cancel(); audio.stop(); audio.stopAll()
+                    trackId=clip.trackId; clipTargets[clip.trackId]=clip.patternId; openLoop()
+                }
+            },modifier=modifier)
+        }
         return
     }
     Column(modifier.fillMaxWidth()) {
@@ -303,10 +319,10 @@ private class RollTouch {
             add(ComposerControl("Pattern "+(pattern?.title ?: "—"),10,130) {
                 RollChoice("Pattern",track?.patterns?.map { it.title } ?: emptyList(),track?.patterns?.indexOf(pattern) ?: -1,enabled && track!=null,display=pattern?.title ?: "—",extra={ close ->
                     DropdownMenuItem(text={ Text("Create Pattern") },enabled=enabled && track!=null && track.patterns.size<COMPOSER_MAX_PATTERNS,onClick={
-                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id); edit(changed.copy(formatVersion=maxOf(3,changed.formatVersion),tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
+                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id); clipTargets.remove(track!!.id); edit(changed.copy(formatVersion=maxOf(3,changed.formatVersion),tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
                     })
                     DropdownMenuItem(text={ Text("Duplicate Pattern") },enabled=enabled && pattern!=null && track!!.patterns.size<COMPOSER_MAX_PATTERNS,onClick={
-                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id,pattern!!.id); edit(changed.copy(formatVersion=maxOf(3,changed.formatVersion),tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
+                        close(); try { val changed=ComposerManagement.addPattern(project,track!!.id,pattern!!.id); clipTargets.remove(track!!.id); edit(changed.copy(formatVersion=maxOf(3,changed.formatVersion),tracks=changed.tracks.map { if(it.id==track!!.id) it.copy(mixer=it.mixer.copy(selectedPatternId=it.patterns.last().id)) else it })) } catch(e: Exception) { message=e.message }
                     })
                     DropdownMenuItem(text={ Text("Rename Pattern") },enabled=enabled && pattern!=null,onClick={ close(); manage("Rename Pattern") })
                     DropdownMenuItem(text={ Text("Delete Pattern") },enabled=enabled && pattern!=null,onClick={ close(); manage("Delete Pattern") })

@@ -9,12 +9,12 @@ internal object ComposerManagement {
         fun letters(n: Int): String { var v=n; var out=""; do { out=('A'+v%26)+out; v=v/26-1 } while(v>=0); return out }
         return generateSequence(0) { it+1 }.map(::letters).first { name -> t.patterns.none { it.title==name } }
     }
-    fun addPattern(p: CompositionProject,trackId: String,sourceId: String?=null): CompositionProject {
+    fun addPattern(p: CompositionProject,trackId: String,sourceId: String?=null,copySuffix: String="Copy"): CompositionProject {
         val t=track(p,trackId); require(t.patterns.size<COMPOSER_MAX_PATTERNS) { "Each instrument supports up to 256 patterns." }
         val source=sourceId?.let { pattern(t,it) }
         var name=nextPatternTitle(t)
         if(source!=null) {
-            val stem=source.title.take(106)+" Copy"; name=stem; var serial=2
+            val stem=source.title.take(106)+" $copySuffix"; name=stem; var serial=2
             while(t.patterns.any { it.title==name }) name="$stem "+serial++
         }
         val added=source?.copy(id=newCompositionId(),title=name,notes=source.notes.map { it.copy(id=newCompositionId()) })

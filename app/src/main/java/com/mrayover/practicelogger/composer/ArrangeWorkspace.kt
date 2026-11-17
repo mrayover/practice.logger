@@ -38,7 +38,7 @@ private class ArrangeTouch {
 @Composable internal fun ArrangeWorkspace(project: CompositionProject, enabled: Boolean, canUndo: Boolean,
     undo: () -> Unit, editLatest: ((CompositionProject) -> CompositionProject) -> Unit,
     ready: Boolean, playing: Boolean, playheadTick: Double?, play: () -> Unit, stop: () -> Unit,
-    beginning: () -> Unit, transportMessage: String?, modifier: Modifier=Modifier) {
+    beginning: () -> Unit, transportMessage: String?, editPattern: (ArrangementClip) -> Unit, modifier: Modifier=Modifier) {
     var bar by rememberSaveable { mutableLongStateOf(0) }
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     var hand by rememberSaveable { mutableStateOf(false) }
@@ -105,6 +105,12 @@ private class ArrangeTouch {
             ComposerControl("Actions",7) { Box {
                 ComposerButton("Actions",enabled) { actions=true }
                 DropdownMenu(expanded=actions,onDismissRequest={ actions=false }) {
+                    DropdownMenuItem(text={ Text("Edit Pattern") },enabled=project.clips.any { it.id==selected },onClick={
+                        project.clips.find { it.id==selected }?.let(editPattern); actions=false
+                    })
+                    DropdownMenuItem(text={ Text("Make Unique") },enabled=project.clips.any { it.id==selected },onClick={
+                        selected?.let { id -> mutate { ArrangementEdits.makeUnique(it,id) } }; actions=false
+                    })
                     DropdownMenuItem(text={ Text("Duplicate Clip") },enabled=project.clips.any { it.id==selected },onClick={
                         selected?.let { id -> mutate { ArrangementEdits.repeat(it,id,1) } }; actions=false
                     })

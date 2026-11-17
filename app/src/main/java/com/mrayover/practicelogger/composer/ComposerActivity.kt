@@ -239,7 +239,7 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
                 ComposerControl("Return", 10) { ComposerButton("Return", !vm.busy) { back() } }
             ))
             if (portraitFallback) Text("Rotate or widen for the piano roll.", style = MaterialTheme.typography.bodySmall)
-            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo, vm::editLatest) }
+            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo, vm::editLatest, openLoop={ mode="Loop" }) }
             Text("${project.title} · ${project.tempoBpm} BPM · ${project.numerator}/${project.denominator} · ${vm.error ?: vm.status}",
                 color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall, maxLines = if (vm.error != null) 3 else 1,

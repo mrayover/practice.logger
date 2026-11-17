@@ -23,6 +23,14 @@ internal object ArrangementEdits {
         return p.copy(clips=p.clips.map { if(it.id==id) it.copy(startTick=tick) else it }).also(CompositionCodec::validate)
     }
     fun delete(p: CompositionProject, id: String) = p.copy(clips=p.clips.filterNot { it.id==id }).also(CompositionCodec::validate)
+    /** Clone and rebind in one validated snapshot, without changing clip or mixer identity. */
+    fun makeUnique(p: CompositionProject, id: String): CompositionProject {
+        val clip=p.clips.single { it.id==id }
+        val copied=ComposerManagement.addPattern(p,clip.trackId,clip.patternId,copySuffix="Variation")
+        val variation=copied.tracks.single { it.id==clip.trackId }.patterns.last()
+        return copied.copy(clips=copied.clips.map { if(it.id==id) it.copy(patternId=variation.id) else it })
+            .also(CompositionCodec::validate)
+    }
     /** Validate the complete batch in a private snapshot; callers commit exactly once. */
     fun repeat(p: CompositionProject, id: String, additional: Int): CompositionProject {
         require(additional in 1..8) { "Choose 2–8 additional instances, or Duplicate for one copy." }
