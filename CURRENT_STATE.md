@@ -6,6 +6,8 @@ Signed local build156 contains both features. Its delivered APK SHA256 was reche
 
 Fresh Git push fails before authentication with `getaddrinfo() thread failed to start`. GitHub create_blob independently returns403 `Resource not accessible by integration`. The actual live branch ref remains `bc7b602ff4991341b825e262629c64f201a94db8`, verified through GitHub. No remote changes were made. Canonical Projects remains at that baseline; the clean older OneDrive main checkout was left untouched. This reconciliation changes documentation only.
 
+
+Fresh connected-app recheck on November17: account metadata reports push permission, but actual blob creation still returns403 Resource not accessible by integration; CLI push still fails before authentication. Remote remains bc7b602. No publication or build/test change; the exact next task above is unchanged.
 **Exact next task:** publish the existing local block-ux-stage1 history through a network-enabled Git context or GitHub connection with repository write access, then fast-forward the canonical checkout. MIME Android verification remains separately pending; do not repeat passed build/weekly checks.
 
 ---
