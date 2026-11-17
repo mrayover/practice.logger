@@ -1,3 +1,15 @@
+# November17 Git reconciliation - publication still blocked
+
+The pending features are already separate commits: `e5e4373` is the M4A provider-MIME correction with its focused Android fixture/test; `3f619b5` is weekly repetition targets and Planned Minutes with migration/backup and focused host checks. `cd2ea5d` and `8c00703` record delivery/access problems. No uncommitted application changes were found.
+
+Signed local build156 contains both features. Its delivered APK SHA256 was rechecked as `e162e86f71fd849a64d8b19e788e32b22e3248e7d3a68e2074a027bd9d18821d`. Release compilation and weekly focused passes are prior evidence; the M4A Android import method remains unrun. No rebuild/test rerun in this Git review. Earlier claims below that source is uncommitted or build156 absent are historical and superseded.
+
+Fresh Git push fails before authentication with `getaddrinfo() thread failed to start`. GitHub create_blob independently returns403 `Resource not accessible by integration`. The actual live branch ref remains `bc7b602ff4991341b825e262629c64f201a94db8`, verified through GitHub. No remote changes were made. Canonical Projects remains at that baseline; the clean older OneDrive main checkout was left untouched. This reconciliation changes documentation only.
+
+**Exact next task:** publish the existing local block-ux-stage1 history through a network-enabled Git context or GitHub connection with repository write access, then fast-forward the canonical checkout. MIME Android verification remains separately pending; do not repeat passed build/weekly checks.
+
+---
+
 # Build156 delivery/publication correction
 
 The signed APK/ZIP already exist in `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/This-Week-delivery/build156`; File Explorer now visibly confirms them. OneDrive currently reports Sync pending. No download is required. Application source is committed locally at **3f619b5efa5a8256efdfd7b2fee1a1d6f074ccc1**; the earlier uncommitted status below is superseded.

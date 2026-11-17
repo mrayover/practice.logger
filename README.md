@@ -2,9 +2,9 @@
 
 Weekly entries default to three repetitions, editable with minus/plus inside their expanded This Week/Prepare Week row. Collapsed dots/squares and completed/target counts track progress; every additional completion still earns its own Playground reward. Planned Minutes uses configured durations and weekly targets. Existing memberships retain one-practice targets during migration. [Behavior/persistence](docs/WEEK_REPETITIONS.md) · [Actual verification and delivery](CURRENT_STATE.md).
 
-# M4A compatibility fix - pending focused verification and signed delivery
+# M4A compatibility fix - signed locally; Android import verification pending
 
-Candidate0.58.1/build156 corrects the provider-MIME gate while retaining real AAC content validation. The focused valid/invalid import method is added but unrun; compilation and signed delivery are blocked by the current execution environment. Last delivered APK remains155. See [CURRENT_STATE](CURRENT_STATE.md) for precise blockers, checkout location and the one next task. No further Composer phase is authorized.
+Signed local0.58.1/build156 contains the M4A provider-MIME correction and weekly repetition targets. Release compilation passed during weekly-target delivery; the focused valid/invalid Android import method remains unrun. MIME source is separate commit e5e4373; weekly targets are commit3f619b5. Publication remains blocked by CLI networking and GitHub integration write access. See [CURRENT_STATE](CURRENT_STATE.md) for verified status. No further Composer phase is authorized.
 
 ---
 
