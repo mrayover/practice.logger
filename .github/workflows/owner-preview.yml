@@ -54,7 +54,11 @@ jobs:
           g++ -std=c++17 -O2 -Wall -Wextra app/src/test/cpp/channel_dsp_test.cpp -o /tmp/c4e-dsp
           /tmp/c4e-dsp | tee c4e-dsp-result.txt
       - name: Compile owner-test preview (full regression pending)
+        if: inputs.check != 'composer-loop-live-tail'
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
+      - name: Compile isolated Loop viewport tail
+        if: inputs.check == 'composer-loop-live-tail'
+        run: bash ./gradlew assembleDebug assembleDebugAndroidTest -Pandroid.injected.build.abi=x86_64 --stacktrace
       - name: Focused Composer persistence checks
         if: inputs.check == 'composer-c4c' || inputs.check == 'composer-c4b' || inputs.check == 'composer-c4a' || inputs.check == 'composer-compact' || inputs.check == 'composer-c1' || inputs.check == 'composer-c2' || inputs.check == 'composer-c3'
         run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.composer.*Test' --tests 'com.mrayover.practicelogger.PianoPcmTest' lintVitalRelease --console=plain
@@ -68,6 +72,7 @@ jobs:
         if: inputs.check == 'loop-refinement'
         run: bash ./gradlew testDebugUnitTest --tests 'com.mrayover.practicelogger.PhraseAudioTest' --tests 'com.mrayover.practicelogger.PhraseRepositoryTest'
       - uses: actions/upload-artifact@v4
+        if: inputs.check != 'composer-loop-live-tail'
         with:
           name: practice-logger-unsigned-release
           path: app/build/outputs/apk/release/app-release-unsigned.apk

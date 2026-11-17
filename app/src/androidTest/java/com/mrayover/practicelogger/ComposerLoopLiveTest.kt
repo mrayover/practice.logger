@@ -126,7 +126,8 @@ class ComposerLoopLiveTest {
         canvas().performTouchInput { swipe(Offset(key+500,ruler+100),Offset(key+420,ruler+100),400) }
         assertTrue("Hand scroll uses the same measured transform",noteEnd()<endBeforeScroll-50)
         tap("Tool: Hand");tap("Draw")
-        canvas().performTouchInput { pinch(Offset(key+200,ruler+100),Offset(key+500,ruler+100),Offset(key+100,ruler+100),Offset(key+600,ruler+100),400) }
+        canvas().performTouchInput { pinch(start0=Offset(key+200,ruler+100),end0=Offset(key+100,ruler+100),
+            start1=Offset(key+500,ruler+100),end1=Offset(key+600,ruler+100),durationMillis=400) }
         assertTrue("pinch preserves an editable visible note",noteEnd()>key)
         tap("Zoom −");tap("Zoom −")
         // New pattern starts at fit and revisiting A retains its intentional view.
