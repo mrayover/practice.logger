@@ -24,5 +24,7 @@ class WeekCompletionTest {
 
         assertEquals(mapOf("source" to latest), weekCompletions(listOf(records), week, zone))
         assertEquals(mapOf("next" to after), weekCompletions(listOf(records), week.plusWeeks(1), zone))
+        assertEquals(mapOf("source" to 2), weekCompletionCounts(listOf(records), week, zone))
+        assertEquals(mapOf("next" to 1), weekCompletionCounts(listOf(records), week.plusWeeks(1), zone))
     }
 }

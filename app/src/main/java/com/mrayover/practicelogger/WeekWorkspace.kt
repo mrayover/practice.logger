@@ -23,7 +23,7 @@ internal fun WeekWorkspace(
     targetEditable: Boolean, weeklyProgress: WeeklyTargetProgress?,
     week: LocalDate, isCurrent: Boolean, plans: List<WeekBlock>, catalog: Catalog,
     preparing: Boolean, vm: CatalogViewModel, practice: PracticeViewModel, hasDraft: Boolean,
-    completions: Map<String, BlockCompletion>, references: Map<String, List<String>>,
+    completions: Map<String, BlockCompletion>, completionCounts: Map<String, Int>, references: Map<String, List<String>>,
     onNavigate: (Long) -> Unit, onBack: () -> Unit, onPrepare: () -> Unit, onCreate: () -> Unit,
     onEdit: (String) -> Unit, onBuild: (List<String>) -> Unit
 ) {
@@ -35,6 +35,7 @@ internal fun WeekWorkspace(
     val recommendations = if (preparing) rememberBlockRecommendations(catalog.blocks) else null
     val weekKey = week.toString()
     val blocks = catalog.blocks.associateBy { it.id }
+    val weekPlans = plans.filter { it.weekStart == weekKey }.associateBy { it.blockId }
     val assigned = plans.filter { it.weekStart == weekKey }.mapNotNull { blocks[it.blockId] }
     val assignedIds = assigned.mapTo(hashSetOf()) { it.id }
     val selectedIds = assigned.filter { !it.archived && it.id in selected }.map { it.id }
@@ -56,6 +57,8 @@ internal fun WeekWorkspace(
         item {
             PageHeading(if (preparing) "Prepare Week" else "This Week", style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.semantics { heading() })
+            Text("Planned Minutes: ${plannedWeekMinutes(plans, catalog.blocks, week)}",
+                style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("week-planned-minutes"))
             Text(weekRange(week) + if (isCurrent) " · Current week" else "")
             if (!preparing) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { onNavigate(-1) }, enabled = enabled) { Text("Previous week") }
@@ -93,6 +96,8 @@ internal fun WeekWorkspace(
         }
         if (assigned.isEmpty()) item { Text("No Blocks assigned to this week.") }
         items(assigned, key = { "assigned-${it.id}" }) { block ->
+            val plan = weekPlans.getValue(block.id)
+            val progress = WeekRepetitionProgress(plan.plannedRepetitions, completionCounts[block.id] ?: 0)
             val selection: (@Composable () -> Unit)? = if (selecting && !block.archived) { {
                 Checkbox(
                     checked = block.id in selected,
@@ -106,7 +111,19 @@ internal fun WeekWorkspace(
             } } else null
             BlockPill(block, indicators.block(block.id), references[block.id].orEmpty(),
                 modifier = Modifier.testTag("week-block-${block.id}"),
-                completion = completions[block.id], selection = selection) {
+                completion = completions[block.id], selection = selection, weeklyProgress = progress) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text("Repetitions", style = MaterialTheme.typography.bodyMedium)
+                    TextButton(onClick = { vm.setWeekRepetitions(week, block.id, plan.plannedRepetitions - 1) },
+                        enabled = enabled && plan.plannedRepetitions > 1,
+                        modifier = Modifier.testTag("week-repetitions-minus-${block.id}")
+                            .semantics { contentDescription = "Decrease planned repetitions" }) { Text("−") }
+                    Text(plan.plannedRepetitions.toString(), modifier = Modifier.testTag("week-repetitions-${block.id}"))
+                    TextButton(onClick = { vm.setWeekRepetitions(week, block.id, plan.plannedRepetitions + 1) },
+                        enabled = enabled && plan.plannedRepetitions < Int.MAX_VALUE,
+                        modifier = Modifier.testTag("week-repetitions-plus-${block.id}")
+                            .semantics { contentDescription = "Increase planned repetitions" }) { Text("+") }
+                }
                 if (!preparing && !selecting && !block.archived) TextButton(
                     onClick = { practice.startWeekBlock(block.id) }, enabled = enabled,
                     modifier = Modifier.testTag("practice-week-${block.id}")

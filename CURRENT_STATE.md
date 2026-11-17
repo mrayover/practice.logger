@@ -1,4 +1,18 @@
-# M4A import compatibility fix - implemented, verification/delivery blocked
+# This Week repetitions - implemented, signed local build156
+
+November17,2026. Signed local **0.58.1/build156** adds weekly repetition targets (new membership3, minimum1, editable in expanded This Week/Prepare Week rows), collapsed dots/squares with bounded numeric condensation, completed/target counts, target-gated completion slit, and configured Planned Minutes below the heading. The unchanged placement completion/Playground pipeline remains uncapped. Room28 explicitly migrates existing memberships to target1 without changing history/rewards. Complete ZIP13 preserves targets and reads frozen ZIP1-12; JSON7 is unchanged. [Behavior/files](docs/WEEK_REPETITIONS.md).
+
+**Verification:** release compilation, generated Room28 schema and vital lint pass. Three focused methods pass through direct JUnit/Robolectric API35: repetition/reward/target/duration/removal/backup/reopen8.794s, explicit27→28 history/layout preservation0.290s, local-week completion boundaries/counts0.023s. No broader suite, instrumentation, screenshots or phone acceptance is claimed. Standard Gradle test workers cannot connect to localhost in this environment; direct execution uses the existing cached Android jar and a short writable temporary directory. A migration-fixture missing optional indices was corrected; only test sources were recompiled afterward, with application compilation up-to-date.
+
+**Delivery:** `dist/practice.logger-0.58.1-b156-e5e4373/` contains the permanent-key APK, BUILD_INFO, SOURCE.patch, report and short phone check; matching ZIP is alongside it. APK SHA256 **e162e86f71fd849a64d8b19e788e32b22e3248e7d3a68e2074a027bd9d18821d**. Package/version, signature and pinned permanent certificate pass. The existing publisher was reused through a temporary adaptation that reads the canonical signing/tools paths and records base-plus-patch provenance; no key copy/change or canonical distribution write. No production data was touched.
+
+Work is local in the existing writable `m4a-import-fix` checkout, based on **e5e4373** (the prior M4A fix). SOURCE.patch captures the exact application/test/schema changes and behavior document; BUILD_INFO records its hash. Changes are **not committed or pushed**; canonical `C:/Users/mrove/Projects/practice.logger` remains unchanged. Git remote verification failed with `getaddrinfo() thread failed to start`. The prior M4A source now compiles with this candidate, but its Android import method remains unrun. No Composer implementation was changed.
+
+**Exact next task:** synchronize the verified weekly-repetition source from the writable checkout into canonical block-ux-stage1 using the owner's GitHub Desktop workflow. Physical-phone visual/install acceptance remains unobserved. Stop before unrelated phases.
+
+---
+
+# Retained M4A work record before the weekly-target build
 
 November17,2026. Candidate 0.58.1/build156 changes only the M4A provider-MIME gate: audio/*, video/mp4 and application/mp4 hints can reach the unchanged inspectImportedAudio validator. MP3/WAV and visual/PDF MIME rules are unchanged. Actual codec, single audio track, decoded duration, malformed-content and size validation remain in force. Samsung's actual declared MIME is unknown.
 

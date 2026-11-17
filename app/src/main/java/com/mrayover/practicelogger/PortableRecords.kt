@@ -108,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 12
+internal const val PORTABLE_VERSION = 13
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -143,7 +143,10 @@ private val portableTablesV9 = portableTablesV8 + listOf(
 )
 
 private val portableTablesV11 = portableTablesV9 + PortableTable("weekly_practice_targets", "weekStart targetMinutes:i")
-internal val portableTables = portableTablesV11 + PortableTable("playground_layouts", "placementId x:f y:f rotationDegrees:f")
+private val portableTablesV12 = portableTablesV11 + PortableTable("playground_layouts", "placementId x:f y:f rotationDegrees:f")
+internal val portableTables = portableTablesV12.map { table ->
+    if (table.name == WEEK_TABLE) PortableTable(WEEK_TABLE, "weekStart blockId position:i plannedRepetitions:i") else table
+}
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -161,6 +164,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         8 -> portableTablesV8
         9, 10 -> portableTablesV9
         11 -> portableTablesV11
+        12 -> portableTablesV12
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -237,6 +241,9 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         }
         val blockIds = core.blocks.mapTo(hashSetOf()) { it.id }
         for ((week, entries) in this[WEEK_TABLE].groupBy { it.getString("weekStart") }) {
+            if (version >= 13) require(entries.all { it.getInt("plannedRepetitions") >= 1 }) {
+                "Invalid weekly repetition target."
+            }
             val date = LocalDate.parse(week)
             require(date.toString() == week && practiceWeek(date) == date) { "Invalid weekly plan start date." }
             val members = hashSetOf<String>()

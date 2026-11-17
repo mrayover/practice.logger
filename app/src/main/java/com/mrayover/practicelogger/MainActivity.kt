@@ -345,7 +345,8 @@ class MainActivity : ComponentActivity() {
                     weeklyProgress = if (practiceEntries != null && weeklyTargets != null) WeeklyTargetProgress(targetWeekMs(practiceEntries!!, selectedWeek, weekZone), target?.targetMinutes) else null,
                     week = selectedWeek, isCurrent = selectedWeek == currentWeek, plans = weekBlocks, catalog = catalog, preparing = preparing,
                     vm = vm, practice = practice, hasDraft = sessions.draft?.placements?.isNotEmpty() == true,
-                    completions = completions, references = blockReferenceSummaries(images),
+                    completions = completions, completionCounts = weekCompletionCounts(sessions.bundles, selectedWeek, weekZone),
+                    references = blockReferenceSummaries(images),
                     onNavigate = { offset ->
                         val next = selectedWeek.plusWeeks(offset)
                         viewedWeek = next.takeUnless { it == currentWeek }?.toString()

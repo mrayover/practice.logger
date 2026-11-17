@@ -23,6 +23,98 @@ class WeekPlanTest {
     private val context get() = ApplicationProvider.getApplicationContext<Context>()
     private val sunday = LocalDate.of(2026, 11, 8)
 
+    @Test fun repetitionTargetsPreserveEveryRewardAndSurviveReopen() = runBlocking {
+        val name = "week-repetitions-${UUID.randomUUID()}.db"
+        var db = BlockDatabase.open(context, name)
+        try {
+            val repo = BlockRepository(db)
+            val id = repo.save(null, BlockDraft("Practice", "Play", "10"), sunday)
+            suspend fun plans() = db.weekPlan().read(sunday.toString())
+            suspend fun minutes() = plannedWeekMinutes(plans(), db.blocks().readAll(), sunday)
+            assertEquals(3, plans().single().plannedRepetitions)
+            assertEquals(30L, minutes())
+            repo.addToWeek(sunday, id) // Re-adding existing membership must not reset edits.
+            repo.setWeekRepetitions(sunday, id, 4)
+            repo.addToWeek(sunday, id)
+            assertEquals(4, plans().single().plannedRepetitions)
+            val sessions = SessionRepository(db) { sunday.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli() + 1000 }
+            repeat(6) {
+                val session = sessions.startBlock(id)
+                sessions.finishBlock(session, "COMPLETED", "", placementId = db.sessions().find(session)!!.current!!.id)
+            }
+            val rewards = PlaygroundRepository(db).ensureLayouts()
+            assertEquals(6, rewards.size)
+            assertEquals(6, weekCompletionCounts(db.sessions().readAll(), sunday)[id])
+            assertEquals(4, WeekRepetitionProgress(4, 6).dots)
+            assertTrue(WeekRepetitionProgress(4, 6).fulfilled)
+            repo.setWeekRepetitions(sunday, id, 8)
+            assertEquals(2, WeekRepetitionProgress(8, 6).remaining)
+            assertFalse(WeekRepetitionProgress(8, 6).fulfilled)
+            assertEquals(80L, minutes())
+            repo.setWeekRepetitions(sunday, id, 2)
+            assertTrue(WeekRepetitionProgress(2, 6).fulfilled)
+            assertTrue(runCatching { repo.setWeekRepetitions(sunday, id, 0) }.isFailure)
+            repo.carryWeek(sunday, sunday.plusWeeks(1))
+            assertEquals(3, db.weekPlan().read(sunday.plusWeeks(1).toString()).single().plannedRepetitions)
+            repo.save(id, BlockDraft("Practice", "Play", "15"))
+            assertEquals(30L, minutes())
+            assertEquals(rewards, PlaygroundRepository(db).ensureLayouts())
+            val tables = JSONObject()
+            portableTables.forEach { table -> tables.put(table.name, table.snapshot(db.openHelper.writableDatabase) {}) }
+            val payload = JSONObject().put("version", PORTABLE_VERSION).put("tables", tables)
+                .put("preferences", PortablePreferences.snapshot(context).encode())
+            val records = PortableRecords(payload, PORTABLE_VERSION)
+            val restored = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
+            try {
+                restored.withTransaction { records.insertInto(restored.openHelper.writableDatabase) }
+                assertEquals(plans(), restored.weekPlan().read(sunday.toString()))
+                assertEquals(db.playground().completions(), restored.playground().completions())
+            } finally { restored.close() }
+            db.close(); db = BlockDatabase.open(context, name)
+            assertEquals(2, plans().single().plannedRepetitions)
+            assertEquals(6, weekCompletionCounts(db.sessions().readAll(), sunday)[id])
+            assertEquals(rewards, PlaygroundRepository(db).ensureLayouts())
+            BlockRepository(db).removeFromWeek(sunday, id)
+            assertEquals(0L, minutes())
+            assertEquals(rewards, PlaygroundRepository(db).ensureLayouts())
+        } finally { db.close(); context.deleteDatabase(name) }
+        Unit
+    }
+
+    @Test fun room27WeeklyMigrationRetainsMembershipAndOnePracticeTarget() = runBlocking {
+        val name = "week-migrate-${UUID.randomUUID()}.db"
+        val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/27.json")!!
+            .bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
+        val file = context.getDatabasePath(name).apply { parentFile!!.mkdirs() }
+        SQLiteDatabase.openOrCreateDatabase(file, null).use { sql ->
+            val entities = schema.getJSONArray("entities")
+            repeat(entities.length()) { i ->
+                val entity = entities.getJSONObject(i)
+                fun execute(query: String) = sql.execSQL(query.replace("$" + "{TABLE_NAME}", entity.getString("tableName")))
+                execute(entity.getString("createSql"))
+                entity.optJSONArray("indices")?.let { indices -> repeat(indices.length()) { execute(indices.getJSONObject(it).getString("createSql")) } }
+            }
+            sql.execSQL("INSERT INTO blocks VALUES ('b','Practice','Play',10,NULL,'',0,1,1)")
+            sql.execSQL("INSERT INTO week_blocks VALUES ('2026-11-08','b',0)")
+            sql.execSQL("INSERT INTO sessions (id,startedAt,status,currentIndex,note) VALUES ('s',1,'COMPLETED',0,'')")
+            sql.execSQL("INSERT INTO placements (id,sessionId,sourceBlockId,name,action,tempo,referenceNotes,position,configuredMs,activeMs,outcome,overtimeAccepted,note,lastUsedBpm,prepMs) VALUES ('p','s','b','Practice','Play',NULL,'',0,600000,600000,'COMPLETED',0,'',NULL,0)")
+            sql.execSQL("INSERT INTO block_completions VALUES ('p','s','b',1,NULL,NULL,NULL)")
+            sql.execSQL("INSERT INTO playground_layouts VALUES ('p',0,0,0)")
+            schema.getJSONArray("setupQueries").let { queries -> repeat(queries.length()) { sql.execSQL(queries.getString(it)) } }
+            sql.version = 27
+        }
+        try {
+            BlockDatabase.open(context, name).useDb { db ->
+                assertEquals(28, db.openHelper.writableDatabase.version)
+                assertEquals(WeekBlock(sunday.toString(), "b", 0, 1), db.weekPlan().read(sunday.toString()).single())
+                assertEquals("p", db.playground().completions().single().placementId)
+                assertEquals("p", db.playground().readAll().single().placementId)
+                db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertFalse(it.moveToFirst()) }
+            }
+        } finally { context.deleteDatabase(name) }
+        Unit
+    }
+
     private inline fun BlockDatabase.useDb(action: (BlockDatabase) -> Unit) {
         try { action(this) } finally { close() }
     }

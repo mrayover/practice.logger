@@ -65,6 +65,8 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
     fun addToWeek(week: LocalDate, id: String) = changeWeek { repository.addToWeek(week, id) }
     fun carryWeek(from: LocalDate, to: LocalDate) = changeWeek { repository.carryWeek(from, to) }
     fun removeFromWeek(week: LocalDate, id: String) = changeWeek { repository.removeFromWeek(week, id) }
+    fun setWeekRepetitions(week: LocalDate, id: String, repetitions: Int) =
+        changeWeek { repository.setWeekRepetitions(week, id, repetitions) }
     private fun changeWeek(action: suspend () -> Unit) =
         mutate(action, {}, "Could not update the week. Check that the Blocks are available and try again.")
     fun archive(id: String, archived: Boolean) = mutate({ savedBlockId = null; repository.setArchived(id, archived) }, { destinationArchived = archived })

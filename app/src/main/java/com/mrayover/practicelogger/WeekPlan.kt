@@ -15,7 +15,8 @@ internal fun practiceWeek(date: LocalDate = LocalDate.now()): LocalDate =
 @Entity(tableName = "week_blocks", primaryKeys = ["weekStart", "blockId"],
     foreignKeys = [ForeignKey(entity = Block::class, parentColumns = ["id"], childColumns = ["blockId"],
         onDelete = ForeignKey.RESTRICT)], indices = [Index("blockId")])
-data class WeekBlock(val weekStart: String, val blockId: String, val position: Int)
+data class WeekBlock(val weekStart: String, val blockId: String, val position: Int,
+    @ColumnInfo(defaultValue = "1") val plannedRepetitions: Int = 3)
 
 @Dao
 interface WeekPlanDao {
@@ -36,6 +37,39 @@ interface WeekPlanDao {
 
     @Query("UPDATE week_blocks SET position = position - 1 WHERE weekStart = :week AND position > :position")
     suspend fun closeGap(week: String, position: Int)
+
+    @Query("UPDATE week_blocks SET plannedRepetitions = :repetitions WHERE weekStart = :week AND blockId = :id")
+    suspend fun setRepetitions(week: String, id: String, repetitions: Int): Int
+}
+
+// Existing membership represented one intended practice. Never backfill a new three-practice plan.
+internal val WEEK_REPETITIONS_MIGRATION_27_28 = object : Migration(27, 28) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE week_blocks ADD COLUMN plannedRepetitions INTEGER NOT NULL DEFAULT 1")
+    }
+}
+
+internal data class WeekRepetitionProgress(val planned: Int, val completed: Int) {
+    init { require(planned >= 1 && completed >= 0) }
+    val fulfilled get() = completed >= planned
+    val dots get() = minOf(planned, completed)
+    val remaining get() = maxOf(0, planned - completed)
+}
+
+internal fun plannedWeekMinutes(plans: List<WeekBlock>, blocks: List<Block>, week: LocalDate): Long {
+    val durations = blocks.associate { it.id to it.durationMinutes }
+    return plans.filter { it.weekStart == week.toString() }.sumOf {
+        (durations[it.blockId] ?: 0).toLong() * it.plannedRepetitions
+    }
+}
+
+internal fun weekCompletionCounts(sessions: List<SessionBundle>, week: LocalDate,
+    zone: ZoneId = ZoneId.systemDefault()): Map<String, Int> {
+    val start = week.atStartOfDay(zone).toInstant().toEpochMilli()
+    val end = week.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
+    return sessions.asSequence().flatMap { it.completions.asSequence() }.map { it.completion }
+        .filter { it.completedAt >= start && it.completedAt < end }
+        .distinctBy { it.placementId }.groupingBy { it.sourceBlockId }.eachCount()
 }
 
 internal val WEEK_PLAN_MIGRATION_19_20 = object : Migration(19, 20) {

@@ -1,3 +1,7 @@
+# Assigned bounded increment - This Week repetitions
+
+Implement weekly repetition targets, collapsed progress indicators, uncapped existing completion rewards, and configured Planned Minutes. Room28/ZIP13 preserves existing memberships at target1 and creates new memberships at3. No recommendation, Composer, scheduling, Playground redesign or regression campaign. [Behavior](docs/WEEK_REPETITIONS.md) · [Actual verification/delivery](CURRENT_STATE.md).
+
 # M4A compatibility fix - pending focused verification and signed delivery
 
 Candidate0.58.1/build156 corrects the provider-MIME gate while retaining real AAC content validation. The focused valid/invalid import method is added but unrun; compilation and signed delivery are blocked by the current execution environment. Last delivered APK remains155. See [CURRENT_STATE](CURRENT_STATE.md) for precise blockers, checkout location and the one next task. No further Composer phase is authorized.

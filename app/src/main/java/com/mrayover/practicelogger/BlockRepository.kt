@@ -128,6 +128,12 @@ class BlockRepository(private val db: BlockDatabase, private val now: () -> Long
         dao.remove(row.weekStart, id)
         dao.closeGap(row.weekStart, row.position)
     }
+    suspend fun setWeekRepetitions(week: LocalDate, id: String, repetitions: Int) = db.withTransaction {
+        require(practiceWeek(week) == week && repetitions >= 1)
+        check(db.weekPlan().setRepetitions(week.toString(), id, repetitions) == 1) {
+            "This Block is no longer assigned to this week."
+        }
+    }
     suspend fun setArchived(id: String, archived: Boolean) = db.withTransaction {
         val previous = checkNotNull(db.blocks().find(id)) { "This Block is no longer available." }
         check(db.blocks().update(previous.copy(archived = archived, updatedAt = now())) == 1)

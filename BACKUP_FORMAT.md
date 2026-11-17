@@ -1,4 +1,8 @@
-## Complete portable ZIP v12 — Playground arrangement
+## Complete portable ZIP v13 - weekly repetition targets
+
+Room28/ZIP13 appends `plannedRepetitions` (positive whole Int) to `week_blocks` after weekStart/blockId/position. Invalid zero/negative or non-integer values are rejected. Frozen ZIP1-12 readers retain their original columns/envelopes; ZIP12 still requires Room27, while ZIP13 requires Room28. Restoring older weekly memberships uses SQL default1, preserving their previous single-practice meaning. New memberships default to3 through the application. Completion/reward/layout records and JSON7 are unchanged. The additive27→28 migration changes no existing history. See [weekly repetitions](docs/WEEK_REPETITIONS.md) and [actual checks/delivery](CURRENT_STATE.md).
+
+## Complete portable ZIP v12 - Playground arrangement
 
 Room27/ZIP12 adds playground_layouts with placementId, x, y, rotationDegrees. Coordinates and angle are finite doubles; keys must be unique and refer to existing block_completions. The centered world derives capacity20/40/80/160… from completion count at15% theoretical coverage and3:2 aspect ratio. Validate rotated boundaries, bounded normalized angle and pairwise actual oriented nonintersection before restore. Contact is valid. Exact saved doubles survive round trip. Layouts can be absent for completions not yet viewed; derive deterministic missing positions when Playground opens. Never infer completion snapshots from older placement outcomes.
 

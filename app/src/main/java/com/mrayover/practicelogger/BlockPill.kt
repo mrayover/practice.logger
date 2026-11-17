@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,12 +31,14 @@ internal fun BlockPill(
     modifier: Modifier = Modifier,
     completion: BlockCompletion? = null,
     selection: (@Composable () -> Unit)? = null,
+    weeklyProgress: WeekRepetitionProgress? = null,
     actions: @Composable FlowRowScope.() -> Unit
 ) {
     var expanded by rememberSaveable(block.id) { mutableStateOf(false) }
     val goalColor = goalAccent(PracticeTheme.colors, goal)
     val completionColor = completion?.colorArgb?.let(::Color)
-    val status = if (completion == null) "Needs work" else "Completed"
+    val status = weeklyProgress?.let { "${it.completed}/${it.planned} completed" }
+        ?: if (completion == null) "Needs work" else "Completed"
     val chevron = MaterialTheme.colorScheme.onSurfaceVariant
     val duration = "${block.durationMinutes} min" + (block.tempo?.let { " · $it BPM" } ?: "")
 
@@ -56,7 +59,9 @@ internal fun BlockPill(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (completion == null && goal != null) {
+                    if (weeklyProgress != null && !expanded) {
+                        WeekRepetitionIndicators(weeklyProgress, goalColor ?: MaterialTheme.colorScheme.outline)
+                    } else if (completion == null && goal != null) {
                         Box(Modifier.size(8.dp).background(goalColor ?: MaterialTheme.colorScheme.outline)
                             .testTag("block-needs-work-marker"))
                     }
@@ -66,7 +71,9 @@ internal fun BlockPill(
                         if (!expanded) Text(block.action.lineSequence().first(), style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(duration + if (block.archived) " · Archived" else "", style = MaterialTheme.typography.bodySmall)
-                        if (completion != null) Text("Completed", style = MaterialTheme.typography.bodySmall)
+                        if (weeklyProgress != null) Text("${weeklyProgress.completed}/${weeklyProgress.planned}",
+                            style = MaterialTheme.typography.bodySmall)
+                        else if (completion != null) Text("Completed", style = MaterialTheme.typography.bodySmall)
                     }
                     Canvas(Modifier.size(14.dp)) {
                         val edge = size.height * if (expanded) .65f else .35f
@@ -75,6 +82,8 @@ internal fun BlockPill(
                         drawLine(chevron, Offset(size.width / 2, center), Offset(size.width, edge), 2.dp.toPx())
                     }
                     when {
+                        weeklyProgress != null -> if (weeklyProgress.fulfilled)
+                            BlockCompletionSlit(goalColor ?: completionColor ?: MaterialTheme.colorScheme.outline)
                         completionColor != null -> BlockCompletionSlit(completionColor)
                         completion != null || goal == null -> Box(Modifier.size(22.dp, 40.dp).goalEndCap(null))
                     }
@@ -98,6 +107,33 @@ internal fun BlockPill(
                     }
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), content = actions)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeekRepetitionIndicators(progress: WeekRepetitionProgress, color: Color) {
+    val neutral = MaterialTheme.colorScheme.onSurfaceVariant
+    if (progress.planned <= 6) {
+        Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+            repeat(progress.planned) { index ->
+                Box(Modifier.size(8.dp), contentAlignment = Alignment.Center) {
+                    if (index < progress.dots) Box(Modifier.size(3.dp).background(neutral, CircleShape))
+                    else Box(Modifier.size(8.dp).background(color))
+                }
+            }
+        }
+    } else {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                Box(Modifier.size(3.dp).background(neutral, CircleShape))
+                Text(progress.dots.toString(), style = MaterialTheme.typography.labelSmall)
+            }
+            if (progress.remaining > 0) Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                Box(Modifier.size(8.dp).background(color))
+                Text(progress.remaining.toString(), style = MaterialTheme.typography.labelSmall)
             }
         }
     }
