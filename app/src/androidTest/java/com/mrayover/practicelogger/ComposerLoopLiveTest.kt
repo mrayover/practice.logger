@@ -66,7 +66,7 @@ class ComposerLoopLiveTest {
         } finally { ComposerSynth.destroy(h) }
     }
     @Test fun liveWorkerAndMeasuredViewport() {
-        nativeUpdates()
+        if(InstrumentationRegistry.getArguments().getString("loopLiveSkipNative")!="true") nativeUpdates()
         device.executeShellCommand("wm size 1440x3120");device.executeShellCommand("wm density 480")
         val a=CompositionPattern(newCompositionId(),"A",4,listOf(CompositionNote(newCompositionId(),81,0,960,80)))
         val b=CompositionPattern(newCompositionId(),"B",16)
@@ -85,7 +85,7 @@ class ComposerLoopLiveTest {
             val image=canvas().captureToImage();val pixels=image.toPixelMap();val y=(ruler+3.5f*row).toInt()
             val xs=(0 until image.width).filter { pixels[it,y].toArgb()==0xFF64BBDF.toInt() }
             assertTrue("note visible",xs.isNotEmpty());val expected=(image.width-key-2)/4
-            assertEquals(key.toDouble(),xs.first().toDouble(),3.0);assertEquals(expected.toDouble(),xs.size.toDouble(),4.0)
+            assertEquals(key.toDouble(),xs.first().toDouble(),3.0);assertEquals(expected.toDouble(),(xs.last()-xs.first()+1).toDouble(),4.0)
             val boundary=(0 until image.width).filter { pixels[it,(ruler+1.5f*row).toInt()].toArgb()==0xFF667180.toInt() }
             assertTrue("ending bar boundary visible",boundary.any { it>=image.width-4 })
             File(dir,"$name-roll.png").outputStream().use { image.asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) }

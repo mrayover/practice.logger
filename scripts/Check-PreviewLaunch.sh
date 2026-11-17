@@ -23,7 +23,7 @@ echo 'PASS: debug variant installed, launched, remained alive and displayed app 
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 if [ "${PREVIEW_TEST_CLASS:-}" = ComposerLoopLiveTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-loop-live app/build/preview-composer-loop-live || true; adb logcat -d > app/build/preview-loop-live-logcat.txt || true' EXIT
-  timeout 180s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerLoopLiveTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
+  timeout 180s adb shell am instrument -w -r -e loopLiveSkipNative "${LOOP_LIVE_SKIP_NATIVE:-false}" -e class com.mrayover.practicelogger.ComposerLoopLiveTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
 elif [ "${PREVIEW_TEST_CLASS:-}" = ComposerC5BTransportTest ]; then
   trap 'adb pull /sdcard/Android/data/com.mrayover.practicelogger.app/files/composer-c5b-transport app/build/preview-composer-c5b-transport || true; adb logcat -d > app/build/preview-c5b-transport-logcat.txt || true' EXIT
   timeout 90s adb shell am instrument -w -r -e class com.mrayover.practicelogger.ComposerC5BTransportTest com.mrayover.practicelogger.app.test/androidx.test.runner.AndroidJUnitRunner | tee app/build/preview-home.txt
