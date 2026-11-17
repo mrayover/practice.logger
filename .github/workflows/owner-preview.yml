@@ -57,7 +57,7 @@ jobs:
         if: inputs.check != 'composer-loop-live-tail' && inputs.check != 'composer-c5c-device' && inputs.check != 'composer-c6a-device'
         run: bash ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace
       - name: Compile isolated Loop viewport tail
-        if: inputs.check == 'composer-loop-live-tail' || inputs.check == 'composer-c5c-device'
+        if: inputs.check == 'composer-loop-live-tail' || inputs.check == 'composer-c5c-device' || inputs.check == 'composer-c6a-device'
         run: bash ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
       - name: Focused Composer persistence checks
         if: inputs.check == 'composer-c4c' || inputs.check == 'composer-c4b' || inputs.check == 'composer-c4a' || inputs.check == 'composer-compact' || inputs.check == 'composer-c1' || inputs.check == 'composer-c2' || inputs.check == 'composer-c3'
