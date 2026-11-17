@@ -17,3 +17,5 @@ One private finalized file is copied in64KiB chunks to the selected provider. Su
 Ordinary development verification is scoped to the new renderer, encoders, file safety, mixer representatives and Android export/return workflow. Actual results and signed provenance are in [CURRENT_STATE](../CURRENT_STATE.md). Physical-phone acoustics and nonlocal provider behavior require owner checks.
 
 Current owner decision (November16): **MusicXML is deferred from embedded compose.logger V1 planning.** C6B Standard MIDI File Type1 is separately authorized next; no MIDI, selected-range export, stems, added effects, Library integration or portable recovery is implemented here. Composer projects/custom presets remain outside practice backup until C7.
+
+Signed0.58.0/build155 source 0696ebbb391e32cfd5d3997a516a3cc61eef413c: five focused host methods pass; bounded API35 workflow44027324342 passes all three isolated native/safety/picker methods. Actual WAV and AAC frame/byte/decoder results, screenshots, failed attempts and remaining physical/provider limitations are in the delivery report linked from CURRENT_STATE.

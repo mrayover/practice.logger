@@ -1,3 +1,11 @@
+# Current delivery — C6A backing-track export
+
+0.58.0/build155 adds Export Audio for Current Loop or Full Arrangement as compact M4A / AAC or uncompressed WAV. It captures the current draft and mix, renders without speaker playback, and saves through Android's document picker. [Delivery and actual checks](CURRENT_STATE.md) · [Guide and limits](docs/COMPOSER_C6A.md).
+
+Owner-phone acceptance is next. MusicXML is deferred from embedded Composer V1; MIDI, Library integration and portable recovery are separate phases.
+
+---
+
 # C5C — Make Unique and Edit Pattern
 
 Signed **0.57.0/build152** adds selected-clip pattern editing and independent variations while retaining Arrange view/selection, Loop live editing and existing mixer/persistence. [Delivery, source and actual checks](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C5C.md). Eight focused host checks and bounded API35/cold reopening pass; phone acceptance remains pending. Stop before separately authorized C6A.

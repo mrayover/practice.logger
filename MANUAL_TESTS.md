@@ -1,3 +1,9 @@
+## C6A — offline backing-track phone acceptance
+
+Install signed build155 over the existing app. Test a current unsaved piano/bass/drums draft with4/2/1-bar patterns. Export Current Loop as M4A through the document picker and open it in another player; confirm no speaker output during render and the full global region/mix. Export Full Arrangement as WAV and check clip entries, unique variation, silent gaps and natural ending. Try Cancel, then Loop/Arrange playback; verify draft, Undo, existing projects/presets and practice recordings remain intact. Nonlocal provider and physical listening acceptance remain pending. Long WAV files may exceed Library import limits. [Actual automated checks and delivery](CURRENT_STATE.md).
+
+---
+
 ## LGE-2 — optional explainable suggestions
 
 Physical acceptance is pending. Install signed build114 over the existing permanent-key app without uninstalling or clearing data; keep a complete pre-update backup.

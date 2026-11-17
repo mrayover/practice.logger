@@ -1,3 +1,9 @@
+## November16 C6A — signed build155 delivered
+
+Current owner assignment delivers offline WAV + M4A/AAC Loop/Arrange backing tracks, focused verification, permanent-key APK/ZIP and source publication. [C6A guide](docs/COMPOSER_C6A.md) · [Actual results/provenance](CURRENT_STATE.md). Preserve existing scheduler/TinySoundFont/channel DSP, current draft/Undo and practice data; no audio-output recording or Library auto-import. Owner clarification explicitly defers MusicXML from embedded compose.logger V1 planning while retaining historical approvals. Exact next task is owner-phone build155 acceptance. Stop before separately authorized C6B Standard MIDI File Type1 export, effects, Library integration or portable recovery; Composer projects/custom presets still exclude practice backup until C7.
+
+---
+
 C4E build146 signed delivery is complete. Owner reports it works and explicitly stops further testing; new EQ UI/cold workflow remains incomplete. Resume only on request; no C5/FX/F1 started. CURRENT_STATE.md is authoritative.
 
 ## November15 C4E — signed build146, owner testing stop

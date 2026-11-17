@@ -1,12 +1,8 @@
-# C6A — Offline backing-track export (verification in progress)
+# C6A signed build155 — next action
 
-November16,2026 (America/Los_Angeles). Owner assigns offline Current Loop and Full Arrangement export as AAC-LC M4A (default, stereo48kHz/192kbps) or PCM16 RIFF WAV (stereo48kHz). Reuse existing LoopPlan/LoopClock, TinySoundFont assets and channel processing, isolated native ownership, explicit offline Master Volume and bounded streaming. Standard Android document destination; no Library import or musical document mutation.
+C6A offline WAV and M4A/AAC backing-track export is delivered as0.58.0/build155. [CURRENT_STATE](CURRENT_STATE.md) is authoritative for source/test/remote provenance, artifact paths, hashes and actual checks. [Export guide](docs/COMPOSER_C6A.md). Install over the permanent-key app without uninstalling or clearing data.
 
-Canonical C:/Users/mrove/Projects/practice.logger, block-ux-stage1. Initial clean local/live remote f511afa4763d1b3350b1b1463a223be18fa7cc65; baseline signed0.57.0/build152. Older OneDrive source checkout untouched. Candidate0.58.0/build153: five focused host methods pass; release/vital lint and Android-test assembly pass. Native AAC decode, real picker workflow and final signed delivery remain pending. No physical-phone acceptance is claimed.
-
-[Export implementation and limits](docs/COMPOSER_C6A.md). Current owner clarification: **MusicXML is deferred from embedded compose.logger V1 planning**; historical approval records are retained. C6B Standard MIDI File Type1 is the next separately authorized phase. No Library/effects/portable recovery or broad regression. Composer projects/custom presets remain outside practice ZIP/JSON backup until C7.
-
-Exact next task: run the bounded API35 C6A export workflow and finish permanent-key signed delivery.
+Exact next task: owner-phone C6A acceptance. C6B Standard MIDI File Type1 export is the next separately authorized phase. MusicXML is deferred from embedded compose.logger V1 planning; no Library integration, effects or portable recovery is authorized here. Composer projects/custom presets remain outside practice backup until C7. Preserve all existing data, previous packages and signing identity. No historical C4E testing or F1 campaign was resumed.
 
 ---
 
