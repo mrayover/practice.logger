@@ -94,7 +94,7 @@ class ComposerExportWorkflowTest {
         val (aac,aacFrames)=render(p,"loop-native",format=ComposerExportFormat.M4A)
         assertEquals(frames,aacFrames);assertTrue(aac.length()<wave.length()/3)
         assertEquals("ftyp",String(aac.readBytes(),4,4))
-        val decoded=decode(aac);assertTrue(abs(decoded.frames-frames)<=4096);assertTrue(decoded.energy>0);assertTrue(decoded.early>0);assertTrue(decoded.late>0)
+        val decoded=decode(aac);assertTrue(decoded.frames>=frames);assertTrue(decoded.frames-frames<=4096);assertTrue(decoded.energy>0);assertTrue(decoded.early>0);assertTrue(decoded.late>0)
         val half=pcm(render(p.copy(masterVolume=.5f),"half").first)
         assertEquals(samples.size,half.size)
         for(i in samples.indices) assertEquals(kotlin.math.round(samples[i]*.5f).toDouble(),half[i].toDouble(),1.0)

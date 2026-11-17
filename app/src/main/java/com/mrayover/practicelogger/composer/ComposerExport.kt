@@ -135,6 +135,12 @@ internal class ComposerAacSink(file: File, private val checkCancelled: () -> Uni
         }
     }
     override fun finish() {
+        // AAC-LC encodes 1024-frame blocks. Some platform encoders drop a final
+        // partial block at EOS; align it and supply two bounded flush blocks.
+        // This is codec padding (at most 3071 frames / 64ms), never a WAV tail.
+        var padding=((1024-frames%1024)%1024+2048).toInt()
+        val silence=ShortArray(512)
+        while(padding>0) { val count=minOf(256,padding); write(silence,count); padding-=count }
         val index=input()
         codec!!.queueInputBuffer(index,0,0,frames*1000000/48000,MediaCodec.BUFFER_FLAG_END_OF_STREAM)
         while(!eos) drain(true)
