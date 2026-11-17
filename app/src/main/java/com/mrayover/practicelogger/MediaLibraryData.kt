@@ -124,7 +124,11 @@ class MediaLibraryRepository(private val db: BlockDatabase, private val director
                 "image/jpg" -> "image/jpeg"
                 else -> declaredMime?.lowercase(Locale.ROOT)
             }
-            require(normalizedMime.isNullOrBlank() || normalizedMime in setOf("application/octet-stream", "application/binary") || normalizedMime == mime) {
+            // Providers may describe AAC-in-M4A by codec or by the shared MP4 container.
+            // These hints still go through inspectImportedAudio's audio-only AAC decoder below.
+            val m4aAudioHint = extension == "m4a" && (normalizedMime?.startsWith("audio/") == true ||
+                normalizedMime in setOf("video/mp4", "application/mp4"))
+            require(normalizedMime.isNullOrBlank() || normalizedMime in setOf("application/octet-stream", "application/binary") || normalizedMime == mime || m4aAudioHint) {
                 "The file type and filename disagree. Choose an original supported file."
             }
             val audio = mime.startsWith("audio/")

@@ -1,3 +1,12 @@
+# M4A import compatibility fix - implemented, verification/delivery blocked
+
+November17,2026. Candidate 0.58.1/build156 changes only the M4A provider-MIME gate: audio/*, video/mp4 and application/mp4 hints can reach the unchanged inspectImportedAudio validator. MP3/WAV and visual/PDF MIME rules are unchanged. Actual codec, single audio track, decoded duration, malformed-content and size validation remain in force. Samsung's actual declared MIME is unknown.
+
+One focused Android method is added, using the unchanged C6A build155 loop-native.m4a fixture: accept valid AAC M4A declared video/mp4, then reject malformed bytes under the same filename/MIME hint after opening the stream. The test has NOT run. Compilation is NOT verified: wrapper cache lock access was denied; a writable-cache attempt failed connecting to Gradle's local daemon. ADB also could not start. Shell Git networking fails with getaddrinfo() thread failed to start. No signed156 APK/ZIP exists; the last delivered build remains155 below. No regression, screenshots, production-data or signing changes.
+
+Work is isolated in C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/m4a-import-fix from canonical branch baseline bc7b602. The canonical Projects checkout and older OneDrive main checkout were not edited. Exact next task: run M4aImportCompatibilityTest on one Android device, compile, sign and deliver156 using the permanent publisher, then synchronize the canonical checkout. Stop before MIDI/Library/backup/Composer phases.
+
+---
 # Current state — C6A delivered as signed build155
 
 November16,2026 (America/Los_Angeles). Signed **0.58.0/build155** adds **Export Audio** for Current Loop and Full Arrangement, using default AAC-LC M4A (stereo48kHz/192kbps) or uncompressed PCM16 RIFF WAV (stereo48kHz). The current unsaved draft, actual per-track Loop selections and mixer/master are frozen without saving or changing revision/Undo. Rendering runs offline in bounded chunks using the existing scheduler, SoundFonts and channel DSP, with natural release tails, standard Android document destination, progress/cancellation and cleanup. [Behavior and limits](docs/COMPOSER_C6A.md).

@@ -1,3 +1,9 @@
+# M4A compatibility fix - pending focused verification and signed delivery
+
+Candidate0.58.1/build156 corrects the provider-MIME gate while retaining real AAC content validation. The focused valid/invalid import method is added but unrun; compilation and signed delivery are blocked by the current execution environment. Last delivered APK remains155. See [CURRENT_STATE](CURRENT_STATE.md) for precise blockers, checkout location and the one next task. No further Composer phase is authorized.
+
+---
+
 # Current delivery — C6A backing-track export
 
 0.58.0/build155 adds Export Audio for Current Loop or Full Arrangement as compact M4A / AAC or uncompressed WAV. It captures the current draft and mix, renders without speaker playback, and saves through Android's document picker. [Delivery and actual checks](CURRENT_STATE.md) · [Guide and limits](docs/COMPOSER_C6A.md).
