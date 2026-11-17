@@ -1,3 +1,10 @@
+# November17 publication restored
+
+All six pending local changes are published on block-ux-stage1 through the GitHub connector at f15012c87b11ac20aca67a18c29c112abebf7652. Each published commit tree exactly matches its original local tree. MIME fix: 90ff01dd9dcdc81b44a1085c4696b53db0595601 (local e5e4373); weekly repetitions: b069789c2d154a8938f5b7f1907d7800fa2b70e6 (local 3f619b5). Connector-created commits have new IDs; original local history is preserved. Git CLI networking still fails before authentication. No application/build/test changes were made in publication; the M4A Android test remains unrun. Canonical Projects checkout synchronization is not claimed.
+
+Exact next task: synchronize the canonical Projects checkout with the published branch, then complete the pending focused M4A Android import check. Do not repeat passed build/weekly checks.
+
+---
 # November17 Git reconciliation - publication still blocked
 
 The pending features are already separate commits: `e5e4373` is the M4A provider-MIME correction with its focused Android fixture/test; `3f619b5` is weekly repetition targets and Planned Minutes with migration/backup and focused host checks. `cd2ea5d` and `8c00703` record delivery/access problems. No uncommitted application changes were found.
