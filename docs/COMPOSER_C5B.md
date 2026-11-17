@@ -10,8 +10,8 @@ Switching Arrange↔Mixer preserves playback and the immutable snapshot. Volume,
 
 Actions offers Duplicate Clip (one fresh instance immediately after source), Repeat Clip (2–8 additional consecutive instances) and Beginning. Every copy keeps underlying track/pattern references with a fresh clip UUID. The complete batch is validated before one commit/Undo; any invalid destination rejects all copies.
 
-No new project format: v1–v4, shared pattern edits, draft recovery, Save and Save As retain existing semantics. Composer projects/presets remain outside practice ZIP/JSON until C7. C5C Make Unique and Edit Pattern, exports and unrelated work remain unassigned. Deferred C4E verification is not resumed.
+No new project format: v1–v4, shared pattern edits, draft recovery, Save and Save As retain existing semantics. Composer projects/presets remain outside practice ZIP/JSON until C7. [C5C](COMPOSER_C5C.md) now delivers Make Unique and Edit Pattern; exports and unrelated work still require separate assignment. Deferred C4E verification is not resumed.
 
 Verification and signed delivery: [CURRENT_STATE](../CURRENT_STATE.md). Physical-device acceptance remains separate.
 
-Signed 0.56.0/build149 is delivered with focused host/native/API35/cold-reopen and isolated rendered-transport verification. Actual two-track/eight-track/narrow captures inspected. Initial silence-window error and the superseded cancelled probe are documented in CURRENT_STATE; final 149 adds only the Loop Repeat owner correction and build number relative to the passed 148 workflow. Stop before separately authorized C5C.
+Signed 0.56.0/build149 is delivered with focused host/native/API35/cold-reopen and isolated rendered-transport verification. Actual two-track/eight-track/narrow captures inspected. Initial silence-window error and the superseded cancelled probe are documented in CURRENT_STATE; final 149 adds only the Loop Repeat owner correction and build number relative to the passed 148 workflow. C5C is subsequently delivered as build152; see CURRENT_STATE for current delivery.

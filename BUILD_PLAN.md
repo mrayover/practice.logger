@@ -1,3 +1,13 @@
+# C5C complete — signed build152
+
+Signed **0.57.0/build152** delivers atomic Make Unique, direct Edit Pattern navigation into the existing Loop editor and preserved Arrange view/selection. Reuses duplication, immutable Undo, checkpoint/atomic save and existing audio ownership. [Behavior](docs/COMPOSER_C5C.md) · [Authoritative delivery/source/results/limits](CURRENT_STATE.md).
+
+Eight focused host methods, release/vital lint, Android-test assembly and one bounded API35 workflow plus exact cold reopen pass. Original/unique/Loop/returned/cold screenshots inspected; source/variation independence, single Undo, correct navigation, one-bar fit, both-axis view retention, playback, save/reopen and Save As checked. Mandatory efficiency procedure reviewed; signed candidate prepared early. Source f7a8f67d0cae4215bc33910c03ac13449d765418; final workflow source 19fcdfd73d5342d426e0a2895f5d24acec2046b3. Previous715 packages and production signing/data preserved. Phone acceptance/cloud sync unobserved.
+
+**Exact next task: owner-phone C5C acceptance of build152.** Hard stop; C6A offline WAV and M4A/AAC backing-track export needs separate assignment. No deferred C4E campaign, broad regression/F1 or exports. Composer projects/presets remain outside practice backups until C7.
+
+---
+
 # Loop UX mini-increment complete — signed build151
 
 Signed **0.56.1/build151** adds independent next-cycle live notes during Loop Repeat and measured one-bar default fit, retaining relative zoom/scroll, existing gestures, mixer and song snapshots. [Behavior](docs/COMPOSER_LOOP_LIVE.md) · [Authoritative delivery/results/limitations](CURRENT_STATE.md).

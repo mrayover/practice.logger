@@ -1,3 +1,23 @@
+# Current state — C5C delivered as signed build152
+
+November16,2026 (America/Los_Angeles). Signed **0.57.0/build152** adds selected-clip **Edit Pattern** and **Make Unique** to Arrange Actions. Edit Pattern directly targets the referenced instrument/pattern in the existing Loop editor without changing the document or adding Undo. Make Unique uses existing deep-copy semantics and a single validated edit; one Undo removes the variation and restores the reference. Arrange zoom, horizontal/vertical position and clip selection survive mode navigation. [Behavior](docs/COMPOSER_C5C.md).
+
+Canonical C:/Users/mrove/Projects/practice.logger, **block-ux-stage1**. Initial clean local/live remote b83ebdae6bce139a544398fce76270a133c164cc. Application/APK source **f7a8f67d0cae4215bc33910c03ac13449d765418**; final focused workflow source **19fcdfd73d5342d426e0a2895f5d24acec2046b3**. Closing publication changes records only; actual live remote SHA is verified at handoff. Older OneDrive source untouched; no main merge.
+
+[APK](dist/practice.logger-0.57.0-b152-f7a8f67/practice.logger-0.57.0-b152-f7a8f67.apk) · [ZIP](dist/practice.logger-0.57.0-b152-f7a8f67.zip) · [Report](dist/practice.logger-0.57.0-b152-f7a8f67/DELIVERY_REPORT.md) · [Original/unique screenshot](dist/practice.logger-0.57.0-b152-f7a8f67/MAKE_UNIQUE.png) · [Phone check](dist/practice.logger-0.57.0-b152-f7a8f67/PHONE_CHECKLIST.txt).
+
+Delivery: **C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C5C delivery/build152**. Install over the existing permanent-key app without uninstalling or clearing data. dist/LATEST.txt is current. Complete ZIP roundtrip and all local delivery-copy hashes pass; cloud-sync completion unobserved. All previous distributions retained.
+
+- APK SHA256 **ee6d57a988dab8991a51ac9e8ed1deeb6f8f4e184ac0f9440656a5e7cc853e14**; ZIP SHA256 **96a137b3ca68aa60d6bbafcc8147ec2aef00c7f9ee71b645e66839b10aadb5b5**. Stable package/version/signature and pinned permanent certificate verified. All180 unsigned payload entries and nine original SF2 hashes match. **715** prior APK/ZIP hashes unchanged.
+- **Eight focused host methods pass**: ArrangementPatternTest3 and ComposerManagementTest5. Coverage: singleton/multiple references, independent note/pattern IDs and musical data, mixer preservation, source/variation edits, correct song expansion, collision refusal,256-pattern/global-note budget refusal without mutation, supported v1–v4 exact save/reopen and Save As reference/ownership mapping. Release/vital lint and Android-test assembly pass.
+- [Bounded API35 workflow 44017475358](https://github.com/mrayover/practice.logger/actions/runs/44017475358) passes selected-clip Make Unique during song playback, safe Stop, real single Undo, direct track/pattern navigation without project/history changes or branded reentry, normal note editing, independent source/variation edits, one-bar initial fit, rendered zoom/both-axis/selection retention, Loop/song playback, Save/reopen and Save As. Separate force-stop/cold-process reopen passes exact equality. Actual original/unique/Loop/returned/cold screenshots inspected. See report for timing and any test-only corrections.
+
+No codec/schema/storage/native DSP or worker pending-update changes. Build151 Loop live notes/one-bar fit and C5B playback/mixer remain. Existing pattern-length collision refusal applies. Composer projects/presets remain outside practice ZIP/JSON recovery until C7. Physical phone touch/acoustic acceptance and cloud sync remain unobserved. No deferred C4E campaign, broad regression, device matrix, F1 or exports.
+
+**Exact next task: owner-phone C5C acceptance of build152.** Stop here. C6A offline WAV and M4A/AAC backing-track export requires a separate assignment.
+
+---
+
 # Current state — Loop live notes and one-bar fit delivered
 
 November16,2026 (America/Los_Angeles). Signed **0.56.1/build151** delivers only the bounded Loop UX increment. With Loop Repeat enabled, musical note edits and Undo activate at each affected track's own next pattern cycle without restarting the shared transport/output or changing its mixer. Empty patterns and independent lengths are supported. The measured meter-aware piano roll initially fits one complete bar; relative zoom/tick scroll are retained per pattern through note edits and Loop/Mixer navigation. [Implementation and limits](docs/COMPOSER_LOOP_LIVE.md).

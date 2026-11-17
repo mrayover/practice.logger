@@ -82,3 +82,7 @@ Owner separately authorizes functional note velocity and Loop/Arrange/Mixer with
 ## C5A assigned increment — Arrange foundation
 
 Owner authorizes the visual timeline, populated-pattern placement, same-track bar-snapped movement, deletion, Undo and reliable existing save/reopen only. [C5A behavior](COMPOSER_C5A.md). Legacy clips/codec are reused; no format change. C5B song playback, duplication/repetition, Make Unique and pattern editing from a clip remain separately authorized future work. C4E deferred UI verification stays stopped.
+
+## C5C assigned increment — independent variations and direct editing
+
+Owner authorizes selected-clip Make Unique and Edit Pattern only, retaining shared references, atomic Undo/persistence, existing Loop editor/live behavior and Arrange view/selection. [C5C behavior and verification](COMPOSER_C5C.md). Signed0.57.0/build152 is delivered; actual results in CURRENT_STATE. C6A offline WAV and M4A/AAC backing-track export remains a separately assigned direction.

@@ -9,3 +9,5 @@ Arrange zoom, both scroll axes, bar, Hand mode and selection are retained by the
 Structural Make Unique stops song output before committing. Next Play rebuilds its snapshot with the new reference. Loop Repeat's worker-owned live updates and measured one-bar fit are unchanged. Composer projects/custom presets remain outside practice backup until C7.
 
 Focused verification and signed delivery are recorded in [CURRENT_STATE](../CURRENT_STATE.md). No exports, deferred C4E campaign, comprehensive regression or F1 are part of C5C. Stop after this increment; C6A needs a separate assignment.
+
+Signed0.57.0/build152 is delivered. Eight focused host methods, release/vital lint and Android-test assembly pass. API35 workflow44017475358 passes24.868s; exact force-stop/cold reopen passes8.807s. Rendered view pixels match before/after direct editing when transport is unchanged. Initial44016454380's transport-dependent pixel comparison was corrected by test ordering only; application sources are identical. Original/unique/Loop/returned/cold captures inspected. See CURRENT_STATE for package hashes, source/test provenance, actual limitations and phone acceptance.

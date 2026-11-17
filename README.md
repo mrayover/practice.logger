@@ -1,3 +1,9 @@
+# C5C — Make Unique and Edit Pattern
+
+Signed **0.57.0/build152** adds selected-clip pattern editing and independent variations while retaining Arrange view/selection, Loop live editing and existing mixer/persistence. [Delivery, source and actual checks](CURRENT_STATE.md) · [Behavior](docs/COMPOSER_C5C.md). Eight focused host checks and bounded API35/cold reopening pass; phone acceptance remains pending. Stop before separately authorized C6A.
+
+---
+
 # Current increment — Loop live notes and one-bar fit
 
 Signed0.56.1/build151 applies note edits on each track's next cycle during Loop Repeat and fits one complete bar by default, preserving zoom/scroll. [Delivery and actual checks](CURRENT_STATE.md) · [Behavior and Repeat-off limits](docs/COMPOSER_LOOP_LIVE.md). Stop before C5C.
