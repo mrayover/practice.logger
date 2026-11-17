@@ -25,6 +25,7 @@ class ComposerExportWorkflowTest {
     private val inst get()=InstrumentationRegistry.getInstrumentation()
     private val context get()=inst.targetContext
     private val device get()=UiDevice.getInstance(inst)
+    private val scratch get()=File(context.cacheDir,"composer-export-verification").apply { mkdirs() }
     private val dir get()=File(context.getExternalFilesDir(null),"composer-export").apply { mkdirs() }
     @get:Rule val failure=object: org.junit.rules.TestWatcher() {
         override fun failed(e: Throwable?,d: org.junit.runner.Description?) { device.takeScreenshot(File(dir,"failure.png"));device.dumpWindowHierarchy(File(dir,"failure.xml")) }
@@ -45,7 +46,7 @@ class ComposerExportWorkflowTest {
         }
     }
     private fun render(p: CompositionProject,name: String,song: Boolean=false,format: ComposerExportFormat=ComposerExportFormat.WAV): Pair<File,Long> {
-        val f=File(dir,"$name.${format.extension}")
+        val f=File(scratch,"$name.${format.extension}")
         val n=ComposerOfflineExport.render(context,ComposerExportSnapshot.capture(p,emptyList(),song),format,f)
         return f to n
     }
@@ -109,10 +110,11 @@ class ComposerExportWorkflowTest {
         val tail=p.copy(tracks=listOf(t),clips=emptyList())
         val (tailFile,tailFrames)=render(tail,"tail")
         assertTrue(tailFrames>48000);assertTrue(tailFrames<=48000+28800);assertTrue(energy(pcm(tailFile),96000)>0)
-        val cancelled=File(dir,"cancelled.wav");var checks=0
+        val cancelled=File(scratch,"cancelled.wav");var checks=0
         assertTrue(runCatching { ComposerOfflineExport.render(context,ComposerExportSnapshot.capture(p,emptyList(),false),ComposerExportFormat.WAV,cancelled,{ if(++checks>20) throw CancellationException("test") }) }.isFailure)
         assertFalse(cancelled.exists());assertTrue(wave.readBytes().contentEquals(render(p,"retry").first.readBytes()))
         assertEquals(original,CompositionCodec.encode(p))
+        listOf(wave,song,aac,tailFile).forEach { file -> file.inputStream().use { input -> File(dir,file.name).outputStream().use { input.copyTo(it) } } }
         File(dir,"native-results.txt").writeText("Loop $frames frames / ${wave.length()} bytes; Arrange $songFrames frames; AAC $aacFrames frames / ${aac.length()} bytes; decoded $decoded; custom tail $tailFrames frames. Mixer, silence, cancellation and retry pass.")
     }
     private fun activity(): ComposerActivity { var a: ComposerActivity?=null;inst.runOnMainSync { a=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<ComposerActivity>().single() };return a!! }
@@ -138,7 +140,7 @@ class ComposerExportWorkflowTest {
             inst.runOnMainSync { export.cancel() }
             compose.waitUntil(10000) { !export.active && !export.rendering }
             assertTrue(export.message!!.startsWith("Export cancelled."))
-            val invalid=File(dir,"encoder-invalid-directory").apply { mkdirs() }
+            val invalid=File(scratch,"encoder-invalid-directory").apply { mkdirs() }
             assertTrue(runCatching { ComposerAacSink(invalid) {}.use { it.finish() } }.isFailure)
             // A new real encoder still works after configuration/muxer setup failure.
             assertTrue(decode(render(source,"encoder-after-failure",format=ComposerExportFormat.M4A).first).energy>0)
@@ -153,6 +155,12 @@ class ComposerExportWorkflowTest {
         tap("Export Audio")
     }
     private fun shot(name: String) { compose.waitForIdle();device.takeScreenshot(File(dir,"$name.png")) }
+    private fun readSavedFile(name: String, outputName: String): File {
+        val output=File(scratch,outputName)
+        android.os.ParcelFileDescriptor.AutoCloseInputStream(inst.uiAutomation.executeShellCommand("cat /sdcard/Download/$name")).use { input -> output.outputStream().use { input.copyTo(it) } }
+        output.inputStream().use { input -> File(dir,outputName).outputStream().use { input.copyTo(it) } }
+        return output
+    }
     private fun savePicker(name: String) {
         pickerDownloads()
         device.wait(Until.findObject(By.clazz("android.widget.EditText")),10000)!!.text=name
@@ -172,10 +180,10 @@ class ComposerExportWorkflowTest {
         exportAction();compose.onNodeWithText("M4A · compact backing-track file").assertExists();shot("export-dialog")
         tap("Choose destination");savePicker("c6a-owner-loop.m4a")
         assertEquals(draft,vm().project);assertEquals(undo,vm().undoCount);assertEquals(saved,store.read(saved.id));assertTrue(vm().dirty)
-        val m4a=File(dir,"picker-loop.m4a");device.executeShellCommand("cp /sdcard/Download/c6a-owner-loop.m4a ${m4a.absolutePath}")
+        val m4a=readSavedFile("c6a-owner-loop.m4a","picker-loop.m4a")
         assertTrue(decode(m4a).energy>0)
         tap("Arrange");exportAction();tap("Full Arrangement");tap("WAV — uncompressed");shot("arrange-wave-dialog");tap("Choose destination");savePicker("c6a-owner-arrange.wav")
-        val wave=File(dir,"picker-arrange.wav");device.executeShellCommand("cp /sdcard/Download/c6a-owner-arrange.wav ${wave.absolutePath}")
+        val wave=readSavedFile("c6a-owner-arrange.wav","picker-arrange.wav")
         val expected=render(draft,"picker-expected",true).first;assertTrue(expected.readBytes().contentEquals(wave.readBytes()))
         exportAction();tap("Choose destination");device.wait(Until.hasObject(By.clazz("android.widget.EditText")),10000);device.pressBack()
         compose.waitUntil(15000) { compose.onAllNodesWithText("Export cancelled.").fetchSemanticsNodes(false).isNotEmpty() };tap("OK")
