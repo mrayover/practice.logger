@@ -1,3 +1,10 @@
+# Build156 delivery/publication correction
+
+The signed APK/ZIP already exist in `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/This-Week-delivery/build156`; File Explorer now visibly confirms them. OneDrive currently reports Sync pending. No download is required. Application source is committed locally at **3f619b5efa5a8256efdfd7b2fee1a1d6f074ccc1**; the earlier uncommitted status below is superseded.
+
+The owner explicitly authorizes Git commit/push. Actual publication remains blocked: CLI networking fails, while the connected GitHub API reads the live branch at **bc7b602ff4991341b825e262629c64f201a94db8** but denies blob writes with **403 Resource not accessible by integration**. No branch ref was changed. The canonical Projects checkout rejects writes; all verified source and distributions remain preserved in the writable checkout and OneDrive delivery folder. Exact next task: publish the already-committed source when a writable Git connection is available. No rebuild or repeated testing is needed.
+
+---
 # This Week repetitions - implemented, signed local build156
 
 November17,2026. Signed local **0.58.1/build156** adds weekly repetition targets (new membership3, minimum1, editable in expanded This Week/Prepare Week rows), collapsed dots/squares with bounded numeric condensation, completed/target counts, target-gated completion slit, and configured Planned Minutes below the heading. The unchanged placement completion/Playground pipeline remains uncapped. Room28 explicitly migrates existing memberships to target1 without changing history/rewards. Complete ZIP13 preserves targets and reads frozen ZIP1-12; JSON7 is unchanged. [Behavior/files](docs/WEEK_REPETITIONS.md).
