@@ -259,12 +259,20 @@ class WeekPlanTest {
                 remove("block_categories")
                 remove("study_sources")
                 remove("study_source_media")
+                remove("learning_observations")
+                remove("guidance_events")
+                remove("weekly_practice_targets")
+                remove("playground_layouts")
                 remove("week_blocks")
                 remove(INSPIRATION_STORE)
                 remove("block_completions")
                 remove("block_reflections")
                 remove("session_reflections")
                 getJSONArray("placements").getJSONArray(0).remove(14)
+                for (name in listOf("block_images", "block_media_links")) {
+                    val rows = getJSONArray(name)
+                    for (i in 0 until rows.length()) rows.getJSONArray(i).remove(rows.getJSONArray(i).length() - 1)
+                }
                 val oldBlocks = getJSONArray("blocks")
                 for (i in 0 until oldBlocks.length()) repeat(3) { oldBlocks.getJSONArray(i).remove(9) }
             }
