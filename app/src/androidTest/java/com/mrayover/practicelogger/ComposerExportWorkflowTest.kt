@@ -178,6 +178,7 @@ class ComposerExportWorkflowTest {
     }
 
     @Test fun midiPickerExportsUnsavedDraftAndKeepsRunningTransport() {
+        device.executeShellCommand("settings put secure immersive_mode_confirmations confirmed")
         device.executeShellCommand("wm size 1440x3120");device.executeShellCommand("wm density 480")
         val store = CompositionStore(File(context.filesDir, "composer/projects"))
         val saved = store.create(fixture())
