@@ -36,6 +36,9 @@ fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewM
     val busy = vm.busy || routines.busy
     val indicators = LocalGoalIndicators.current
     var goalFilter by rememberBlockGoalFilter(indicators)
+    val organization = LocalOrganization.current
+    var groupMode by rememberSaveable { mutableStateOf(BlockGroupMode.ALL) }
+    var openGroups by remember { mutableStateOf(setOf<String>()) }
     val lineupScroll = rememberLazyListState()
     val pickerScroll = rememberLazyListState()
     val total = entries.sumOf { it.configuredMs }
@@ -57,16 +60,18 @@ fun SessionBuilder(blocks: List<Block>, draft: SessionBundle?, vm: PracticeViewM
                         singleLine = true, modifier = Modifier.fillMaxWidth())
                 }
                 item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
+                item { BlockGroupPicker(groupMode) { groupMode = it } }
                 item { SuggestedViewPicker(suggested) { suggested = it } }
                 item {
                     OutlinedButton(onClick = { picking = false; onCreate() }, enabled = !busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Create a new Block") }
                 }
-                val matching = matchingBlocks(blocks, query, false, indicators, goalFilter)
+                val matching = matchingBlocks(blocks, query, false, indicators, goalFilter, organization)
                 val reasons = recommendations.orEmpty().associateBy { it.blockId }
                 val available = if (suggested) recommendations.orEmpty().mapNotNull { r -> matching.find { it.id == r.blockId } } else matching
                 if (available.isEmpty()) item { Text(if (suggested) if (recommendations == null) "Suggestions unavailable. All Blocks remains available." else "No matching suggestions. All Blocks remains available." else "No matching active Blocks.") }
-                items(available, key = { it.id }) { block ->
+                organizedBlockItems(available, organization, if (query.isBlank()) groupMode else BlockGroupMode.ALL,
+                    openGroups, onToggle = { key -> openGroups = if (key in openGroups) openGroups - key else openGroups + key }) { block ->
                     Column {
                         if (suggested) Text(reasons[block.id]!!.reasons.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
                         BlockPill(block, indicators.block(block.id), emptyList(),
