@@ -1,4 +1,18 @@
-# Current state — Playground Home Foundation
+# Current state — Playground control refinement
+
+November 18, 2026 (America/Los_Angeles). **0.60.1 / build 168** gives Playground a connected dark-purple D-pad with four separate direction targets and an inert center. Circular B sits lower-left of A. The controls occupy the same 96 dp row as build 166. Direction holding, release, cancellation, A input and reserved B behavior use the existing logic. [Playground behavior](docs/PLAYGROUND_SPEC.md).
+
+**Source and package.** The release was assembled in the canonical Windows checkout from `6a9e0169c210a97abed32d534e270d99e5b7957a` on `block-ux-stage1`. [APK](dist/practice.logger-0.60.1-b168-6a9e016/practice.logger-0.60.1-b168-6a9e016.apk) · [ZIP](dist/practice.logger-0.60.1-b168-6a9e016.zip) · [Phone checklist](dist/practice.logger-0.60.1-b168-6a9e016/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.1-b168-6a9e016/BUILD_INFO.json). APK SHA-256 `65cefccd02476f3600639156e19e1b52650baeb3a09f80010443374337673605`. APK v2/v3 and the v4 sidecar verify against the pinned permanent certificate.
+
+**Focused verification.** Release assembly, vital lint, Android-test compilation and two host movement tests passed. The Android workflow passed at 1440 × 3120 (Galaxy S26 Ultra profile, API 36) and 720 × 1440 (320 × 640 dp, API 35). It verified the connected cross, separate arm targets, inert center, sustained movement and stopping, A and B behavior, the diagonal button spacing and the fixed no-scroll page. Both profiles match build 166's page, viewport and control-row bounds exactly. The Light-theme viewport pixels also match build 166 on both profiles. [Galaxy workflow](https://github.com/mrayover/practice.logger/actions/runs/44421571503) · [Compact workflow](https://github.com/mrayover/practice.logger/actions/runs/44421579384) · [Bounds comparison](dist/practice.logger-0.60.1-b168-6a9e016/evidence/gameboy-galaxy/PLAYGROUND_BOUNDS_COMPARISON.txt) · [Cosmic screenshot](dist/practice.logger-0.60.1-b168-6a9e016/evidence/gameboy-compact/playground-controller-cosmic.png).
+
+**ZIP and local delivery.** ZIP SHA-256 `d669a5fe8d4ab4a1b4f9f44f21d63e8d81e5347d5023c17abf53e8db2d30bbf0`. All 16 archive members and the local OneDrive delivery copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build168` match by checksum.
+
+**Exact next task.** Install build 168 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Playground Home Foundation
 
 November 18, 2026 (America/Los_Angeles). **0.60.0 / build 166** opens a fixed portrait Playground from Log. It includes a tiled room, four-direction movement with wall collision, A interaction input and a read-only inventory overlay. The inventory observes saved completion colors and counts all earned Blocks, including Neutral. Existing completion and arrangement rows, Room 29, Complete ZIP 14 and JSON 7 are preserved. [Behavior](docs/PLAYGROUND_SPEC.md).
 
@@ -10,7 +24,7 @@ November 18, 2026 (America/Los_Angeles). **0.60.0 / build 166** opens a fixed po
 
 **Portrait verification.** The same Android workflow passed on the signed application source at 1440 × 3120 px and 560 dpi (Galaxy S26 Ultra resolution emulated on API 36) and at 720 × 1440 px and 360 dpi (320 × 640 dp on API 35). The measured viewport took 68% and 52% of the Playground page respectively. Both runs checked full destination labels, visible controls, swipes that leave the page fixed, sustained movement in four directions, release and gesture cancellation, wall collision, A input, inventory opening and dismissal, live Neutral and total counts, and unchanged arrangement rows through recreation. A compact API 36 attempt was blocked by an emulator System UI dialog. [Galaxy-sized workflow](https://github.com/mrayover/practice.logger/actions/runs/44410132830) · [Compact workflow](https://github.com/mrayover/practice.logger/actions/runs/44411140394) · [Galaxy-sized screenshot](dist/practice.logger-0.60.0-b166-5044fab/evidence/galaxy-s26-ultra-final/playground-home.png) · [Compact screenshot](dist/practice.logger-0.60.0-b166-5044fab/evidence/compact-phone-api35/playground-home.png) · [Inventory screenshot](dist/practice.logger-0.60.0-b166-5044fab/evidence/compact-phone-api35/playground-inventory.png).
 
-**Exact next task.** Install build 166 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+**Build 166 phone status.** Physical acceptance was pending at delivery.
 
 ---
 

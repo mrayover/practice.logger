@@ -1,6 +1,6 @@
-# Playground Home Foundation handoff
+# Playground controls handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Home Foundation release, actual verification and exact next task. [Navigation, controls and inventory](docs/PLAYGROUND_SPEC.md).
+[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Playground controller refinement, portrait verification and exact next task. [Navigation, controls and inventory](docs/PLAYGROUND_SPEC.md).
 
 ---
 
