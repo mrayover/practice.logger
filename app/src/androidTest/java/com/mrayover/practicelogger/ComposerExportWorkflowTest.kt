@@ -158,6 +158,7 @@ class ComposerExportWorkflowTest {
     private fun readSavedFile(name: String, outputName: String): File {
         val output=File(scratch,outputName)
         android.os.ParcelFileDescriptor.AutoCloseInputStream(inst.uiAutomation.executeShellCommand("cat /sdcard/Download/$name")).use { input -> output.outputStream().use { input.copyTo(it) } }
+        assertTrue("Expected a nonempty Downloads file named $name", output.length() > 0)
         output.inputStream().use { input -> File(dir,outputName).outputStream().use { input.copyTo(it) } }
         return output
     }

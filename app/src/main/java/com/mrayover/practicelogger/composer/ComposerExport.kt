@@ -13,7 +13,8 @@ import kotlin.math.roundToInt
 internal enum class ComposerExportFormat(val extension: String, val mime: String, val description: String) {
     M4A("m4a", "audio/mp4", "M4A · compact backing-track file"),
     WAV("wav", "audio/wav", "WAV · uncompressed audio, larger file"),
-    MIDI("mid", "audio/midi", "Editable notes and timing for music software")
+    // Android's document providers can append .rtx for audio/midi. Supply the .mid name directly.
+    MIDI("mid", "application/octet-stream", "Editable notes and timing for music software")
 }
 
 internal data class ComposerExportSnapshot(val project: CompositionProject, val plan: LoopPlan) {
