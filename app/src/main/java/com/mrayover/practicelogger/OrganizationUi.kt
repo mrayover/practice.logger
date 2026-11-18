@@ -15,7 +15,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-internal data class OrganizationSnapshot(
+data class OrganizationSnapshot(
     val categories: List<BlockCategory> = emptyList(),
     val sources: List<StudySource> = emptyList(),
     val mediaLinks: List<StudySourceMedia> = emptyList()
