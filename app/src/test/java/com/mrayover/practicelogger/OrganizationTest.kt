@@ -92,4 +92,39 @@ class OrganizationTest {
             assertNotNull(db.media().find(asset.id))
         } finally { db.close(); files.deleteRecursively() }
     }
+
+
+    @Test fun upgradesRoom28WithoutChangingExistingBlocks() = runBlocking {
+        val name = "organization-migration-${java.util.UUID.randomUUID()}.db"
+        val schema = javaClass.classLoader!!.getResourceAsStream("com.mrayover.practicelogger.BlockDatabase/28.json")!!
+            .bufferedReader().use { org.json.JSONObject(it.readText()).getJSONObject("database") }
+        val file = context.getDatabasePath(name).apply { parentFile!!.mkdirs() }
+        try {
+            android.database.sqlite.SQLiteDatabase.openOrCreateDatabase(file, null).use { sql ->
+                val entities = schema.getJSONArray("entities")
+                repeat(entities.length()) { i ->
+                    val e = entities.getJSONObject(i)
+                    sql.execSQL(e.getString("createSql").replace("${TABLE_NAME}", e.getString("tableName")))
+                    e.optJSONArray("indices")?.let { indices ->
+                        repeat(indices.length()) { j ->
+                            sql.execSQL(indices.getJSONObject(j).getString("createSql").replace("${TABLE_NAME}", e.getString("tableName")))
+                        }
+                    }
+                }
+                sql.execSQL("INSERT INTO blocks VALUES ('existing','Legacy exercise','Practice',10,NULL,'p. 3',0,1,2)")
+                val setup = schema.getJSONArray("setupQueries")
+                repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
+                sql.version = 28
+            }
+            BlockDatabase.open(context, name).use { db ->
+                assertEquals(29, db.openHelper.writableDatabase.version)
+                val block = requireNotNull(db.blocks().find("existing"))
+                assertEquals("Legacy exercise", block.name)
+                assertNull(block.categoryId)
+                assertNull(block.sourceId)
+                assertEquals("", block.sourceLocation)
+                assertTrue(db.organization().mediaSourceIds("missing").isEmpty())
+            }
+        } finally { context.deleteDatabase(name) }
+    }
 }
