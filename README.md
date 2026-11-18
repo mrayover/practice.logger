@@ -1,3 +1,7 @@
+# Block and Source organization
+
+Browse Blocks by Category or Source, or search the full catalog. Sources can group PDFs, images, and audio across the Library. Existing weekly plans, Goals, and saved routines keep their current order and progress. [Behavior](docs/BLOCK_ORGANIZATION.md) · [Delivery and verification](CURRENT_STATE.md).
+
 # This Week repetition targets and Planned Minutes
 
 Weekly entries default to three repetitions, editable with minus/plus inside their expanded This Week/Prepare Week row. Collapsed dots/squares and completed/target counts track progress; every additional completion still earns its own Playground reward. Planned Minutes uses configured durations and weekly targets. Existing memberships retain one-practice targets during migration. [Behavior/persistence](docs/WEEK_REPETITIONS.md) · [Actual verification and delivery](CURRENT_STATE.md).

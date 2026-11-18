@@ -17,7 +17,7 @@ data class Block(
     val updatedAt: Long,
     val categoryId: String? = null,
     val sourceId: String? = null,
-    val sourceLocation: String = ""
+    @ColumnInfo(defaultValue = "''") val sourceLocation: String = ""
 )
 @Dao interface BlockDao {
     @Query("SELECT * FROM blocks ORDER BY name COLLATE NOCASE, id")

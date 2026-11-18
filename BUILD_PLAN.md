@@ -1,3 +1,7 @@
+# Block and Source organization
+
+Categories and Sources organize existing Blocks across practice entry points. Sources also group canonical Library assets. Room29/ZIP14 preserves associations while reading older backups. Source landing pages remain deferred. [Scope and behavior](docs/BLOCK_ORGANIZATION.md) · [Delivery and verification](CURRENT_STATE.md).
+
 # Assigned bounded increment - This Week repetitions
 
 Implement weekly repetition targets, collapsed progress indicators, uncapped existing completion rewards, and configured Planned Minutes. Room28/ZIP13 preserves existing memberships at target1 and creates new memberships at3. No recommendation, Composer, scheduling, Playground redesign or regression campaign. [Behavior](docs/WEEK_REPETITIONS.md) · [Actual verification/delivery](CURRENT_STATE.md).

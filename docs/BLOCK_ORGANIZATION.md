@@ -1,6 +1,6 @@
 # Block Organization — Category, Source and Library asset groups
 
-Candidate branch: `block-organization-stage1`; base: `66665ec5c0dc208519e96db415d003ad1363dbca`.
+The organization candidate started on `block-organization-stage1` from development commit `66665ec5c0dc208519e96db415d003ad1363dbca`. See [current status](../CURRENT_STATE.md) for integration and delivery evidence.
 
 ## Principles
 - Block remains the one canonical practice object. Every screen uses its identity, timing, goals, recording and reward relationships.
@@ -35,4 +35,3 @@ Candidate branch: `block-organization-stage1`; base: `66665ec5c0dc208519e96db415
 - Confirm Room 28→29 migration is accepted and the generated schema 29 is retained.
 - Confirm portable ZIP 14 round-trip, old ZIP compatibility, and safe handling of missing references.
 - Confirm navigation back from Library organization and editor cancellation; phone acceptance of grouped headers, search and associations.
-- Merge only after reconciling the canonical checkout and the current published branch. No signed APK or installed-phone acceptance is implied by the code commit.

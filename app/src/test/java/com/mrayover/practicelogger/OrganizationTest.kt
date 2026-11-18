@@ -1,6 +1,7 @@
 package com.mrayover.practicelogger
 
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -69,7 +70,8 @@ class OrganizationTest {
         val db = database()
         val files = java.io.File(context.cacheDir, "organization-${java.util.UUID.randomUUID()}").apply { mkdirs() }
         try {
-            val media = MediaLibraryRepository(db, files)
+            val library = java.io.File(files, "media-library")
+            val media = MediaLibraryRepository(db, library)
             val bytes = java.io.ByteArrayOutputStream().use { out ->
                 val bitmap = android.graphics.Bitmap.createBitmap(16, 16, android.graphics.Bitmap.Config.ARGB_8888)
                 bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
@@ -83,11 +85,20 @@ class OrganizationTest {
             organization.setMediaSources(asset.id, setOf(first.id, second.id))
             assertEquals(setOf(first.id, second.id), db.organization().mediaSourceIds(asset.id).toSet())
             val block = BlockRepository(db).save(null, BlockDraft("Practice", "Play", sourceId = first.id))
+            val archive = java.io.File(files, "organization.zip")
+            val zip = PortableZip(context, db, files)
+            val records = zip.create(archive).records
+            val restored = database()
+            try {
+                restored.withTransaction { records.insertInto(restored.openHelper.writableDatabase) }
+                assertEquals(setOf(first.id, second.id), restored.organization().mediaSourceIds(asset.id).toSet())
+                assertEquals(asset, restored.media().find(asset.id))
+            } finally { restored.close() }
             organization.deleteSource(first.id)
             assertEquals(setOf(second.id), db.organization().mediaSourceIds(asset.id).toSet())
             assertNull(db.blocks().find(block)?.sourceId)
             assertNotNull(db.media().find(asset.id))
-            assertTrue(java.io.File(files, asset.fileName).exists())
+            assertTrue(java.io.File(library, asset.fileName).exists())
             organization.setMediaSources(asset.id, emptySet())
             assertTrue(db.organization().mediaSourceIds(asset.id).isEmpty())
             assertNotNull(db.media().find(asset.id))

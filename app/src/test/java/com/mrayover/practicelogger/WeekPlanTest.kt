@@ -234,7 +234,11 @@ class WeekPlanTest {
         val target = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
         try {
             val blocks = BlockRepository(source)
-            val a = blocks.save(null, BlockDraft("First", "Play"), sunday)
+            val organization = OrganizationRepository(source)
+            val category = organization.createCategory("Technique")
+            val studySource = organization.createSource("Guitar method")
+            val a = blocks.save(null, BlockDraft("First", "Play", categoryId = category.id,
+                sourceId = studySource.id, sourceLocation = "p. 31"), sunday)
             val b = blocks.save(null, BlockDraft("Second", "Play"), sunday)
             blocks.setArchived(b, true)
             blocks.addToWeek(sunday.minusWeeks(1), a)
@@ -250,6 +254,9 @@ class WeekPlanTest {
             assertEquals(source.weekPlan().read(sunday.toString()), target.weekPlan().read(sunday.toString()))
             assertEquals(source.weekPlan().read(sunday.minusWeeks(1).toString()), target.weekPlan().read(sunday.minusWeeks(1).toString()))
             assertTrue(target.blocks().find(b)!!.archived)
+            assertEquals(source.blocks().find(a), target.blocks().find(a))
+            assertEquals(category, target.organization().category(category.id))
+            assertEquals(studySource, target.organization().source(studySource.id))
             assertEquals(placement.copy(prepMs = 2500L), target.sessions().find(session)!!.current)
             assertNull(target.goalAttribution().snapshot(placement.id))
 
@@ -279,7 +286,14 @@ class WeekPlanTest {
             val badPrep = JSONObject(original)
             badPrep.getJSONObject("tables").getJSONArray("placements").getJSONArray(0).put(14, -1)
             assertTrue(runCatching { PortableRecords(badPrep, PORTABLE_VERSION) }.isFailure)
-            assertEquals(emptyList<JSONObject>(), PortableRecords(legacy, 3)["week_blocks"])
+            val legacyRecords = PortableRecords(legacy, 3)
+            assertEquals(emptyList<JSONObject>(), legacyRecords["week_blocks"])
+            val emptyTarget = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
+            try {
+                emptyTarget.withTransaction { legacyRecords.insertInto(emptyTarget.openHelper.writableDatabase) }
+                assertEquals(source.blocks().find(a)?.copy(categoryId = null, sourceId = null, sourceLocation = ""),
+                    emptyTarget.blocks().find(a))
+            } finally { emptyTarget.close() }
             for (bad in listOf(
                 JSONArray().put(sunday.plusDays(1).toString()).put(a).put(0),
                 JSONArray().put(sunday.toString()).put("missing").put(0),

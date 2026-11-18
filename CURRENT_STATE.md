@@ -1,3 +1,15 @@
+# November17 reconciliation status
+
+Published source and this working checkout match at 66665ec before this documentation update. Published MIME90ff01d and weekly-targetsb069789 have identical complete file trees to original e5e4373 and3f619b5. Original history remains archived locally.
+
+Canonical C:/Users/mrove/Projects/practice.logger remains at bc7b602. Local-path git fetch failed: cannot open .git/FETCH_HEAD: Permission denied. This session cannot fast-forward that protected checkout. The older clean OneDrive main checkout remains untouched.
+
+Signed build156 APK/ZIP are preserved unchanged. Packaged BUILD_INFO and delivery reports describe historical publication blockers; those are superseded by this record. Original source/hash provenance remains valid. MIME Android import test remains unrun; previous release compilation and weekly focused checks passed. No rebuild or repeated tests were performed.
+
+Exact next task: in a context with write access to the canonical checkout, verify its working tree is clean, fetch block-ux-stage1 from this checkout or origin, and merge --ff-only FETCH_HEAD. Then complete the one pending M4A Android import check. No cherry-pick or duplicate feature implementation is needed.
+
+---
+
 # November17 publication restored
 
 All six pending local changes are published on block-ux-stage1 through the GitHub connector at f15012c87b11ac20aca67a18c29c112abebf7652. Each published commit tree exactly matches its original local tree. MIME fix: 90ff01dd9dcdc81b44a1085c4696b53db0595601 (local e5e4373); weekly repetitions: b069789c2d154a8938f5b7f1907d7800fa2b70e6 (local 3f619b5). Connector-created commits have new IDs; original local history is preserved. Git CLI networking still fails before authentication. No application/build/test changes were made in publication; the M4A Android test remains unrun. Canonical Projects checkout synchronization is not claimed.

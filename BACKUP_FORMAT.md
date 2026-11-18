@@ -1,3 +1,7 @@
+## Complete portable ZIP v14 - Block organization
+
+Room29/ZIP14 preserves Block categories, Sources, optional Source locations and links between Sources and Library assets. Each canonical Library original is stored once, including when several Sources reference it. ZIP13 and earlier retain their historical formats and restore Blocks with empty organization fields. JSON7 remains unchanged. See [Block organization](docs/BLOCK_ORGANIZATION.md) and [delivery status](CURRENT_STATE.md).
+
 ## Complete portable ZIP v13 - weekly repetition targets
 
 Room28/ZIP13 appends `plannedRepetitions` (positive whole Int) to `week_blocks` after weekStart/blockId/position. Invalid zero/negative or non-integer values are rejected. Frozen ZIP1-12 readers retain their original columns/envelopes; ZIP12 still requires Room27, while ZIP13 requires Room28. Restoring older weekly memberships uses SQL default1, preserving their previous single-practice meaning. New memberships default to3 through the application. Completion/reward/layout records and JSON7 are unchanged. The additive27→28 migration changes no existing history. See [weekly repetitions](docs/WEEK_REPETITIONS.md) and [actual checks/delivery](CURRENT_STATE.md).
