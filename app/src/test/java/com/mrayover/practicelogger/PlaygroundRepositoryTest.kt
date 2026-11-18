@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
@@ -80,6 +81,8 @@ class PlaygroundRepositoryTest {
             PlaygroundRepository(db).ensureLayouts()
             assertEquals(before, db.playground().completions())
             assertNull(before.first { it.placementId == "p1" }.colorArgb)
+            assertEquals(setOf(EarnedBlockCount(null, 6), EarnedBlockCount(goalCompletionColor(2), 1)),
+                db.playground().observeEarnedCounts().first().toSet())
         } finally { db.close() }
     }
     @Test fun room26AdditiveMigrationPreservesEveryPreviousEntity() = runBlocking {
@@ -98,7 +101,7 @@ class PlaygroundRepositoryTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(27, db.openHelper.writableDatabase.version)
+            assertEquals(29, db.openHelper.writableDatabase.version)
             assertEquals(180, db.weeklyTargets().find("2026-11-08")!!.targetMinutes)
             assertTrue(db.playground().readAll().isEmpty())
             db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertFalse(it.moveToFirst()) }
@@ -111,7 +114,7 @@ class PlaygroundRepositoryTest {
             }
         } finally { db.close(); context.deleteDatabase(name) }
     }
-    @Test fun zip12ExactRoundTripAndFrozenZip11FallbackRejectsInvalidLayouts() = runBlocking {
+    @Test fun currentZipExactRoundTripAndFrozenZip11FallbackRejectsInvalidLayouts() = runBlocking {
         val db = memory(); val restored = memory(); val old = memory()
         val folder = File(context.cacheDir, "pg1-zips").apply { mkdirs() }
         try {
@@ -119,11 +122,16 @@ class PlaygroundRepositoryTest {
             val rotated = rotatePlaygroundSquare(rows.first(), 21.789, rows.drop(1), playgroundWorld(rows.size)); repo.save(rotated)
             val zip = PortableZip(context, db, folder); val file = File(folder, "pg1.zip"); zip.create(file)
             val verified = zip.verify(file)
-            assertEquals(12, verified.records.payload.getInt("version"))
+            assertEquals(PORTABLE_VERSION, verified.records.payload.getInt("version"))
             restored.withTransaction { verified.records.insertInto(restored.openHelper.writableDatabase) }
             assertEquals(db.playground().readAll(), restored.playground().readAll())
+            assertEquals(db.playground().completions(), restored.playground().completions())
             val historical = JSONObject(verified.records.payload.toString()).put("version", 11)
-            historical.getJSONObject("tables").remove("playground_layouts")
+            val tables = historical.getJSONObject("tables")
+            listOf("playground_layouts", "block_categories", "study_sources", "study_source_media").forEach { tables.remove(it) }
+            val sql = db.openHelper.readableDatabase
+            tables.put("blocks", PortableTable("blocks", "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l").snapshot(sql) {})
+            tables.put("week_blocks", PortableTable("week_blocks", "weekStart blockId position:i").snapshot(sql) {})
             val records = PortableRecords(historical, 11); records.validateRelationships(context)
             val bytes = historical.toString().toByteArray(Charsets.UTF_8)
             val hash = java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
@@ -146,7 +154,7 @@ class PlaygroundRepositoryTest {
                 JSONArray().put(JSONArray().put("p0").put(0).put(0).put(0)).put(JSONArray().put("p1").put(0.5).put(0).put(45)),
                 JSONArray().put(JSONArray().put("p0").put(0).put(0).put(0)).put(JSONArray().put("p0").put(2).put(0).put(0)))) {
                 val bad = JSONObject(verified.records.payload.toString()); bad.getJSONObject("tables").put("playground_layouts", badRows)
-                assertTrue(runCatching { PortableRecords(bad, 12) }.isFailure)
+                assertTrue(runCatching { PortableRecords(bad, PORTABLE_VERSION) }.isFailure)
             }
         } finally { db.close(); restored.close(); old.close(); folder.deleteRecursively() }
     }

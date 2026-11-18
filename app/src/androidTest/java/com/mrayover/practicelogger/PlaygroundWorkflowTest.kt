@@ -14,6 +14,8 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
+import kotlin.math.abs
+import kotlin.math.floor
 
 class PlaygroundWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
@@ -37,11 +39,13 @@ class PlaygroundWorkflowTest {
 
         compose.onNodeWithText("Log").performScrollTo().performClick()
         compose.onNodeWithText("Playground", substring = false).performClick()
-        compose.onNodeWithText("Blocks 6").assertIsDisplayed()
+        waitForTotal(6)
         val page = bounds("playground-home")
         val viewport = bounds("playground-canvas")
         val controls = bounds("playground-controls")
-        assertTrue("Gameplay takes the largest portion of the fixed page", viewport.height > page.height * 0.48f)
+        println("Playground fixed page $page, viewport $viewport, controls $controls")
+        screenshot("playground-home")
+        assertTrue("Gameplay uses more than half the fixed page: $viewport in $page", viewport.height > page.height * 0.5f)
         assertTrue("Gameplay uses the available width", viewport.width > page.width * 0.90f)
         assertTrue("Controls sit below gameplay", controls.top > viewport.bottom)
         val tags = listOf("canvas", "inventory", "explore", "up", "down", "left", "right", "a", "b")
@@ -56,7 +60,6 @@ class PlaygroundWorkflowTest {
         listOf("Stats", "Workshop", "Kitchen").forEach { compose.onNodeWithText(it).assertIsNotEnabled() }
         node("playground-explore").assertIsNotEnabled()
         node("playground-b").assertIsNotEnabled()
-        screenshot("playground-home")
 
         val before = playerPosition()
         node("playground-canvas").performTouchInput { swipeUp(); swipeLeft() }
@@ -103,7 +106,7 @@ class PlaygroundWorkflowTest {
         }
         assertCount("Neutral", 2)
         compose.onNodeWithText("Close").performClick()
-        compose.onNodeWithText("Blocks 7").assertIsDisplayed()
+        waitForTotal(7)
         node("playground-inventory-panel").assertDoesNotExist()
         assertEquals(fixedBounds, tags.associateWith { bounds("playground-$it") })
         assertEquals(stopped, playerPosition())
@@ -112,7 +115,7 @@ class PlaygroundWorkflowTest {
         node("playground-inventory-panel").assertDoesNotExist()
         node("playground-home").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
-        compose.onNodeWithText("Blocks 7").assertIsDisplayed()
+        waitForTotal(7)
         compose.onNodeWithText("Journal").performClick()
         compose.onNodeWithText("Playground").assertIsDisplayed()
         assertEquals(listOf(savedLayout), runBlocking { db.playground().readAll() })
@@ -132,13 +135,26 @@ class PlaygroundWorkflowTest {
         compose.mainClock.advanceTimeBy(millis)
         val moved = playerPosition()
         button.performTouchInput { if (cancelled) cancel() else up() }
+        compose.runOnIdle {}
+        val stopped = playerPosition()
+        val viewport = bounds("playground-canvas")
+        val pixelsPerUnit = floor(minOf(viewport.width / PlaygroundHome.width, viewport.height / PlaygroundHome.height))
+            .coerceAtLeast(1f)
+        assertTrue("Only the in-flight frame may finish while Android dispatches release",
+            abs(stopped.x - moved.x) <= 2 * pixelsPerUnit && abs(stopped.y - moved.y) <= 2 * pixelsPerUnit)
         compose.mainClock.advanceTimeBy(220)
-        assertEquals("Movement stops after release or cancellation", moved, playerPosition())
-        return moved
+        assertEquals("Movement stops after release or cancellation", stopped, playerPosition())
+        return stopped
     }
 
     private fun node(tag: String) = compose.onNodeWithTag(tag)
     private fun bounds(tag: String): Rect = node(tag).assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+
+    private fun waitForTotal(total: Int) {
+        val text = "Blocks $total"
+        compose.waitUntil(10_000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText(text).assertIsDisplayed()
+    }
 
     private fun assertCount(label: String, count: Int) {
         node("playground-count-$label").assertIsDisplayed().assertTextEquals(count.toString())

@@ -72,12 +72,12 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
 
     Column(
         Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp).testTag("playground-home"),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onJournal, contentPadding = PaddingValues(horizontal = 6.dp)) { Text("Journal") }
-            Text("Playground", Modifier.weight(1f).padding(horizontal = 4.dp),
-                style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            PageHeading("Playground", Modifier.weight(1f).padding(horizontal = 4.dp),
+                style = MaterialTheme.typography.titleMedium, maxLines = 1)
             OutlinedButton(
                 onClick = { held = null; inventoryOpen = true },
                 modifier = Modifier.testTag("playground-inventory"),
@@ -88,14 +88,17 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
                 Text("Blocks ${total ?: "…"}", maxLines = 1)
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            listOf("Home", "Stats", "Workshop", "Kitchen").forEach { destination ->
-                val home = destination == "Home"
-                FilterChip(
-                    selected = home, onClick = {}, enabled = home,
-                    label = { Text(destination, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    modifier = Modifier.weight(1f).semantics { selected = home }
-                )
+        // This row indicates the current environment and previews inactive destinations.
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                listOf("Home", "Stats", "Workshop", "Kitchen").forEach { destination ->
+                    val home = destination == "Home"
+                    FilterChip(
+                        selected = home, onClick = {}, enabled = home,
+                        label = { Text(destination, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        modifier = Modifier.weight(1f).semantics { selected = home }
+                    )
+                }
             }
         }
         HomeViewport(Modifier.fillMaxWidth().weight(1f)) { player }
