@@ -5,15 +5,18 @@ import java.time.LocalDate
 import java.util.UUID
 
 data class BlockDraft(val name: String = "", val action: String = "", val duration: String = "5", val tempo: String = "", val notes: String = "",
-    val primaryGoalId: String? = null, val primaryGoalChanged: Boolean = false) {
+    val primaryGoalId: String? = null, val primaryGoalChanged: Boolean = false,
+    val categoryId: String? = null, val sourceId: String? = null, val sourceLocation: String = "") {
     fun errors(): Map<String, String> = buildMap {
+        if (sourceLocation.length > 160) put("sourceLocation", "Use 160 characters or fewer.")
         if (name.isBlank()) put("name", "Enter a name.")
         if (action.isBlank()) put("action", "Describe what to practice.")
         if (duration.trim().toIntOrNull()?.let { it > 0 } != true) put("duration", "Enter positive whole minutes (up to 2147483647).")
         if (tempo.isNotBlank() && tempo.trim().toIntOrNull()?.let { it > 0 } != true) put("tempo", "Enter a positive whole BPM or leave blank.")
     }
     companion object {
-        fun from(block: Block) = BlockDraft(block.name, block.action, block.durationMinutes.toString(), block.tempo?.toString() ?: "", block.notes)
+        fun from(block: Block) = BlockDraft(block.name, block.action, block.durationMinutes.toString(), block.tempo?.toString() ?: "", block.notes, categoryId = block.categoryId,
+            sourceId = block.sourceId, sourceLocation = block.sourceLocation)
     }
 }
 
@@ -72,12 +75,16 @@ class BlockRepository(private val db: BlockDatabase, private val now: () -> Long
     suspend fun save(id: String?, draft: BlockDraft, week: LocalDate? = null, newId: String? = null): String = db.withTransaction {
         require(draft.errors().isEmpty()) { "Check the highlighted fields." }
         val previous = id?.let { checkNotNull(db.blocks().find(it)) { "This Block is no longer available." } }
+        draft.categoryId?.let { requireNotNull(db.organization().category(it)) { "Category no longer exists." } }
+        draft.sourceId?.let { requireNotNull(db.organization().source(it)) { "Source no longer exists." } }
         val timestamp = now()
         val block = Block(
             id = previous?.id ?: newId ?: UUID.randomUUID().toString(), name = draft.name.trim(), action = draft.action.trim(),
             durationMinutes = draft.duration.trim().toInt(), tempo = draft.tempo.trim().takeIf { it.isNotEmpty() }?.toInt(),
             notes = draft.notes.trim(), archived = previous?.archived ?: false,
-            createdAt = previous?.createdAt ?: timestamp, updatedAt = timestamp
+            createdAt = previous?.createdAt ?: timestamp, updatedAt = timestamp,
+            categoryId = draft.categoryId, sourceId = draft.sourceId,
+            sourceLocation = if (draft.sourceId == null) "" else draft.sourceLocation.trim()
         )
         if (previous == null) db.blocks().insert(block) else check(db.blocks().update(block) == 1)
         if (draft.primaryGoalChanged) {
