@@ -105,10 +105,10 @@ class OrganizationTest {
                 val entities = schema.getJSONArray("entities")
                 repeat(entities.length()) { i ->
                     val e = entities.getJSONObject(i)
-                    sql.execSQL(e.getString("createSql").replace("${TABLE_NAME}", e.getString("tableName")))
+                    sql.execSQL(e.getString("createSql").replace("\${TABLE_NAME}", e.getString("tableName")))
                     e.optJSONArray("indices")?.let { indices ->
                         repeat(indices.length()) { j ->
-                            sql.execSQL(indices.getJSONObject(j).getString("createSql").replace("${TABLE_NAME}", e.getString("tableName")))
+                            sql.execSQL(indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", e.getString("tableName")))
                         }
                     }
                 }
