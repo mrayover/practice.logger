@@ -27,6 +27,8 @@ internal fun parseWeeklyTarget(text: String): Int? = text.takeIf { it.isNotEmpty
 interface WeeklyPracticeTargetDao {
     @Query("SELECT * FROM weekly_practice_targets ORDER BY weekStart")
     fun observeAll(): Flow<List<WeeklyPracticeTarget>>
+    @Query("SELECT weekStart FROM weekly_practice_targets")
+    fun observeWeeksWithLegacyTrack(): Flow<List<String>>
     @Query("SELECT * FROM weekly_practice_targets WHERE weekStart = :week")
     suspend fun find(week: String): WeeklyPracticeTarget?
     @Query("SELECT COUNT(*) FROM weekly_practice_targets")

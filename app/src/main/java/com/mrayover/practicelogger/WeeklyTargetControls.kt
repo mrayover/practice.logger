@@ -8,14 +8,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun WeeklyPlanSummary(progress: PracticeMinutes?, editable: Boolean, enabled: Boolean, onEdit: () -> Unit) {
+internal fun WeeklyPlanSummary(progress: PracticeMinutes?, legacyTrack: Boolean, editable: Boolean, enabled: Boolean, onEdit: () -> Unit) {
     Column {
         Column(Modifier.fillMaxWidth().testTag("weekly-target-summary"), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text("Weekly practice", style = MaterialTheme.typography.labelLarge)
             if (progress == null) Text("Loading weekly practice…", style = MaterialTheme.typography.bodySmall)
             else {
                 Text(progress.label, style = MaterialTheme.typography.bodyMedium)
-                if (progress.plannedMinutes > 0) {
+                if (legacyTrack) {
                     LinearProgressIndicator(progress = { progress.fill }, modifier = Modifier.fillMaxWidth().height(4.dp),
                         color = MaterialTheme.colorScheme.primary, trackColor = PracticeTheme.colors.scrollTrack)
                     Text(progress.status, style = MaterialTheme.typography.bodySmall)

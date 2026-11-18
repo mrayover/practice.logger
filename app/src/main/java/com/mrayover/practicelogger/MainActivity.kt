@@ -172,6 +172,7 @@ class MainActivity : ComponentActivity() {
     DisposableEffect(practice.running, transcribe.running, recordings.recording, tools.clicking, tools.listening, tools.stopwatchRunning, tools.countdownRunning, view) { view.keepScreenOn = practice.running || transcribe.running || recordings.recording || tools.clicking || tools.listening || tools.stopwatchRunning || tools.countdownRunning; onDispose { view.keepScreenOn = false } }
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     val weekBlocks by vm.weekBlocks.collectAsStateWithLifecycle()
+    val weeksWithLegacyTrack by vm.weeksWithLegacyTrack.collectAsStateWithLifecycle()
     val weekCalendar by produceState(practiceWeek() to java.time.ZoneId.systemDefault(), lifecycle) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
@@ -286,7 +287,8 @@ class MainActivity : ComponentActivity() {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
             "home" -> {
-                PracticeHome(weeklyProgress = weeklyProgress, onWeekPlan = openCurrentPlan,
+                PracticeHome(weeklyProgress = weeklyProgress, legacyTrack = currentWeek.toString() in weeksWithLegacyTrack,
+                    onWeekPlan = openCurrentPlan,
                     onStatistics = { page = "statistics" },
                     onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
                     onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
@@ -351,7 +353,8 @@ class MainActivity : ComponentActivity() {
                 val completions = remember(sessions.bundles, selectedWeek) {
                     weekCompletions(sessions.bundles, selectedWeek)
                 }
-                WeekWorkspace(weeklyProgress = weeklyProgress?.total, planEditable = !selectedWeek.isBefore(currentWeek),
+                WeekWorkspace(weeklyProgress = weeklyProgress?.total, legacyTrack = selectedWeek.toString() in weeksWithLegacyTrack,
+                    planEditable = !selectedWeek.isBefore(currentWeek),
                     week = selectedWeek, isCurrent = selectedWeek == currentWeek, plans = weekBlocks, catalog = catalog, preparing = preparing,
                     vm = vm, practice = practice, hasDraft = sessions.draft?.placements?.isNotEmpty() == true,
                     completions = completions, completionCounts = weekCompletionCounts(sessions.bundles, selectedWeek, weekZone),

@@ -19,6 +19,8 @@ class CatalogViewModel(application: Application) : AndroidViewModel(application)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Catalog())
     val weekBlocks = db.weekPlan().observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val weeksWithLegacyTrack = db.weeklyTargets().observeWeeksWithLegacyTrack().map { it.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
     var busy by mutableStateOf(false)
         private set
     var error by mutableStateOf<String?>(null)

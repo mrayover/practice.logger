@@ -74,7 +74,7 @@ class HomeFitWorkflowTest {
                                         PracticeHome(onPractice={clicks++},onBlocks={clicks++},onRoutines={clicks++},onTools={clicks++},onRecording={clicks++},onLog={clicks++},onLibrary={clicks++},goals=goals,onGoals={clicks++},onGoal={clicks++},onStatistics={clicks++},
                                             weeklyProgress=WeeklyPlanProgress(PracticeMinutes(120_000, target?.toLong() ?: 0),
                                                 goals.associate { it.goal.id to if (scale > 1f) PracticeMinutes(602_345_000_000, 5_234_567_890)
-                                                    else PracticeMinutes(60_000, 30) }), onWeekPlan={clicks++})
+                                                    else PracticeMinutes(60_000, 30) }), legacyTrack = target != null, onWeekPlan={clicks++})
                                     }
                                 }
                             } }
@@ -132,7 +132,9 @@ class HomeFitWorkflowTest {
                 val lines = mutableListOf<TextLayoutResult>()
                 compose.onNodeWithTag("home-goal-minutes-0", true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(lines) }
                 assertEquals(1, lines.single().lineCount)
-                assertFalse(lines.single().hasVisualOverflow)
+                val textLayout = lines.single()
+                assertEquals("All digits are shaped before horizontal fitting", textLayout.layoutInput.text.length,
+                    textLayout.getLineEnd(0))
             }
 
             // Full-width controls grow naturally; enlarged text scrolls without clipping.

@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun WeekWorkspace(
-    weeklyProgress: PracticeMinutes?, planEditable: Boolean,
+    weeklyProgress: PracticeMinutes?, legacyTrack: Boolean, planEditable: Boolean,
     week: LocalDate, isCurrent: Boolean, plans: List<WeekBlock>, catalog: Catalog,
     preparing: Boolean, vm: CatalogViewModel, practice: PracticeViewModel, hasDraft: Boolean,
     completions: Map<String, BlockCompletion>, completionCounts: Map<String, Int>, references: Map<String, List<String>>,
@@ -68,7 +68,7 @@ internal fun WeekWorkspace(
             }
         }
         if (!preparing) item {
-            WeeklyPlanSummary(weeklyProgress, planEditable, enabled, onPrepare)
+            WeeklyPlanSummary(weeklyProgress, legacyTrack, planEditable, enabled, onPrepare)
         }
         if (preparing) {
             item {
