@@ -207,8 +207,8 @@ class ComposerExportWorkflowTest {
         compose.onNodeWithText("MIDI (.mid) — editable").performScrollTo().performClick()
         shot("midi-export-dialog")
         tap("Choose destination")
-        val nameField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 10000)!!
-        assertEquals("C6B unsaved draft.mid", nameField.text)
+        assertTrue("The picker should suggest the draft title and .mid extension",
+            device.wait(Until.hasObject(By.clazz("android.widget.EditText").text("C6B unsaved draft.mid")), 10000))
         savePicker("c6b-loop.mid", "MIDI exported")
         val returnedFrame = audio.framesWritten
         compose.waitUntil(15000) { audio.playing && audio.framesWritten > returnedFrame + 12000 }
