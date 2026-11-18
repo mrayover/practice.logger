@@ -124,6 +124,8 @@ class MainActivity : ComponentActivity() {
 @Suppress("DEPRECATION")
 @Composable fun CatalogApp(vm: CatalogViewModel = viewModel(), practice: PracticeViewModel = viewModel(), recordings: RecordingViewModel = viewModel(), tools: ToolsViewModel = viewModel(), routines: RoutineViewModel = viewModel(), goals: GoalViewModel = viewModel(), log: LogViewModel = viewModel(), images: ImageReferenceViewModel = viewModel(), media: MediaLibraryViewModel = viewModel(), transcribe: TranscribeViewModel = viewModel(), onRestoreAppearance: () -> Unit = {}) {
     val backup: BackupViewModel = viewModel()
+    val organization: OrganizationViewModel = viewModel()
+    val organizationSnapshot by organization.snapshot.collectAsStateWithLifecycle()
     val inspirations: InspirationsViewModel = viewModel()
     val weeklyTargetVm: WeeklyTargetViewModel = viewModel()
     val weeklyTargets by weeklyTargetVm.targets.collectAsStateWithLifecycle()
@@ -244,7 +246,7 @@ class MainActivity : ComponentActivity() {
         page = "editor"
     }
     BackHandler(page == "library") { page = "home" }
-    CompositionLocalProvider(LocalGoalIndicators provides goalIndicators) {
+    CompositionLocalProvider(LocalGoalIndicators provides goalIndicators, LocalOrganization provides organizationSnapshot) {
     ApplicationBackground {
     Surface(Modifier.fillMaxSize().testTag("app-surface"), color = pageBackgroundColor(), contentColor = MaterialTheme.colorScheme.onBackground) {
       Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
@@ -290,6 +292,7 @@ class MainActivity : ComponentActivity() {
                 StatisticsScreen(activity, goalRows, goals.error, onHome = { page = "home" }, onGoal = { goalId = it; page = "goal-detail" },
                     onSession = { summaryId = it; summaryReturn = "statistics"; page = "summary" })
             }
+            "organize" -> OrganizationManager(organization, onBack = { page = "library" })
             "media-library" -> {
                 BackHandler { page = "home" }
                 MediaLibraryScreen(media, onBack = { page = "home" }, onWorkspaceChanged = { mediaWorkspace = it },
@@ -386,7 +389,10 @@ class MainActivity : ComponentActivity() {
                     libraryScroll.scrollToItem(if (searchFocused || query.isNotBlank()) 2 else 0)
                 }
                 var goalFilter by rememberBlockGoalFilter(goalIndicators)
-                val matches = matchingBlocks(catalog.blocks, query, archived, goalIndicators, goalFilter)
+                var groupMode by rememberSaveable { mutableStateOf(BlockGroupMode.CATEGORY) }
+                var openGroups by remember { mutableStateOf(setOf<String>()) }
+                val matches = matchingBlocks(catalog.blocks, query, archived, goalIndicators, goalFilter, organizationSnapshot)
+                val effectiveMode = if (query.isNotBlank()) BlockGroupMode.ALL else groupMode
                 LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
                     verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
                     item { PageHeading("Block Library", style = MaterialTheme.typography.headlineMedium) }
@@ -394,12 +400,17 @@ class MainActivity : ComponentActivity() {
                     item { OutlinedTextField(query, { query = it }, label = { Text("Search Blocks") }, singleLine = true,
                         modifier = Modifier.fillMaxWidth().onFocusChanged { searchFocused = it.isFocused }) }
                     item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
+                    item { Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { page = "organize" }) { Text("Manage Categories & Sources") }
+                    } }
+                    item { BlockGroupPicker(groupMode) { groupMode = it } }
                     item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedSelectionChip(selected = !archived, onClick = { archived = false }, label = { Text("Active") })
                         OutlinedSelectionChip(selected = archived, onClick = { archived = true }, label = { Text("Archived") })
                     } }
                     if (matches.isEmpty()) item { Text(if (query.isNotBlank() || goalFilter.availableIn(goalIndicators) != BlockGoalFilter.All) "No matching Blocks." else if (archived) "No archived Blocks." else "No Blocks yet. Create your first Block.") }
-                    items(matches, key = { it.id }) { block ->
+                    organizedBlockItems(matches, organizationSnapshot, effectiveMode, openGroups,
+                        onToggle = { key -> openGroups = if (key in openGroups) openGroups - key else openGroups + key }) { block ->
                         BlockPill(block, goalIndicators.block(block.id), references[block.id].orEmpty(),
                             modifier = Modifier.testTag("library-block-${block.id}")) {
                             TextButton(onClick = { openEditor(block.id) }, enabled = !vm.busy) { Text("Edit") }
@@ -493,6 +504,9 @@ class MainActivity : ComponentActivity() {
     var duration by rememberSaveable { mutableStateOf(initial.duration) }
     var tempo by rememberSaveable { mutableStateOf(initial.tempo) }
     var notes by rememberSaveable { mutableStateOf(initial.notes) }
+    var categoryId by rememberSaveable { mutableStateOf(initial.categoryId) }
+    var sourceId by rememberSaveable { mutableStateOf(initial.sourceId) }
+    var sourceLocation by rememberSaveable { mutableStateOf(initial.sourceLocation) }
     var submitted by rememberSaveable { mutableStateOf(false) }
     var discard by rememberSaveable { mutableStateOf(false) }
     var archiveConfirm by rememberSaveable { mutableStateOf(false) }
@@ -500,7 +514,8 @@ class MainActivity : ComponentActivity() {
     var pickedPrimary by rememberSaveable { mutableStateOf<String?>(null) }
     var primaryEdited by rememberSaveable { mutableStateOf(false) }
     val primary = if (primaryEdited) pickedPrimary else savedPrimary
-    val draft = BlockDraft(name, action, duration, tempo, notes, primary.takeIf { primaryEdited }, primaryEdited)
+    val draft = BlockDraft(name, action, duration, tempo, notes, primary.takeIf { primaryEdited }, primaryEdited,
+        categoryId = categoryId, sourceId = sourceId, sourceLocation = sourceLocation)
     val errors = if (submitted) draft.errors() else emptyMap()
     fun leave() { if (!busy) { if (draft != initial || images.editor.dirty) discard = true else images.discardEditor(onCancel) } }
     BackHandler { leave() }
@@ -538,6 +553,9 @@ class MainActivity : ComponentActivity() {
             PrimaryGoalPicker(primary, enabled = !busy) { selected ->
                 pickedPrimary = selected; primaryEdited = selected != savedPrimary
             }
+            BlockOrganizationEditor(categoryId, sourceId, sourceLocation,
+                onCategory = { categoryId = it }, onSource = { sourceId = it; if (it == null) sourceLocation = "" },
+                onLocation = { sourceLocation = it }, enabled = !busy)
             block?.let { LearningButton(it.id) }
             BlockImageEditor(block?.id, images, busy)
             TextButton(onClick = { notesExpanded = !notesExpanded }, modifier = Modifier.fillMaxWidth()) {
