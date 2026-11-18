@@ -88,8 +88,13 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, allowAudioImport: Boolean = false, onChoose: ((String) -> Unit)? = null, destinationPills: (@Composable () -> Unit)? = null) {
+@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, allowAudioImport: Boolean = false, onChoose: ((String) -> Unit)? = null, orgVm: OrganizationViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), destinationPills: (@Composable () -> Unit)? = null) {
     val assets by vm.assets.collectAsStateWithLifecycle()
+    val org by orgVm.snapshot.collectAsStateWithLifecycle()
+    var groupBySource by rememberSaveable { mutableStateOf(false) }
+    var expandedSources by remember { mutableStateOf(setOf<String>()) }
+    var organizingMedia by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedSourceIds by remember { mutableStateOf(setOf<String>()) }
     var query by rememberSaveable { mutableStateOf("") }
     var filterName by rememberSaveable { mutableStateOf(MediaFilter.ALL.name) }
     var byName by rememberSaveable { mutableStateOf(false) }
@@ -150,6 +155,10 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
                 OutlinedSelectionChip(selected = byName, onClick = { byName = true }, label = { Text("Name") })
             }
         }
+        if (selectionRole == null) item {
+            OutlinedSelectionChip(selected = groupBySource, onClick = { groupBySource = !groupBySource },
+                label = { Text(if (groupBySource) "Grouped by Source" else "Group by Source") })
+        }
         if (vm.busy) item {
             Text(if (vm.importing) "Importing and validating…" else "Saving…")
             if (vm.importing) TextButton(onClick = vm::cancelImport) { Text("Cancel import") }
@@ -163,22 +172,46 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
             Text(if (compatible.isEmpty() && allowAudioImport) "No audio in the Library yet. Import an MP3, M4A or WAV." else if (compatible.isEmpty()) "No compatible files imported yet. Import an image, PDF or audio file to organize it here." else "No files match your search and filter.")
             if (selectionRole == null && assets.isEmpty()) OutlinedButton(onClick = importAction, enabled = enabled) { Text("Import a file") }
         }
-        items(filtered, key = { it.id }) { asset ->
+        organizedMediaItems(filtered, org, groupBySource && selectionRole == null && query.isBlank(), expandedSources,
+            onToggle = { key -> expandedSources = if (key in expandedSources) expandedSources - key else expandedSources + key }) { asset ->
             OutlinedCard(Modifier.fillMaxWidth().testTag("media-item-${asset.id}")) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(asset.title, style = MaterialTheme.typography.titleMedium)
                     LibraryMediaMetadata(asset)
+                    val sources = org.mediaSources(asset.id).mapNotNull(org::sourceName)
+                    if (sources.isNotEmpty()) Text("Sources: " + sources.joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (selectionRole != null && selectedId == asset.id) Text("Currently selected", modifier = Modifier.testTag("media-selected-${asset.id}"))
                     if (asset.id in vm.unavailable) Text("File missing or changed. Delete this item and import your original again.", color = MaterialTheme.colorScheme.error)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (onChoose != null) TextButton(onClick = { onChoose(asset.id) }, enabled = enabled && asset.id !in vm.unavailable, modifier = Modifier.testTag("media-choose-${asset.id}")) { Text(if (selectedId == asset.id) "Keep selected" else "Choose") }
                         if (selectionRole == null) TextButton(onClick = { previewId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-open-${asset.id}")) { Text("Open") }
+                        if (selectionRole == null) TextButton(onClick = {
+                            organizingMedia = asset.id; selectedSourceIds = org.mediaSources(asset.id)
+                        }, enabled = enabled && !orgVm.busy) { Text("Sources") }
                         if (selectionRole == null) TextButton(onClick = { renameId = asset.id; renameText = asset.title }, enabled = enabled, modifier = Modifier.testTag("media-rename-${asset.id}")) { Text("Rename") }
                         if (selectionRole == null) TextButton(onClick = { deleteId = asset.id }, enabled = enabled, modifier = Modifier.testTag("media-delete-${asset.id}")) { Text("Delete") }
                     }
                 }
             }
         }
+    }
+    organizingMedia?.let { id ->
+        AlertDialog(onDismissRequest = { organizingMedia = null }, title = { Text("Associate Sources") },
+            text = { Column {
+                Text("Select any Sources for this file. The original stays in the Library.")
+                if (org.sources.isEmpty()) Text("Create Sources from Manage Blocks → Manage Categories & Sources.")
+                org.sources.forEach { source ->
+                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                        Checkbox(checked = source.id in selectedSourceIds, onCheckedChange = { checked ->
+                            selectedSourceIds = if (checked) selectedSourceIds + source.id else selectedSourceIds - source.id
+                        })
+                        Text(source.title)
+                    }
+                }
+            } },
+            confirmButton = { TextButton(onClick = { orgVm.assignMedia(id, selectedSourceIds); organizingMedia = null }, enabled = !orgVm.busy) { Text("Save") } },
+            dismissButton = { TextButton(onClick = { organizingMedia = null }) { Text("Cancel") } })
     }
     renameId?.let { id ->
         val valid = runCatching { MediaLibraryRepository.title(renameText) }.isSuccess
