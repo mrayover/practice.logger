@@ -147,6 +147,7 @@ import androidx.compose.ui.unit.dp
         if (bundle == null) { Text("This Goal is unavailable."); return@GoalPage }
         Text("Choose existing Blocks. Removing a Block from its primary Goal clears the primary assignment.")
         val indicators = LocalGoalIndicators.current
+        val organization = LocalOrganization.current
         OutlinedTextField(query, { query = it }, label = { Text("Find Blocks") }, modifier = Modifier.fillMaxWidth())
         val selected = bundle.ordered.map { it.blockId }
         bundle.ordered.filter { link -> blocks.none { it.id == link.blockId } }.forEach { link ->
@@ -154,7 +155,7 @@ import androidx.compose.ui.unit.dp
             TextButton(onClick = { vm.blocks(bundle.goal.id, selected - link.blockId) }, enabled = !vm.busy) { Text("Remove unavailable Block") }
         }
         if (blocks.isEmpty()) Text("Create a Block in the Block Library, then return to this Goal.")
-        blocks.filter { it.name.contains(query.trim(), ignoreCase = true) }.forEach { block ->
+        blocks.filter { organization.matches(it, query) }.forEach { block ->
             val linked = block.id in selected
             val indicator = indicators.block(block.id)
             OutlinedButton(onClick = { vm.blocks(bundle.goal.id, if (linked) selected - block.id else selected + block.id) },
@@ -162,6 +163,7 @@ import androidx.compose.ui.unit.dp
                 Column(Modifier.fillMaxWidth()) {
                     Text((if (linked) "Remove " else "Add ") + block.name + (if (block.archived) " (archived)" else ""))
                     BlockGoalLabel(indicator)
+                    BlockOrganizationLabel(block)
                 }
             }
         }
