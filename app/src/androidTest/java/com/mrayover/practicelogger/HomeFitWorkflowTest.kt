@@ -3,7 +3,6 @@ package com.mrayover.practicelogger
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -30,6 +29,7 @@ class HomeFitWorkflowTest {
         var clicks=0
         val navigation = listOf("Practice Now", "Blocks", "Routines", "Tools", "Recording", "Log", "Library")
         fun evidence(case: String, stage: String) {
+            android.util.Log.i("HomeGeometry", "Collecting $case $stage")
             val tags = listOf("home-brand", "header-settings", "home-scroll", "home-goals", "home-goal-title-0",
                 "home-goal-title-1", "weekly-target-summary", "home-statistics") + navigation.map { "home-nav-$it" }
             val scroll = compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
@@ -41,9 +41,8 @@ class HomeFitWorkflowTest {
                 val bar = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), true)
                 if (bar.fetchSemanticsNodes().isNotEmpty()) appendLine("bar=${bar.onFirst().getUnclippedBoundsInRoot()}")
             })
-            File(folder, "$case-$stage.png").outputStream().use { output ->
-                compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output)
-            }
+            android.util.Log.i("HomeGeometry", "Capturing $case $stage")
+            assertTrue("Android screenshot for $case $stage", device.takeScreenshot(File(folder, "$case-$stage.png")))
         }
         fun mount(width: Int, height: Int, scale: Float, theme: ThemeChoice, target: Int?) {
             compose.runOnIdle {
@@ -73,7 +72,7 @@ class HomeFitWorkflowTest {
                 mount(width,height,1f,theme,target)
                 val scroll=compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
                 assertEquals("Home opens at the top",0f,scroll.value(),0f)
-                evidence("home-fit-$width-$height", "opening")
+                evidence("home-fit-$width-$height-${theme.name.lowercase()}", "opening")
                 for (i in 0..1) {
                     val layouts=mutableListOf<TextLayoutResult>()
                     compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
@@ -100,7 +99,7 @@ class HomeFitWorkflowTest {
                 compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
                 val bar = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
                 if (bar.fetchSemanticsNodes().isNotEmpty()) bar.onFirst().performScrollTo()
-                evidence("home-fit-$width-$height", "footer")
+                evidence("home-fit-$width-$height-${theme.name.lowercase()}", "footer")
             }
             assertEquals(36,clicks)
             mount(320,640,2f,ThemeChoice.COSMIC,60)
