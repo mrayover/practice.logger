@@ -62,4 +62,34 @@ class OrganizationTest {
             assertEquals(category.id, db.organization().categoryWithName("TECHNIQUE"))
         } finally { db.close() }
     }
+
+
+    @Test fun sourceMediaUnlinkDoesNotDeleteOriginalOrBlock() = runBlocking {
+        val db = database()
+        val files = java.io.File(context.cacheDir, "organization-${java.util.UUID.randomUUID()}").apply { mkdirs() }
+        try {
+            val media = MediaLibraryRepository(db, files)
+            val bytes = java.io.ByteArrayOutputStream().use { out ->
+                val bitmap = android.graphics.Bitmap.createBitmap(16, 16, android.graphics.Bitmap.Config.ARGB_8888)
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+                bitmap.recycle()
+                out.toByteArray()
+            }
+            val asset = media.import("exercise.png", "image/png") { bytes.inputStream() }
+            val organization = OrganizationRepository(db)
+            val first = organization.createSource("Book", "Author")
+            val second = organization.createSource("Lesson", "Teacher", "LESSON")
+            organization.setMediaSources(asset.id, setOf(first.id, second.id))
+            assertEquals(setOf(first.id, second.id), db.organization().mediaSourceIds(asset.id).toSet())
+            val block = BlockRepository(db).save(null, BlockDraft("Practice", "Play", sourceId = first.id))
+            organization.deleteSource(first.id)
+            assertEquals(setOf(second.id), db.organization().mediaSourceIds(asset.id).toSet())
+            assertNull(db.blocks().find(block)?.sourceId)
+            assertNotNull(db.media().find(asset.id))
+            assertTrue(java.io.File(files, asset.fileName).exists())
+            organization.setMediaSources(asset.id, emptySet())
+            assertTrue(db.organization().mediaSourceIds(asset.id).isEmpty())
+            assertNotNull(db.media().find(asset.id))
+        } finally { db.close(); files.deleteRecursively() }
+    }
 }
