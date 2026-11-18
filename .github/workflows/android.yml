@@ -30,7 +30,7 @@ on:
         description: 'Optional diagnostic emulator display profile'
         type: choice
         default: standard
-        options: [standard, narrow, tablet, landscape]
+        options: [standard, narrow, galaxy-s26-ultra, tablet, landscape]
       navigation:
         description: 'Optional diagnostic system navigation mode (Android 10+)'
         type: choice

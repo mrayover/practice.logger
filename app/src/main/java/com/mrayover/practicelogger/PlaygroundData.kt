@@ -10,10 +10,14 @@ import kotlinx.coroutines.flow.Flow
 )])
 data class PlaygroundLayout(@PrimaryKey val placementId: String, val x: Double, val y: Double, val rotationDegrees: Double)
 
+data class EarnedBlockCount(val colorArgb: Int?, val count: Int)
+
 @Dao interface PlaygroundDao {
     @Query("SELECT * FROM playground_layouts ORDER BY placementId") suspend fun readAll(): List<PlaygroundLayout>
     @Query("SELECT * FROM playground_layouts ORDER BY placementId") fun observeAll(): Flow<List<PlaygroundLayout>>
     @Query("SELECT * FROM block_completions ORDER BY completedAt, placementId") suspend fun completions(): List<BlockCompletion>
+    @Query("SELECT colorArgb, COUNT(*) AS count FROM block_completions GROUP BY colorArgb")
+    fun observeEarnedCounts(): Flow<List<EarnedBlockCount>>
     @Upsert suspend fun save(row: PlaygroundLayout)
 }
 

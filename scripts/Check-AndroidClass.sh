@@ -12,6 +12,7 @@ adb shell wm dismiss-keyguard
 case "${TARGET_DISPLAY_PROFILE:-standard}" in
   standard) ;;
   narrow) adb shell wm size 720x1440; adb shell wm density 360 ;;
+  galaxy-s26-ultra) adb shell wm size 1440x3120; adb shell wm density 560 ;;
   tablet) adb shell wm size 1600x2400; adb shell wm density 320 ;;
   landscape) adb shell wm user-rotation lock 1 ;;
   *) exit 2 ;;

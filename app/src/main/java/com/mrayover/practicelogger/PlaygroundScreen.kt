@@ -2,228 +2,239 @@ package com.mrayover.practicelogger
 
 import android.app.Application
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import kotlin.math.*
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
-internal data class PlaygroundContent(val sessions: List<SessionBundle>, val layouts: List<PlaygroundLayout>, val notes: List<PracticeNote> = emptyList()) {
-    val completions get() = sessions.flatMap { it.completions }.associateBy { it.completion.placementId }
-}
 class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
-    private val db = BlockDatabase.appInstance(app)
-    private val repository = PlaygroundRepository(db)
-    internal var content by mutableStateOf<PlaygroundContent?>(null); private set
-    var error by mutableStateOf<String?>(null); private set
-    var saving by mutableStateOf(false); private set
-    init {
-        viewModelScope.launch {
-            combine(db.sessions().observeAll(), db.playground().observeAll()) { sessions, _ -> sessions }.collect { sessions ->
-                try {
-                    val layouts = withContext(Dispatchers.IO) { repository.ensureLayouts() }
-                    content = PlaygroundContent(sessions, layouts, db.practiceNotes().readAll()); error = null
-                } catch (e: CancellationException) { throw e }
-                catch (_: Exception) { error = "Your arrangement could not be loaded. Retry to find clear space; saved positions are retained." }
+    internal val earnedCounts = BlockDatabase.appInstance(app).playground().observeEarnedCounts()
+}
+
+@Composable
+internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = viewModel()) {
+    val earnedCounts by vm.earnedCounts.collectAsStateWithLifecycle(initialValue = null)
+    val total = earnedCounts?.sumOf { it.count }
+    var inventoryOpen by rememberSaveable { mutableStateOf(false) }
+    var player by remember { mutableStateOf(PlaygroundHome.entrance) }
+    var held by remember { mutableStateOf<HomeDirection?>(null) }
+    val lifecycle by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
+    val canMove = lifecycle == Lifecycle.State.RESUMED && LocalWindowInfo.current.isWindowFocused && !inventoryOpen
+
+    LaunchedEffect(held, canMove) {
+        if (!canMove) {
+            held = null
+            return@LaunchedEffect
+        }
+        val direction = held ?: return@LaunchedEffect
+        var previous = withFrameNanos { it }
+        while (held == direction) {
+            val now = withFrameNanos { it }
+            if (held != direction) break
+            // Bound catch-up after a stalled frame so resuming cannot cause a jump.
+            val elapsed = ((now - previous) / 1_000_000_000f).coerceIn(0f, 0.05f)
+            player = PlaygroundHome.move(player, direction, elapsed)
+            previous = now
+        }
+    }
+
+    Column(
+        Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp).testTag("playground-home"),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onJournal, contentPadding = PaddingValues(horizontal = 6.dp)) { Text("Journal") }
+            Text("Playground", Modifier.weight(1f).padding(horizontal = 4.dp),
+                style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            OutlinedButton(
+                onClick = { held = null; inventoryOpen = true },
+                modifier = Modifier.testTag("playground-inventory"),
+                contentPadding = PaddingValues(horizontal = 10.dp)
+            ) {
+                Box(Modifier.size(12.dp).background(MaterialTheme.colorScheme.primary))
+                Spacer(Modifier.width(6.dp))
+                Text("Blocks ${total ?: "…"}", maxLines = 1)
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("Home", "Stats", "Workshop", "Kitchen").forEach { destination ->
+                val home = destination == "Home"
+                FilterChip(
+                    selected = home, onClick = {}, enabled = home,
+                    label = { Text(destination, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    modifier = Modifier.weight(1f).semantics { selected = home }
+                )
+            }
+        }
+        HomeViewport(Modifier.fillMaxWidth().weight(1f)) { player }
+        OutlinedButton(
+            onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth().testTag("playground-explore")
+        ) { Text("Explore / Battle", maxLines = 1) }
+        Row(
+            Modifier.fillMaxWidth().padding(bottom = 4.dp).testTag("playground-controls"),
+            horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically
+        ) {
+            val directionButton: @Composable (HomeDirection) -> Unit = { direction ->
+                DirectionButton(direction, held == direction, canMove,
+                    onHeld = { pressed ->
+                        if (pressed) held = direction
+                        else if (held == direction) held = null
+                    },
+                    onStep = { player = PlaygroundHome.move(player, direction, 0.10f) })
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                directionButton(HomeDirection.UP)
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    directionButton(HomeDirection.LEFT)
+                    directionButton(HomeDirection.DOWN)
+                    directionButton(HomeDirection.RIGHT)
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(PlaygroundHome::interact, Modifier.size(48.dp).testTag("playground-a"),
+                    contentPadding = PaddingValues(0.dp)) { Text("A") }
+                OutlinedButton({}, Modifier.size(48.dp).testTag("playground-b"), enabled = false,
+                    contentPadding = PaddingValues(0.dp)) { Text("B") }
             }
         }
     }
-    fun retry() { viewModelScope.launch {
-        try { content = PlaygroundContent(db.sessions().readAll(), withContext(Dispatchers.IO) { repository.ensureLayouts() }, db.practiceNotes().readAll()); error = null }
-        catch (e: CancellationException) { throw e }
-        catch (_: Exception) { error = "Playground could not be loaded. Please retry." }
-    } }
-    internal fun save(row: PlaygroundLayout, done: () -> Unit) {
-        if (saving) return
-        saving = true
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) { repository.save(row) }
-                content = content?.let { it.copy(layouts = it.layouts.map { old -> if (old.placementId == row.placementId) row else old }) }
-                error = null
-            } catch (e: CancellationException) { throw e }
-            catch (_: Exception) { error = "That move could not be saved. The last saved arrangement is retained; please retry." }
-            finally { saving = false; done() }
+
+    if (inventoryOpen) InventoryDialog(earnedCounts, total) { inventoryOpen = false }
+}
+
+@Composable
+private fun DirectionButton(
+    direction: HomeDirection, pressed: Boolean, enabled: Boolean, onHeld: (Boolean) -> Unit, onStep: () -> Unit
+) {
+    val updateHeld by rememberUpdatedState(onHeld)
+    val colors = MaterialTheme.colorScheme
+    Box(
+        Modifier.size(48.dp).testTag("playground-${direction.name.lowercase()}")
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (pressed) colors.primary else colors.secondaryContainer)
+            .semantics(mergeDescendants = true) {
+                contentDescription = direction.label
+                role = Role.Button
+                if (enabled) onClick { onStep(); true }
+            }.pointerInput(enabled, direction) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    awaitFirstDown().consume()
+                    updateHeld(true)
+                    try {
+                        waitForUpOrCancellation()?.consume()
+                    } finally {
+                        updateHeld(false)
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(direction.arrow, style = MaterialTheme.typography.titleLarge,
+            color = if (pressed) colors.onPrimary else colors.onSecondaryContainer)
+    }
+}
+
+@Composable
+private fun HomeViewport(modifier: Modifier, player: () -> HomePosition) {
+    Canvas(modifier.clip(RoundedCornerShape(12.dp)).background(Color(0xFF293944)).testTag("playground-canvas")) {
+        val room = PlaygroundHome
+        val fit = minOf(size.width / room.width, size.height / room.height)
+        val zoom = if (fit >= 1f) floor(fit) else fit
+        val x = floor((size.width - room.width * zoom) / 2)
+        val y = floor((size.height - room.height * zoom) / 2)
+        translate(x, y) {
+            scale(zoom, zoom, Offset.Zero) {
+                val tile = room.tile.toFloat()
+                for (row in 0 until room.rows) {
+                    for (column in 0 until room.columns) {
+                        val wall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
+                        val alternate = (row + column) % 2 == 0
+                        val color = when {
+                            wall && alternate -> Color(0xFF546C78)
+                            wall -> Color(0xFF607985)
+                            alternate -> Color(0xFFD0B692)
+                            else -> Color(0xFFDDC4A0)
+                        }
+                        drawRect(color, Offset(column * tile, row * tile), Size(tile, tile))
+                    }
+                }
+                drawRect(Color(0xFF774C32), Offset(room.width / 2f - 12, 4f), Size(24f, 28f))
+                drawRect(Color(0xFFAB7950), Offset(room.width / 2f - 9, 7f), Size(18f, 25f))
+                val position = player()
+                drawRect(Color(0xFF20323B), Offset(position.x.roundToInt().toFloat(), position.y.roundToInt().toFloat()),
+                    Size(room.playerWidth.toFloat(), room.playerHeight.toFloat()))
+            }
         }
     }
 }
 
-@Composable internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = viewModel()) {
-    val content = vm.content
-    var selected by remember { mutableStateOf<String?>(null) }
-    var expanded by remember { mutableStateOf(false) }
-    var preview by remember { mutableStateOf<PlaygroundLayout?>(null) }
-    var camera by remember { mutableStateOf<PlaygroundCamera?>(null) }
-    var overviewRequested by remember { mutableStateOf(false) }
-    var orientationMessage by remember { mutableStateOf<String?>(null) }
-    val layouts = content?.layouts.orEmpty().map { if (it.placementId == preview?.placementId) preview!! else it }
-    val completions = remember(content?.sessions) { content?.completions.orEmpty() }
-    val world = playgroundWorld(completions.size)
-    val currentLayouts by rememberUpdatedState(layouts)
-    val currentWorld by rememberUpdatedState(world)
-    val currentSelected by rememberUpdatedState(selected)
-    val canGesture by rememberUpdatedState(!vm.saving && vm.error == null)
-    val outline = MaterialTheme.colorScheme.outlineVariant
-    val neutral = MaterialTheme.colorScheme.outline
-    val glow = MaterialTheme.colorScheme.primary
-    val dots = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.13f)
-    fun orient(degrees: Double) {
-        val row = layouts.find { it.placementId == selected } ?: return
-        val result = presetPlaygroundOrientation(row, degrees, layouts.filter { it.placementId != selected }, world)
-        if (result == null) orientationMessage = "More space is needed to turn this square."
-        else { orientationMessage = null; vm.save(result) { preview = null } }
+@Composable
+private fun InventoryDialog(counts: List<EarnedBlockCount>?, total: Int?, onClose: () -> Unit) {
+    val byColor = counts.orEmpty().associate { it.colorArgb to it.count }
+    val colors = listOf("Red", "Orange", "Yellow", "Green", "Blue")
+    val known = colors.indices.map { goalCompletionColor(it + 1) }
+    val other = byColor.filterKeys { it != null && it !in known }.values.sum()
+    Dialog(onDismissRequest = onClose) {
+        Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth().testTag("playground-inventory-panel")) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Block inventory", style = MaterialTheme.typography.titleLarge)
+                colors.forEachIndexed { index, label ->
+                    val color = checkNotNull(known[index])
+                    InventoryRow(label, Color(color), total?.let { byColor[color] ?: 0 })
+                }
+                InventoryRow("Neutral", MaterialTheme.colorScheme.outline, total?.let { byColor[null] ?: 0 })
+                if (other > 0) InventoryRow("Other saved colors", MaterialTheme.colorScheme.outline, other)
+                HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                InventoryRow("Total available", null, total)
+                TextButton(onClose, Modifier.align(Alignment.End)) { Text("Close") }
+            }
+        }
     }
-    Column(Modifier.fillMaxSize().safeDrawingPadding()) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            DestinationPills("Journal", "Playground", true) { if (!it) onJournal() }
-            PageHeading("Playground", style = MaterialTheme.typography.titleLarge)
+}
+
+@Composable
+private fun InventoryRow(label: String, color: Color?, count: Int?) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+        if (color != null) {
+            Box(Modifier.size(12.dp).background(color))
+            Spacer(Modifier.width(10.dp))
         }
-        vm.error?.let { message -> Row(Modifier.padding(horizontal = 16.dp)) {
-            Text(message, Modifier.weight(1f)); TextButton(onClick = vm::retry) { Text("Retry") }
-        } }
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-            Canvas(Modifier.fillMaxSize().clipToBounds().testTag("playground-canvas").pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false)
-                    val cam = camera ?: return@awaitEachGesture
-                    if (!canGesture) return@awaitEachGesture
-                    fun Offset.point() = WorldPoint(x.toDouble(), y.toDouble())
-                    val hit = currentLayouts.lastOrNull { playgroundContains(it, cam.world(down.position.point())) }
-                    val moving = if (hit == null) currentLayouts.find { it.placementId == currentSelected }
-                        else hit.takeIf { it.placementId == currentSelected }
-                    // Resolve ownership at drag/pinch start, then retain it until every pointer lifts.
-                    var cameraGesture: Boolean? = null
-                    var candidate = moving
-                    var multi = false; var moved = false; var cancelled = true
-                    var travel = 0f
-                    try {
-                        do {
-                            val event = awaitPointerEvent()
-                            if (event.changes.any { it.isConsumed }) break
-                            val pressed = event.changes.count { it.pressed }
-                            multi = multi || pressed >= 2
-                            val pan = event.calculatePan()
-                            travel += pan.getDistance()
-                            if (travel > viewConfiguration.touchSlop || multi) moved = true
-                            if (moved) {
-                                if (cameraGesture == null) cameraGesture = hit == null && (multi || moving == null)
-                                val c = camera ?: cam
-                                val obstacles = currentLayouts.filter { it.placementId != moving?.placementId }
-                                if (moving != null && cameraGesture == false) {
-                                    if (multi) {
-                                        if (hit != null && pressed >= 2) candidate = rotatePlaygroundSquare(candidate!!, event.calculateRotation().toDouble(), obstacles, currentWorld)
-                                    } else candidate = movePlaygroundSquare(candidate!!, pan.point() * (1 / c.scale), obstacles, currentWorld)
-                                    preview = candidate
-                                } else if (cameraGesture == true) {
-                                    val minimum = min(size.width / currentWorld.width, size.height / currentWorld.height) * 0.9
-                                    if (pressed >= 2) {
-                                        val focus = event.calculateCentroid(useCurrent = false)
-                                        if (focus != Offset.Unspecified) camera = c.zoom(focus.point(), event.calculateZoom().toDouble(), minimum, max(160.0, minimum * 12)).let {
-                                            it.copy(offset = it.offset + pan.point())
-                                        }
-                                    } else camera = c.copy(offset = c.offset + pan.point())
-                                }
-                                event.changes.forEach { it.consume() }
-                            }
-                            if (pressed == 0) { cancelled = false; break }
-                        } while (true)
-                        if (!cancelled) {
-                            if (!moved) { selected = hit?.placementId; expanded = false; orientationMessage = null }
-                            else if (candidate != null && candidate != moving) vm.save(candidate!!) { preview = null }
-                        }
-                    } finally { if (cancelled || !vm.saving) preview = null }
-                }
-            }) {
-                val overview = min(size.width / world.width, size.height / world.height) * 0.9
-                val c = camera ?: PlaygroundCamera(overview * (if (overviewRequested) 1.0 else 1.2), WorldPoint(size.width / 2.0, size.height / 2.0)).also { camera = it }
-                withTransform({ translate(c.offset.x.toFloat(), c.offset.y.toFloat()); scale(c.scale.toFloat(), c.scale.toFloat(), Offset.Zero) }) {
-                    drawRect(outline, Offset((-world.width / 2).toFloat(), (-world.height / 2).toFloat()),
-                        Size(world.width.toFloat(), world.height.toFloat()), style = Stroke((1 / c.scale).toFloat()))
-                    // Clip iteration to the viewport AND world; expanded offscreen space costs no dots.
-                    val topLeft = c.world(WorldPoint(0.0, 0.0))
-                    val bottomRight = c.world(WorldPoint(size.width.toDouble(), size.height.toDouble()))
-                    val spacing = 0.5 * 2.0.pow(max(0.0, ceil(log2(12.0 / c.scale))))
-                    val left = ceil(max(-world.width / 2, topLeft.x) / spacing).toInt()
-                    val right = floor(min(world.width / 2, bottomRight.x) / spacing).toInt()
-                    val top = ceil(max(-world.height / 2, topLeft.y) / spacing).toInt()
-                    val bottom = floor(min(world.height / 2, bottomRight.y) / spacing).toInt()
-                    for (x in left..right) for (y in top..bottom) {
-                        drawCircle(dots, (1.dp.toPx() / c.scale).toFloat(), Offset((x * spacing).toFloat(), (y * spacing).toFloat()))
-                    }
-                    layouts.forEach { row ->
-                        val center = Offset(row.x.toFloat(), row.y.toFloat())
-                        rotate(row.rotationDegrees.toFloat(), center) {
-                            if (row.placementId == selected) {
-                                for (i in 4 downTo 1) drawRect(glow.copy(alpha = 0.07f + (4 - i) * 0.035f), center - Offset(0.5f + i * 0.04f, 0.5f + i * 0.04f), Size(1f + i * 0.08f, 1f + i * 0.08f))
-                            }
-                            val color = completions[row.placementId]?.completion?.colorArgb?.let { Color(it) } ?: neutral
-                            drawRect(color, center - Offset(0.5f, 0.5f), Size(1f, 1f))
-                        }
-                    }
-                }
-            }
-            if (content != null && layouts.isEmpty()) Text("Completed practice will earn squares here.", Modifier.padding(24.dp))
-        }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(if (selected == null) "Tap a square · Drag space to pan" else "Drag square or empty space · Pinch space to zoom", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-            TextButton(onClick = { overviewRequested = true; camera = null }, modifier = Modifier.testTag("playground-overview")) { Text("Overview") }
-        }
-        if (selected != null) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(onClick = { orient(45.0) }, enabled = canGesture, modifier = Modifier.testTag("playground-45")) { Text("45°") }
-                TextButton(onClick = { orient(0.0) }, enabled = canGesture, modifier = Modifier.testTag("playground-upright")) { Text("Upright") }
-            }
-            orientationMessage?.let { Text(it, Modifier.padding(horizontal = 16.dp).testTag("playground-orientation-message"), style = MaterialTheme.typography.bodySmall) }
-        }
-        val earned = completions[selected]
-        val placement = content?.sessions?.flatMap { it.placements }?.find { it.id == selected }
-        if (earned != null && placement != null) {
-            Surface(tonalElevation = 3.dp, modifier = Modifier.fillMaxWidth().heightIn(max = if (expanded) 300.dp else 150.dp).testTag("playground-details")) {
-                Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(placement.name, style = MaterialTheme.typography.titleMedium)
-                    val completion = earned.completion
-                    val date = Instant.ofEpochMilli(completion.completedAt).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy · HH:mm"))
-                    Text("$date · ${placement.activeMs / 60000} min ${placement.activeMs / 1000 % 60} sec")
-                    Text(completion.goalId?.let { "Goal $it" + (completion.priority?.let { p -> " · Priority $p at completion" } ?: " · Historical priority unavailable") }
-                        ?: "No recorded Goal")
-                    TextButton(onClick = { expanded = !expanded }, modifier = Modifier.testTag("playground-expand")) { Text(if (expanded) "Less" else "More") }
-                    if (expanded) {
-                        Text(placement.action)
-                        Text("Completed · Session ${completion.sessionId}")
-                        if (placement.referenceNotes.isNotBlank()) Text(placement.referenceNotes)
-                        if (placement.note.isNotBlank()) Text(placement.note)
-                        content.notes.filter { it.placementId == selected }.forEach { Text(it.text) }
-                        earned.reflection?.let { r ->
-                            r.security?.let { Text("Security / confidence: $it / 5") }
-                            listOf("Focus" to r.focus, "Difficulty" to r.difficulty, "Progress" to r.progress, "Revisit" to r.revisit).filter { it.second.isNotBlank() }.forEach { Text("${it.first}: ${it.second}") }
-                        }
-                    }
-                }
-            }
-        }
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        Text(count?.toString() ?: "…", Modifier.testTag("playground-count-$label"),
+            style = MaterialTheme.typography.bodyMedium)
     }
 }
