@@ -29,12 +29,12 @@ class HomeFitWorkflowTest {
         val goals=(1..2).map { GoalBundle(Goal("fit-$it", "A very long musical Goal name available in full when opened $it", progress=45, priority=it-1, createdAt=1,updatedAt=1), emptyList()) }
         var clicks=0
         val navigation = listOf("Practice Now", "Blocks", "Routines", "Tools", "Recording", "Log", "Library")
-        fun scrollToEnd() {
+        fun scrollHome(toEnd: Boolean) {
             val scroller = compose.onNodeWithTag("home-scroll")
             val axis = scroller.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
-            scroller.performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy -> scrollBy(0f, axis.maxValue()) }
+            scroller.performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy -> scrollBy(0f, if (toEnd) axis.maxValue() else -axis.maxValue()) }
             compose.waitForIdle()
-            assertEquals("Footer scroll reaches the end", axis.maxValue(), axis.value(), 1f)
+            assertEquals("Home reaches the requested scroll boundary", if (toEnd) axis.maxValue() else 0f, axis.value(), 1f)
         }
         fun evidence(case: String, stage: String) {
             android.util.Log.i("HomeGeometry", "Collecting $case $stage")
@@ -88,6 +88,7 @@ class HomeFitWorkflowTest {
             for ((width,height,theme,target) in listOf(
                 Case(360,800,ThemeChoice.COSMIC,60), Case(411,886,ThemeChoice.LIGHT,null), Case(411,886,ThemeChoice.COSMIC,60))) {
                 mount(width,height,1f,theme,target)
+                scrollHome(toEnd = false)
                 val scroll=compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
                 assertEquals("Home opens at the top",0f,scroll.value(),0f)
                 evidence("home-fit-$width-$height-${theme.name.lowercase()}", "opening")
@@ -115,11 +116,12 @@ class HomeFitWorkflowTest {
                 compose.onNodeWithTag("home-goal-title-0",true).performScrollTo().performTouchInput { click() }
                 compose.onNodeWithTag("home-goal-title-1",true).performScrollTo().performTouchInput { click() }
                 compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
-                scrollToEnd()
+                scrollHome(toEnd = true)
                 evidence("home-fit-$width-$height-${theme.name.lowercase()}", "footer")
             }
             assertEquals(36,clicks)
             mount(320,640,2f,ThemeChoice.COSMIC,60)
+            scrollHome(toEnd = false)
             evidence("home-fit-320-200", "opening")
             for(i in 0..1) {
                 val layouts=mutableListOf<TextLayoutResult>()
@@ -152,7 +154,7 @@ class HomeFitWorkflowTest {
                     textBounds.top>=buttonBounds.top-1 && textBounds.bottom<=buttonBounds.bottom+1)
             }
             compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
-            scrollToEnd()
+            scrollHome(toEnd = true)
             evidence("home-fit-320-200", "footer")
         } catch(failure:Throwable) {
             device.takeScreenshot(File(folder,"home-fit-failure.png"))
