@@ -98,6 +98,8 @@ internal fun BlockPill(
                 ) {
                     Text(block.action, style = MaterialTheme.typography.bodyMedium)
                     BlockGoalLabel(goal)
+                    if (block.sourceLocation.isNotBlank()) Text("Source location: " + block.sourceLocation,
+                        style = MaterialTheme.typography.bodySmall)
                     if (block.notes.isNotBlank()) {
                         Text("Notes / Source", style = MaterialTheme.typography.titleSmall)
                         Text(block.notes, style = MaterialTheme.typography.bodyMedium)
