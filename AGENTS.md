@@ -1,4 +1,10 @@
-## November16 C6A — signed build155 delivered
+## November 17 — build 157 reconciliation
+
+Use [CURRENT_STATE.md](CURRENT_STATE.md) and [FIRST_WORK_HANDOFF.md](FIRST_WORK_HANDOFF.md) for the current release, checkout status and next task. Preserve the existing local build 158 dialog patch and prior signed distributions during canonical Git synchronization. C6B, C7 and F1 require separate assignments.
+
+---
+
+## November16 C6A — historical build155 delivery
 
 Current owner assignment delivers offline WAV + M4A/AAC Loop/Arrange backing tracks, focused verification, permanent-key APK/ZIP and source publication. [C6A guide](docs/COMPOSER_C6A.md) · [Actual results/provenance](CURRENT_STATE.md). Preserve existing scheduler/TinySoundFont/channel DSP, current draft/Undo and practice data; no audio-output recording or Library auto-import. Owner clarification explicitly defers MusicXML from embedded compose.logger V1 planning while retaining historical approvals. Exact next task is owner-phone build155 acceptance. Stop before separately authorized C6B Standard MIDI File Type1 export, effects, Library integration or portable recovery; Composer projects/custom presets still exclude practice backup until C7.
 

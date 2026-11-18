@@ -1,35 +1,22 @@
-# November17 reconciliation status
+# Current state — build 157 reconciliation
 
-Published source and this working checkout match at 66665ec before this documentation update. Published MIME90ff01d and weekly-targetsb069789 have identical complete file trees to original e5e4373 and3f619b5. Original history remains archived locally.
+November 17, 2026 (America/Los_Angeles). The published application source on `block-ux-stage1` includes This Week repetition targets and Planned Minutes, M4A import compatibility, and Block/Source organization. Build 157 release source is `e2eb8bd6db987a612a65865f194f0dda270eba62`. Its full tree `9832c7f115f3a1ce46c38a00191cda9703ac65a0` matches both build metadata and OneDrive integration commit `8bc3084d38080d22f2c5059c816d669d321bdc65`. The published MIME and weekly commits are `90ff01d` and `b069789`. See [weekly repetitions](docs/WEEK_REPETITIONS.md) and [Block organization](docs/BLOCK_ORGANIZATION.md).
 
-Canonical C:/Users/mrove/Projects/practice.logger remains at bc7b602. Local-path git fetch failed: cannot open .git/FETCH_HEAD: Permission denied. This session cannot fast-forward that protected checkout. The older clean OneDrive main checkout remains untouched.
+**Windows checkout.** `C:/Users/mrove/Projects/practice.logger` remains on `block-ux-stage1` at `bc7b602ff4991341b825e262629c64f201a94db8`, an ancestor 45 commits behind the release source. Fetch was denied access to `.git/FETCH_HEAD`. The previously started dialog edit and local delivery records were preserved. The older OneDrive main checkout and the archived development commits were left in place.
 
-Signed build156 APK/ZIP are preserved unchanged. Packaged BUILD_INFO and delivery reports describe historical publication blockers; those are superseded by this record. Original source/hash provenance remains valid. MIME Android import test remains unrun; previous release compilation and weekly focused checks passed. No rebuild or repeated tests were performed.
+**Signed build 157.** The canonical [APK](dist/practice.logger-0.58.2-b157-e2eb8bd/practice.logger-0.58.2-b157-e2eb8bd.apk), [ZIP](dist/practice.logger-0.58.2-b157-e2eb8bd.zip), signature sidecar, [metadata](dist/practice.logger-0.58.2-b157-e2eb8bd/BUILD_INFO.json), and [install instructions](dist/practice.logger-0.58.2-b157-e2eb8bd/INSTALL.txt) match the OneDrive delivery byte for byte. The original ZIP contains the APK, metadata and install instructions. The verified v4 sidecar is alongside the loose APK. The APK reports `com.mrayover.practicelogger.app`, version `0.58.2`, build `157`. Its v2/v3 signatures and v4 sidecar verify with the pinned permanent certificate shared with build 156. APK SHA-256 is `b99f746ba5124a6ced4f765d684a5bedf101eecabfa43f663d3b2e45b78a822d`. ZIP SHA-256 is `d65a4b051e94ec6f4ce3a10eeb8f7bb26d90350ca72f6696d4b1b2d06aba5431`.
 
-Exact next task: in a context with write access to the canonical checkout, verify its working tree is clean, fetch block-ux-stage1 from this checkout or origin, and merge --ff-only FETCH_HEAD. Then complete the one pending M4A Android import check. No cherry-pick or duplicate feature implementation is needed.
+**Focused verification.** [Build 157 workflow](https://github.com/mrayover/practice.logger/actions/runs/44223220074) passed its diagnostic job. The normal build, current-features and device jobs were skipped. [M4A workflow](https://github.com/mrayover/practice.logger/actions/runs/44224720276) checked out the exact release commit and passed one API 35 Android test covering a valid AAC file with an alternate provider MIME and rejection of malformed bytes. The verification branch adds only its workflow. Physical Galaxy acceptance of build 157 is pending.
 
----
+**Existing local build 158.** Signed `0.58.3 / 158` and its [source patch](dist/practice.logger-0.58.3-b158-e2eb8bd/SOURCE.patch) predate this reconciliation. The local `dist/LATEST.txt` points to this package. Its APK, v4 sidecar and ZIP were verified. The source patch is based on build 157 and remains unpublished. [Build 158 install and phone checklist](dist/practice.logger-0.58.3-b158-e2eb8bd/INSTALL.txt).
 
-# November17 publication restored
-
-All six pending local changes are published on block-ux-stage1 through the GitHub connector at f15012c87b11ac20aca67a18c29c112abebf7652. Each published commit tree exactly matches its original local tree. MIME fix: 90ff01dd9dcdc81b44a1085c4696b53db0595601 (local e5e4373); weekly repetitions: b069789c2d154a8938f5b7f1907d7800fa2b70e6 (local 3f619b5). Connector-created commits have new IDs; original local history is preserved. Git CLI networking still fails before authentication. No application/build/test changes were made in publication; the M4A Android test remains unrun. Canonical Projects checkout synchronization is not claimed.
-
-Exact next task: synchronize the canonical Projects checkout with the published branch, then complete the pending focused M4A Android import check. Do not repeat passed build/weekly checks.
+**Exact next task.** Preserve the existing build 158 work and fast-forward the canonical checkout in a Git-write-enabled context. Once reconciled, the next bounded product task is Galaxy landscape acceptance of the existing build 158 exit and Save As dialogs, followed by publication of that preserved patch under a separate assignment.
 
 ---
-# November17 Git reconciliation - publication still blocked
 
-The pending features are already separate commits: `e5e4373` is the M4A provider-MIME correction with its focused Android fixture/test; `3f619b5` is weekly repetition targets and Planned Minutes with migration/backup and focused host checks. `cd2ea5d` and `8c00703` record delivery/access problems. No uncommitted application changes were found.
+## Historical delivery records
 
-Signed local build156 contains both features. Its delivered APK SHA256 was rechecked as `e162e86f71fd849a64d8b19e788e32b22e3248e7d3a68e2074a027bd9d18821d`. Release compilation and weekly focused passes are prior evidence; the M4A Android import method remains unrun. No rebuild/test rerun in this Git review. Earlier claims below that source is uncommitted or build156 absent are historical and superseded.
-
-Fresh Git push fails before authentication with `getaddrinfo() thread failed to start`. GitHub create_blob independently returns403 `Resource not accessible by integration`. The actual live branch ref remains `bc7b602ff4991341b825e262629c64f201a94db8`, verified through GitHub. No remote changes were made. Canonical Projects remains at that baseline; the clean older OneDrive main checkout was left untouched. This reconciliation changes documentation only.
-
-
-Fresh connected-app recheck on November17: account metadata reports push permission, but actual blob creation still returns403 Resource not accessible by integration; CLI push still fails before authentication. Remote remains bc7b602. No publication or build/test change; the exact next task above is unchanged.
-**Exact next task:** publish the existing local block-ux-stage1 history through a network-enabled Git context or GitHub connection with repository write access, then fast-forward the canonical checkout. MIME Android verification remains separately pending; do not repeat passed build/weekly checks.
-
----
+The dated records below describe earlier checkout, delivery and verification states. The reconciliation above gives the current results.
 
 # Build156 delivery/publication correction
 

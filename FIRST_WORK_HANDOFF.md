@@ -1,20 +1,12 @@
-# November17 reconciliation status
+# Build 157 reconciliation handoff
 
-Published source and this working checkout match at 66665ec before this documentation update. Published MIME90ff01d and weekly-targetsb069789 have identical complete file trees to original e5e4373 and3f619b5. Original history remains archived locally.
+[CURRENT_STATE.md](CURRENT_STATE.md) records the published release source, canonical Windows checkout, signed builds and focused verification. Build 157 is already in the canonical distribution folder. The focused M4A check passed on the exact release commit. Physical Galaxy acceptance remains pending.
 
-Canonical C:/Users/mrove/Projects/practice.logger remains at bc7b602. Local-path git fetch failed: cannot open .git/FETCH_HEAD: Permission denied. This session cannot fast-forward that protected checkout. The older clean OneDrive main checkout remains untouched.
-
-Signed build156 APK/ZIP are preserved unchanged. Packaged BUILD_INFO and delivery reports describe historical publication blockers; those are superseded by this record. Original source/hash provenance remains valid. MIME Android import test remains unrun; previous release compilation and weekly focused checks passed. No rebuild or repeated tests were performed.
-
-Exact next task: in a context with write access to the canonical checkout, verify its working tree is clean, fetch block-ux-stage1 from this checkout or origin, and merge --ff-only FETCH_HEAD. Then complete the one pending M4A Android import check. No cherry-pick or duplicate feature implementation is needed.
+**Exact next task.** Preserve the existing build 158 dialog edit and local delivery notes, then fast-forward the canonical Windows checkout to the verified `block-ux-stage1` head in a Git-write-enabled context. The published release tree already includes weekly targets, the M4A fix and Block/Source organization. The local build 158 package contains the existing dialog patch and its Galaxy landscape phone checklist.
 
 ---
 
-# M4A compatibility fix - pending focused verification and signed delivery
-
-Candidate0.58.1/build156 corrects the provider-MIME gate while retaining real AAC content validation. The focused valid/invalid import method is added but unrun; compilation and signed delivery are blocked by the current execution environment. Last delivered APK remains155. See [CURRENT_STATE](CURRENT_STATE.md) for precise blockers, checkout location and the one next task. No further Composer phase is authorized.
-
----
+## Historical handoffs
 
 # C6A signed build155 — next action
 
