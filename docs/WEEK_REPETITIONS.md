@@ -6,7 +6,7 @@ Collapsed rows show completed planned repetitions as small neutral dots and rema
 
 Actual progress is derived from existing placement-keyed completion snapshots within local Sunday-Saturday boundaries. SessionRepository and Playground retain their existing reward pipeline: each successful completion earns an independent reward, without a weekly cap. Editing/removing weekly membership never edits completions or layouts.
 
-Planned Minutes appears immediately below the heading and sums current configured Block duration times each weekly target. It is independent of actual practice time and the weekly minute goal.
+Planned Minutes appears immediately below the heading and sums current configured Block duration times each weekly target. Home and Goal views reuse this calculation alongside independently recorded actual practice time.
 
 Room 27→28 adds one column with SQL default 1, retaining the previous one-practice meaning of all existing weekly memberships and their progress. New application-created memberships explicitly use 3. Complete ZIP13/Room28 persists the new field; frozen ZIP1-12 restore existing memberships with target 1. JSON7 remains unchanged and excludes weekly membership.
 

@@ -1,4 +1,20 @@
-# Current state — C6B MIDI export
+# Current state — Weekly planned and actual practice minutes
+
+November 18, 2026 (America/Los_Angeles). **0.59.1 / build 162** derives the Home footer and Goal weekly summaries from the existing This Week plan and G3 practice facts. Edit weekly plan opens Prepare Week. Existing percentages and weekly targets remain in Room 29 and supported backups. Complete ZIP14 and JSON7 retain their existing behavior. [Accounting and historical attribution](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes).
+
+**Source and package.** Build 162 was assembled locally in the canonical Windows checkout from `436e356f95874baffbe9d526c3b35e2af28e3c79` on `block-ux-stage1`. [APK](dist/practice.logger-0.59.1-b162-436e356/practice.logger-0.59.1-b162-436e356.apk) · [ZIP](dist/practice.logger-0.59.1-b162-436e356.zip) · [Install checklist](dist/practice.logger-0.59.1-b162-436e356/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.59.1-b162-436e356/BUILD_INFO.json). App ID `com.mrayover.practicelogger.app`. APK SHA-256 `3e16abc6a5c89dc22877879c5e0c3363c6ce579b2167fb1581d644cabcb85e38`. APK v2/v3 and its v4 sidecar verify against the pinned certificate. Signed candidates 160 and 161 are retained locally.
+
+**ZIP and local delivery.** ZIP SHA-256 `ab2abeec6f8ba8c681258944619be015321bad8d37a7187d4952600e8b5f35a3`. The extracted APK, signature sidecar and checked evidence match the original files by checksum. Local OneDrive APK and ZIP copies match the canonical distribution at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Weekly Plan delivery/build162`.
+
+**Focused verification.** Release assembly, vital lint, Android test compilation and 25 host checks passed. Two API 35 workflow tests passed on the signed application source, covering live repetition edits, duration and Goal-link changes, unassigned practice, historical attribution, recreation, removal and legacy target restore protection. A host test verifies the local Sunday boundary across daylight-saving time. [API 35 workflow](https://github.com/mrayover/practice.logger/actions/runs/44392266094).
+
+**Visual verification.** Matched build 159 and build 162 captures at 360 × 800 and 411 × 886 in Cosmic and at 320 × 640 with 200% text preserved the measured Home bounds, scroll range, navigation, Goal text baselines and track geometry. The long-number capture shows both Goal values fully on one line. At 200% the previous wrapped subtitle height remains reserved. The formerly trackless 411 × 886 Light case preserved all prior measured bounds and scroll range. Its empty track uses space within the original footer. [Before/after images](dist/practice.logger-0.59.1-b162-436e356/evidence/HOME_BEFORE_AFTER.png) · [Bounds comparison](dist/practice.logger-0.59.1-b162-436e356/evidence/HOME_BOUNDS_COMPARISON.txt) · [Before run](https://github.com/mrayover/practice.logger/actions/runs/44392110450) · [After run](https://github.com/mrayover/practice.logger/actions/runs/44392261674).
+
+**Exact next task.** Install build 162 over the permanent-key Galaxy app and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — C6B MIDI export
 
 November 17, 2026 (America/Los_Angeles). Build **0.59.0 / 159** adds editable **Standard MIDI File Type 1** from the live Current Loop or Full Arrangement through Composer's Export dialog. It preserves the 960 PPQ timing, tempo, meter and separate populated instrument tracks, including General MIDI drums on channel 10. WAV and M4A remain available in the same dialog. [MIDI behavior and limits](docs/COMPOSER_C6B.md).
 
@@ -10,7 +26,7 @@ ZIP SHA-256 `8903e1022b49924c60076ecc59521ad429e172d708a15dc84925787bebad87b1`. 
 
 **Focused verification.** Local release assembly, vital lint, four MIDI host tests and five existing audio-export host tests passed on the signed source. The API 35 failed-destination method passed in the initial run. The final picker method passed genuine Downloads exports for both scopes, playback continuation, cancellation and draft, saved project and Undo preservation. OpenJDK Java Sound read both files as Type 1, 960 PPQ, with the unsaved note and three named instruments, and verified 15,360 Loop ticks, 26,880 Arrangement ticks, channel 10 percussion and the Make Unique variation at tick 23,040. The final picker test commit `3847937cf8b255b029e6a84dfbef0da6bebf173e` adds only a test change relative to the signed source. The earlier picker attempts encountered the Android full-screen tutorial, a provider-added `.rtx` suffix fixed in the signed source, and a stale test node. [Destination failure check](https://github.com/mrayover/practice.logger/actions/runs/44242399358) · [Final picker check](https://github.com/mrayover/practice.logger/actions/runs/44244721891).
 
-**Exact next task.** Owner Galaxy install-over and C6B acceptance using the build 159 checklist. Dorico and physical acceptance remain unverified. C7, MusicXML and F1 remain deferred. Composer projects and custom presets remain outside practice backup.
+**Build 159 phone status.** Owner Galaxy and Dorico acceptance remain unverified. C7, MusicXML and F1 remain deferred. Composer projects and custom presets remain outside practice backup.
 
 ---
 

@@ -1,8 +1,14 @@
-# C6B MIDI export handoff
+# Weekly planned and actual practice minutes handoff
+
+[CURRENT_STATE.md](CURRENT_STATE.md) records build 162, the focused test results, package paths, and exact next task. [The accounting contract](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes) covers the Sunday calendar, multiple Goal links and historical attribution.
+
+---
+
+## Previous C6B MIDI export handoff
 
 [CURRENT_STATE.md](CURRENT_STATE.md) records the signed build 159, the build 158 source reconciliation and the focused verification. [MIDI export behavior and limitations](docs/COMPOSER_C6B.md).
 
-**Exact next task.** Install signed build 159 over the permanent-key Galaxy app and complete the C6B checklist linked from [CURRENT_STATE.md](CURRENT_STATE.md). C7 requires a separate owner assignment.
+**Build 159 phone status.** The Galaxy and Dorico checks remain pending. C7 requires a separate owner assignment.
 
 ---
 

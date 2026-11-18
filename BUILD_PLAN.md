@@ -1,3 +1,7 @@
+# Weekly planned and actual practice minutes
+
+Home and Goal views use weekly Block durations and repetitions for planned minutes. Actual time uses existing G3 facts and saved Goal attribution. The Home editing action opens Prepare Week. Legacy Goal assessments and manual targets remain in Room and supported backups. [Accounting](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes) · [Delivery and verification](CURRENT_STATE.md).
+
 # C6B — Editable MIDI export
 
 Build 159 adds Standard MIDI File Type 1 for the live Current Loop or Full Arrangement, with a 960 PPQ conductor track and separate named instrument tracks. The existing Android picker, WAV and M4A formats remain available through Export. [MIDI behavior and limits](docs/COMPOSER_C6B.md) · [Delivery and verification](CURRENT_STATE.md).
