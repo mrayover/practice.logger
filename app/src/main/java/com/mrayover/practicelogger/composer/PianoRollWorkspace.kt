@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
@@ -70,7 +71,9 @@ private class RollTouch {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Composable internal fun PianoRollWorkspace(project: CompositionProject, enabled: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}, editLatest: ((CompositionProject) -> CompositionProject) -> Unit = { edit(it(project)) }, openLoop: () -> Unit = {}, exportRequested: Boolean = false, dismissExport: () -> Unit = {}, exportBusy: (Boolean) -> Unit = {}) {
+@Composable internal fun PianoRollWorkspace(project: CompositionProject, editorReady: Boolean, edit: (CompositionProject) -> Unit, modifier: Modifier = Modifier, mode: String = "Loop", canUndo: Boolean = false, undo: () -> Unit = {}, editLatest: ((CompositionProject) -> CompositionProject) -> Unit = { edit(it(project)) }, openLoop: () -> Unit = {}, exportRequested: Boolean = false, dismissExport: () -> Unit = {}, exportBusy: (Boolean) -> Unit = {}) {
+    val export: ComposerExportViewModel = viewModel()
+    val enabled = editorReady && !export.active
     var trackId by rememberSaveable { mutableStateOf<String?>(null) }
     // Clip navigation is visit state, not a musical/mixer edit or an Undo entry.
     val clipTargets = rememberSaveable(saver = mapSaver(
@@ -166,14 +169,20 @@ private class RollTouch {
     var instrumentEditor by rememberSaveable { mutableStateOf(false) }
     val audio = remember { ComposerAudio(context, interrupted = { message = it }) }
     SideEffect { (context as? ComposerActivity)?.auditionEngine = audio }
-    val currentEnabled by rememberUpdatedState(enabled)
-    ComposerExportUi(project,patternSelections,audio,exportRequested,dismissExport,exportBusy)
-    LaunchedEffect(enabled) { audio.setForeground(enabled) }
+    val audioEnabled = editorReady && !export.audioExportActive
+    val currentAudioEnabled by rememberUpdatedState(audioEnabled)
+    ComposerExportUi(project,patternSelections,audio,exportRequested,dismissExport,exportBusy,export)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(audioEnabled) {
+        if (lifecycle.currentState == Lifecycle.State.RESUMED) audio.setForeground(audioEnabled)
+    }
     DisposableEffect(audio,lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) audio.setForeground(currentEnabled)
-            if (event == Lifecycle.Event.ON_PAUSE) { audio.setForeground(false); touch.voices.clear(); preview = null; marquee = null; touch.original = null }
+            if (event == Lifecycle.Event.ON_RESUME) audio.setForeground(currentAudioEnabled)
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                audio.setForeground(false, preserveForPicker = export.midiPickerOpen)
+                touch.voices.clear(); preview = null; marquee = null; touch.original = null
+            }
         }
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer); audio.close() }
@@ -221,7 +230,7 @@ private class RollTouch {
         }
     }
     var patternRestart by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
-    LaunchedEffect(enabled) { if(!enabled) { patternRestart?.cancel(); audio.stop(); audio.stopAll(); touch.voices.clear() } }
+    LaunchedEffect(audioEnabled) { if(!audioEnabled) { patternRestart?.cancel(); audio.stop(); audio.stopAll(); touch.voices.clear() } }
     LaunchedEffect(mode) {
         if((mode == "Arrange" && audio.playbackPlan?.song != true) || (mode == "Loop" && audio.playbackPlan?.song == true)) {
             patternRestart?.cancel(); audio.stop(); audio.stopAll()

@@ -151,8 +151,8 @@ class ComposerExportWorkflowTest {
     private fun vm()=ViewModelProvider(activity())[ComposerViewModel::class.java]
     private fun tap(text: String) { compose.onNodeWithText(text).performClick();compose.waitForIdle() }
     private fun exportAction() {
-        if(compose.onAllNodesWithText("Export Audio").fetchSemanticsNodes(false).isEmpty()) tap("More ▾")
-        tap("Export Audio")
+        if(compose.onAllNodesWithText("Export").fetchSemanticsNodes(false).isEmpty()) tap("More ▾")
+        tap("Export")
     }
     private fun shot(name: String) { compose.waitForIdle();device.takeScreenshot(File(dir,"$name.png")) }
     private fun readSavedFile(name: String, outputName: String): File {
@@ -161,7 +161,7 @@ class ComposerExportWorkflowTest {
         output.inputStream().use { input -> File(dir,outputName).outputStream().use { input.copyTo(it) } }
         return output
     }
-    private fun savePicker(name: String) {
+    private fun savePicker(name: String, success: String = "Audio exported") {
         device.wait(Until.hasObject(By.clazz("android.widget.EditText")),10000)
         device.waitForIdle()
         if(!device.hasObject(By.text("Downloads"))) {
@@ -174,8 +174,96 @@ class ComposerExportWorkflowTest {
         device.wait(Until.findObject(By.clazz("android.widget.EditText")),10000)!!.text=name
         device.wait(Until.findObject(By.text(Pattern.compile("SAVE",Pattern.CASE_INSENSITIVE))),10000)!!.click()
         compose.waitUntil(30000) { compose.onAllNodesWithTag("composer-export-result").fetchSemanticsNodes(false).isNotEmpty() }
-        compose.onNodeWithText("Audio exported",substring=true).assertExists();shot("saved-${name.substringAfterLast('.')}");tap("OK")
+        compose.onNodeWithText(success,substring=true).assertExists();shot("saved-${name.substringAfterLast('.')}");tap("OK")
     }
+
+    @Test fun midiPickerExportsUnsavedDraftAndKeepsRunningTransport() {
+        device.executeShellCommand("wm size 1440x3120");device.executeShellCommand("wm density 480")
+        val store = CompositionStore(File(context.filesDir, "composer/projects"))
+        val saved = store.create(fixture())
+        inst.runOnMainSync {
+            compose.activity.startActivity(Intent(compose.activity, ComposerActivity::class.java)
+                .putExtra(ComposerActivity.PROJECT_ID, saved.id))
+        }
+        compose.waitUntil(30000) { compose.onAllNodesWithTag("piano-roll").fetchSemanticsNodes(false).isNotEmpty() }
+        val audio = activity().auditionEngine!!
+        val editor = vm()
+        compose.waitUntil(30000) { audio.ready }
+        inst.runOnMainSync {
+            editor.editLatest { current ->
+                val p = current.tracks.first().patterns.first()
+                current.replacePattern(p.copy(notes = p.notes + CompositionNote(newCompositionId(), 77, 240, 480, 67)))
+                    .copy(title = "C6B unsaved draft")
+            }
+        }
+        val draft = editor.project!!
+        val undo = editor.undoCount
+        tap("Play")
+        compose.waitUntil(15000) { audio.playing && audio.framesWritten > 9600 }
+        val plan = audio.playbackPlan
+        exportAction()
+        compose.onNodeWithText("MIDI (.mid) — editable").performScrollTo().performClick()
+        shot("midi-export-dialog")
+        tap("Choose destination")
+        val nameField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 10000)!!
+        assertEquals("C6B unsaved draft.mid", nameField.text)
+        savePicker("c6b-loop.mid", "MIDI exported")
+        val returnedFrame = audio.framesWritten
+        compose.waitUntil(15000) { audio.playing && audio.framesWritten > returnedFrame + 12000 }
+        assertSame(plan, audio.playbackPlan)
+        assertEquals(draft, editor.project)
+        assertEquals(undo, editor.undoCount)
+        assertEquals(saved, store.read(saved.id))
+        assertTrue(editor.dirty)
+        assertEquals("MThd", String(readSavedFile("c6b-loop.mid", "picker-loop.mid").readBytes(), 0, 4))
+
+        tap("Stop")
+        tap("Arrange")
+        exportAction()
+        tap("Full Arrangement")
+        tap("Choose destination")
+        savePicker("c6b-arrange.mid", "MIDI exported")
+        assertEquals("MThd", String(readSavedFile("c6b-arrange.mid", "picker-arrange.mid").readBytes(), 0, 4))
+        assertFalse(audio.playing)
+
+        exportAction()
+        tap("Choose destination")
+        assertNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), 10000))
+        device.pressBack()
+        compose.waitUntil(15000) { compose.onAllNodesWithText("Export cancelled.").fetchSemanticsNodes(false).isNotEmpty() }
+        tap("OK")
+        assertEquals(draft, editor.project)
+        assertEquals(undo, editor.undoCount)
+        assertEquals(saved, store.read(saved.id))
+        assertTrue(ComposerOfflineExport.directory(context).listFiles().orEmpty().isEmpty())
+    }
+
+    @Test fun midiDestinationFailureLeavesDraftAndStagingIntact() {
+        val source = fixture()
+        val before = CompositionCodec.encode(source)
+        val store = androidx.lifecycle.ViewModelStore()
+        lateinit var export: ComposerExportViewModel
+        var audioCallback = false
+        inst.runOnMainSync {
+            export = ComposerExportViewModel(context.applicationContext as android.app.Application, androidx.lifecycle.SavedStateHandle())
+            store.put("midi-export", export)
+            export.prepare(source, emptyList(), false, ComposerExportFormat.MIDI)
+        }
+        try {
+            compose.waitUntil(15000) { export.request != null }
+            inst.runOnMainSync {
+                export.destination(android.net.Uri.parse("content://missing.c6b.provider/export.mid")) { audioCallback = true }
+            }
+            compose.waitUntil(15000) { !export.active }
+            assertTrue(export.message!!.startsWith("Export failed:"))
+            assertFalse(audioCallback)
+            assertEquals(before, CompositionCodec.encode(source))
+            assertTrue(ComposerOfflineExport.directory(context).listFiles().orEmpty().isEmpty())
+        } finally {
+            inst.runOnMainSync { store.clear() }
+        }
+    }
+
     @Test fun realPickerUnsavedDraftFilesAndPlaybackSurviveExport() {
         device.executeShellCommand("wm size 1440x3120");device.executeShellCommand("wm density 480")
         val store=CompositionStore(File(context.filesDir,"composer/projects"));val saved=store.create(fixture())

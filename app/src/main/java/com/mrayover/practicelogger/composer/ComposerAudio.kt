@@ -16,6 +16,8 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
     private val commands=LinkedBlockingQueue<() -> Unit>()
     private var foreground=true
     private var focusOwned=false
+    private var pickerSuspended=false
+    private var outputPaused=false // Worker-owned.
     @Volatile private var closed=false
     @Volatile private var epoch=0
     @Volatile var ready=false; private set
@@ -164,22 +166,55 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
         masterGain=value
         submit { output?.let { check(it.setVolume(masterGain)==AudioTrack.SUCCESS); appliedMasterGain=masterGain } }
     }
-    fun setForeground(value: Boolean) { foreground=value; if(!value) interrupt() }
+    fun setForeground(value: Boolean, preserveForPicker: Boolean = false) {
+        foreground = value
+        if (!value) {
+            if (preserveForPicker && (playing || draining)) {
+                pickerSuspended = true
+                submit {
+                    outputPaused = true
+                    output?.pause()
+                    ComposerSynth.clear(handle, 8, 15)
+                    auditionTokens.fill(Long.MIN_VALUE)
+                }
+                abandonFocus()
+            } else {
+                interrupt()
+            }
+        } else if (pickerSuspended) {
+            pickerSuspended = false
+            if (focus()) {
+                submit {
+                    output?.play()
+                    outputPaused = false
+                }
+            } else {
+                interrupt()
+            }
+        }
+    }
+    private fun abandonFocus() {
+        if (focusOwned) {
+            manager.abandonAudioFocusRequest(focus)
+            focusOwned = false
+        }
+    }
     private fun interrupt() {
         if(closed) return
+        pickerSuspended = false
         epoch++; commands.clear()
         playing=false
         commands.offer {
-            frozenFrame=0; playing=false; draining=false; clock=null
+            frozenFrame=0; playing=false; draining=false; clock=null; outputPaused=false
             ComposerSynth.clear(handle,0,15); auditionTokens.fill(Long.MIN_VALUE); stopOutput()
         }
-        if(focusOwned) { manager.abandonAudioFocusRequest(focus); focusOwned=false }
+        abandonFocus()
         report(null)
     }
     fun close() {
         if(closed) return
         closed=true; epoch++; commands.clear(); commands.offer {}
-        if(focusOwned) { manager.abandonAudioFocusRequest(focus); focusOwned=false }
+        abandonFocus()
         app.unregisterReceiver(noisy)
     }
     private fun startOutput() {
@@ -212,12 +247,12 @@ internal class ComposerAudio(context: Context,private val interrupted: (String?)
             val pcm=ShortArray(480)
             var quiet=0
             while(!closed) {
-                if(output==null) commands.take().invoke()
+                if(output==null || outputPaused) commands.take().invoke()
                 while(true) { val command=commands.poll() ?: break; command() }
                 if(closed) break
                 // Stop can dispose output before another render; publish the cleared state now.
                 voiceTotal=ComposerSynth.voices(handle)
-                val audio=output ?: continue
+                val audio=output?.takeUnless { outputPaused } ?: continue
                 var offset=0
                 while(offset<240) {
                     val c=clock

@@ -12,22 +12,28 @@ import kotlin.math.roundToInt
 
 internal enum class ComposerExportFormat(val extension: String, val mime: String, val description: String) {
     M4A("m4a", "audio/mp4", "M4A · compact backing-track file"),
-    WAV("wav", "audio/wav", "WAV · uncompressed audio, larger file")
+    WAV("wav", "audio/wav", "WAV · uncompressed audio, larger file"),
+    MIDI("mid", "audio/midi", "Editable notes and timing for music software")
 }
 
 internal data class ComposerExportSnapshot(val project: CompositionProject, val plan: LoopPlan) {
     companion object {
-        fun capture(project: CompositionProject, selections: List<String>, arrangement: Boolean): ComposerExportSnapshot {
+        fun capture(project: CompositionProject, selections: List<String>, arrangement: Boolean,
+            format: ComposerExportFormat = ComposerExportFormat.M4A): ComposerExportSnapshot {
             // Detach all collections; no editor/history/store ownership crosses into the renderer.
             val frozen=project.copy(tracks=project.tracks.map { t -> t.copy(patterns=t.patterns.map { p ->
                 p.copy(notes=p.notes.map { it.copy() })
             }) }, clips=project.clips.map { it.copy() })
-            val plan=if(arrangement) LoopPlan.songSnapshot(frozen) else LoopPlan.snapshot(frozen,selections.toList())
+            val audio = format != ComposerExportFormat.MIDI
+            val plan = if (arrangement) LoopPlan.songSnapshot(frozen, requireSound = audio)
+                else LoopPlan.snapshot(frozen, selections.toList(), requireSound = audio)
             require(plan.tracks.isNotEmpty()) { "Add an instrument before exporting." }
-            require(plan.frame(plan.regionTicks) <= MAX_EXPORT_FRAMES - 31L*48000) {
+            require(!audio || plan.frame(plan.regionTicks) <= MAX_EXPORT_FRAMES - 31L*48000) {
                 "This composition exceeds the export limit (about 6 hours 12 minutes, the stereo PCM16 RIFF size limit)."
             }
-            return ComposerExportSnapshot(frozen,plan)
+            return ComposerExportSnapshot(frozen,plan).also {
+                if (!audio) ComposerMidiExport.checkSize(plan)
+            }
         }
     }
 }
@@ -156,6 +162,7 @@ internal class ComposerAacSink(file: File, private val checkCancelled: () -> Uni
 internal object ComposerOfflineExport {
     fun directory(context: Context)=File(context.cacheDir,"composer-audio-export").also { check(it.isDirectory || it.mkdirs()) }
     fun estimatedBytes(snapshot: ComposerExportSnapshot, format: ComposerExportFormat): Long {
+        require(format != ComposerExportFormat.MIDI)
         val frames=snapshot.plan.frame(snapshot.plan.regionTicks)+30L*48000
         return if(format==ComposerExportFormat.WAV) 44+frames*4 else frames*384000/(48000*8)+16L*1024*1024 // 2× target bitrate + container reserve
     }

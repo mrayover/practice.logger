@@ -8,7 +8,7 @@ internal data class LoopPlan(val tempo: Int,val barTicks: Long,val beatTicks: Lo
     fun frame(tick: Long): Long = (tick * (48000.0 * 60 / (tempo * COMPOSER_PPQ))).roundToLong()
     fun tick(frame: Long): Double = frame * (tempo * COMPOSER_PPQ) / (48000.0 * 60)
     companion object {
-        fun songSnapshot(project: CompositionProject): LoopPlan {
+        fun songSnapshot(project: CompositionProject, requireSound: Boolean = true): LoopPlan {
             CompositionCodec.validate(project)
             require(project.clips.any { ArrangementEdits.pattern(project,it).notes.isNotEmpty() }) { "Place a populated pattern in Arrange first." }
             val end=project.clips.maxOf { ArrangementEdits.end(project,it) }
@@ -18,7 +18,7 @@ internal data class LoopPlan(val tempo: Int,val barTicks: Long,val beatTicks: Lo
             }
             val tracks=project.tracks.map { t ->
                 val bank=ComposerInstruments.index(t.instrument)
-                require(bank>=0) { "Sound unavailable for ${t.title}. Choose an installed sound first." }
+                require(!requireSound || bank>=0) { "Sound unavailable for ${t.title}. Choose an installed sound first." }
                 val notes=project.clips.filter { it.trackId==t.id }.flatMap { c ->
                     ArrangementEdits.pattern(project,c).notes.map { it.copy(startTick=c.startTick+it.startTick) }
                 }
@@ -28,12 +28,12 @@ internal data class LoopPlan(val tempo: Int,val barTicks: Long,val beatTicks: Lo
             }
             return LoopPlan(project.tempoBpm,project.barTicks(),3840L/project.denominator,end,tracks,project.tracks.map { it.id },song=true)
         }
-        fun snapshot(project: CompositionProject,patterns: List<String>): LoopPlan {
+        fun snapshot(project: CompositionProject,patterns: List<String>, requireSound: Boolean = true): LoopPlan {
             CompositionCodec.validate(project)
             val tracks = project.tracks.mapIndexed { i,t ->
                 val pattern = t.patterns.find { it.id == patterns.getOrNull(i) } ?: t.patterns.firstOrNull()
                 val bank = ComposerInstruments.index(t.instrument)
-                require(bank >= 0) { "Sound unavailable for ${t.title}. Choose an installed sound first." }
+                require(!requireSound || bank >= 0) { "Sound unavailable for ${t.title}. Choose an installed sound first." }
                 val notes = pattern?.notes?.toList() ?: emptyList()
                 LoopTrack(bank,pattern?.let(project::patternTicks) ?: project.barTicks(),notes,
                     notes.flatMapIndexed { n,note -> listOf(LoopEvent(note.startTick,n,true),LoopEvent(note.startTick+note.durationTick,n,false)) }

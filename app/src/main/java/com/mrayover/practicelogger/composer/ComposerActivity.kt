@@ -237,7 +237,7 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
             ComposerToolbar("composer-application-row", listOf(
                 ComposerControl("compose.logger", 1) { Text("compose.logger", fontSize = 13.sp, maxLines = 1) },
                 ComposerControl("Save", 10) { ComposerButton("Save", !vm.busy && !exportBusy) { vm.save() } },
-                ComposerControl("Export Audio", 3) { ComposerButton("Export Audio", !vm.busy && !exportBusy) { exportDialog = true } },
+                ComposerControl("Export", 3) { ComposerButton("Export", !vm.busy && !exportBusy) { exportDialog = true } },
                 ComposerControl("Save As", 4) { ComposerButton("Save As", !vm.busy && !exportBusy) { copyTitle = project.title.take(115) + " Copy"; saveAs = true } },
                 ComposerControl("Loop", 10) { ComposerButton("Loop", !exportBusy, selected = mode == "Loop") { mode = "Loop" } },
                 ComposerControl("Arrange", 10) { ComposerButton("Arrange", !exportBusy, selected = mode == "Arrange") { mode = "Arrange" } },
@@ -246,7 +246,7 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
                 ComposerControl("Return", 10) { ComposerButton("Return", !vm.busy && !exportBusy) { back() } }
             ))
             if (portraitFallback) Text("Rotate or widen for the piano roll.", style = MaterialTheme.typography.bodySmall)
-            key(project.id) { PianoRollWorkspace(project, !vm.busy && !exportBusy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo, vm::editLatest, openLoop={ mode="Loop" }, exportRequested=exportDialog, dismissExport={ exportDialog=false }, exportBusy={ exportBusy=it }) }
+            key(project.id) { PianoRollWorkspace(project, !vm.busy, vm::edit, Modifier.weight(1f), mode, !vm.busy && vm.undoCount > 0, vm::undo, vm::editLatest, openLoop={ mode="Loop" }, exportRequested=exportDialog, dismissExport={ exportDialog=false }, exportBusy={ exportBusy=it }) }
             Text("${project.title} · ${project.tempoBpm} BPM · ${project.numerator}/${project.denominator} · ${vm.error ?: vm.status}",
                 color = if (vm.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall, maxLines = if (vm.error != null) 3 else 1,
