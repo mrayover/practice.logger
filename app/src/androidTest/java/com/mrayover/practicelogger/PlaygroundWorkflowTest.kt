@@ -56,7 +56,7 @@ class PlaygroundWorkflowTest {
         assertTrue("Gameplay uses more than half the fixed page: $viewport in $page", viewport.height > page.height * 0.5f)
         assertTrue("Gameplay uses the available width", viewport.width > page.width * 0.90f)
         assertTrue("Controls sit below gameplay", controls.top > viewport.bottom)
-        val tags = listOf("canvas", "inventory", "explore", "up", "down", "left", "right", "a", "b")
+        val tags = listOf("canvas", "inventory", "explore", "dpad", "up", "down", "left", "right", "a", "b")
         val fixedBounds = tags.associateWith { bounds("playground-$it") }
         val appBounds = bounds("app-surface")
         fixedBounds.values.forEach { rect ->
@@ -74,6 +74,7 @@ class PlaygroundWorkflowTest {
         }
         node("playground-explore").assertIsNotEnabled()
         node("playground-b").assertIsNotEnabled()
+        verifyController(controls, fixedBounds)
 
         val before = playerPosition()
         node("playground-canvas").performTouchInput { swipeUp(); swipeLeft() }
@@ -88,6 +89,12 @@ class PlaygroundWorkflowTest {
         }
         compose.mainClock.autoAdvance = false
         try {
+            val pad = node("playground-dpad")
+            pad.performTouchInput { down(center) }
+            compose.mainClock.advanceTimeBy(400)
+            pad.performTouchInput { up() }
+            assertEquals("The D-pad junction is visual only", before, playerPosition())
+
             val right = hold("right", 470)
             assertTrue("Holding Right moves from $before to $right", right.x > before.x)
             assertEquals(before.y, right.y, 0f)
@@ -137,10 +144,42 @@ class PlaygroundWorkflowTest {
         node("playground-home").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
         waitForTotal(7)
+        val appearance = compose.activity.themePreferences.choice.value
+        try {
+            compose.runOnIdle { compose.activity.themePreferences.save(ThemeChoice.COSMIC) }
+            compose.waitForIdle()
+            verifyController(bounds("playground-controls"), tags.associateWith { bounds("playground-$it") })
+            screenshot("playground-controller-cosmic")
+        } finally {
+            compose.runOnIdle { compose.activity.themePreferences.save(appearance) }
+        }
         compose.onNodeWithText("Journal").performClick()
         compose.onNodeWithText("Playground").assertIsDisplayed()
         assertEquals(listOf(savedLayout), runBlocking { db.playground().readAll() })
         assertEquals(original + completion(6), runBlocking { db.playground().completions() })
+    }
+
+    private fun verifyController(controls: Rect, bounds: Map<String, Rect>) {
+        val pad = bounds.getValue("dpad")
+        val a = bounds.getValue("a")
+        val b = bounds.getValue("b")
+        assertTrue("B is lower-left of A with a gap", b.right < a.left && b.top > a.top)
+        assertTrue("The D-pad stays to the left", pad.right < b.left)
+        assertEquals("The control row is still two 48 dp targets tall", 2 * a.height, controls.height, 1f)
+        for (key in listOf("dpad", "up", "down", "left", "right", "a", "b")) {
+            val control = bounds.getValue(key)
+            assertTrue("$key stays inside the control row", control.left >= controls.left &&
+                control.right <= controls.right && control.top >= controls.top && control.bottom <= controls.bottom)
+        }
+
+        val pixels = node("playground-dpad").captureToImage().toPixelMap()
+        val fill = 0xFF463953.toInt()
+        fun pixel(x: Float, y: Float) = pixels[(x * pixels.width).toInt(), (y * pixels.height).toInt()].toArgb()
+        for (point in listOf(Offset(0.5f, 0.5f), Offset(0.43f, 0.15f), Offset(0.43f, 0.85f),
+            Offset(0.12f, 0.5f), Offset(0.88f, 0.5f), Offset(0.4f, 0.5f), Offset(0.6f, 0.5f))) {
+            assertEquals("The arms and junction share one surface at $point", fill, pixel(point.x, point.y))
+        }
+        assertNotEquals("The area outside the cross is clear", fill, pixel(0.10f, 0.10f))
     }
 
     private fun completion(index: Int): BlockCompletion {

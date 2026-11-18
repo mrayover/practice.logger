@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -120,26 +122,22 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
             Modifier.fillMaxWidth().padding(bottom = 4.dp).testTag("playground-controls"),
             horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically
         ) {
-            val directionButton: @Composable (HomeDirection) -> Unit = { direction ->
+            DirectionPad { direction, target ->
                 DirectionButton(direction, held == direction, canMove,
                     onHeld = { pressed ->
                         if (pressed) held = direction
                         else if (held == direction) held = null
                     },
-                    onStep = { player = PlaygroundHome.move(player, direction, 0.10f) })
+                    onStep = { player = PlaygroundHome.move(player, direction, 0.10f) },
+                    modifier = target)
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                directionButton(HomeDirection.UP)
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    directionButton(HomeDirection.LEFT)
-                    directionButton(HomeDirection.DOWN)
-                    directionButton(HomeDirection.RIGHT)
-                }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(PlaygroundHome::interact, Modifier.size(48.dp).testTag("playground-a"),
+            Box(Modifier.size(104.dp, 96.dp)) {
+                OutlinedButton(PlaygroundHome::interact,
+                    Modifier.align(Alignment.TopEnd).offset(y = 12.dp).size(48.dp).testTag("playground-a"),
                     contentPadding = PaddingValues(0.dp)) { Text("A") }
-                OutlinedButton({}, Modifier.size(48.dp).testTag("playground-b"), enabled = false,
+                OutlinedButton({},
+                    Modifier.align(Alignment.BottomStart).offset(y = (-12).dp).size(48.dp).testTag("playground-b"),
+                    enabled = false,
                     contentPadding = PaddingValues(0.dp)) { Text("B") }
             }
         }
@@ -149,15 +147,33 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
 }
 
 @Composable
+private fun DirectionPad(button: @Composable (HomeDirection, Modifier) -> Unit) {
+    // The artwork spans the center. Only the four arms receive input.
+    Box(Modifier.size(152.dp, 96.dp).testTag("playground-dpad")) {
+        Canvas(Modifier.matchParentSize()) {
+            val fill = Color(0xFF463953)
+            val corner = CornerRadius(5.dp.toPx())
+            val bar = 42.dp.toPx()
+            val inset = 12.dp.toPx()
+            drawRoundRect(fill, Offset(center.x - bar / 2, 0f), Size(bar, size.height), corner)
+            drawRoundRect(fill, Offset(inset, center.y - bar / 2), Size(size.width - 2 * inset, bar), corner)
+        }
+        button(HomeDirection.UP, Modifier.align(Alignment.TopCenter).size(48.dp, 40.dp))
+        button(HomeDirection.DOWN, Modifier.align(Alignment.BottomCenter).size(48.dp, 40.dp))
+        button(HomeDirection.LEFT, Modifier.align(Alignment.CenterStart).offset(x = 12.dp).size(48.dp))
+        button(HomeDirection.RIGHT, Modifier.align(Alignment.CenterEnd).offset(x = (-12).dp).size(48.dp))
+    }
+}
+
+@Composable
 private fun DirectionButton(
-    direction: HomeDirection, pressed: Boolean, enabled: Boolean, onHeld: (Boolean) -> Unit, onStep: () -> Unit
+    direction: HomeDirection, pressed: Boolean, enabled: Boolean, onHeld: (Boolean) -> Unit, onStep: () -> Unit,
+    modifier: Modifier
 ) {
     val updateHeld by rememberUpdatedState(onHeld)
     val colors = MaterialTheme.colorScheme
     Box(
-        Modifier.size(48.dp).testTag("playground-${direction.name.lowercase()}")
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (pressed) colors.primary else colors.secondaryContainer)
+        modifier.testTag("playground-${direction.name.lowercase()}")
             .semantics(mergeDescendants = true) {
                 contentDescription = direction.label
                 role = Role.Button
@@ -176,8 +192,13 @@ private fun DirectionButton(
             },
         contentAlignment = Alignment.Center
     ) {
-        Text(direction.arrow, style = MaterialTheme.typography.titleLarge,
-            color = if (pressed) colors.onPrimary else colors.onSecondaryContainer)
+        Box(
+            Modifier.size(30.dp).background(if (pressed) colors.primary else Color.Transparent, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(direction.arrow, style = MaterialTheme.typography.titleLarge,
+                color = if (pressed) colors.onPrimary else Color(0xFFF0E8FF))
+        }
     }
 }
 
