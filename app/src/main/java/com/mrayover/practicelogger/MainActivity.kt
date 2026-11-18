@@ -199,6 +199,7 @@ class MainActivity : ComponentActivity() {
     var headerDestination by rememberSaveable { mutableStateOf("home") }
     val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     LaunchedEffect(page) { headerHomeRequested = false }
+    var organizationReturn by rememberSaveable { mutableStateOf("library") }
     var editorReturn by rememberSaveable { mutableStateOf("library") }
     var summaryReturn by rememberSaveable { mutableStateOf("home") }
     var summaryId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -292,10 +293,11 @@ class MainActivity : ComponentActivity() {
                 StatisticsScreen(activity, goalRows, goals.error, onHome = { page = "home" }, onGoal = { goalId = it; page = "goal-detail" },
                     onSession = { summaryId = it; summaryReturn = "statistics"; page = "summary" })
             }
-            "organize" -> OrganizationManager(organization, onBack = { page = "library" })
+            "organize" -> OrganizationManager(organization, onBack = { page = organizationReturn })
             "media-library" -> {
                 BackHandler { page = "home" }
                 MediaLibraryScreen(media, onBack = { page = "home" }, onWorkspaceChanged = { mediaWorkspace = it },
+                    onOrganize = { organizationReturn = "media-library"; page = "organize" },
                     destinationPills = { DestinationPills("Media", "Inspirations", false) { if (it && !media.busy) page = "inspirations" } })
             }
             "inspirations" -> InspirationsScreen(inspirations, onMedia = { page = "media-library" }, onHome = { page = "home" })
@@ -401,7 +403,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth().onFocusChanged { searchFocused = it.isFocused }) }
                     item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
                     item { Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { page = "organize" }) { Text("Manage Categories & Sources") }
+                        OutlinedButton(onClick = { organizationReturn = "library"; page = "organize" }) { Text("Manage Categories & Sources") }
                     } }
                     item { BlockGroupPicker(groupMode) { groupMode = it } }
                     item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
