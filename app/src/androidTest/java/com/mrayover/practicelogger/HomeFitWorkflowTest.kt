@@ -3,6 +3,7 @@ package com.mrayover.practicelogger
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -38,18 +39,28 @@ class HomeFitWorkflowTest {
         fun evidence(case: String, stage: String) {
             android.util.Log.i("HomeGeometry", "Collecting $case $stage")
             val tags = listOf("home-brand", "header-settings", "home-scroll", "home-goals", "home-goal-title-0",
-                "home-goal-title-1", "weekly-target-summary", "home-statistics") + navigation.map { "home-nav-$it" }
+                "home-goal-title-1", "weekly-target-summary", "home-statistics", "home-weekly-target") + navigation.map { "home-nav-$it" }
             val scroll = compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
             File(folder, "$case-$stage.txt").writeText(buildString {
                 appendLine("scroll=${scroll.value()} / ${scroll.maxValue()}")
                 tags.forEach { tag ->
                     appendLine("$tag=${compose.onNodeWithTag(tag, true).getUnclippedBoundsInRoot()}")
                 }
+                for (index in 0..1) {
+                    val progress = compose.onNodeWithTag("home-goal-minutes-$index", true)
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    progress.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    val baseline = progress.getUnclippedBoundsInRoot().top.value + layouts.single().firstBaseline / 2f
+                    appendLine("goal-progress-baseline-$index=$baseline")
+                }
                 val bar = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), true)
                 if (bar.fetchSemanticsNodes().isNotEmpty()) appendLine("bar=${bar.onFirst().getUnclippedBoundsInRoot()}")
             })
             android.util.Log.i("HomeGeometry", "Capturing $case $stage")
-            assertTrue("Android screenshot for $case $stage", device.takeScreenshot(File(folder, "$case-$stage.png")))
+            File(folder, "$case-$stage.png").outputStream().use { output ->
+                val frame = compose.onNodeWithTag("home-fit-viewport").captureToImage().asAndroidBitmap()
+                assertTrue("Captured $case $stage", frame.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output))
+            }
         }
         fun mount(width: Int, height: Int, scale: Float, theme: ThemeChoice, target: Int?) {
             compose.runOnIdle {
