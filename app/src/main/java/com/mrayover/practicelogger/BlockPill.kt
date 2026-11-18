@@ -71,6 +71,7 @@ internal fun BlockPill(
                         if (!expanded) Text(block.action.lineSequence().first(), style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(duration + if (block.archived) " · Archived" else "", style = MaterialTheme.typography.bodySmall)
+                        BlockOrganizationLabel(block)
                         if (weeklyProgress != null) Text("${weeklyProgress.completed}/${weeklyProgress.planned}",
                             style = MaterialTheme.typography.bodySmall)
                         else if (completion != null) Text("Completed", style = MaterialTheme.typography.bodySmall)
