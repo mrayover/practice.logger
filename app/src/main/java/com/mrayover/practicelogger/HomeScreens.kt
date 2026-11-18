@@ -148,7 +148,7 @@ import androidx.compose.ui.unit.LayoutDirection
         val width = line.width.coerceIn(constraints.minWidth, constraints.maxWidth)
         // A legacy subtitle can wrap at enlarged text. Reserve that height while drawing one line.
         val referenceHeight = referenceMeasurer?.measure(checkNotNull(heightReference), style,
-            constraints = Constraints(maxWidth = constraints.maxWidth)).size.height
+            constraints = Constraints(maxWidth = constraints.maxWidth))?.size?.height
         val height = (referenceHeight ?: line.height).coerceIn(constraints.minHeight, constraints.maxHeight)
         val fromRight = endAligned == (layoutDirection == LayoutDirection.Ltr)
         layout(width, height) {
