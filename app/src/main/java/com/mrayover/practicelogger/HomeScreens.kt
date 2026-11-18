@@ -14,6 +14,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
@@ -21,9 +23,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 
-@Composable fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
-    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, practiceMs: Long? = null, onStatistics: () -> Unit = {}, weeklyProgress: WeeklyTargetProgress? = null, onWeekTarget: () -> Unit = {}) {
+@Composable internal fun PracticeHome(onPractice: () -> Unit, onBlocks: () -> Unit, onRoutines: () -> Unit,
+    onTools: () -> Unit, onRecording: () -> Unit, onLog: () -> Unit, onLibrary: () -> Unit, goals: List<GoalBundle>, onGoals: () -> Unit, onGoal: (String) -> Unit, onStatistics: () -> Unit = {}, weeklyProgress: WeeklyPlanProgress? = null, onWeekPlan: () -> Unit = {}) {
     Column(Modifier.fillMaxSize().testTag("home-menu").background(pageBackgroundColor())
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
@@ -58,8 +62,8 @@ import androidx.compose.ui.unit.sp
                                     color = MaterialTheme.colorScheme.primary, fontSize = 16.sp, lineHeight = 20.sp,
                                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.testTag("home-goal-title-$index"))
                                 if (goal != null) {
-                                    Text("${goal.progress}% · Manual progress", style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    HomeMinuteText(weeklyProgress?.byGoal?.get(goal.id)?.let { "${it.label} · This week" } ?: "Loading…",
+                                        Modifier.testTag("home-goal-minutes-$index"), color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         }
@@ -70,7 +74,7 @@ import androidx.compose.ui.unit.sp
                         HomeNavigationButton(label, action, prominent = index == 0, modifier = Modifier.weight(1f))
                     }
                 }
-                HomeWeeklySummary(weeklyProgress, onStatistics, onWeekTarget)
+                HomeWeeklySummary(weeklyProgress?.total, onStatistics, onWeekPlan)
             }
         }
     }
@@ -89,9 +93,8 @@ import androidx.compose.ui.unit.sp
 }
 
 /** Unclipped, square-edged footer; richer details remain behind the existing actions. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable private fun HomeWeeklySummary(progress: WeeklyTargetProgress?, onStatistics: () -> Unit,
-    onWeekTarget: () -> Unit) {
+@Composable private fun HomeWeeklySummary(progress: PracticeMinutes?, onStatistics: () -> Unit,
+    onWeekPlan: () -> Unit) {
     Column(Modifier.fillMaxWidth().testTag("weekly-target-summary"), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -99,26 +102,39 @@ import androidx.compose.ui.unit.sp
                 modifier = Modifier.weight(1f).clickable(role = Role.Button, onClickLabel = "Open practice statistics",
                     onClick = onStatistics).heightIn(min = 48.dp).wrapContentHeight(Alignment.CenterVertically)
                     .testTag("home-statistics"))
-            TextButton(onClick = onWeekTarget, modifier = Modifier.testTag("home-weekly-target"),
+            TextButton(onClick = onWeekPlan, modifier = Modifier.testTag("home-weekly-target"),
                 contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)) {
-                Text(if (progress?.targetMinutes == null) "Set weekly target" else "Edit weekly target",
-                    style = MaterialTheme.typography.bodySmall)
+                HomeMinuteText("Edit weekly plan")
             }
         }
-        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(if (progress == null) "Loading…"
-                else if (progress.targetMinutes == null) "${targetMinuteText(progress.actualMs)} min practiced"
-                else "${targetMinuteText(progress.actualMs)} / ${progress.targetMinutes} min",
-                style = MaterialTheme.typography.bodySmall)
-            if (progress?.targetMinutes != null) Text(progress.percentage.orEmpty(),
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            HomeMinuteText(progress?.label ?: "Loading…", Modifier.weight(3f, fill = false))
+            HomeMinuteText(progress?.status.orEmpty(), Modifier.weight(2f, fill = false),
+                color = MaterialTheme.colorScheme.onSurfaceVariant, endAligned = true)
         }
-        if (progress?.targetMinutes != null) LinearProgressIndicator(progress = { progress.fill },
+        LinearProgressIndicator(progress = { progress?.fill ?: 0f },
             modifier = Modifier.fillMaxWidth().height(4.dp), color = MaterialTheme.colorScheme.primary,
             trackColor = PracticeTheme.colors.scrollTrack,
             strokeCap = androidx.compose.ui.graphics.StrokeCap.Butt, gapSize = 0.dp, drawStopIndicator = {})
     }
+}
+
+/** Fit only the ink horizontally. The original font size, line height and baseline stay in place. */
+@Composable private fun HomeMinuteText(text: String, modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified, endAligned: Boolean = false) {
+    Text(text, modifier.layout { measurable, constraints ->
+        val line = measurable.measure(Constraints(maxHeight = constraints.maxHeight))
+        val width = line.width.coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = line.height.coerceIn(constraints.minHeight, constraints.maxHeight)
+        val fromRight = endAligned == (layoutDirection == LayoutDirection.Ltr)
+        layout(width, height) {
+            if (line.width <= width) line.placeRelative(if (endAligned) width - line.width else 0, 0)
+            else line.placeRelativeWithLayer(if (endAligned) width - line.width else 0, 0) {
+                scaleX = width.toFloat() / line.width
+                transformOrigin = TransformOrigin(if (fromRight) 1f else 0f, 0f)
+            }
+        }
+    }, style = MaterialTheme.typography.bodySmall, color = color, maxLines = 1, softWrap = false)
 }
 
 @Composable fun HomeButton(label: String, action: () -> Unit) {

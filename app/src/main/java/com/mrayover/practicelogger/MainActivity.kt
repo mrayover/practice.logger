@@ -127,9 +127,6 @@ class MainActivity : ComponentActivity() {
     val organization: OrganizationViewModel = viewModel()
     val organizationSnapshot by organization.snapshot.collectAsStateWithLifecycle()
     val inspirations: InspirationsViewModel = viewModel()
-    val weeklyTargetVm: WeeklyTargetViewModel = viewModel()
-    val weeklyTargets by weeklyTargetVm.targets.collectAsStateWithLifecycle()
-    val practiceEntries by transcribe.practiceTime.collectAsStateWithLifecycle()
     val goalRows by goals.goals.collectAsStateWithLifecycle()
     val goalIndicators = remember(goalRows) { GoalIndicators(goalRows) }
     val goalLinks by goals.links.collectAsStateWithLifecycle()
@@ -193,6 +190,16 @@ class MainActivity : ComponentActivity() {
     var builderBack by rememberSaveable { mutableStateOf("practice-now") }
     val selectedWeek = viewedWeek?.let(LocalDate::parse) ?: currentWeek
     var page by rememberSaveable { mutableStateOf("home") }
+    val weeklyProgress = if (page in listOf("home", "goals", "goal-detail", "goal-editor", "week")) {
+        val facts by goals.activity.collectAsStateWithLifecycle()
+        val week = if (page == "week") selectedWeek else currentWeek
+        remember(weekBlocks, catalog.blocks, goalRows, facts, week, weekZone) {
+            facts?.let {
+                weeklyPlanProgress(plannedWeekMinutesByBlock(weekBlocks, catalog.blocks, week), goalRows, it, week, weekZone)
+            }
+        }
+    } else null
+    val openCurrentPlan: () -> Unit = { viewedWeek = practiceWeek().toString(); page = "prepare-week" }
     var mediaWorkspace by remember { mutableStateOf(false) }
     var settingsReturn by rememberSaveable { mutableStateOf("tools") }
     var headerHomeRequested by remember { mutableStateOf(false) }
@@ -279,10 +286,8 @@ class MainActivity : ComponentActivity() {
             Box(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp)) { Text("Loading Blocks…") }
         } else when (page) {
             "home" -> {
-                val time by transcribe.practiceTime.collectAsStateWithLifecycle()
-                PracticeHome(weeklyProgress = if (time != null && weeklyTargets != null) WeeklyTargetProgress(targetWeekMs(time!!, currentWeek, weekZone), weeklyTargets!!.find { it.weekStart == currentWeek.toString() }?.targetMinutes) else null,
-                    onWeekTarget = { viewedWeek = null; page = "week" },
-                    practiceMs = time?.sumOf { it.activeMs }, onStatistics = { page = "statistics" },
+                PracticeHome(weeklyProgress = weeklyProgress, onWeekPlan = openCurrentPlan,
+                    onStatistics = { page = "statistics" },
                     onPractice = { page = "practice-now" }, onBlocks = { page = "library" },
                     onRoutines = { page = "routines" }, onTools = { page = "tools" }, onRecording = { page = "recording" }, goals = goalRows,
                     onLog = { log.open(); page = "log" }, onLibrary = { page = "media-library" },
@@ -309,16 +314,18 @@ class MainActivity : ComponentActivity() {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()
                 LogScreen(log, onHome = { page = "home" }, practiceTime = time, onPlayground = { page = "playground" })
             }
-            "goals" -> GoalManagement(goalRows, goals, onHome = { page = "home" },
+            "goals" -> GoalManagement(goalRows, weeklyProgress, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
             "goal-detail" -> {
                 val goalTimes by goals.times.collectAsStateWithLifecycle()
                 GoalDetail(goalRows.find { it.goal.id == goalId }, catalog.blocks, goalTimes.find { it.goalId == goalId }?.activeMs ?: 0L,
-                goals, practice, onGoals = { page = "goals" }, onEdit = { goalEditorId = goalId; page = "goal-editor" },
+                weeklyProgress?.byGoal?.get(goalId), goals, practice, onGoals = { page = "goals" },
+                onEdit = { goalEditorId = goalId; page = "goal-editor" }, onWeekPlan = openCurrentPlan,
                 onBlocks = { page = "goal-blocks" }, onBlock = { openEditor(it, "goal-detail") },
                 onSession = { summaryId = it; summaryReturn = "goal-detail"; page = "summary" })
             }
-            "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal, goals,
+            "goal-editor" -> key(goalEditorId) { GoalEditor(goalRows.find { it.goal.id == goalEditorId }?.goal,
+                if (goalEditorId == null) PracticeMinutes(0, 0) else weeklyProgress?.byGoal?.get(goalEditorId), goals,
                 onCancel = { page = if (headerHomeRequested) headerDestination else if (goalEditorId == null) "goals" else "goal-detail" }, onNavigationCancelled = { headerHomeRequested = false }) }
             "goal-blocks" -> GoalBlocks(goalRows.find { it.goal.id == goalId }, catalog.blocks, goals,
                 onBack = { page = "goal-detail" }, onLibrary = { page = "library" })
@@ -344,10 +351,7 @@ class MainActivity : ComponentActivity() {
                 val completions = remember(sessions.bundles, selectedWeek) {
                     weekCompletions(sessions.bundles, selectedWeek)
                 }
-                val target = weeklyTargets?.find { it.weekStart == selectedWeek.toString() }
-                WeekWorkspace(target = target, targetReady = weeklyTargets != null, targetVm = weeklyTargetVm,
-                    targetEditable = !selectedWeek.isBefore(currentWeek),
-                    weeklyProgress = if (practiceEntries != null && weeklyTargets != null) WeeklyTargetProgress(targetWeekMs(practiceEntries!!, selectedWeek, weekZone), target?.targetMinutes) else null,
+                WeekWorkspace(weeklyProgress = weeklyProgress?.total, planEditable = !selectedWeek.isBefore(currentWeek),
                     week = selectedWeek, isCurrent = selectedWeek == currentWeek, plans = weekBlocks, catalog = catalog, preparing = preparing,
                     vm = vm, practice = practice, hasDraft = sessions.draft?.placements?.isNotEmpty() == true,
                     completions = completions, completionCounts = weekCompletionCounts(sessions.bundles, selectedWeek, weekZone),

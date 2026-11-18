@@ -37,7 +37,10 @@ class HomeFitWorkflowTest {
                                 androidx.compose.material3.Surface(color=pageBackgroundColor(),contentColor=androidx.compose.material3.MaterialTheme.colorScheme.onBackground) {
                                     Column(Modifier.fillMaxSize().padding(top = 24.dp, bottom = 24.dp)) {
                                         PracticeBanner(onHome={},onSettings={})
-                                        PracticeHome(onPractice={clicks++},onBlocks={clicks++},onRoutines={clicks++},onTools={clicks++},onRecording={clicks++},onLog={clicks++},onLibrary={clicks++},goals=goals,onGoals={clicks++},onGoal={clicks++},practiceMs=73_142_000,onStatistics={clicks++},weeklyProgress=WeeklyTargetProgress(120000,target),onWeekTarget={clicks++})
+                                        PracticeHome(onPractice={clicks++},onBlocks={clicks++},onRoutines={clicks++},onTools={clicks++},onRecording={clicks++},onLog={clicks++},onLibrary={clicks++},goals=goals,onGoals={clicks++},onGoal={clicks++},onStatistics={clicks++},
+                                            weeklyProgress=WeeklyPlanProgress(PracticeMinutes(120_000, target?.toLong() ?: 0),
+                                                goals.associate { it.goal.id to if (scale > 1f) PracticeMinutes(602_345_000_000, 5_234_567_890)
+                                                    else PracticeMinutes(60_000, 30) }), onWeekPlan={clicks++})
                                     }
                                 }
                             } }
@@ -57,7 +60,7 @@ class HomeFitWorkflowTest {
                     val layouts=mutableListOf<TextLayoutResult>()
                     compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                     assertEquals(1,layouts.single().lineCount)
-                    assertFalse("First title line remains readable",layouts.single().isLineEllipsized(0))
+                    assertTrue("Title ink stays within its line", layouts.single().getLineBottom(0) <= layouts.single().size.height + 1f)
                 }
                 compose.onNodeWithTag("home-goal-progress-fit-1").assertDoesNotExist()
                 compose.onNodeWithText("Total practice").assertDoesNotExist()
@@ -88,6 +91,11 @@ class HomeFitWorkflowTest {
                 val layouts=mutableListOf<TextLayoutResult>()
                 compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 assertEquals(1,layouts.single().lineCount)
+            }
+            run {
+                val lines = mutableListOf<TextLayoutResult>()
+                compose.onNodeWithTag("home-goal-minutes-0", true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(lines) }
+                assertEquals(1, lines.single().lineCount)
             }
             File(folder,"home-fit-320-200-goals.png").outputStream().use { output ->
                 compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)

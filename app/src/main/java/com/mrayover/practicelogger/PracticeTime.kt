@@ -8,9 +8,12 @@ internal fun weeklyPracticeMs(
     weekStart: LocalDate,
     zone: ZoneId = ZoneId.systemDefault()
 ): Long {
-    val from = weekStart.atStartOfDay(zone).toInstant().toEpochMilli()
-    val end = weekStart.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
-    return entries.filter { it.startedAt in from until end }.sumOf { it.activeMs }
+    val interval = practiceWeekInterval(weekStart, zone)
+    return entries.filter { it.startedAt in interval }.sumOf { it.activeMs }
 }
+
+internal fun practiceWeekInterval(weekStart: LocalDate, zone: ZoneId): LongRange =
+    weekStart.atStartOfDay(zone).toInstant().toEpochMilli() until
+        weekStart.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
 
 internal fun practiceDuration(ms: Long): String = "${ms / 60_000} min ${ms / 1_000 % 60} sec"

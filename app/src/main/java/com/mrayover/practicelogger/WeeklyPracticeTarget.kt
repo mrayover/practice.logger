@@ -1,9 +1,5 @@
 package com.mrayover.practicelogger
 
-import android.app.Application
-import androidx.compose.runtime.*
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -11,9 +7,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 
 internal const val MAX_WEEKLY_TARGET_MINUTES = 10_080
 
@@ -74,22 +68,4 @@ data class WeeklyTargetProgress(val actualMs: Long, val targetMinutes: Int?) {
 internal fun targetMinuteText(ms: Long): String {
     val minutes = BigDecimal.valueOf(ms).divide(BigDecimal(60_000), 2, RoundingMode.HALF_UP)
     return if (ms > 0 && minutes.signum() == 0) "<0.01" else minutes.stripTrailingZeros().toPlainString()
-}
-
-class WeeklyTargetViewModel(app: Application) : AndroidViewModel(app) {
-    private val db = BlockDatabase.appInstance(app)
-    private val repository = WeeklyTargetRepository(db)
-    val targets = db.weeklyTargets().observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-    var busy by mutableStateOf(false); private set
-    var error by mutableStateOf<String?>(null); private set
-    fun save(week: LocalDate, minutes: Int?, done: () -> Unit) {
-        if (busy) return
-        busy = true; error = null
-        viewModelScope.launch {
-            try { repository.set(week, minutes); done() }
-            catch (e: CancellationException) { throw e }
-            catch (_: Exception) { error = "Target could not be saved. Check the week and retry; your entry is retained." }
-            finally { busy = false }
-        }
-    }
 }

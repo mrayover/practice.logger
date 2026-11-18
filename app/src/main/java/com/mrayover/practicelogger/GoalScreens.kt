@@ -3,7 +3,6 @@ package com.mrayover.practicelogger
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,7 +10,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 @Composable private fun GoalPage(back: () -> Unit, backLabel: String, title: String, content: @Composable ColumnScope.() -> Unit) {
@@ -24,11 +22,12 @@ import androidx.compose.ui.unit.dp
     }
 }
 
-@Composable fun GoalManagement(rows: List<GoalBundle>, vm: GoalViewModel, onHome: () -> Unit, onNew: () -> Unit, onGoal: (String) -> Unit) {
+@Composable internal fun GoalManagement(rows: List<GoalBundle>, weekly: WeeklyPlanProgress?, vm: GoalViewModel,
+    onHome: () -> Unit, onNew: () -> Unit, onGoal: (String) -> Unit) {
     var completed by rememberSaveable { mutableStateOf(false) }
     val active = activeGoals(rows)
     GoalPage(onHome, "Back to Home", "Manage Goals") {
-        Text("${active.size} of 5 active Goals. Set progress yourself; time is measured separately.")
+        Text("${active.size} of 5 active Goals. Minutes show actual and planned practice this week.")
         Button(onClick = onNew, enabled = !vm.busy && active.size < 5, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("New Goal") }
         if (active.size == 5) Text("Complete an active Goal before adding or reopening another.")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -41,7 +40,8 @@ import androidx.compose.ui.unit.dp
         visible.forEachIndexed { i, bundle ->
             val g = bundle.goal
             OutlinedButton(onClick = { onGoal(g.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("open-goal-${g.id}").goalEndCap(indicators.goal(g.id))) {
-                Text((if (completed) "" else "${i + 1}. ") + g.title + " · ${g.progress}%")
+                val minutes = weekly?.byGoal?.get(g.id)?.label ?: "Loading…"
+                Text((if (completed) "" else "${i + 1}. ") + g.title + " · $minutes")
             }
             if (!completed) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { vm.move(g.id, -1) }, enabled = !vm.busy && i > 0, modifier = Modifier.semantics { contentDescription = "Move ${g.title} up" }) { Text("Up") }
@@ -52,8 +52,10 @@ import androidx.compose.ui.unit.dp
     }
 }
 
-@Composable fun GoalDetail(bundle: GoalBundle?, allBlocks: List<Block>, actualMs: Long, vm: GoalViewModel, practice: PracticeViewModel,
-    onGoals: () -> Unit, onEdit: () -> Unit, onBlocks: () -> Unit, onBlock: (String) -> Unit, onSession: (String) -> Unit = {}) {
+@Composable internal fun GoalDetail(bundle: GoalBundle?, allBlocks: List<Block>, actualMs: Long,
+    weekly: PracticeMinutes?, vm: GoalViewModel, practice: PracticeViewModel,
+    onGoals: () -> Unit, onEdit: () -> Unit, onBlocks: () -> Unit, onBlock: (String) -> Unit,
+    onWeekPlan: () -> Unit, onSession: (String) -> Unit = {}) {
     GoalPage(onGoals, "Back to Goals", bundle?.goal?.title ?: "Goal unavailable") {
         if (bundle == null) { Text("Return to Goals and select an available Goal."); return@GoalPage }
         val g = bundle.goal
@@ -64,19 +66,19 @@ import androidx.compose.ui.unit.dp
                 Modifier.fillMaxWidth().goalEndCap(indicator).padding(end = 16.dp))
         }
         if (g.description.isNotBlank()) Text(g.description)
-        var assessProgress by rememberSaveable(g.id) { mutableStateOf(false) }
-        TextButton(onClick = { assessProgress = !assessProgress }) {
-            Text(if (assessProgress) "Hide manual assessment" else "Assess musical progress manually")
+        var showWeek by rememberSaveable(g.id) { mutableStateOf(false) }
+        TextButton(onClick = { showWeek = !showWeek }) {
+            Text(if (showWeek) "Hide weekly practice" else "Show weekly practice")
         }
-        if (assessProgress) {
-        Text("${g.progress}% · your manual assessment", style = MaterialTheme.typography.titleLarge)
-        var progress by rememberSaveable(g.id, g.progress) { mutableStateOf(g.progress.toString()) }
-        OutlinedTextField(progress, { progress = it }, label = { Text("Manual progress (0–100%)") }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
-        OutlinedButton(onClick = { vm.progress(g.id, progress) }, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save progress") }
+        if (showWeek) {
+            Text("This week · ${weekly?.status ?: "Loading…"}", style = MaterialTheme.typography.titleLarge)
+            GoalWeekMinutes(weekly)
+            OutlinedButton(onClick = onWeekPlan, enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+                Text("Edit weekly plan")
+            }
         }
         Text(practiceTime(actualMs) + " actual practice", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-        Text("Committed practice attributed to this Goal, including unfinished sessions and completed standalone Transcribe. Saved placement Goals take precedence; explicit legacy Goal-session time is labeled below. Time does not change your assessment.")
+        Text("Committed practice attributed to this Goal, including unfinished sessions and completed standalone Transcribe. Saved placement Goals take precedence and explicit legacy Goal-session time is labeled below.")
         val activity by vm.activity.collectAsState()
         vm.error?.let { Text(it) }
         StatisticsHeading("Related practice (latest 12)")
@@ -114,31 +116,35 @@ import androidx.compose.ui.unit.dp
     }
 }
 
-@Composable fun GoalEditor(goal: Goal?, vm: GoalViewModel, onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}) {
+@Composable internal fun GoalEditor(goal: Goal?, weekly: PracticeMinutes?, vm: GoalViewModel,
+    onCancel: () -> Unit, onNavigationCancelled: () -> Unit = {}) {
     var title by rememberSaveable { mutableStateOf(goal?.title ?: "") }
     var description by rememberSaveable { mutableStateOf(goal?.description ?: "") }
-    var progress by rememberSaveable { mutableStateOf((goal?.progress ?: 0).toString()) }
     var notes by rememberSaveable { mutableStateOf(goal?.notes ?: "") }
     var discard by rememberSaveable { mutableStateOf(false) }
     fun leave() {
         if (!vm.busy) {
-            if (title != (goal?.title ?: "") || description != (goal?.description ?: "") || progress != (goal?.progress ?: 0).toString() || notes != (goal?.notes ?: "")) discard = true
+            if (title != (goal?.title ?: "") || description != (goal?.description ?: "") || notes != (goal?.notes ?: "")) discard = true
             else onCancel()
         }
     }
     GoalPage(::leave, "Cancel Goal editing", if (goal == null) "New Goal" else "Edit Goal") {
         OutlinedTextField(title, { title = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Goal title") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(description, { description = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Desired outcome (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(progress, { progress = it }, label = { Text("Manual progress (0–100%)") }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
-        Text("Your assessment of musical progress. Practice time is tracked separately.")
+        GoalWeekMinutes(weekly)
+        Text("Weekly minutes come from logged practice and the plan in This Week.")
         OutlinedTextField(notes, { notes = it }, keyboardOptions = ProseKeyboardOptions, label = { Text("Goal notes (optional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
-        Button(onClick = { vm.save(goal?.id, title, description, progress, notes) }, enabled = !vm.busy,
+        Button(onClick = { vm.save(goal?.id, title, description, notes) }, enabled = !vm.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Save Goal") }
     }
     if (discard) AlertDialog(onDismissRequest = { discard = false; onNavigationCancelled() }, title = { Text("Discard unsaved Goal changes?") },
         confirmButton = { TextButton(onClick = { discard = false; onCancel() }) { Text("Discard") } },
         dismissButton = { TextButton(onClick = { discard = false; onNavigationCancelled() }) { Text("Keep editing") } })
+}
+
+@Composable private fun GoalWeekMinutes(weekly: PracticeMinutes?) {
+    OutlinedTextField(weekly?.label ?: "Loading…", {}, label = { Text("This week · actual / planned") },
+        readOnly = true, singleLine = true, modifier = Modifier.fillMaxWidth())
 }
 
 @Composable fun GoalBlocks(bundle: GoalBundle?, blocks: List<Block>, vm: GoalViewModel, onBack: () -> Unit, onLibrary: () -> Unit) {

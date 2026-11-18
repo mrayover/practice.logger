@@ -56,12 +56,16 @@ internal data class WeekRepetitionProgress(val planned: Int, val completed: Int)
     val remaining get() = maxOf(0, planned - completed)
 }
 
-internal fun plannedWeekMinutes(plans: List<WeekBlock>, blocks: List<Block>, week: LocalDate): Long {
+internal fun plannedWeekMinutesByBlock(plans: List<WeekBlock>, blocks: List<Block>, week: LocalDate): Map<String, Long> {
     val durations = blocks.associate { it.id to it.durationMinutes }
-    return plans.filter { it.weekStart == week.toString() }.sumOf {
-        (durations[it.blockId] ?: 0).toLong() * it.plannedRepetitions
+    val weekKey = week.toString()
+    return plans.filter { it.weekStart == weekKey }.associate {
+        it.blockId to ((durations[it.blockId] ?: 0).toLong() * it.plannedRepetitions)
     }
 }
+
+internal fun plannedWeekMinutes(plans: List<WeekBlock>, blocks: List<Block>, week: LocalDate): Long =
+    plannedWeekMinutesByBlock(plans, blocks, week).values.sum()
 
 internal fun weekCompletionCounts(sessions: List<SessionBundle>, week: LocalDate,
     zone: ZoneId = ZoneId.systemDefault()): Map<String, Int> {

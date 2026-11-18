@@ -65,16 +65,20 @@ val GOAL_MIGRATION_7_8 = object : Migration(7, 8) {
 class GoalRepository(private val db: BlockDatabase, private val now: () -> Long = System::currentTimeMillis) {
     val goals = db.goals().observeAll()
     private fun stamp(goal: Goal) = maxOf(now(), goal.updatedAt, goal.createdAt)
-    suspend fun save(id: String?, title: String, description: String, progress: Int, notes: String): String = db.withTransaction {
+    suspend fun save(id: String?, title: String, description: String, notes: String): String =
+        save(id, title, description, null, notes)
+
+    // Legacy callers and fixtures may still supply an assessment. Normal edits retain the stored value.
+    suspend fun save(id: String?, title: String, description: String, progress: Int?, notes: String): String = db.withTransaction {
         require(title.isNotBlank()) { "Enter a Goal title." }
-        require(progress in 0..100) { "Enter progress from 0 to 100%." }
+        require(progress == null || progress in 0..100) { "Enter progress from 0 to 100%." }
         val old = id?.let { checkNotNull(db.goals().find(it)?.goal) { "This Goal is unavailable." } }
         val active = activeGoals(db.goals().readAll())
         require(old != null || active.size < 5) { "Five Goals are active. Complete one before adding another." }
         val timestamp = now().coerceAtLeast(0)
-        val goal = old?.copy(title = title.trim(), description = description.trim(), progress = progress,
+        val goal = old?.copy(title = title.trim(), description = description.trim(), progress = progress ?: old.progress,
             notes = notes.trim(), updatedAt = stamp(old)) ?: Goal(UUID.randomUUID().toString(), title.trim(),
-            description.trim(), progress, notes.trim(), priority = active.size, createdAt = timestamp, updatedAt = timestamp)
+            description.trim(), progress ?: 0, notes.trim(), priority = active.size, createdAt = timestamp, updatedAt = timestamp)
         if (old == null) db.goals().insert(goal) else check(db.goals().update(goal) == 1)
         goal.id
     }

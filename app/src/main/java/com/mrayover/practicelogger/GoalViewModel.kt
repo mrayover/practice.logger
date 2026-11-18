@@ -37,18 +37,10 @@ class GoalViewModel(application: Application) : AndroidViewModel(application) {
             finally { busy = false }
         }
     }
-    fun save(id: String?, title: String, description: String, progress: String, notes: String) = operation {
-        val value = progress.trim().toIntOrNull()
-        require(value != null && value in 0..100) { "Enter progress from 0 to 100%." }
-        val saved = repository.save(id, title, description, value, notes)
-        goals.first { rows -> rows.any { it.goal.id == saved && it.goal.title == title.trim() && it.goal.progress == value && it.goal.notes == notes.trim() && it.goal.description == description.trim() } }
+    fun save(id: String?, title: String, description: String, notes: String) = operation {
+        val saved = repository.save(id, title, description, notes)
+        goals.first { rows -> rows.any { it.goal.id == saved && it.goal.title == title.trim() && it.goal.notes == notes.trim() && it.goal.description == description.trim() } }
         savedId = saved
-    }
-    fun progress(id: String, progress: String) = operation {
-        val value = progress.trim().toIntOrNull()
-        require(value != null && value in 0..100) { "Enter progress from 0 to 100%." }
-        val g = checkNotNull(db.goals().find(id)).goal
-        repository.save(id, g.title, g.description, value, g.notes)
     }
     fun complete(id: String, completed: Boolean) = operation { repository.setCompleted(id, completed) }
     fun move(id: String, direction: Int) = operation { repository.move(id, direction) }

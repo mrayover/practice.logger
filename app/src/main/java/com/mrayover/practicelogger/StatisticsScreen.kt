@@ -60,7 +60,7 @@ import java.time.format.DateTimeFormatter
                     val unknown = rows.filter { it.attribution == "UNKNOWN" }.sumOf { it.activeMs }
                     if (noGoal > 0) Text("Recorded No Goal · ${practiceDuration(noGoal)}")
                     if (unknown > 0) Text("Unattributed historical time · ${practiceDuration(unknown)} — no saved Goal snapshot or explicit session link.")
-                    Text("Practice time measures effort. Musical progress is assessed by you.")
+                    Text("Practice time measures the effort recorded in your sessions and activities.")
                     StatisticsHeading("Recent activity (latest 20)")
                 }
                 items(recent.take(20), key = { it.id }) { PracticeActivityRow(it, onSession) }
