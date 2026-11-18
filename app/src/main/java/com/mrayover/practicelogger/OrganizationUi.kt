@@ -131,10 +131,10 @@ internal fun BlockGroupPicker(mode: BlockGroupMode, onMode: (BlockGroupMode) -> 
 internal fun LazyListScope.organizedBlockItems(
     blocks: List<Block>, org: OrganizationSnapshot, mode: BlockGroupMode,
     expanded: Set<String>, onToggle: (String) -> Unit,
-    item: @Composable (Block) -> Unit
+    render: @Composable (Block) -> Unit
 ) {
     if (mode == BlockGroupMode.ALL) {
-        items(blocks.size, key = { blocks[it].id }) { index -> item(blocks[index]) }
+        items(blocks.size, key = { blocks[it].id }) { index -> render(blocks[index]) }
         return
     }
     val grouped = blocks.groupBy { block ->
@@ -155,7 +155,7 @@ internal fun LazyListScope.organizedBlockItems(
             }
         }
         if (id in expanded) for (block in rows) {
-            item(key = block.id) { item(block) }
+            item(key = block.id) { render(block) }
         }
     }
 }
@@ -163,10 +163,10 @@ internal fun LazyListScope.organizedBlockItems(
 /** Source labels and grouped media coexist with the original file search and type filters. */
 internal fun LazyListScope.organizedMediaItems(
     assets: List<MediaAsset>, org: OrganizationSnapshot, grouped: Boolean,
-    expanded: Set<String>, onToggle: (String) -> Unit, item: @Composable (MediaAsset) -> Unit
+    expanded: Set<String>, onToggle: (String) -> Unit, render: @Composable (MediaAsset) -> Unit
 ) {
     if (!grouped) {
-        items(assets.size, key = { assets[it].id }) { item(assets[it]) }
+        items(assets.size, key = { assets[it].id }) { render(assets[it]) }
         return
     }
     // A media item may be attached to several Sources. Render it under each one,
@@ -186,7 +186,7 @@ internal fun LazyListScope.organizedMediaItems(
             }
         }
         if (groupId in expanded) groups.getValue(id).forEach { media ->
-            item(key = "media:$id:${media.id}") { item(media) }
+            item(key = "media:$id:${media.id}") { render(media) }
         }
     }
 }
