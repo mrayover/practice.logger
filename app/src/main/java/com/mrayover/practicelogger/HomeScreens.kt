@@ -150,6 +150,10 @@ import androidx.compose.ui.unit.sp
 }
 
 @Composable fun RecordingHome(blocks: List<Block>, onHome: () -> Unit, onBlock: (String) -> Unit, onFree: (Boolean) -> Unit) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var category by rememberSaveable { mutableStateOf<String?>(null) }
+    var source by rememberSaveable { mutableStateOf<String?>(null) }
+    val org = LocalOrganization.current
     BackHandler(onBack = onHome)
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -157,12 +161,17 @@ import androidx.compose.ui.unit.sp
         HomeButton("Free recording") { onFree(true) }
         TextButton(onClick = { onFree(false) }) { Text("Saved free recordings") }
         Text("Choose a Block")
+        OutlinedTextField(query, { query = it }, label = { Text("Find Block or Source") }, singleLine = true,
+            modifier = Modifier.fillMaxWidth())
+        OrganizationFilterPicker(category, source, onCategory = { category = it }, onSource = { source = it })
         if (blocks.isEmpty()) Text("Your Blocks will appear here.")
-        blocks.forEach { block ->
+        blocks.filter { org.matches(it, query) && (category == null || it.categoryId == category) &&
+            (source == null || it.sourceId == source) }.forEach { block ->
             OutlinedButton(onClick = { onBlock(block.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                 Column(Modifier.fillMaxWidth()) {
                     Text(block.name, style = MaterialTheme.typography.titleMedium)
                     if (block.archived) Text("Archived", style = MaterialTheme.typography.bodySmall)
+                    BlockOrganizationLabel(block)
                 }
             }
         }
