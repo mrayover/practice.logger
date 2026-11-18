@@ -116,7 +116,8 @@ class OrganizationTest {
                 repeat(setup.length()) { sql.execSQL(setup.getString(it)) }
                 sql.version = 28
             }
-            BlockDatabase.open(context, name).use { db ->
+            val db = BlockDatabase.open(context, name)
+            try {
                 assertEquals(29, db.openHelper.writableDatabase.version)
                 val block = requireNotNull(db.blocks().find("existing"))
                 assertEquals("Legacy exercise", block.name)
@@ -124,7 +125,7 @@ class OrganizationTest {
                 assertNull(block.sourceId)
                 assertEquals("", block.sourceLocation)
                 assertTrue(db.organization().mediaSourceIds("missing").isEmpty())
-            }
+            } finally { db.close() }
         } finally { context.deleteDatabase(name) }
     }
 }
