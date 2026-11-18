@@ -108,7 +108,7 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 13
+internal const val PORTABLE_VERSION = 14
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -144,9 +144,19 @@ private val portableTablesV9 = portableTablesV8 + listOf(
 
 private val portableTablesV11 = portableTablesV9 + PortableTable("weekly_practice_targets", "weekStart targetMinutes:i")
 private val portableTablesV12 = portableTablesV11 + PortableTable("playground_layouts", "placementId x:f y:f rotationDegrees:f")
-internal val portableTables = portableTablesV12.map { table ->
+private val portableTablesV13 = portableTablesV12.map { table ->
     if (table.name == WEEK_TABLE) PortableTable(WEEK_TABLE, "weekStart blockId position:i plannedRepetitions:i") else table
 }
+
+internal val portableTables = portableTablesV13.map { table ->
+    if (table.name == "blocks") PortableTable("blocks",
+        "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l categoryId:s? sourceId:s? sourceLocation")
+    else table
+} + listOf(
+    PortableTable("block_categories", "id name createdAt:l"),
+    PortableTable("study_sources", "id title creator kind createdAt:l"),
+    PortableTable("study_source_media", "sourceId mediaId")
+)
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -165,6 +175,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         9, 10 -> portableTablesV9
         11 -> portableTablesV11
         12 -> portableTablesV12
+        13 -> portableTablesV13
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -343,6 +354,21 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         }
         var total = core.placements.fold(0L) { sum, row -> Math.addExact(sum, row.activeMs) }
         val assets = this["media_assets"].associateBy { it.getString("id") }
+        if (version >= 14) {
+            val categories = this["block_categories"].mapTo(hashSetOf()) { it.getString("id") }
+            val sources = this["study_sources"].mapTo(hashSetOf()) { it.getString("id") }
+            for (block in this["blocks"]) {
+                require(block.isNull("categoryId") || block.getString("categoryId") in categories) { "Block references a missing category." }
+                require(block.isNull("sourceId") || block.getString("sourceId") in sources) { "Block references a missing Source." }
+                require(block.getString("sourceLocation").length <= 160)
+            }
+            val pairs = hashSetOf<Pair<String, String>>()
+            for (link in this["study_source_media"]) {
+                val sourceId = link.getString("sourceId")
+                val mediaId = link.getString("mediaId")
+                require(sourceId in sources && mediaId in assets && pairs.add(sourceId to mediaId)) { "Broken Source media association." }
+            }
+        }
         for (row in this[INSPIRATION_STORE]) {
             val id = row.getString("id")
             require(java.util.UUID.fromString(id).toString() == id)
