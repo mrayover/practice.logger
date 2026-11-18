@@ -70,7 +70,7 @@ class PlaygroundWorkflowTest {
             val results = mutableListOf<TextLayoutResult>()
             compose.onNodeWithText(label, useUnmergedTree = true).assertIsDisplayed()
                 .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
-            assertFalse("$label fits in the destination row", results.single().isLineEllipsized(0))
+            assertFalse("$label was ellipsized in the destination row", results.single().isLineEllipsized(0))
         }
         node("playground-explore").assertIsNotEnabled()
         node("playground-b").assertIsNotEnabled()

@@ -3,6 +3,7 @@ package com.mrayover.practicelogger
 import android.app.Application
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -24,6 +25,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -88,21 +90,25 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
                 Text("Blocks ${total ?: "…"}", maxLines = 1)
             }
         }
-        // This row indicates the current environment and previews inactive destinations.
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                listOf("Home", "Stats", "Workshop", "Kitchen").forEach { destination ->
-                    val home = destination == "Home"
-                    val width = when (destination) {
-                        "Workshop" -> 1.25f
-                        "Kitchen" -> 1f
-                        else -> 0.9f
-                    }
-                    FilterChip(
-                        selected = home, onClick = {}, enabled = home,
-                        label = { Text(destination, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        modifier = Modifier.weight(width).semantics { selected = home }
-                    )
+        val colors = MaterialTheme.colorScheme
+        val destinationShape = MaterialTheme.shapes.small
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("Home", "Stats", "Workshop", "Kitchen").forEach { destination ->
+                val home = destination == "Home"
+                Box(
+                    Modifier.weight(1f).height(32.dp)
+                        .background(if (home) colors.primaryContainer else Color.Transparent, destinationShape)
+                        .border(1.dp, if (home) colors.primary else colors.outlineVariant, destinationShape)
+                        .semantics(mergeDescendants = true) {
+                            role = Role.Tab
+                            selected = home
+                            if (!home) disabled()
+                        }.padding(horizontal = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(destination, style = MaterialTheme.typography.labelSmall, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = if (home) colors.onPrimaryContainer else colors.onSurfaceVariant.copy(alpha = 0.65f))
                 }
             }
         }
