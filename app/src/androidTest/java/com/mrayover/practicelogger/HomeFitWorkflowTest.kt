@@ -28,6 +28,23 @@ class HomeFitWorkflowTest {
         val folder=File(compose.activity.getExternalFilesDir(null),"home-preview").apply { mkdirs() }
         val goals=(1..2).map { GoalBundle(Goal("fit-$it", "A very long musical Goal name available in full when opened $it", progress=45, priority=it-1, createdAt=1,updatedAt=1), emptyList()) }
         var clicks=0
+        val navigation = listOf("Practice Now", "Blocks", "Routines", "Tools", "Recording", "Log", "Library")
+        fun evidence(case: String, stage: String) {
+            val tags = listOf("home-brand", "header-settings", "home-scroll", "home-goals", "home-goal-title-0",
+                "home-goal-title-1", "weekly-target-summary", "home-statistics") + navigation.map { "home-nav-$it" }
+            val scroll = compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
+            File(folder, "$case-$stage.txt").writeText(buildString {
+                appendLine("scroll=${scroll.value()} / ${scroll.maxValue()}")
+                tags.forEach { tag ->
+                    appendLine("$tag=${compose.onNodeWithTag(tag, true).getUnclippedBoundsInRoot()}")
+                }
+                val bar = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), true)
+                if (bar.fetchSemanticsNodes().isNotEmpty()) appendLine("bar=${bar.onFirst().getUnclippedBoundsInRoot()}")
+            })
+            File(folder, "$case-$stage.png").outputStream().use { output ->
+                compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output)
+            }
+        }
         fun mount(width: Int, height: Int, scale: Float, theme: ThemeChoice, target: Int?) {
             compose.runOnIdle {
                 compose.activity.setContent {
@@ -55,7 +72,8 @@ class HomeFitWorkflowTest {
                 Case(360,800,ThemeChoice.COSMIC,60), Case(411,886,ThemeChoice.LIGHT,null), Case(411,886,ThemeChoice.COSMIC,60))) {
                 mount(width,height,1f,theme,target)
                 val scroll=compose.onNodeWithTag("home-scroll").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
-                assertEquals("Opening Home has zero scroll range",0f,scroll.maxValue(),0f)
+                assertEquals("Home opens at the top",0f,scroll.value(),0f)
+                evidence("home-fit-$width-$height", "opening")
                 for (i in 0..1) {
                     val layouts=mutableListOf<TextLayoutResult>()
                     compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
@@ -80,13 +98,13 @@ class HomeFitWorkflowTest {
                 compose.onNodeWithTag("home-goal-title-0",true).performScrollTo().performTouchInput { click() }
                 compose.onNodeWithTag("home-goal-title-1",true).performScrollTo().performTouchInput { click() }
                 compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
-                // Capture the Compose root after its rendered frame, avoiding a stale native frame.
-                File(folder,"home-fit-$width-$height.png").outputStream().use { output ->
-                    compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
-                }
+                val bar = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+                if (bar.fetchSemanticsNodes().isNotEmpty()) bar.onFirst().performScrollTo()
+                evidence("home-fit-$width-$height", "footer")
             }
             assertEquals(36,clicks)
             mount(320,640,2f,ThemeChoice.COSMIC,60)
+            evidence("home-fit-320-200", "opening")
             for(i in 0..1) {
                 val layouts=mutableListOf<TextLayoutResult>()
                 compose.onNodeWithTag("home-goal-title-$i",true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
@@ -96,10 +114,9 @@ class HomeFitWorkflowTest {
                 val lines = mutableListOf<TextLayoutResult>()
                 compose.onNodeWithTag("home-goal-minutes-0", true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(lines) }
                 assertEquals(1, lines.single().lineCount)
+                assertFalse(lines.single().hasVisualOverflow)
             }
-            File(folder,"home-fit-320-200-goals.png").outputStream().use { output ->
-                compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
-            }
+
             // Full-width controls grow naturally; enlarged text scrolls without clipping.
             for (label in listOf("Practice Now","Blocks","Routines","Tools","Recording","Log","Library")) {
                 val node=compose.onNodeWithTag("home-nav-$label").performScrollTo().assertIsDisplayed()
@@ -119,9 +136,8 @@ class HomeFitWorkflowTest {
                     textBounds.top>=buttonBounds.top-1 && textBounds.bottom<=buttonBounds.bottom+1)
             }
             compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
-            File(folder,"home-fit-320-200.png").outputStream().use { output ->
-                compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG,100,output)
-            }
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).performScrollTo()
+            evidence("home-fit-320-200", "footer")
         } catch(failure:Throwable) {
             device.takeScreenshot(File(folder,"home-fit-failure.png"))
             File(folder,"home-fit-failure.txt").writeText(compose.onRoot().printToString())
