@@ -392,7 +392,7 @@ class MainActivity : ComponentActivity() {
                 }
                 var goalFilter by rememberBlockGoalFilter(goalIndicators)
                 var groupMode by rememberSaveable { mutableStateOf(BlockGroupMode.CATEGORY) }
-                var openGroups by remember { mutableStateOf(setOf<String>()) }
+                var openGroups by remember { mutableStateOf(setOf("CATEGORY:")) }
                 val matches = matchingBlocks(catalog.blocks, query, archived, goalIndicators, goalFilter, organizationSnapshot)
                 val effectiveMode = if (query.isNotBlank()) BlockGroupMode.ALL else groupMode
                 LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(horizontal = 24.dp).testTag("block-library-list"), state = libraryScroll,
