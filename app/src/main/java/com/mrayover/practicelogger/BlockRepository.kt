@@ -22,13 +22,15 @@ data class BlockDraft(val name: String = "", val action: String = "", val durati
 
 internal fun matchingBlocks(
     blocks: List<Block>, query: String, archived: Boolean,
-    goals: GoalIndicators = EmptyGoalIndicators, goalFilter: BlockGoalFilter = BlockGoalFilter.All
+    goals: GoalIndicators = EmptyGoalIndicators, goalFilter: BlockGoalFilter = BlockGoalFilter.All,
+    organization: OrganizationSnapshot? = null
 ): List<Block> {
     val term = query.trim()
     val filter = goalFilter.availableIn(goals)
     return blocks.filter { block ->
         block.archived == archived && filter.matches(goals.primaryGoalId(block.id)) &&
-            (term.isEmpty() || block.name.contains(term, ignoreCase = true) ||
+            (if (organization != null) organization.matches(block, term) else
+                term.isEmpty() || block.name.contains(term, ignoreCase = true) ||
                 block.action.contains(term, ignoreCase = true) || block.notes.contains(term, ignoreCase = true))
     }
 }
