@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,11 +22,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -252,22 +256,65 @@ class ComposerViewModel(app: Application, private val state: SavedStateHandle) :
     if (settings) ProjectSettingsDialog("Project settings", project.title, project.tempoBpm, project.numerator, project.denominator, "Apply", { settings = false }) { title, tempo, n, d ->
         vm.settings(title, tempo, n, d); settings = false
     }
-    if (saveAs) AlertDialog(onDismissRequest = { if (!vm.busy) saveAs = false }, title = { Text("Save As") },
-        modifier = Modifier.imePadding(),
-        text = { Column(Modifier.verticalScroll(rememberScrollState())) {
-            OutlinedTextField(value = copyTitle, onValueChange = { copyTitle = it }, label = { Text("Composition title") }, singleLine = true, enabled = !vm.busy, modifier = Modifier.testTag("composer-copy-title"))
-            Text("Create an independent composition including your unsaved edits.", style = MaterialTheme.typography.bodySmall)
-            vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        } },
-        confirmButton = { TextButton(enabled = !vm.busy, onClick = { vm.saveAs(copyTitle) { saveAs = false } }) { Text("Create copy") } },
-        dismissButton = { TextButton(enabled = !vm.busy, onClick = { saveAs = false }) { Text("Cancel") } })
-    if (leave) AlertDialog(onDismissRequest = { if (!vm.busy) leave = false }, title = { Text("Unsaved composition changes") },
-        text = { Column { Text("Save your changes before returning to the composition library?"); vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
-        confirmButton = { TextButton(onClick = { vm.save(onBack) }, enabled = !vm.busy) { Text("Save and return") } },
-        dismissButton = {
-            Column {
-                TextButton(onClick = { vm.discard(); onBack() }, enabled = !vm.busy) { Text("Discard changes") }
-                TextButton(onClick = { leave = false }, enabled = !vm.busy) { Text("Keep editing") }
+    if (saveAs) {
+        ComposerCompactDialog("Save As", onDismiss = { if (!vm.busy) saveAs = false }) {
+            OutlinedTextField(
+                value = copyTitle,
+                onValueChange = { copyTitle = it },
+                label = { Text("Composition title") },
+                singleLine = true,
+                enabled = !vm.busy,
+                modifier = Modifier.fillMaxWidth().testTag("composer-copy-title")
+            )
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(enabled = !vm.busy, onClick = { saveAs = false }) { Text("Cancel") }
+                TextButton(enabled = !vm.busy, onClick = { vm.saveAs(copyTitle) { saveAs = false } }) { Text("Create copy") }
             }
-        })
+            vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        }
+    }
+    if (leave) {
+        ComposerCompactDialog("Unsaved composition changes", onDismiss = { if (!vm.busy) leave = false }) {
+            Text("Save your changes before returning to the composition library?")
+            vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = { leave = false }, enabled = !vm.busy) { Text("Keep editing") }
+                TextButton(onClick = { vm.discard(); onBack() }, enabled = !vm.busy) { Text("Discard changes") }
+                TextButton(onClick = { vm.save(onBack) }, enabled = !vm.busy) { Text("Save and return") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ComposerCompactDialog(title: String, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val dismiss by rememberUpdatedState(onDismiss)
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        // Give the dialog window room to receive IME insets and lay out the card above them.
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(Modifier.matchParentSize().pointerInput(Unit) { detectTapGestures { dismiss() } })
+            Box(Modifier.safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
+                Surface(
+                    modifier = Modifier.widthIn(max = 520.dp).fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Column(
+                        Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(title, style = MaterialTheme.typography.titleLarge)
+                        content()
+                    }
+                }
+            }
+        }
+    }
 }
