@@ -171,12 +171,16 @@ class PlaygroundWorkflowTest {
             assertTrue("$key stays inside the control row", control.left >= controls.left &&
                 control.right <= controls.right && control.top >= controls.top && control.bottom <= controls.bottom)
         }
+        val arms = listOf("up", "down", "left", "right").map(bounds::getValue)
+        arms.forEachIndexed { index, arm ->
+            assertTrue("Direction targets stay distinct", arms.drop(index + 1).none { arm.overlaps(it) })
+        }
 
         val pixels = node("playground-dpad").captureToImage().toPixelMap()
         val fill = 0xFF463953.toInt()
         fun pixel(x: Float, y: Float) = pixels[(x * pixels.width).toInt(), (y * pixels.height).toInt()].toArgb()
-        for (point in listOf(Offset(0.5f, 0.5f), Offset(0.43f, 0.15f), Offset(0.43f, 0.85f),
-            Offset(0.12f, 0.5f), Offset(0.88f, 0.5f), Offset(0.4f, 0.5f), Offset(0.6f, 0.5f))) {
+        for (point in listOf(Offset(0.5f, 0.5f), Offset(0.39f, 0.15f), Offset(0.39f, 0.85f),
+            Offset(0.10f, 0.5f), Offset(0.90f, 0.5f), Offset(0.4f, 0.5f), Offset(0.6f, 0.5f))) {
             assertEquals("The arms and junction share one surface at $point", fill, pixel(point.x, point.y))
         }
         assertNotEquals("The area outside the cross is clear", fill, pixel(0.10f, 0.10f))

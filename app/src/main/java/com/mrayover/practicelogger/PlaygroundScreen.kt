@@ -160,8 +160,8 @@ private fun DirectionPad(button: @Composable (HomeDirection, Modifier) -> Unit) 
         }
         button(HomeDirection.UP, Modifier.align(Alignment.TopCenter).size(48.dp, 40.dp))
         button(HomeDirection.DOWN, Modifier.align(Alignment.BottomCenter).size(48.dp, 40.dp))
-        button(HomeDirection.LEFT, Modifier.align(Alignment.CenterStart).offset(x = 12.dp).size(48.dp))
-        button(HomeDirection.RIGHT, Modifier.align(Alignment.CenterEnd).offset(x = (-12).dp).size(48.dp))
+        button(HomeDirection.LEFT, Modifier.align(Alignment.CenterStart).offset(x = 3.dp).size(48.dp))
+        button(HomeDirection.RIGHT, Modifier.align(Alignment.CenterEnd).offset(x = (-3).dp).size(48.dp))
     }
 }
 
@@ -192,13 +192,11 @@ private fun DirectionButton(
             },
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            Modifier.size(30.dp).background(if (pressed) colors.primary else Color.Transparent, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(direction.arrow, style = MaterialTheme.typography.titleLarge,
-                color = if (pressed) colors.onPrimary else Color(0xFFF0E8FF))
+        if (pressed) {
+            Box(Modifier.size(30.dp).background(colors.primary, CircleShape))
         }
+        Text(direction.arrow, style = MaterialTheme.typography.titleLarge,
+            color = if (pressed) colors.onPrimary else Color(0xFFF0E8FF))
     }
 }
 
