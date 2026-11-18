@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -68,10 +69,14 @@ class PlaygroundWorkflowTest {
         node("playground-a").assertIsEnabled().performClick()
         assertEquals(before, playerPosition())
 
+        compose.waitUntil(10_000) {
+            compose.activity.hasWindowFocus() &&
+                node("playground-right").fetchSemanticsNode().config.getOrNull(SemanticsActions.OnClick) != null
+        }
         compose.mainClock.autoAdvance = false
         try {
             val right = hold("right", 470)
-            assertTrue(right.x > before.x)
+            assertTrue("Holding Right moves from $before to $right", right.x > before.x)
             assertEquals(before.y, right.y, 0f)
             val up = hold("up", 320)
             assertTrue(up.y < right.y)
@@ -111,7 +116,10 @@ class PlaygroundWorkflowTest {
         assertEquals(fixedBounds, tags.associateWith { bounds("playground-$it") })
         assertEquals(stopped, playerPosition())
         node("playground-inventory").performClick()
+        node("playground-inventory-panel").assertIsDisplayed()
+        compose.waitUntil(10_000) { !compose.activity.hasWindowFocus() }
         device.pressBack()
+        compose.waitUntil(10_000) { compose.activity.hasWindowFocus() }
         node("playground-inventory-panel").assertDoesNotExist()
         node("playground-home").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
@@ -132,6 +140,7 @@ class PlaygroundWorkflowTest {
     private fun hold(direction: String, millis: Long, cancelled: Boolean = false): Offset {
         val button = node("playground-$direction")
         button.performTouchInput { down(center) }
+        compose.runOnIdle {}
         compose.mainClock.advanceTimeBy(millis)
         val moved = playerPosition()
         button.performTouchInput { if (cancelled) cancel() else up() }
