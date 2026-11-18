@@ -150,7 +150,7 @@ private val portableTablesV13 = portableTablesV12.map { table ->
 
 internal val portableTables = portableTablesV13.map { table ->
     if (table.name == "blocks") PortableTable("blocks",
-        "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l categoryId:s? sourceId:s? sourceLocation")
+        "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l categoryId:s? sourceId:s? sourceLocation", "blocks")
     else table
 } + listOf(
     PortableTable("block_categories", "id name createdAt:l"),
