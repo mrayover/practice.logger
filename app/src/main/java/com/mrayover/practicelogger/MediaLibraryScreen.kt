@@ -88,7 +88,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, allowAudioImport: Boolean = false, onChoose: ((String) -> Unit)? = null, orgVm: OrganizationViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), destinationPills: (@Composable () -> Unit)? = null) {
+@Composable fun MediaLibraryScreen(vm: MediaLibraryViewModel, onBack: () -> Unit, onWorkspaceChanged: (Boolean) -> Unit = {}, selectionRole: MediaRole? = null, selectedId: String? = null, allowAudioImport: Boolean = false, onChoose: ((String) -> Unit)? = null, orgVm: OrganizationViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), onOrganize: (() -> Unit)? = null, destinationPills: (@Composable () -> Unit)? = null) {
     val assets by vm.assets.collectAsStateWithLifecycle()
     val org by orgVm.snapshot.collectAsStateWithLifecycle()
     var groupBySource by rememberSaveable { mutableStateOf(false) }
@@ -119,7 +119,10 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
     val enabled = vm.ready && !vm.busy
     val compatible = if (selectionRole == null) assets else assets.filter { selectionRole.accepts(it.category) }
-    val filtered = libraryItems(compatible, query, MediaFilter.valueOf(filterName), byName)
+    val filtered = libraryItems(compatible, "", MediaFilter.valueOf(filterName), byName).filter { asset ->
+        query.isBlank() || asset.title.contains(query.trim(), true) || asset.originalName.contains(query.trim(), true) ||
+            org.mediaSources(asset.id).any { id -> org.sourceName(id)?.contains(query.trim(), true) == true }
+    }
     val preview = assets.find { it.id == previewId }
     DisposableEffect(preview?.id) {
         onWorkspaceChanged(preview != null)
@@ -137,13 +140,14 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = onBack) { Text(if (selectionRole == null) "Back" else "Cancel selection") }
 
+                if (selectionRole == null && onOrganize != null) TextButton(onClick = onOrganize) { Text("Sources") }
                 if (selectionRole == null || allowAudioImport) Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
             }
         }
         item { PageHeading(if (selectionRole == null) "Media Library" else if (selectionRole == MediaRole.VISUAL) "Choose visual reference" else "Choose audio reference", style = MaterialTheme.typography.headlineSmall) }
         item { Text("Library media and master annotations are stored locally and are not yet included in JSON backups. Keep your originals separately.", style = MaterialTheme.typography.bodySmall) }
         item {
-            OutlinedTextField(query, { query = it }, label = { Text("Search title or filename") }, singleLine = true,
+            OutlinedTextField(query, { query = it }, label = { Text("Search file or Source") }, singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag("media-search"))
         }
         item {
