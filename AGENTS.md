@@ -1,3 +1,7 @@
+## November 18 — Playground Home Foundation
+
+The assigned Home replaces the active free-arrangement presentation with one fixed portrait page, a geometric room, directional input and a read-only Block inventory. Preserve completion snapshots and saved arrangement rows. Inventory is derived from saved completion colors through a read-only query. Home creates no arrangement rows. Keep Room 29 and the portable backup formats. Future environments, gameplay and F1 require separate assignments. [Behavior](docs/PLAYGROUND_SPEC.md) · [Current verification and delivery](CURRENT_STATE.md).
+
 ## November 17 — C6B editable MIDI export
 
 The owner assigned C6B, including publication of the preserved build 158 dialog patch, focused verification and permanent-key delivery. Reuse the Composer tick schedule, current draft and document picker for Type 1 MIDI. Preserve C6A audio export, build 158 dialogs, practice data and prior signed packages. [Current status](CURRENT_STATE.md) · [Next task](FIRST_WORK_HANDOFF.md) · [MIDI behavior](docs/COMPOSER_C6B.md). C7 and F1 require separate assignments.

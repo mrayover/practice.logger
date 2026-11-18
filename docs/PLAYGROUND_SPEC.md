@@ -1,14 +1,26 @@
-# Playground — PG1 / PG1.1 contract
+# Playground — Home Foundation
+
+Open **Log → Playground** to enter the portrait Home. The fixed page keeps the practice.logger banner, Journal return, Block inventory, Home navigation, room, Explore / Battle and controls together inside the window's safe area. Stats, Workshop, Kitchen, Explore / Battle and B are inactive.
+
+Hold a direction to walk around the tiled room. Release or cancel the gesture to stop. Losing window focus or leaving the foreground releases the direction. Movement uses elapsed frame time and keeps the whole character inside the floor bounds. The door is visual. A sends an interaction input, and the room currently has no interactions. The geometric renderer uses a 224 × 256 logical room and whole-pixel magnification where space allows. The player position is visit-only.
+
+The inventory groups authoritative `block_completions` rows by their saved color. Every row contributes one available Block. Null colors count as Neutral. Any saved colors outside the five original palette entries are included in the total and appear under Other saved colors. Counts update as completion rows change. The dialog overlays the fixed Home bounds and closes with Close, Android Back or a tap outside.
+
+Room 29, Complete ZIP 14 and JSON 7 retain their existing storage and recovery contracts. The Home screen reads earned counts and leaves prior arrangement coordinates untouched. It does not generate layouts for new completions. The legacy arrangement and backup details below describe the preserved data and previous presentation. [Build and verification](../CURRENT_STATE.md).
+
+---
+
+## Historical PG1 / PG1.1 contract
 
 Owner-approved November 12, 2026. This supersedes the earlier slit presentation and milestone thresholds. PG1 is a freely arranged celebration of completed practice, reached through Log → Playground, with Journal preserved.
 
-## Earned history
+### Earned history
 
 One persisted block_completions snapshot earns one solid-color square, keyed by placementId. Repeated reusable Blocks in different completed placements earn separate squares. Skipped, prepared and unfinished placements earn none. Retry, reopen and restart never issue duplicates. Existing historical completion snapshots appear automatically; older placements without authoritative completion evidence do not invent rewards. No separate reward ledger or counter exists.
 
 The entire visible square uses completion.colorArgb. Missing trustworthy color and explicit No Goal use the theme's neutral outline color as a solid fill (Light surfaceVariant equals the canvas and is unsuitable). Never derive historical color/priority from a current Goal, association or first-accrual snapshot. Goal ID/priority, original placement name/action, committed duration, date, outcome, session ID, saved notes and reflection answers are read from existing history; unavailable details are not fabricated. Goal titles were not captured, so the panel identifies the saved Goal ID without claiming a current title is historical.
 
-## World and arrangement
+### World and arrangement
 
 Every square is exactly one world unit on each side, with arbitrary angle and no printing, title, number, icon, duration, Goal label or badge. Selection adds only a stronger, static four-layer external glow, retaining the historical fill and actual geometric bounds. A faint neutral dotted background provides world-space reference, with viewport/world-bounded drawing and power-of-two dot thinning only at extreme zoom-out. No connecting lines, labels, snapping or packing. Empty space is intentional.
 
@@ -16,7 +28,7 @@ The centered rectangular world has fixed 3:2 aspect ratio and area capacity/0.15
 
 Missing layouts are assigned in completedAt/placementId order using deterministic base2/base3 low-discrepancy candidates, at most8192 per square, with0.25 world-unit separation. Existing rows are never rearranged. A placement failure is recoverable with Retry; no overlap or extra unsupported capacity is forced. Candidate order is stable for the current world; already saved positions remain authoritative as counts grow.
 
-## Interaction and collision
+### Interaction and collision
 
 Tap selects and opens compact details; tapping empty canvas clears selection. Unselected squares never move, rotate, push, stack or animate in response to another square.
 
@@ -28,11 +40,11 @@ Pinch preserves the world point at its previous centroid and applies centroid pa
 
 45° and Upright controls set absolute45°/0° through existing conservative rotation validation along the shortest arc. A blocked arc or boundary leaves the prior orientation and position intact and reports that more space is needed. Clear presets save exact angles through the existing repository; free twist remains. No persistence changes.
 
-## Information panel
+### Information panel
 
 Compact read-only panel shows original Block name, completion date/time, actual duration and saved Goal identity/priority. More reveals original action/reference notes, completion/session identity, existing placement and timestamped notes, security/confidence and saved focus/difficulty/progress/revisit answers. No editing, Block management, reclassification or collectible deletion. The panel scrolls and uses existing theme/Lato typography; expansion is explicit. No forced expansion.
 
-## Persistence and portable recovery
+### Persistence and portable recovery
 
 Room27 adds only playground_layouts(placementId TEXT primary key, x REAL, y REAL, rotationDegrees REAL), with foreign key to block_completions and ON DELETE CASCADE. This follows the existing completion/placement ownership chain, adds no new deletion action and does not weaken protected Block/session deletion. No earned facts are duplicated. Schemas1–26 and explicit migrations are retained.
 
@@ -40,7 +52,7 @@ Repository operations are idempotent and transactional. Unique identity, finite 
 
 Complete ZIP12 adds the same four layout fields with finite double wire values. Frozen ZIP1–11 readers remain. ZIP12 validates unique keys, completion references, world bounds and collision-free arrangements before transactional restore; exact values are retained. Older archives restore their own completion facts normally and derive defaults when Playground opens. Legacy JSON7/readers1–7 remain unchanged and exclude completion snapshots/layouts. Existing empty-target, file ownership, private staging/journal, atomic witness, rollback and startup recovery safeguards remain. No media files or ownership change.
 
-## Verification and boundary
+### Verification and boundary
 
 PG1 needs small deterministic geometry/data/migration/archive checks and one focused Android workflow for essential interactions and recreation. Actual results and signed provenance are in [CURRENT_STATE](../CURRENT_STATE.md). Physical acceptance is separate. Comprehensive regression and historical device matrices wait for explicit F1 assignment.
 

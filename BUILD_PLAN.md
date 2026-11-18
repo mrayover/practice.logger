@@ -1,3 +1,7 @@
+# Playground Home Foundation
+
+The assigned portrait Home replaces the arrangement canvas in the active Playground. It provides four-direction walking in one placeholder room and a live, read-only completion inventory. Room 29 and portable backups continue to carry legacy arrangement data. Later environments and gameplay require a separate assignment. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+
 # Weekly planned and actual practice minutes
 
 Home and Goal views use weekly Block durations and repetitions for planned minutes. Actual time uses existing G3 facts and saved Goal attribution. The Home editing action opens Prepare Week. Legacy Goal assessments and manual targets remain in Room and supported backups. [Accounting](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes) · [Delivery and verification](CURRENT_STATE.md).

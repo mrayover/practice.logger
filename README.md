@@ -1,3 +1,7 @@
+# practice.logger · Playground Home
+
+Open **Log → Playground** to walk around the tiled Home and inspect the Blocks earned through completed practice. [Controls, inventory and saved arrangements](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+
 # practice.logger · Weekly planned and actual minutes
 
 Home and the top two Goals show weekly actual / planned minutes. **Edit weekly plan** opens Prepare Week, where you can change Blocks and repetitions. [Current delivery and verification](CURRENT_STATE.md) · [Accounting](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes).

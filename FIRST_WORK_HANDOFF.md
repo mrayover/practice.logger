@@ -1,6 +1,12 @@
-# Weekly planned and actual practice minutes handoff
+# Playground Home Foundation handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records build 162, the focused test results, package paths, and exact next task. [The accounting contract](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes) covers the Sunday calendar, multiple Goal links and historical attribution.
+[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Home Foundation release, actual verification and exact next task. [Navigation, controls and inventory](docs/PLAYGROUND_SPEC.md).
+
+---
+
+## Previous weekly planned and actual practice minutes handoff
+
+[The build 162 record](CURRENT_STATE.md#previous-delivery--weekly-planned-and-actual-practice-minutes) contains its test results and package paths. [The accounting contract](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes) covers the Sunday calendar, multiple Goal links and historical attribution.
 
 ---
 

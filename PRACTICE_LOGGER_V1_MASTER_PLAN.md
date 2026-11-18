@@ -1,8 +1,12 @@
 > November17 Composer scope. C6A implements offline WAV and M4A/AAC backing-track export. C6B implements Standard MIDI File Type 1 for the Current Loop or Full Arrangement. MusicXML is deferred from embedded compose.logger V1. Earlier MusicXML approval wording below is historical. C7 requires a separate assignment. [Current verification and delivery](CURRENT_STATE.md).
 
-## PG1 — complete development delivery
+## Playground Home Foundation
 
-Owner-assigned PG1 is implemented and signed0.44.0/build118 delivered: completion-backed pure solid squares, persistent free arrangement, proportional20/40/80 expansion, oriented collision and swept movement, twist rotation, pan/zoom and historical details. Room27/ZIP12 retain old readers and JSON7.15 focused checks pass on each Windows/Linux, compilation/vital lint and one API35 workflow pass. Physical acceptance pending. [Actual delivery and limits](CURRENT_STATE.md) · [Contract](docs/PLAYGROUND_SPEC.md). This completed explicit assignment supersedes earlier Playground-not-assigned wording. Exact next assignment: PG1 physical-phone acceptance and concrete PG1 fixes only; PG2/F1 require separate owner decisions.
+The November 18 assignment introduces one fixed-screen portrait Home, directional movement and a read-only Blocks inventory sourced from saved completions. It replaces the active arrangement interface and preserves the arrangement data. Future environments, gameplay and F1 require separate assignments. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+
+## Historical PG1 delivery
+
+Signed 0.44.0/build 118 introduced completion-backed solid squares, persistent free arrangement, proportional capacity expansion, oriented collision, swept movement, twist rotation, pan/zoom and historical details. Room 27/ZIP 12 retained old readers and JSON 7. Fifteen focused checks passed on Windows and Linux, along with compilation, vital lint and an API 35 workflow. Physical acceptance was pending at delivery. [Historical contract](docs/PLAYGROUND_SPEC.md#historical-pg1--pg11-contract).
 
 ## Owner policy — development verification and F1 regression (2026-11-12)
 

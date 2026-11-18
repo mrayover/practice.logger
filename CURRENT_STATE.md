@@ -1,4 +1,20 @@
-# Current state — Weekly planned and actual practice minutes
+# Current state — Playground Home Foundation
+
+November 18, 2026 (America/Los_Angeles). **0.60.0 / build 166** opens a fixed portrait Playground from Log. It includes a tiled room, four-direction movement with wall collision, A interaction input and a read-only inventory overlay. The inventory observes saved completion colors and counts all earned Blocks, including Neutral. Existing completion and arrangement rows, Room 29, Complete ZIP 14 and JSON 7 are preserved. [Behavior](docs/PLAYGROUND_SPEC.md).
+
+**Source and package.** The release was assembled in the canonical Windows checkout from `5044fab5308c791ac4abca10768d23953a28c4ba` on `block-ux-stage1`. [APK](dist/practice.logger-0.60.0-b166-5044fab/practice.logger-0.60.0-b166-5044fab.apk) · [ZIP](dist/practice.logger-0.60.0-b166-5044fab.zip) · [Install checklist](dist/practice.logger-0.60.0-b166-5044fab/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.0-b166-5044fab/BUILD_INFO.json). App ID `com.mrayover.practicelogger.app`. APK SHA-256 `eb7f232514531502948fae1d211b0d99d92ce77f421ad58b28b8b43a700dd6ac`. APK v2/v3 and the v4 sidecar verify against the pinned permanent certificate. All 180 APK payload entries match the unsigned release.
+
+**ZIP and local delivery.** ZIP SHA-256 `7b6f8c73225495c2bbc7da7432c4bb51e1cc120348e797276a31a50eb8373514`. All 13 archived files match their extracted copies by checksum. The local OneDrive delivery copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build166` match the canonical files. The 757 pre-existing APK/ZIP files retain their sizes and timestamps. Build 162's APK and ZIP still match their recorded hashes.
+
+**Focused verification.** Release assembly, vital lint, Android-test compilation and 18 focused host tests passed. The host checks cover wall and corner clamps, elapsed-time movement, saved colors, exact completion and layout backup round trips, ZIP 11 fallback and malformed layout rejection.
+
+**Portrait verification.** The same Android workflow passed on the signed application source at 1440 × 3120 px and 560 dpi (Galaxy S26 Ultra resolution emulated on API 36) and at 720 × 1440 px and 360 dpi (320 × 640 dp on API 35). The measured viewport took 68% and 52% of the Playground page respectively. Both runs checked full destination labels, visible controls, swipes that leave the page fixed, sustained movement in four directions, release and gesture cancellation, wall collision, A input, inventory opening and dismissal, live Neutral and total counts, and unchanged arrangement rows through recreation. A compact API 36 attempt was blocked by an emulator System UI dialog. [Galaxy-sized workflow](https://github.com/mrayover/practice.logger/actions/runs/44410132830) · [Compact workflow](https://github.com/mrayover/practice.logger/actions/runs/44411140394) · [Galaxy-sized screenshot](dist/practice.logger-0.60.0-b166-5044fab/evidence/galaxy-s26-ultra-final/playground-home.png) · [Compact screenshot](dist/practice.logger-0.60.0-b166-5044fab/evidence/compact-phone-api35/playground-home.png) · [Inventory screenshot](dist/practice.logger-0.60.0-b166-5044fab/evidence/compact-phone-api35/playground-inventory.png).
+
+**Exact next task.** Install build 166 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Weekly planned and actual practice minutes
 
 November 18, 2026 (America/Los_Angeles). **0.59.1 / build 162** derives the Home footer and Goal weekly summaries from the existing This Week plan and G3 practice facts. Edit weekly plan opens Prepare Week. Existing percentages and weekly targets remain in Room 29 and supported backups. Complete ZIP14 and JSON7 retain their existing behavior. [Accounting and historical attribution](docs/PRACTICE_STATISTICS.md#weekly-planned-and-actual-minutes).
 
@@ -10,7 +26,7 @@ November 18, 2026 (America/Los_Angeles). **0.59.1 / build 162** derives the Home
 
 **Visual verification.** Matched build 159 and build 162 captures at 360 × 800 and 411 × 886 in Cosmic and at 320 × 640 with 200% text preserved the measured Home bounds, scroll range, navigation, Goal text baselines and track geometry. The long-number capture shows both Goal values fully on one line. At 200% the previous wrapped subtitle height remains reserved. The formerly trackless 411 × 886 Light case preserved all prior measured bounds and scroll range. Its empty track uses space within the original footer. [Before/after images](dist/practice.logger-0.59.1-b162-436e356/evidence/HOME_BEFORE_AFTER.png) · [Bounds comparison](dist/practice.logger-0.59.1-b162-436e356/evidence/HOME_BOUNDS_COMPARISON.txt) · [Before run](https://github.com/mrayover/practice.logger/actions/runs/44392110450) · [After run](https://github.com/mrayover/practice.logger/actions/runs/44392261674).
 
-**Exact next task.** Install build 162 over the permanent-key Galaxy app and complete the linked phone checklist. Physical acceptance remains pending.
+**Build 162 phone status.** Physical acceptance was pending at delivery.
 
 ---
 
