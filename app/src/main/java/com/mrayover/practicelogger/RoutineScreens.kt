@@ -82,6 +82,9 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
         if (vm.entries.isEmpty()) Text("Add a Block below to begin.")
         val indicators = LocalGoalIndicators.current
         var goalFilter by rememberBlockGoalFilter(indicators)
+    val organization = LocalOrganization.current
+    var categoryFilter by rememberSaveable { mutableStateOf<String?>(null) }
+    var sourceFilter by rememberSaveable { mutableStateOf<String?>(null) }
         vm.entries.forEachIndexed { index, row ->
             val block = blocks.find { it.id == row.blockId }
             val title = block?.name ?: "Unavailable Block (${row.blockId})"
@@ -109,7 +112,11 @@ internal fun PracticeRoutinesScreen(catalog: Catalog, routines: RoutineViewModel
         Text("Add Blocks", style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(query, { query = it }, label = { Text("Find a Block") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         BlockGoalFilterPicker(goalFilter) { goalFilter = it }
-        val available = matchingBlocks(blocks, query, false, indicators, goalFilter)
+        OrganizationFilterPicker(categoryFilter, sourceFilter,
+            onCategory = { categoryFilter = it }, onSource = { sourceFilter = it })
+        val available = matchingBlocks(blocks, query, false, indicators, goalFilter, organization)
+            .filter { (categoryFilter == null || it.categoryId == categoryFilter) &&
+                (sourceFilter == null || it.sourceId == sourceFilter) }
         if (available.isEmpty()) Text("No matching active Blocks. Create or restore Blocks in the Block Library.")
         available.forEach { block ->
             val indicator = indicators.block(block.id)
