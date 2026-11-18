@@ -44,6 +44,9 @@ internal fun WeekWorkspace(
         .map { it.weekStart }.distinct().toList().asReversed()
     val indicators = LocalGoalIndicators.current
     var goalFilter by rememberBlockGoalFilter(indicators, week to preparing)
+    val organization = LocalOrganization.current
+    var groupMode by rememberSaveable(week.toString()) { mutableStateOf(BlockGroupMode.ALL) }
+    var openGroups by remember { mutableStateOf(setOf<String>()) }
     val enabled = !vm.busy && !practice.busy
 
     BackHandler {
@@ -141,13 +144,15 @@ internal fun WeekWorkspace(
                     modifier = Modifier.fillMaxWidth())
             }
             item { BlockGoalFilterPicker(goalFilter) { goalFilter = it } }
+            item { BlockGroupPicker(groupMode) { groupMode = it } }
             item { SuggestedViewPicker(suggested) { suggested = it } }
-            val matching = matchingBlocks(catalog.blocks, query, false, indicators, goalFilter)
+            val matching = matchingBlocks(catalog.blocks, query, false, indicators, goalFilter, organization)
                 .filter { it.id !in assignedIds }
             val reasons = recommendations.orEmpty().associateBy { it.blockId }
             val available = if (suggested) recommendations.orEmpty().mapNotNull { r -> matching.find { it.id == r.blockId } } else matching
             if (available.isEmpty()) item { Text(if (suggested) if (recommendations == null) "Suggestions unavailable. All Blocks remains available." else "No matching suggestions to add." else "No matching active Blocks to add.") }
-            items(available, key = { "available-${it.id}" }) { block ->
+            organizedBlockItems(available, organization, if (query.isBlank()) groupMode else BlockGroupMode.ALL,
+                openGroups, onToggle = { key -> openGroups = if (key in openGroups) openGroups - key else openGroups + key }) { block ->
                 if (suggested) Text(reasons[block.id]!!.reasons.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
                 BlockPill(block, indicators.block(block.id), references[block.id].orEmpty(),
                     modifier = Modifier.testTag("available-week-block-${block.id}"),
