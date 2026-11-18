@@ -11,6 +11,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
 class OrganizationTest {
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
     private fun database() = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
