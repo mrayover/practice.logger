@@ -142,7 +142,7 @@ class WeeklyPracticeTargetTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(27, db.openHelper.writableDatabase.version)
+            assertEquals(29, db.openHelper.writableDatabase.version)
             assertEquals("Keep", db.blocks().find("b")!!.notes)
             assertEquals(1200L, db.sessions().find("s")!!.current!!.activeMs)
             assertEquals(300L, db.sessions().find("s")!!.current!!.prepMs)
@@ -151,7 +151,7 @@ class WeeklyPracticeTargetTest {
         } finally { db.close(); context.deleteDatabase(name) }
     }
 
-    @Test fun zip11RoundTripHistoricalTargetsZip10DefaultsAndTargetOnlyRestoreGuards() = runBlocking {
+    @Test fun currentZipRoundTripHistoricalTargetsZip10DefaultsAndTargetOnlyRestoreGuards() = runBlocking {
         val db = memory(); val restored = memory(); val old = memory()
         val folder = File(context.cacheDir, "w2-zip").apply { mkdirs() }
         try {
@@ -168,8 +168,9 @@ class WeeklyPracticeTargetTest {
             assertFalse(json.toString(Charsets.UTF_8).contains("weekly_practice_targets"))
             assertTrue(runCatching { BackupRepository(restored).restore(BackupCodec.decode(json)) }.exceptionOrNull() is NonEmptyRestoreException)
             val historical = JSONObject(verified.records.payload.toString()).put("version", 10)
-            historical.getJSONObject("tables").remove("weekly_practice_targets")
-            historical.getJSONObject("tables").remove("playground_layouts")
+            val historicalTables = historical.getJSONObject("tables")
+            listOf("weekly_practice_targets", "playground_layouts", "block_categories", "study_sources", "study_source_media")
+                .forEach { historicalTables.remove(it) }
             val records = PortableRecords(historical, 10); records.validateRelationships(context)
             // Exercise the frozen ZIP10 envelope as well as its records (no media in this fixture).
             val oldFile = File(folder, "targets-v10.zip")

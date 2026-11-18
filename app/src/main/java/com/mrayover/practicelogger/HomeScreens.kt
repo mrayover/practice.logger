@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -95,6 +97,11 @@ import androidx.compose.ui.unit.LayoutDirection
 /** Unclipped, square-edged footer; richer details remain behind the existing actions. */
 @Composable private fun HomeWeeklySummary(progress: PracticeMinutes?, onStatistics: () -> Unit,
     onWeekPlan: () -> Unit) {
+    val measurer = rememberTextMeasurer()
+    // The previous label defined the shared footer row's edit-action width.
+    val editWidth = with(LocalDensity.current) {
+        measurer.measure("Edit weekly target", MaterialTheme.typography.bodySmall, maxLines = 1).size.width.toDp()
+    }
     Column(Modifier.fillMaxWidth().testTag("weekly-target-summary"), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -104,7 +111,7 @@ import androidx.compose.ui.unit.LayoutDirection
                     .testTag("home-statistics"))
             TextButton(onClick = onWeekPlan, modifier = Modifier.testTag("home-weekly-target"),
                 contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)) {
-                HomeMinuteText("Edit weekly plan")
+                HomeMinuteText("Edit weekly plan", Modifier.widthIn(min = editWidth), endAligned = true)
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
