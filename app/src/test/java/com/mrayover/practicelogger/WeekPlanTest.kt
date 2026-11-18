@@ -262,6 +262,8 @@ class WeekPlanTest {
                 remove("block_reflections")
                 remove("session_reflections")
                 getJSONArray("placements").getJSONArray(0).remove(14)
+                val oldBlocks = getJSONArray("blocks")
+                for (i in 0 until oldBlocks.length()) repeat(3) { oldBlocks.getJSONArray(i).remove(9) }
             }
             val badPrep = JSONObject(original)
             badPrep.getJSONObject("tables").getJSONArray("placements").getJSONArray(0).put(14, -1)
