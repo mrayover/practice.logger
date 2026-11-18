@@ -8,7 +8,9 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -41,6 +43,11 @@ class PlaygroundWorkflowTest {
         compose.onNodeWithText("Log").performScrollTo().performClick()
         compose.onNodeWithText("Playground", substring = false).performClick()
         waitForTotal(6)
+        // Changing emulator display size can leave a launcher ANR over the foreground test app.
+        if (device.hasObject(By.textContains("Quickstep isn't responding"))) {
+            checkNotNull(device.findObject(By.text("Close app"))).click()
+        }
+        compose.waitUntil(10_000) { compose.activity.hasWindowFocus() }
         val page = bounds("playground-home")
         val viewport = bounds("playground-canvas")
         val controls = bounds("playground-controls")
@@ -59,6 +66,12 @@ class PlaygroundWorkflowTest {
         compose.onAllNodes(SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsActions.ScrollBy))
             .assertCountEquals(0)
         listOf("Stats", "Workshop", "Kitchen").forEach { compose.onNodeWithText(it).assertIsNotEnabled() }
+        for (label in listOf("Home", "Stats", "Workshop", "Kitchen")) {
+            val results = mutableListOf<TextLayoutResult>()
+            compose.onNodeWithText(label, useUnmergedTree = true).assertIsDisplayed()
+                .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
+            assertFalse("$label fits in the destination row", results.single().isLineEllipsized(0))
+        }
         node("playground-explore").assertIsNotEnabled()
         node("playground-b").assertIsNotEnabled()
 

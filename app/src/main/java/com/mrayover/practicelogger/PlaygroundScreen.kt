@@ -93,10 +93,15 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 listOf("Home", "Stats", "Workshop", "Kitchen").forEach { destination ->
                     val home = destination == "Home"
+                    val width = when (destination) {
+                        "Workshop" -> 1.25f
+                        "Kitchen" -> 1f
+                        else -> 0.9f
+                    }
                     FilterChip(
                         selected = home, onClick = {}, enabled = home,
                         label = { Text(destination, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        modifier = Modifier.weight(1f).semantics { selected = home }
+                        modifier = Modifier.weight(width).semantics { selected = home }
                     )
                 }
             }
