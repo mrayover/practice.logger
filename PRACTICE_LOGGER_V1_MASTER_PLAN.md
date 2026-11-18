@@ -1,4 +1,4 @@
-> November16 owner scope clarification: MusicXML is deferred from embedded compose.logger V1 planning. C6A is offline WAV + M4A/AAC backing-track export; C6B Standard MIDI File Type1 remains the next separately authorized phase. Earlier MusicXML approval wording below is historical and is not authorization to implement it. Selected-range export is outside C6A.
+> November17 Composer scope. C6A implements offline WAV and M4A/AAC backing-track export. C6B implements Standard MIDI File Type 1 for the Current Loop or Full Arrangement. MusicXML is deferred from embedded compose.logger V1. Earlier MusicXML approval wording below is historical. C7 requires a separate assignment. [Current verification and delivery](CURRENT_STATE.md).
 
 ## PG1 — complete development delivery
 

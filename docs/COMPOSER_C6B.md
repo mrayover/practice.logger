@@ -1,0 +1,15 @@
+# C6B editable MIDI export
+
+In Composer, open **Export** from the toolbar or **More**, then choose **Current Loop** or **Full Arrangement** and **MIDI (.mid) — editable**. Choose where to save the file in Android’s document picker. The suggested filename uses the current composition title and the `.mid` extension. Composer requests a generic document so Android Downloads keeps the MIDI filename extension. The export uses the draft as it stood when you chose the destination. It leaves the project, saved revision, Undo history and selected patterns intact. [Android MIME mappings](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/mime/java-res/android.mime.types)
+
+**Current Loop** exports one shared cycle with the active pattern on each track. Shorter patterns repeat up to the shared endpoint. Empty tracks have no MIDI track, though an empty active pattern can still determine the shared cycle length. **Full Arrangement** exports each clip at its actual position, including repeated instances and independent Make Unique patterns. Leading, interior and trailing silence retain their original lengths.
+
+The file uses Standard MIDI File Type 1 with 960 ticks per quarter note, a conductor track for tempo and meter, and one named MIDI track per populated Composer instrument. Melodic instruments use distinct channels and the closest General MIDI programs available. Drums use channel 10 and retain their Composer pitch numbers. Each part ends at the exact scope endpoint. Note-offs precede note-ons at the same tick. The exporter supports long gaps by splitting the delta across empty text meta-events. It rejects expansions above 200,000 notes before opening a destination. [Standard MIDI Files](https://midi.org/standard-midi-files) · [General MIDI](https://midi.org/general-midi)
+
+Overlapping melodic notes of the same pitch use separate channels while channels are available. MIDI 1.0 has no note identifier. On drum tracks or when all melodic channels are used, the file stores the original note-on and note-off timestamps and the importing software determines how to pair overlapping events on a shared channel. Some software may show the extra channels as instrument subparts. All drum parts share General MIDI channel 10.
+
+Custom SoundFont sounds, mixer gain, mute, solo, pan, EQ, stereo width and master volume are outside the MIDI export. Use WAV or M4A for a backing track with the Composer mix. Those formats remain in the same export dialog.
+
+MIDI writing uses no audio renderer and does not take audio focus. If playback is active, Composer suspends its output while Android shows the picker. On return to the same editor, Composer continues the transport if it can regain audio focus. Ordinary focus loss and background interruptions still use Composer’s existing safeguards. Cancelling the picker leaves the draft available. If a write fails, Composer removes its temporary file and attempts to remove the newly created incomplete document. If the provider refuses removal, Composer tells you.
+
+See [current delivery and verified results](../CURRENT_STATE.md) for the signed package and Galaxy checklist.

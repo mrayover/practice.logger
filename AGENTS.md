@@ -1,12 +1,12 @@
-## November 17 — build 157 reconciliation
+## November 17 — C6B editable MIDI export
 
-Use [CURRENT_STATE.md](CURRENT_STATE.md) and [FIRST_WORK_HANDOFF.md](FIRST_WORK_HANDOFF.md) for the current release, checkout status and next task. Preserve the existing local build 158 dialog patch and prior signed distributions during canonical Git synchronization. C6B, C7 and F1 require separate assignments.
+The owner assigned C6B, including publication of the preserved build 158 dialog patch, focused verification and permanent-key delivery. Reuse the Composer tick schedule, current draft and document picker for Type 1 MIDI. Preserve C6A audio export, build 158 dialogs, practice data and prior signed packages. [Current status](CURRENT_STATE.md) · [Next task](FIRST_WORK_HANDOFF.md) · [MIDI behavior](docs/COMPOSER_C6B.md). C7 and F1 require separate assignments.
 
 ---
 
 ## November16 C6A — historical build155 delivery
 
-Current owner assignment delivers offline WAV + M4A/AAC Loop/Arrange backing tracks, focused verification, permanent-key APK/ZIP and source publication. [C6A guide](docs/COMPOSER_C6A.md) · [Actual results/provenance](CURRENT_STATE.md). Preserve existing scheduler/TinySoundFont/channel DSP, current draft/Undo and practice data; no audio-output recording or Library auto-import. Owner clarification explicitly defers MusicXML from embedded compose.logger V1 planning while retaining historical approvals. Exact next task is owner-phone build155 acceptance. Stop before separately authorized C6B Standard MIDI File Type1 export, effects, Library integration or portable recovery; Composer projects/custom presets still exclude practice backup until C7.
+C6A delivered offline WAV and M4A/AAC Loop and Arrange backing tracks. [C6A guide](docs/COMPOSER_C6A.md) · [Actual results/provenance](CURRENT_STATE.md). Preserve the existing scheduler, TinySoundFont, channel DSP, current draft, Undo and practice data. MusicXML is deferred from embedded compose.logger V1. Composer projects and custom presets remain outside practice backup until C7.
 
 ---
 

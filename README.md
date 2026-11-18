@@ -1,4 +1,8 @@
-# Block and Source organization
+# practice.logger · Composer MIDI export
+
+Composer's **Export** dialog saves the current Loop or Full Arrangement as an editable Standard MIDI File Type 1. It uses the current draft and keeps the instruments on separate tracks. WAV and M4A backing-track export are available in the same dialog. [MIDI behavior and limitations](docs/COMPOSER_C6B.md) · [Current delivery and verification](CURRENT_STATE.md).
+
+## Block and Source organization
 
 Browse Blocks by Category or Source, or search the full catalog. Sources can group PDFs, images, and audio across the Library. Existing weekly plans, Goals, and saved routines keep their current order and progress. [Behavior](docs/BLOCK_ORGANIZATION.md) · [Delivery and verification](CURRENT_STATE.md).
 
@@ -6,17 +10,17 @@ Browse Blocks by Category or Source, or search the full catalog. Sources can gro
 
 Weekly entries default to three repetitions, editable with minus/plus inside their expanded This Week/Prepare Week row. Collapsed dots/squares and completed/target counts track progress; every additional completion still earns its own Playground reward. Planned Minutes uses configured durations and weekly targets. Existing memberships retain one-practice targets during migration. [Behavior/persistence](docs/WEEK_REPETITIONS.md) · [Actual verification and delivery](CURRENT_STATE.md).
 
-# M4A compatibility fix - signed locally; Android import verification pending
+# M4A compatibility fix
 
-Signed local0.58.1/build156 contains the M4A provider-MIME correction and weekly repetition targets. Release compilation passed during weekly-target delivery; the focused valid/invalid Android import method remains unrun. MIME source is separate commit e5e4373; weekly targets are commit3f619b5. Publication remains blocked by CLI networking and GitHub integration write access. See [CURRENT_STATE](CURRENT_STATE.md) for verified status. No further Composer phase is authorized.
+Build 156 added an M4A provider-MIME correction. The focused API 35 import check passed on the published build 157 source. [Release history and verification](CURRENT_STATE.md).
 
 ---
 
-# Current delivery — C6A backing-track export
+# C6A backing-track export
 
-0.58.0/build155 adds Export Audio for Current Loop or Full Arrangement as compact M4A / AAC or uncompressed WAV. It captures the current draft and mix, renders without speaker playback, and saves through Android's document picker. [Delivery and actual checks](CURRENT_STATE.md) · [Guide and limits](docs/COMPOSER_C6A.md).
+0.58.0/build155 introduced Current Loop and Full Arrangement backing-track export as compact M4A / AAC or uncompressed WAV. It captures the current draft and mix, renders without speaker playback, and saves through Android's document picker. [Delivery and actual checks](CURRENT_STATE.md) · [Guide and limits](docs/COMPOSER_C6A.md).
 
-Owner-phone acceptance is next. MusicXML is deferred from embedded Composer V1; MIDI, Library integration and portable recovery are separate phases.
+MusicXML is deferred from embedded Composer V1. Library integration and portable recovery belong to C7, which requires a separate assignment.
 
 ---
 

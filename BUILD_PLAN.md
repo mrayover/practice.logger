@@ -1,3 +1,9 @@
+# C6B — Editable MIDI export
+
+Build 159 adds Standard MIDI File Type 1 for the live Current Loop or Full Arrangement, with a 960 PPQ conductor track and separate named instrument tracks. The existing Android picker, WAV and M4A formats remain available through Export. [MIDI behavior and limits](docs/COMPOSER_C6B.md) · [Delivery and verification](CURRENT_STATE.md).
+
+C7 owns explicit Media Library integration and portable Composer recovery and requires a separate assignment. MusicXML is deferred from embedded Composer V1.
+
 # Block and Source organization
 
 Categories and Sources organize existing Blocks across practice entry points. Sources also group canonical Library assets. Room29/ZIP14 preserves associations while reading older backups. Source landing pages remain deferred. [Scope and behavior](docs/BLOCK_ORGANIZATION.md) · [Delivery and verification](CURRENT_STATE.md).
@@ -6,17 +12,17 @@ Categories and Sources organize existing Blocks across practice entry points. So
 
 Implement weekly repetition targets, collapsed progress indicators, uncapped existing completion rewards, and configured Planned Minutes. Room28/ZIP13 preserves existing memberships at target1 and creates new memberships at3. No recommendation, Composer, scheduling, Playground redesign or regression campaign. [Behavior](docs/WEEK_REPETITIONS.md) · [Actual verification/delivery](CURRENT_STATE.md).
 
-# M4A compatibility fix - signed locally; Android import verification pending
+# M4A compatibility fix
 
-Signed local0.58.1/build156 contains the M4A provider-MIME correction and weekly repetition targets. Release compilation passed during weekly-target delivery; the focused valid/invalid Android import method remains unrun. MIME source is separate commit e5e4373; weekly targets are commit3f619b5. Publication remains blocked by CLI networking and GitHub integration write access. See [CURRENT_STATE](CURRENT_STATE.md) for verified status. No further Composer phase is authorized.
+Build 156 added an M4A provider-MIME correction. The focused API 35 import check passed on the published build 157 source. [Release history and verification](CURRENT_STATE.md).
 
 ---
 
-# Current increment — C6A delivered
+# C6A delivered
 
-Signed0.58.0/build155 implements offline Current Loop / Full Arrangement backing-track export, default AAC-LC M4A and PCM16 WAV, existing instrument/mixer/master fidelity, bounded release tails, Android document destination and failure/cancellation cleanup. Five focused hosts and three isolated API35 methods pass; physical-phone/provider acceptance is next. [Current delivery and evidence](CURRENT_STATE.md) · [Behavior and limits](docs/COMPOSER_C6A.md).
+Signed build 155 implemented offline Current Loop and Full Arrangement backing tracks in AAC-LC M4A and PCM16 WAV, with the Composer mix, bounded release tails and Android document export. Five focused host tests and three API 35 methods passed for that release. [Delivery history](CURRENT_STATE.md) · [Behavior and limits](docs/COMPOSER_C6A.md).
 
-Owner clarification: MusicXML is deferred from embedded compose.logger V1 planning. C6B Standard MIDI File Type1 export remains the next separately authorized phase. No Library/effects/portable recovery or broad regression was added.
+MusicXML is deferred from embedded compose.logger V1 planning. Library integration and portable recovery belong to C7.
 
 ---
 

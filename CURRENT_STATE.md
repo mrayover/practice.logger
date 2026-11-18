@@ -1,22 +1,36 @@
-# Current state — build 157 reconciliation
+# Current state — C6B MIDI export
+
+November 17, 2026 (America/Los_Angeles). Build **0.59.0 / 159** adds editable **Standard MIDI File Type 1** from the live Current Loop or Full Arrangement through Composer's Export dialog. It preserves the 960 PPQ timing, tempo, meter and separate populated instrument tracks, including General MIDI drums on channel 10. WAV and M4A remain available in the same dialog. [MIDI behavior and limits](docs/COMPOSER_C6B.md).
+
+**Source.** The canonical Windows checkout and GitHub development branch are `block-ux-stage1`. Build 158's archived patch was published unchanged at `5bd677c94b98773d2414c2fdada01688862058e9` before C6B. Reapplying the patch to the recorded release base independently reproduced the original build 158 tree `612d2129824a35eb076304f4fad83b37b5ae71da`. Build 158 was preserved without a rebuild. Build 159's signed application source is `b3944e133ecceeebe1c185186c330d5e1362f1bb`.
+
+**Signed package.** [APK](dist/practice.logger-0.59.0-b159-b3944e1/practice.logger-0.59.0-b159-b3944e1.apk) · [ZIP](dist/practice.logger-0.59.0-b159-b3944e1.zip) · [Install and Galaxy checklist](dist/practice.logger-0.59.0-b159-b3944e1/INSTALL.txt) · [Build metadata](dist/practice.logger-0.59.0-b159-b3944e1/BUILD_INFO.json). Package `com.mrayover.practicelogger.app`, version 0.59.0, code 159. APK SHA-256 `fe71bdba94f5296d30c393cd7e4bb17a2b6fa0d86de7bff1e39d7a7b4edfefb3`. APK v2/v3 and its v4 sidecar verify against the pinned permanent certificate `f56fcf9e872c9a52327bfb13be060eaecd008dccb3698213aa10da966eab2830`. Install as an update to the existing permanent-key app.
+
+ZIP SHA-256 `8903e1022b49924c60076ecc59521ad429e172d708a15dc84925787bebad87b1`. The ZIP round trip and local OneDrive copies matched the canonical files by checksum. OneDrive delivery is `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Compose C6B delivery/build159`. [Delivery report](dist/practice.logger-0.59.0-b159-b3944e1/DELIVERY_REPORT.md).
+
+**Focused verification.** Local release assembly, vital lint, four MIDI host tests and five existing audio-export host tests passed on the signed source. The API 35 failed-destination method passed in the initial run. The final picker method passed genuine Downloads exports for both scopes, playback continuation, cancellation and draft, saved project and Undo preservation. OpenJDK Java Sound read both files as Type 1, 960 PPQ, with the unsaved note and three named instruments, and verified 15,360 Loop ticks, 26,880 Arrangement ticks, channel 10 percussion and the Make Unique variation at tick 23,040. The final picker test commit `3847937cf8b255b029e6a84dfbef0da6bebf173e` adds only a test change relative to the signed source. The earlier picker attempts encountered the Android full-screen tutorial, a provider-added `.rtx` suffix fixed in the signed source, and a stale test node. [Destination failure check](https://github.com/mrayover/practice.logger/actions/runs/44242399358) · [Final picker check](https://github.com/mrayover/practice.logger/actions/runs/44244721891).
+
+**Exact next task.** Owner Galaxy install-over and C6B acceptance using the build 159 checklist. Dorico and physical acceptance remain unverified. C7, MusicXML and F1 remain deferred. Composer projects and custom presets remain outside practice backup.
+
+---
+
+## Build 157 reconciliation and build 158 provenance
 
 November 17, 2026 (America/Los_Angeles). The published application source on `block-ux-stage1` includes This Week repetition targets and Planned Minutes, M4A import compatibility, and Block/Source organization. Build 157 release source is `e2eb8bd6db987a612a65865f194f0dda270eba62`. Its full tree `9832c7f115f3a1ce46c38a00191cda9703ac65a0` matches both build metadata and OneDrive integration commit `8bc3084d38080d22f2c5059c816d669d321bdc65`. The published MIME and weekly commits are `90ff01d` and `b069789`. See [weekly repetitions](docs/WEEK_REPETITIONS.md) and [Block organization](docs/BLOCK_ORGANIZATION.md).
 
-**Windows checkout.** `C:/Users/mrove/Projects/practice.logger` remains on `block-ux-stage1` at `bc7b602ff4991341b825e262629c64f201a94db8`, an ancestor 45 commits behind the release source. Fetch was denied access to `.git/FETCH_HEAD`. The previously started dialog edit and local delivery records were preserved. The older OneDrive main checkout and the archived development commits were left in place.
+**Windows checkout history.** The prior reconciliation could not write `.git/FETCH_HEAD` from the older checkout at `bc7b602ff4991341b825e262629c64f201a94db8`. The C6B session opened the synchronized canonical branch at `d0fe942ea062799238ff0ebc125556dd42e42262` with the dialog patch preserved in the build 158 distribution. The older OneDrive main checkout and archived commits were left in place.
 
 **Signed build 157.** The canonical [APK](dist/practice.logger-0.58.2-b157-e2eb8bd/practice.logger-0.58.2-b157-e2eb8bd.apk), [ZIP](dist/practice.logger-0.58.2-b157-e2eb8bd.zip), signature sidecar, [metadata](dist/practice.logger-0.58.2-b157-e2eb8bd/BUILD_INFO.json), and [install instructions](dist/practice.logger-0.58.2-b157-e2eb8bd/INSTALL.txt) match the OneDrive delivery byte for byte. The original ZIP contains the APK, metadata and install instructions. The verified v4 sidecar is alongside the loose APK. The APK reports `com.mrayover.practicelogger.app`, version `0.58.2`, build `157`. Its v2/v3 signatures and v4 sidecar verify with the pinned permanent certificate shared with build 156. APK SHA-256 is `b99f746ba5124a6ced4f765d684a5bedf101eecabfa43f663d3b2e45b78a822d`. ZIP SHA-256 is `d65a4b051e94ec6f4ce3a10eeb8f7bb26d90350ca72f6696d4b1b2d06aba5431`.
 
 **Focused verification.** [Build 157 workflow](https://github.com/mrayover/practice.logger/actions/runs/44223220074) passed its diagnostic job. The normal build, current-features and device jobs were skipped. [M4A workflow](https://github.com/mrayover/practice.logger/actions/runs/44224720276) checked out the exact release commit and passed one API 35 Android test covering a valid AAC file with an alternate provider MIME and rejection of malformed bytes. The verification branch adds only its workflow. Physical Galaxy acceptance of build 157 is pending.
 
-**Existing local build 158.** Signed `0.58.3 / 158` and its [source patch](dist/practice.logger-0.58.3-b158-e2eb8bd/SOURCE.patch) predate this reconciliation. The local `dist/LATEST.txt` points to this package. Its APK, v4 sidecar and ZIP were verified. The source patch is based on build 157 and remains unpublished. [Build 158 install and phone checklist](dist/practice.logger-0.58.3-b158-e2eb8bd/INSTALL.txt).
-
-**Exact next task.** Preserve the existing build 158 work and fast-forward the canonical checkout in a Git-write-enabled context. Once reconciled, the next bounded product task is Galaxy landscape acceptance of the existing build 158 exit and Save As dialogs, followed by publication of that preserved patch under a separate assignment.
+**Build 158.** Signed `0.58.3 / 158` and its [source patch](dist/practice.logger-0.58.3-b158-e2eb8bd/SOURCE.patch) were preserved. The published patch is based on build 157. Galaxy landscape and Samsung Keyboard acceptance for the inherited dialogs remains pending. [Build 158 install and phone checklist](dist/practice.logger-0.58.3-b158-e2eb8bd/INSTALL.txt).
 
 ---
 
 ## Historical delivery records
 
-The dated records below describe earlier checkout, delivery and verification states. The reconciliation above gives the current results.
+The dated records below describe earlier checkout, delivery and verification states.
 
 # Build156 delivery/publication correction
 

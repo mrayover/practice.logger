@@ -1,6 +1,6 @@
 # C6A — Offline WAV and M4A backing tracks
 
-Export Audio in the responsive Composer application row (or More overflow) offers Current Loop or Full Arrangement and M4A / AAC (default) or WAV. Choose destination uses Android Create Document with the composition title and sanitized extension. No storage permission, fixed output folder, Library import or save prerequisite is added.
+Use **Export** in the Composer toolbar or **More** to select Current Loop or Full Arrangement and M4A / AAC (default) or WAV. Choose destination uses Android Create Document with the composition title and sanitized extension. The same dialog also offers [C6B editable MIDI export](COMPOSER_C6B.md).
 
 Current Loop freezes the same per-track pattern choices used by Loop/Mixer, including transient clip-to-pattern navigation. Shorter patterns repeat inside exactly one longest global region. Arrange freezes validated songSnapshot absolute clip events for one traversal ending at the latest clip end. Existing 200,000 expanded song-note budget applies. Off events precede ons at equal sample frames. Endpoint ons are suppressed; residual held notes are released normally. Empty time stays silent. Documents, revision and Undo are unchanged.
 
@@ -16,6 +16,6 @@ One private finalized file is copied in64KiB chunks to the selected provider. Su
 
 Ordinary development verification is scoped to the new renderer, encoders, file safety, mixer representatives and Android export/return workflow. Actual results and signed provenance are in [CURRENT_STATE](../CURRENT_STATE.md). Physical-phone acoustics and nonlocal provider behavior require owner checks.
 
-Current owner decision (November16): **MusicXML is deferred from embedded compose.logger V1 planning.** C6B Standard MIDI File Type1 is separately authorized next; no MIDI, selected-range export, stems, added effects, Library integration or portable recovery is implemented here. Composer projects/custom presets remain outside practice backup until C7.
+MusicXML is deferred from embedded compose.logger V1 planning. Composer projects and custom presets remain outside practice backup until C7.
 
 Signed0.58.0/build155 source 0696ebbb391e32cfd5d3997a516a3cc61eef413c: five focused host methods pass; bounded API35 workflow44027324342 passes all three isolated native/safety/picker methods. Actual WAV and AAC frame/byte/decoder results, screenshots, failed attempts and remaining physical/provider limitations are in the delivery report linked from CURRENT_STATE.

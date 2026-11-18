@@ -1,8 +1,8 @@
-# Build 157 reconciliation handoff
+# C6B MIDI export handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the published release source, canonical Windows checkout, signed builds and focused verification. Build 157 is already in the canonical distribution folder. The focused M4A check passed on the exact release commit. Physical Galaxy acceptance remains pending.
+[CURRENT_STATE.md](CURRENT_STATE.md) records the signed build 159, the build 158 source reconciliation and the focused verification. [MIDI export behavior and limitations](docs/COMPOSER_C6B.md).
 
-**Exact next task.** Preserve the existing build 158 dialog edit and local delivery notes, then fast-forward the canonical Windows checkout to the verified `block-ux-stage1` head in a Git-write-enabled context. The published release tree already includes weekly targets, the M4A fix and Block/Source organization. The local build 158 package contains the existing dialog patch and its Galaxy landscape phone checklist.
+**Exact next task.** Install signed build 159 over the permanent-key Galaxy app and complete the C6B checklist linked from [CURRENT_STATE.md](CURRENT_STATE.md). C7 requires a separate owner assignment.
 
 ---
 
