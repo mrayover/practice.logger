@@ -18,7 +18,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import kotlin.math.abs
-import kotlin.math.floor
+import kotlin.math.ceil
 
 class PlaygroundWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
@@ -75,6 +75,7 @@ class PlaygroundWorkflowTest {
         node("playground-explore").assertIsNotEnabled()
         node("playground-b").assertIsNotEnabled()
         verifyController(controls, fixedBounds)
+        verifyRoomFit(controls.height / 96f)
 
         val before = playerPosition()
         node("playground-canvas").performTouchInput { swipeUp(); swipeLeft() }
@@ -186,6 +187,27 @@ class PlaygroundWorkflowTest {
         assertNotEquals("The area outside the cross is clear", fill, pixel(0.10f, 0.10f))
     }
 
+    private fun verifyRoomFit(density: Float) {
+        val pixels = node("playground-canvas").captureToImage().toPixelMap()
+        val wallColors = setOf(0xFF546C78.toInt(), 0xFF607985.toInt())
+        fun isWall(x: Int, y: Int) = pixels[x, y].toArgb() in wallColors
+        val columns = (0 until pixels.width).filter { isWall(it, pixels.height / 2) }
+        val rows = (0 until pixels.height).filter { isWall(pixels.width / 2, it) }
+        val left = columns.first()
+        val right = pixels.width - 1 - columns.last()
+        val top = rows.first()
+        val bottom = pixels.height - 1 - rows.last()
+        val width = pixels.width - left - right
+        val height = pixels.height - top - bottom
+
+        println("Playground room ${width}x${height}, frame $left/$top/$right/$bottom px")
+        assertTrue("The room stays inside the viewport", minOf(left, right, top, bottom) >= 1)
+        assertTrue("Opposite margins match within pixel rounding", abs(left - right) <= 1 && abs(top - bottom) <= 1)
+        assertTrue("The limiting margin stays narrow", minOf(left, top) <= 6 * density + 2)
+        assertEquals("The tiles retain square proportions",
+            height * PlaygroundHome.width.toFloat() / PlaygroundHome.height, width.toFloat(), 2f)
+    }
+
     private fun completion(index: Int): BlockCompletion {
         // Saved rank intentionally disagrees with saved color. The inventory reads the color.
         val goalId = if (index < 5) "historical-goal" else null
@@ -203,10 +225,9 @@ class PlaygroundWorkflowTest {
         compose.runOnIdle {}
         val stopped = playerPosition()
         val viewport = bounds("playground-canvas")
-        val pixelsPerUnit = floor(minOf(viewport.width / PlaygroundHome.width, viewport.height / PlaygroundHome.height))
-            .coerceAtLeast(1f)
+        val dispatchTolerance = ceil(2 * minOf(viewport.width / PlaygroundHome.width, viewport.height / PlaygroundHome.height))
         assertTrue("Only the in-flight frame may finish while Android dispatches release",
-            abs(stopped.x - moved.x) <= 2 * pixelsPerUnit && abs(stopped.y - moved.y) <= 2 * pixelsPerUnit)
+            abs(stopped.x - moved.x) <= dispatchTolerance && abs(stopped.y - moved.y) <= dispatchTolerance)
         compose.mainClock.advanceTimeBy(220)
         assertEquals("Movement stops after release or cancellation", stopped, playerPosition())
         return stopped

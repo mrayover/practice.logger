@@ -40,7 +40,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
@@ -202,12 +201,19 @@ private fun DirectionButton(
 
 @Composable
 private fun HomeViewport(modifier: Modifier, player: () -> HomePosition) {
-    Canvas(modifier.clip(RoundedCornerShape(12.dp)).background(Color(0xFF293944)).testTag("playground-canvas")) {
+    val cornerRadius = 12.dp
+    Canvas(modifier.clip(RoundedCornerShape(cornerRadius)).background(Color(0xFF293944)).testTag("playground-canvas")) {
         val room = PlaygroundHome
-        val fit = minOf(size.width / room.width, size.height / room.height)
-        val zoom = if (fit >= 1f) floor(fit) else fit
-        val x = floor((size.width - room.width * zoom) / 2)
-        val y = floor((size.height - room.height * zoom) / 2)
+        val border = 1.dp.toPx()
+        val zoom = minOf(
+            (size.width - 2 * border) / room.width,
+            (size.height - 2 * border) / room.height,
+            // Keep the rectangular room inside the chord of each rounded viewport corner.
+            (size.width + size.height - 2 * cornerRadius.toPx()) / (room.width + room.height)
+        ).coerceAtLeast(0f)
+        if (zoom == 0f) return@Canvas
+        val x = (size.width - room.width * zoom) / 2
+        val y = (size.height - room.height * zoom) / 2
         translate(x, y) {
             scale(zoom, zoom, Offset.Zero) {
                 val tile = room.tile.toFloat()
