@@ -127,6 +127,38 @@ internal fun BlockGroupPicker(mode: BlockGroupMode, onMode: (BlockGroupMode) -> 
     }
 }
 
+@Composable
+internal fun OrganizationFilterPicker(
+    categoryId: String?, sourceId: String?,
+    onCategory: (String?) -> Unit, onSource: (String?) -> Unit
+) {
+    val org = LocalOrganization.current
+    var categoryOpen by remember { mutableStateOf(false) }
+    var sourceOpen by remember { mutableStateOf(false) }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box {
+            OutlinedButton(onClick = { categoryOpen = true }) {
+                Text(org.categoryName(categoryId) ?: "All Categories", maxLines = 1)
+            }
+            DropdownMenu(expanded = categoryOpen, onDismissRequest = { categoryOpen = false }) {
+                DropdownMenuItem(text = { Text("All Categories") }, onClick = { onCategory(null); categoryOpen = false })
+                org.categories.forEach { category ->
+                    DropdownMenuItem(text = { Text(category.name) }, onClick = { onCategory(category.id); categoryOpen = false })
+                }
+            }
+        }
+        Box {
+            OutlinedButton(onClick = { sourceOpen = true }) { Text(org.sourceName(sourceId) ?: "All Sources", maxLines = 1) }
+            DropdownMenu(expanded = sourceOpen, onDismissRequest = { sourceOpen = false }) {
+                DropdownMenuItem(text = { Text("All Sources") }, onClick = { onSource(null); sourceOpen = false })
+                org.sources.forEach { source ->
+                    DropdownMenuItem(text = { Text(source.title) }, onClick = { onSource(source.id); sourceOpen = false })
+                }
+            }
+        }
+    }
+}
+
 /** Group headers generated from saved associations; never maintain duplicate folders. */
 internal fun LazyListScope.organizedBlockItems(
     blocks: List<Block>, org: OrganizationSnapshot, mode: BlockGroupMode,
