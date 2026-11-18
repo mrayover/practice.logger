@@ -28,6 +28,13 @@ class HomeFitWorkflowTest {
         val goals=(1..2).map { GoalBundle(Goal("fit-$it", "A very long musical Goal name available in full when opened $it", progress=45, priority=it-1, createdAt=1,updatedAt=1), emptyList()) }
         var clicks=0
         val navigation = listOf("Practice Now", "Blocks", "Routines", "Tools", "Recording", "Log", "Library")
+        fun scrollToEnd() {
+            val scroller = compose.onNodeWithTag("home-scroll")
+            val axis = scroller.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
+            scroller.performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy -> scrollBy(0f, axis.maxValue()) }
+            compose.waitForIdle()
+            assertEquals("Footer scroll reaches the end", axis.maxValue(), axis.value(), 1f)
+        }
         fun evidence(case: String, stage: String) {
             android.util.Log.i("HomeGeometry", "Collecting $case $stage")
             val tags = listOf("home-brand", "header-settings", "home-scroll", "home-goals", "home-goal-title-0",
@@ -97,8 +104,7 @@ class HomeFitWorkflowTest {
                 compose.onNodeWithTag("home-goal-title-0",true).performScrollTo().performTouchInput { click() }
                 compose.onNodeWithTag("home-goal-title-1",true).performScrollTo().performTouchInput { click() }
                 compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
-                val bar = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
-                if (bar.fetchSemanticsNodes().isNotEmpty()) bar.onFirst().performScrollTo()
+                scrollToEnd()
                 evidence("home-fit-$width-$height-${theme.name.lowercase()}", "footer")
             }
             assertEquals(36,clicks)
@@ -135,7 +141,7 @@ class HomeFitWorkflowTest {
                     textBounds.top>=buttonBounds.top-1 && textBounds.bottom<=buttonBounds.bottom+1)
             }
             compose.onNodeWithTag("home-weekly-target").performScrollTo().assertIsDisplayed()
-            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).performScrollTo()
+            scrollToEnd()
             evidence("home-fit-320-200", "footer")
         } catch(failure:Throwable) {
             device.takeScreenshot(File(folder,"home-fit-failure.png"))
