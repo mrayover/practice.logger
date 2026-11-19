@@ -1,6 +1,6 @@
-# Up Next practice history
+# Initial and between-Block practice history
 
-Up Next reads the latest saved text answers and Security rating independently by the upcoming Block's stable ID. It uses the existing Free Recording playback controls and falls back to an earlier standalone recording when a newer file is missing. [Delivery and verification](CURRENT_STATE.md).
+Before the first Block and between Blocks, the same component reads the latest saved text answers and Security rating independently by the upcoming Block's stable ID. It uses the existing Free Recording playback controls and falls back to an earlier standalone recording when a newer file is missing. [Delivery and verification](CURRENT_STATE.md).
 
 # Playground Home Foundation
 

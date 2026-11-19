@@ -1,6 +1,6 @@
-# Up Next practice history handoff
+# Initial and between-Block practice history handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the Up Next delivery, focused verification and next phone check.
+[CURRENT_STATE.md](CURRENT_STATE.md) records the first-Block correction, focused verification and next phone check.
 
 ---
 

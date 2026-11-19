@@ -1,4 +1,14 @@
-# Current state — Up Next practice history
+# Current state — practice history before Block 1
+
+November 19, 2026. **0.60.8 / build 176.** Both gates already used the same layout. Build 175 only composed the history when the session index was greater than zero and the placement was fresh. Build 176 removes the index restriction for history alone. The existing controls, resumed/prepared behavior, cross-session Block lookup, standalone recording lookup, playback and storage are unchanged.
+
+**Verification.** The [compact Android 15 workflow](https://github.com/mrayover/practice.logger/actions/runs/44599056577) completed a Block in a prior session with saved text and Security 3/5, then opened a new three-Block session. Before starting Block 1 it found that text, rating and global Free Recording beneath Prep Block, played the recording and verified Start stopped playback. Between Blocks it checked independent latest answers and ratings, unchanged control bounds, playback fallback and absent sections. Local release/vital lint, Android-test assembly and the focused reflection repository test passed.
+
+**Delivery.** Source `e8863016eb9657d6aba3116ab5cb80d018cb900e`, `block-ux-stage1`. [Signed APK](dist/practice.logger-0.60.8-b176-e886301/practice.logger-0.60.8-b176-e886301.apk) · [ZIP with screenshots and test result](dist/practice.logger-0.60.8-b176-e886301.zip). Package/version and pinned v2/v3/v4 signature verified. All 185 APK payload entries and ten distribution files checked. SHA-256: APK `97da0c6b664c891a329df7002c044d365687134e8f36d43660c7ccd357442e14`; ZIP `1a422ffa17d5adf525059993e370ce73c84a0445785de74b11bc7e217c05aa9b`.
+
+**Exact next task.** Install build 176 over the existing permanent-key app and follow the [phone checklist](dist/practice.logger-0.60.8-b176-e886301/PHONE_CHECKLIST.txt). Physical acceptance is pending.
+
+## Previous delivery — Up Next practice history
 
 November 19, 2026 (America/Los_Angeles). **0.60.7 / build 175** adds three optional sections below **Prep Next Block**. Last Reflection shows saved end-of-Block text under its original prompts. Last Session Ratings shows the saved Security value on the original 1–5 scale. Both use the upcoming Block's stable ID and independently select the latest applicable completed placement, including earlier placements in the current session. The dates shown are the dates of those completions.
 
@@ -10,7 +20,7 @@ Last Free Recording lists the name, date and duration of the newest accessible s
 
 **Package verification.** The APK reports app ID `com.mrayover.practicelogger.app`, version 0.60.7 and build 175. The pinned permanent certificate and APK v2/v3/v4 signatures verified. All 185 unsigned APK payload entries match the signed APK, and all nine distribution files match their ZIP members. ZIP SHA-256 `9b23bb65b13920ad967312a67f1cc5857d189da6370f2ea7d10ba683e1e9110c`. The 805 prior APK and ZIP files retain their sizes and modification times.
 
-**Exact next task.** Install build 175 over the permanent-key app and complete the linked Up Next phone checklist. Physical acceptance remains pending.
+The initial-screen correction and current phone checklist are recorded under build 176.
 
 ---
 
