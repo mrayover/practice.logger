@@ -1,6 +1,6 @@
-# Playground Batel handoff
+# Playground Home artwork handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Batel update, focused verification and phone checklist. [Animation, controls and inventory](docs/PLAYGROUND_SPEC.md).
+[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Home artwork update, focused verification and phone checklist. [Artwork, controls and inventory](docs/PLAYGROUND_SPEC.md).
 
 ---
 

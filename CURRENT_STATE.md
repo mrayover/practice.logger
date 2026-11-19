@@ -1,4 +1,18 @@
-# Current state — Batel in Playground Home
+# Current state — Playground Home artwork
+
+November 18, 2026 (America/Los_Angeles). **0.60.5 / build 173** replaces the geometric floor, wall and doorway fills with the owner's three PNGs. The 30 × 30 floor and 45 × 45 wall repeat in the existing 16-unit cells. The 45 × 45 door is centered at its original location as a 24-unit square, leaving two units of wall above and below inside the former doorway rectangle. The renderer uses nearest-neighbor sampling and shared pixel edges. Some diagonal stripes change phase where copies of the supplied floor tile meet, with no uncovered pixels along the checked tile joins. Movement, collision, the fixed portrait page, Batel and the read-only completion inventory retain their existing behavior. [Playground behavior](docs/PLAYGROUND_SPEC.md).
+
+**Source and package.** The canonical Windows checkout built and signed source `7c261e7cd52b4ad79781cdfadf84857818dfc601`, pushed to `block-ux-stage1`. APK SHA-256 `6242b6727be1848814752733aa5856316a76534691d92b0c63e39b1ed61acc3a`. ZIP SHA-256 `4df4451c2b42db507e2f7ec21e05de969b72983eec1504cc4c01775d90aecec2`. [APK](dist/practice.logger-0.60.5-b173-7c261e7/practice.logger-0.60.5-b173-7c261e7.apk) · [ZIP](dist/practice.logger-0.60.5-b173-7c261e7.zip) · [Phone checklist](dist/practice.logger-0.60.5-b173-7c261e7/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.5-b173-7c261e7/BUILD_INFO.json).
+
+**Focused verification.** Release assembly, vital lint, Android-test assembly and six host movement tests passed. The compact Android 15 test passed on the package source at 720 × 1440 px and 360 dpi. It sampled the original PNG colors in the floor, wall and doorway, checked nearest-neighbor rendering and the room's center joins, and exercised Batel's poses, eight-direction movement, collision, controls, fixed portrait fit and inventory. It verified the seeded completion history and saved arrangement. Page, viewport, controls and 506 × 579 px room dimensions matched build 172. Outside the room, four A-outline pixels differed by one blue-channel value. [Android workflow](https://github.com/mrayover/practice.logger/actions/runs/44459212772) · [Playground screenshot](dist/practice.logger-0.60.5-b173-7c261e7/evidence/playground-home.png) · [Pixel comparison](dist/practice.logger-0.60.5-b173-7c261e7/evidence/PLAYGROUND_VISUAL_COMPARISON.txt).
+
+**ZIP and local delivery.** The pinned permanent certificate and APK v2/v3/v4 signatures verified. All 185 signed APK payload entries match the unsigned release. The packaged PNGs match the supplied files byte for byte, Batel's packaged exports match build 172 and all 10 ZIP files match their packaged copies. The local OneDrive delivery copies in `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build173` match by checksum.
+
+**Exact next task.** Install build 173 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Batel in Playground Home
 
 November 18, 2026 (America/Los_Angeles). **0.60.4 / build 172** replaces the player rectangle with the owner's Batel sprite. The original 90 × 30 RGBA sheet contains three 30 × 30 poses. The Aseprite project and JSON agree on `idle` (frame 1) and `walk` (frames 2–3, forward at 100 ms per frame). The room Canvas draws Batel with nearest-neighbor scaling and aligned feet. The same orientation serves all eight directions. [Playground behavior](docs/PLAYGROUND_SPEC.md).
 
@@ -8,7 +22,7 @@ November 18, 2026 (America/Los_Angeles). **0.60.4 / build 172** replaces the pla
 
 **ZIP and local delivery.** APK v2/v3 and the v4 sidecar verify against the pinned permanent certificate. All 182 APK payload entries match the unsigned release, both packaged Batel exports match the supplied files byte for byte, and all 10 ZIP files match their packaged copies. ZIP SHA-256 `f36e752d54c66c0b6c9ede188b2224f618cfca8f84d116dd2ad847cca4d7c120`. The local OneDrive copies in `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build172` match by checksum.
 
-**Exact next task.** Install build 172 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+**Physical acceptance.** Build 172 phone verification was pending at delivery.
 
 ---
 

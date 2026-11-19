@@ -1,6 +1,6 @@
 # Playground Home Foundation
 
-The portrait Home provides eight-direction walking in one room and a live, read-only completion inventory. Batel uses the original Aseprite idle and walk poses and the existing movement and collision model. Room 29 and portable backups continue to carry legacy arrangement data. Later environments and gameplay require a separate assignment. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+The portrait Home provides eight-direction walking in one room and a live, read-only completion inventory. The owner's PNGs furnish the floor, walls and decorative door, and Batel uses the original Aseprite idle and walk poses. Movement and collision use the logical room geometry. Room 29 and portable backups continue to carry legacy arrangement data. Later environments and gameplay require a separate assignment. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
 
 # Weekly planned and actual practice minutes
 
