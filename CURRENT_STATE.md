@@ -1,4 +1,20 @@
-# Current state — Playground Home door and side walls
+# Current state — Up Next practice history
+
+November 19, 2026 (America/Los_Angeles). **0.60.7 / build 175** adds three optional sections below **Prep Next Block**. Last Reflection shows saved end-of-Block text under its original prompts. Last Session Ratings shows the saved Security value on the original 1–5 scale. Both use the upcoming Block's stable ID and independently select the latest applicable completed placement, including earlier placements in the current session. The dates shown are the dates of those completions.
+
+Last Free Recording lists the name, date and duration of the newest accessible standalone Free Recording and plays it inline through the shared recording player. It can fall back to an older recording with a readable file. History that predates saved Block reflections, or was restored from a JSON backup that omits them, has no reflection or rating to display. The feature reads existing records and uses the existing schema and backup formats.
+
+**Source and package.** The canonical Windows checkout built and signed source `27072695ad0482043a747083722d3895e6b7fb49` on `block-ux-stage1`. APK SHA-256 `b02a97b1817f7c0c198470584bb709af86b118bd6acaa4c01ab8ee6e84a67f88`. [APK](dist/practice.logger-0.60.7-b175-2707269/practice.logger-0.60.7-b175-2707269.apk) · [ZIP](dist/practice.logger-0.60.7-b175-2707269.zip) · [Phone checklist](dist/practice.logger-0.60.7-b175-2707269/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.7-b175-2707269/BUILD_INFO.json).
+
+**Focused verification.** Local release assembly, vital lint, Android-test assembly and five host tests passed. The compact Android 15 workflow passed at 720 × 1440 pixels and 360 dpi. It checked identical bounds for the original Up Next controls with and without history, exact saved text including line breaks, independent rating and reflection dates, same-title Block isolation, scrolling to playback, missing-file fallback, Play and Stop, and the existing Prep and Start actions. [Android workflow](https://github.com/mrayover/practice.logger/actions/runs/44573582757) · [Empty screen](dist/practice.logger-0.60.7-b175-2707269/evidence/up-next-empty.png) · [History screen](dist/practice.logger-0.60.7-b175-2707269/evidence/up-next-history.png).
+
+**Package verification.** The APK reports app ID `com.mrayover.practicelogger.app`, version 0.60.7 and build 175. The pinned permanent certificate and APK v2/v3/v4 signatures verified. All 185 unsigned APK payload entries match the signed APK, and all nine distribution files match their ZIP members. ZIP SHA-256 `9b23bb65b13920ad967312a67f1cc5857d189da6370f2ea7d10ba683e1e9110c`. The 805 prior APK and ZIP files retain their sizes and modification times.
+
+**Exact next task.** Install build 175 over the permanent-key app and complete the linked Up Next phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Playground Home door and side walls
 
 November 18, 2026 (America/Los_Angeles). **0.60.6 / build 174** draws the original square door at 36 room units, up from 24, around the same top-wall center. Left and right wall tiles rotate 90° clockwise at draw time. The renderer swaps destination dimensions before rotating, so each tile lands on the existing snapped grid edges. Top and bottom wall rows use the original orientation. The door remains decorative. [Playground behavior](docs/PLAYGROUND_SPEC.md).
 
@@ -8,7 +24,7 @@ November 18, 2026 (America/Los_Angeles). **0.60.6 / build 174** draws the origin
 
 **ZIP and local delivery.** The pinned permanent certificate and APK v2/v3/v4 signatures verified. All 185 APK payload entries match the unsigned release. The five packaged Playground assets match build 173 byte for byte, and all 10 ZIP files match their packaged copies. The 801 earlier APK/ZIP files retain their sizes and modification times. The local OneDrive copies in `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build174` match by checksum.
 
-**Exact next task.** Install build 174 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+**Build 174 phone status.** Physical acceptance was pending at delivery.
 
 ---
 

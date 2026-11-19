@@ -1,3 +1,7 @@
+# practice.logger · Up Next
+
+Up Next shows the upcoming Block's latest saved reflection and Security rating below **Prep Next Block**. It also plays the latest available standalone Free Recording. Scroll to read longer answers. [Delivery and verification](CURRENT_STATE.md).
+
 # practice.logger · Playground Home
 
 Open **Log → Playground** to walk Batel around the tiled Home in eight directions. Hold between adjacent D-pad arms for a diagonal, or slide your thumb to change direction. Open **Blocks** to see what you've earned through completed practice. [Controls, inventory and saved arrangements](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).

@@ -1,3 +1,9 @@
+# Up Next practice history handoff
+
+[CURRENT_STATE.md](CURRENT_STATE.md) records the Up Next delivery, focused verification and next phone check.
+
+---
+
 # Playground Home door and side-wall handoff
 
 [CURRENT_STATE.md](CURRENT_STATE.md) records the door scale and side-wall rotation update, focused verification and phone checklist. [Artwork, controls and inventory](docs/PLAYGROUND_SPEC.md).

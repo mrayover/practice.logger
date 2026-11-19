@@ -1,3 +1,7 @@
+# Up Next practice history
+
+Up Next reads the latest saved text answers and Security rating independently by the upcoming Block's stable ID. It uses the existing Free Recording playback controls and falls back to an earlier standalone recording when a newer file is missing. [Delivery and verification](CURRENT_STATE.md).
+
 # Playground Home Foundation
 
 The portrait Home provides eight-direction walking in one room and a live, read-only completion inventory. The owner's PNGs furnish the floor, walls and decorative door, and Batel uses the original Aseprite idle and walk poses. Movement and collision use the logical room geometry. Room 29 and portable backups continue to carry legacy arrangement data. Later environments and gameplay require a separate assignment. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
