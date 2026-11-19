@@ -18,9 +18,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -31,6 +33,8 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.AndroidViewModel
@@ -51,22 +55,37 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
     var inventoryOpen by rememberSaveable { mutableStateOf(false) }
     var player by remember { mutableStateOf(PlaygroundHome.entrance) }
     var held by remember { mutableStateOf<HomeDirection?>(null) }
+    var walkElapsedNanos by remember { mutableLongStateOf(-1L) }
     val lifecycle by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
     val canMove = lifecycle == Lifecycle.State.RESUMED && LocalWindowInfo.current.isWindowFocused && !inventoryOpen
 
     val moving = held != null
+    fun updateDirection(direction: HomeDirection?) {
+        held = direction
+        if (direction == null) walkElapsedNanos = -1L
+    }
     LaunchedEffect(moving, canMove) {
         if (!canMove) {
-            held = null
+            updateDirection(null)
             return@LaunchedEffect
         }
         if (!moving) return@LaunchedEffect
         var previous = withFrameNanos { it }
+        var walkStart = previous
         while (true) {
             val now = withFrameNanos { it }
             // Bound catch-up after a stalled frame so resuming cannot cause a jump.
             val elapsed = ((now - previous) / 1_000_000_000f).coerceIn(0f, 0.05f)
-            held?.let { player = PlaygroundHome.move(player, it, elapsed) }
+            held?.let {
+                val next = PlaygroundHome.move(player, it, elapsed)
+                if (next == player) {
+                    walkElapsedNanos = -1L
+                } else {
+                    if (walkElapsedNanos < 0) walkStart = now
+                    walkElapsedNanos = now - walkStart
+                    player = next
+                }
+            }
             previous = now
         }
     }
@@ -80,7 +99,7 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
             PageHeading("Playground", Modifier.weight(1f).padding(horizontal = 4.dp),
                 style = MaterialTheme.typography.titleMedium, maxLines = 1)
             OutlinedButton(
-                onClick = { held = null; inventoryOpen = true },
+                onClick = { updateDirection(null); inventoryOpen = true },
                 modifier = Modifier.testTag("playground-inventory"),
                 contentPadding = PaddingValues(horizontal = 10.dp)
             ) {
@@ -111,7 +130,9 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
                 }
             }
         }
-        HomeViewport(Modifier.fillMaxWidth().weight(1f)) { player }
+        HomeViewport(Modifier.fillMaxWidth().weight(1f), { player }) {
+            if (canMove) walkElapsedNanos else -1L
+        }
         OutlinedButton(
             onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth().testTag("playground-explore")
         ) { Text("Explore / Battle", maxLines = 1) }
@@ -119,7 +140,7 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
             Modifier.fillMaxWidth().padding(bottom = 4.dp).testTag("playground-controls"),
             horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically
         ) {
-            DirectionPad(canMove, onHeld = { held = it }) { direction, target ->
+            DirectionPad(canMove, onHeld = ::updateDirection) { direction, target ->
                 DirectionButton(direction, held?.includes(direction) == true, canMove,
                     onStep = { player = PlaygroundHome.move(player, direction, 0.10f) },
                     modifier = target)
@@ -222,7 +243,9 @@ private fun DirectionButton(
 }
 
 @Composable
-private fun HomeViewport(modifier: Modifier, player: () -> HomePosition) {
+private fun HomeViewport(modifier: Modifier, player: () -> HomePosition, walkElapsedNanos: () -> Long) {
+    val assets = LocalContext.current.assets
+    val sprite = remember(assets) { PlaygroundSprite.load(assets) }
     val cornerRadius = 12.dp
     Canvas(modifier.clip(RoundedCornerShape(cornerRadius)).background(Color(0xFF293944)).testTag("playground-canvas")) {
         val room = PlaygroundHome
@@ -261,7 +284,17 @@ private fun HomeViewport(modifier: Modifier, player: () -> HomePosition) {
         roomRect(Color(0xFF774C32), room.width / 2 - 12, 4, 24, 28)
         roomRect(Color(0xFFAB7950), room.width / 2 - 9, 7, 18, 25)
         val position = player()
-        roomRect(Color(0xFF20323B), position.x.roundToInt(), position.y.roundToInt(), room.playerWidth, room.playerHeight)
+        val frame = sprite.frameAt(walkElapsedNanos())
+        val left = position.x + (room.playerWidth - frame.size.width) / 2f
+        val top = position.y + room.playerHeight - frame.feet
+        drawImage(
+            image = sprite.image,
+            srcOffset = frame.offset,
+            srcSize = frame.size,
+            dstOffset = IntOffset((x + left * zoom).roundToInt(), (y + top * zoom).roundToInt()),
+            dstSize = IntSize((frame.size.width * zoom).roundToInt(), (frame.size.height * zoom).roundToInt()),
+            filterQuality = FilterQuality.None
+        )
     }
 }
 

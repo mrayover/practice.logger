@@ -1,7 +1,9 @@
 package com.mrayover.practicelogger
 
+import android.graphics.BitmapFactory
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
@@ -20,11 +22,13 @@ import org.junit.Test
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 class PlaygroundWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val db get() = BlockDatabase.appInstance(compose.activity.application)
-    private val playerColor = 0xFF20323B.toInt()
+    private val spriteColors = setOf(0xFF000000, 0xFF76428A, 0xFF8A6F30, 0xFFAC3232, 0xFFFFFFFF).map(Long::toInt).toSet()
+    private val spriteBackgrounds = setOf(0xFFD0B692, 0xFFDDC4A0, 0xFF546C78, 0xFF607985).map(Long::toInt).toSet()
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @Test fun fixedHomeMovementAndLiveReadOnlyInventory() {
@@ -77,6 +81,8 @@ class PlaygroundWorkflowTest {
         node("playground-b").assertIsNotEnabled()
         verifyController(controls, fixedBounds)
         verifyRoomFit(controls.height / 96f)
+        verifyBatelTiming()
+        assertPlayerFrame(0)
 
         val before = playerPosition()
         node("playground-canvas").performTouchInput { swipeUp(); swipeLeft() }
@@ -97,7 +103,7 @@ class PlaygroundWorkflowTest {
             pad.performTouchInput { up() }
             assertEquals("The D-pad center is neutral", before, playerPosition())
 
-            val right = hold("right", 470)
+            val right = holdTouch(node("playground-right"), 470, verifyWalk = true) { center }
             assertTrue("Holding Right moves from $before to $right", right.x > before.x)
             assertEquals(before.y, right.y, 0f)
             val up = hold("up", 320)
@@ -119,6 +125,7 @@ class PlaygroundWorkflowTest {
             val topWall = hold("up", 3100)
             assertEquals(topWall, hold("up", 320))
             assertEquals(topWall, holdDiagonal(HomeDirection.UP_RIGHT, 160))
+            assertPlayerFrame(0)
             assertEquals(rightWall.x, topWall.x, 0f)
             assertTrue(viewport.width > topWall.x && topWall.y >= 0)
         } finally {
@@ -196,7 +203,7 @@ class PlaygroundWorkflowTest {
         for (direction in listOf(HomeDirection.UP_RIGHT, HomeDirection.DOWN_LEFT,
             HomeDirection.UP_LEFT, HomeDirection.DOWN_RIGHT)) {
             val before = playerPosition()
-            val after = holdDiagonal(direction, 160)
+            val after = holdDiagonal(direction, 160, verifyWalk = direction == HomeDirection.UP_RIGHT)
             val delta = after - before
             assertTrue("$direction moves on both axes: $delta", delta.x * direction.dx > 0 && delta.y * direction.dy > 0)
             val viewport = bounds("playground-canvas")
@@ -318,7 +325,7 @@ class PlaygroundWorkflowTest {
         assertTrue("The limiting margin stays narrow", minOf(left, top) <= 6 * density + 2)
         assertEquals("The tiles retain square proportions",
             height * PlaygroundHome.width.toFloat() / PlaygroundHome.height, width.toFloat(), 2f)
-        val floorAndPlayerColors = wallColors + setOf(0xFFD0B692.toInt(), 0xFFDDC4A0.toInt(), playerColor)
+        val floorAndPlayerColors = spriteBackgrounds + spriteColors
         assertTrue("No blended seams along the room's center tile edge",
             (left until left + width).all { pixels[it, pixels.height / 2].toArgb() in floorAndPlayerColors })
     }
@@ -335,22 +342,36 @@ class PlaygroundWorkflowTest {
         return holdTouch(button, millis, cancelled) { center }
     }
 
-    private fun holdDiagonal(direction: HomeDirection, millis: Long): Offset =
-        holdTouch(node("playground-dpad"), millis) {
+    private fun holdDiagonal(direction: HomeDirection, millis: Long, verifyWalk: Boolean = false): Offset =
+        holdTouch(node("playground-dpad"), millis, verifyWalk = verifyWalk) {
             center + Offset(direction.dx * height / 4f, direction.dy * height / 4f)
         }
 
     private fun holdTouch(
         button: SemanticsNodeInteraction, millis: Long, cancelled: Boolean = false,
+        verifyWalk: Boolean = false,
         position: TouchInjectionScope.() -> Offset
     ): Offset {
         button.performTouchInput { down(position()) }
         compose.runOnIdle {}
-        compose.mainClock.advanceTimeBy(millis)
+        if (verifyWalk) {
+            compose.mainClock.advanceTimeBy(64)
+            assertPlayerFrame(1)
+            compose.mainClock.advanceTimeBy(96)
+            assertPlayerFrame(2)
+            if (millis > 160) {
+                compose.mainClock.advanceTimeBy(112)
+                assertPlayerFrame(1)
+                compose.mainClock.advanceTimeBy(millis - 272)
+            }
+        } else {
+            compose.mainClock.advanceTimeBy(millis)
+        }
         val moved = playerPosition()
         button.performTouchInput { if (cancelled) cancel() else up() }
         compose.runOnIdle {}
         val stopped = playerPosition()
+        if (verifyWalk) assertPlayerFrame(0)
         val viewport = bounds("playground-canvas")
         val dispatchTolerance = ceil(2 * minOf(viewport.width / PlaygroundHome.width, viewport.height / PlaygroundHome.height))
         assertTrue("Only the in-flight frame may finish while Android dispatches release",
@@ -373,14 +394,71 @@ class PlaygroundWorkflowTest {
         node("playground-count-$label").assertIsDisplayed().assertTextEquals(count.toString())
     }
 
-    private fun playerPosition(): Offset {
-        val pixels = node("playground-canvas").captureToImage().toPixelMap()
+    private fun playerPosition(): Offset = playerPosition(node("playground-canvas").captureToImage().toPixelMap())
+
+    private fun playerPosition(pixels: PixelMap): Offset {
+        var left = pixels.width
+        var top = pixels.height
+        // The three foot-aligned Batel poses have the same outer bounds.
+        val spriteHeight = ceil(roomScale(pixels.width, pixels.height) * 30).toInt()
         for (y in 0 until pixels.height) {
+            if (y >= top + spriteHeight) break
             for (x in 0 until pixels.width) {
-                if (pixels[x, y].toArgb() == playerColor) return Offset(x.toFloat(), y.toFloat())
+                if (pixels[x, y].toArgb() in spriteColors) {
+                    left = minOf(left, x)
+                    top = minOf(top, y)
+                }
             }
         }
-        error("The player rectangle is missing from the viewport")
+        check(left < pixels.width) { "Batel is missing from the viewport" }
+        return Offset(left.toFloat(), top.toFloat())
+    }
+
+    private fun roomScale(width: Int, height: Int): Float {
+        val density = bounds("playground-controls").height / 96f
+        return minOf(
+            (width - 2 * density) / PlaygroundHome.width,
+            (height - 2 * density) / PlaygroundHome.height,
+            (width + height - 24 * density) / (PlaygroundHome.width + PlaygroundHome.height)
+        )
+    }
+
+    private fun verifyBatelTiming() {
+        val sprite = PlaygroundSprite.load(compose.activity.assets)
+        assertEquals(90, sprite.image.width)
+        assertEquals(30, sprite.image.height)
+        assertEquals(0, sprite.frameAt(-1).offset.x)
+        assertEquals(30, sprite.frameAt(0).offset.x)
+        assertEquals(30, sprite.frameAt(99_999_999).offset.x)
+        assertEquals(60, sprite.frameAt(100_000_000).offset.x)
+        assertEquals(60, sprite.frameAt(199_999_999).offset.x)
+        assertEquals(30, sprite.frameAt(200_000_000).offset.x)
+    }
+
+    private fun assertPlayerFrame(frame: Int) {
+        val pixels = node("playground-canvas").captureToImage().toPixelMap()
+        val (left, top) = playerPosition(pixels)
+        val scale = (roomScale(pixels.width, pixels.height) * 30).roundToInt() / 30f
+        val originX = left.toInt() - ceil(5 * scale - 0.5f).toInt()
+        val originY = top.toInt() - ceil(3 * scale - 0.5f).toInt()
+        val bitmap = compose.activity.assets.open("playground/Batel.png").use { BitmapFactory.decodeStream(it) }
+        try {
+            val sourceTop = if (frame == 1) 1 else 0
+            for (y in 3..27) {
+                for (x in 5..25) {
+                    val expected = bitmap.getPixel(frame * 30 + x, y - sourceTop)
+                    val actual = pixels[originX + ((x + 0.5f) * scale).toInt(),
+                        originY + ((y + 0.5f) * scale).toInt()].toArgb()
+                    if (expected ushr 24 == 0) {
+                        assertTrue("Room shows through Batel frame $frame at $x,$y", actual in spriteBackgrounds)
+                    } else {
+                        assertEquals("Batel frame $frame pixel $x,$y", expected, actual)
+                    }
+                }
+            }
+        } finally {
+            bitmap.recycle()
+        }
     }
 
     private fun screenshot(name: String) {
