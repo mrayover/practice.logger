@@ -25,7 +25,7 @@ internal enum class HomeDirection(val dx: Int, val dy: Int, val label: String, v
             if (x * x + y * y <= deadZone * deadZone) return null
             val sector = atan2(y, x) / (PI.toFloat() / 4f)
             if (previous != null) {
-            val difference = abs((sector + 8f) % 8f - previous.ordinal)
+                val difference = abs((sector + 8f) % 8f - previous.ordinal)
                 // Retain the current sector for five degrees beyond either edge.
                 if (minOf(difference, 8f - difference) <= 0.5f + 5f / 45f) return previous
             }

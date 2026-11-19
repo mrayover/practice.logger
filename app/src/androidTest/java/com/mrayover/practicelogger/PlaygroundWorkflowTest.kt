@@ -168,6 +168,27 @@ class PlaygroundWorkflowTest {
 
     private fun verifyEightDirectionTouch() {
         val pad = node("playground-dpad")
+        val padBounds = bounds("playground-dpad")
+        val armCenters = listOf("up", "down", "left", "right").associateWith {
+            bounds("playground-$it").center - padBounds.topLeft
+        }
+        fun afterInput(vararg arms: String): Offset {
+            // Android can deliver a batched MOVE after the test clock starts advancing.
+            // Wait for the controller to render the resolved input before measuring the next interval.
+            compose.waitUntil(5_000) {
+                compose.mainClock.advanceTimeByFrame()
+                val pixels = pad.captureToImage().toPixelMap()
+                val pressed = armCenters.filterValues { center ->
+                    val x = center.x.toInt()
+                    val y = center.y.toInt()
+                    (y - 10..y + 10).any { row ->
+                        (x - 10..x + 10).any { column -> pixels[column, row].toArgb() == 0xFF315C47.toInt() }
+                    }
+                }.keys
+                pressed == arms.toSet()
+            }
+            return playerPosition()
+        }
         val start = playerPosition()
         val cardinal = hold("left", 160)
         hold("right", 160)
@@ -189,20 +210,22 @@ class PlaygroundWorkflowTest {
             compose.mainClock.advanceTimeBy(176)
             return playerPosition()
         }
-        val beforeSlide = playerPosition()
         pad.performTouchInput { down(center + Offset(0f, -height / 4f)) }
+        val beforeSlide = afterInput("up")
         val up = advance()
         assertTrue(up.y < beforeSlide.y)
         assertEquals(beforeSlide.x, up.x, 0f)
         pad.performTouchInput { moveTo(0, center + Offset(height / 4f, -height / 4f)) }
+        val beforeDiagonal = afterInput("up", "right")
         val diagonal = advance()
-        assertTrue(diagonal.x > up.x && diagonal.y < up.y)
+        assertTrue(diagonal.x > beforeDiagonal.x && diagonal.y < beforeDiagonal.y)
         pad.performTouchInput { moveTo(0, center + Offset(height / 4f, 0f)) }
+        val beforeRight = afterInput("right")
         val right = advance()
-        assertTrue(right.x > diagonal.x)
-        assertEquals(diagonal.y, right.y, 0f)
+        assertTrue(right.x > beforeRight.x)
+        assertEquals(beforeRight.y, right.y, 0f)
         pad.performTouchInput { moveTo(0, center) }
-        val neutral = advance()
+        val neutral = afterInput()
         assertEquals(neutral, advance())
         pad.performTouchInput { up() }
 
@@ -212,25 +235,29 @@ class PlaygroundWorkflowTest {
             down(1, center + Offset(-height / 4f, 0f))
             down(2, aCenter)
         }
+        val beforeCombined = afterInput("down", "left")
         val combined = advance()
-        assertTrue(combined.x < neutral.x && combined.y > neutral.y)
+        assertTrue(combined.x < beforeCombined.x && combined.y > beforeCombined.y)
         pad.performTouchInput { up(2) }
         val afterA = advance()
         assertTrue(afterA.x < combined.x && afterA.y > combined.y)
         pad.performTouchInput {
             down(2, center + Offset(height / 4f, 0f))
         }
+        val beforeDown = afterInput("down")
         val onlyDown = advance()
-        assertEquals(afterA.x, onlyDown.x, 0f)
-        assertTrue(onlyDown.y > afterA.y)
+        assertEquals(beforeDown.x, onlyDown.x, 0f)
+        assertTrue(onlyDown.y > beforeDown.y)
         pad.performTouchInput { down(3, center + Offset(0f, -height / 4f)) }
-        assertEquals(onlyDown, advance())
+        val cancelledAxes = afterInput()
+        assertEquals(cancelledAxes, advance())
         pad.performTouchInput { up(0); up(2); up(3) }
+        val beforeLeft = afterInput("left")
         val onlyLeft = advance()
-        assertTrue(onlyLeft.x < onlyDown.x)
-        assertEquals(onlyDown.y, onlyLeft.y, 0f)
+        assertTrue(onlyLeft.x < beforeLeft.x)
+        assertEquals(beforeLeft.y, onlyLeft.y, 0f)
         pad.performTouchInput { cancel() }
-        val cancelled = advance()
+        val cancelled = afterInput()
         assertEquals(cancelled, advance())
 
         pad.performTouchInput { down(center + Offset(height / 4f, 0f)) }
