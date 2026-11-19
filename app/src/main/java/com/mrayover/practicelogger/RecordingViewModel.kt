@@ -27,6 +27,13 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
     private val repository = TakeRepository(db, application)
     val takes = repository.takes.catch { message = "Could not load recordings. Close and reopen to retry."; emit(emptyList()) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    internal suspend fun latestAccessibleFreeRecording(takes: List<BlockTake>): BlockTake? =
+        withContext(Dispatchers.IO) {
+            takes.firstOrNull { take ->
+                take.blockId == null && take.mode == TakeKind.FREE.stored &&
+                    runCatching { repository.audioFile(take).canRead() }.getOrDefault(false)
+            }
+        }
     var ready by mutableStateOf(false); private set
     var busy by mutableStateOf(false); private set
     var recording by mutableStateOf(false); private set

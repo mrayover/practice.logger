@@ -49,8 +49,12 @@ class ReflectionRepositoryTest {
             for (rating in 1..5) {
                 val review = BlockReflection(first.id, rating, revisit = "Slow entrance")
                 repo.saveBlockReflection(review)
-                assertEquals(CompletedPlacement(completion, review), db.sessions().find(id)!!.completions.single())
-                assertEquals(800L, db.sessions().find(id)!!.activeMs)
+                val bundle = db.sessions().find(id)!!
+                val entry = CompletedPlacement(completion, review)
+                assertEquals(entry, bundle.completions.single())
+                assertEquals(entry to entry, latestBlockReviews(listOf(bundle), second))
+                assertEquals(null to null, latestBlockReviews(listOf(bundle), first))
+                assertEquals(800L, bundle.activeMs)
             }
 
             goals.move(completionGoal, -1)

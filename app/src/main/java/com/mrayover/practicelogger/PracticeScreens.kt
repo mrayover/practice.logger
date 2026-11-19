@@ -102,7 +102,8 @@ internal fun UnfinishedSessions(sessions: SessionCatalog, practice: PracticeView
 }
 
 @Composable
-private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeViewModel, onNavigationCancelled: () -> Unit) {
+private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeViewModel,
+    recordings: RecordingViewModel, onNavigationCancelled: () -> Unit) {
     var leaving by rememberSaveable(current.id) { mutableStateOf(false) }
     val resumed = current.activeMs > 0 || current.overtimeAccepted
     val upNext = bundle.session.currentIndex > 0 && !resumed && current.prepMs == 0L
@@ -139,6 +140,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
             onClick = { vm.beginBlock(bundle.session.id, current.id, prep = true) },
             enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("practice-ready-prep")
         ) { Text(if (upNext) "Prep Next Block" else "Prep Block") }
+        if (upNext) UpNextHistory(current, vm, recordings)
     }
     if (leaving) AlertDialog(
         onDismissRequest = { if (!vm.busy) { leaving = false; onNavigationCancelled() } },
@@ -168,7 +170,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val current = bundle.current!!
     if (vm.workspacePlacementId != current.id) {
-        BlockReady(bundle, current, vm, onNavigationCancelled)
+        key(current.id) { BlockReady(bundle, current, vm, recordings, onNavigationCancelled) }
         return
     }
     val activity = LocalContext.current as? android.app.Activity

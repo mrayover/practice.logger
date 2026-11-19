@@ -125,9 +125,19 @@ internal fun BlockReflectionHistory(entry: CompletedPlacement) {
         Text("Goal priority at completion · $priority")
     }
     entry.reflection?.let { review ->
-        review.security?.let { Text("Security rating · $it / 5") }
-        ReflectionAnswers(blockPrompts, listOf(review.focus, review.difficulty, review.progress, review.revisit))
+        review.security?.let { BlockSecurityRating(it) }
+        BlockReflectionAnswers(review)
     }
+}
+
+@Composable
+internal fun BlockSecurityRating(security: Int) {
+    Text("Security rating · $security / 5")
+}
+
+@Composable
+internal fun BlockReflectionAnswers(review: BlockReflection) {
+    ReflectionAnswers(blockPrompts, review.textAnswers)
 }
 
 @Composable

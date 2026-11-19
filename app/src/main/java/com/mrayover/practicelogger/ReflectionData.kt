@@ -28,7 +28,21 @@ data class BlockReflection(
     val progress: String = "",
     val revisit: String = ""
 ) {
-    val hasAnswers get() = security != null || listOf(focus, difficulty, progress, revisit).any { it.isNotBlank() }
+    internal val textAnswers get() = listOf(focus, difficulty, progress, revisit)
+    val hasAnswers get() = security != null || textAnswers.any { it.isNotBlank() }
+}
+
+internal fun latestBlockReviews(
+    sessions: List<SessionBundle>, upcoming: Placement
+): Pair<CompletedPlacement?, CompletedPlacement?> {
+    val reviews = sessions.asSequence().flatMap { it.completions.asSequence() }.filter {
+        it.completion.sourceBlockId == upcoming.sourceBlockId && it.completion.placementId != upcoming.id
+    }
+    val byCompletion = compareBy<CompletedPlacement> { it.completion.completedAt }.thenBy { it.completion.placementId }
+    val reflection = reviews.filter { it.reflection?.textAnswers?.any(String::isNotBlank) == true }
+        .maxWithOrNull(byCompletion)
+    val rating = reviews.filter { it.reflection?.security != null }.maxWithOrNull(byCompletion)
+    return reflection to rating
 }
 
 @Entity(tableName = "session_reflections", foreignKeys = [ForeignKey(
