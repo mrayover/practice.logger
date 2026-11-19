@@ -1,6 +1,6 @@
 # practice.logger · Playground Home
 
-Open **Log → Playground** to walk around the tiled Home in eight directions. Hold between adjacent D-pad arms for a diagonal, or slide your thumb to change direction. Open **Blocks** to see what you've earned through completed practice. [Controls, inventory and saved arrangements](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+Open **Log → Playground** to walk Batel around the tiled Home in eight directions. Hold between adjacent D-pad arms for a diagonal, or slide your thumb to change direction. Open **Blocks** to see what you've earned through completed practice. [Controls, inventory and saved arrangements](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
 
 # practice.logger · Weekly planned and actual minutes
 

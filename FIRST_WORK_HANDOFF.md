@@ -1,6 +1,6 @@
-# Playground movement handoff
+# Playground Batel handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the signed eight-direction movement update, portrait verification and phone checklist. [Navigation, controls and inventory](docs/PLAYGROUND_SPEC.md).
+[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Batel update, focused verification and phone checklist. [Animation, controls and inventory](docs/PLAYGROUND_SPEC.md).
 
 ---
 

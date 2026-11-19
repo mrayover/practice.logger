@@ -1,4 +1,18 @@
-# Current state — Playground eight-direction movement
+# Current state — Batel in Playground Home
+
+November 18, 2026 (America/Los_Angeles). **0.60.4 / build 172** replaces the player rectangle with the owner's Batel sprite. The original 90 × 30 RGBA sheet contains three 30 × 30 poses. The Aseprite project and JSON agree on `idle` (frame 1) and `walk` (frames 2–3, forward at 100 ms per frame). The room Canvas draws Batel with nearest-neighbor scaling and aligned feet. The same orientation serves all eight directions. [Playground behavior](docs/PLAYGROUND_SPEC.md).
+
+**Source and package.** The canonical Windows checkout built and signed application source `d48360a4a3c3b5224d99b0d46e1bb87f43149468` on `block-ux-stage1`. APK SHA-256 `cac3921220f494902d743cb085da7505b81fdbe61bbcb815306c8c352f33f35d`. [APK](dist/practice.logger-0.60.4-b172-d48360a/practice.logger-0.60.4-b172-d48360a.apk) · [ZIP](dist/practice.logger-0.60.4-b172-d48360a.zip) · [Phone checklist](dist/practice.logger-0.60.4-b172-d48360a/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.4-b172-d48360a/BUILD_INFO.json).
+
+**Focused verification.** Release assembly, vital lint, Android-test assembly and all six host movement checks passed. The compact Android 15 workflow passed on the signed source at 720 × 1440 px and 360 dpi. It sampled the idle and walking poses, transparency and unblended sprite colors, exact 100 ms boundaries, looping, release, cardinal and diagonal motion, wall contact, lifecycle, the fixed portrait page and live read-only inventory. Saved completion and arrangement data matched the test's expected values. Page, viewport and control bounds matched build 171 exactly. Outside the entrance sprite area, four A-button outline pixels differed by one blue-channel value. [Android workflow](https://github.com/mrayover/practice.logger/actions/runs/44455599258) · [Playground screenshot](dist/practice.logger-0.60.4-b172-d48360a/evidence/playground-home.png) · [Pixel comparison](dist/practice.logger-0.60.4-b172-d48360a/evidence/PLAYGROUND_VISUAL_COMPARISON.txt).
+
+**ZIP and local delivery.** APK v2/v3 and the v4 sidecar verify against the pinned permanent certificate. All 182 APK payload entries match the unsigned release, both packaged Batel exports match the supplied files byte for byte, and all 10 ZIP files match their packaged copies. ZIP SHA-256 `f36e752d54c66c0b6c9ede188b2224f618cfca8f84d116dd2ad847cca4d7c120`. The local OneDrive copies in `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build172` match by checksum.
+
+**Exact next task.** Install build 172 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Playground eight-direction movement
 
 November 18, 2026 (America/Los_Angeles). **0.60.3 / build 171** adds single-thumb diagonals and sliding between sectors on the connected D-pad. Simultaneous touches resolve independently on each axis, with opposite directions cancelling. Cardinal and diagonal travel use the same speed, and the existing rectangular floor bounds allow sliding along either wall and stopping at corners. [Playground behavior](docs/PLAYGROUND_SPEC.md).
 
@@ -8,7 +22,7 @@ November 18, 2026 (America/Los_Angeles). **0.60.3 / build 171** adds single-thum
 
 **ZIP and local delivery.** APK v2/v3 and its v4 sidecar verify against the pinned permanent certificate. All 180 APK payload entries match the unsigned release, and all 11 ZIP members match the packaged files. ZIP SHA-256 `93543c675f89244f246a1ec744a86ded56d4047da0c3225e2f73e42b35a697f9`. The local OneDrive copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build171` match by checksum.
 
-**Exact next task.** Install build 171 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+**Physical acceptance.** Build 171 phone verification was pending at delivery.
 
 ---
 
