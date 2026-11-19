@@ -20,8 +20,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -214,29 +212,32 @@ private fun HomeViewport(modifier: Modifier, player: () -> HomePosition) {
         if (zoom == 0f) return@Canvas
         val x = (size.width - room.width * zoom) / 2
         val y = (size.height - room.height * zoom) / 2
-        translate(x, y) {
-            scale(zoom, zoom, Offset.Zero) {
-                val tile = room.tile.toFloat()
-                for (row in 0 until room.rows) {
-                    for (column in 0 until room.columns) {
-                        val wall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
-                        val alternate = (row + column) % 2 == 0
-                        val color = when {
-                            wall && alternate -> Color(0xFF546C78)
-                            wall -> Color(0xFF607985)
-                            alternate -> Color(0xFFD0B692)
-                            else -> Color(0xFFDDC4A0)
-                        }
-                        drawRect(color, Offset(column * tile, row * tile), Size(tile, tile))
-                    }
+        fun roomRect(color: Color, left: Int, top: Int, width: Int, height: Int) {
+            // Snap shared edges to the same screen pixels so fractional zoom leaves no tile seams.
+            val pixelLeft = (x + left * zoom).roundToInt()
+            val pixelTop = (y + top * zoom).roundToInt()
+            val pixelRight = (x + (left + width) * zoom).roundToInt()
+            val pixelBottom = (y + (top + height) * zoom).roundToInt()
+            drawRect(color, Offset(pixelLeft.toFloat(), pixelTop.toFloat()),
+                Size((pixelRight - pixelLeft).toFloat(), (pixelBottom - pixelTop).toFloat()))
+        }
+        for (row in 0 until room.rows) {
+            for (column in 0 until room.columns) {
+                val wall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
+                val alternate = (row + column) % 2 == 0
+                val color = when {
+                    wall && alternate -> Color(0xFF546C78)
+                    wall -> Color(0xFF607985)
+                    alternate -> Color(0xFFD0B692)
+                    else -> Color(0xFFDDC4A0)
                 }
-                drawRect(Color(0xFF774C32), Offset(room.width / 2f - 12, 4f), Size(24f, 28f))
-                drawRect(Color(0xFFAB7950), Offset(room.width / 2f - 9, 7f), Size(18f, 25f))
-                val position = player()
-                drawRect(Color(0xFF20323B), Offset(position.x.roundToInt().toFloat(), position.y.roundToInt().toFloat()),
-                    Size(room.playerWidth.toFloat(), room.playerHeight.toFloat()))
+                roomRect(color, column * room.tile, row * room.tile, room.tile, room.tile)
             }
         }
+        roomRect(Color(0xFF774C32), room.width / 2 - 12, 4, 24, 28)
+        roomRect(Color(0xFFAB7950), room.width / 2 - 9, 7, 18, 25)
+        val position = player()
+        roomRect(Color(0xFF20323B), position.x.roundToInt(), position.y.roundToInt(), room.playerWidth, room.playerHeight)
     }
 }
 

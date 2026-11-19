@@ -193,6 +193,7 @@ class PlaygroundWorkflowTest {
         fun isWall(x: Int, y: Int) = pixels[x, y].toArgb() in wallColors
         val columns = (0 until pixels.width).filter { isWall(it, pixels.height / 2) }
         val rows = (0 until pixels.height).filter { isWall(pixels.width / 2, it) }
+        assertTrue("Solid wall colors are visible along both room axes", columns.isNotEmpty() && rows.isNotEmpty())
         val left = columns.first()
         val right = pixels.width - 1 - columns.last()
         val top = rows.first()
@@ -206,6 +207,9 @@ class PlaygroundWorkflowTest {
         assertTrue("The limiting margin stays narrow", minOf(left, top) <= 6 * density + 2)
         assertEquals("The tiles retain square proportions",
             height * PlaygroundHome.width.toFloat() / PlaygroundHome.height, width.toFloat(), 2f)
+        val floorAndPlayerColors = wallColors + setOf(0xFFD0B692.toInt(), 0xFFDDC4A0.toInt(), playerColor)
+        assertTrue("No blended seams along the room's center tile edge",
+            (left until left + width).all { pixels[it, pixels.height / 2].toArgb() in floorAndPlayerColors })
     }
 
     private fun completion(index: Int): BlockCompletion {
