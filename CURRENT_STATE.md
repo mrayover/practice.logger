@@ -1,4 +1,18 @@
-# Current state — Playground control refinement
+# Current state — Playground viewport padding refinement
+
+November 18, 2026 (America/Los_Angeles). **0.60.2 / build 170** fits the room inside the existing gameplay viewport using one proportional scale, a 1 dp minimum inset and clearance at rounded corners. Shared tile edges snap to screen pixels. The room remains centered where its aspect ratio leaves extra space. Its logical tile grid, character, movement bounds and interface keep the build 168 behavior. [Playground behavior](docs/PLAYGROUND_SPEC.md).
+
+**Source and package.** The release was assembled in the canonical Windows checkout from `776d9c2b249ed9e44254b52cb5124e181d97aeec` on `block-ux-stage1`. [APK](dist/practice.logger-0.60.2-b170-776d9c2/practice.logger-0.60.2-b170-776d9c2.apk) · [ZIP](dist/practice.logger-0.60.2-b170-776d9c2.zip) · [Phone checklist](dist/practice.logger-0.60.2-b170-776d9c2/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.2-b170-776d9c2/BUILD_INFO.json). APK SHA-256 `d9d479a5622d92d4886917a13db1dc04499351b3fb8239fbf9e459b9fc8f27cf`.
+
+**Focused verification.** Release assembly, vital lint, Android-test compilation and two host movement tests passed. The Playground workflow passed on the Galaxy-sized Android 16 profile at 1440 × 3120 px and the compact Android 15 profile at 720 × 1440 px. Both verified the proportional room, solid tile edges, wall collision, hold and release, controls and no scrolling. The room grew from 448 × 512 to 506 × 579 px on compact, with the top and bottom borders shrinking from 35–36 px to 2 px. At Galaxy size the room grew from 1344 × 1536 to 1349 × 1542 px, reducing each vertical border from 126 to 123 px. Available width limits further vertical expansion there. Page, viewport and control bounds match build 168 exactly, as do the screenshot pixels above and below the viewport. [Galaxy workflow](https://github.com/mrayover/practice.logger/actions/runs/44426737551) · [Compact workflow](https://github.com/mrayover/practice.logger/actions/runs/44426741077) · [Measured comparison](dist/practice.logger-0.60.2-b170-776d9c2/evidence/inset-galaxy-matched/PLAYGROUND_BOUNDS_COMPARISON.txt) · [Compact screenshot](dist/practice.logger-0.60.2-b170-776d9c2/evidence/inset-compact-matched/playground-home.png).
+
+**ZIP and local delivery.** APK v2/v3 and its v4 sidecar verify against the pinned permanent certificate. All 180 APK payload entries match the unsigned release. ZIP SHA-256 `dae0d84f22fe9f0eb2ec422bfe5e69c87f04a933c6f0c909628cf6b91452f406`. All 16 ZIP members and the local OneDrive delivery copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build170` match by checksum.
+
+**Exact next task.** Install build 170 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Playground control refinement
 
 November 18, 2026 (America/Los_Angeles). **0.60.1 / build 168** gives Playground a connected dark-purple D-pad with four separate direction targets and an inert center. Circular B sits lower-left of A. The controls occupy the same 96 dp row as build 166. Direction holding, release, cancellation, A input and reserved B behavior use the existing logic. [Playground behavior](docs/PLAYGROUND_SPEC.md).
 
@@ -8,7 +22,7 @@ November 18, 2026 (America/Los_Angeles). **0.60.1 / build 168** gives Playground
 
 **ZIP and local delivery.** ZIP SHA-256 `d669a5fe8d4ab4a1b4f9f44f21d63e8d81e5347d5023c17abf53e8db2d30bbf0`. All 16 archive members and the local OneDrive delivery copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build168` match by checksum.
 
-**Exact next task.** Install build 168 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+**Build 168 phone status.** Physical acceptance was pending at delivery.
 
 ---
 
