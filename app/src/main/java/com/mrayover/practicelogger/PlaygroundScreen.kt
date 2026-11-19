@@ -1,6 +1,8 @@
 package com.mrayover.practicelogger
 
 import android.app.Application
+import android.content.res.AssetManager
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +21,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
@@ -246,6 +250,9 @@ private fun DirectionButton(
 private fun HomeViewport(modifier: Modifier, player: () -> HomePosition, walkElapsedNanos: () -> Long) {
     val assets = LocalContext.current.assets
     val sprite = remember(assets) { PlaygroundSprite.load(assets) }
+    val floorTile = remember(assets) { assets.loadHomeTile("FloorTile1.png") }
+    val wallTile = remember(assets) { assets.loadHomeTile("Wall1.png") }
+    val door = remember(assets) { assets.loadHomeTile("Door1.png") }
     val cornerRadius = 12.dp
     Canvas(modifier.clip(RoundedCornerShape(cornerRadius)).background(Color(0xFF293944)).testTag("playground-canvas")) {
         val room = PlaygroundHome
@@ -259,30 +266,27 @@ private fun HomeViewport(modifier: Modifier, player: () -> HomePosition, walkEla
         if (zoom == 0f) return@Canvas
         val x = (size.width - room.width * zoom) / 2
         val y = (size.height - room.height * zoom) / 2
-        fun roomRect(color: Color, left: Int, top: Int, width: Int, height: Int) {
+        fun drawTile(image: ImageBitmap, left: Int, top: Int, tileSize: Int) {
             // Snap shared edges to the same screen pixels so fractional zoom leaves no tile seams.
             val pixelLeft = (x + left * zoom).roundToInt()
             val pixelTop = (y + top * zoom).roundToInt()
-            val pixelRight = (x + (left + width) * zoom).roundToInt()
-            val pixelBottom = (y + (top + height) * zoom).roundToInt()
-            drawRect(color, Offset(pixelLeft.toFloat(), pixelTop.toFloat()),
-                Size((pixelRight - pixelLeft).toFloat(), (pixelBottom - pixelTop).toFloat()))
+            val pixelRight = (x + (left + tileSize) * zoom).roundToInt()
+            val pixelBottom = (y + (top + tileSize) * zoom).roundToInt()
+            drawImage(
+                image = image,
+                dstOffset = IntOffset(pixelLeft, pixelTop),
+                dstSize = IntSize(pixelRight - pixelLeft, pixelBottom - pixelTop),
+                filterQuality = FilterQuality.None
+            )
         }
         for (row in 0 until room.rows) {
             for (column in 0 until room.columns) {
                 val wall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
-                val alternate = (row + column) % 2 == 0
-                val color = when {
-                    wall && alternate -> Color(0xFF546C78)
-                    wall -> Color(0xFF607985)
-                    alternate -> Color(0xFFD0B692)
-                    else -> Color(0xFFDDC4A0)
-                }
-                roomRect(color, column * room.tile, row * room.tile, room.tile, room.tile)
+                drawTile(if (wall) wallTile else floorTile, column * room.tile, row * room.tile, room.tile)
             }
         }
-        roomRect(Color(0xFF774C32), room.width / 2 - 12, 4, 24, 28)
-        roomRect(Color(0xFFAB7950), room.width / 2 - 9, 7, 18, 25)
+        // Center the square door art in the original 24 × 28 doorway bounds.
+        drawTile(door, room.width / 2 - 12, 6, 24)
         val position = player()
         val frame = sprite.frameAt(walkElapsedNanos())
         val left = position.x + (room.playerWidth - frame.size.width) / 2f
@@ -297,6 +301,13 @@ private fun HomeViewport(modifier: Modifier, player: () -> HomePosition, walkEla
         )
     }
 }
+
+private fun AssetManager.loadHomeTile(filename: String): ImageBitmap =
+    open("playground/$filename").use { stream ->
+        val bitmap = checkNotNull(BitmapFactory.decodeStream(stream))
+        require(bitmap.width == bitmap.height) { "Expected square Playground artwork: $filename" }
+        bitmap.asImageBitmap()
+    }
 
 @Composable
 private fun InventoryDialog(counts: List<EarnedBlockCount>?, total: Int?, onClose: () -> Unit) {

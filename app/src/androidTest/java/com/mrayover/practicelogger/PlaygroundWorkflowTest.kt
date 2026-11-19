@@ -1,5 +1,6 @@
 package com.mrayover.practicelogger
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -27,8 +28,11 @@ import kotlin.math.roundToInt
 class PlaygroundWorkflowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val db get() = BlockDatabase.appInstance(compose.activity.application)
-    private val spriteColors = setOf(0xFF000000, 0xFF76428A, 0xFF8A6F30, 0xFFAC3232, 0xFFFFFFFF).map(Long::toInt).toSet()
-    private val spriteBackgrounds = setOf(0xFFD0B692, 0xFFDDC4A0, 0xFF546C78, 0xFF607985).map(Long::toInt).toSet()
+    private val floorColors = setOf(0xFF663931.toInt(), 0xFFD9A066.toInt())
+    private val wallColors = setOf(0xFF323C39.toInt(), 0xFF8A6F30.toInt(), 0xFFAC3232.toInt())
+    private val doorColors = setOf(0xFF000000.toInt(), 0xFF45283C.toInt(), 0xFF663931.toInt(), 0xFFFBF236.toInt())
+    private val spriteColors = setOf(0xFF000000.toInt(), 0xFF76428A.toInt(), 0xFFFFFFFF.toInt()) + wallColors
+    private val spriteBackgrounds = floorColors + wallColors + doorColors
     private val device get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @Test fun fixedHomeMovementAndLiveReadOnlyInventory() {
@@ -307,7 +311,6 @@ class PlaygroundWorkflowTest {
 
     private fun verifyRoomFit(density: Float) {
         val pixels = node("playground-canvas").captureToImage().toPixelMap()
-        val wallColors = setOf(0xFF546C78.toInt(), 0xFF607985.toInt())
         fun isWall(x: Int, y: Int) = pixels[x, y].toArgb() in wallColors
         val columns = (0 until pixels.width).filter { isWall(it, pixels.height / 2) }
         val rows = (0 until pixels.height).filter { isWall(pixels.width / 2, it) }
@@ -328,7 +331,53 @@ class PlaygroundWorkflowTest {
         val floorAndPlayerColors = spriteBackgrounds + spriteColors
         assertTrue("No blended seams along the room's center tile edge",
             (left until left + width).all { pixels[it, pixels.height / 2].toArgb() in floorAndPlayerColors })
+
+        val room = PlaygroundHome
+        val floor = loadArtwork("FloorTile1.png")
+        val wall = loadArtwork("Wall1.png")
+        val door = loadArtwork("Door1.png")
+        try {
+            assertEquals(30, floor.width)
+            assertEquals(45, wall.width)
+            assertEquals(45, door.width)
+            val scale = roomScale(pixels.width, pixels.height)
+            val originX = (pixels.width - room.width * scale) / 2
+            val originY = (pixels.height - room.height * scale) / 2
+            fun verifyTile(bitmap: Bitmap, x: Int, y: Int, size: Int) {
+                val x0 = (originX + x * scale).roundToInt()
+                val y0 = (originY + y * scale).roundToInt()
+                val w = (originX + (x + size) * scale).roundToInt() - x0
+                val h = (originY + (y + size) * scale).roundToInt() - y0
+                for (dy in 0 until h step 3) {
+                    for (dx in 0 until w step 3) {
+                        val sourceX = (dx + 0.5) * bitmap.width / w
+                        val sourceY = (dy + 0.5) * bitmap.height / h
+                        // Either adjacent texel is valid exactly on a nearest-neighbor tie.
+                        if (abs(sourceX - sourceX.roundToInt()) < 0.01 ||
+                            abs(sourceY - sourceY.roundToInt()) < 0.01) continue
+                        assertEquals("Artwork pixel at room ($x,$y), offset ($dx,$dy)",
+                            bitmap.getPixel(sourceX.toInt(), sourceY.toInt()), pixels[x0 + dx, y0 + dy].toArgb())
+                    }
+                }
+            }
+            for (row in 0 until room.rows) {
+                for (column in 0 until room.columns) {
+                    // The doorway is checked separately. Batel overlaps the central tiles at entrance.
+                    if (column in 6..7 && (row < 2 || row in 6..8)) continue
+                    val isWall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
+                    verifyTile(if (isWall) wall else floor, column * room.tile, row * room.tile, room.tile)
+                }
+            }
+            verifyTile(door, room.width / 2 - 12, 6, 24)
+        } finally {
+            floor.recycle()
+            wall.recycle()
+            door.recycle()
+        }
     }
+
+    private fun loadArtwork(filename: String): Bitmap =
+        compose.activity.assets.open("playground/$filename").use { checkNotNull(BitmapFactory.decodeStream(it)) }
 
     private fun completion(index: Int): BlockCompletion {
         // Saved rank intentionally disagrees with saved color. The inventory reads the color.
@@ -400,11 +449,18 @@ class PlaygroundWorkflowTest {
         var left = pixels.width
         var top = pixels.height
         // The three foot-aligned Batel poses have the same outer bounds.
-        val spriteHeight = ceil(roomScale(pixels.width, pixels.height) * 30).toInt()
+        val scale = roomScale(pixels.width, pixels.height)
+        val spriteHeight = ceil(scale * 30).toInt()
+        val doorTop = ((pixels.height - PlaygroundHome.height * scale) / 2 + 6 * scale).roundToInt()
+        val doorBottom = ((pixels.height - PlaygroundHome.height * scale) / 2 + 30 * scale).roundToInt()
+        val doorLeft = (pixels.width / 2f - 12 * scale).roundToInt()
+        val doorRight = (pixels.width / 2f + 12 * scale).roundToInt()
         for (y in 0 until pixels.height) {
             if (y >= top + spriteHeight) break
             for (x in 0 until pixels.width) {
-                if (pixels[x, y].toArgb() in spriteColors) {
+                // All three poses have a black outer silhouette. Exclude the black door outline.
+                if (pixels[x, y].toArgb() == 0xFF000000.toInt() &&
+                    !(x in doorLeft until doorRight && y in doorTop until doorBottom)) {
                     left = minOf(left, x)
                     top = minOf(top, y)
                 }
