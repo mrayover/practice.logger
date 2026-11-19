@@ -5,8 +5,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +18,8 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -54,19 +54,19 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
     val lifecycle by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
     val canMove = lifecycle == Lifecycle.State.RESUMED && LocalWindowInfo.current.isWindowFocused && !inventoryOpen
 
-    LaunchedEffect(held, canMove) {
+    val moving = held != null
+    LaunchedEffect(moving, canMove) {
         if (!canMove) {
             held = null
             return@LaunchedEffect
         }
-        val direction = held ?: return@LaunchedEffect
+        if (!moving) return@LaunchedEffect
         var previous = withFrameNanos { it }
-        while (held == direction) {
+        while (true) {
             val now = withFrameNanos { it }
-            if (held != direction) break
             // Bound catch-up after a stalled frame so resuming cannot cause a jump.
             val elapsed = ((now - previous) / 1_000_000_000f).coerceIn(0f, 0.05f)
-            player = PlaygroundHome.move(player, direction, elapsed)
+            held?.let { player = PlaygroundHome.move(player, it, elapsed) }
             previous = now
         }
     }
@@ -119,12 +119,8 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
             Modifier.fillMaxWidth().padding(bottom = 4.dp).testTag("playground-controls"),
             horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically
         ) {
-            DirectionPad { direction, target ->
-                DirectionButton(direction, held == direction, canMove,
-                    onHeld = { pressed ->
-                        if (pressed) held = direction
-                        else if (held == direction) held = null
-                    },
+            DirectionPad(canMove, onHeld = { held = it }) { direction, target ->
+                DirectionButton(direction, held?.includes(direction) == true, canMove,
                     onStep = { player = PlaygroundHome.move(player, direction, 0.10f) },
                     modifier = target)
             }
@@ -144,9 +140,49 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
 }
 
 @Composable
-private fun DirectionPad(button: @Composable (HomeDirection, Modifier) -> Unit) {
-    // The artwork spans the center. Only the four arms receive input.
-    Box(Modifier.size(152.dp, 96.dp).testTag("playground-dpad")) {
+private fun DirectionPad(
+    enabled: Boolean,
+    onHeld: (HomeDirection?) -> Unit,
+    button: @Composable (HomeDirection, Modifier) -> Unit
+) {
+    val updateHeld by rememberUpdatedState(onHeld)
+    Box(Modifier.size(152.dp, 96.dp).testTag("playground-dpad").pointerInput(enabled) {
+        if (!enabled) return@pointerInput
+        val deadZone = 8.dp.toPx()
+        awaitEachGesture {
+            val pointers = mutableMapOf<PointerId, HomeDirection?>()
+            try {
+                do {
+                    val event = awaitPointerEvent()
+                    for (change in event.changes) {
+                        val position = change.position
+                        val inside = position.x >= 0f && position.x < size.width &&
+                            position.y >= 0f && position.y < size.height
+                        if (change.changedToDown() && inside) pointers[change.id] = null
+                        if (change.id !in pointers) continue
+                        if (change.isConsumed) {
+                            pointers.remove(change.id)
+                            continue
+                        }
+                        if (change.pressed) {
+                            pointers[change.id] = if (inside) HomeDirection.fromTouch(
+                                position.x - size.width / 2f,
+                                position.y - size.height / 2f,
+                                deadZone,
+                                pointers[change.id]
+                            ) else null
+                        } else {
+                            pointers.remove(change.id)
+                        }
+                        change.consume()
+                    }
+                    updateHeld(HomeDirection.combine(pointers.values))
+                } while (event.changes.any { it.pressed })
+            } finally {
+                updateHeld(null)
+            }
+        }
+    }) {
         Canvas(Modifier.matchParentSize()) {
             val fill = Color(0xFF463953)
             val corner = CornerRadius(5.dp.toPx())
@@ -164,10 +200,9 @@ private fun DirectionPad(button: @Composable (HomeDirection, Modifier) -> Unit) 
 
 @Composable
 private fun DirectionButton(
-    direction: HomeDirection, pressed: Boolean, enabled: Boolean, onHeld: (Boolean) -> Unit, onStep: () -> Unit,
+    direction: HomeDirection, pressed: Boolean, enabled: Boolean, onStep: () -> Unit,
     modifier: Modifier
 ) {
-    val updateHeld by rememberUpdatedState(onHeld)
     val colors = MaterialTheme.colorScheme
     Box(
         modifier.testTag("playground-${direction.name.lowercase()}")
@@ -175,17 +210,6 @@ private fun DirectionButton(
                 contentDescription = direction.label
                 role = Role.Button
                 if (enabled) onClick { onStep(); true }
-            }.pointerInput(enabled, direction) {
-                if (!enabled) return@pointerInput
-                awaitEachGesture {
-                    awaitFirstDown().consume()
-                    updateHeld(true)
-                    try {
-                        waitForUpOrCancellation()?.consume()
-                    } finally {
-                        updateHeld(false)
-                    }
-                }
             },
         contentAlignment = Alignment.Center
     ) {

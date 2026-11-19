@@ -1,6 +1,6 @@
 # Playground Home Foundation
 
-The assigned portrait Home replaces the arrangement canvas in the active Playground. It provides four-direction walking in one placeholder room and a live, read-only completion inventory. Room 29 and portable backups continue to carry legacy arrangement data. Later environments and gameplay require a separate assignment. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+The assigned portrait Home replaces the arrangement canvas in the active Playground. It provides eight-direction walking in one placeholder room and a live, read-only completion inventory. Room 29 and portable backups continue to carry legacy arrangement data. Later environments and gameplay require a separate assignment. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
 
 # Weekly planned and actual practice minutes
 

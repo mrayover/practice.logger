@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.lifecycle.Lifecycle
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -94,7 +95,7 @@ class PlaygroundWorkflowTest {
             pad.performTouchInput { down(center) }
             compose.mainClock.advanceTimeBy(400)
             pad.performTouchInput { up() }
-            assertEquals("The D-pad junction is visual only", before, playerPosition())
+            assertEquals("The D-pad center is neutral", before, playerPosition())
 
             val right = hold("right", 470)
             assertTrue("Holding Right moves from $before to $right", right.x > before.x)
@@ -109,10 +110,15 @@ class PlaygroundWorkflowTest {
             assertTrue(down.y > left.y)
             assertEquals(left.x, down.x, 0f)
 
+            verifyEightDirectionTouch()
             val rightWall = hold("right", 2600)
             assertEquals(rightWall, hold("right", 320))
+            val slid = holdDiagonal(HomeDirection.UP_RIGHT, 160)
+            assertEquals(rightWall.x, slid.x, 0f)
+            assertTrue(slid.y < rightWall.y)
             val topWall = hold("up", 3100)
             assertEquals(topWall, hold("up", 320))
+            assertEquals(topWall, holdDiagonal(HomeDirection.UP_RIGHT, 160))
             assertEquals(rightWall.x, topWall.x, 0f)
             assertTrue(viewport.width > topWall.x && topWall.y >= 0)
         } finally {
@@ -158,6 +164,84 @@ class PlaygroundWorkflowTest {
         compose.onNodeWithText("Playground").assertIsDisplayed()
         assertEquals(listOf(savedLayout), runBlocking { db.playground().readAll() })
         assertEquals(original + completion(6), runBlocking { db.playground().completions() })
+    }
+
+    private fun verifyEightDirectionTouch() {
+        val pad = node("playground-dpad")
+        val start = playerPosition()
+        val cardinal = hold("left", 160)
+        hold("right", 160)
+        val cardinalDistance = start.x - cardinal.x
+        for (direction in listOf(HomeDirection.UP_RIGHT, HomeDirection.DOWN_LEFT,
+            HomeDirection.UP_LEFT, HomeDirection.DOWN_RIGHT)) {
+            val before = playerPosition()
+            val after = holdDiagonal(direction, 160)
+            val delta = after - before
+            assertTrue("$direction moves on both axes: $delta", delta.x * direction.dx > 0 && delta.y * direction.dy > 0)
+            val viewport = bounds("playground-canvas")
+            val scale = minOf(viewport.width / PlaygroundHome.width, viewport.height / PlaygroundHome.height)
+            assertEquals("Diagonal and cardinal movement cover the same distance", cardinalDistance,
+                delta.getDistance(), ceil(4 * scale))
+        }
+
+        fun advance(): Offset {
+            compose.runOnIdle {}
+            compose.mainClock.advanceTimeBy(176)
+            return playerPosition()
+        }
+        val beforeSlide = playerPosition()
+        pad.performTouchInput { down(center + Offset(0f, -height / 4f)) }
+        val up = advance()
+        assertTrue(up.y < beforeSlide.y)
+        assertEquals(beforeSlide.x, up.x, 0f)
+        pad.performTouchInput { moveTo(0, center + Offset(height / 4f, -height / 4f)) }
+        val diagonal = advance()
+        assertTrue(diagonal.x > up.x && diagonal.y < up.y)
+        pad.performTouchInput { moveTo(0, center + Offset(height / 4f, 0f)) }
+        val right = advance()
+        assertTrue(right.x > diagonal.x)
+        assertEquals(diagonal.y, right.y, 0f)
+        pad.performTouchInput { moveTo(0, center) }
+        val neutral = advance()
+        assertEquals(neutral, advance())
+        pad.performTouchInput { up() }
+
+        val aCenter = bounds("playground-a").center - bounds("playground-dpad").topLeft
+        pad.performTouchInput {
+            down(0, center + Offset(0f, height / 4f))
+            down(1, center + Offset(-height / 4f, 0f))
+            down(2, aCenter)
+        }
+        val combined = advance()
+        assertTrue(combined.x < neutral.x && combined.y > neutral.y)
+        pad.performTouchInput { up(2) }
+        val afterA = advance()
+        assertTrue(afterA.x < combined.x && afterA.y > combined.y)
+        pad.performTouchInput {
+            down(2, center + Offset(height / 4f, 0f))
+        }
+        val onlyDown = advance()
+        assertEquals(afterA.x, onlyDown.x, 0f)
+        assertTrue(onlyDown.y > afterA.y)
+        pad.performTouchInput { down(3, center + Offset(0f, -height / 4f)) }
+        assertEquals(onlyDown, advance())
+        pad.performTouchInput { up(0); up(2); up(3) }
+        val onlyLeft = advance()
+        assertTrue(onlyLeft.x < onlyDown.x)
+        assertEquals(onlyDown.y, onlyLeft.y, 0f)
+        pad.performTouchInput { cancel() }
+        val cancelled = advance()
+        assertEquals(cancelled, advance())
+
+        pad.performTouchInput { down(center + Offset(height / 4f, 0f)) }
+        val held = advance()
+        assertTrue(held.x > cancelled.x)
+        compose.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+        compose.mainClock.advanceTimeBy(176)
+        compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        val resumed = advance()
+        assertEquals("Resuming does not restore a held direction", resumed, advance())
+        pad.performTouchInput { cancel() }
     }
 
     private fun verifyController(controls: Rect, bounds: Map<String, Rect>) {
@@ -221,7 +305,19 @@ class PlaygroundWorkflowTest {
 
     private fun hold(direction: String, millis: Long, cancelled: Boolean = false): Offset {
         val button = node("playground-$direction")
-        button.performTouchInput { down(center) }
+        return holdTouch(button, millis, cancelled) { center }
+    }
+
+    private fun holdDiagonal(direction: HomeDirection, millis: Long): Offset =
+        holdTouch(node("playground-dpad"), millis) {
+            center + Offset(direction.dx * height / 4f, direction.dy * height / 4f)
+        }
+
+    private fun holdTouch(
+        button: SemanticsNodeInteraction, millis: Long, cancelled: Boolean = false,
+        position: TouchInjectionScope.() -> Offset
+    ): Offset {
+        button.performTouchInput { down(position()) }
         compose.runOnIdle {}
         compose.mainClock.advanceTimeBy(millis)
         val moved = playerPosition()
