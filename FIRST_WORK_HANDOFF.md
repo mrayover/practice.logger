@@ -1,6 +1,6 @@
-# Playground Home artwork handoff
+# Playground Home door and side-wall handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Home artwork update, focused verification and phone checklist. [Artwork, controls and inventory](docs/PLAYGROUND_SPEC.md).
+[CURRENT_STATE.md](CURRENT_STATE.md) records the door scale and side-wall rotation update, focused verification and phone checklist. [Artwork, controls and inventory](docs/PLAYGROUND_SPEC.md).
 
 ---
 
