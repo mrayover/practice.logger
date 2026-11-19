@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
@@ -266,27 +267,36 @@ private fun HomeViewport(modifier: Modifier, player: () -> HomePosition, walkEla
         if (zoom == 0f) return@Canvas
         val x = (size.width - room.width * zoom) / 2
         val y = (size.height - room.height * zoom) / 2
-        fun drawTile(image: ImageBitmap, left: Int, top: Int, tileSize: Int) {
+        fun drawTile(image: ImageBitmap, left: Int, top: Int, tileSize: Int, sideWall: Boolean = false) {
             // Snap shared edges to the same screen pixels so fractional zoom leaves no tile seams.
             val pixelLeft = (x + left * zoom).roundToInt()
             val pixelTop = (y + top * zoom).roundToInt()
             val pixelRight = (x + (left + tileSize) * zoom).roundToInt()
             val pixelBottom = (y + (top + tileSize) * zoom).roundToInt()
-            drawImage(
-                image = image,
-                dstOffset = IntOffset(pixelLeft, pixelTop),
-                dstSize = IntSize(pixelRight - pixelLeft, pixelBottom - pixelTop),
-                filterQuality = FilterQuality.None
-            )
+            val width = pixelRight - pixelLeft
+            val height = pixelBottom - pixelTop
+            if (sideWall) {
+                // Rotate from the snapped top-right corner and swap dimensions before drawing.
+                rotate(90f, Offset(pixelRight.toFloat(), pixelTop.toFloat())) {
+                    drawImage(image, dstOffset = IntOffset(pixelRight, pixelTop),
+                        dstSize = IntSize(height, width), filterQuality = FilterQuality.None)
+                }
+            } else {
+                drawImage(image, dstOffset = IntOffset(pixelLeft, pixelTop),
+                    dstSize = IntSize(width, height), filterQuality = FilterQuality.None)
+            }
         }
         for (row in 0 until room.rows) {
             for (column in 0 until room.columns) {
-                val wall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
-                drawTile(if (wall) wallTile else floorTile, column * room.tile, row * room.tile, room.tile)
+                val horizontalWall = row < 2 || row == room.rows - 1
+                val sideWall = !horizontalWall && (column == 0 || column == room.columns - 1)
+                val tile = if (horizontalWall || sideWall) wallTile else floorTile
+                drawTile(tile, column * room.tile, row * room.tile, room.tile, sideWall)
             }
         }
-        // Center the square door art in the original 24 × 28 doorway bounds.
-        drawTile(door, room.width / 2 - 12, 6, 24)
+        // Scale the door art around the original doorway center at (room.width / 2, 18).
+        val doorSize = 36
+        drawTile(door, (room.width - doorSize) / 2, 18 - doorSize / 2, doorSize)
         val position = player()
         val frame = sprite.frameAt(walkElapsedNanos())
         val left = position.x + (room.playerWidth - frame.size.width) / 2f

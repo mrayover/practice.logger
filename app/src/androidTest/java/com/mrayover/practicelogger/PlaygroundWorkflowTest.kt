@@ -313,7 +313,7 @@ class PlaygroundWorkflowTest {
         val pixels = node("playground-canvas").captureToImage().toPixelMap()
         fun isWall(x: Int, y: Int) = pixels[x, y].toArgb() in wallColors
         val columns = (0 until pixels.width).filter { isWall(it, pixels.height / 2) }
-        val rows = (0 until pixels.height).filter { isWall(pixels.width / 2, it) }
+        val rows = (0 until pixels.height).filter { isWall(pixels.width / 4, it) }
         assertTrue("Solid wall colors are visible along both room axes", columns.isNotEmpty() && rows.isNotEmpty())
         val left = columns.first()
         val right = pixels.width - 1 - columns.last()
@@ -343,15 +343,24 @@ class PlaygroundWorkflowTest {
             val scale = roomScale(pixels.width, pixels.height)
             val originX = (pixels.width - room.width * scale) / 2
             val originY = (pixels.height - room.height * scale) / 2
-            fun verifyTile(bitmap: Bitmap, x: Int, y: Int, size: Int) {
+            val doorLeft = room.width / 2 - 18
+            val doorPixels = Rect(
+                (originX + doorLeft * scale).roundToInt().toFloat(), originY.roundToInt().toFloat(),
+                (originX + (doorLeft + 36) * scale).roundToInt().toFloat(),
+                (originY + 36 * scale).roundToInt().toFloat()
+            )
+            fun verifyTile(bitmap: Bitmap, x: Int, y: Int, size: Int, sideWall: Boolean = false) {
                 val x0 = (originX + x * scale).roundToInt()
                 val y0 = (originY + y * scale).roundToInt()
                 val w = (originX + (x + size) * scale).roundToInt() - x0
                 val h = (originY + (y + size) * scale).roundToInt() - y0
                 for (dy in 0 until h step 3) {
                     for (dx in 0 until w step 3) {
-                        val sourceX = (dx + 0.5) * bitmap.width / w
-                        val sourceY = (dy + 0.5) * bitmap.height / h
+                        if (bitmap !== door && doorPixels.contains(Offset(x0 + dx + 0.5f, y0 + dy + 0.5f))) continue
+                        val u = (dx + 0.5) / w
+                        val v = (dy + 0.5) / h
+                        val sourceX = (if (sideWall) v else u) * bitmap.width
+                        val sourceY = (if (sideWall) 1 - u else v) * bitmap.height
                         // Either adjacent texel is valid exactly on a nearest-neighbor tie.
                         if (abs(sourceX - sourceX.roundToInt()) < 0.01 ||
                             abs(sourceY - sourceY.roundToInt()) < 0.01) continue
@@ -362,13 +371,15 @@ class PlaygroundWorkflowTest {
             }
             for (row in 0 until room.rows) {
                 for (column in 0 until room.columns) {
-                    // The doorway is checked separately. Batel overlaps the central tiles at entrance.
-                    if (column in 6..7 && (row < 2 || row in 6..8)) continue
-                    val isWall = row < 2 || row == room.rows - 1 || column == 0 || column == room.columns - 1
-                    verifyTile(if (isWall) wall else floor, column * room.tile, row * room.tile, room.tile)
+                    // Batel overlaps the central tiles at entrance.
+                    if (column in 6..7 && row in 6..8) continue
+                    val horizontalWall = row < 2 || row == room.rows - 1
+                    val sideWall = !horizontalWall && (column == 0 || column == room.columns - 1)
+                    verifyTile(if (horizontalWall || sideWall) wall else floor,
+                        column * room.tile, row * room.tile, room.tile, sideWall)
                 }
             }
-            verifyTile(door, room.width / 2 - 12, 6, 24)
+            verifyTile(door, doorLeft, 0, 36)
         } finally {
             floor.recycle()
             wall.recycle()
@@ -451,10 +462,11 @@ class PlaygroundWorkflowTest {
         // The three foot-aligned Batel poses have the same outer bounds.
         val scale = roomScale(pixels.width, pixels.height)
         val spriteHeight = ceil(scale * 30).toInt()
-        val doorTop = ((pixels.height - PlaygroundHome.height * scale) / 2 + 6 * scale).roundToInt()
-        val doorBottom = ((pixels.height - PlaygroundHome.height * scale) / 2 + 30 * scale).roundToInt()
-        val doorLeft = (pixels.width / 2f - 12 * scale).roundToInt()
-        val doorRight = (pixels.width / 2f + 12 * scale).roundToInt()
+        val roomTop = (pixels.height - PlaygroundHome.height * scale) / 2
+        val doorTop = roomTop.roundToInt()
+        val doorBottom = (roomTop + 36 * scale).roundToInt()
+        val doorLeft = (pixels.width / 2f - 18 * scale).roundToInt()
+        val doorRight = (pixels.width / 2f + 18 * scale).roundToInt()
         for (y in 0 until pixels.height) {
             if (y >= top + spriteHeight) break
             for (x in 0 until pixels.width) {
