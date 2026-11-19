@@ -23,9 +23,13 @@ class UpNextHistoryWorkflowTest {
 
     @Test fun upcomingBlockUsesSavedHistoryAndExistingFreePlayback() {
         val title = "Drop 2 voicings"
+        val firstTake = runBlocking {
+            insertRecording(null, System.currentTimeMillis() - 7 * 86_400_000L, "Earlier free practice", accessible = true)
+        }
         val (session, reviewed, empty) = runBlocking {
             val blocks = BlockRepository(db)
             val first = blocks.save(null, BlockDraft("Warm up", "Play slowly"))
+            complete(first, firstTake.createdAt) { BlockReflection(it, 3, focus = "Relax the left hand.") }
             val reviewed = blocks.save(null, BlockDraft(title, "Voice lead"))
             val empty = blocks.save(null, BlockDraft(title, "Use a different fingering"))
             val repo = SessionRepository(db)
@@ -36,7 +40,19 @@ class UpNextHistoryWorkflowTest {
         val audio = recordings
         compose.waitUntil(15_000) { audio.ready }
         compose.runOnIdle { vm.openSession(session) }
+        waitFor("Prep Block")
+        compose.onNodeWithText("Block 1 of 3").assertIsDisplayed()
+        waitFor("Relax the left hand.")
+        compose.onNodeWithText("Security rating · 3 / 5").assertExists()
+        waitFor("Earlier free practice")
+        assertTrue(compose.onNodeWithText("Last Reflection").fetchSemanticsNode().boundsInRoot.top >=
+            compose.onNodeWithText("Prep Block").fetchSemanticsNode().boundsInRoot.bottom)
+        screenshot("initial-block-history")
+        click("Play recording")
+        compose.waitUntil(10_000) { audio.playingId == firstTake.id }
         click("Start Block")
+        compose.waitUntil(10_000) { audio.playingId == null }
+        assertTrue(recordingFile(firstTake).delete())
         click("Skip")
         val gateLabels = listOf("Block 2 of 3", "Up Next: $title", "5:00 planned", "Start Next Block", "Prep Next Block")
         waitFor("Prep Next Block")

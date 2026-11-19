@@ -140,7 +140,7 @@ private fun BlockReady(bundle: SessionBundle, current: Placement, vm: PracticeVi
             onClick = { vm.beginBlock(bundle.session.id, current.id, prep = true) },
             enabled = !vm.busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("practice-ready-prep")
         ) { Text(if (upNext) "Prep Next Block" else "Prep Block") }
-        if (upNext) UpNextHistory(current, vm, recordings)
+        if (!resumed && current.prepMs == 0L) UpNextHistory(current, vm, recordings)
     }
     if (leaving) AlertDialog(
         onDismissRequest = { if (!vm.busy) { leaving = false; onNavigationCancelled() } },
