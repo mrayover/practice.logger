@@ -1,6 +1,6 @@
-# Playground viewport handoff
+# Playground movement handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records the signed Playground viewport refinement, portrait verification and exact next task. [Navigation, controls and inventory](docs/PLAYGROUND_SPEC.md).
+[CURRENT_STATE.md](CURRENT_STATE.md) records the signed eight-direction movement update, portrait verification and phone checklist. [Navigation, controls and inventory](docs/PLAYGROUND_SPEC.md).
 
 ---
 

@@ -1,4 +1,18 @@
-# Current state — Playground viewport padding refinement
+# Current state — Playground eight-direction movement
+
+November 18, 2026 (America/Los_Angeles). **0.60.3 / build 171** adds single-thumb diagonals and sliding between sectors on the connected D-pad. Simultaneous touches resolve independently on each axis, with opposite directions cancelling. Cardinal and diagonal travel use the same speed, and the existing rectangular floor bounds allow sliding along either wall and stopping at corners. [Playground behavior](docs/PLAYGROUND_SPEC.md).
+
+**Source and package.** The permanent-key build was assembled in the canonical Windows checkout from `122e0a2416708b06f23c56310931430e105669b6` on `block-ux-stage1`. APK SHA-256 `7f96e62c477b9feee2a27eaa1406206944cc47ccd0d642d5685fae882e1b56f7`. [APK](dist/practice.logger-0.60.3-b171-122e0a2/practice.logger-0.60.3-b171-122e0a2.apk) · [ZIP](dist/practice.logger-0.60.3-b171-122e0a2.zip) · [Phone checklist](dist/practice.logger-0.60.3-b171-122e0a2/PHONE_CHECKLIST.txt) · [Build metadata](dist/practice.logger-0.60.3-b171-122e0a2/BUILD_INFO.json).
+
+**Focused verification.** Six host tests, release assembly, vital lint and Android-test assembly passed. The compact Android 15 workflow at 720 × 1440 px and 360 dpi passed on `22604b5f29207ebd9071d1a0e2307b774a7671a4`, which adds test synchronization and a production indentation correction. The workflow checked all eight directions, equal travel distance, sliding, simultaneous touches, A independence, axis cancellation, release, gesture cancellation, pause and resume, wall contact and the read-only inventory. The visible Playground page crop and the page, viewport and control bounds match build 170 exactly. [Passing Android workflow](https://github.com/mrayover/practice.logger/actions/runs/44452573874) · [Screenshot comparison](dist/practice.logger-0.60.3-b171-122e0a2/evidence/PLAYGROUND_VISUAL_COMPARISON.txt) · [Playground screenshot](dist/practice.logger-0.60.3-b171-122e0a2/evidence/playground-home.png).
+
+**ZIP and local delivery.** APK v2/v3 and its v4 sidecar verify against the pinned permanent certificate. All 180 APK payload entries match the unsigned release, and all 11 ZIP members match the packaged files. ZIP SHA-256 `93543c675f89244f246a1ec744a86ded56d4047da0c3225e2f73e42b35a697f9`. The local OneDrive copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build171` match by checksum.
+
+**Exact next task.** Install build 171 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+
+---
+
+## Previous delivery — Playground viewport padding refinement
 
 November 18, 2026 (America/Los_Angeles). **0.60.2 / build 170** fits the room inside the existing gameplay viewport using one proportional scale, a 1 dp minimum inset and clearance at rounded corners. Shared tile edges snap to screen pixels. The room remains centered where its aspect ratio leaves extra space. Its logical tile grid, character, movement bounds and interface keep the build 168 behavior. [Playground behavior](docs/PLAYGROUND_SPEC.md).
 
@@ -8,7 +22,7 @@ November 18, 2026 (America/Los_Angeles). **0.60.2 / build 170** fits the room in
 
 **ZIP and local delivery.** APK v2/v3 and its v4 sidecar verify against the pinned permanent certificate. All 180 APK payload entries match the unsigned release. ZIP SHA-256 `dae0d84f22fe9f0eb2ec422bfe5e69c87f04a933c6f0c909628cf6b91452f406`. All 16 ZIP members and the local OneDrive delivery copies at `C:/Users/mrove/OneDrive/Documents/ChatGPT/Practice Log development/Playground Home delivery/build170` match by checksum.
 
-**Exact next task.** Install build 170 over the permanent-key app on the owner's Galaxy S26 Ultra and complete the linked phone checklist. Physical acceptance remains pending.
+**Build 170 phone status.** Physical acceptance was pending at delivery.
 
 ---
 
