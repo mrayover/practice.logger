@@ -142,7 +142,7 @@ class WeeklyPracticeTargetTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(29, db.openHelper.writableDatabase.version)
+            assertEquals(30, db.openHelper.writableDatabase.version)
             assertEquals("Keep", db.blocks().find("b")!!.notes)
             assertEquals(1200L, db.sessions().find("s")!!.current!!.activeMs)
             assertEquals(300L, db.sessions().find("s")!!.current!!.prepMs)
@@ -169,7 +169,7 @@ class WeeklyPracticeTargetTest {
             assertTrue(runCatching { BackupRepository(restored).restore(BackupCodec.decode(json)) }.exceptionOrNull() is NonEmptyRestoreException)
             val historical = JSONObject(verified.records.payload.toString()).put("version", 10)
             val historicalTables = historical.getJSONObject("tables")
-            listOf("weekly_practice_targets", "playground_layouts", "block_categories", "study_sources", "study_source_media")
+            listOf("weekly_practice_targets", "playground_layouts", "block_categories", "study_sources", "study_source_media", "earned_block_spends")
                 .forEach { historicalTables.remove(it) }
             val records = PortableRecords(historical, 10); records.validateRelationships(context)
             // Exercise the frozen ZIP10 envelope as well as its records (no media in this fixture).

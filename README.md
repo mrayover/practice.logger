@@ -1,3 +1,7 @@
+# practice.logger · Earned Blocks
+
+Open **Log → Earned Blocks** for lifetime counts and the practice history behind each reward. **Playground → Blocks** shows lifetime earned, used, and available counts from the same records. Use a complete ZIP backup to carry the history and inventory to a new install. [Behavior](docs/PLAYGROUND_SPEC.md) · [Delivery and verification](CURRENT_STATE.md).
+
 # practice.logger · Up Next
 
 Up Next shows the upcoming Block's latest saved reflection and Security rating below **Prep Next Block**. It also plays the latest available standalone Free Recording. Scroll to read longer answers. [Delivery and verification](CURRENT_STATE.md).

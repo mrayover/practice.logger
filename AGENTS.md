@@ -1,6 +1,10 @@
+## November 20 — Earned Blocks history and inventory
+
+Log and Playground share the authoritative placement completion snapshots. Room 30 and complete ZIP 15 add frozen Goal titles and one spending receipt per consumed reward. Never backfill unsupported completion facts or Goal titles. Only a gameplay integration may call the transactional consumption contract. Movement and inventory browsing create no spend or arrangement rows. [Behavior and integration](docs/PLAYGROUND_SPEC.md) · [Verification and delivery](CURRENT_STATE.md).
+
 ## November 18 — Playground Home Foundation
 
-The assigned Home replaces the active free-arrangement presentation with one fixed portrait page, a geometric room, directional input and a read-only Block inventory. Preserve completion snapshots and saved arrangement rows. Inventory is derived from saved completion colors through a read-only query. Home creates no arrangement rows. Keep Room 29 and the portable backup formats. Future environments, gameplay and F1 require separate assignments. [Behavior](docs/PLAYGROUND_SPEC.md) · [Current verification and delivery](CURRENT_STATE.md).
+The assigned Home replaces the active free-arrangement presentation with one fixed portrait page, a geometric room, directional input and a read-only Block inventory. It shipped on Room 29. The later Earned Blocks assignment adds accounting while preserving completion snapshots and saved arrangement rows. Future environments, gameplay and F1 require separate assignments. [Behavior](docs/PLAYGROUND_SPEC.md) · [Current verification and delivery](CURRENT_STATE.md).
 
 ## November 17 — C6B editable MIDI export
 

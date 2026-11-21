@@ -1,3 +1,7 @@
+# Earned Blocks history and inventory
+
+Log shows the completion-backed lifetime record and Playground shows available inventory. Room 30 adds a frozen completion Goal title and a durable one-reward consumption contract for future gameplay integration. Complete ZIP 15 carries both. [Behavior and integration](docs/PLAYGROUND_SPEC.md) · [Verification and delivery](CURRENT_STATE.md).
+
 # Initial and between-Block practice history
 
 Before the first Block and between Blocks, the same component reads the latest saved text answers and Security rating independently by the upcoming Block's stable ID. It uses the existing Free Recording playback controls and falls back to an earlier standalone recording when a newer file is missing. [Delivery and verification](CURRENT_STATE.md).

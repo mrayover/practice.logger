@@ -314,8 +314,10 @@ class MainActivity : ComponentActivity() {
             }
             "log" -> {
                 val time by transcribe.practiceTime.collectAsStateWithLifecycle()
-                LogScreen(log, onHome = { page = "home" }, practiceTime = time, onPlayground = { page = "playground" })
+                LogScreen(log, onHome = { page = "home" }, practiceTime = time,
+                    onPlayground = { page = "playground" }, onEarnedBlocks = { page = "earned-blocks" })
             }
+            "earned-blocks" -> EarnedBlocksScreen(onJournal = { page = "log" }, onPlayground = { page = "playground" })
             "goals" -> GoalManagement(goalRows, weeklyProgress, goals, onHome = { page = "home" },
                 onNew = { goalEditorId = null; page = "goal-editor" }, onGoal = { goalId = it; page = "goal-detail" })
             "goal-detail" -> {

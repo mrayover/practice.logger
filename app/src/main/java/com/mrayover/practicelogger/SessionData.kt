@@ -230,12 +230,11 @@ class SessionRepository(private val db: BlockDatabase, private val now: () -> Lo
         val completedAt = now()
         if (outcome == "COMPLETED") {
             val goalId = db.goalAttribution().primaryGoalId(current.sourceBlockId)
-            val priority = goalId?.let { goal ->
-                (activeGoals(db.goals().readAll()).indexOfFirst { it.goal.id == goal } + 1)
-                    .takeIf { it in 1..5 }
-            }
+            val goals = if (goalId == null) emptyList() else db.goals().readAll()
+            val priority = (activeGoals(goals).indexOfFirst { it.goal.id == goalId } + 1).takeIf { it in 1..5 }
+            val goalTitle = goals.firstOrNull { it.goal.id == goalId }?.goal?.title
             dao.insert(BlockCompletion(current.id, id, current.sourceBlockId, completedAt, goalId,
-                priority, goalCompletionColor(priority)))
+                priority, goalCompletionColor(priority), goalTitle))
         }
         dao.update(current.copy(outcome = outcome, note = if (preserveNote) current.note else note.trim()))
         val finished = bundle.session.currentIndex + 1 == bundle.placements.size

@@ -105,7 +105,7 @@ class WeekPlanTest {
         }
         try {
             BlockDatabase.open(context, name).useDb { db ->
-                assertEquals(29, db.openHelper.writableDatabase.version)
+                assertEquals(30, db.openHelper.writableDatabase.version)
                 assertEquals(WeekBlock(sunday.toString(), "b", 0, 1), db.weekPlan().read(sunday.toString()).single())
                 assertEquals("p", db.playground().completions().single().placementId)
                 assertEquals("p", db.playground().readAll().single().placementId)

@@ -139,15 +139,15 @@ class PlaygroundWorkflowTest {
 
         node("playground-inventory").performClick()
         node("playground-inventory-panel").assertIsDisplayed()
-        listOf("Red", "Orange", "Yellow", "Green", "Blue", "Neutral").forEach { assertCount(it, 1) }
-        assertCount("Total available", 6)
+        listOf("Red", "Orange", "Yellow", "Green", "Blue", "No Goal").forEach { assertCount(it, 1) }
+        assertCount("Available", 6)
         screenshot("playground-inventory")
         runBlocking { db.sessions().insert(completion(6)) }
         compose.waitUntil(10_000) {
-            node("playground-count-Total available").fetchSemanticsNode().config
+            node("playground-count-Available").fetchSemanticsNode().config
                 .getOrNull(androidx.compose.ui.semantics.SemanticsProperties.Text)?.singleOrNull()?.text == "7"
         }
-        assertCount("Neutral", 2)
+        assertCount("No Goal", 2)
         compose.onNodeWithText("Close").performClick()
         waitForTotal(7)
         node("playground-inventory-panel").assertDoesNotExist()

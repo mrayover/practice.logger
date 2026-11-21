@@ -130,7 +130,7 @@ class OrganizationTest {
             }
             val db = BlockDatabase.open(context, name)
             try {
-                assertEquals(29, db.openHelper.writableDatabase.version)
+                assertEquals(30, db.openHelper.writableDatabase.version)
                 val block = requireNotNull(db.blocks().find("existing"))
                 assertEquals("Legacy exercise", block.name)
                 assertNull(block.categoryId)

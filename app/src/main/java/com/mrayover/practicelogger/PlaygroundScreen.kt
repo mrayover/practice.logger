@@ -1,6 +1,5 @@
 package com.mrayover.practicelogger
 
-import android.app.Application
 import android.content.res.AssetManager
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
@@ -41,22 +40,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.roundToInt
 
-class PlaygroundViewModel(app: Application) : AndroidViewModel(app) {
-    internal val earnedCounts = BlockDatabase.appInstance(app).playground().observeEarnedCounts()
-}
-
 @Composable
-internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = viewModel()) {
-    val earnedCounts by vm.earnedCounts.collectAsStateWithLifecycle(initialValue = null)
-    val total = earnedCounts?.sumOf { it.count }
+internal fun PlaygroundScreen(onJournal: () -> Unit, vm: EarnedBlocksViewModel = viewModel()) {
+    val inventory by vm.inventory.collectAsStateWithLifecycle(initialValue = null)
+    val total = inventory?.available
     var inventoryOpen by rememberSaveable { mutableStateOf(false) }
     var player by remember { mutableStateOf(PlaygroundHome.entrance) }
     var held by remember { mutableStateOf<HomeDirection?>(null) }
@@ -162,7 +155,7 @@ internal fun PlaygroundScreen(onJournal: () -> Unit, vm: PlaygroundViewModel = v
         }
     }
 
-    if (inventoryOpen) InventoryDialog(earnedCounts, total) { inventoryOpen = false }
+    if (inventoryOpen) InventoryDialog(inventory) { inventoryOpen = false }
 }
 
 @Composable
@@ -318,41 +311,3 @@ private fun AssetManager.loadHomeTile(filename: String): ImageBitmap =
         require(bitmap.width == bitmap.height) { "Expected square Playground artwork: $filename" }
         bitmap.asImageBitmap()
     }
-
-@Composable
-private fun InventoryDialog(counts: List<EarnedBlockCount>?, total: Int?, onClose: () -> Unit) {
-    val byColor = counts.orEmpty().associate { it.colorArgb to it.count }
-    val colors = listOf("Red", "Orange", "Yellow", "Green", "Blue")
-    val known = colors.indices.map { goalCompletionColor(it + 1) }
-    val other = byColor.filterKeys { it != null && it !in known }.values.sum()
-    Dialog(onDismissRequest = onClose) {
-        Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth().testTag("playground-inventory-panel")) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Block inventory", style = MaterialTheme.typography.titleLarge)
-                colors.forEachIndexed { index, label ->
-                    val color = checkNotNull(known[index])
-                    InventoryRow(label, Color(color), total?.let { byColor[color] ?: 0 })
-                }
-                InventoryRow("Neutral", MaterialTheme.colorScheme.outline, total?.let { byColor[null] ?: 0 })
-                if (other > 0) InventoryRow("Other saved colors", MaterialTheme.colorScheme.outline, other)
-                HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                InventoryRow("Total available", null, total)
-                TextButton(onClose, Modifier.align(Alignment.End)) { Text("Close") }
-            }
-        }
-    }
-}
-
-@Composable
-private fun InventoryRow(label: String, color: Color?, count: Int?) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (color != null) {
-            Box(Modifier.size(12.dp).background(color))
-            Spacer(Modifier.width(10.dp))
-        }
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text(count?.toString() ?: "…", Modifier.testTag("playground-count-$label"),
-            style = MaterialTheme.typography.bodyMedium)
-    }
-}

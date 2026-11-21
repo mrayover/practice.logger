@@ -14,7 +14,8 @@ data class BlockCompletion(
     val completedAt: Long,
     val goalId: String?,
     val priority: Int?,
-    val colorArgb: Int?
+    val colorArgb: Int?,
+    val goalTitle: String? = null
 )
 
 @Entity(tableName = "block_reflections", foreignKeys = [ForeignKey(

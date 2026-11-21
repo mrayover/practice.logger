@@ -81,8 +81,8 @@ class PlaygroundRepositoryTest {
             PlaygroundRepository(db).ensureLayouts()
             assertEquals(before, db.playground().completions())
             assertNull(before.first { it.placementId == "p1" }.colorArgb)
-            assertEquals(setOf(EarnedBlockCount(null, 6), EarnedBlockCount(goalCompletionColor(2), 1)),
-                db.playground().observeEarnedCounts().first().toSet())
+            assertEquals(setOf(EarnedBlockBalance(null, false, 6, 0), EarnedBlockBalance(goalCompletionColor(2), true, 1, 0)),
+                db.earnedBlocks().observeBalances().first().toSet())
         } finally { db.close() }
     }
     @Test fun room26AdditiveMigrationPreservesEveryPreviousEntity() = runBlocking {
@@ -101,7 +101,7 @@ class PlaygroundRepositoryTest {
         }
         val db = BlockDatabase.open(context, name)
         try {
-            assertEquals(29, db.openHelper.writableDatabase.version)
+            assertEquals(30, db.openHelper.writableDatabase.version)
             assertEquals(180, db.weeklyTargets().find("2026-11-08")!!.targetMinutes)
             assertTrue(db.playground().readAll().isEmpty())
             db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { assertFalse(it.moveToFirst()) }
@@ -128,7 +128,11 @@ class PlaygroundRepositoryTest {
             assertEquals(db.playground().completions(), restored.playground().completions())
             val historical = JSONObject(verified.records.payload.toString()).put("version", 11)
             val tables = historical.getJSONObject("tables")
-            listOf("playground_layouts", "block_categories", "study_sources", "study_source_media").forEach { tables.remove(it) }
+            listOf("playground_layouts", "block_categories", "study_sources", "study_source_media", "earned_block_spends")
+                .forEach { tables.remove(it) }
+            tables.getJSONArray("block_completions").let { rows ->
+                repeat(rows.length()) { rows.getJSONArray(it).remove(7) }
+            }
             val sql = db.openHelper.readableDatabase
             tables.put("blocks", PortableTable("blocks", "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l").snapshot(sql) {})
             tables.put("week_blocks", PortableTable("week_blocks", "weekStart blockId position:i").snapshot(sql) {})

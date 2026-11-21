@@ -108,7 +108,8 @@ private const val WEEK_TABLE = "week_blocks"
 private const val COMPLETION_TABLE = "block_completions"
 private const val BLOCK_REFLECTION_TABLE = "block_reflections"
 private const val SESSION_REFLECTION_TABLE = "session_reflections"
-internal const val PORTABLE_VERSION = 14
+private const val SPEND_TABLE = "earned_block_spends"
+internal const val PORTABLE_VERSION = 15
 private val portableTablesV2 = portableTablesV1 + PortableTable(OVERLAY_TABLE,
     "id blockId reference page:i type left:f top:f right:f bottom:f appearance:i drawOrder:i")
 private val portableTablesV3 = portableTablesV2 + listOf(
@@ -148,7 +149,7 @@ private val portableTablesV13 = portableTablesV12.map { table ->
     if (table.name == WEEK_TABLE) PortableTable(WEEK_TABLE, "weekStart blockId position:i plannedRepetitions:i") else table
 }
 
-internal val portableTables = portableTablesV13.map { table ->
+private val portableTablesV14 = portableTablesV13.map { table ->
     if (table.name == "blocks") PortableTable("blocks",
         "id name action durationMinutes:i tempo:i? notes archived:b createdAt:l updatedAt:l categoryId:s? sourceId:s? sourceLocation", "blocks")
     else table
@@ -157,6 +158,12 @@ internal val portableTables = portableTablesV13.map { table ->
     PortableTable("study_sources", "id title creator kind createdAt:l"),
     PortableTable("study_source_media", "sourceId mediaId")
 )
+
+internal val portableTables = portableTablesV14.map { table ->
+    if (table.name == COMPLETION_TABLE) PortableTable(COMPLETION_TABLE,
+        "placementId sessionId sourceBlockId completedAt:l goalId:s? priority:i? colorArgb:i? goalTitle:s?")
+    else table
+} + PortableTable(SPEND_TABLE, "placementId consumptionId spentAt:l")
 
 internal fun portableTargetEmpty(sql: SupportSQLiteDatabase): Boolean = portableTables.all { table ->
     sql.query("SELECT 1 FROM ${table.name} LIMIT 1").use { !it.moveToFirst() }
@@ -176,6 +183,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         11 -> portableTablesV11
         12 -> portableTablesV12
         13 -> portableTablesV13
+        14 -> portableTablesV14
         PORTABLE_VERSION -> portableTables
         else -> error("Unsupported portable backup version.")
     }
@@ -192,7 +200,7 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
         when (table) {
             OVERLAY_TABLE, PRIMARY_TABLE, SNAPSHOT_TABLE, WEEK_TABLE,
             COMPLETION_TABLE, BLOCK_REFLECTION_TABLE, SESSION_REFLECTION_TABLE, INSPIRATION_STORE,
-            "learning_observations", "guidance_events", "weekly_practice_targets", "playground_layouts" -> rows[table].orEmpty()
+            "learning_observations", "guidance_events", "weekly_practice_targets", "playground_layouts", SPEND_TABLE -> rows[table].orEmpty()
             else -> rows.getValue(table)
         }
     private val learningOrder: List<String>
@@ -303,9 +311,23 @@ internal class PortableRecords(val payload: JSONObject, private val version: Int
                 row.getLong("completedAt") >= 0L) { "Invalid Block completion." }
             val priority = if (row.isNull("priority")) null else row.getInt("priority")
             require(row.isNull("goalId") || row.getString("goalId").isNotBlank()) { "Invalid completion Goal." }
+            require(row.isNull("goalTitle") || (!row.isNull("goalId") && row.getString("goalTitle").isNotBlank())) {
+                "Invalid completion Goal title."
+            }
             require(if (priority == null) row.isNull("colorArgb") else
                 priority in 1..5 && !row.isNull("goalId") && !row.isNull("colorArgb")) {
                 "Invalid completion Goal priority or color."
+            }
+        }
+        val spentPlacements = hashSetOf<String>()
+        val consumptionIds = hashSetOf<String>()
+        for (row in this[SPEND_TABLE]) {
+            val placementId = row.getString("placementId")
+            val consumptionId = row.getString("consumptionId")
+            require(placementId in completions && spentPlacements.add(placementId) &&
+                consumptionId.isNotBlank() && consumptionId.length <= BLOCK_CONSUMPTION_ID_LIMIT &&
+                consumptionIds.add(consumptionId) && row.getLong("spentAt") >= 0L) {
+                "Invalid earned Block consumption."
             }
         }
         validatePlaygroundLayouts(this["playground_layouts"].map { row ->

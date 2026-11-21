@@ -1,3 +1,9 @@
+# Earned Blocks handoff
+
+[CURRENT_STATE.md](CURRENT_STATE.md) records the build and next phone check. [Earned Blocks and Playground](docs/PLAYGROUND_SPEC.md) describes the saved history, inventory and future game consumption contract.
+
+---
+
 # Initial and between-Block practice history handoff
 
 [CURRENT_STATE.md](CURRENT_STATE.md) records the first-Block correction, focused verification and next phone check.

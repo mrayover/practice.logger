@@ -1,3 +1,9 @@
+## Complete portable ZIP v15 — Earned Blocks
+
+Room 30 adds a nullable `goalTitle` to `block_completions` and an `earned_block_spends` table. ZIP 15 preserves both. Each spend stores a unique `consumptionId`, the unique earned `placementId`, and a nonnegative `spentAt` timestamp. Restore requires an existing completion for every spend and rejects duplicate placement or consumption IDs. Goal color is derived from the referenced immutable completion. Rows are restored in the same transaction as the existing practice and arrangement data.
+
+ZIP 1–14 retain their existing formats. Earlier complete backups carry the historical facts their formats supported, with no spend receipts or frozen Goal titles. The Room 29 migration adds the new fields without inferring titles or issuing rewards. JSON 7 continues to omit completion snapshots, arrangements, and spending. [Earned Blocks and Playground](docs/PLAYGROUND_SPEC.md).
+
 ## Complete portable ZIP v14 - Block organization
 
 Room29/ZIP14 preserves Block categories, Sources, optional Source locations and links between Sources and Library assets. Each canonical Library original is stored once, including when several Sources reference it. ZIP13 and earlier retain their historical formats and restore Blocks with empty organization fields. JSON7 remains unchanged. See [Block organization](docs/BLOCK_ORGANIZATION.md) and [delivery status](CURRENT_STATE.md).
