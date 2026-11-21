@@ -1,4 +1,14 @@
-# Current state — practice history before Block 1
+# Current state — Earned Blocks history and inventory
+
+November 20, 2026. **0.61.0 / build 177.** Open **Log → Earned Blocks** for lifetime counts by saved Goal color and newest-first practice history. **Playground → Blocks** shows Lifetime Earned, Used, and Available from the same records. New completions capture the Goal title. Older snapshots retain their saved Goal ID and color, with the historical title marked unavailable. Room 30 and complete ZIP 15 preserve consumption receipts and Goal titles. ZIP 1–14 readers and JSON 7 remain supported. The separately developed game can call the new consumption contract when integrated. [Behavior and integration](docs/PLAYGROUND_SPEC.md) · [Backup format](BACKUP_FORMAT.md).
+
+**Verification.** Seven focused host checks passed, covering reward identity, repeated placements, skipped Blocks, frozen Goal details, concurrent spending and retries, database reopening, Room 29 migration, ZIP 15 records, and frozen ZIP 14 and ZIP 11 readers. One focused local Android 15 workflow passed at 720 × 1440 and 360 dpi. It compared both screens before and after test spending and performed a complete ZIP restore into an empty database. Release assembly, vital lint, Android-test assembly, the pinned v2/v3/v4 signature, all 185 APK payload entries, and all five distribution files passed. The 813 prior APK/ZIP files retain their sizes and modification times.
+
+**Delivery.** Source `d0b10c123c4126c384abdf569b334627a4709725` on `block-ux-stage1`. [Signed APK](dist/practice.logger-0.61.0-b177-d0b10c1/practice.logger-0.61.0-b177-d0b10c1.apk) · [ZIP](dist/practice.logger-0.61.0-b177-d0b10c1.zip) · [Phone checklist](dist/practice.logger-0.61.0-b177-d0b10c1/PHONE_CHECKLIST.txt). APK SHA-256 `4fff3c31e00782bbcc46acf4e883cb0e4a2ea28aeb5ed6da9ddd1c32cba30bd0`. ZIP SHA-256 `53c446d388bdc4c650b123bdae77088e8b02c4a793398d2b3acff008871be589`.
+
+**Exact next task.** Install build 177 over the existing permanent-key app and follow the phone checklist. Physical acceptance is pending.
+
+## Previous delivery — practice history before Block 1
 
 November 19, 2026. **0.60.8 / build 176.** Both gates already used the same layout. Build 175 only composed the history when the session index was greater than zero and the placement was fresh. Build 176 removes the index restriction for history alone. The existing controls, resumed/prepared behavior, cross-session Block lookup, standalone recording lookup, playback and storage are unchanged.
 
@@ -6,7 +16,7 @@ November 19, 2026. **0.60.8 / build 176.** Both gates already used the same layo
 
 **Delivery.** Source `e8863016eb9657d6aba3116ab5cb80d018cb900e`, `block-ux-stage1`. [Signed APK](dist/practice.logger-0.60.8-b176-e886301/practice.logger-0.60.8-b176-e886301.apk) · [ZIP with screenshots and test result](dist/practice.logger-0.60.8-b176-e886301.zip). Package/version and pinned v2/v3/v4 signature verified. All 185 APK payload entries and ten distribution files checked. SHA-256: APK `97da0c6b664c891a329df7002c044d365687134e8f36d43660c7ccd357442e14`; ZIP `1a422ffa17d5adf525059993e370ce73c84a0445785de74b11bc7e217c05aa9b`.
 
-**Exact next task.** Install build 176 over the existing permanent-key app and follow the [phone checklist](dist/practice.logger-0.60.8-b176-e886301/PHONE_CHECKLIST.txt). Physical acceptance is pending.
+**Build 176 phone check.** [Historical checklist](dist/practice.logger-0.60.8-b176-e886301/PHONE_CHECKLIST.txt). Physical acceptance was unverified at delivery.
 
 ## Previous delivery — Up Next practice history
 
