@@ -44,6 +44,8 @@ val IMAGE_MIGRATION_9_10 = object : Migration(9, 10) {
 data class ReferencePage(val bitmap: Bitmap, val pageCount: Int)
 data class VisualOriginalInfo(val mimeType: String, val width: Int, val height: Int, val pageCount: Int?)
 
+internal class InvalidPdfOriginal(message: String, cause: Throwable? = null) : IllegalArgumentException(message, cause)
+
 /** One private original per stable Block. Never persist picker URIs or put media into JSON. */
 class ImageReferenceRepository(private val db: BlockDatabase, private val directory: File,
     private val freeBytes: () -> Long = { directory.usableSpace }) {
@@ -175,7 +177,7 @@ class ImageReferenceRepository(private val db: BlockDatabase, private val direct
         if (isPdf(file)) {
             try { return inspectPdf(file) }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (failure: Exception) { throw IllegalArgumentException("Choose a readable, unencrypted PDF with 1–100 supported pages. Your existing reference was kept.", failure) }
+            catch (failure: Exception) { throw InvalidPdfOriginal("Choose a readable, unencrypted PDF with 1-100 supported pages. Your existing reference was kept.", failure) }
         }
         val bounds = inspect(file)
         decodeFile(file).recycle()

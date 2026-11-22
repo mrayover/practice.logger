@@ -1,16 +1,23 @@
 package com.mrayover.practicelogger
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Parcel
 import android.graphics.Color
 import android.graphics.pdf.PdfDocument
+import java.io.File
 import java.io.RandomAccessFile
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDateTime
 import java.util.UUID
 
 class DocumentScannerWorkflowTest {
@@ -125,8 +132,27 @@ class DocumentScannerWorkflowTest {
             RandomAccessFile(capture.file(name), "rw").use { it.setLength(20L * 1024 * 1024 + 1) }
             expectFailure("Scan fewer pages")
             capture.discard(name)
-            expectFailure("Could not update the Library")
+            expectFailure("its file could not be read")
         } finally { capture.discard(name) }
+    }
+
+    @Test fun resultCallbackSeparatesCancellationLaunchAndInvalidResults() {
+        fun handle(code: Int, data: Intent?, expected: String?) {
+            val errors = mutableListOf<String>()
+            handleDocumentScanResult(ActivityResult(code, data), { fail("Unexpected document") }, errors::add)
+            if (expected == null) assertTrue(errors.isEmpty())
+            else assertTrue(errors.single().contains(expected, ignoreCase = true))
+        }
+
+        handle(Activity.RESULT_CANCELED, null, null)
+        val senderFailure = Intent(ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST)
+        handle(Activity.RESULT_CANCELED, senderFailure, "scanner unavailable")
+        handle(Activity.RESULT_FIRST_USER, Intent(), "could not finish")
+        handle(Activity.RESULT_OK, null, "without returning a result")
+        handle(Activity.RESULT_OK, Intent(), "without returning a PDF")
+        handle(Activity.RESULT_OK, scannerIntent(null, 0), "without returning a PDF")
+        handle(Activity.RESULT_OK, scannerIntent(Uri.fromFile(File(app.cacheDir, "scan.pdf")), 0), "no pages")
+        handle(Activity.RESULT_OK, scannerIntent(Uri.parse("https://example.invalid/scan.pdf"), 1), "could not be read")
     }
 
     private fun click(label: String) {
@@ -136,10 +162,9 @@ class DocumentScannerWorkflowTest {
         button.performClick()
     }
 
-    // Use a content URI whose provider filename ends in .jpg, with distinct page colors to verify order.
+    // Exercise the SDK callback with the private file URI the Google delegate returns after a scan.
     private fun withScan(vararg colors: Int, test: (ScannedDocument) -> Unit) {
-        val capture = ReferencePhotoCapture(app)
-        val name = capture.create()
+        val file = File.createTempFile("scan-callback-", ".pdf", app.cacheDir)
         try {
             val pdf = PdfDocument()
             try {
@@ -148,9 +173,27 @@ class DocumentScannerWorkflowTest {
                     page.canvas.drawColor(color)
                     pdf.finishPage(page)
                 }
-                capture.file(name).outputStream().use(pdf::writeTo)
+                file.outputStream().use(pdf::writeTo)
             } finally { pdf.close() }
-            test(ScannedDocument(capture.uri(name), LocalDateTime.of(2026, 11, 22, 9, 8, 7)))
-        } finally { capture.discard(name) }
+            val data = scannerIntent(Uri.fromFile(file), colors.size)
+            val documents = mutableListOf<ScannedDocument>()
+            handleDocumentScanResult(ActivityResult(Activity.RESULT_OK, data), documents::add, ::fail)
+            test(documents.single())
+        } finally { file.delete() }
+    }
+
+    private fun scannerIntent(uri: Uri?, pages: Int): Intent {
+        // ML Kit 16.0.0 does not expose a fixture builder. Match its delegate's parcelable
+        // envelope here so production uses the public fromActivityResultIntent parser.
+        val fixture = GmsDocumentScanningResult::class.java.getDeclaredMethod(
+            "zza", List::class.java, List::class.java, Uri::class.java, Int::class.javaPrimitiveType
+        ).invoke(null, emptyList<Uri>(), emptyList<Uri>(), uri, pages) as GmsDocumentScanningResult
+        val data = Intent().putExtra("extra_scanning_result", fixture)
+        val parcel = Parcel.obtain()
+        return try {
+            data.writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            Intent.CREATOR.createFromParcel(parcel).apply { setExtrasClassLoader(fixture.javaClass.classLoader) }
+        } finally { parcel.recycle() }
     }
 }

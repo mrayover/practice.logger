@@ -107,8 +107,11 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         libraryImportMessage
     }
     internal fun importScan(document: ScannedDocument) = work(import = true) {
-        val resolver = getApplication<Application>().contentResolver
-        repository.import(document.filename, scannedPdfMime, MediaRole.VISUAL) { document.open(resolver) }
+        importScannedPdf {
+            repository.import(document.filename, scannedPdfMime, MediaRole.VISUAL) {
+                document.open(getApplication<Application>())
+            }
+        }
         libraryImportMessage
     }
     internal fun scanError(error: String) { message = error }

@@ -219,8 +219,9 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
     suspend fun photo(capture: ReferencePhotoCapture, name: String): Boolean = try {
         stage(MediaRole.VISUAL, "Camera photo.jpg", "image/jpeg") { capture.file(name).inputStream() }
     } finally { capture.discard(name) }
-    suspend fun scan(document: ScannedDocument): Boolean =
-        stage(MediaRole.VISUAL, document.filename, scannedPdfMime) { document.open(app.contentResolver) }
+    suspend fun scan(document: ScannedDocument): Boolean = importScannedPdf {
+        stage(MediaRole.VISUAL, document.filename, scannedPdfMime) { document.open(app) }
+    }
     suspend fun preview(asset: MediaAsset, page: Int): ReferencePage = if (asset.id in staged)
         ImageReferenceRepository(db, directory).loadOriginalPage(File(directory, asset.fileName), asset.mimeType, page) else library.visualPage(asset.id, page)
     fun audioFile(asset: MediaAsset) = File(if (asset.id in staged) directory else File(app.filesDir, "media-library"), asset.fileName)

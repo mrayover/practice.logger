@@ -113,13 +113,15 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
         val form = draft ?: return@operation
         var staging: File? = null
         try {
-            val (file, pages) = withContext(Dispatchers.IO) {
-                check(scanDirectory.isDirectory || scanDirectory.mkdirs()) { "Scan storage is unavailable." }
-                scanDirectory.listFiles()?.filter { it.name.endsWith(".pending") && !it.name.startsWith(scanProcessPrefix) }
-                    ?.forEach { it.delete() }
-                val file = File.createTempFile(scanProcessPrefix, ".pending", scanDirectory)
-                staging = file
-                file to repository.stageScan(file) { document.open(resolver) }
+            val (file, pages) = importScannedPdf {
+                withContext(Dispatchers.IO) {
+                    check(scanDirectory.isDirectory || scanDirectory.mkdirs()) { "Scan storage is unavailable." }
+                    scanDirectory.listFiles()?.filter { it.name.endsWith(".pending") && !it.name.startsWith(scanProcessPrefix) }
+                        ?.forEach { it.delete() }
+                    val file = File.createTempFile(scanProcessPrefix, ".pending", scanDirectory)
+                    staging = file
+                    file to repository.stageScan(file) { document.open(getApplication<Application>()) }
+                }
             }
             clearDraftScan()
             draftPhoto?.let(camera::discard)
