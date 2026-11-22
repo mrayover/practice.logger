@@ -1,4 +1,16 @@
-# Current state — Earned Blocks history and inventory
+# Current state - Media Library import
+
+November 22, 2026. **0.61.1 / build 178.** Open **Library → Media → Add to Library** to take a photo, choose a gallery image, or upload a supported file with Android Files or a document provider. The existing Library validates and stores each original, and saved Blocks can select the resulting items from their reference picker.
+
+**Delivery.** Application source [`0b6767c3e12790e3c2897e3b9f5a9275189aba59`](https://github.com/mrayover/practice.logger/commit/0b6767c3e12790e3c2897e3b9f5a9275189aba59) on `block-ux-stage1`. [Signed APK](dist/practice.logger-0.61.1-b178-0b6767c/practice.logger-0.61.1-b178-0b6767c.apk) · [ZIP](dist/practice.logger-0.61.1-b178-0b6767c.zip) · [Phone checklist](dist/practice.logger-0.61.1-b178-0b6767c/PHONE_CHECKLIST.txt). APK SHA-256 `dac00b0c256ccf66b06b412f836902bcb8f14a243cb60011c0830c9268c12cf1`. ZIP SHA-256 `c8b19c9e28d0d50d281d598deeb93a7c8dfec79c6b4114019fa89b606d20e260`.
+
+**Verification.** Local release assembly, vital lint and Android-test assembly passed. The Gradle test workers could not connect on loopback. Direct Windows Robolectric ran 11 focused tests. Five passed, including the new gallery filename check. Five existing repository tests failed to rename validated temporary files, and one existing camera test failed to resolve a Windows path through FileProvider. Android device checks remain pending because ADB could not start in this session. Verified the app ID and version, pinned v2/v3/v4 signatures, 185 APK payload entries and all five ZIP members. The 819 earlier APK/ZIP files retain their sizes and modification times.
+
+**Git state.** The Windows working files used for the build match the published source blobs. Local Git metadata was read-only in this session, so the checkout HEAD stayed at `d4c51aa` while GitHub advanced. Owner artwork edits remain local.
+
+**Exact next task.** Install build 178 over the existing permanent-key app and follow the Media Library phone checklist.
+
+## Previous delivery - Earned Blocks history and inventory
 
 November 20, 2026. **0.61.0 / build 177.** Open **Log → Earned Blocks** for lifetime counts by saved Goal color and newest-first practice history. **Playground → Blocks** shows Lifetime Earned, Used, and Available from the same records. New completions capture the Goal title. Older snapshots retain their saved Goal ID and color, with the historical title marked unavailable. Room 30 and complete ZIP 15 preserve consumption receipts and Goal titles. ZIP 1–14 readers and JSON 7 remain supported. The separately developed game can call the new consumption contract when integrated. [Behavior and integration](docs/PLAYGROUND_SPEC.md) · [Backup format](BACKUP_FORMAT.md).
 
@@ -6,7 +18,7 @@ November 20, 2026. **0.61.0 / build 177.** Open **Log → Earned Blocks** for li
 
 **Delivery.** Source `d0b10c123c4126c384abdf569b334627a4709725` on `block-ux-stage1`. [Signed APK](dist/practice.logger-0.61.0-b177-d0b10c1/practice.logger-0.61.0-b177-d0b10c1.apk) · [ZIP](dist/practice.logger-0.61.0-b177-d0b10c1.zip) · [Phone checklist](dist/practice.logger-0.61.0-b177-d0b10c1/PHONE_CHECKLIST.txt). APK SHA-256 `4fff3c31e00782bbcc46acf4e883cb0e4a2ea28aeb5ed6da9ddd1c32cba30bd0`. ZIP SHA-256 `53c446d388bdc4c650b123bdae77088e8b02c4a793398d2b3acff008871be589`.
 
-**Exact next task.** Install build 177 over the existing permanent-key app and follow the phone checklist. Physical acceptance is pending.
+Physical acceptance was pending at delivery.
 
 ## Previous delivery — practice history before Block 1
 

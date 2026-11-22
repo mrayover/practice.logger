@@ -1,3 +1,9 @@
+# Media Library import handoff
+
+[CURRENT_STATE.md](CURRENT_STATE.md) records build 178, verification and the install-over phone checklist for camera, gallery and file imports.
+
+---
+
 # Earned Blocks handoff
 
 [CURRENT_STATE.md](CURRENT_STATE.md) records the build and next phone check. [Earned Blocks and Playground](docs/PLAYGROUND_SPEC.md) describes the saved history, inventory and future game consumption contract.
