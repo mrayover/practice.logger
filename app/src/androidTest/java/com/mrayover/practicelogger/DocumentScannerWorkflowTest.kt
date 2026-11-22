@@ -38,6 +38,7 @@ class DocumentScannerWorkflowTest {
                 val page = runBlocking { vm.repository.visualPage(pdf.id, index) }
                 try { assertEquals(expected, page.bitmap.getPixel(12, 12)) } finally { page.bitmap.recycle() }
             }
+            compose.onNodeWithTag("media-library-list").performScrollToNode(hasTestTag("media-item-${pdf.id}"))
             compose.onNodeWithTag("media-open-${pdf.id}").performScrollTo().performClick()
             click("Next page")
             compose.onNodeWithText("Page 2 of 3").assertExists()
@@ -61,9 +62,16 @@ class DocumentScannerWorkflowTest {
             assertTrue(editor.scan(document))
             val id = editor.save(null, BlockDraft(name = "Scan fixture", action = "Read the score"), null)
             val pdf = db.media().readAll().single { it.id !in baseline }
-            assertEquals(listOf("library:${pdf.id}"), db.referenceOrder(id, MediaRole.VISUAL))
-            assertEquals(1, pdf.pageCount)
-            editor.discard()
+            val identity = "library:${pdf.id}"
+            try {
+                assertEquals(listOf(identity), db.referenceOrder(id, MediaRole.VISUAL))
+                assertEquals(1, pdf.pageCount)
+            } finally {
+                editor.discard()
+                vm.associations.removeReference(id, MediaRole.VISUAL, identity, listOf(identity))
+                BlockRepository(db).deletePermanently(id)
+                ViewModelProvider(compose.activity)[MediaLibraryViewModel::class.java].repository.delete(pdf.id)
+            }
         }
     }
 
@@ -77,7 +85,8 @@ class DocumentScannerWorkflowTest {
         compose.waitUntil(15_000) { vm.draft?.scanPages == 2 }
         compose.runOnIdle {
             val draft = checkNotNull(vm.draft)
-            vm.draft = draft.copy(details = draft.details.copy(title = "Scanner fixture", author = "Author", source = "Source", note = "Notes"))
+            vm.draft = draft.copy(details = draft.details.copy(title = "Scanner fixture", author = "Author", source = "Source",
+                category = "Scores", note = "Notes"))
         }
         click("Save inspiration")
         compose.waitUntil(15_000) { vm.current?.pageCount == 2 }
@@ -89,7 +98,8 @@ class DocumentScannerWorkflowTest {
         click("Save inspiration")
         compose.waitUntil(15_000) { !vm.busy && vm.draft == null }
         val row = checkNotNull(vm.current)
-        assertEquals(listOf("Scanner fixture", "Author", "Source", "Notes"), listOf(row.title, row.author, row.source, row.note))
+        assertEquals(listOf("Scanner fixture", "Author", "Source", "Scores", "Notes"),
+            listOf(row.title, row.author, row.source, row.category, row.note))
         click("View PDF")
         click("Next page")
         compose.onNodeWithText("Page 2 of 2").assertExists()
@@ -110,7 +120,7 @@ class DocumentScannerWorkflowTest {
             assertEquals(baseline, runBlocking { db.media().readAll().map { it.id }.toSet() })
         }
         try {
-            capture.file(name).writeText("broken scan")
+            capture.file(name).writeText("%PDF-1.7\nbroken scan")
             expectFailure("PDF")
             RandomAccessFile(capture.file(name), "rw").use { it.setLength(20L * 1024 * 1024 + 1) }
             expectFailure("Scan fewer pages")
