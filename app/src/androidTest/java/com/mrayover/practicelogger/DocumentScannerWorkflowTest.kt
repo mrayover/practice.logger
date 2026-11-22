@@ -1,11 +1,13 @@
 package com.mrayover.practicelogger
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcel
 import android.graphics.Color
 import android.graphics.pdf.PdfDocument
+import android.provider.MediaStore
 import java.io.File
 import java.io.RandomAccessFile
 import androidx.activity.result.ActivityResult
@@ -13,6 +15,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -153,6 +160,38 @@ class DocumentScannerWorkflowTest {
         handle(Activity.RESULT_OK, scannerIntent(null, 0), "without returning a PDF")
         handle(Activity.RESULT_OK, scannerIntent(Uri.fromFile(File(app.cacheDir, "scan.pdf")), 0), "no pages")
         handle(Activity.RESULT_OK, scannerIntent(Uri.parse("https://example.invalid/scan.pdf"), 1), "could not be read")
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test fun regularUploadStillUsesAndroidFilesAndStoresTheOriginalPdf() {
+        val name = "scanner-regression-upload.pdf"
+        val bytes = l1Fixture("references/score.pdf")
+        val source = checkNotNull(app.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, scannedPdfMime)
+        }))
+        val vm = ViewModelProvider(compose.activity)[MediaLibraryViewModel::class.java]
+        try {
+            checkNotNull(app.contentResolver.openOutputStream(source)).use { it.write(bytes) }
+            click("Library")
+            compose.waitUntil(15_000) { vm.ready }
+            click("Add to Library")
+            click("Upload file")
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            checkNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10_000)).click()
+            assertTrue(device.wait(Until.hasObject(By.text("Downloads")), 10_000))
+            device.findObjects(By.text("Downloads")).last().click()
+            checkNotNull(device.wait(Until.findObject(By.text(name)), 10_000)).click()
+            compose.waitUntil(15_000) { !vm.busy && vm.assets.value.any { it.originalName == name } }
+            val asset = vm.assets.value.single { it.originalName == name }
+            assertEquals(2, asset.pageCount)
+            assertArrayEquals(bytes, File(app.filesDir, "media-library/${asset.fileName}").readBytes())
+        } finally {
+            app.contentResolver.delete(source, null, null)
+            vm.assets.value.firstOrNull { it.originalName == name }?.let { asset ->
+                runBlocking { vm.repository.delete(asset.id) }
+            }
+        }
     }
 
     private fun click(label: String) {
