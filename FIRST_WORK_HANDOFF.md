@@ -1,6 +1,6 @@
-# Multipage document scanner handoff
+# Document scanner callback repair handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records build 179, verification and the install-over phone checklist for the scanner in Library, Blocks and Inspirations.
+[CURRENT_STATE.md](CURRENT_STATE.md) records the Galaxy S26 Ultra report, callback diagnosis, signed build 180, and the install-over phone checklist.
 
 ---
 

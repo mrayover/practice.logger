@@ -1,4 +1,20 @@
-# Current state - Multipage document scanner
+# Current state - Document scanner callback repair
+
+November 22, 2026. The owner reported that build 179 returned to the Media Library with “The scanner did not return a readable PDF” after capturing a page and tapping Next on a Galaxy S26 Ultra.
+
+**Diagnosis.** The ML Kit 16.0.0 bytecode inside the signed build 179 APK copies scanner output into the calling application's cache, constructs the PDF URI with `Uri.fromFile`, and forwards it in a successful activity result. Build 179 rejected that URI during result handling because it required `content://`. That rejection occurs before PDF reading or import. The corrected shared callback accepts the SDK's `file://` result, checks that the canonical file is in the private cache before reading it, and carries both file and content results through existing bounded validation and ownership paths. BASE mode supplies crop, rotation and page ordering. Scanner logs record event names for each failure stage and cancellation.
+
+**Delivery.** **0.61.3 / build 180**, [application source `093d6161029bc6e84884b2fa72fd6360eededac3`](https://github.com/mrayover/practice.logger/commit/093d6161029bc6e84884b2fa72fd6360eededac3) on `block-ux-stage1`. [Signed APK](dist/practice.logger-0.61.3-b180-093d616/practice.logger-0.61.3-b180-093d616.apk) · [ZIP](dist/practice.logger-0.61.3-b180-093d616.zip) · [Galaxy checklist](dist/practice.logger-0.61.3-b180-093d616/PHONE_CHECKLIST.txt). APK SHA-256 `0a3afde2b79613b0c5640b1d3b6cbe31fd1b213d8b650997b1e7bf1b23eb949a`. ZIP SHA-256 `ba0e2bcdaa910eb20ecb04d42c4d0aa7084622324043cb726137cc298fa63b87`.
+
+**Verification.** [Release assembly and vital lint](https://github.com/mrayover/practice.logger/actions/runs/45063420168) passed. The local permanent-key verification checked package and version, v2/v3/v4 signatures, all 552 build payload entries, and all five ZIP members. The 827 prior APKs and ZIPs retained their sizes and modification times. [Five Android 15 tests](https://github.com/mrayover/practice.logger/actions/runs/45063444730) passed. They exercise ML Kit's public parser with parcelled results, single- and multipage private files, Library order and reopening, ownership of Block and Inspiration PDFs, cancellation, and recovery from invalid callback or import inputs. ADB could not start locally, so the real scanner session and BASE editing controls on the Galaxy remain pending.
+
+**Existing imports.** [Camera, Gallery and Inspiration file checks](https://github.com/mrayover/practice.logger/actions/runs/45064746190) passed on Android 15. The [Library Upload picker test](https://github.com/mrayover/practice.logger/actions/runs/45064823192) selected a PDF through Android Files and verified both pages and the original bytes. It ran on test-only source `0240077162e94f360105b3dd20a23112abd4dda3`. The historical build 69 seed failed with a `BlockDraft` constructor mismatch before reaching current import checks.
+
+**Git state.** Published from the Windows working files through GitHub. The local Git metadata remains at `d4c51aa`.
+
+**Exact next task.** Install build 180 over the current app on the Galaxy S26 Ultra and use the checklist to finish a real one-page scan and a multipage scan.
+
+## Previous delivery - Multipage document scanner
 
 November 22, 2026. **0.61.2 / build 179.** Choose **Scan document** from Add to Library, Add Visual Reference in a Block, or the Inspiration creation and edit forms. Google's scanner accepts camera pages and gallery images, with crop, rotation, removal and reordering. The app receives one PDF, including for a one-page scan. Library imports save immediately, Block references stay in the draft until Save Block, and Inspiration scans save with the form's metadata. The existing PDF viewers, 20 MiB visual limit, Room 30 and Complete ZIP 15 still apply.
 
@@ -9,8 +25,6 @@ November 22, 2026. **0.61.2 / build 179.** Choose **Scan document** from Add to 
 **Android checks.** [Four scanner workflow tests](https://github.com/mrayover/practice.logger/actions/runs/45060761823) passed on Android 15 at 200% text. Injected PDFs verified one-page Block Save and Cancel, three-page Library order and preview across activity recreation, Inspiration creation and replacement with metadata retention, and malformed, oversized and missing result handling. [Two existing import checks](https://github.com/mrayover/practice.logger/actions/runs/45060811653) passed for Library camera and gallery storage and Inspiration file, PDF and camera handling. The test-only source `294bd3c21e483620b903bae644c194d732e5080d` corrected the Library list scrolling and malformed PDF fixtures from the first run. Google’s scanner UI, camera/gallery capture, scanner cancellation, cold restart and marking a scanned PDF remain physical acceptance checks.
 
 **Git state.** Published from the Windows working files through GitHub. The local Git metadata remains at `d4c51aa`.
-
-**Exact next task.** Install build 179 over the permanent-key installation and run the physical scanner checklist.
 
 ## Previous delivery - Media Library import
 
