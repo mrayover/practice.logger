@@ -63,14 +63,21 @@ class MediaLibraryWorkflowTest {
         compose.waitUntil(15000) { vm.ready }
         compose.waitUntil(15000) { compose.onAllNodesWithTag("home-menu").fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
         compose.onNodeWithText("Library").scrollIfNeeded().performClick()
-        node(hasText("No files imported yet.", substring = true)).assertIsDisplayed()
+        node(hasText("No compatible files imported yet.", substring = true)).assertIsDisplayed()
         shot("empty")
+        tag("media-import").performClick()
+        compose.onNodeWithText("Take photo").assertIsDisplayed()
+        compose.onNodeWithText("Choose from gallery").assertIsDisplayed()
+        compose.onNodeWithText("Upload file").assertIsDisplayed()
+        compose.onNodeWithText("Cancel").performClick()
         // Real document picker cancellation and success.
         tag("media-import").performClick()
+        compose.onNodeWithText("Upload file").performClick()
         assertNotNull(device.wait(Until.findObject(By.desc("Show roots")), 10000)); device.pressBack()
         assertTrue(vm.assets.value.isEmpty())
         val png = media("l1-image.png", "image/png", l1Png())
         tag("media-import").performClick()
+        compose.onNodeWithText("Upload file").performClick()
         device.wait(Until.findObject(By.desc("Show roots")), 10000)!!.click()
         assertTrue(device.wait(Until.hasObject(By.text("Downloads")), 10000))
         device.findObjects(By.text("Downloads")).last().click()
@@ -132,6 +139,46 @@ class MediaLibraryWorkflowTest {
             val legacy = org.json.JSONObject(File(app.filesDir, "l1-legacy-manifest.json").readText()).getJSONObject("hashes")
             legacy.keys().forEach { assertEquals(legacy.getString(it), l1Hash(File(app.filesDir, it))) }
         } finally { db.close() }
+    }
+
+    @Test fun photoImportsKeepCanonicalOriginalsAndCleanCameraStaging() {
+        compose.waitUntil(15000) { vm.ready }
+        val originalIds = vm.assets.value.map { it.id }.toSet()
+        val capture = vm.photoCapture
+        val jpeg = java.io.ByteArrayOutputStream().use { output ->
+            val bitmap = android.graphics.Bitmap.createBitmap(32, 24, android.graphics.Bitmap.Config.ARGB_8888)
+            try {
+                assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 95, output))
+                output.toByteArray()
+            } finally { bitmap.recycle() }
+        }
+        val valid = capture.create()
+        capture.file(valid).writeBytes(jpeg)
+        compose.runOnIdle { vm.importPhoto(valid) }
+        finishImport(originalIds.size + 1)
+        assertFalse(capture.file(valid).exists())
+        val photo = vm.assets.value.single { it.id !in originalIds }
+        assertEquals("Camera photo.jpg", photo.originalName)
+        assertArrayEquals(jpeg, File(app.filesDir, "media-library/${photo.fileName}").readBytes())
+
+        val invalid = capture.create()
+        capture.file(invalid).writeBytes(l1Png())
+        compose.runOnIdle { vm.importPhoto(invalid) }
+        finishImport(originalIds.size + 1)
+        assertFalse(capture.file(invalid).exists())
+        assertFalse(vm.message.orEmpty().startsWith("Imported"))
+
+        val gallery = media("library-gallery.png", "image/png", l1Png())
+        try {
+            compose.runOnIdle { vm.importGallery(gallery) }
+            finishImport(originalIds.size + 2)
+        } finally { app.contentResolver.delete(gallery, null, null) }
+        compose.activityRule.scenario.recreate()
+        finishImport(originalIds.size + 2)
+        val imported = vm.assets.value.filter { it.id !in originalIds }
+        assertTrue(imported.all(vm.repository::available))
+        runBlocking { imported.forEach { assertTrue(vm.repository.delete(it.id)) } }
+        finishImport(originalIds.size)
     }
 }
 

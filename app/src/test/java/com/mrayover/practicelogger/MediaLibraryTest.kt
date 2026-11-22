@@ -18,6 +18,16 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class) @Config(sdk = [35])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MediaLibraryTest {
+    @Test fun galleryFilenamesPreserveOriginalNamesAndUseSupportedMimeFallbacks() {
+        assertEquals("Study.PNG", libraryGalleryFilename("Study.PNG", "image/png"))
+        assertEquals("Photo.jpg", libraryGalleryFilename(null, "image/jpeg"))
+        assertEquals("Photo.png", libraryGalleryFilename("", "image/png"))
+        assertEquals("Photo.webp", libraryGalleryFilename(null, "IMAGE/WEBP"))
+        assertThrows(IllegalArgumentException::class.java) { libraryGalleryFilename(null, "image/gif") }
+        assertThrows(IllegalArgumentException::class.java) { libraryGalleryFilename("score.pdf", "application/pdf") }
+        assertThrows(IllegalArgumentException::class.java) { libraryGalleryFilename("clip.mp4", "video/mp4") }
+    }
+
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
     private fun memory() = Room.inMemoryDatabaseBuilder(context, BlockDatabase::class.java).build()
     private fun directory() = File(context.cacheDir, UUID.randomUUID().toString())

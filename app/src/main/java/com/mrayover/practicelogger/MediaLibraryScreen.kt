@@ -4,11 +4,14 @@ import android.app.Application
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,9 +27,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.io.File
+import java.util.Locale
 
 class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     val repository = MediaLibraryRepository(BlockDatabase.appInstance(app), File(app.filesDir, "media-library"))
+    internal val photoCapture = ReferencePhotoCapture(app)
     private val rows = MutableStateFlow<List<MediaAsset>>(emptyList())
     val assets = rows.asStateFlow()
     var ready by mutableStateOf(false); private set
@@ -42,6 +47,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         reader?.cancel(); readError = false
         reader = viewModelScope.launch {
             try {
+                withContext(Dispatchers.IO) { photoCapture.recoverAbandoned() }
                 repository.recover()
                 repository.assets.collect { value ->
                     val missing = withContext(Dispatchers.IO) { value.filterNot(repository::available).map { it.id }.toSet() }
@@ -54,30 +60,55 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun refreshFiles() { viewModelScope.launch {
         unavailable = withContext(Dispatchers.IO) { rows.value.filterNot(repository::available).map { it.id }.toSet() }
     } }
-    private fun work(import: Boolean = false, action: suspend () -> String) {
-        if (busy || !ready) return
+    private fun work(import: Boolean = false, capture: String? = null, action: suspend () -> String) {
+        // A restored picker result can arrive before the first Library read finishes.
+        if (busy || (!ready && !import)) {
+            capture?.let(photoCapture::discard)
+            return
+        }
         busy = true; importing = import; message = null
-        operation = viewModelScope.launch {
+        operation = viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try { message = action() }
             catch (cancelled: CancellationException) { message = "Import canceled. Saved Library items were kept."; throw cancelled }
             catch (failure: IllegalArgumentException) { message = failure.message ?: "Choose a valid supported original." }
             catch (failure: IllegalStateException) { message = failure.message ?: "Could not update the Library. Try again." }
             catch (_: Exception) { message = "Could not update the Library. Check file access and free storage, then retry." }
-            finally { busy = false; importing = false }
+            finally {
+                try {
+                    if (capture != null) withContext(NonCancellable + Dispatchers.IO) { photoCapture.discard(capture) }
+                } finally { busy = false; importing = false }
+            }
         }
     }
-    fun import(uri: Uri, role: MediaRole? = null) = work(import = true) {
+    fun import(uri: Uri, role: MediaRole? = null) = importUri(uri, role, gallery = false)
+    internal fun importGallery(uri: Uri) = importUri(uri, MediaRole.VISUAL, gallery = true)
+
+    private fun importUri(uri: Uri, role: MediaRole?, gallery: Boolean) = work(import = true) {
         withContext(Dispatchers.IO) {
             val resolver = getApplication<Application>().contentResolver
-            val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
-                if (it.moveToFirst() && !it.isNull(0)) it.getString(0) else null
-            } ?: throw IllegalArgumentException("The file provider did not supply a filename. Choose another original.")
-            repository.import(name, resolver.getType(uri), role = role) { checkNotNull(resolver.openInputStream(uri)) { "The source file is unavailable." } }
+            val displayName = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+                val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index >= 0 && it.moveToFirst() && !it.isNull(index)) it.getString(index) else null
+            }
+            val mime = resolver.getType(uri)
+            val name = if (gallery) {
+                libraryGalleryFilename(displayName, mime)
+            } else {
+                displayName ?: throw IllegalArgumentException("The file provider did not supply a filename. Choose another original.")
+            }
+            repository.import(name, mime, role = role) { checkNotNull(resolver.openInputStream(uri)) { "The source file is unavailable." } }
         }
-        "Imported. Library media is local and is not included in JSON backups."
+        libraryImportMessage
+    }
+    internal fun importPhoto(name: String) = work(import = true, capture = name) {
+        repository.import("Camera photo.jpg", "image/jpeg", MediaRole.VISUAL) {
+            photoCapture.file(name).inputStream()
+        }
+        libraryImportMessage
     }
     fun cancelImport() { if (importing) operation?.cancel() }
     fun pickerUnavailable() { message = "Could not open the file picker. Try again." }
+    internal fun photoUnavailable(source: String) { message = "Could not open the $source. Try again or choose another import option." }
     fun rename(id: String, value: String) = work { repository.rename(id, value); "Library item renamed." }
     fun delete(id: String) = work {
         val cleaned = repository.delete(id)
@@ -85,6 +116,21 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         if (cleaned) "Library item deleted."
         else "Library item deleted. Private file cleanup will retry after reopening."
     }
+}
+
+private const val libraryImportMessage = "Imported. Library media is local and is not included in JSON backups."
+
+internal fun libraryGalleryFilename(displayName: String?, mime: String?): String {
+    val name = displayName?.takeUnless { it.isBlank() } ?: when (mime?.lowercase(Locale.ROOT)) {
+        "image/jpeg", "image/jpg" -> "Photo.jpg"
+        "image/png" -> "Photo.png"
+        "image/webp" -> "Photo.webp"
+        else -> ""
+    }
+    require(name.substringAfterLast('.', "").lowercase(Locale.ROOT) in setOf("jpg", "jpeg", "png", "webp")) {
+        "Choose a JPEG, PNG or WebP photo."
+    }
+    return name
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -102,8 +148,20 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
     var renameText by rememberSaveable { mutableStateOf("") }
     var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     var previewId by rememberSaveable { mutableStateOf<String?>(null) }
+    var showImportOptions by rememberSaveable { mutableStateOf(false) }
+    var pendingPhoto by rememberSaveable { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.import(uri, if (allowAudioImport) MediaRole.AUDIO else null) }
+    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
+        val name = pendingPhoto
+        pendingPhoto = null
+        if (name != null) {
+            if (saved) vm.importPhoto(name) else vm.photoCapture.discard(name)
+        }
+    }
+    val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) vm.importGallery(uri)
+    }
     val importAction = {
         try {
             picker.launch(if (allowAudioImport) libraryAudioMimeTypes else
@@ -117,7 +175,7 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         lifecycle.lifecycle.addObserver(observer)
         onDispose { lifecycle.lifecycle.removeObserver(observer) }
     }
-    val enabled = vm.ready && !vm.busy
+    val enabled = vm.ready && !vm.busy && pendingPhoto == null
     val compatible = if (selectionRole == null) assets else assets.filter { selectionRole.accepts(it.category) }
     val filtered = libraryItems(compatible, "", MediaFilter.valueOf(filterName), byName).filter { asset ->
         query.isBlank() || asset.title.contains(query.trim(), true) || asset.originalName.contains(query.trim(), true) ||
@@ -141,7 +199,13 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
                 TextButton(onClick = onBack) { Text(if (selectionRole == null) "Back" else "Cancel selection") }
 
                 if (selectionRole == null && onOrganize != null) TextButton(onClick = onOrganize) { Text("Sources") }
-                if (selectionRole == null || allowAudioImport) Button(onClick = importAction, enabled = enabled, modifier = Modifier.testTag("media-import")) { Text("Import") }
+                if (selectionRole == null || allowAudioImport) {
+                    Button(onClick = {
+                        if (selectionRole == null) showImportOptions = true else importAction()
+                    }, enabled = enabled, modifier = Modifier.testTag("media-import")) {
+                        Text(if (selectionRole == null) "Add to Library" else "Import")
+                    }
+                }
             }
         }
         item { PageHeading(if (selectionRole == null) "Media Library" else if (selectionRole == MediaRole.VISUAL) "Choose visual reference" else "Choose audio reference", style = MaterialTheme.typography.headlineSmall) }
@@ -174,7 +238,6 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         } else if (!vm.ready) item { Text("Loading Library…") }
         else if (filtered.isEmpty()) item {
             Text(if (compatible.isEmpty() && allowAudioImport) "No audio in the Library yet. Import an MP3, M4A or WAV." else if (compatible.isEmpty()) "No compatible files imported yet. Import an image, PDF or audio file to organize it here." else "No files match your search and filter.")
-            if (selectionRole == null && assets.isEmpty()) OutlinedButton(onClick = importAction, enabled = enabled) { Text("Import a file") }
         }
         organizedMediaItems(filtered, org, groupBySource && selectionRole == null && query.isBlank(), expandedSources,
             onToggle = { key -> expandedSources = if (key in expandedSources) expandedSources - key else expandedSources + key }) { asset ->
@@ -199,6 +262,39 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
         }
+    }
+    if (selectionRole == null && showImportOptions) {
+        AlertDialog(
+            onDismissRequest = { showImportOptions = false },
+            title = { Text("Add to Library") },
+            text = {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    TextButton(onClick = {
+                        showImportOptions = false
+                        try {
+                            val name = vm.photoCapture.create()
+                            pendingPhoto = name
+                            camera.launch(vm.photoCapture.uri(name))
+                        } catch (_: Exception) {
+                            pendingPhoto?.let(vm.photoCapture::discard)
+                            pendingPhoto = null
+                            vm.photoUnavailable("camera")
+                        }
+                    }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Take photo") }
+                    TextButton(onClick = {
+                        showImportOptions = false
+                        try {
+                            gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        } catch (_: Exception) { vm.photoUnavailable("photo picker") }
+                    }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Choose from gallery") }
+                    TextButton(onClick = {
+                        showImportOptions = false
+                        importAction()
+                    }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Upload file") }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showImportOptions = false }) { Text("Cancel") } }
+        )
     }
     organizingMedia?.let { id ->
         AlertDialog(onDismissRequest = { organizingMedia = null }, title = { Text("Associate Sources") },
