@@ -63,6 +63,7 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(vm::openFile) }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture(), vm::cameraResult)
+    val scan = rememberDocumentScanner(vm.scanOwner, vm::openScan, vm::scanError)
     BackHandler { back() }
 
     val current = vm.current
@@ -113,6 +114,7 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
                 OutlinedButton(onClick = {
                     try { picker.launch(arrayOf("*/*")) } catch (_: Exception) { vm.pickerUnavailable() }
                 }, enabled = !vm.busy) { Text("Choose File") }
+                OutlinedButton(onClick = scan, enabled = !vm.busy) { Text(scanDocumentLabel) }
                 Text("PDF, JPEG, PNG, WebP and UTF-8 TXT or MD", style = MaterialTheme.typography.bodySmall)
             } else {
                 val enabled = !vm.busy
@@ -121,10 +123,14 @@ internal fun InspirationsScreen(vm: InspirationsViewModel, onMedia: () -> Unit, 
                 if (draft.hasVisual) {
                     val attachment = draft.input?.name ?: if (details.mimeType == "application/pdf") "PDF" else "Image"
                     Text("Attachment · $attachment")
+                    draft.scanPages?.let { Text(if (it == 1) "1 page" else "$it pages") }
                     OutlinedButton(onClick = { confirmRemoval = true }, enabled = enabled) { Text("Remove attachment") }
                 } else {
                     OutlinedTextField(draft.body, { vm.draft = draft.copy(body = it) }, keyboardOptions = ProseKeyboardOptions, label = { Text("Text") },
                         enabled = enabled, minLines = 6, maxLines = 12, modifier = Modifier.fillMaxWidth().testTag("inspiration-body"))
+                }
+                OutlinedButton(onClick = { focus.clearFocus(); keyboard?.hide(); scan() }, enabled = enabled) {
+                    Text(scanDocumentLabel)
                 }
                 InspirationField("Author", details.author, enabled) { vm.draft = draft.copy(details = details.copy(author = it)) }
                 InspirationField("Source", details.source, enabled, keyboardOptions = KeyboardOptions.Default) { vm.draft = draft.copy(details = details.copy(source = it)) }

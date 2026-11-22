@@ -46,6 +46,7 @@ import kotlinx.coroutines.*
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) vm.editorImport(MediaRole.VISUAL, uri)
     }
+    val scan = rememberDocumentScanner(draft.scanOwner, vm::editorScan, vm::scanError)
     val enabled = draft.ready && !busy && !vm.busy && pendingPhoto == null
     Text("References", style = MaterialTheme.typography.titleMedium)
     for (role in MediaRole.entries) {
@@ -114,6 +115,7 @@ import kotlinx.coroutines.*
                         try { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
                         catch (_: Exception) { vm.photoUnavailable() }
                     }) { Text("Choose from gallery") }
+                    TextButton(onClick = { options = null; scan() }, enabled = enabled) { Text(scanDocumentLabel) }
                 }
             } }, confirmButton = { TextButton(onClick = { options = null }) { Text("Cancel") } })
     }

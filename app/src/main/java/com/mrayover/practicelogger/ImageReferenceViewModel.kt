@@ -28,6 +28,10 @@ class ImageReferenceViewModel(app: Application) : AndroidViewModel(app) {
     internal fun editorMove(role: MediaRole, identity: String, delta: Int) = work { editor.move(role, identity, delta) }
     internal fun editorImport(role: MediaRole, uri: Uri) = work { if (!editor.import(role, uri)) message = "This reference is already attached. Its position was kept." }
     internal fun editorPhoto(name: String) = work { editor.photo(photoCapture, name) }
+    internal fun editorScan(document: ScannedDocument) = work {
+        if (!editor.scan(document)) message = "This reference is already attached. Its position was kept."
+    }
+    internal fun scanError(error: String) { message = error }
     internal fun discardEditor(done: () -> Unit) = work { editor.discard(); done() }
     val links = associations.links.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val assets = library.assets.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

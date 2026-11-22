@@ -10,12 +10,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.util.UUID
 
 internal data class InspirationDraft(
     val details: Inspiration,
     val body: String = "",
     val input: InspirationInput? = null,
-    val removeOriginal: Boolean = false
+    val removeOriginal: Boolean = false,
+    val scanPages: Int? = null
 ) {
     val hasVisual get() = input != null ||
         (!removeOriginal && details.mimeType != null && details.mimeType != "text/plain")
@@ -28,6 +31,10 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
     private val camera = ReferencePhotoCapture(app)
     private var pendingPhoto: String? = null
     private var draftPhoto: String? = null
+    private val scanDirectory = File(app.cacheDir, "inspiration-scans")
+    private var draftScan: File? = null
+    var scanOwner by mutableStateOf<String?>(null)
+        private set
     var current by mutableStateOf<Inspiration?>(null)
         private set
     var draft by mutableStateOf<InspirationDraft?>(null)
@@ -64,6 +71,7 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun startDraft(value: InspirationDraft) {
+        scanOwner = UUID.randomUUID().toString()
         initial = value
         draft = value
         message = null
@@ -93,12 +101,42 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
         }
         val form = draft ?: return@operation
         val (name, input, imported) = selected
+        clearDraftScan()
         draft = form.copy(
             details = form.details.copy(title = form.details.title.ifBlank { name.substringBeforeLast('.').take(255) }),
-            body = imported.orEmpty(), input = if (imported == null) input else null
+            body = imported.orEmpty(), input = if (imported == null) input else null, scanPages = null
         )
         chooseMethod = false
     }
+
+    fun openScan(document: ScannedDocument) = operation("Could not import this scan.") {
+        val form = draft ?: return@operation
+        var staging: File? = null
+        try {
+            val (file, pages) = withContext(Dispatchers.IO) {
+                check(scanDirectory.isDirectory || scanDirectory.mkdirs()) { "Scan storage is unavailable." }
+                scanDirectory.listFiles()?.filter { it.name.endsWith(".pending") && !it.name.startsWith(scanProcessPrefix) }
+                    ?.forEach { it.delete() }
+                val file = File.createTempFile(scanProcessPrefix, ".pending", scanDirectory)
+                staging = file
+                file to repository.stageScan(file) { document.open(resolver) }
+            }
+            clearDraftScan()
+            draftPhoto?.let(camera::discard)
+            draftPhoto = null
+            draftScan = file
+            draft = form.copy(
+                details = form.details.copy(title = form.details.title.ifBlank { document.filename.removeSuffix(".pdf") }),
+                input = InspirationInput(document.filename, file::inputStream),
+                removeOriginal = false,
+                scanPages = pages
+            )
+            staging = null
+            chooseMethod = false
+        } finally { staging?.delete() }
+    }
+
+    fun scanError(error: String) { message = error }
 
     fun launchCamera(launch: (Uri) -> Unit) {
         if (busy || pendingPhoto != null) return
@@ -123,8 +161,9 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         draftPhoto?.let(camera::discard)
+        clearDraftScan()
         draftPhoto = name
-        draft = form.copy(input = InspirationInput("photo.jpg", camera.file(name)::inputStream))
+        draft = form.copy(input = InspirationInput("photo.jpg", camera.file(name)::inputStream), scanPages = null)
         chooseMethod = false
         message = null
     }
@@ -133,7 +172,8 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun removeOriginal() {
         val form = draft ?: return
-        draft = form.copy(removeOriginal = true, input = null)
+        clearDraftScan()
+        draft = form.copy(removeOriginal = true, input = null, scanPages = null)
     }
 
     fun save() = operation("Could not save this inspiration.") {
@@ -190,6 +230,8 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
     private fun closeDraft() {
         draftPhoto?.let(camera::discard)
         draftPhoto = null
+        clearDraftScan()
+        scanOwner = null
         draft = null
         initial = null
         chooseMethod = false
@@ -214,7 +256,15 @@ internal class InspirationsViewModel(app: Application) : AndroidViewModel(app) {
     override fun onCleared() {
         pendingPhoto?.let(camera::discard)
         draftPhoto?.let(camera::discard)
+        clearDraftScan()
+    }
+
+    private fun clearDraftScan() {
+        draftScan?.delete()
+        draftScan = null
     }
 
     suspend fun visualPage(row: Inspiration, page: Int) = repository.visualPage(row, page)
 }
+
+private val scanProcessPrefix = "scan-${UUID.randomUUID()}-"

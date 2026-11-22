@@ -52,6 +52,7 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
         if (role == MediaRole.VISUAL) visualReferences = items else audioReferences = items
     }
     private var token: String? = null
+    val scanOwner get() = token.takeIf { ready }
     private var creationId = java.util.UUID.randomUUID().toString()
     private var savedId: String? = null
     private var commitTime: Long? = null
@@ -218,6 +219,8 @@ internal class BlockEditorMedia(private val app: Application, private val db: Bl
     suspend fun photo(capture: ReferencePhotoCapture, name: String): Boolean = try {
         stage(MediaRole.VISUAL, "Camera photo.jpg", "image/jpeg") { capture.file(name).inputStream() }
     } finally { capture.discard(name) }
+    suspend fun scan(document: ScannedDocument): Boolean =
+        stage(MediaRole.VISUAL, document.filename, scannedPdfMime) { document.open(app.contentResolver) }
     suspend fun preview(asset: MediaAsset, page: Int): ReferencePage = if (asset.id in staged)
         ImageReferenceRepository(db, directory).loadOriginalPage(File(directory, asset.fileName), asset.mimeType, page) else library.visualPage(asset.id, page)
     fun audioFile(asset: MediaAsset) = File(if (asset.id in staged) directory else File(app.filesDir, "media-library"), asset.fileName)

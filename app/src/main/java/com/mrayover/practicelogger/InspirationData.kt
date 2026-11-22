@@ -77,6 +77,15 @@ internal fun readInspirationText(input: InputStream): String =
     Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(input.readBytes())).toString()
 
 internal class InspirationRepository(private val db: BlockDatabase, private val root: File) {
+    suspend fun stageScan(file: File, open: () -> InputStream): Int {
+        FileOutputStream(file).use { output ->
+            open().use { copyPortable(it, output, INSPIRATION_LIMIT, file.parentFile) }
+        }
+        val visual = ImageReferenceRepository(db, root).inspectOriginal(file)
+        require(visual.mimeType == scannedPdfMime) { "The scan is not a valid PDF." }
+        return checkNotNull(visual.pageCount)
+    }
+
     private val directory = File(root, INSPIRATION_STORE)
     private val library = MediaLibraryRepository(db, File(root, "media-library"))
     private val dao = db.inspirations()

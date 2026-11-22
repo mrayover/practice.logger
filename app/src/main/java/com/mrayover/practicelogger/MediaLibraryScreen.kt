@@ -106,6 +106,12 @@ class MediaLibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
         libraryImportMessage
     }
+    internal fun importScan(document: ScannedDocument) = work(import = true) {
+        val resolver = getApplication<Application>().contentResolver
+        repository.import(document.filename, scannedPdfMime, MediaRole.VISUAL) { document.open(resolver) }
+        libraryImportMessage
+    }
+    internal fun scanError(error: String) { message = error }
     fun cancelImport() { if (importing) operation?.cancel() }
     fun pickerUnavailable() { message = "Could not open the file picker. Try again." }
     internal fun photoUnavailable(source: String) { message = "Could not open the $source. Try again or choose another import option." }
@@ -162,6 +168,7 @@ internal fun libraryGalleryFilename(displayName: String?, mime: String?): String
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) vm.importGallery(uri)
     }
+    val scan = rememberDocumentScanner(if (selectionRole == null) "library" else null, vm::importScan, vm::scanError)
     val importAction = {
         try {
             picker.launch(if (allowAudioImport) libraryAudioMimeTypes else
@@ -287,6 +294,8 @@ internal fun libraryGalleryFilename(displayName: String?, mime: String?): String
                             gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                         } catch (_: Exception) { vm.photoUnavailable("photo picker") }
                     }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Choose from gallery") }
+                    TextButton(onClick = { showImportOptions = false; scan() },
+                        enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text(scanDocumentLabel) }
                     TextButton(onClick = {
                         showImportOptions = false
                         importAction()
