@@ -1,4 +1,18 @@
-# Current state - Media Library import
+# Current state - Multipage document scanner
+
+November 22, 2026. **0.61.2 / build 179.** Choose **Scan document** from Add to Library, Add Visual Reference in a Block, or the Inspiration creation and edit forms. Google's scanner accepts camera pages and gallery images, with crop, rotation, removal and reordering. The app receives one PDF, including for a one-page scan. Library imports save immediately, Block references stay in the draft until Save Block, and Inspiration scans save with the form's metadata. The existing PDF viewers, 20 MiB visual limit, Room 30 and Complete ZIP 15 still apply.
+
+**Delivery.** [Application source `06ffbb0e3ead42a79c26a300b588d7640a4f37c8`](https://github.com/mrayover/practice.logger/commit/06ffbb0e3ead42a79c26a300b588d7640a4f37c8) on `block-ux-stage1`. [Signed APK](dist/practice.logger-0.61.2-b179-06ffbb0/practice.logger-0.61.2-b179-06ffbb0.apk) · [ZIP](dist/practice.logger-0.61.2-b179-06ffbb0.zip) · [Phone checklist](dist/practice.logger-0.61.2-b179-06ffbb0/PHONE_CHECKLIST.txt). APK SHA-256 `4313423ee503808e4348a1e8f2685dac2cbb74d3470fa44f954dc8b410d15a88`. ZIP SHA-256 `2886eb9f39a460453472059b7cbb4637c2459e563e4a155e7ef24ded391b004a`.
+
+**Verification.** [Release assembly and vital lint](https://github.com/mrayover/practice.logger/actions/runs/45060093401) passed. Verified APK identity, the pinned v2/v3/v4 signature, all 552 unsigned payload entries and all five ZIP members. The 823 prior APK/ZIP files kept their sizes and modification times. The merged manifest adds network permissions from the scanner dependency. Camera and storage permissions are the same as build 178.
+
+**Android checks.** [Four scanner workflow tests](https://github.com/mrayover/practice.logger/actions/runs/45060761823) passed on Android 15 at 200% text. Injected PDFs verified one-page Block Save and Cancel, three-page Library order and preview across activity recreation, Inspiration creation and replacement with metadata retention, and malformed, oversized and missing result handling. [Two existing import checks](https://github.com/mrayover/practice.logger/actions/runs/45060811653) passed for Library camera and gallery storage and Inspiration file, PDF and camera handling. The test-only source `294bd3c21e483620b903bae644c194d732e5080d` corrected the Library list scrolling and malformed PDF fixtures from the first run. Google’s scanner UI, camera/gallery capture, scanner cancellation, cold restart and marking a scanned PDF remain physical acceptance checks.
+
+**Git state.** Published from the Windows working files through GitHub. The local Git metadata remains at `d4c51aa`.
+
+**Exact next task.** Install build 179 over the permanent-key installation and run the physical scanner checklist.
+
+## Previous delivery - Media Library import
 
 November 22, 2026. **0.61.1 / build 178.** Open **Library → Media → Add to Library** to take a photo, choose a gallery image, or upload a supported file with Android Files or a document provider. The existing Library validates and stores each original, and saved Blocks can select the resulting items from their reference picker.
 
@@ -7,8 +21,6 @@ November 22, 2026. **0.61.1 / build 178.** Open **Library → Media → Add to L
 **Verification.** Local release assembly, vital lint and Android-test assembly passed. The Gradle test workers could not connect on loopback. Direct Windows Robolectric ran 11 focused tests. Five passed, including the new gallery filename check. Five existing repository tests failed to rename validated temporary files, and one existing camera test failed to resolve a Windows path through FileProvider. Android device checks remain pending because ADB could not start in this session. Verified the app ID and version, pinned v2/v3/v4 signatures, 185 APK payload entries and all five ZIP members. The 819 earlier APK/ZIP files retain their sizes and modification times.
 
 **Git state.** The Windows working files used for the build match the published source blobs. Local Git metadata was read-only in this session, so the checkout HEAD stayed at `d4c51aa` while GitHub advanced. Owner artwork edits remain local.
-
-**Exact next task.** Install build 178 over the existing permanent-key app and follow the Media Library phone checklist.
 
 ## Previous delivery - Earned Blocks history and inventory
 

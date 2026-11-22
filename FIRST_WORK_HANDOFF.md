@@ -1,6 +1,6 @@
-# Media Library import handoff
+# Multipage document scanner handoff
 
-[CURRENT_STATE.md](CURRENT_STATE.md) records build 178, verification and the install-over phone checklist for camera, gallery and file imports.
+[CURRENT_STATE.md](CURRENT_STATE.md) records build 179, verification and the install-over phone checklist for the scanner in Library, Blocks and Inspirations.
 
 ---
 
